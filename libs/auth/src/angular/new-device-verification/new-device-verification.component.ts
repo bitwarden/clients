@@ -68,6 +68,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((timedOut) => {
         if (timedOut) {
+          this.logService.error("Session timed out.");
           void this.router.navigate(["/login"]);
         }
       });

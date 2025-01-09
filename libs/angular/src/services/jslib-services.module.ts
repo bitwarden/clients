@@ -1444,7 +1444,7 @@ const safeProviders: SafeProvider[] = [
       LoginStrategyServiceAbstraction,
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      KeyServiceAbstraction,
+      KeyService,
       EncryptService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
