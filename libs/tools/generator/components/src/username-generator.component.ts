@@ -161,10 +161,10 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$, this.algorithm$),
+        withLatestFrom(this.userId$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId, algorithm]) => {
+      .subscribe(([generated, userId]) => {
         this.generatorHistoryService
           .track(userId, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
@@ -176,7 +176,6 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           this.onGenerated.next(generated);
           this.value$.next(generated.credential);
-          this.onAlgorithm.next(algorithm);
         });
       });
 
@@ -253,6 +252,7 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
         // template bindings refresh immediately
         this.zone.run(() => {
           this.algorithm$.next(algorithm);
+          this.onAlgorithm.next(algorithm);
         });
       });
 
