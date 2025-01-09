@@ -151,6 +151,7 @@
   </div>
   <!-- Add new custom field -->
   <a
+    bitLink
     href="#"
     appStopClick
     (click)="addField()"
@@ -161,7 +162,7 @@
   </a>
   <div class="row" *ngIf="!cipher.isDeleted && !viewOnly && !(!cipher.edit && editMode)">
     <div class="col-5">
-      <label for="addFieldType" class="sr-only">{{ "type" | i18n }}</label>
+      <label for="addFieldType" class="tw-sr-only">{{ "type" | i18n }}</label>
       <select id="addFieldType" class="form-control" name="AddFieldType" [(ngModel)]="addFieldType">
         <option *ngFor="let o of addFieldTypeOptions" [ngValue]="o.value">{{ o.name }}</option>
         <option

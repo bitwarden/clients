@@ -1,22 +1,29 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as papa from "papaparse";
+import { firstValueFrom, map } from "rxjs";
 
+import {
+  CollectionService,
+  CollectionData,
+  Collection,
+  CollectionDetailsResponse,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
-import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { Collection } from "@bitwarden/common/vault/models/domain/collection";
-import { CollectionDetailsResponse } from "@bitwarden/common/vault/models/response/collection.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
   BitwardenCsvOrgExportType,
@@ -36,12 +43,14 @@ export class OrganizationVaultExportService
     private cipherService: CipherService,
     private apiService: ApiService,
     pinService: PinServiceAbstraction,
-    cryptoService: CryptoService,
+    private keyService: KeyService,
+    encryptService: EncryptService,
     cryptoFunctionService: CryptoFunctionService,
     private collectionService: CollectionService,
     kdfConfigService: KdfConfigService,
+    private accountService: AccountService,
   ) {
-    super(pinService, cryptoService, cryptoFunctionService, kdfConfigService);
+    super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
 
   async getPasswordProtectedExport(
@@ -85,6 +94,9 @@ export class OrganizationVaultExportService
     const decCollections: CollectionView[] = [];
     const decCiphers: CipherView[] = [];
     const promises = [];
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
 
     promises.push(
       this.apiService.getOrganizationExport(organizationId).then((exportData) => {
@@ -94,9 +106,11 @@ export class OrganizationVaultExportService
             exportData.collections.forEach((c) => {
               const collection = new Collection(new CollectionData(c as CollectionDetailsResponse));
               exportPromises.push(
-                collection.decrypt().then((decCol) => {
-                  decCollections.push(decCol);
-                }),
+                firstValueFrom(this.keyService.activeUserOrgKeys$)
+                  .then((keys) => collection.decrypt(keys[organizationId as OrganizationId]))
+                  .then((decCol) => {
+                    decCollections.push(decCol);
+                  }),
               );
             });
           }
@@ -107,7 +121,7 @@ export class OrganizationVaultExportService
                 const cipher = new Cipher(new CipherData(c));
                 exportPromises.push(
                   this.cipherService
-                    .getKeyForCipherKeyDecryption(cipher)
+                    .getKeyForCipherKeyDecryption(cipher, activeUserId)
                     .then((key) => cipher.decrypt(key))
                     .then((decCipher) => {
                       decCiphers.push(decCipher);
@@ -232,8 +246,8 @@ export class OrganizationVaultExportService
     collections: Collection[],
     ciphers: Cipher[],
   ): Promise<string> {
-    const orgKey = await this.cryptoService.getOrgKey(organizationId);
-    const encKeyValidation = await this.cryptoService.encrypt(Utils.newGuid(), orgKey);
+    const orgKey = await this.keyService.getOrgKey(organizationId);
+    const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), orgKey);
 
     const jsonDoc: BitwardenEncryptedOrgJsonExport = {
       encrypted: true,

@@ -2,10 +2,6 @@ export enum OrganizationUserType {
   Owner = 0,
   Admin = 1,
   User = 2,
-  /**
-   * @deprecated
-   * This is deprecated with the introduction of Flexible Collections.
-   */
-  Manager = 3,
+  // Manager = 3 has been intentionally permanently deleted
   Custom = 4,
 }

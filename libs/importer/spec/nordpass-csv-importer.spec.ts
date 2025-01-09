@@ -1,4 +1,5 @@
-import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SecureNoteType, CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 
@@ -6,6 +7,7 @@ import { NordPassCsvImporter } from "../src/importers";
 
 import { data as creditCardData } from "./test-data/nordpass-csv/nordpass.card.csv";
 import { data as identityData } from "./test-data/nordpass-csv/nordpass.identity.csv";
+import { data as loginDataWithAdditionalUrls } from "./test-data/nordpass-csv/nordpass.login-with-additinal-urls.csv";
 import { data as loginData } from "./test-data/nordpass-csv/nordpass.login.csv";
 import { data as secureNoteData } from "./test-data/nordpass-csv/nordpass.secure-note.csv";
 
@@ -63,6 +65,21 @@ function expectLogin(cipher: CipherView) {
   expect(cipher.name).toBe("SomeVaultItemName");
   expect(cipher.notes).toBe("Some note for the VaultItem");
   expect(cipher.login.uri).toBe("https://example.com");
+  expect(cipher.login.uris.length).toBe(1);
+  expect(cipher.login.uris[0].uri).toBe("https://example.com");
+  expect(cipher.login.username).toBe("hello@bitwarden.com");
+  expect(cipher.login.password).toBe("someStrongPassword");
+}
+
+function expectLoginWithAdditionalUrls(cipher: CipherView) {
+  expect(cipher.type).toBe(CipherType.Login);
+
+  expect(cipher.name).toBe("SomeVaultItemName");
+  expect(cipher.notes).toBe("Some note for the VaultItem");
+  expect(cipher.login.uri).toBe("https://example.com");
+  expect(cipher.login.uris.length).toBe(2);
+  expect(cipher.login.uris[0].uri).toBe("https://example.com");
+  expect(cipher.login.uris[1].uri).toBe("https://example.net");
   expect(cipher.login.username).toBe("hello@bitwarden.com");
   expect(cipher.login.password).toBe("someStrongPassword");
 }
@@ -107,10 +124,27 @@ function expectSecureNote(cipher: CipherView) {
   expect(cipher.notes).toBe("MySuperSecureNote");
 }
 
+function expectFields(cipher: CipherView) {
+  expect(cipher.fields.length).toBe(2);
+  expect(cipher.fields[0].name).toBe("textLabel");
+  expect(cipher.fields[0].value).toBe("text value");
+  expect(cipher.fields[0].type).toBe(FieldType.Text);
+  expect(cipher.fields[1].name).toBe("hiddenLabel");
+  expect(cipher.fields[1].value).toBe("hidden value");
+  expect(cipher.fields[1].type).toBe(FieldType.Hidden);
+}
+
 describe("NordPass CSV Importer", () => {
   let importer: NordPassCsvImporter;
   beforeEach(() => {
     importer = new NordPassCsvImporter();
+  });
+
+  it("should return false when not able to parse data", async () => {
+    const result = await importer.parse("");
+
+    expect(result).not.toBeNull();
+    expect(result.success).toBe(false);
   });
 
   it("should parse login records", async () => {
@@ -121,6 +155,17 @@ describe("NordPass CSV Importer", () => {
     expect(result.ciphers.length).toBe(1);
     const cipher = result.ciphers[0];
     expectLogin(cipher);
+    expectFields(cipher); //for custom fields
+  });
+
+  it("should parse login records with additinal urls", async () => {
+    const result = await importer.parse(loginDataWithAdditionalUrls);
+
+    expect(result).not.toBeNull();
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toBe(1);
+    const cipher = result.ciphers[0];
+    expectLoginWithAdditionalUrls(cipher);
   });
 
   it("should parse credit card records", async () => {
@@ -177,5 +222,16 @@ describe("NordPass CSV Importer", () => {
     expect(result.folders.length).toBe(1);
     const folder = result.folders[0];
     expect(folder.name).toBe("notesFolder");
+  });
+
+  it("should parse an item and create a collection if organizationId is set", async () => {
+    importer.organizationId = Utils.newGuid();
+    const result = await importer.parse(secureNoteData);
+
+    expect(result).not.toBeNull();
+    expect(result.success).toBe(true);
+    expect(result.collections.length).toBe(1);
+    const collection = result.collections[0];
+    expect(collection.name).toBe("notesFolder");
   });
 });

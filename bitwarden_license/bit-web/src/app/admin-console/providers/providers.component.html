@@ -1,0 +1,30 @@
+<app-header></app-header>
+
+<bit-container>
+  <p *ngIf="!loaded" class="text-muted">
+    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </p>
+  <ng-container *ngIf="loaded">
+    <table class="table table-hover table-list" *ngIf="providers && providers.length">
+      <tbody>
+        <tr *ngFor="let p of providers">
+          <td width="30">
+            <bit-avatar [text]="p.name" [id]="p.id" size="small"></bit-avatar>
+          </td>
+          <td>
+            <a href="#" [routerLink]="['/providers', p.id]">{{ p.name }}</a>
+            <ng-container *ngIf="!p.enabled">
+              <i
+                class="bwi bwi-exclamation-triangle text-danger"
+                title="{{ 'providerIsDisabled' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="tw-sr-only">{{ "providerIsDisabled" | i18n }}</span>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+</bit-container>

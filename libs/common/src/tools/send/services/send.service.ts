@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
-import { PBKDF2KdfConfig } from "../../../auth/models/domain/kdf-config";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
+import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
+
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
@@ -9,6 +11,7 @@ import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendType } from "../enums/send-type";
 import { SendData } from "../models/data/send.data";
@@ -27,16 +30,16 @@ export class SendService implements InternalSendServiceAbstraction {
   readonly sendKeyPurpose = "send";
 
   sends$ = this.stateProvider.encryptedState$.pipe(
-    map((record) => Object.values(record || {}).map((data) => new Send(data))),
+    map(([, record]) => Object.values(record || {}).map((data) => new Send(data))),
   );
   sendViews$ = this.stateProvider.encryptedState$.pipe(
-    concatMap((record) =>
+    concatMap(([, record]) =>
       this.decryptSends(Object.values(record || {}).map((data) => new Send(data))),
     ),
   );
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private i18nService: I18nService,
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
@@ -56,6 +59,8 @@ export class SendService implements InternalSendServiceAbstraction {
     send.disabled = model.disabled;
     send.hideEmail = model.hideEmail;
     send.maxAccessCount = model.maxAccessCount;
+    send.deletionDate = model.deletionDate;
+    send.expirationDate = model.expirationDate;
     if (model.key == null) {
       const key = await this.keyGenerationService.createKeyWithPurpose(
         128,
@@ -74,7 +79,7 @@ export class SendService implements InternalSendServiceAbstraction {
       send.password = passwordKey.keyB64;
     }
     if (key == null) {
-      key = await this.cryptoService.getUserKey();
+      key = await this.keyService.getUserKey();
     }
     send.key = await this.encryptService.encrypt(model.key, key);
     send.name = await this.encryptService.encrypt(model.name, model.cryptoKey);
@@ -166,7 +171,7 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   async getFromState(id: string): Promise<Send> {
-    const sends = await this.stateProvider.getEncryptedSends();
+    const [, sends] = await this.stateProvider.getEncryptedSends();
     // eslint-disable-next-line
     if (sends == null || !sends.hasOwnProperty(id)) {
       return null;
@@ -176,7 +181,7 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   async getAll(): Promise<Send[]> {
-    const sends = await this.stateProvider.getEncryptedSends();
+    const [, sends] = await this.stateProvider.getEncryptedSends();
     const response: Send[] = [];
     for (const id in sends) {
       // eslint-disable-next-line
@@ -194,7 +199,7 @@ export class SendService implements InternalSendServiceAbstraction {
     }
 
     decSends = [];
-    const hasKey = await this.cryptoService.hasUserKey();
+    const hasKey = await this.keyService.hasUserKey();
     if (!hasKey) {
       throw new Error("No user key found.");
     }
@@ -213,7 +218,8 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   async upsert(send: SendData | SendData[]): Promise<any> {
-    let sends = await this.stateProvider.getEncryptedSends();
+    const [userId, currentSends] = await this.stateProvider.getEncryptedSends();
+    let sends = currentSends;
     if (sends == null) {
       sends = {};
     }
@@ -226,16 +232,11 @@ export class SendService implements InternalSendServiceAbstraction {
       });
     }
 
-    await this.replace(sends);
-  }
-
-  async clear(userId?: string): Promise<any> {
-    await this.stateProvider.setDecryptedSends(null);
-    await this.stateProvider.setEncryptedSends(null);
+    await this.replace(sends, userId);
   }
 
   async delete(id: string | string[]): Promise<any> {
-    const sends = await this.stateProvider.getEncryptedSends();
+    const [userId, sends] = await this.stateProvider.getEncryptedSends();
     if (sends == null) {
       return;
     }
@@ -251,30 +252,43 @@ export class SendService implements InternalSendServiceAbstraction {
       });
     }
 
-    await this.replace(sends);
+    await this.replace(sends, userId);
   }
 
-  async replace(sends: { [id: string]: SendData }): Promise<any> {
-    await this.stateProvider.setEncryptedSends(sends);
+  async replace(sends: { [id: string]: SendData }, userId: UserId): Promise<any> {
+    await this.stateProvider.setEncryptedSends(sends, userId);
   }
 
-  async getRotatedKeys(newUserKey: UserKey): Promise<SendWithIdRequest[]> {
+  async getRotatedData(
+    originalUserKey: UserKey,
+    newUserKey: UserKey,
+    userId: UserId,
+  ): Promise<SendWithIdRequest[]> {
     if (newUserKey == null) {
       throw new Error("New user key is required for rotation.");
     }
+    if (originalUserKey == null) {
+      throw new Error("Original user key is required for rotation.");
+    }
 
     const req = await firstValueFrom(
-      this.sends$.pipe(concatMap(async (sends) => this.toRotatedKeyRequestMap(sends, newUserKey))),
+      this.sends$.pipe(
+        concatMap(async (sends) => this.toRotatedKeyRequestMap(sends, originalUserKey, newUserKey)),
+      ),
     );
     // separate return for easier debugging
     return req;
   }
 
-  private async toRotatedKeyRequestMap(sends: Send[], newUserKey: UserKey) {
+  private async toRotatedKeyRequestMap(
+    sends: Send[],
+    originalUserKey: UserKey,
+    rotateUserKey: UserKey,
+  ) {
     const requests = await Promise.all(
       sends.map(async (send) => {
-        const sendKey = await this.encryptService.decryptToBytes(send.key, newUserKey);
-        send.key = await this.encryptService.encrypt(sendKey, newUserKey);
+        const sendKey = await this.encryptService.decryptToBytes(send.key, originalUserKey);
+        send.key = await this.encryptService.encrypt(sendKey, rotateUserKey);
         return new SendWithIdRequest(send);
       }),
     );
@@ -310,7 +324,7 @@ export class SendService implements InternalSendServiceAbstraction {
     key: SymmetricCryptoKey,
   ): Promise<[EncString, EncArrayBuffer]> {
     if (key == null) {
-      key = await this.cryptoService.getUserKey();
+      key = await this.keyService.getUserKey();
     }
     const encFileName = await this.encryptService.encrypt(fileName, key);
     const encFileData = await this.encryptService.encryptToBytes(new Uint8Array(data), key);

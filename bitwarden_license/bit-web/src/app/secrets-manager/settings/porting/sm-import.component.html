@@ -11,7 +11,6 @@
     </div>
     <input
       #fileSelector
-      hidden
       bitInput
       type="file"
       id="file"
@@ -19,6 +18,8 @@
       name="file"
       (change)="setSelectedFile($event)"
       accept="application/JSON"
+      hidden
+      class="tw-hidden"
     />
     <bit-hint>{{ "acceptedFormats" | i18n }} Bitwarden (json)</bit-hint>
   </bit-form-field>

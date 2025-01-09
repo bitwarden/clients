@@ -1,24 +1,41 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
+
+import { LocalData } from "@bitwarden/common/vault/models/data/local.data";
+import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { CipherId, CollectionId, OrganizationId } from "../../types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
+import { UserKey } from "../../types/key";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
 import { Cipher } from "../models/domain/cipher";
 import { Field } from "../models/domain/field";
+import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 
-export abstract class CipherService {
+export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
+  cipherViews$: Observable<CipherView[]>;
+  ciphers$: Observable<Record<CipherId, CipherData>>;
+  localData$: Observable<Record<CipherId, LocalData>>;
   /**
    *  An observable monitoring the add/edit cipher info saved to memory.
    */
   addEditCipherInfo$: Observable<AddEditCipherInfo>;
+  /**
+   * Observable that emits an array of cipherViews that failed to decrypt. Does not emit until decryption has completed.
+   *
+   * An empty array indicates that all ciphers were successfully decrypted.
+   */
+  failedToDecryptCiphers$: Observable<CipherView[]>;
   clearCache: (userId?: string) => Promise<void>;
   encrypt: (
     model: CipherView,
+    userId: UserId,
     keyForEncryption?: SymmetricCryptoKey,
     keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher?: Cipher,
@@ -30,6 +47,12 @@ export abstract class CipherService {
   getAllDecrypted: () => Promise<CipherView[]>;
   getAllDecryptedForGrouping: (groupingId: string, folder?: boolean) => Promise<CipherView[]>;
   getAllDecryptedForUrl: (
+    url: string,
+    includeOtherTypes?: CipherType[],
+    defaultMatch?: UriMatchStrategySetting,
+  ) => Promise<CipherView[]>;
+  filterCiphersForUrl: (
+    ciphers: CipherView[],
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
@@ -69,21 +92,25 @@ export abstract class CipherService {
     cipher: CipherView,
     organizationId: string,
     collectionIds: string[],
+    userId: UserId,
   ) => Promise<any>;
   shareManyWithServer: (
     ciphers: CipherView[],
     organizationId: string,
     collectionIds: string[],
+    userId: UserId,
   ) => Promise<any>;
   saveAttachmentWithServer: (
     cipher: Cipher,
     unencryptedFile: any,
+    userId: UserId,
     admin?: boolean,
   ) => Promise<Cipher>;
   saveAttachmentRawWithServer: (
     cipher: Cipher,
     filename: string,
     data: ArrayBuffer,
+    userId: UserId,
     admin?: boolean,
   ) => Promise<Cipher>;
   /**
@@ -94,6 +121,13 @@ export abstract class CipherService {
    * @returns A promise that resolves when the collections have been saved
    */
   saveCollectionsWithServer: (cipher: Cipher) => Promise<Cipher>;
+
+  /**
+   * Save the collections for a cipher with the server as an admin.
+   * Used for Unassigned ciphers or when the user only has admin access to the cipher (not assigned normally).
+   * @param cipher
+   */
+  saveCollectionsWithServerAdmin: (cipher: Cipher) => Promise<Cipher>;
   /**
    * Bulk update collections for many ciphers with the server
    * @param orgId
@@ -114,8 +148,8 @@ export abstract class CipherService {
    * @returns A promise that resolves to a record of updated cipher store, keyed by their cipher ID. Returns all ciphers, not just those updated
    */
   upsert: (cipher: CipherData | CipherData[]) => Promise<Record<CipherId, CipherData>>;
-  replace: (ciphers: { [id: string]: CipherData }) => Promise<any>;
-  clear: (userId: string) => Promise<any>;
+  replace: (ciphers: { [id: string]: CipherData }, userId: UserId) => Promise<any>;
+  clear: (userId?: string) => Promise<void>;
   moveManyWithServer: (ids: string[], folderId: string) => Promise<any>;
   delete: (id: string | string[]) => Promise<any>;
   deleteWithServer: (id: string, asAdmin?: boolean) => Promise<any>;
@@ -132,11 +166,22 @@ export abstract class CipherService {
     cipher: { id: string; revisionDate: string } | { id: string; revisionDate: string }[],
   ) => Promise<any>;
   restoreWithServer: (id: string, asAdmin?: boolean) => Promise<any>;
-  restoreManyWithServer: (
-    ids: string[],
-    organizationId?: string,
-    asAdmin?: boolean,
-  ) => Promise<void>;
-  getKeyForCipherKeyDecryption: (cipher: Cipher) => Promise<any>;
+  restoreManyWithServer: (ids: string[], orgId?: string) => Promise<void>;
+  getKeyForCipherKeyDecryption: (cipher: Cipher, userId: UserId) => Promise<any>;
   setAddEditCipherInfo: (value: AddEditCipherInfo) => Promise<void>;
+  /**
+   * Returns user ciphers re-encrypted with the new user key.
+   * @param originalUserKey the original user key
+   * @param newUserKey the new user key
+   * @param userId the user id
+   * @throws Error if new user key is null
+   * @returns a list of user ciphers that have been re-encrypted with the new user key
+   */
+  getRotatedData: (
+    originalUserKey: UserKey,
+    newUserKey: UserKey,
+    userId: UserId,
+  ) => Promise<CipherWithIdRequest[]>;
+  getNextCardCipher: () => Promise<CipherView>;
+  getNextIdentityCipher: () => Promise<CipherView>;
 }

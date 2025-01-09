@@ -1,29 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
 import { PaymentMethodType, TransactionType } from "../../enums";
 
 export class BillingResponse extends BaseResponse {
   balance: number;
   paymentSource: BillingSourceResponse;
-  invoices: BillingInvoiceResponse[] = [];
-  transactions: BillingTransactionResponse[] = [];
 
   constructor(response: any) {
     super(response);
     this.balance = this.getResponseProperty("Balance");
     const paymentSource = this.getResponseProperty("PaymentSource");
-    const transactions = this.getResponseProperty("Transactions");
-    const invoices = this.getResponseProperty("Invoices");
     this.paymentSource = paymentSource == null ? null : new BillingSourceResponse(paymentSource);
-    if (transactions != null) {
-      this.transactions = transactions.map((t: any) => new BillingTransactionResponse(t));
-    }
-    if (invoices != null) {
-      this.invoices = invoices.map((i: any) => new BillingInvoiceResponse(i));
-    }
-  }
-
-  get hasNoHistory() {
-    return this.invoices.length == 0 && this.transactions.length == 0;
   }
 }
 
@@ -43,6 +31,7 @@ export class BillingSourceResponse extends BaseResponse {
 }
 
 export class BillingInvoiceResponse extends BaseResponse {
+  id: string;
   url: string;
   pdfUrl: string;
   number: string;
@@ -52,6 +41,7 @@ export class BillingInvoiceResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
+    this.id = this.getResponseProperty("Id");
     this.url = this.getResponseProperty("Url");
     this.pdfUrl = this.getResponseProperty("PdfUrl");
     this.number = this.getResponseProperty("Number");

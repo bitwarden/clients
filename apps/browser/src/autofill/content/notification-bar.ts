@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ServerConfig } from "../../../../../libs/common/src/platform/abstractions/config/server-config";
 import {
   AddLoginMessageData,
@@ -6,6 +8,7 @@ import {
 import AutofillField from "../models/autofill-field";
 import { WatchedForm } from "../models/watched-form";
 import { NotificationBarIframeInitData } from "../notification/abstractions/notification-bar";
+import { NotificationTypeData } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
 import { FormData } from "../services/abstractions/autofill.service";
 import { sendExtensionMessage, setupExtensionDisconnectAction } from "../utils";
 
@@ -832,7 +835,7 @@ async function loadNotificationBar() {
   // End Form Detection and Submission Handling
 
   // Notification Bar Functions (open, close, height adjustment, etc.)
-  function closeExistingAndOpenBar(type: string, typeData: any) {
+  function closeExistingAndOpenBar(type: string, typeData: NotificationTypeData) {
     const notificationBarInitData: NotificationBarIframeInitData = {
       type,
       isVaultLocked: typeData.isVaultLocked,

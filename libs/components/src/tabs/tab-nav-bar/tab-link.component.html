@@ -9,6 +9,12 @@
   [attr.aria-disabled]="disabled"
   ariaCurrentWhenActive="page"
   role="link"
+  class="tw-flex tw-group/tab hover:tw-no-underline"
 >
-  <ng-content></ng-content>
+  <div class="group-hover/tab:tw-underline">
+    <ng-content></ng-content>
+  </div>
+  <div class="tw-font-normal tw-ml-2 empty:tw-ml-0">
+    <ng-content select="[slot=end]"></ng-content>
+  </div>
 </a>

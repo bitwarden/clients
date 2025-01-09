@@ -1,6 +1,7 @@
+const NoValue = Symbol("NoValue");
+
 export class Lazy<T> {
-  private _value: T | undefined = undefined;
-  private _isCreated = false;
+  private _value: T | typeof NoValue = NoValue;
 
   constructor(private readonly factory: () => T) {}
 
@@ -10,11 +11,10 @@ export class Lazy<T> {
    * @returns The value produced by your factory.
    */
   get(): T {
-    if (!this._isCreated) {
-      this._value = this.factory();
-      this._isCreated = true;
+    if (this._value === NoValue) {
+      return (this._value = this.factory());
     }
 
-    return this._value as T;
+    return this._value;
   }
 }

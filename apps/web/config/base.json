@@ -11,7 +11,7 @@
     "allowedHosts": "auto"
   },
   "flags": {
-    "showPasswordless": false,
-    "enableCipherKeyEncryption": false
-  }
+    "sdk": true
+  },
+  "devFlags": {}
 }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
@@ -7,6 +9,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 import { ModalService } from "../../services/modal.service";
 
@@ -27,6 +30,7 @@ export class EnvironmentComponent {
     protected environmentService: EnvironmentService,
     protected i18nService: I18nService,
     private modalService: ModalService,
+    private toastService: ToastService,
   ) {
     this.environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       if (env.getRegion() !== Region.SelfHosted) {
@@ -59,7 +63,11 @@ export class EnvironmentComponent {
       notifications: this.notificationsUrl,
     });
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("environmentSaved"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("environmentSaved"),
+    });
     this.saved();
   }
 

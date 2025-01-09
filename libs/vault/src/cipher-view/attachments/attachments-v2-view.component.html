@@ -1,0 +1,22 @@
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "attachments" | i18n }}</h2>
+  </bit-section-header>
+  <bit-item-group>
+    <bit-item *ngFor="let attachment of cipher.attachments">
+      <bit-item-content>
+        <span data-testid="file-name" [title]="attachment.fileName">{{ attachment.fileName }}</span>
+        <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
+      </bit-item-content>
+      <ng-container slot="end">
+        <bit-item-action>
+          <app-download-attachment
+            [cipher]="cipher"
+            [attachment]="attachment"
+            [checkPwReprompt]="true"
+          ></app-download-attachment>
+        </bit-item-action>
+      </ng-container>
+    </bit-item>
+  </bit-item-group>
+</bit-section>

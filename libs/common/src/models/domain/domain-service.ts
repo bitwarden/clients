@@ -20,5 +20,6 @@ export const UriMatchStrategy = {
 
 export type UriMatchStrategySetting = (typeof UriMatchStrategy)[keyof typeof UriMatchStrategy];
 
-export type NeverDomains = { [id: string]: unknown };
+// using uniqueness properties of object shape over Set for ease of state storability
+export type NeverDomains = { [id: string]: null | { bannerIsDismissed?: boolean } };
 export type EquivalentDomains = string[][];

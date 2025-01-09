@@ -1,4 +1,4 @@
-import { sequentialize } from "./sequentialize";
+import { clearCaches, sequentialize } from "./sequentialize";
 
 describe("sequentialize decorator", () => {
   it("should call the function once", async () => {
@@ -99,6 +99,18 @@ describe("sequentialize decorator", () => {
     expect(allRes.length).toBe(6);
     allRes.sort();
     expect(allRes).toEqual([3, 3, 6, 6, 9, 9]);
+  });
+
+  describe("clearCaches", () => {
+    it("should clear all caches", async () => {
+      const foo = new Foo();
+      const promise = Promise.all([foo.bar(1), foo.bar(1)]);
+      clearCaches();
+      await foo.bar(1);
+      await promise;
+      // one call for the first two, one for the third after the cache was cleared
+      expect(foo.calls).toBe(2);
+    });
   });
 });
 

@@ -7,6 +7,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-hint",
@@ -21,10 +22,19 @@ export class HintComponent extends BaseHintComponent {
     logService: LogService,
     private route: ActivatedRoute,
     loginEmailService: LoginEmailServiceAbstraction,
+    toastService: ToastService,
   ) {
-    super(router, i18nService, apiService, platformUtilsService, logService, loginEmailService);
+    super(
+      router,
+      i18nService,
+      apiService,
+      platformUtilsService,
+      logService,
+      loginEmailService,
+      toastService,
+    );
 
-    super.onSuccessfulSubmit = async () => {
+    this.onSuccessfulSubmit = async () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([this.successRoute]);

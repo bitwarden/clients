@@ -1,13 +1,17 @@
-import { Location } from "@angular/common";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CommonModule, Location } from "@angular/common";
 import { Component } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { Observable, combineLatest, switchMap } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserId } from "@bitwarden/common/types/guid";
+import { AvatarModule } from "@bitwarden/components";
 
 export type CurrentAccount = {
   id: UserId;
@@ -20,6 +24,8 @@ export type CurrentAccount = {
 @Component({
   selector: "app-current-account",
   templateUrl: "current-account.component.html",
+  standalone: true,
+  imports: [CommonModule, JslibModule, AvatarModule, RouterModule],
 })
 export class CurrentAccountComponent {
   currentAccount$: Observable<CurrentAccount>;
@@ -55,7 +61,7 @@ export class CurrentAccountComponent {
   }
 
   async currentAccountClicked() {
-    if (this.route.snapshot.data.state.includes("account-switcher")) {
+    if (this.route.snapshot.data?.state?.includes("account-switcher")) {
       this.location.back();
     } else {
       await this.router.navigate(["/account-switcher"]);

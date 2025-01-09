@@ -1,9 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, distinctUntilChanged, map } from "rxjs";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
-import { KeyDefinition } from "../key-definition";
-import { UserKeyDefinition, isUserKeyDefinition } from "../user-key-definition";
+import { UserKeyDefinition } from "../user-key-definition";
 import { ActiveUserState } from "../user-state";
 import { ActiveUserStateProvider, SingleUserStateProvider } from "../user-state.provider";
 
@@ -23,11 +24,7 @@ export class DefaultActiveUserStateProvider implements ActiveUserStateProvider {
     );
   }
 
-  get<T>(keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>): ActiveUserState<T> {
-    if (!isUserKeyDefinition(keyDefinition)) {
-      keyDefinition = UserKeyDefinition.fromBaseKeyDefinition(keyDefinition);
-    }
-
+  get<T>(keyDefinition: UserKeyDefinition<T>): ActiveUserState<T> {
     // All other providers cache the creation of their corresponding `State` objects, this instance
     // doesn't need to do that since it calls `SingleUserStateProvider` it will go through their caching
     // layer, because of that, the creation of this instance is quite simple and not worth caching.

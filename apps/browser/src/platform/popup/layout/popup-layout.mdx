@@ -41,8 +41,22 @@ page looks nice when the extension is popped out.
 - `footer`
   - Use the `popup-footer` component.
   - Not every page will have a footer.
+- `above-scroll-area`
+  - When the page content overflows, this content will be "stuck" to the top of the page upon
+    scrolling.
+- `full-width-notice`
+  - Similar to `above-scroll-area`, this content will display before `above-scroll-area` without
+    container margin or padding.
 - default
   - Whatever content you want in `main`.
+
+**Inputs**
+
+- `loading`
+  - When `true`, displays a loading state overlay instead of the default content. Defaults to
+    `false`.
+- `loadingText`
+  - Custom text to be applied to the loading element for screenreaders only. Defaults to "Loading".
 
 Basic usage example:
 
@@ -63,6 +77,9 @@ Basic usage example:
 - `showBackButton`: optional, defaults to `false`
   - Toggles the back button to appear. The back button uses `Location.back()` to navigate back one
     page in history.
+- `background`: optional
+  - `"default"` uses a white background
+  - `"alt"` uses a transparent background
 
 **Slots**
 
@@ -81,12 +98,42 @@ Usage example:
 </popup-header>
 ```
 
+### Transparent header
+
+<Canvas>
+  <Story of={stories.TransparentHeader} />
+</Canvas>
+
 Common interactive elements to insert into the `end` slot are:
 
 - `app-current-account`: shows current account and switcher
 - `app-pop-out`: shows popout button when the extension is not already popped out
 - "Add" button: this can be accomplished with the Button component and any custom functionality for
   that particular page
+
+### Notice
+
+<Canvas>
+  <Story of={stories.Notice} />
+</Canvas>
+
+Common interactive elements to insert into the `full-width-notice` slot are:
+
+- `bit-banner`: shows a full-width notice
+
+Usage example:
+
+```html
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'vault' | i18n"> </popup-header>
+  <bit-banner slot="full-width-notice" bannerType="info" [showClose]="false">
+    This is an important note about these ciphers
+  </bit-banner>
+  <ng-container slot="above-scroll-area">
+    <app-vault-header-v2></app-vault-header-v2>
+  </ng-container>
+</popup-page>
+```
 
 ## Popup footer
 
@@ -135,4 +182,22 @@ When the browser extension is popped out, the "popout" button should not be pass
 
 <Canvas>
   <Story of={stories.PoppedOut} />
+</Canvas>
+
+# Other stories
+
+## Centered Content
+
+An example of how to center the default content.
+
+<Canvas>
+  <Story of={stories.CenteredContent} />
+</Canvas>
+
+## Loading
+
+An example of what the loading state looks like.
+
+<Canvas>
+  <Story of={stories.Loading} />
 </Canvas>

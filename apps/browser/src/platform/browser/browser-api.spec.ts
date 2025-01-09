@@ -235,27 +235,49 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("getFrameDetails", () => {
+    it("returns the frame details of the specified frame", async () => {
+      const tabId = 1;
+      const frameId = 2;
+      const mockFrameDetails = mock<chrome.webNavigation.GetFrameResultDetails>();
+      chrome.webNavigation.getFrame = jest
+        .fn()
+        .mockImplementation((_details, callback) => callback(mockFrameDetails));
+
+      const returnFrame = await BrowserApi.getFrameDetails({ tabId, frameId });
+
+      expect(chrome.webNavigation.getFrame).toHaveBeenCalledWith(
+        { tabId, frameId },
+        expect.any(Function),
+      );
+      expect(returnFrame).toEqual(mockFrameDetails);
+    });
+  });
+
+  describe("getAllFrameDetails", () => {
+    it("returns all sub frame details of the specified tab", async () => {
+      const tabId = 1;
+      const mockFrameDetails1 = mock<chrome.webNavigation.GetAllFrameResultDetails>();
+      const mockFrameDetails2 = mock<chrome.webNavigation.GetAllFrameResultDetails>();
+      chrome.webNavigation.getAllFrames = jest
+        .fn()
+        .mockImplementation((_details, callback) =>
+          callback([mockFrameDetails1, mockFrameDetails2]),
+        );
+
+      const frames = await BrowserApi.getAllFrameDetails(tabId);
+
+      expect(chrome.webNavigation.getAllFrames).toHaveBeenCalledWith(
+        { tabId },
+        expect.any(Function),
+      );
+      expect(frames).toEqual([mockFrameDetails1, mockFrameDetails2]);
+    });
+  });
+
   describe("reloadExtension", () => {
-    it("reloads the window location if the passed globalContext is for the window", () => {
-      const windowMock = mock<Window>({
-        location: { reload: jest.fn() },
-      }) as unknown as Window & typeof globalThis;
-
-      BrowserApi.reloadExtension(windowMock);
-
-      expect(windowMock.location.reload).toHaveBeenCalled();
-    });
-
-    it("reloads the extension runtime if the passed globalContext is not for the window", () => {
-      const globalMock = mock<typeof globalThis>({}) as any;
-      BrowserApi.reloadExtension(globalMock);
-
-      expect(chrome.runtime.reload).toHaveBeenCalled();
-    });
-
-    it("reloads the extension runtime if a null value is passed as the globalContext", () => {
-      BrowserApi.reloadExtension(null);
-
+    it("forwards call to extension runtime", () => {
+      BrowserApi.reloadExtension();
       expect(chrome.runtime.reload).toHaveBeenCalled();
     });
   });
@@ -384,7 +406,6 @@ describe("BrowserApi", () => {
         target: {
           tabId: tabId,
           allFrames: injectDetails.allFrames,
-          frameIds: null,
         },
         files: [injectDetails.file],
         injectImmediately: true,
@@ -410,7 +431,6 @@ describe("BrowserApi", () => {
       expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
         target: {
           tabId: tabId,
-          allFrames: injectDetails.allFrames,
           frameIds: [frameId],
         },
         files: [injectDetails.file],
@@ -437,7 +457,6 @@ describe("BrowserApi", () => {
         target: {
           tabId: tabId,
           allFrames: injectDetails.allFrames,
-          frameIds: null,
         },
         files: null,
         injectImmediately: true,

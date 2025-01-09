@@ -16,7 +16,7 @@ class TestBrowserPlatformUtilsService extends BrowserPlatformUtilsService {
     win: Window & typeof globalThis,
     offscreenDocumentService: OffscreenDocumentService,
   ) {
-    super(clipboardSpy, null, win, offscreenDocumentService);
+    super(clipboardSpy, win, offscreenDocumentService);
   }
 
   showToast(
@@ -229,9 +229,7 @@ describe("Browser Utils Service", () => {
 
     it("copies the passed text using the offscreen document if the extension is using manifest v3", async () => {
       const text = "test";
-      jest
-        .spyOn(browserPlatformUtilsService, "getDevice")
-        .mockReturnValue(DeviceType.ChromeExtension);
+      offscreenDocumentService.offscreenApiSupported.mockReturnValue(true);
       getManifestVersionSpy.mockReturnValue(3);
 
       browserPlatformUtilsService.copyToClipboard(text);
@@ -304,9 +302,7 @@ describe("Browser Utils Service", () => {
     });
 
     it("reads the clipboard text using the offscreen document", async () => {
-      jest
-        .spyOn(browserPlatformUtilsService, "getDevice")
-        .mockReturnValue(DeviceType.ChromeExtension);
+      offscreenDocumentService.offscreenApiSupported.mockReturnValue(true);
       getManifestVersionSpy.mockReturnValue(3);
       offscreenDocumentService.withDocument.mockImplementationOnce((_, __, callback) =>
         Promise.resolve("test"),

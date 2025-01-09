@@ -26,7 +26,7 @@ export const APICredentialsData: ExportData = {
               favIndex: 0,
               createdAt: 1619465969,
               updatedAt: 1619466052,
-              trashed: false,
+              state: "active",
               categoryUuid: "112",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const APICredentialsData: ExportData = {
                         value: {
                           string: "apiuser@nullvalue.test",
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const APICredentialsData: ExportData = {
                         value: {
                           concealed: "apiapiapiapiapiapiappy",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: true,
@@ -73,7 +71,6 @@ export const APICredentialsData: ExportData = {
                         value: {
                           menu: "jwt",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -89,7 +86,6 @@ export const APICredentialsData: ExportData = {
                         value: {
                           string: "filename.jwt",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -105,7 +101,6 @@ export const APICredentialsData: ExportData = {
                         value: {
                           date: 1301918460,
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -121,7 +116,6 @@ export const APICredentialsData: ExportData = {
                         value: {
                           date: 1932811260,
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -137,7 +131,6 @@ export const APICredentialsData: ExportData = {
                         value: {
                           string: "not.your.everyday.hostname",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

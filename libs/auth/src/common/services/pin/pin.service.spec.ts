@@ -1,13 +1,11 @@
 import { mock } from "jest-mock-extended";
 
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { DEFAULT_KDF_CONFIG } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -18,6 +16,7 @@ import {
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, PinKey, UserKey } from "@bitwarden/common/types/key";
+import { DEFAULT_KDF_CONFIG, KdfConfigService } from "@bitwarden/key-management";
 
 import {
   PinService,
@@ -416,6 +415,66 @@ describe("PinService", () => {
     });
   });
 
+  describe("isPinDecryptionAvailable()", () => {
+    it("should return false if pinLockType is DISABLED", async () => {
+      // Arrange
+      sut.getPinLockType = jest.fn().mockResolvedValue("DISABLED");
+
+      // Act
+      const result = await sut.isPinDecryptionAvailable(mockUserId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("should return true if pinLockType is PERSISTENT", async () => {
+      // Arrange
+      sut.getPinLockType = jest.fn().mockResolvedValue("PERSISTENT");
+
+      // Act
+      const result = await sut.isPinDecryptionAvailable(mockUserId);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it("should return true if pinLockType is EPHEMERAL and we have an ephemeral PIN key encrypted user key", async () => {
+      // Arrange
+      sut.getPinLockType = jest.fn().mockResolvedValue("EPHEMERAL");
+      sut.getPinKeyEncryptedUserKeyEphemeral = jest
+        .fn()
+        .mockResolvedValue(pinKeyEncryptedUserKeyEphemeral);
+
+      // Act
+      const result = await sut.isPinDecryptionAvailable(mockUserId);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it("should return false if pinLockType is EPHEMERAL and we do not have an ephemeral PIN key encrypted user key", async () => {
+      // Arrange
+      sut.getPinLockType = jest.fn().mockResolvedValue("EPHEMERAL");
+      sut.getPinKeyEncryptedUserKeyEphemeral = jest.fn().mockResolvedValue(null);
+
+      // Act
+      const result = await sut.isPinDecryptionAvailable(mockUserId);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("should throw an error if an unexpected pinLockType is returned", async () => {
+      // Arrange
+      sut.getPinLockType = jest.fn().mockResolvedValue("UNKNOWN");
+
+      // Act & Assert
+      await expect(sut.isPinDecryptionAvailable(mockUserId)).rejects.toThrow(
+        "Unexpected pinLockType: UNKNOWN",
+      );
+    });
+  });
+
   describe("decryptUserKeyWithPin()", () => {
     async function setupDecryptUserKeyWithPinMocks(
       pinLockType: PinLockType,
@@ -455,8 +514,6 @@ describe("PinService", () => {
       await sut.setUserKeyEncryptedPin(mockUserKeyEncryptedPin, mockUserId);
 
       await sut.clearOldPinKeyEncryptedMasterKey(mockUserId);
-
-      await stateService.setCryptoMasterKeyBiometric(null, { userId: mockUserId });
     }
 
     function mockDecryptUserKeyFn() {

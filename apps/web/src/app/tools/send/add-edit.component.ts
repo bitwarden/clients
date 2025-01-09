@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { DatePipe } from "@angular/common";
 import { Component, Inject } from "@angular/core";
@@ -15,7 +17,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-send-add-edit",
@@ -42,6 +44,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     protected dialogRef: DialogRef,
     @Inject(DIALOG_DATA) params: { sendId: string },
     accountService: AccountService,
+    toastService: ToastService,
   ) {
     super(
       i18nService,
@@ -58,6 +61,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       formBuilder,
       billingAccountProfileStateService,
       accountService,
+      toastService,
     );
 
     this.sendId = params.sendId;

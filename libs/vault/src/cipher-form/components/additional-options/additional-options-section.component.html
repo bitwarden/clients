@@ -1,0 +1,32 @@
+<bit-section [formGroup]="additionalOptionsForm">
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
+  </bit-section-header>
+
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "notes" | i18n }}</bit-label>
+      <textarea bitInput rows="5" formControlName="notes"></textarea>
+    </bit-form-field>
+    <bit-form-control
+      *ngIf="passwordRepromptEnabled$ | async"
+      [disableMargin]="hasCustomFields || isPartialEdit"
+    >
+      <input type="checkbox" bitCheckbox formControlName="reprompt" />
+      <bit-label>{{ "passwordPrompt" | i18n }}</bit-label>
+    </bit-form-control>
+
+    <button
+      bitLink
+      type="button"
+      linkType="primary"
+      *ngIf="!hasCustomFields && !isPartialEdit"
+      (click)="addCustomField()"
+    >
+      <i class="bwi bwi-plus tw-font-bold" aria-hidden="true"></i>
+      {{ "addField" | i18n }}
+    </button>
+  </bit-card>
+</bit-section>
+
+<vault-custom-fields (numberOfFieldsChange)="handleCustomFieldChange($event)"></vault-custom-fields>

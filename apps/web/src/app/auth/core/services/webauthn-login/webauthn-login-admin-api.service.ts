@@ -45,8 +45,12 @@ export class WebAuthnLoginAdminApiService {
     return true;
   }
 
-  getCredentials(): Promise<ListResponse<WebauthnLoginCredentialResponse>> {
-    return this.apiService.send("GET", "/webauthn", null, true, true);
+  async getCredentials(): Promise<ListResponse<WebauthnLoginCredentialResponse>> {
+    const response = await this.apiService.send("GET", "/webauthn", null, true, true);
+    return new ListResponse<WebauthnLoginCredentialResponse>(
+      response,
+      WebauthnLoginCredentialResponse,
+    );
   }
 
   async deleteCredential(credentialId: string, request: SecretVerificationRequest): Promise<void> {

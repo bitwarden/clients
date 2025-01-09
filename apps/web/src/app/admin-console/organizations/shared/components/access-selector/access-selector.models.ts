@@ -1,11 +1,16 @@
-import { OrganizationUserUserDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-user/responses";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  CollectionAccessSelectionView,
+  OrganizationUserUserDetailsResponse,
+} from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 import { SelectItemView } from "@bitwarden/components";
 
-import { CollectionAccessSelectionView, GroupView } from "../../../core";
+import { GroupView } from "../../../core";
 
 /**
  * Permission options that replace/correspond with manage, readOnly, and hidePassword server fields.
@@ -34,12 +39,6 @@ export enum AccessItemType {
  *
  */
 export type AccessItemView = SelectItemView & {
-  /**
-   * Flag that this group/member can access all items.
-   * This will disable the permission editor for this item.
-   */
-  accessAllItems?: boolean;
-
   /**
    * Flag that this item cannot be modified.
    * This will disable the permission editor and will keep
@@ -82,16 +81,14 @@ export type Permission = {
   labelId: string;
 };
 
-export const getPermissionList = (flexibleCollectionsEnabled: boolean): Permission[] => {
+export const getPermissionList = (): Permission[] => {
   const permissions = [
     { perm: CollectionPermission.View, labelId: "canView" },
     { perm: CollectionPermission.ViewExceptPass, labelId: "canViewExceptPass" },
     { perm: CollectionPermission.Edit, labelId: "canEdit" },
     { perm: CollectionPermission.EditExceptPass, labelId: "canEditExceptPass" },
+    { perm: CollectionPermission.Manage, labelId: "canManage" },
   ];
-  if (flexibleCollectionsEnabled) {
-    permissions.push({ perm: CollectionPermission.Manage, labelId: "canManage" });
-  }
 
   return permissions;
 };
@@ -142,8 +139,6 @@ export function mapGroupToAccessItemView(group: GroupView): AccessItemView {
     type: AccessItemType.Group,
     listName: group.name,
     labelName: group.name,
-    accessAllItems: group.accessAll,
-    readonly: group.accessAll,
   };
 }
 
@@ -157,7 +152,5 @@ export function mapUserToAccessItemView(user: OrganizationUserUserDetailsRespons
     listName: user.name?.length > 0 ? `${user.name} (${user.email})` : user.email,
     labelName: user.name ?? user.email,
     status: user.status,
-    accessAllItems: user.accessAll,
-    readonly: user.accessAll,
   };
 }

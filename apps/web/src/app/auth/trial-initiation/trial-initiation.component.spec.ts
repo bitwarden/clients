@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { TitleCasePipe } from "@angular/common";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
@@ -12,15 +14,18 @@ import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType } from "@bitwarden/common/billing/enums";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { RouterService } from "../../core";
 import { SharedModule } from "../../shared";
+import { AcceptOrganizationInviteService } from "../organization-invite/accept-organization.service";
+import { OrganizationInvite } from "../organization-invite/organization-invite";
 
 import { TrialInitiationComponent } from "./trial-initiation.component";
 import { VerticalStepperComponent } from "./vertical-stepper/vertical-stepper.component";
@@ -36,12 +41,20 @@ describe("TrialInitiationComponent", () => {
   let stateServiceMock: MockProxy<StateService>;
   let policyApiServiceMock: MockProxy<PolicyApiServiceAbstraction>;
   let policyServiceMock: MockProxy<PolicyService>;
+  let routerServiceMock: MockProxy<RouterService>;
+  let acceptOrgInviteServiceMock: MockProxy<AcceptOrganizationInviteService>;
+  let organizationBillingServiceMock: MockProxy<OrganizationBillingService>;
+  let configServiceMock: MockProxy<ConfigService>;
 
   beforeEach(() => {
     // only define services directly that we want to mock return values in this component
     stateServiceMock = mock<StateService>();
     policyApiServiceMock = mock<PolicyApiServiceAbstraction>();
     policyServiceMock = mock<PolicyService>();
+    routerServiceMock = mock<RouterService>();
+    acceptOrgInviteServiceMock = mock<AcceptOrganizationInviteService>();
+    organizationBillingServiceMock = mock<OrganizationBillingService>();
+    configServiceMock = mock<ConfigService>();
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -81,7 +94,19 @@ describe("TrialInitiationComponent", () => {
         },
         {
           provide: RouterService,
-          useValue: mock<RouterService>(),
+          useValue: routerServiceMock,
+        },
+        {
+          provide: AcceptOrganizationInviteService,
+          useValue: acceptOrgInviteServiceMock,
+        },
+        {
+          provide: OrganizationBillingService,
+          useValue: organizationBillingServiceMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Allows child components to be ignored (such as register component)
@@ -100,8 +125,8 @@ describe("TrialInitiationComponent", () => {
 
   // These tests demonstrate mocking service calls
   describe("onInit() enforcedPolicyOptions", () => {
-    it("should not set enforcedPolicyOptions if state service returns no invite", async () => {
-      stateServiceMock.getOrganizationInvitation.mockReturnValueOnce(null);
+    it("should not set enforcedPolicyOptions if there isn't an org invite in deep linked url", async () => {
+      acceptOrgInviteServiceMock.getOrganizationInvite.mockResolvedValueOnce(null);
       // Need to recreate component with new service mock
       fixture = TestBed.createComponent(TrialInitiationComponent);
       component = fixture.componentInstance;
@@ -109,37 +134,31 @@ describe("TrialInitiationComponent", () => {
 
       expect(component.enforcedPolicyOptions).toBe(undefined);
     });
-    it("should set enforcedPolicyOptions if state service returns an invite", async () => {
+    it("should set enforcedPolicyOptions if the deep linked url has an org invite", async () => {
       // Set up service method mocks
-      stateServiceMock.getOrganizationInvitation.mockReturnValueOnce(
-        Promise.resolve({
-          organizationId: testOrgId,
-          token: "token",
-          email: "testEmail",
-          organizationUserId: "123",
-        }),
-      );
+      acceptOrgInviteServiceMock.getOrganizationInvite.mockResolvedValueOnce({
+        organizationId: testOrgId,
+        token: "token",
+        email: "testEmail",
+        organizationUserId: "123",
+      } as OrganizationInvite);
       policyApiServiceMock.getPoliciesByToken.mockReturnValueOnce(
-        Promise.resolve({
-          data: [
-            {
-              id: "345",
-              organizationId: testOrgId,
-              type: 1,
-              data: [
-                {
-                  minComplexity: 4,
-                  minLength: 10,
-                  requireLower: null,
-                  requireNumbers: null,
-                  requireSpecial: null,
-                  requireUpper: null,
-                },
-              ],
-              enabled: true,
+        Promise.resolve([
+          {
+            id: "345",
+            organizationId: testOrgId,
+            type: 1,
+            data: {
+              minComplexity: 4,
+              minLength: 10,
+              requireLower: null,
+              requireNumbers: null,
+              requireSpecial: null,
+              requireUpper: null,
             },
-          ],
-        } as ListResponse<PolicyResponse>),
+            enabled: true,
+          },
+        ] as Policy[]),
       );
       policyServiceMock.masterPasswordPolicyOptions$.mockReturnValue(
         of({

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import {
@@ -10,7 +12,7 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import {
@@ -39,6 +41,7 @@ export class ServiceAccountDeleteDialogComponent {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private dialogService: DialogService,
+    private toastService: ToastService,
   ) {}
 
   get title() {
@@ -81,7 +84,11 @@ export class ServiceAccountDeleteDialogComponent {
       this.data.serviceAccounts.length === 1
         ? "deleteMachineAccountToast"
         : "deleteMachineAccountsToast";
-    this.platformUtilsService.showToast("success", null, this.i18nService.t(message));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(message),
+    });
   }
 
   openBulkStatusDialog(bulkStatusResults: BulkOperationStatus[]) {

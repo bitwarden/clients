@@ -1,5 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, createUrlTreeFromSnapshot } from "@angular/router";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ToastService } from "@bitwarden/components";
 
 import { ServiceAccountService } from "../service-account.service";
 
@@ -8,6 +13,8 @@ import { ServiceAccountService } from "../service-account.service";
  */
 export const serviceAccountAccessGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) => {
   const serviceAccountService = inject(ServiceAccountService);
+  const toastService = inject(ToastService);
+  const i18nService = inject(I18nService);
 
   try {
     const serviceAccount = await serviceAccountService.getByServiceAccountId(
@@ -18,6 +25,12 @@ export const serviceAccountAccessGuard: CanActivateFn = async (route: ActivatedR
       return true;
     }
   } catch {
+    toastService.showToast({
+      variant: "error",
+      title: null,
+      message: i18nService.t("notFound", i18nService.t("machineAccount")),
+    });
+
     return createUrlTreeFromSnapshot(route, [
       "/sm",
       route.params.organizationId,

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
@@ -9,16 +11,18 @@ import {
   PaymentInformation,
   PlanInformation,
 } from "@bitwarden/common/billing/abstractions/organization-billing.service";
-import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ProductType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 import { BillingSharedModule, PaymentComponent, TaxInfoComponent } from "../../shared";
+import { PaymentV2Component } from "../../shared/payment/payment-v2.component";
 
-export type TrialOrganizationType = Exclude<ProductType, ProductType.Free>;
+export type TrialOrganizationType = Exclude<ProductTierType, ProductTierType.Free>;
 
 export interface OrganizationInfo {
   name: string;
@@ -49,6 +53,7 @@ export enum SubscriptionProduct {
 })
 export class TrialBillingStepComponent implements OnInit {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
+  @ViewChild(PaymentV2Component) paymentV2Component: PaymentV2Component;
   @ViewChild(TaxInfoComponent) taxInfoComponent: TaxInfoComponent;
   @Input() organizationInfo: OrganizationInfo;
   @Input() subscriptionProduct: SubscriptionProduct = SubscriptionProduct.PasswordManager;
@@ -69,16 +74,22 @@ export class TrialBillingStepComponent implements OnInit {
   annualPlan?: PlanResponse;
   monthlyPlan?: PlanResponse;
 
+  deprecateStripeSourcesAPI: boolean;
+
   constructor(
     private apiService: ApiService,
+    private configService: ConfigService,
     private i18nService: I18nService,
     private formBuilder: FormBuilder,
     private messagingService: MessagingService,
     private organizationBillingService: OrganizationBillingService,
-    private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.deprecateStripeSourcesAPI = await this.configService.getFeatureFlag(
+      FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
+    );
     const plans = await this.apiService.getPlans();
     this.applicablePlans = plans.data.filter(this.isApplicable);
     this.annualPlan = this.findPlanFor(SubscriptionCadence.Annual);
@@ -87,16 +98,21 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
+    if (!this.taxInfoComponent.taxFormGroup.valid && this.taxInfoComponent?.taxFormGroup.touched) {
+      this.taxInfoComponent.taxFormGroup.markAllAsTouched();
+      return;
+    }
+
     this.formPromise = this.createOrganization();
 
     const organizationId = await this.formPromise;
     const planDescription = this.getPlanDescription();
 
-    this.platformUtilsService.showToast(
-      "success",
-      this.i18nService.t("organizationCreated"),
-      this.i18nService.t("organizationReadyToGo"),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("organizationCreated"),
+      message: this.i18nService.t("organizationReadyToGo"),
+    });
 
     this.organizationCreated.emit({
       organizationId,
@@ -108,13 +124,23 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   protected changedCountry() {
-    this.paymentComponent.hideBank = this.taxInfoComponent.taxInfo.country !== "US";
-    if (
-      this.paymentComponent.hideBank &&
-      this.paymentComponent.method === PaymentMethodType.BankAccount
-    ) {
-      this.paymentComponent.method = PaymentMethodType.Card;
-      this.paymentComponent.changeMethod();
+    if (this.deprecateStripeSourcesAPI) {
+      this.paymentV2Component.showBankAccount = this.taxInfoComponent.country === "US";
+      if (
+        !this.paymentV2Component.showBankAccount &&
+        this.paymentV2Component.selected === PaymentMethodType.BankAccount
+      ) {
+        this.paymentV2Component.select(PaymentMethodType.Card);
+      }
+    } else {
+      this.paymentComponent.hideBank = this.taxInfoComponent.taxFormGroup.value.country !== "US";
+      if (
+        this.paymentComponent.hideBank &&
+        this.paymentComponent.method === PaymentMethodType.BankAccount
+      ) {
+        this.paymentComponent.method = PaymentMethodType.Card;
+        this.paymentComponent.changeMethod();
+      }
     }
   }
 
@@ -135,7 +161,15 @@ export class TrialBillingStepComponent implements OnInit {
 
   private async createOrganization(): Promise<string> {
     const planResponse = this.findPlanFor(this.formGroup.value.cadence);
-    const paymentMethod = await this.paymentComponent.createPaymentToken();
+
+    let paymentMethod: [string, PaymentMethodType];
+
+    if (this.deprecateStripeSourcesAPI) {
+      const { type, token } = await this.paymentV2Component.tokenize();
+      paymentMethod = [token, type];
+    } else {
+      paymentMethod = await this.paymentComponent.createPaymentToken();
+    }
 
     const organization: OrganizationInformation = {
       name: this.organizationInfo.name,
@@ -176,19 +210,19 @@ export class TrialBillingStepComponent implements OnInit {
       [cadence in SubscriptionCadence]?: PlanType;
     };
   } = {
-    [ProductType.Enterprise]: {
+    [ProductTierType.Enterprise]: {
       [SubscriptionCadence.Annual]: PlanType.EnterpriseAnnually,
       [SubscriptionCadence.Monthly]: PlanType.EnterpriseMonthly,
     },
-    [ProductType.Families]: {
+    [ProductTierType.Families]: {
       [SubscriptionCadence.Annual]: PlanType.FamiliesAnnually,
       // No monthly option for Families plan
     },
-    [ProductType.Teams]: {
+    [ProductTierType.Teams]: {
       [SubscriptionCadence.Annual]: PlanType.TeamsAnnually,
       [SubscriptionCadence.Monthly]: PlanType.TeamsMonthly,
     },
-    [ProductType.TeamsStarter]: {
+    [ProductTierType.TeamsStarter]: {
       // No annual option for Teams Starter plan
       [SubscriptionCadence.Monthly]: PlanType.TeamsStarter,
     },
@@ -202,13 +236,13 @@ export class TrialBillingStepComponent implements OnInit {
 
   private getBillingInformationFromTaxInfoComponent(): BillingInformation {
     return {
-      postalCode: this.taxInfoComponent.taxInfo.postalCode,
-      country: this.taxInfoComponent.taxInfo.country,
-      taxId: this.taxInfoComponent.taxInfo.taxId,
-      addressLine1: this.taxInfoComponent.taxInfo.line1,
-      addressLine2: this.taxInfoComponent.taxInfo.line2,
-      city: this.taxInfoComponent.taxInfo.city,
-      state: this.taxInfoComponent.taxInfo.state,
+      postalCode: this.taxInfoComponent.taxFormGroup?.value.postalCode,
+      country: this.taxInfoComponent.taxFormGroup?.value.country,
+      taxId: this.taxInfoComponent.taxFormGroup?.value.taxId,
+      addressLine1: this.taxInfoComponent.taxFormGroup?.value.line1,
+      addressLine2: this.taxInfoComponent.taxFormGroup?.value.line2,
+      city: this.taxInfoComponent.taxFormGroup?.value.city,
+      state: this.taxInfoComponent.taxFormGroup?.value.state,
     };
   }
 
@@ -233,10 +267,10 @@ export class TrialBillingStepComponent implements OnInit {
 
   private isApplicable(plan: PlanResponse): boolean {
     const hasCorrectProductType =
-      plan.product === ProductType.Enterprise ||
-      plan.product === ProductType.Families ||
-      plan.product === ProductType.Teams ||
-      plan.product === ProductType.TeamsStarter;
+      plan.productTier === ProductTierType.Enterprise ||
+      plan.productTier === ProductTierType.Families ||
+      plan.productTier === ProductTierType.Teams ||
+      plan.productTier === ProductTierType.TeamsStarter;
     const notDisabledOrLegacy = !plan.disabled && !plan.legacyYear;
     return hasCorrectProductType && notDisabledOrLegacy;
   }

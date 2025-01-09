@@ -1,0 +1,31 @@
+@import "variables.scss";
+
+@each $mfaType in $mfaTypes {
+  .mfaType#{$mfaType} {
+    content: url("../images/two-factor/" + $mfaType + ".png");
+    max-width: 100px;
+  }
+}
+
+.mfaType1 {
+  @include themify($themes) {
+    content: url("../images/two-factor/1" + themed("mfaLogoSuffix"));
+    max-width: 100px;
+    max-height: 45px;
+  }
+}
+
+.mfaType7 {
+  @include themify($themes) {
+    content: url("../images/two-factor/7" + themed("mfaLogoSuffix"));
+    max-width: 100px;
+  }
+}
+
+.recovery-code-img {
+  @include themify($themes) {
+    content: url("../images/two-factor/rc" + themed("mfaLogoSuffix"));
+    max-width: 100px;
+    max-height: 45px;
+  }
+}

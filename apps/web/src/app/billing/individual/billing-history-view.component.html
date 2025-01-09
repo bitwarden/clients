@@ -2,17 +2,6 @@
   <h2 bitTypography="h2">
     {{ "billingHistory" | i18n }}
   </h2>
-  <button
-    type="button"
-    bitButton
-    buttonType="secondary"
-    (click)="load()"
-    *ngIf="firstLoaded"
-    [disabled]="loading"
-  >
-    <i class="bwi bwi-refresh bwi-fw" [ngClass]="{ 'bwi-spin': loading }" aria-hidden="true"></i>
-    {{ "refresh" | i18n }}
-  </button>
 </div>
 <ng-container *ngIf="!firstLoaded && loading">
   <i
@@ -22,6 +11,19 @@
   ></i>
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
-<ng-container *ngIf="billing">
-  <app-billing-history [billing]="billing"></app-billing-history>
+<ng-container *ngIf="openInvoices || paidInvoices || transactions">
+  <app-billing-history
+    [openInvoices]="openInvoices"
+    [paidInvoices]="paidInvoices"
+    [transactions]="transactions"
+  ></app-billing-history>
+  <button
+    type="button"
+    bitButton
+    buttonType="secondary"
+    (click)="load()"
+    *ngIf="hasAdditionalHistory"
+  >
+    {{ "loadMore" | i18n }}
+  </button>
 </ng-container>

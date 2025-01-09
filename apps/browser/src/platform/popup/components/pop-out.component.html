@@ -1,5 +1,10 @@
 <ng-container *ngIf="show">
-  <button type="button" (click)="expand()" appA11yTitle="{{ 'popOutNewWindow' | i18n }}">
-    <i class="bwi bwi-external-link bwi-rotate-270 bwi-lg bwi-fw" aria-hidden="true"></i>
-  </button>
+  <button
+    bitIconButton="bwi-popout"
+    size="small"
+    type="button"
+    appA11yTitle="{{ 'popOutNewWindow' | i18n }}"
+    [title]="'popOutNewWindow' | i18n"
+    (click)="expand()"
+  ></button>
 </ng-container>

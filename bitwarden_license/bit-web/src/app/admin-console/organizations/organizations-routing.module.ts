@@ -1,15 +1,16 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards";
+import { authGuard } from "@bitwarden/angular/auth/guards";
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { isEnterpriseOrgGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/is-enterprise-org.guard";
+import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { OrganizationLayoutComponent } from "@bitwarden/web-vault/app/admin-console/organizations/layouts/organization-layout.component";
 
 import { SsoComponent } from "../../auth/sso/sso.component";
 
-import { DeviceApprovalsComponent } from "./manage/device-approvals/device-approvals.component";
 import { DomainVerificationComponent } from "./manage/domain-verification/domain-verification.component";
 import { ScimComponent } from "./manage/scim.component";
 
@@ -17,52 +18,77 @@ const routes: Routes = [
   {
     path: "organizations/:organizationId",
     component: OrganizationLayoutComponent,
-    canActivate: [AuthGuard, OrganizationPermissionsGuard],
+    canActivate: [authGuard, organizationPermissionsGuard()],
     children: [
       {
         path: "settings",
-        canActivate: [OrganizationPermissionsGuard],
-        data: {
-          organizationPermissions: canAccessSettingsTab,
-        },
+        canActivate: [organizationPermissionsGuard(canAccessSettingsTab)],
         children: [
           {
             path: "domain-verification",
             component: DomainVerificationComponent,
-            canActivate: [OrganizationPermissionsGuard],
-            data: {
-              titleId: "domainVerification",
-              organizationPermissions: (org: Organization) => org.canManageDomainVerification,
+            canActivate: [organizationPermissionsGuard((org) => org.canManageDomainVerification)],
+            resolve: {
+              titleId: async () => {
+                const configService = inject(ConfigService);
+                return (await configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning))
+                  ? "claimedDomains"
+                  : "domainVerification";
+              },
             },
           },
           {
             path: "sso",
             component: SsoComponent,
-            canActivate: [OrganizationPermissionsGuard],
+            canActivate: [organizationPermissionsGuard((org) => org.canManageSso)],
             data: {
               titleId: "singleSignOn",
-              organizationPermissions: (org: Organization) => org.canManageSso,
             },
           },
           {
             path: "scim",
             component: ScimComponent,
-            canActivate: [OrganizationPermissionsGuard],
+            canActivate: [organizationPermissionsGuard((org) => org.canManageScim)],
             data: {
               titleId: "scim",
-              organizationPermissions: (org: Organization) => org.canManageScim,
             },
           },
           {
             path: "device-approvals",
-            component: DeviceApprovalsComponent,
-            canActivate: [OrganizationPermissionsGuard],
+            loadComponent: () =>
+              import("./manage/device-approvals/device-approvals.component").then(
+                (mod) => mod.DeviceApprovalsComponent,
+              ),
+            canActivate: [organizationPermissionsGuard((org) => org.canManageDeviceApprovals)],
             data: {
-              organizationPermissions: (org: Organization) => org.canManageDeviceApprovals,
               titleId: "deviceApprovals",
             },
           },
         ],
+      },
+      {
+        path: "reporting/reports",
+        canActivate: [authGuard, organizationPermissionsGuard((org) => org.canAccessReports)],
+        children: [
+          {
+            path: "member-access-report",
+            loadComponent: () =>
+              import(
+                "../../tools/reports/member-access-report/member-access-report.component"
+              ).then((mod) => mod.MemberAccessReportComponent),
+            data: {
+              titleId: "memberAccessReport",
+            },
+            canActivate: [isEnterpriseOrgGuard()],
+          },
+        ],
+      },
+      {
+        path: "access-intelligence",
+        loadChildren: () =>
+          import("../../tools/access-intelligence/access-intelligence.module").then(
+            (m) => m.AccessIntelligenceModule,
+          ),
       },
     ],
   },

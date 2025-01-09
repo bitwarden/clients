@@ -89,7 +89,7 @@ describe("Fido2UserVerificationService", () => {
         );
 
         expect(UserVerificationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
-          clientSideOnlyVerification: true,
+          verificationType: "client",
         });
         expect(result).toBe(true);
       });
@@ -105,7 +105,7 @@ describe("Fido2UserVerificationService", () => {
         );
 
         expect(UserVerificationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
-          clientSideOnlyVerification: true,
+          verificationType: "client",
         });
         expect(result).toBe(true);
       });
@@ -122,7 +122,7 @@ describe("Fido2UserVerificationService", () => {
         );
 
         expect(UserVerificationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
-          clientSideOnlyVerification: true,
+          verificationType: "client",
         });
         expect(result).toBe(true);
       });
@@ -135,7 +135,7 @@ describe("Fido2UserVerificationService", () => {
         );
 
         expect(UserVerificationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
-          clientSideOnlyVerification: true,
+          verificationType: "client",
         });
         expect(result).toBe(true);
       });
@@ -198,7 +198,7 @@ describe("Fido2UserVerificationService", () => {
         );
 
         expect(UserVerificationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
-          clientSideOnlyVerification: true,
+          verificationType: "client",
         });
         expect(result).toBe(true);
       });
@@ -214,7 +214,7 @@ describe("Fido2UserVerificationService", () => {
         );
 
         expect(UserVerificationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
-          clientSideOnlyVerification: true,
+          verificationType: "client",
         });
         expect(result).toBe(true);
       });
@@ -231,7 +231,7 @@ describe("Fido2UserVerificationService", () => {
         );
 
         expect(UserVerificationDialogComponent.open).toHaveBeenCalledWith(dialogService, {
-          clientSideOnlyVerification: true,
+          verificationType: "client",
         });
         expect(result).toBe(true);
       });

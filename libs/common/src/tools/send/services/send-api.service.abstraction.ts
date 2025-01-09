@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ListResponse } from "../../../models/response/list.response";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
@@ -36,5 +38,5 @@ export abstract class SendApiService {
   renewSendFileUploadUrl: (sendId: string, fileId: string) => Promise<SendFileUploadDataResponse>;
   removePassword: (id: string) => Promise<any>;
   delete: (id: string) => Promise<any>;
-  save: (sendData: [Send, EncArrayBuffer]) => Promise<any>;
+  save: (sendData: [Send, EncArrayBuffer]) => Promise<Send>;
 }

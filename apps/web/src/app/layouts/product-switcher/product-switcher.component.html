@@ -4,5 +4,6 @@
   [bitMenuTriggerFor]="content?.menu"
   [buttonType]="buttonType"
   [attr.aria-label]="'switchProducts' | i18n"
+  *ngIf="products$ | async"
 ></button>
 <product-switcher-content #content></product-switcher-content>

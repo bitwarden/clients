@@ -1,4 +1,6 @@
-import { Component } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -19,7 +21,10 @@ import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from
   templateUrl: "../../../tools/reports/pages/weak-passwords-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class WeakPasswordsReportComponent extends BaseWeakPasswordsReportComponent {
+export class WeakPasswordsReportComponent
+  extends BaseWeakPasswordsReportComponent
+  implements OnInit
+{
   manageableCiphers: Cipher[];
 
   constructor(

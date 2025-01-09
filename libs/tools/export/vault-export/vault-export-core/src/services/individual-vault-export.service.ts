@@ -1,10 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as papa from "papaparse";
+import { firstValueFrom, map } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -13,6 +16,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
   BitwardenCsvIndividualExportType,
@@ -28,15 +32,19 @@ export class IndividualVaultExportService
   extends BaseVaultExportService
   implements IndividualVaultExportServiceAbstraction
 {
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   constructor(
     private folderService: FolderService,
     private cipherService: CipherService,
     pinService: PinServiceAbstraction,
-    cryptoService: CryptoService,
+    private keyService: KeyService,
+    encryptService: EncryptService,
     cryptoFunctionService: CryptoFunctionService,
     kdfConfigService: KdfConfigService,
+    private accountService: AccountService,
   ) {
-    super(pinService, cryptoService, cryptoFunctionService, kdfConfigService);
+    super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
 
   async getExport(format: ExportFormat = "csv"): Promise<string> {
@@ -55,9 +63,10 @@ export class IndividualVaultExportService
     let decFolders: FolderView[] = [];
     let decCiphers: CipherView[] = [];
     const promises = [];
+    const activeUserId = await firstValueFrom(this.activeUserId$);
 
     promises.push(
-      this.folderService.getAllDecryptedFromState().then((folders) => {
+      firstValueFrom(this.folderService.folderViews$(activeUserId)).then((folders) => {
         decFolders = folders;
       }),
     );
@@ -81,9 +90,10 @@ export class IndividualVaultExportService
     let folders: Folder[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
+    const activeUserId = await firstValueFrom(this.activeUserId$);
 
     promises.push(
-      this.folderService.getAllFromState().then((f) => {
+      firstValueFrom(this.folderService.folders$(activeUserId)).then((f) => {
         folders = f;
       }),
     );
@@ -96,7 +106,10 @@ export class IndividualVaultExportService
 
     await Promise.all(promises);
 
-    const encKeyValidation = await this.cryptoService.encrypt(Utils.newGuid());
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(
+      await firstValueFrom(this.activeUserId$),
+    );
+    const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), userKey);
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {
       encrypted: true,

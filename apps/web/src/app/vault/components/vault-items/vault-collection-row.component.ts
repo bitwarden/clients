@@ -1,12 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
+import { CollectionAdminView, Unassigned, CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
 import { GroupView } from "../../../admin-console/organizations/core";
-import { CollectionAdminView } from "../../core/views/collection-admin.view";
-import { Unassigned } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import {
   convertToPermission,
@@ -34,7 +34,6 @@ export class VaultCollectionRowComponent {
   @Input() organizations: Organization[];
   @Input() groups: GroupView[];
   @Input() showPermissionsColumn: boolean;
-  @Input() flexibleCollectionsV1Enabled: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
@@ -55,15 +54,35 @@ export class VaultCollectionRowComponent {
     return this.organizations.find((o) => o.id === this.collection.organizationId);
   }
 
+  get showAddAccess() {
+    if (this.collection.id == Unassigned) {
+      return false;
+    }
+
+    // Only show AddAccess when viewing the Org vault (implied by CollectionAdminView)
+    if (this.collection instanceof CollectionAdminView) {
+      // Only show AddAccess if unmanaged and allowAdminAccessToAllCollectionItems is disabled
+      return (
+        !this.organization?.allowAdminAccessToAllCollectionItems &&
+        this.collection.unmanaged &&
+        this.organization?.canEditUnmanagedCollections
+      );
+    }
+
+    return false;
+  }
+
   get permissionText() {
-    if (this.collection.id != Unassigned && !(this.collection as CollectionAdminView).assigned) {
-      return this.i18nService.t("noAccess");
-    } else {
-      const permissionList = getPermissionList(this.organization?.flexibleCollections);
+    if (this.collection.id == Unassigned && this.organization?.canEditUnassignedCiphers) {
+      return this.i18nService.t("canEdit");
+    }
+    if ((this.collection as CollectionAdminView).assigned) {
+      const permissionList = getPermissionList();
       return this.i18nService.t(
         permissionList.find((p) => p.perm === convertToPermission(this.collection))?.labelId,
       );
     }
+    return this.i18nService.t("noAccess");
   }
 
   get permissionTooltip() {
@@ -83,5 +102,13 @@ export class VaultCollectionRowComponent {
 
   protected deleteCollection() {
     this.onEvent.next({ type: "delete", items: [{ collection: this.collection }] });
+  }
+
+  protected get showCheckbox() {
+    if (this.collection?.id === Unassigned) {
+      return false; // Never show checkbox for Unassigned
+    }
+
+    return this.canEditCollection || this.canDeleteCollection;
   }
 }

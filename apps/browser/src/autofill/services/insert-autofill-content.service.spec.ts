@@ -1,11 +1,16 @@
+import { mock } from "jest-mock-extended";
+
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillScript, { FillScript, FillScriptActions } from "../models/autofill-script";
+import { mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
-import AutofillOverlayContentService from "./autofill-overlay-content.service";
-import CollectAutofillContentService from "./collect-autofill-content.service";
+import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
+import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
+import { CollectAutofillContentService } from "./collect-autofill-content.service";
 import DomElementVisibilityService from "./dom-element-visibility.service";
+import { DomQueryService } from "./dom-query.service";
 import InsertAutofillContentService from "./insert-autofill-content.service";
 
 const mockLoginForm = `
@@ -63,10 +68,18 @@ function setMockWindowLocation({
 }
 
 describe("InsertAutofillContentService", () => {
+  const mockQuerySelectorAll = mockQuerySelectorAllDefinedCall();
+  const inlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
+  const domQueryService = new DomQueryService();
   const domElementVisibilityService = new DomElementVisibilityService();
-  const autofillOverlayContentService = new AutofillOverlayContentService();
+  const autofillOverlayContentService = new AutofillOverlayContentService(
+    domQueryService,
+    domElementVisibilityService,
+    inlineMenuFieldQualificationService,
+  );
   const collectAutofillContentService = new CollectAutofillContentService(
     domElementVisibilityService,
+    domQueryService,
     autofillOverlayContentService,
   );
   let insertAutofillContentService: InsertAutofillContentService;
@@ -99,22 +112,36 @@ describe("InsertAutofillContentService", () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+    jest.clearAllTimers();
     windowLocationSpy.mockRestore();
     confirmSpy.mockRestore();
     document.body.innerHTML = "";
   });
 
+  afterAll(() => {
+    mockQuerySelectorAll.mockRestore();
+  });
+
   describe("fillForm", () => {
+    afterEach(() => {
+      Object.defineProperty(globalThis, "window", {
+        value: { frameElement: null },
+        writable: true,
+      });
+      Object.defineProperty(globalThis, "frameElement", {
+        value: { hasAttribute: jest.fn(() => false) },
+        writable: true,
+      });
+    });
+
     it("returns early if the passed fill script does not have a script property", async () => {
       fillScript.script = [];
-      jest.spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe");
       jest.spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill");
       jest.spyOn(insertAutofillContentService as any, "userCancelledUntrustedIframeAutofill");
       jest.spyOn(insertAutofillContentService as any, "runFillScriptAction");
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).not.toHaveBeenCalled();
       expect(
         insertAutofillContentService["userCancelledInsecureUrlAutofill"],
       ).not.toHaveBeenCalled();
@@ -125,16 +152,16 @@ describe("InsertAutofillContentService", () => {
     });
 
     it("returns early if the script is filling within a sand boxed iframe", async () => {
-      jest
-        .spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe")
-        .mockReturnValue(true);
+      Object.defineProperty(globalThis, "frameElement", {
+        value: { hasAttribute: jest.fn(() => true) },
+        writable: true,
+      });
       jest.spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill");
       jest.spyOn(insertAutofillContentService as any, "userCancelledUntrustedIframeAutofill");
       jest.spyOn(insertAutofillContentService as any, "runFillScriptAction");
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).toHaveBeenCalled();
       expect(
         insertAutofillContentService["userCancelledInsecureUrlAutofill"],
       ).not.toHaveBeenCalled();
@@ -146,9 +173,6 @@ describe("InsertAutofillContentService", () => {
 
     it("returns early if the autofill is occurring on an insecure url and the user cancels the autofill", async () => {
       jest
-        .spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe")
-        .mockReturnValue(false);
-      jest
         .spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill")
         .mockReturnValue(true);
       jest.spyOn(insertAutofillContentService as any, "userCancelledUntrustedIframeAutofill");
@@ -156,7 +180,6 @@ describe("InsertAutofillContentService", () => {
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).toHaveBeenCalled();
       expect(insertAutofillContentService["userCancelledInsecureUrlAutofill"]).toHaveBeenCalled();
       expect(
         insertAutofillContentService["userCancelledUntrustedIframeAutofill"],
@@ -166,9 +189,6 @@ describe("InsertAutofillContentService", () => {
 
     it("returns early if the iframe is untrusted and the user cancelled the autofill", async () => {
       jest
-        .spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe")
-        .mockReturnValue(false);
-      jest
         .spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill")
         .mockReturnValue(false);
       jest
@@ -178,7 +198,6 @@ describe("InsertAutofillContentService", () => {
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).toHaveBeenCalled();
       expect(insertAutofillContentService["userCancelledInsecureUrlAutofill"]).toHaveBeenCalled();
       expect(
         insertAutofillContentService["userCancelledUntrustedIframeAutofill"],
@@ -187,9 +206,6 @@ describe("InsertAutofillContentService", () => {
     });
 
     it("runs the fill script action for all scripts found within the fill script", async () => {
-      jest
-        .spyOn(insertAutofillContentService as any, "fillingWithinSandboxedIframe")
-        .mockReturnValue(false);
       jest
         .spyOn(insertAutofillContentService as any, "userCancelledInsecureUrlAutofill")
         .mockReturnValue(false);
@@ -200,7 +216,6 @@ describe("InsertAutofillContentService", () => {
 
       await insertAutofillContentService.fillForm(fillScript);
 
-      expect(insertAutofillContentService["fillingWithinSandboxedIframe"]).toHaveBeenCalled();
       expect(insertAutofillContentService["userCancelledInsecureUrlAutofill"]).toHaveBeenCalled();
       expect(
         insertAutofillContentService["userCancelledUntrustedIframeAutofill"],
@@ -224,41 +239,6 @@ describe("InsertAutofillContentService", () => {
         2,
         fillScript.script,
       );
-    });
-  });
-
-  describe("fillingWithinSandboxedIframe", () => {
-    afterEach(() => {
-      Object.defineProperty(globalThis, "window", {
-        value: { frameElement: null },
-        writable: true,
-      });
-    });
-
-    it("returns false if the `self.origin` value is not null", () => {
-      const result = insertAutofillContentService["fillingWithinSandboxedIframe"]();
-
-      expect(result).toBe(false);
-      expect(self.origin).not.toBeNull();
-    });
-
-    it("returns true if the frameElement has a sandbox attribute", () => {
-      Object.defineProperty(globalThis, "frameElement", {
-        value: { hasAttribute: jest.fn(() => true) },
-        writable: true,
-      });
-
-      const result = insertAutofillContentService["fillingWithinSandboxedIframe"]();
-
-      expect(result).toBe(true);
-    });
-
-    it("returns true if the window location hostname is empty", () => {
-      setMockWindowLocation({ protocol: "http:", hostname: "" });
-
-      const result = insertAutofillContentService["fillingWithinSandboxedIframe"]();
-
-      expect(result).toBe(true);
     });
   });
 

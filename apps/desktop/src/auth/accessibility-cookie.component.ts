@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, NgZone } from "@angular/core";
 import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -6,6 +8,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-accessibility-cookie",
@@ -25,6 +28,7 @@ export class AccessibilityCookieComponent {
     protected environmentService: EnvironmentService,
     protected i18nService: I18nService,
     protected ngZone: NgZone,
+    private toastService: ToastService,
   ) {}
 
   registerhCaptcha() {
@@ -42,28 +46,28 @@ export class AccessibilityCookieComponent {
   }
 
   onCookieSavedSuccess() {
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("accessibilityCookieSaved"),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("accessibilityCookieSaved"),
+    });
   }
 
   onCookieSavedFailure() {
-    this.platformUtilsService.showToast(
-      "error",
-      null,
-      this.i18nService.t("noAccessibilityCookieSaved"),
-    );
+    this.toastService.showToast({
+      variant: "error",
+      title: null,
+      message: this.i18nService.t("noAccessibilityCookieSaved"),
+    });
   }
 
   async submit() {
     if (Utils.getHostname(this.accessibilityForm.value.link) !== "accounts.hcaptcha.com") {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("invalidUrl"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidUrl"),
+      });
       return;
     }
     this.listenForCookie = true;

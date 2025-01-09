@@ -1,0 +1,85 @@
+<app-header></app-header>
+<bit-container>
+  <ng-container *ngIf="!firstLoaded && loading">
+    <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
+  <ng-container *ngIf="firstLoaded && !loading">
+    <app-provider-subscription-status
+      [subscription]="subscription"
+    ></app-provider-subscription-status>
+    <ng-container>
+      <div class="tw-flex-col">
+        <strong
+          class="tw-block tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 pb-2"
+          >{{ "details" | i18n }} &#160;<span
+            bitBadge
+            variant="success"
+            *ngIf="subscription.discountPercentage"
+            >{{ "providerDiscount" | i18n: subscription.discountPercentage }}</span
+          >
+        </strong>
+        <bit-table>
+          <ng-template body>
+            <ng-container *ngIf="subscription">
+              <tr bitRow *ngFor="let i of activePlans">
+                <td bitCell class="tw-pl-0 tw-py-3">
+                  {{ getFormattedPlanName(i.planName) }} {{ "orgSeats" | i18n }} ({{
+                    i.cadence.toLowerCase()
+                  }}) {{ "&times;" }}{{ getFormattedSeatCount(i.seatMinimum, i.purchasedSeats) }}
+                  &#64;
+                  {{
+                    getFormattedCost(
+                      i.cost,
+                      i.seatMinimum,
+                      i.purchasedSeats,
+                      subscription.discountPercentage
+                    ) | currency: "$"
+                  }}
+                </td>
+                <td bitCell class="tw-text-right tw-py-3">
+                  {{ ((100 - subscription.discountPercentage) / 100) * i.cost | currency: "$" }} /{{
+                    "month" | i18n
+                  }}
+                  <div *ngIf="subscription.discountPercentage">
+                    <bit-hint class="tw-text-sm tw-line-through">
+                      {{ i.cost | currency: "$" }} /{{ "month" | i18n }}
+                    </bit-hint>
+                  </div>
+                </td>
+              </tr>
+
+              <tr bitRow>
+                <td bitCell class="tw-pl-0 tw-py-3"></td>
+                <td bitCell class="tw-text-right">
+                  <span class="tw-font-bold">Total:</span> {{ totalCost | currency: "$" }} /{{
+                    "month" | i18n
+                  }}
+                </td>
+              </tr>
+            </ng-container>
+          </ng-template>
+        </bit-table>
+      </div>
+    </ng-container>
+    <!-- Account Credit -->
+    <ng-container>
+      <h2 bitTypography="h2">
+        {{ "accountCredit" | i18n }}
+      </h2>
+      <p class="tw-text-lg tw-font-bold">{{ subscription.accountCredit | currency: "$" }}</p>
+      <p bitTypography="body1">{{ "creditAppliedDesc" | i18n }}</p>
+    </ng-container>
+    <!-- Tax Information -->
+    <ng-container>
+      <h2 bitTypography="h2" class="tw-mt-16">{{ "taxInformation" | i18n }}</h2>
+      <p>{{ "taxInformationDesc" | i18n }}</p>
+      <app-manage-tax-information
+        *ngIf="subscription.taxInformation"
+        [startWith]="TaxInformation.from(subscription.taxInformation)"
+        [onSubmit]="updateTaxInformation"
+        (taxInformationUpdated)="load()"
+      />
+    </ng-container>
+  </ng-container>
+</bit-container>

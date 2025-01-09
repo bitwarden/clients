@@ -1,0 +1,68 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="large" [loading]="loading">
+    <span bitDialogTitle>
+      {{ title | uppercase }}
+      <small class="tw-text-muted" *ngIf="dialogParams.user">{{ dialogParams.user.name }}</small>
+    </span>
+    <div bitDialogContent>
+      <ng-container *ngIf="!editing">
+        <p>{{ "providerInviteUserDesc" | i18n }}</p>
+        <div class="tw-mb-4">
+          <bit-form-field>
+            <bit-label>
+              {{ "email" | i18n }}
+            </bit-label>
+            <input type="text" bitInput formControlName="emails" />
+            <bit-hint>{{ "inviteMultipleEmailDesc" | i18n: "20" }}</bit-hint>
+          </bit-form-field>
+        </div>
+      </ng-container>
+      <ng-container>
+        <h3>
+          {{ "userType" | i18n | uppercase }}
+          <a
+            target="_blank"
+            rel="noreferrer"
+            appA11yTitle="{{ 'learnMore' | i18n }}"
+            href="https://bitwarden.com/help/provider-users/"
+          >
+            <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+          </a>
+        </h3>
+        <bit-radio-group formControlName="type">
+          <bit-radio-button [value]="UserType.ServiceUser">
+            <bit-label>
+              {{ "serviceUser" | i18n }}
+            </bit-label>
+            <bit-hint>{{ "serviceUserDesc" | i18n }}</bit-hint>
+          </bit-radio-button>
+          <bit-radio-button [value]="UserType.ProviderAdmin">
+            <bit-label>
+              {{ "providerAdmin" | i18n }}
+            </bit-label>
+            <bit-hint>{{ "providerAdminDesc" | i18n }}</bit-hint>
+          </bit-radio-button>
+        </bit-radio-group>
+      </ng-container>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading">
+        {{ "save" | i18n }}
+      </button>
+      <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
+        {{ "cancel" | i18n }}
+      </button>
+      <div class="tw-ml-auto" *ngIf="editing">
+        <button
+          type="button"
+          bitIconButton="bwi-trash"
+          buttonType="danger"
+          bitFormButton
+          [appA11yTitle]="'delete' | i18n"
+          [bitAction]="delete"
+          [disabled]="loading"
+        ></button>
+      </div>
+    </ng-container>
+  </bit-dialog>
+</form>

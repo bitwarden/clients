@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AutofillOverlayIframeService initOverlayIframe creates an aria alert element if the ariaAlert param is passed 1`] = `
+<div
+  aria-atomic="true"
+  aria-live="polite"
+  role="status"
+  style="position: absolute !important; top: -9999px !important; left: -9999px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; opacity: 0 !important; pointer-events: none;"
+>
+  aria alert
+</div>
+`;
+
+exports[`AutofillOverlayIframeService initOverlayIframe sets up the iframe's attributes 1`] = `
+<iframe
+  allowtransparency="true"
+  sandbox="allow-scripts"
+  src="chrome-extension://id/overlay/legacy-list.html"
+  style="all: initial !important; position: fixed !important; display: block !important; z-index: 2147483647 !important; line-height: 0 !important; overflow: hidden !important; transition: opacity 125ms ease-out 0s !important; visibility: visible !important; clip-path: none !important; pointer-events: auto !important; margin: 0px !important; padding: 0px !important; color-scheme: normal !important; opacity: 0 !important; height: 0px;"
+  tabindex="-1"
+  title="title"
+/>
+`;

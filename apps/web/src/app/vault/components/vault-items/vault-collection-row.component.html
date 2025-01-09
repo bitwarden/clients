@@ -3,7 +3,7 @@
     type="checkbox"
     bitCheckbox
     appStopProp
-    *ngIf="canDeleteCollection"
+    *ngIf="showCheckbox"
     [disabled]="disabled"
     [checked]="checked"
     (change)="$event ? this.checkedToggled.next() : null"
@@ -30,16 +30,11 @@
   >
     <span class="tw-truncate tw-mr-1">{{ collection.name }}</span>
     <div>
-      <span
-        *ngIf="collection.addAccess && collection.id !== Unassigned"
-        bitBadge
-        variant="warning"
-        >{{ "addAccess" | i18n }}</span
-      >
+      <span *ngIf="showAddAccess" bitBadge variant="warning">{{ "addAccess" | i18n }}</span>
     </div>
   </button>
 </td>
-<td bitCell [ngClass]="RowHeightClass" *ngIf="showOwner">
+<td bitCell [ngClass]="RowHeightClass" *ngIf="showOwner" class="tw-hidden lg:tw-table-cell">
   <app-org-badge
     [disabled]="disabled"
     [organizationId]="collection.organizationId"
@@ -80,12 +75,10 @@
       </button>
       <button type="button" bitMenuItem (click)="access(false)">
         <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-        {{ "access" | i18n }}
+        {{ "editAccess" | i18n }}
       </button>
     </ng-container>
-    <ng-container
-      *ngIf="flexibleCollectionsV1Enabled && !canEditCollection && canViewCollectionInfo"
-    >
+    <ng-container *ngIf="!canEditCollection && canViewCollectionInfo">
       <button type="button" bitMenuItem (click)="edit(true)">
         <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
         {{ "viewInfo" | i18n }}

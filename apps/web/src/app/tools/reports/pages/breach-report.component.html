@@ -2,44 +2,35 @@
 
 <bit-container>
   <p>{{ "breachDesc" | i18n }}</p>
-  <form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
-    <div class="row">
-      <div class="form-group col-6">
-        <label for="username">{{ "username" | i18n }}</label>
-        <input
-          id="username"
-          type="text"
-          name="Username"
-          class="form-control"
-          [(ngModel)]="username"
-          required
-        />
-        <small class="form-text text-muted">{{ "breachCheckUsernameEmail" | i18n }}</small>
-      </div>
-    </div>
-    <button type="submit" buttonType="primary" bitButton [loading]="form.loading">
+  <form [bitSubmit]="submit" [formGroup]="formGroup">
+    <bit-form-field class="tw-w-1/2" disableMargin>
+      <bit-label>{{ "username" | i18n }}</bit-label>
+      <input id="username" type="text" formControlName="username" bitInput />
+    </bit-form-field>
+    <small class="form-text text-muted tw-mb-4">{{ "breachCheckUsernameEmail" | i18n }}</small>
+    <button type="submit" buttonType="primary" bitButton [loading]="loading">
       {{ "checkBreaches" | i18n }}
     </button>
   </form>
-  <div class="mt-4" *ngIf="!form.loading && checkedUsername">
+  <div class="tw-mt-4" *ngIf="!loading && checkedUsername">
     <p *ngIf="error">{{ "reportError" | i18n }}...</p>
     <ng-container *ngIf="!error">
-      <app-callout type="success" title="{{ 'goodNews' | i18n }}" *ngIf="!breachedAccounts.length">
+      <bit-callout type="success" title="{{ 'goodNews' | i18n }}" *ngIf="!breachedAccounts.length">
         {{ "breachUsernameNotFound" | i18n: checkedUsername }}
-      </app-callout>
-      <app-callout type="danger" title="{{ 'breachFound' | i18n }}" *ngIf="breachedAccounts.length">
+      </bit-callout>
+      <bit-callout type="danger" title="{{ 'breachFound' | i18n }}" *ngIf="breachedAccounts.length">
         {{ "breachUsernameFound" | i18n: checkedUsername : breachedAccounts.length }}
-      </app-callout>
+      </bit-callout>
       <ul class="list-group list-group-breach" *ngIf="breachedAccounts.length">
         <li *ngFor="let a of breachedAccounts" class="list-group-item min-height-fix">
           <div class="row">
-            <div class="col-2 text-center">
+            <div class="col-2 tw-text-center">
               <img [src]="a.logoPath" alt="" class="img-fluid" />
             </div>
             <div class="col-7">
-              <h3 class="text-lg">{{ a.title }}</h3>
+              <h3 class="tw-text-lg">{{ a.title }}</h3>
               <p [innerHTML]="a.description"></p>
-              <p class="mb-1">{{ "compromisedData" | i18n }}:</p>
+              <p class="tw-mb-1">{{ "compromisedData" | i18n }}:</p>
               <ul>
                 <li *ngFor="let d of a.dataClasses">{{ d }}</li>
               </ul>

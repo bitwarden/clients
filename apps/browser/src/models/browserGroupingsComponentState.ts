@@ -1,8 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CollectionView } from "@bitwarden/admin-console/common";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DeepJsonify } from "@bitwarden/common/types/deep-jsonify";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { BrowserComponentState } from "./browserComponentState";

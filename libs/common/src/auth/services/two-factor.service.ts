@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -18,7 +20,7 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
       name: null as string,
       description: null as string,
       priority: 1,
-      sort: 1,
+      sort: 2,
       premium: false,
     },
     [TwoFactorProviderType.Yubikey]: {
@@ -26,7 +28,7 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
       name: null as string,
       description: null as string,
       priority: 3,
-      sort: 2,
+      sort: 4,
       premium: true,
     },
     [TwoFactorProviderType.Duo]: {
@@ -34,7 +36,7 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
       name: "Duo",
       description: null as string,
       priority: 2,
-      sort: 3,
+      sort: 5,
       premium: true,
     },
     [TwoFactorProviderType.OrganizationDuo]: {
@@ -42,7 +44,7 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
       name: "Duo (Organization)",
       description: null as string,
       priority: 10,
-      sort: 4,
+      sort: 6,
       premium: false,
     },
     [TwoFactorProviderType.Email]: {
@@ -50,7 +52,7 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
       name: null as string,
       description: null as string,
       priority: 0,
-      sort: 6,
+      sort: 1,
       premium: false,
     },
     [TwoFactorProviderType.WebAuthn]: {
@@ -58,7 +60,7 @@ export const TwoFactorProviders: Partial<Record<TwoFactorProviderType, TwoFactor
       name: null as string,
       description: null as string,
       priority: 4,
-      sort: 5,
+      sort: 3,
       premium: false,
     },
   };
@@ -97,14 +99,14 @@ export class TwoFactorService implements TwoFactorServiceAbstraction {
 
   init() {
     TwoFactorProviders[TwoFactorProviderType.Email].name = this.i18nService.t("emailTitle");
-    TwoFactorProviders[TwoFactorProviderType.Email].description = this.i18nService.t("emailDesc");
+    TwoFactorProviders[TwoFactorProviderType.Email].description = this.i18nService.t("emailDescV2");
 
     TwoFactorProviders[TwoFactorProviderType.Authenticator].name =
       this.i18nService.t("authenticatorAppTitle");
     TwoFactorProviders[TwoFactorProviderType.Authenticator].description =
-      this.i18nService.t("authenticatorAppDesc");
+      this.i18nService.t("authenticatorAppDescV2");
 
-    TwoFactorProviders[TwoFactorProviderType.Duo].description = this.i18nService.t("duoDesc");
+    TwoFactorProviders[TwoFactorProviderType.Duo].description = this.i18nService.t("duoDescV2");
 
     TwoFactorProviders[TwoFactorProviderType.OrganizationDuo].name =
       "Duo (" + this.i18nService.t("organization") + ")";
@@ -115,7 +117,7 @@ export class TwoFactorService implements TwoFactorServiceAbstraction {
     TwoFactorProviders[TwoFactorProviderType.WebAuthn].description =
       this.i18nService.t("webAuthnDesc");
 
-    TwoFactorProviders[TwoFactorProviderType.Yubikey].name = this.i18nService.t("yubiKeyTitle");
+    TwoFactorProviders[TwoFactorProviderType.Yubikey].name = this.i18nService.t("yubiKeyTitleV2");
     TwoFactorProviders[TwoFactorProviderType.Yubikey].description =
       this.i18nService.t("yubiKeyDesc");
   }

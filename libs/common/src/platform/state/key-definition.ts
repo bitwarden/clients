@@ -1,9 +1,33 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { StorageKey } from "../../types/state";
 
 import { array, record } from "./deserialization-helpers";
 import { StateDefinition } from "./state-definition";
+
+export type DebugOptions = {
+  /**
+   * When true, logs will be written that look like the following:
+   *
+   * ```
+   * "Updating 'global_myState_myKey' from null to non-null"
+   * "Updating 'user_32265eda-62ff-4797-9ead-22214772f888_myState_myKey' from non-null to null."
+   * ```
+   *
+   * It does not include the value of the data, only whether it is null or non-null.
+   */
+  enableUpdateLogging?: boolean;
+
+  /**
+   * When true, logs will be written that look like the following everytime a value is retrieved from storage.
+   *
+   * "Retrieving 'global_myState_myKey' from storage, value is null."
+   * "Retrieving 'user_32265eda-62ff-4797-9ead-22214772f888_myState_myKey' from storage, value is non-null."
+   */
+  enableRetrievalLogging?: boolean;
+};
 
 /**
  * A set of options for customizing the behavior of a {@link KeyDefinition}
@@ -24,6 +48,11 @@ export type KeyDefinitionOptions<T> = {
    * Defaults to 1000ms.
    */
   readonly cleanupDelayMs?: number;
+
+  /**
+   * Options for configuring the debugging behavior, see individual options for more info.
+   */
+  readonly debug?: DebugOptions;
 };
 
 /**
@@ -32,6 +61,8 @@ export type KeyDefinitionOptions<T> = {
  * sub-divides that domain into specific keys.
  */
 export class KeyDefinition<T> {
+  readonly debug: Required<DebugOptions>;
+
   /**
    * Creates a new instance of a KeyDefinition
    * @param stateDefinition The state definition for which this key belongs to.
@@ -50,11 +81,18 @@ export class KeyDefinition<T> {
       throw new Error(`'deserializer' is a required property on key ${this.errorKeyName}`);
     }
 
-    if (options.cleanupDelayMs <= 0) {
+    if (options.cleanupDelayMs < 0) {
       throw new Error(
-        `'cleanupDelayMs' must be greater than 0. Value of ${options.cleanupDelayMs} passed to key ${this.errorKeyName} `,
+        `'cleanupDelayMs' must be greater than or equal to 0. Value of ${options.cleanupDelayMs} passed to key ${this.errorKeyName} `,
       );
     }
+
+    // Normalize optional debug options
+    const { enableUpdateLogging = false, enableRetrievalLogging = false } = options.debug ?? {};
+    this.debug = {
+      enableUpdateLogging,
+      enableRetrievalLogging,
+    };
   }
 
   /**
@@ -68,7 +106,7 @@ export class KeyDefinition<T> {
    * Gets the number of milliseconds to wait before cleaning up the state after the last subscriber has unsubscribed.
    */
   get cleanupDelayMs() {
-    return this.options.cleanupDelayMs < 0 ? 0 : this.options.cleanupDelayMs ?? 1000;
+    return this.options.cleanupDelayMs < 0 ? 0 : (this.options.cleanupDelayMs ?? 1000);
   }
 
   /**

@@ -1,0 +1,74 @@
+<bit-section [formGroup]="cardDetailsForm">
+  <bit-section-header>
+    <h2 bitTypography="h6">
+      {{ getSectionHeading() }}
+    </h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "cardholderName" | i18n }}</bit-label>
+      <input id="cardholderName" bitInput formControlName="cardholderName" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "number" | i18n }}</bit-label>
+      <input
+        id="cardNumber"
+        bitInput
+        formControlName="number"
+        type="password"
+        class="tw-font-mono"
+      />
+      <button
+        type="button"
+        bitIconButton
+        bitSuffix
+        bitPasswordInputToggle
+        data-testid="visibility-for-card-number"
+        (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardNumberVisible)"
+      ></button>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "brand" | i18n }}</bit-label>
+      <bit-select id="cardBrand" formControlName="brand">
+        <bit-option
+          *ngFor="let brand of cardBrands"
+          [value]="brand.value"
+          [label]="brand.name"
+        ></bit-option>
+      </bit-select>
+    </bit-form-field>
+
+    <div class="tw-flex tw-flex-wrap tw-gap-1">
+      <bit-form-field class="tw-flex-1">
+        <bit-label>{{ "expirationMonth" | i18n }}</bit-label>
+        <bit-select id="cardExpMonth" formControlName="expMonth">
+          <bit-option
+            *ngFor="let month of expirationMonths"
+            [value]="month.value"
+            [label]="month.name"
+          ></bit-option>
+        </bit-select>
+      </bit-form-field>
+
+      <bit-form-field class="tw-flex-1">
+        <bit-label>{{ "expirationYear" | i18n }}</bit-label>
+        <input id="cardExpYear" bitInput formControlName="expYear" type="number" />
+      </bit-form-field>
+    </div>
+
+    <bit-form-field disableMargin>
+      <bit-label>{{ "securityCode" | i18n }}</bit-label>
+      <input id="cardCode" bitInput formControlName="code" type="password" class="tw-font-mono" />
+      <button
+        type="button"
+        bitIconButton
+        bitSuffix
+        bitPasswordInputToggle
+        data-testid="visibility-for-card-code"
+        (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardCodeVisible)"
+      ></button>
+    </bit-form-field>
+  </bit-card>
+</bit-section>

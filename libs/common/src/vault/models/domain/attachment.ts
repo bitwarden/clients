@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Utils } from "../../../platform/misc/utils";
@@ -68,10 +70,10 @@ export class Attachment extends Domain {
   }
 
   private async getKeyForDecryption(orgId: string) {
-    const cryptoService = Utils.getContainerService().getCryptoService();
+    const keyService = Utils.getContainerService().getKeyService();
     return orgId != null
-      ? await cryptoService.getOrgKey(orgId)
-      : await cryptoService.getUserKeyWithLegacySupport();
+      ? await keyService.getOrgKey(orgId)
+      : await keyService.getUserKeyWithLegacySupport();
   }
 
   toAttachmentData(): AttachmentData {

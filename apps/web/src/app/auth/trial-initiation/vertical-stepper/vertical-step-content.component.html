@@ -6,7 +6,7 @@
     [disabled]="disabled"
     class="tw-flex tw-w-full tw-items-center tw-border-none tw-bg-transparent"
     [ngClass]="{
-      'hover:tw-bg-secondary-100': !disabled && step.editable
+      'hover:tw-bg-secondary-100': !disabled && step.editable,
     }"
     [attr.aria-expanded]="selected"
   >
@@ -16,7 +16,7 @@
       [ngClass]="{
         'tw-bg-primary-600 tw-text-contrast': selected,
         'tw-bg-secondary-300 tw-text-main': !selected && !disabled && step.editable,
-        'tw-bg-transparent tw-text-muted': disabled
+        'tw-bg-transparent tw-text-muted': disabled,
       }"
     >
       {{ stepNumber }}
@@ -30,13 +30,13 @@
     <div
       class="tw-txt-main tw-mt-3.5 tw-h-12 tw-text-left tw-leading-snug"
       [ngClass]="{
-        'tw-font-bold': selected
+        'tw-font-bold': selected,
       }"
     >
       <p
         class="main-label text tw-mb-1 tw-text-main"
         [ngClass]="{
-          'tw-mt-1': !step.subLabel
+          'tw-mt-1': !step.subLabel,
         }"
       >
         {{ step.label }}

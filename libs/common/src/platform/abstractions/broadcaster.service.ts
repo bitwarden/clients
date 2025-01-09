@@ -9,10 +9,6 @@ export abstract class BroadcasterService {
   /**
    * @deprecated Use the observable from the appropriate service instead.
    */
-  abstract send(message: MessageBase, id?: string): void;
-  /**
-   * @deprecated Use the observable from the appropriate service instead.
-   */
   abstract subscribe(id: string, messageCallback: (message: MessageBase) => void): void;
   /**
    * @deprecated Use the observable from the appropriate service instead.

@@ -4,7 +4,7 @@
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 <form
   #form
@@ -49,8 +49,16 @@
     </div>
     <div class="tw-mb-4">
       <h2 class="tw-mb-3 tw-text-base tw-font-semibold">{{ "paymentType" | i18n }}</h2>
-      <app-payment [hideCredit]="true" [trialFlow]="true"></app-payment>
-      <app-tax-info [trialFlow]="true" (onCountryChanged)="changedCountry()"></app-tax-info>
+      <app-payment
+        *ngIf="!deprecateStripeSourcesAPI"
+        [hideCredit]="true"
+        [trialFlow]="true"
+      ></app-payment>
+      <app-payment-v2
+        *ngIf="deprecateStripeSourcesAPI"
+        [showAccountCredit]="false"
+      ></app-payment-v2>
+      <app-tax-info [trialFlow]="true" (countryChanged)="changedCountry()"></app-tax-info>
     </div>
     <div class="tw-flex tw-space-x-2">
       <button type="submit" buttonType="primary" bitButton [loading]="form.loading">

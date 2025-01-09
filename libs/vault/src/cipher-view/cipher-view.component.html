@@ -1,0 +1,63 @@
+<ng-container *ngIf="!!cipher">
+  <bit-callout *ngIf="cardIsExpired" type="info" [title]="'cardExpiredTitle' | i18n">
+    {{ "cardExpiredMessage" | i18n }}
+  </bit-callout>
+
+  <!-- HELPER TEXT -->
+  <p
+    class="tw-text-sm tw-text-muted"
+    bitTypography="helper"
+    *ngIf="cipher?.isDeleted && !cipher?.edit"
+  >
+    {{ "noEditPermissions" | i18n }}
+  </p>
+
+  <!-- ITEM DETAILS -->
+  <app-item-details-v2
+    [cipher]="cipher"
+    [organization]="organization$ | async"
+    [collections]="collections"
+    [folder]="folder$ | async"
+    [hideOwner]="isAdminConsole"
+  >
+  </app-item-details-v2>
+
+  <!-- LOGIN CREDENTIALS -->
+  <app-login-credentials-view *ngIf="hasLogin" [cipher]="cipher"></app-login-credentials-view>
+
+  <!-- AUTOFILL OPTIONS -->
+  <app-autofill-options-view
+    *ngIf="hasAutofill"
+    [loginUris]="cipher.login.uris"
+    [cipherId]="cipher.id"
+  >
+  </app-autofill-options-view>
+
+  <!-- CARD DETAILS -->
+  <app-card-details-view *ngIf="hasCard" [cipher]="cipher"></app-card-details-view>
+
+  <!-- IDENTITY SECTIONS -->
+  <app-view-identity-sections *ngIf="cipher.identity" [cipher]="cipher">
+  </app-view-identity-sections>
+
+  <!-- SshKEY SECTIONS -->
+  <app-sshkey-view *ngIf="hasSshKey" [sshKey]="cipher.sshKey"></app-sshkey-view>
+
+  <!-- ADDITIONAL OPTIONS -->
+  <ng-container *ngIf="cipher.notes">
+    <app-additional-options [notes]="cipher.notes"> </app-additional-options>
+  </ng-container>
+
+  <!-- CUSTOM FIELDS -->
+  <ng-container *ngIf="cipher.fields">
+    <app-custom-fields-v2 [cipher]="cipher"> </app-custom-fields-v2>
+  </ng-container>
+
+  <!-- ATTACHMENTS SECTION -->
+  <ng-container *ngIf="cipher.attachments">
+    <app-attachments-v2-view [cipher]="cipher"> </app-attachments-v2-view>
+  </ng-container>
+
+  <!-- ITEM HISTORY SECTION -->
+  <app-item-history-v2 [cipher]="cipher"> </app-item-history-v2>
+</ng-container>

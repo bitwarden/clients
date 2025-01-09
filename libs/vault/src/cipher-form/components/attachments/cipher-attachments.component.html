@@ -1,0 +1,72 @@
+<h2 class="tw-sr-only" id="attachments">{{ "attachments" | i18n }}</h2>
+
+<ul *ngIf="cipher?.attachments" aria-labelledby="attachments" class="tw-list-none tw-pl-0">
+  <li *ngFor="let attachment of cipher.attachments">
+    <bit-item>
+      <bit-item-content>
+        <span data-testid="file-name" [title]="attachment.fileName">{{ attachment.fileName }}</span>
+        <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
+      </bit-item-content>
+      <ng-container slot="end">
+        <bit-item-action>
+          <app-download-attachment
+            [cipher]="cipher"
+            [attachment]="attachment"
+          ></app-download-attachment>
+        </bit-item-action>
+        <bit-item-action>
+          <app-delete-attachment
+            [cipherId]="cipher.id"
+            [attachment]="attachment"
+            (onDeletionSuccess)="removeAttachment(attachment)"
+          ></app-delete-attachment>
+        </bit-item-action>
+      </ng-container>
+    </bit-item>
+  </li>
+</ul>
+
+<form [id]="attachmentFormId" [formGroup]="attachmentForm" [bitSubmit]="submit">
+  <bit-card>
+    <label for="file" bitTypography="body2" class="tw-block tw-text-muted tw-px-1 tw-pb-1.5">
+      {{ "addAttachment" | i18n }}
+    </label>
+    <div class="tw-relative">
+      <!-- Input elements are notoriously difficult to style, --->
+      <!-- The native `<input>` will be used for screen readers -->
+      <!-- Visual & keyboard users will interact with the styled button element -->
+      <input
+        #fileInput
+        class="tw-sr-only"
+        type="file"
+        id="file"
+        name="file"
+        aria-describedby="fileHelp"
+        tabindex="-1"
+        required
+        (change)="onFileChange($event)"
+      />
+      <div class="tw-flex tw-gap-2 tw-items-center" aria-hidden="true">
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          (click)="fileInput.click()"
+          class="tw-whitespace-nowrap"
+        >
+          {{ "chooseFile" | i18n }}
+        </button>
+        <p bitTypography="body2" class="tw-text-muted tw-mb-0">
+          {{
+            this.attachmentForm.controls.file?.value
+              ? this.attachmentForm.controls.file.value.name
+              : ("noFileChosen" | i18n)
+          }}
+        </p>
+      </div>
+    </div>
+    <p id="fileHelp" bitTypography="helper" class="tw-text-muted tw-px-1 tw-pt-1 tw-mb-0">
+      {{ "maxFileSizeSansPunctuation" | i18n }}
+    </p>
+  </bit-card>
+</form>

@@ -70,7 +70,7 @@ describe("LoginUri", () => {
       encryptService = mock();
       global.bitwardenContainerService = {
         getEncryptService: () => encryptService,
-        getCryptoService: () => null,
+        getKeyService: () => null,
       };
     });
 

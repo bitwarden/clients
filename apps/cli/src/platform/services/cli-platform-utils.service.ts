@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as child_process from "child_process";
 
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
@@ -129,14 +131,6 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
 
   readFromClipboard(options?: any): Promise<string> {
     throw new Error("Not implemented.");
-  }
-
-  supportsBiometric(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  authenticateBiometric(): Promise<boolean> {
-    return Promise.resolve(false);
   }
 
   supportsSecureStorage(): boolean {

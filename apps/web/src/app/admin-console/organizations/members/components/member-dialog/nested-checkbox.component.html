@@ -1,28 +1,20 @@
 <div [formGroup]="checkboxes">
-  <input
-    type="checkbox"
-    [name]="pascalize(parentId)"
-    [id]="parentId"
-    [formControlName]="parentId"
-    [indeterminate]="parentIndeterminate"
-  />
-  <label class="!tw-font-normal" [for]="parentId">
-    {{ parentId | i18n }}
-  </label>
-  <div class="tw-ml-6">
+  <bit-form-control>
+    <input
+      type="checkbox"
+      bitCheckbox
+      [formControlName]="parentId"
+      [indeterminate]="parentIndeterminate"
+    />
+    <bit-label>{{ parentId | i18n }}</bit-label>
+  </bit-form-control>
+  <div class="tw-ml-4">
     <ng-container *ngFor="let c of checkboxes.controls | keyvalue; trackBy: key">
-      <div class="" *ngIf="c.key != parentId">
-        <input
-          class=""
-          type="checkbox"
-          [name]="pascalize(c.key)"
-          [id]="c.key"
-          [formControl]="c.value"
-          (change)="onChildCheck()"
-        />
-        <label class="!tw-font-normal" [for]="c.key">
-          {{ c.key | i18n }}
-        </label>
+      <div *ngIf="c.key != parentId">
+        <bit-form-control>
+          <input type="checkbox" bitCheckbox [formControl]="c.value" (change)="onChildCheck()" />
+          <bit-label>{{ c.key | i18n }}</bit-label>
+        </bit-form-control>
       </div>
     </ng-container>
   </div>

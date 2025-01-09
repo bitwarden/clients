@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { UserId } from "../../types/guid";
 import { StorageKey } from "../../types/state";
 import { Utils } from "../misc/utils";
 
 import { array, record } from "./deserialization-helpers";
-import { KeyDefinition, KeyDefinitionOptions } from "./key-definition";
+import { DebugOptions, KeyDefinitionOptions } from "./key-definition";
 import { StateDefinition } from "./state-definition";
 
 export type ClearEvent = "lock" | "logout";
@@ -14,21 +16,17 @@ export type UserKeyDefinitionOptions<T> = KeyDefinitionOptions<T> & {
 
 const USER_KEY_DEFINITION_MARKER: unique symbol = Symbol("UserKeyDefinition");
 
-export function isUserKeyDefinition<T>(
-  keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>,
-): keyDefinition is UserKeyDefinition<T> {
-  return (
-    USER_KEY_DEFINITION_MARKER in keyDefinition &&
-    keyDefinition[USER_KEY_DEFINITION_MARKER] === true
-  );
-}
-
 export class UserKeyDefinition<T> {
   readonly [USER_KEY_DEFINITION_MARKER] = true;
   /**
    * A unique array of events that the state stored at this key should be cleared on.
    */
   readonly clearOn: ClearEvent[];
+
+  /**
+   * Normalized options used for debugging purposes.
+   */
+  readonly debug: Required<DebugOptions>;
 
   constructor(
     readonly stateDefinition: StateDefinition,
@@ -39,14 +37,21 @@ export class UserKeyDefinition<T> {
       throw new Error(`'deserializer' is a required property on key ${this.errorKeyName}`);
     }
 
-    if (options.cleanupDelayMs <= 0) {
+    if (options.cleanupDelayMs < 0) {
       throw new Error(
-        `'cleanupDelayMs' must be greater than 0. Value of ${options.cleanupDelayMs} passed to key ${this.errorKeyName} `,
+        `'cleanupDelayMs' must be greater than or equal to 0. Value of ${options.cleanupDelayMs} passed to key ${this.errorKeyName} `,
       );
     }
 
     // Filter out repeat values
     this.clearOn = Array.from(new Set(options.clearOn));
+
+    // Normalize optional debug options
+    const { enableUpdateLogging = false, enableRetrievalLogging = false } = options.debug ?? {};
+    this.debug = {
+      enableUpdateLogging,
+      enableRetrievalLogging,
+    };
   }
 
   /**
@@ -60,21 +65,7 @@ export class UserKeyDefinition<T> {
    * Gets the number of milliseconds to wait before cleaning up the state after the last subscriber has unsubscribed.
    */
   get cleanupDelayMs() {
-    return this.options.cleanupDelayMs < 0 ? 0 : this.options.cleanupDelayMs ?? 1000;
-  }
-
-  /**
-   *
-   * @param keyDefinition
-   * @returns
-   *
-   * @deprecated You should not use this to convert, just create a {@link UserKeyDefinition}
-   */
-  static fromBaseKeyDefinition<T>(keyDefinition: KeyDefinition<T>) {
-    return new UserKeyDefinition<T>(keyDefinition.stateDefinition, keyDefinition.key, {
-      ...keyDefinition["options"],
-      clearOn: [], // Default to not clearing
-    });
+    return this.options.cleanupDelayMs < 0 ? 0 : (this.options.cleanupDelayMs ?? 1000);
   }
 
   /**

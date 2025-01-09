@@ -1,17 +1,17 @@
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { ButtonModule } from "../../button";
-import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
+import { DialogModule } from "../dialog.module";
 
-import { IconDirective, SimpleDialogComponent } from "./simple-dialog.component";
+import { SimpleDialogComponent } from "./simple-dialog.component";
 
 export default {
   title: "Component Library/Dialogs/Simple Dialog",
   component: SimpleDialogComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule],
-      declarations: [IconDirective, DialogTitleContainerDirective],
+      imports: [ButtonModule, NoopAnimationsModule, DialogModule],
     }),
   ],
   parameters: {
@@ -64,10 +64,9 @@ export const ScrollingContent: Story = {
       <bit-simple-dialog>
         <span bitDialogTitle>Alert Dialog</span>
         <span bitDialogContent>
-          Message Content
-          Message text goes here.<br>
+          Message Content Message text goes here.<br />
           <ng-container *ngFor="let _ of [].constructor(100)">
-            repeating lines of characters <br>
+            repeating lines of characters <br />
           </ng-container>
           end of sequence!
         </span>
@@ -81,4 +80,20 @@ export const ScrollingContent: Story = {
   args: {
     useDefaultIcon: true,
   },
+};
+
+export const TextOverflow: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-simple-dialog>
+        <span bitDialogTitle>Alert Dialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialog</span>
+        <span bitDialogContent>Message Contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent</span>
+        <ng-container bitDialogFooter>
+          <button bitButton buttonType="primary">Yes</button>
+          <button bitButton buttonType="secondary">No</button>
+        </ng-container>
+      </bit-simple-dialog>
+    `,
+  }),
 };

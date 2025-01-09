@@ -26,7 +26,7 @@ export const SecureNoteData: ExportData = {
               favIndex: 0,
               createdAt: 1619465226,
               updatedAt: 1619465278,
-              trashed: false,
+              state: "active",
               categoryUuid: "003",
               details: {
                 loginFields: [],

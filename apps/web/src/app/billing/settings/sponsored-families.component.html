@@ -1,0 +1,89 @@
+<app-header></app-header>
+
+<bit-container>
+  <ng-container *ngIf="loading">
+    <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
+  <ng-container *ngIf="!loading">
+    <p bitTypography="body1">
+      {{ "sponsoredFamiliesEligible" | i18n }}
+    </p>
+    <div bitTypography="body1">
+      {{ "sponsoredFamiliesInclude" | i18n }}:
+      <ul class="tw-list-outside">
+        <li>{{ "sponsoredFamiliesPremiumAccess" | i18n }}</li>
+        <li>{{ "sponsoredFamiliesSharedCollections" | i18n }}</li>
+      </ul>
+    </div>
+    <form [formGroup]="sponsorshipForm" [bitSubmit]="submit" *ngIf="anyOrgsAvailable$ | async">
+      <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+        <div class="tw-col-span-7">
+          <bit-form-field>
+            <bit-label>{{ "familiesSponsoringOrgSelect" | i18n }}</bit-label>
+            <bit-select
+              id="availableSponsorshipOrg"
+              name="Available Sponsorship Organization"
+              formControlName="selectedSponsorshipOrgId"
+            >
+              <bit-option
+                [disabled]="true"
+                [value]=""
+                [label]="'--' + ('select' | i18n) + '--'"
+              ></bit-option>
+              <bit-option
+                *ngFor="let o of availableSponsorshipOrgs$ | async"
+                [value]="o.id"
+                [label]="o.name"
+              ></bit-option>
+            </bit-select>
+          </bit-form-field>
+        </div>
+        <div class="tw-col-span-7">
+          <bit-form-field>
+            <bit-label>{{ "sponsoredFamiliesEmail" | i18n }}:</bit-label>
+            <input
+              bitInput
+              inputmode="email"
+              formControlName="sponsorshipEmail"
+              [attr.aria-invalid]="sponsorshipEmailControl.invalid"
+              appInputStripSpaces
+            />
+          </bit-form-field>
+        </div>
+        <div class="tw-col-span-7">
+          <button bitButton bitFormButton buttonType="primary" type="submit">
+            {{ "redeem" | i18n }}
+          </button>
+        </div>
+      </div>
+    </form>
+    <ng-container *ngIf="anyActiveSponsorships$ | async">
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "recipient" | i18n }}</th>
+            <th bitCell>{{ "sponsoringOrg" | i18n }}</th>
+            <th bitCell>{{ "status" | i18n }}</th>
+            <th bitCell></th>
+          </tr>
+        </ng-container>
+        <ng-template body alignContent="middle">
+          <ng-container *ngFor="let o of activeSponsorshipOrgs$ | async">
+            <tr
+              bitRow
+              sponsoring-org-row
+              [sponsoringOrg]="o"
+              [isSelfHosted]="isSelfHosted"
+              (sponsorshipRemoved)="forceReload()"
+            >
+              <hr />
+            </tr>
+          </ng-container>
+        </ng-template>
+      </bit-table>
+      <hr />
+      <p bitTypography="body2">{{ "sponsoredFamiliesLeaveCopy" | i18n }}</p>
+    </ng-container>
+  </ng-container>
+</bit-container>

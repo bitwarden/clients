@@ -1,4 +1,6 @@
-import { Component } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -18,7 +20,10 @@ import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } 
   templateUrl: "../../../tools/reports/pages/reused-passwords-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class ReusedPasswordsReportComponent extends BaseReusedPasswordsReportComponent {
+export class ReusedPasswordsReportComponent
+  extends BaseReusedPasswordsReportComponent
+  implements OnInit
+{
   manageableCiphers: Cipher[];
 
   constructor(

@@ -1,18 +1,21 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
+import { lastValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { DialogService } from "@bitwarden/components";
 
 import { PolicyListService } from "../../core/policy-list.service";
 import { BasePolicy } from "../policies";
 
-import { PolicyEditComponent } from "./policy-edit.component";
+import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.component";
 
 @Component({
   selector: "app-org-policies",
@@ -33,11 +36,10 @@ export class PoliciesComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private modalService: ModalService,
     private organizationService: OrganizationService,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyListService: PolicyListService,
-    private router: Router,
+    private dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
@@ -83,21 +85,16 @@ export class PoliciesComponent implements OnInit {
   }
 
   async edit(policy: BasePolicy) {
-    const [modal] = await this.modalService.openViewRef(
-      PolicyEditComponent,
-      this.editModalRef,
-      (comp) => {
-        comp.policy = policy;
-        comp.organizationId = this.organizationId;
-        comp.policiesEnabledMap = this.policiesEnabledMap;
-        // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-        comp.onSavedPolicy.subscribe(() => {
-          modal.close();
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.load();
-        });
+    const dialogRef = PolicyEditComponent.open(this.dialogService, {
+      data: {
+        policy: policy,
+        organizationId: this.organizationId,
       },
-    );
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+    if (result === PolicyEditDialogResult.Saved) {
+      await this.load();
+    }
   }
 }

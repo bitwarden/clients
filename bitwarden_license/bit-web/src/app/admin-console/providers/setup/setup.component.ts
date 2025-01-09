@@ -1,140 +1,153 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
-import { first } from "rxjs/operators";
+import { Subject, switchMap } from "rxjs";
+import { first, takeUntil } from "rxjs/operators";
 
+import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderSetupRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-setup.request";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { TaxInfoComponent } from "@bitwarden/web-vault/app/billing";
+import { ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 @Component({
   selector: "provider-setup",
   templateUrl: "setup.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class SetupComponent implements OnInit {
-  @ViewChild(TaxInfoComponent) taxInfoComponent: TaxInfoComponent;
+export class SetupComponent implements OnInit, OnDestroy {
+  @ViewChild(ManageTaxInformationComponent)
+  manageTaxInformationComponent: ManageTaxInformationComponent;
 
   loading = true;
-  authed = false;
-  email: string;
-  formPromise: Promise<any>;
-
   providerId: string;
   token: string;
-  name: string;
-  billingEmail: string;
 
-  protected showPaymentMethodWarningBanners$ = this.configService.getFeatureFlag$(
-    FeatureFlag.ShowPaymentMethodWarningBanners,
-  );
+  protected formGroup = this.formBuilder.group({
+    name: ["", Validators.required],
+    billingEmail: ["", [Validators.required, Validators.email]],
+  });
 
-  protected enableConsolidatedBilling$ = this.configService.getFeatureFlag$(
-    FeatureFlag.EnableConsolidatedBilling,
-  );
+  private destroy$ = new Subject<void>();
 
   constructor(
     private router: Router,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private syncService: SyncService,
     private validationService: ValidationService,
     private configService: ConfigService,
     private providerApiService: ProviderApiServiceAbstraction,
+    private formBuilder: FormBuilder,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit() {
     document.body.classList.remove("layout_frontend");
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
-      const error = qParams.providerId == null || qParams.email == null || qParams.token == null;
 
-      if (error) {
-        this.platformUtilsService.showToast(
-          "error",
-          null,
-          this.i18nService.t("emergencyInviteAcceptFailed"),
-          { timeout: 10000 },
-        );
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate(["/"]);
+    this.route.queryParams
+      .pipe(
+        first(),
+        switchMap(async (queryParams) => {
+          const error =
+            queryParams.providerId == null ||
+            queryParams.email == null ||
+            queryParams.token == null;
+
+          if (error) {
+            this.toastService.showToast({
+              variant: "error",
+              title: null,
+              message: this.i18nService.t("emergencyInviteAcceptFailed"),
+              timeout: 10000,
+            });
+
+            return await this.router.navigate(["/"]);
+          }
+
+          this.providerId = queryParams.providerId;
+          this.token = queryParams.token;
+
+          try {
+            const provider = await this.providerApiService.getProvider(this.providerId);
+
+            if (provider.name != null) {
+              /*
+                This is currently always going to result in a redirect to the Vault because the `provider-permissions.guard`
+                checks for the existence of the Provider in state. However, when accessing the Setup page via the email link,
+                this `navigate` invocation will be hit before the sync can complete, thus resulting in a null Provider. If we want
+                to resolve it, we'd either need to use the ProviderApiService in the provider-permissions.guard (added expense)
+                or somehow check that the previous route was /setup.
+              */
+              return await this.router.navigate(["/providers", provider.id], {
+                replaceUrl: true,
+              });
+            }
+            this.loading = false;
+          } catch (error) {
+            this.validationService.showError(error);
+            return await this.router.navigate(["/"]);
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  submit = async () => {
+    try {
+      this.formGroup.markAllAsTouched();
+
+      if (!this.manageTaxInformationComponent.validate() || !this.formGroup.valid) {
         return;
       }
 
-      this.providerId = qParams.providerId;
-      this.token = qParams.token;
-
-      // Check if provider exists, redirect if it does
-      try {
-        const provider = await this.providerApiService.getProvider(this.providerId);
-        if (provider.name != null) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.router.navigate(["/providers", provider.id], { replaceUrl: true });
-        }
-      } catch (e) {
-        this.validationService.showError(e);
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate(["/"]);
-      }
-    });
-  }
-
-  async submit() {
-    this.formPromise = this.doSubmit();
-    await this.formPromise;
-    this.formPromise = null;
-  }
-
-  async doSubmit() {
-    try {
-      const providerKey = await this.cryptoService.makeOrgKey<ProviderKey>();
+      const providerKey = await this.keyService.makeOrgKey<ProviderKey>();
       const key = providerKey[0].encryptedString;
 
       const request = new ProviderSetupRequest();
-      request.name = this.name;
-      request.billingEmail = this.billingEmail;
+      request.name = this.formGroup.value.name;
+      request.billingEmail = this.formGroup.value.billingEmail;
       request.token = this.token;
       request.key = key;
 
-      const enableConsolidatedBilling = await firstValueFrom(this.enableConsolidatedBilling$);
+      request.taxInfo = new ExpandedTaxInfoUpdateRequest();
+      const taxInformation = this.manageTaxInformationComponent.getTaxInformation();
 
-      if (enableConsolidatedBilling) {
-        request.taxInfo = new ExpandedTaxInfoUpdateRequest();
-        const taxInfoView = this.taxInfoComponent.taxInfo;
-        request.taxInfo.country = taxInfoView.country;
-        request.taxInfo.postalCode = taxInfoView.postalCode;
-        if (taxInfoView.includeTaxId) {
-          request.taxInfo.taxId = taxInfoView.taxId;
-          request.taxInfo.line1 = taxInfoView.line1;
-          request.taxInfo.line2 = taxInfoView.line2;
-          request.taxInfo.city = taxInfoView.city;
-          request.taxInfo.state = taxInfoView.state;
-        }
-      }
+      request.taxInfo.country = taxInformation.country;
+      request.taxInfo.postalCode = taxInformation.postalCode;
+      request.taxInfo.taxId = taxInformation.taxId;
+      request.taxInfo.line1 = taxInformation.line1;
+      request.taxInfo.line2 = taxInformation.line2;
+      request.taxInfo.city = taxInformation.city;
+      request.taxInfo.state = taxInformation.state;
 
       const provider = await this.providerApiService.postProviderSetup(this.providerId, request);
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("providerSetup"));
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("providerSetup"),
+      });
+
       await this.syncService.fullSync(true);
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/providers", provider.id]);
+      await this.router.navigate(["/providers", provider.id]);
     } catch (e) {
       this.validationService.showError(e);
     }
-  }
+  };
 }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
@@ -205,7 +207,7 @@ describe("AccessSelectorComponent", () => {
           labelName: "Member 1",
           listName: "Member 1 (member1@email.com)",
           email: "member1@email.com",
-          role: OrganizationUserType.Manager,
+          role: OrganizationUserType.User,
           status: OrganizationUserStatusType.Confirmed,
         },
       ];

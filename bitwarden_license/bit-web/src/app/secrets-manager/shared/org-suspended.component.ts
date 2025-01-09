@@ -16,7 +16,7 @@ export class OrgSuspendedComponent {
 
   protected NoAccess: Icon = Icons.NoAccess;
   protected organizationName$ = this.route.params.pipe(
-    concatMap((params) => this.organizationService.get$(params.organizationId)),
+    concatMap(async (params) => await this.organizationService.get(params.organizationId)),
     map((org) => org?.name),
   );
 }

@@ -1,0 +1,144 @@
+<popup-page *ngIf="data$ | async as data">
+  <popup-header
+    slot="header"
+    pageTitle="{{
+      (passkeyAction === PasskeyActions.Register ? 'savePasskey' : 'logInWithPasskeyQuestion')
+        | i18n
+    }}"
+  >
+    <button
+      *ngIf="showNewPasskeyButton"
+      bitButton
+      buttonType="primary"
+      type="button"
+      (click)="addCipher()"
+      slot="end"
+    >
+      <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+      {{ "new" | i18n }}
+    </button>
+  </popup-header>
+
+  <div class="tw-p-2">
+    <bit-section *ngIf="passkeyAction === PasskeyActions.Register">
+      <bit-search
+        appAutofocus
+        autocomplete="off"
+        id="search"
+        placeholder="{{ 'searchVault' | i18n }}"
+        (ngModelChange)="search()"
+        [(ngModel)]="searchText"
+      ></bit-search>
+    </bit-section>
+
+    <!-- Display when adding a new passkey -->
+    <bit-section *ngIf="data.message.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest">
+      <!-- Display when matching ciphers (i.e. same domain, no passkeys) exist -->
+      <ng-container *ngIf="displayedCiphers.length > 0">
+        <bit-section-header>
+          <h2 bitTypography="h6">{{ "chooseCipherForPasskeySave" | i18n }}</h2>
+        </bit-section-header>
+        <app-fido2-cipher-row
+          *ngFor="let cipherItem of displayedCiphers"
+          [cipher]="cipherItem"
+          title="{{ 'passkeyItem' | i18n }}"
+          (onSelected)="handleCipherItemSelect($event)"
+        ></app-fido2-cipher-row>
+      </ng-container>
+
+      <!-- Display when no matching ciphers exist -->
+      <ng-container *ngIf="!displayedCiphers.length">
+        <bit-no-items class="tw-text-main" [icon]="noResultsIcon">
+          <ng-container slot="title">{{
+            (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
+          }}</ng-container>
+          <ng-container slot="description">{{
+            (hasSearched ? "searchSavePasskeyNewLogin" : "clearFiltersOrTryAnother") | i18n
+          }}</ng-container>
+
+          <button
+            bitButton
+            buttonType="primary"
+            slot="button"
+            type="button"
+            (click)="hasSearched ? clearSearch() : saveNewLogin()"
+            [loading]="loading"
+          >
+            {{ (hasSearched ? "multiSelectClearAll" : "savePasskeyNewLogin") | i18n }}
+          </button>
+        </bit-no-items>
+      </ng-container>
+    </bit-section>
+
+    <!-- Display when the passkey being saved already exists -->
+    <bit-section
+      *ngIf="data.message.type === BrowserFido2MessageTypes.InformExcludedCredentialRequest"
+    >
+      <div class="auth-flow">
+        <p class="subtitle">{{ "passkeyAlreadyExists" | i18n }}</p>
+        <div class="box list">
+          <div class="box-content">
+            <app-fido2-cipher-row
+              *ngFor="let cipherItem of displayedCiphers"
+              [cipher]="cipherItem"
+              title="{{ 'passkeyItem' | i18n }}"
+              (onSelected)="handleCipherItemSelect($event)"
+            ></app-fido2-cipher-row>
+          </div>
+        </div>
+      </div>
+    </bit-section>
+
+    <!-- Display when picking a passkey to login with -->
+    <bit-section *ngIf="data.message.type === BrowserFido2MessageTypes.PickCredentialRequest">
+      <!-- Display when matching ciphers exist -->
+      <ng-container *ngIf="displayedCiphers.length > 0">
+        <ng-container slot="title">{{ "chooseCipherForPasskeyAuth" | i18n }}</ng-container>
+        <app-fido2-cipher-row
+          *ngFor="let cipherItem of displayedCiphers"
+          [cipher]="cipherItem"
+          title="{{ 'passkeyItem' | i18n }}"
+          (onSelected)="handleCipherItemSelect($event)"
+        ></app-fido2-cipher-row>
+      </ng-container>
+
+      <!-- Display when no matching ciphers exist -->
+      <ng-container *ngIf="!displayedCiphers.length">
+        <bit-no-items class="tw-text-main" [icon]="noResultsIcon">
+          <ng-container slot="title">{{
+            (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
+          }}</ng-container>
+          <ng-container slot="description">{{
+            (hasSearched ? "searchSavePasskeyNewLogin" : "clearFiltersOrTryAnother") | i18n
+          }}</ng-container>
+
+          <button
+            bitButton
+            buttonType="primary"
+            slot="button"
+            type="button"
+            (click)="hasSearched ? clearSearch() : saveNewLogin()"
+            [loading]="loading"
+          >
+            {{ (hasSearched ? "multiSelectClearAll" : "savePasskeyNewLogin") | i18n }}
+          </button>
+        </bit-no-items>
+      </ng-container>
+    </bit-section>
+
+    <!-- Display when initiating passkey login, but no cooresponding cipher is found in the vault -->
+    <bit-section
+      *ngIf="data.message.type === BrowserFido2MessageTypes.InformCredentialNotFoundRequest"
+    >
+      <div class="auth-flow">
+        <p class="subtitle">{{ "noPasskeysFoundForThisApplication" | i18n }}</p>
+      </div>
+      <button type="button" class="btn primary block" (click)="abort(false)">
+        <span [hidden]="loading">{{ "close" | i18n }}</span>
+        <i class="bwi bwi-spinner bwi-lg bwi-spin" [hidden]="!loading" aria-hidden="true"></i>
+      </button>
+    </bit-section>
+
+    <app-fido2-use-browser-link></app-fido2-use-browser-link>
+  </div>
+</popup-page>

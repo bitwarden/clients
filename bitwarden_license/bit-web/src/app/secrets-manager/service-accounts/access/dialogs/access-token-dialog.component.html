@@ -1,11 +1,4 @@
-<bit-dialog dialogSize="default">
-  <ng-container bitDialogTitle>
-    <span>{{ "newAccessToken" | i18n }}</span>
-    <span class="tw-text-sm tw-normal-case tw-text-muted">
-      {{ data.subTitle }}
-    </span>
-  </ng-container>
-
+<bit-dialog dialogSize="default" [title]="'newAccessToken' | i18n" [subtitle]="data.subTitle">
   <div bitDialogContent>
     <bit-callout type="info" [title]="'accessTokenCallOutTitle' | i18n">
       {{ "downloadAccessToken" | i18n }}<br />

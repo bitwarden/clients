@@ -1,22 +1,27 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { OverlayCipherData } from "../background/abstractions/overlay.background";
+import {
+  FocusedFieldData,
+  InlineMenuCipherData,
+} from "../background/abstractions/overlay.background";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript, { FillScript } from "../models/autofill-script";
-import { InitAutofillOverlayButtonMessage } from "../overlay/abstractions/autofill-overlay-button";
-import { InitAutofillOverlayListMessage } from "../overlay/abstractions/autofill-overlay-list";
+import { InitAutofillInlineMenuButtonMessage } from "../overlay/inline-menu/abstractions/autofill-inline-menu-button";
+import { InitAutofillInlineMenuListMessage } from "../overlay/inline-menu/abstractions/autofill-inline-menu-list";
 import { GenerateFillScriptOptions, PageDetail } from "../services/abstractions/autofill.service";
 
-function createAutofillFormMock(customFields = {}): AutofillForm {
+export function createAutofillFormMock(customFields = {}): AutofillForm {
   return {
     opid: "default-form-opid",
     htmlID: "default-htmlID",
@@ -27,7 +32,7 @@ function createAutofillFormMock(customFields = {}): AutofillForm {
   };
 }
 
-function createAutofillFieldMock(customFields = {}): AutofillField {
+export function createAutofillFieldMock(customFields = {}): AutofillField {
   return {
     opid: "default-input-field-opid",
     elementNumber: 0,
@@ -57,7 +62,7 @@ function createAutofillFieldMock(customFields = {}): AutofillField {
   };
 }
 
-function createPageDetailMock(customFields = {}): PageDetail {
+export function createPageDetailMock(customFields = {}): PageDetail {
   return {
     frameId: 0,
     tab: createChromeTabMock(),
@@ -66,7 +71,7 @@ function createPageDetailMock(customFields = {}): PageDetail {
   };
 }
 
-function createAutofillPageDetailsMock(customFields = {}): AutofillPageDetails {
+export function createAutofillPageDetailsMock(customFields = {}): AutofillPageDetails {
   return {
     title: "title",
     url: "url",
@@ -86,7 +91,7 @@ function createAutofillPageDetailsMock(customFields = {}): AutofillPageDetails {
   };
 }
 
-function createChromeTabMock(customFields = {}): chrome.tabs.Tab {
+export function createChromeTabMock(customFields = {}): chrome.tabs.Tab {
   return {
     id: 1,
     index: 1,
@@ -104,13 +109,14 @@ function createChromeTabMock(customFields = {}): chrome.tabs.Tab {
   };
 }
 
-function createGenerateFillScriptOptionsMock(customFields = {}): GenerateFillScriptOptions {
+export function createGenerateFillScriptOptionsMock(customFields = {}): GenerateFillScriptOptions {
   return {
     skipUsernameOnlyFill: false,
     onlyEmptyFields: false,
     onlyVisibleFields: false,
     fillNewPassword: false,
     allowTotpAutofill: false,
+    autoSubmitLogin: false,
     cipher: mock<CipherView>(),
     tabUrl: "https://jest-testing-website.com",
     defaultUriMatch: UriMatchStrategy.Domain,
@@ -118,7 +124,7 @@ function createGenerateFillScriptOptionsMock(customFields = {}): GenerateFillScr
   };
 }
 
-function createAutofillScriptMock(
+export function createAutofillScriptMock(
   customFields = {},
   scriptTypes?: Record<string, string>,
 ): AutofillScript {
@@ -152,35 +158,40 @@ function createAutofillScriptMock(
 
 const overlayPagesTranslations = {
   locale: "en",
-  buttonPageTitle: "buttonPageTitle",
-  listPageTitle: "listPageTitle",
   opensInANewWindow: "opensInANewWindow",
   toggleBitwardenVaultOverlay: "toggleBitwardenVaultOverlay",
-  unlockYourAccount: "unlockYourAccount",
+  unlockYourAccountToViewAutofillSuggestions: "unlockYourAccountToViewAutofillSuggestions",
   unlockAccount: "unlockAccount",
   fillCredentialsFor: "fillCredentialsFor",
-  partialUsername: "partialUsername",
+  username: "username",
   view: "view",
   noItemsToShow: "noItemsToShow",
   newItem: "newItem",
   addNewVaultItem: "addNewVaultItem",
 };
-function createInitAutofillOverlayButtonMessageMock(
+export function createInitAutofillInlineMenuButtonMessageMock(
   customFields = {},
-): InitAutofillOverlayButtonMessage {
+): InitAutofillInlineMenuButtonMessage {
   return {
-    command: "initAutofillOverlayButton",
+    command: "initAutofillInlineMenuButton",
     translations: overlayPagesTranslations,
     styleSheetUrl: "https://jest-testing-website.com",
     authStatus: AuthenticationStatus.Unlocked,
+    portKey: "portKey",
     ...customFields,
   };
 }
-function createAutofillOverlayCipherDataMock(index: number, customFields = {}): OverlayCipherData {
+export function createAutofillOverlayCipherDataMock(
+  index: number,
+  customFields = {},
+): InlineMenuCipherData {
   return {
     id: String(index),
     name: `website login ${index}`,
-    login: { username: `username${index}` },
+    login: {
+      username: `username${index}`,
+      passkey: null,
+    },
     type: CipherType.Login,
     reprompt: CipherRepromptType.None,
     favorite: false,
@@ -194,15 +205,17 @@ function createAutofillOverlayCipherDataMock(index: number, customFields = {}): 
   };
 }
 
-function createInitAutofillOverlayListMessageMock(
+export function createInitAutofillInlineMenuListMessageMock(
   customFields = {},
-): InitAutofillOverlayListMessage {
+): InitAutofillInlineMenuListMessage {
   return {
-    command: "initAutofillOverlayList",
+    command: "initAutofillInlineMenuList",
     translations: overlayPagesTranslations,
     styleSheetUrl: "https://jest-testing-website.com",
-    theme: ThemeType.Light,
+    theme: ThemeTypes.Light,
     authStatus: AuthenticationStatus.Unlocked,
+    portKey: "portKey",
+    inlineMenuFillType: CipherType.Login,
     ciphers: [
       createAutofillOverlayCipherDataMock(1, {
         icon: {
@@ -237,7 +250,9 @@ function createInitAutofillOverlayListMessageMock(
   };
 }
 
-function createFocusedFieldDataMock(customFields = {}) {
+export function createFocusedFieldDataMock(
+  customFields: Partial<FocusedFieldData> = {},
+): FocusedFieldData {
   return {
     focusedFieldRects: {
       top: 1,
@@ -249,11 +264,14 @@ function createFocusedFieldDataMock(customFields = {}) {
       paddingRight: "6px",
       paddingLeft: "6px",
     },
+    inlineMenuFillType: CipherType.Login,
+    tabId: 1,
+    frameId: 2,
     ...customFields,
   };
 }
 
-function createPortSpyMock(name: string) {
+export function createPortSpyMock(name: string) {
   return mock<chrome.runtime.Port>({
     name,
     onMessage: {
@@ -272,16 +290,17 @@ function createPortSpyMock(name: string) {
   });
 }
 
-export {
-  createAutofillFormMock,
-  createAutofillFieldMock,
-  createPageDetailMock,
-  createAutofillPageDetailsMock,
-  createChromeTabMock,
-  createGenerateFillScriptOptionsMock,
-  createAutofillScriptMock,
-  createInitAutofillOverlayButtonMessageMock,
-  createInitAutofillOverlayListMessageMock,
-  createFocusedFieldDataMock,
-  createPortSpyMock,
-};
+export function createMutationRecordMock(customFields = {}): MutationRecord {
+  return {
+    addedNodes: mock<NodeList>(),
+    attributeName: "default-attributeName",
+    attributeNamespace: "default-attributeNamespace",
+    nextSibling: null,
+    oldValue: "default-oldValue",
+    previousSibling: null,
+    removedNodes: mock<NodeList>(),
+    target: null,
+    type: "attributes",
+    ...customFields,
+  };
+}

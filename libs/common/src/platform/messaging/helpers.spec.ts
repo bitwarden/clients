@@ -12,7 +12,7 @@ describe("helpers", () => {
     });
 
     it("can get the command from a message definition", () => {
-      const commandDefinition = new CommandDefinition<object>("myCommand");
+      const commandDefinition = new CommandDefinition<Record<string, unknown>>("myCommand");
 
       const command = getCommand(commandDefinition);
 
@@ -22,9 +22,9 @@ describe("helpers", () => {
 
   describe("tag integration", () => {
     it("can tag and identify as tagged", async () => {
-      const messagesSubject = new Subject<Message<object>>();
+      const messagesSubject = new Subject<Message<Record<string, unknown>>>();
 
-      const taggedMessages = messagesSubject.asObservable().pipe(tagAsExternal);
+      const taggedMessages = messagesSubject.asObservable().pipe(tagAsExternal());
 
       const firstValuePromise = firstValueFrom(taggedMessages);
 
@@ -39,7 +39,7 @@ describe("helpers", () => {
   describe("isExternalMessage", () => {
     it.each([null, { command: "myCommand", test: "object" }, undefined] as Message<
       Record<string, unknown>
-    >[])("returns false when value is %s", (value: Message<object>) => {
+    >[])("returns false when value is %s", (value: Message<Record<string, unknown>>) => {
       expect(isExternalMessage(value)).toBe(false);
     });
   });

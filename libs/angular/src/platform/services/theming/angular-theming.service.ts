@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@angular/core";
 import { fromEvent, map, merge, Observable, of, Subscription, switchMap } from "rxjs";
 
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 
 import { SYSTEM_THEME_OBSERVABLE } from "../../../services/injection-tokens";
@@ -15,25 +15,32 @@ export class AngularThemingService implements AbstractThemingService {
    * @param window The window that should be watched for system theme changes.
    * @returns An observable that will track the system theme.
    */
-  static createSystemThemeFromWindow(window: Window): Observable<ThemeType> {
+  static createSystemThemeFromWindow(window: Window): Observable<Theme> {
     return merge(
       // This observable should always emit at least once, so go and get the current system theme designation
-      of(
-        window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? ThemeType.Dark
-          : ThemeType.Light,
-      ),
+      of(AngularThemingService.getSystemThemeFromWindow(window)),
       // Start listening to changes
       fromEvent<MediaQueryListEvent>(
         window.matchMedia("(prefers-color-scheme: dark)"),
         "change",
-      ).pipe(map((event) => (event.matches ? ThemeType.Dark : ThemeType.Light))),
+      ).pipe(map((event) => (event.matches ? ThemeTypes.Dark : ThemeTypes.Light))),
     );
+  }
+
+  /**
+   * Gets the currently active system theme based on the given window.
+   * @param window The window to query for the current theme.
+   * @returns The active system theme.
+   */
+  static getSystemThemeFromWindow(window: Window): Theme {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? ThemeTypes.Dark
+      : ThemeTypes.Light;
   }
 
   readonly theme$ = this.themeStateService.selectedTheme$.pipe(
     switchMap((configuredTheme) => {
-      if (configuredTheme === ThemeType.System) {
+      if (configuredTheme === ThemeTypes.System) {
         return this.systemTheme$;
       }
 
@@ -44,16 +51,16 @@ export class AngularThemingService implements AbstractThemingService {
   constructor(
     private themeStateService: ThemeStateService,
     @Inject(SYSTEM_THEME_OBSERVABLE)
-    private systemTheme$: Observable<ThemeType>,
+    private systemTheme$: Observable<Theme>,
   ) {}
 
   applyThemeChangesTo(document: Document): Subscription {
     return this.theme$.subscribe((theme) => {
       document.documentElement.classList.remove(
-        "theme_" + ThemeType.Light,
-        "theme_" + ThemeType.Dark,
-        "theme_" + ThemeType.Nord,
-        "theme_" + ThemeType.SolarizedDark,
+        "theme_" + ThemeTypes.Light,
+        "theme_" + ThemeTypes.Dark,
+        "theme_" + ThemeTypes.Nord,
+        "theme_" + ThemeTypes.SolarizedDark,
       );
       document.documentElement.classList.add("theme_" + theme);
     });

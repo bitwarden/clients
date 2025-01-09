@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, Subject, firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -9,8 +11,9 @@ import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/p
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import {
   AUTH_REQUEST_DISK_LOCAL,
@@ -19,22 +22,9 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
-
-/**
- * Disk-local to maintain consistency between tabs (even though
- * approvals are currently only available on desktop). We don't
- * want to clear this on logout as it's a user preference.
- */
-export const ACCEPT_AUTH_REQUESTS_KEY = new UserKeyDefinition<boolean>(
-  AUTH_REQUEST_DISK_LOCAL,
-  "acceptAuthRequests",
-  {
-    deserializer: (value) => value ?? false,
-    clearOn: [],
-  },
-);
 
 /**
  * Disk-local to maintain consistency between tabs. We don't want to
@@ -57,30 +47,12 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private appIdService: AppIdService,
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
+    private encryptService: EncryptService,
     private apiService: ApiService,
     private stateProvider: StateProvider,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
-  }
-
-  async getAcceptAuthRequests(userId: UserId): Promise<boolean> {
-    if (userId == null) {
-      throw new Error("User ID is required");
-    }
-
-    const value = await firstValueFrom(
-      this.stateProvider.getUser(userId, ACCEPT_AUTH_REQUESTS_KEY).state$,
-    );
-    return value;
-  }
-
-  async setAcceptAuthRequests(accept: boolean, userId: UserId): Promise<void> {
-    if (userId == null) {
-      throw new Error("User ID is required");
-    }
-
-    await this.stateProvider.setUserState(ACCEPT_AUTH_REQUESTS_KEY, accept, userId);
   }
 
   async getAdminAuthRequest(userId: UserId): Promise<AdminAuthRequestStorable | null> {
@@ -135,17 +107,17 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     if (masterKey && masterKeyHash) {
       // Only encrypt the master password hash if masterKey exists as
       // we won't have a masterKeyHash without a masterKey
-      encryptedMasterKeyHash = await this.cryptoService.rsaEncrypt(
+      encryptedMasterKeyHash = await this.encryptService.rsaEncrypt(
         Utils.fromUtf8ToArray(masterKeyHash),
         pubKey,
       );
       keyToEncrypt = masterKey.encKey;
     } else {
-      const userKey = await this.cryptoService.getUserKey();
+      const userKey = await this.keyService.getUserKey();
       keyToEncrypt = userKey.key;
     }
 
-    const encryptedKey = await this.cryptoService.rsaEncrypt(keyToEncrypt, pubKey);
+    const encryptedKey = await this.encryptService.rsaEncrypt(keyToEncrypt, pubKey);
 
     const response = new PasswordlessAuthRequest(
       encryptedKey.encryptedString,
@@ -159,17 +131,19 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   async setUserKeyAfterDecryptingSharedUserKey(
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: Uint8Array,
+    userId: UserId,
   ) {
     const userKey = await this.decryptPubKeyEncryptedUserKey(
       authReqResponse.key,
       authReqPrivateKey,
     );
-    await this.cryptoService.setUserKey(userKey);
+    await this.keyService.setUserKey(userKey, userId);
   }
 
   async setKeysAfterDecryptingSharedMasterKeyAndHash(
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: Uint8Array,
+    userId: UserId,
   ) {
     const { masterKey, masterKeyHash } = await this.decryptPubKeyEncryptedMasterKeyAndHash(
       authReqResponse.key,
@@ -178,14 +152,13 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     );
 
     // Decrypt and set user key in state
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
+    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
 
     // Set masterKey + masterKeyHash in state after decryption (in case decryption fails)
-    const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     await this.masterPasswordService.setMasterKeyHash(masterKeyHash, userId);
 
-    await this.cryptoService.setUserKey(userKey);
+    await this.keyService.setUserKey(userKey, userId);
   }
 
   // Decryption helpers
@@ -193,8 +166,8 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedUserKey: string,
     privateKey: Uint8Array,
   ): Promise<UserKey> {
-    const decryptedUserKeyBytes = await this.cryptoService.rsaDecrypt(
-      pubKeyEncryptedUserKey,
+    const decryptedUserKeyBytes = await this.encryptService.rsaDecrypt(
+      new EncString(pubKeyEncryptedUserKey),
       privateKey,
     );
 
@@ -206,13 +179,13 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedMasterKeyHash: string,
     privateKey: Uint8Array,
   ): Promise<{ masterKey: MasterKey; masterKeyHash: string }> {
-    const decryptedMasterKeyArrayBuffer = await this.cryptoService.rsaDecrypt(
-      pubKeyEncryptedMasterKey,
+    const decryptedMasterKeyArrayBuffer = await this.encryptService.rsaDecrypt(
+      new EncString(pubKeyEncryptedMasterKey),
       privateKey,
     );
 
-    const decryptedMasterKeyHashArrayBuffer = await this.cryptoService.rsaDecrypt(
-      pubKeyEncryptedMasterKeyHash,
+    const decryptedMasterKeyHashArrayBuffer = await this.encryptService.rsaDecrypt(
+      new EncString(pubKeyEncryptedMasterKeyHash),
       privateKey,
     );
 
@@ -229,5 +202,9 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     if (notification.id != null) {
       this.authRequestPushNotificationSubject.next(notification.id);
     }
+  }
+
+  async getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string> {
+    return (await this.keyService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
   }
 }

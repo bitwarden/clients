@@ -6,7 +6,7 @@
     "message": "Filtriloj"
   },
   "allItems": {
-    "message": "Ĉiuj Eroj"
+    "message": "Ĉiuj eroj"
   },
   "favorites": {
     "message": "Plej ŝatataj"
@@ -15,16 +15,19 @@
     "message": "Tipoj"
   },
   "typeLogin": {
-    "message": "Saluto"
+    "message": "Ensalutiloj"
   },
   "typeCard": {
     "message": "Karto"
   },
   "typeIdentity": {
-    "message": "Idento"
+    "message": "Identeco"
   },
   "typeSecureNote": {
     "message": "Sekura noto"
+  },
+  "typeSshKey": {
+    "message": "SSH key"
   },
   "folders": {
     "message": "Dosierujoj"
@@ -33,22 +36,22 @@
     "message": "Kolektoj"
   },
   "searchVault": {
-    "message": "Traserĉu trezorejon"
+    "message": "Traserĉi trezorejon"
   },
   "addItem": {
-    "message": "Aldoni elementon"
+    "message": "Aldoni eron"
   },
   "shared": {
-    "message": "Kundividita"
+    "message": "Konigita"
   },
   "share": {
-    "message": "Kundividi"
+    "message": "Konigi"
   },
   "moveToOrganization": {
-    "message": "Movu al organizo"
+    "message": "Movi al organizaĵo"
   },
   "movedItemToOrg": {
-    "message": "$ITEMNAME$ moviĝis al $ORGNAME$",
+    "message": "$ITEMNAME$ movita al $ORGNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -60,14 +63,17 @@
       }
     }
   },
+  "welcomeBack": {
+    "message": "Welcome back"
+  },
   "moveToOrgDesc": {
-    "message": "Elektu organizon kun kiu vi volas dividi ĉi tiun eron. Dividado transdonas posedon de la ero al la organizo. Vi ne plu estos la rekta posedanto de ĉi tiu ero post kiam ĝi estos dividita."
+    "message": "Elektu organizaĵon, al kiu vi volas movi ĉi tiun eron. Movado al organizaĵo transdonas la posedon de la ero al tiu organizaĵo. Vi ne plu estos la rekta posedanto de la ero post kiam ĝi estos movita."
   },
   "attachments": {
     "message": "Aldonaĵoj"
   },
   "viewItem": {
-    "message": "Vidi la elementon"
+    "message": "Vidi la eron"
   },
   "name": {
     "message": "Nomo"
@@ -98,10 +104,10 @@
     "message": "Pasfrazo"
   },
   "editItem": {
-    "message": "Redakti la elementon"
+    "message": "Redakti la eron"
   },
   "emailAddress": {
-    "message": "Retpoŝta adreso"
+    "message": "Retpoŝtadreso"
   },
   "verificationCodeTotp": {
     "message": "Kontrola kodo (TOTP)"
@@ -116,10 +122,10 @@
     "message": "Propraj kampoj"
   },
   "launch": {
-    "message": "Lanĉo"
+    "message": "Lanĉi"
   },
   "copyValue": {
-    "message": "Kopii valoron",
+    "message": "Kopii la valoron",
     "description": "Copy value to clipboard"
   },
   "minimizeOnCopyToClipboard": {
@@ -151,7 +157,7 @@
     "message": "Kodo de sekureco"
   },
   "identityName": {
-    "message": "Nomo de la identilo"
+    "message": "Identecnomo"
   },
   "company": {
     "message": "Kompanio"
@@ -166,13 +172,70 @@
     "message": "License number"
   },
   "email": {
-    "message": "Email"
+    "message": "Retpoŝtadreso"
   },
   "phone": {
-    "message": "Telefono"
+    "message": "Telefonnumero"
   },
   "address": {
     "message": "Adreso"
+  },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Key type"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "A new SSH key was generated"
+  },
+  "sshKeyWrongPassword": {
+    "message": "The password you entered is incorrect."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Confirm password"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Enter password"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Please unlock your vault to approve the SSH key request."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "SSH key request timed out."
+  },
+  "enableSshAgent": {
+    "message": "Enable SSH agent"
+  },
+  "enableSshAgentDesc": {
+    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+  },
+  "enableSshAgentHelp": {
+    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
   },
   "premiumRequired": {
     "message": "Premium required"
@@ -184,7 +247,7 @@
     "message": "An error has occurred."
   },
   "error": {
-    "message": "Error"
+    "message": "Eraro"
   },
   "january": {
     "message": "januaro"
@@ -211,19 +274,19 @@
     "message": "aŭgusto"
   },
   "september": {
-    "message": "September"
+    "message": "septembro"
   },
   "october": {
-    "message": "October"
+    "message": "oktobro"
   },
   "november": {
-    "message": "November"
+    "message": "novembro"
   },
   "december": {
-    "message": "December"
+    "message": "decembro"
   },
   "ex": {
-    "message": "ex.",
+    "message": "ekz.",
     "description": "Short abbreviation for 'example'."
   },
   "title": {
@@ -239,7 +302,7 @@
     "message": "S-ino"
   },
   "mx": {
-    "message": "Mx"
+    "message": "Ges-ro"
   },
   "dr": {
     "message": "Dr-o"
@@ -251,16 +314,19 @@
     "message": "Expiration year"
   },
   "select": {
-    "message": "Select"
+    "message": "Elekti"
   },
   "other": {
-    "message": "Other"
+    "message": "Alia"
   },
   "generatePassword": {
     "message": "Generate password"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "type": {
-    "message": "Type"
+    "message": "Tipo"
   },
   "firstName": {
     "message": "First name"
@@ -272,16 +338,16 @@
     "message": "Last name"
   },
   "fullName": {
-    "message": "Full name"
+    "message": "Plena nomo"
   },
   "address1": {
-    "message": "Address 1"
+    "message": "Adreso 1"
   },
   "address2": {
-    "message": "Address 2"
+    "message": "Adreso 2"
   },
   "address3": {
-    "message": "Address 3"
+    "message": "Adreso 3"
   },
   "cityTown": {
     "message": "City / Town"
@@ -290,25 +356,25 @@
     "message": "State / Province"
   },
   "zipPostalCode": {
-    "message": "Zip / Postal code"
+    "message": "Poŝtkodo"
   },
   "country": {
-    "message": "Country"
+    "message": "Lando"
   },
   "save": {
-    "message": "Save"
+    "message": "Konservi"
   },
   "cancel": {
-    "message": "Cancel"
+    "message": "Nuligi"
   },
   "delete": {
-    "message": "Delete"
+    "message": "Forigi"
   },
   "favorite": {
     "message": "Favorite"
   },
   "edit": {
-    "message": "Edit"
+    "message": "Redakti"
   },
   "authenticatorKeyTotp": {
     "message": "Authenticator key (TOTP)"
@@ -320,22 +386,22 @@
     "message": "New custom field"
   },
   "value": {
-    "message": "Value"
+    "message": "Valoro"
   },
   "dragToSort": {
     "message": "Drag to sort"
   },
   "cfTypeText": {
-    "message": "Text"
+    "message": "Teksto"
   },
   "cfTypeHidden": {
-    "message": "Hidden"
+    "message": "Kaŝita"
   },
   "cfTypeBoolean": {
-    "message": "Boolean"
+    "message": "Bulea"
   },
   "cfTypeLinked": {
-    "message": "Linked",
+    "message": "Ligita",
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "linkedValue": {
@@ -343,7 +409,7 @@
     "description": "This describes a value that is 'linked' (related) to another value."
   },
   "remove": {
-    "message": "Remove"
+    "message": "Forigi"
   },
   "nameRequired": {
     "message": "Name is required."
@@ -394,6 +460,16 @@
   "copyPassword": {
     "message": "Copy password"
   },
+  "regenerateSshKey": {
+    "message": "Regenerate SSH key"
+  },
+  "copySshPrivateKey": {
+    "message": "Copy SSH private key"
+  },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
+  },
   "copyUri": {
     "message": "Copy URI"
   },
@@ -407,16 +483,55 @@
     "message": "Minimum password length"
   },
   "uppercase": {
-    "message": "Uppercase (A-Z)"
+    "message": "Uppercase (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Lowercase (a-z)"
+    "message": "Lowercase (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Numbers (0-9)"
+    "message": "Numbers (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
     "message": "Special characters (!@#$%^&*)"
+  },
+  "include": {
+    "message": "Include",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Include uppercase characters",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Include lowercase characters",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Include numbers",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Include special characters",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Number of words"
@@ -432,7 +547,7 @@
     "message": "Include number"
   },
   "close": {
-    "message": "Close"
+    "message": "Fermi"
   },
   "minNumbers": {
     "message": "Minimum numbers"
@@ -442,7 +557,16 @@
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "Avoid ambiguous characters"
+    "message": "Avoid ambiguous characters",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Avoid ambiguous characters",
+    "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
     "message": "Search collection"
@@ -470,7 +594,7 @@
     "message": "Attachment saved"
   },
   "file": {
-    "message": "File"
+    "message": "Dosiero"
   },
   "selectFile": {
     "message": "Select a file"
@@ -499,8 +623,29 @@
   "createAccount": {
     "message": "Create account"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
+  "setAStrongPassword": {
+    "message": "Set a strong password"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "Finish creating your account by setting a password"
+  },
   "logIn": {
-    "message": "Log in"
+    "message": "Ensaluti"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "loginWithDevice": {
+    "message": "Log in with device"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
   },
   "submit": {
     "message": "Submit"
@@ -520,8 +665,60 @@
   "masterPassHint": {
     "message": "Master password hint (optional)"
   },
+  "masterPassHintText": {
+    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "masterPassword": {
+    "message": "Master password"
+  },
+  "masterPassImportant": {
+    "message": "Your master password cannot be recovered if you forget it!"
+  },
+  "confirmMasterPassword": {
+    "message": "Confirm master password"
+  },
+  "masterPassHintLabel": {
+    "message": "Master password hint"
+  },
+  "joinOrganization": {
+    "message": "Join organization"
+  },
+  "joinOrganizationName": {
+    "message": "Join $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Finish joining this organization by setting a master password."
+  },
   "settings": {
-    "message": "Settings"
+    "message": "Agordoj"
+  },
+  "accountEmail": {
+    "message": "Account email"
+  },
+  "requestHint": {
+    "message": "Request hint"
+  },
+  "requestPasswordHint": {
+    "message": "Request password hint"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Enter your account email address and your password hint will be sent to you"
   },
   "passwordHint": {
     "message": "Password hint"
@@ -554,17 +751,23 @@
       }
     }
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
+  },
   "masterPassDoesntMatch": {
     "message": "Master password confirmation does not match."
   },
   "newAccountCreated": {
     "message": "Your new account has been created! You may now log in."
   },
-  "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
   },
-  "youMayCloseThisWindow": {
-    "message": "You may close this window"
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
   },
   "masterPassSent": {
     "message": "We've sent you an email with your master password hint."
@@ -596,11 +799,14 @@
   "verificationCodeRequired": {
     "message": "Verification code is required."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "The authentication was cancelled or took too long. Please try again."
+  },
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
   "continue": {
-    "message": "Continue"
+    "message": "Daŭrigi"
   },
   "enterVerificationCodeApp": {
     "message": "Enter the 6 digit verification code from your authenticator app."
@@ -647,18 +853,18 @@
   "authenticatorAppTitle": {
     "message": "Authenticator app"
   },
-  "authenticatorAppDesc": {
-    "message": "Use an authenticator app (such as Authy or Google Authenticator) to generate time-based verification codes.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "YubiKey OTP security key"
+  "yubiKeyTitleV2": {
+    "message": "Yubico OTP security key"
   },
   "yubiKeyDesc": {
     "message": "Use a YubiKey to access your account. Works with YubiKey 4, 4 Nano, 4C, and NEO devices."
   },
-  "duoDesc": {
-    "message": "Verify with Duo Security using the Duo Mobile app, SMS, phone call, or U2F security key.",
+  "duoDescV2": {
+    "message": "Enter a code generated by Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -674,8 +880,8 @@
   "emailTitle": {
     "message": "Email"
   },
-  "emailDesc": {
-    "message": "Verification codes will be emailed to you."
+  "emailDescV2": {
+    "message": "Enter a code sent to your email."
   },
   "loginUnavailable": {
     "message": "Login unavailable"
@@ -695,6 +901,15 @@
   "selfHostedEnvironmentFooter": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation."
   },
+  "selfHostedBaseUrlHint": {
+    "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "For advanced configuration, you can specify the base URL of each service independently."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "You must add either the base Server URL or at least one custom environment."
+  },
   "customEnvironment": {
     "message": "Custom environment"
   },
@@ -703,6 +918,16 @@
   },
   "baseUrl": {
     "message": "Server URL"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
+  "selfHostBaseUrl": {
+    "message": "Self-host server URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API server URL"
@@ -723,13 +948,13 @@
     "message": "Environment URLs saved"
   },
   "ok": {
-    "message": "Ok"
+    "message": "Bone"
   },
   "yes": {
-    "message": "Yes"
+    "message": "Jes"
   },
   "no": {
-    "message": "No"
+    "message": "Ne"
   },
   "overwritePassword": {
     "message": "Overwrite password"
@@ -741,37 +966,52 @@
     "message": "Feature unavailable"
   },
   "loggedOut": {
-    "message": "Adiaŭita"
+    "message": "Elsalutinta"
+  },
+  "loggedOutDesc": {
+    "message": "You have been logged out of your account."
   },
   "loginExpired": {
     "message": "Your login session has expired."
+  },
+  "restartRegistration": {
+    "message": "Restart registration"
+  },
+  "expiredLink": {
+    "message": "Expired link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Please restart registration or try logging in."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "You may already have an account"
   },
   "logOutConfirmation": {
     "message": "Are you sure you want to log out?"
   },
   "logOut": {
-    "message": "Adiaŭi"
+    "message": "Elsaluti"
   },
   "addNewLogin": {
-    "message": "New login"
+    "message": "Nova ensaluto"
   },
   "addNewItem": {
-    "message": "New item"
+    "message": "Nova ero"
   },
   "addNewFolder": {
     "message": "New folder"
   },
   "view": {
-    "message": "View"
+    "message": "Vido"
   },
   "account": {
-    "message": "Account"
+    "message": "Konto"
   },
   "loading": {
-    "message": "Loading..."
+    "message": "Ŝargado..."
   },
   "lockVault": {
-    "message": "Lock vault"
+    "message": "Ŝlosi la trezorejon"
   },
   "passwordGenerator": {
     "message": "Password generator"
@@ -789,10 +1029,10 @@
     "message": "File a bug report"
   },
   "blog": {
-    "message": "Blog"
+    "message": "Blogo"
   },
   "followUs": {
-    "message": "Follow us"
+    "message": "Sekvi nin"
   },
   "syncVault": {
     "message": "Sync vault"
@@ -830,13 +1070,25 @@
     "message": "Syncing failed"
   },
   "yourVaultIsLocked": {
-    "message": "Your vault is locked. Verify your identity to continue."
+    "message": "Via trezorejo estas ŝlosita. Kontrolu vian identecon por daŭrigi."
+  },
+  "yourAccountIsLocked": {
+    "message": "Your account is locked"
+  },
+  "or": {
+    "message": "aŭ"
+  },
+  "unlockWithBiometrics": {
+    "message": "Unlock with biometrics"
+  },
+  "unlockWithMasterPassword": {
+    "message": "Unlock with master password"
   },
   "unlock": {
-    "message": "Unlock"
+    "message": "Malŝlosi"
   },
   "loggedInAsOn": {
-    "message": "Logged in as $EMAIL$ on $HOSTNAME$.",
+    "message": "Ensalutinta kiel $EMAIL$ ĉe $HOSTNAME$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -860,41 +1112,44 @@
   "vaultTimeout": {
     "message": "Vault timeout"
   },
+  "vaultTimeout1": {
+    "message": "Timeout"
+  },
   "vaultTimeoutDesc": {
     "message": "Choose when your vault will take the vault timeout action."
   },
   "immediately": {
-    "message": "Immediately"
+    "message": "Tuj"
   },
   "tenSeconds": {
-    "message": "10 seconds"
+    "message": "10 sekundoj"
   },
   "twentySeconds": {
-    "message": "20 seconds"
+    "message": "20 sekundoj"
   },
   "thirtySeconds": {
-    "message": "30 seconds"
+    "message": "30 sekundoj"
   },
   "oneMinute": {
-    "message": "1 minute"
+    "message": "1 minuto"
   },
   "twoMinutes": {
-    "message": "2 minutes"
+    "message": "2 minutoj"
   },
   "fiveMinutes": {
-    "message": "5 minutes"
+    "message": "5 minutoj"
   },
   "fifteenMinutes": {
-    "message": "15 minutes"
+    "message": "15 minutoj"
   },
   "thirtyMinutes": {
-    "message": "30 minutes"
+    "message": "30 minutoj"
   },
   "oneHour": {
-    "message": "1 hour"
+    "message": "1 horo"
   },
   "fourHours": {
-    "message": "4 hours"
+    "message": "4 horoj"
   },
   "onIdle": {
     "message": "On system idle"
@@ -909,10 +1164,10 @@
     "message": "On restart"
   },
   "never": {
-    "message": "Never"
+    "message": "Neniam"
   },
   "security": {
-    "message": "Security"
+    "message": "Sekureco"
   },
   "clearClipboard": {
     "message": "Clear clipboard",
@@ -989,27 +1244,27 @@
     "message": "Turning off this setting will also turn off all other tray related settings."
   },
   "language": {
-    "message": "Language"
+    "message": "Lingvo"
   },
   "languageDesc": {
     "message": "Change the language used by the application. Restart is required."
   },
   "theme": {
-    "message": "Theme"
+    "message": "Etoso"
   },
   "themeDesc": {
     "message": "Change the application's color theme."
   },
   "dark": {
-    "message": "Dark",
+    "message": "Malhela",
     "description": "Dark color"
   },
   "light": {
-    "message": "Light",
+    "message": "Hela",
     "description": "Light color"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Kopii",
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
@@ -1046,7 +1301,7 @@
     "message": "Restart"
   },
   "later": {
-    "message": "Later"
+    "message": "Poste"
   },
   "noUpdatesAvailable": {
     "message": "No updates are currently available. You are using the latest version."
@@ -1055,7 +1310,7 @@
     "message": "Update error"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "Nekonata"
   },
   "copyUsername": {
     "message": "Copy username"
@@ -1063,6 +1318,9 @@
   "copyNumber": {
     "message": "Copy number",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "Copy email"
   },
   "copySecurityCode": {
     "message": "Copy security code",
@@ -1110,6 +1368,9 @@
   "premiumPurchaseAlert": {
     "message": "You can purchase premium membership on the bitwarden.com web vault. Do you want to visit the website now?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+  },
   "premiumCurrentMember": {
     "message": "You are a premium member!"
   },
@@ -1129,7 +1390,16 @@
     "message": "Refresh complete"
   },
   "passwordHistory": {
-    "message": "Password history"
+    "message": "Pasvorta historio"
+  },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "clear": {
     "message": "Clear",
@@ -1138,28 +1408,37 @@
   "noPasswordsInList": {
     "message": "There are no passwords to list."
   },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
+  },
   "undo": {
-    "message": "Undo"
+    "message": "Malfari"
   },
   "redo": {
-    "message": "Redo"
+    "message": "Refari"
   },
   "cut": {
-    "message": "Cut",
+    "message": "Eltondi",
     "description": "Cut to clipboard"
   },
   "paste": {
-    "message": "Paste",
+    "message": "Alglui",
     "description": "Paste from clipboard"
   },
   "selectAll": {
-    "message": "Select all"
+    "message": "Elekti ĉion"
   },
   "zoomIn": {
-    "message": "Zoom in"
+    "message": "Zomi"
   },
   "zoomOut": {
-    "message": "Zoom out"
+    "message": "Malzomi"
   },
   "resetZoom": {
     "message": "Reset zoom"
@@ -1178,17 +1457,17 @@
     "description": "Minimize window"
   },
   "zoom": {
-    "message": "Zoom"
+    "message": "Zomi"
   },
   "bringAllToFront": {
     "message": "Bring all to front",
     "description": "Bring all windows to front (foreground)"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "Pri Bitwarden"
   },
   "services": {
-    "message": "Services"
+    "message": "Servoj"
   },
   "hideBitwarden": {
     "message": "Hide Bitwarden"
@@ -1203,7 +1482,7 @@
     "message": "Quit Bitwarden"
   },
   "valueCopied": {
-    "message": "$VALUE$ copied",
+    "message": "$VALUE$ kopiita",
     "description": "Value has been copied to the clipboard.",
     "placeholders": {
       "value": {
@@ -1212,11 +1491,20 @@
       }
     }
   },
+  "copySuccessful": {
+    "message": "Copy Successful"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "Access Token Refresh Error"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "No refresh token or API keys found. Please try logging out and logging back in."
+  },
   "help": {
-    "message": "Help"
+    "message": "Helpo"
   },
   "window": {
-    "message": "Window"
+    "message": "Fenestro"
   },
   "checkPassword": {
     "message": "Check if password has been exposed."
@@ -1242,7 +1530,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "host": {
-    "message": "Host",
+    "message": "Gastiganto",
     "description": "A URL's host value. For example, the host of https://sub.domain.com:443 is 'sub.domain.com:443'."
   },
   "exact": {
@@ -1271,10 +1559,10 @@
     "description": "An entity of multiple related people (ex. a team or business organization)."
   },
   "default": {
-    "message": "Default"
+    "message": "Defaŭlta"
   },
   "exit": {
-    "message": "Exit"
+    "message": "Forlasi"
   },
   "showHide": {
     "message": "Show / Hide",
@@ -1292,18 +1580,48 @@
     "description": "ex. Date this item was updated"
   },
   "dateCreated": {
-    "message": "Created",
+    "message": "Kreita",
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
     "message": "Password updated",
     "description": "ex. Date this password was updated"
   },
+  "exportFrom": {
+    "message": "Export from"
+  },
   "exportVault": {
     "message": "Export vault"
   },
   "fileFormat": {
     "message": "File format"
+  },
+  "fileEncryptedExportWarningDesc": {
+    "message": "This file export will be password protected and require the file password to decrypt."
+  },
+  "filePassword": {
+    "message": "File password"
+  },
+  "exportPasswordDescription": {
+    "message": "This password will be used to export and import this file"
+  },
+  "accountRestrictedOptionDescription": {
+    "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
+  },
+  "passwordProtected": {
+    "message": "Password protected"
+  },
+  "passwordProtectedOptionDescription": {
+    "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
+  },
+  "exportTypeHeading": {
+    "message": "Export type"
+  },
+  "accountRestricted": {
+    "message": "Account restricted"
+  },
+  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+    "message": "“File password”  and “Confirm file password“ do not match."
   },
   "hCaptchaUrl": {
     "message": "hCaptcha Url",
@@ -1331,7 +1649,7 @@
     "message": "Invalid Url"
   },
   "done": {
-    "message": "Done"
+    "message": "Preta"
   },
   "accessibilityCookieSaved": {
     "message": "Accessibility cookie saved!"
@@ -1340,7 +1658,7 @@
     "message": "No accessibility cookie saved"
   },
   "warning": {
-    "message": "WARNING",
+    "message": "AVERTO",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "confirmVaultExport": {
@@ -1368,15 +1686,15 @@
     "message": "Who owns this item?"
   },
   "strong": {
-    "message": "Strong",
+    "message": "Forta",
     "description": "ex. A strong password. Scale: Weak -> Good -> Strong"
   },
   "good": {
-    "message": "Good",
+    "message": "Bona",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
   },
   "weak": {
-    "message": "Weak",
+    "message": "Malforta",
     "description": "ex. A weak password. Scale: Weak -> Good -> Strong"
   },
   "weakMasterPassword": {
@@ -1386,7 +1704,7 @@
     "message": "The master password you have chosen is weak. You should use a strong master password (or a passphrase) to properly protect your Bitwarden account. Are you sure you want to use this master password?"
   },
   "pin": {
-    "message": "PIN",
+    "message": "PIN-kodo",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
   },
   "unlockWithPin": {
@@ -1410,20 +1728,26 @@
   "additionalWindowsHelloSettings": {
     "message": "Additional Windows Hello settings"
   },
+  "unlockWithPolkit": {
+    "message": "Unlock with system authentication"
+  },
   "windowsHelloConsentMessage": {
     "message": "Verify for Bitwarden."
   },
   "unlockWithTouchId": {
-    "message": "Unlock with Touch ID"
+    "message": "Malŝlosi per Touch ID"
   },
   "additionalTouchIdSettings": {
     "message": "Additional Touch ID settings"
   },
   "touchIdConsentMessage": {
-    "message": "unlock your vault"
+    "message": "malŝlosi vian trezorejon"
   },
   "autoPromptWindowsHello": {
     "message": "Ask for Windows Hello on app start"
+  },
+  "autoPromptPolkit": {
+    "message": "Ask for system authentication on launch"
   },
   "autoPromptTouchId": {
     "message": "Ask for Touch ID on app start"
@@ -1434,11 +1758,11 @@
   "recommendedForSecurity": {
     "message": "Recommended for security."
   },
-  "lockWithMasterPassOnRestart": {
+  "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
   },
   "deleteAccount": {
-    "message": "Forviŝi la konton"
+    "message": "Forigi la konton"
   },
   "deleteAccountDesc": {
     "message": "Proceed below to delete your account and all vault data."
@@ -1446,11 +1770,17 @@
   "deleteAccountWarning": {
     "message": "Deleting your account is permanent. It cannot be undone."
   },
+  "cannotDeleteAccount": {
+    "message": "Cannot delete account"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+  },
   "accountDeleted": {
-    "message": "Konto forviŝita"
+    "message": "Konto forigita"
   },
   "accountDeletedDesc": {
-    "message": "Via konto estas fermita, kaj ĉiuj rilataj datumoj estas forviŝitaj."
+    "message": "Via konto estis fermita kaj ĉiuj rilataj datumoj estis forigitaj."
   },
   "preferences": {
     "message": "Preferences"
@@ -1477,7 +1807,7 @@
     "message": "You can manage your subscription from the App Store. Do you want to visit the App Store now?"
   },
   "legal": {
-    "message": "Legal",
+    "message": "Jura",
     "description": "Noun. As in 'legal documents', like our terms of service and privacy policy."
   },
   "termsOfService": {
@@ -1490,10 +1820,10 @@
     "message": "Are you sure you want to leave? If you leave now then your current information will not be saved."
   },
   "unsavedChangesTitle": {
-    "message": "Unsaved changes"
+    "message": "Nekonservitaj ŝanĝoj"
   },
   "clone": {
-    "message": "Clone"
+    "message": "Kloni"
   },
   "passwordGeneratorPolicyInEffect": {
     "message": "One or more organization policies are affecting your generator settings."
@@ -1511,11 +1841,11 @@
     "message": "Set up an unlock method to change your vault timeout action."
   },
   "lock": {
-    "message": "Lock",
-    "description": "Verb form: to make secure or inaccesible by"
+    "message": "Ŝlosi",
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
-    "message": "Trash",
+    "message": "Rubujo",
     "description": "Noun: a special folder to hold deleted items"
   },
   "searchTrash": {
@@ -1555,6 +1885,15 @@
   "orgRequiresYouToSetPassword": {
     "message": "Your organization requires you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "cardMetrics": {
+    "message": "out of $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "verificationRequired": {
     "message": "Verification required",
@@ -1611,6 +1950,21 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Your new master password does not meet the policy requirements."
   },
+  "receiveMarketingEmailsV2": {
+    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  },
+  "unsubscribe": {
+    "message": "Unsubscribe"
+  },
+  "atAnyTime": {
+    "message": "at any time."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "By continuing, you agree to the"
+  },
+  "and": {
+    "message": "kaj"
+  },
   "acceptPolicies": {
     "message": "By checking this box you agree to the following:"
   },
@@ -1620,8 +1974,8 @@
   "enableBrowserIntegration": {
     "message": "Allow browser integration"
   },
-  "enableBrowserIntegrationDesc": {
-    "message": "Used for biometrics in browser."
+  "enableBrowserIntegrationDesc1": {
+    "message": "Used to allow biometric unlock in browsers that are not Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Allow DuckDuckGo browser integration"
@@ -1660,7 +2014,7 @@
     "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. Restart is required."
   },
   "approve": {
-    "message": "Approve"
+    "message": "Aprobi"
   },
   "verifyBrowserTitle": {
     "message": "Verify browser connection"
@@ -1689,6 +2043,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Browser biometrics requires desktop biometrics to be set up in the settings first."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Automatic setup not available"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Due to an enterprise policy, you are restricted from saving items to your individual vault. Change the ownership option to an organization and choose from available collections."
   },
@@ -1706,10 +2066,10 @@
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeFile": {
-    "message": "File"
+    "message": "Dosiero"
   },
   "sendTypeText": {
-    "message": "Text"
+    "message": "Teksto"
   },
   "searchSends": {
     "message": "Search Sends",
@@ -1720,10 +2080,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "myVault": {
-    "message": "My vault"
+    "message": "Mia trezorejo"
   },
   "text": {
-    "message": "Text"
+    "message": "Teksto"
   },
   "deletionDate": {
     "message": "Deletion date"
@@ -1787,7 +2147,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
-    "message": "New password"
+    "message": "Nova pasvorto"
   },
   "whatTypeOfSend": {
     "message": "What type of Send is this?",
@@ -1804,7 +2164,7 @@
     "message": "The file you want to send."
   },
   "days": {
-    "message": "$DAYS$ days",
+    "message": "$DAYS$ tagoj",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -1813,10 +2173,10 @@
     }
   },
   "oneDay": {
-    "message": "1 day"
+    "message": "1 tago"
   },
   "custom": {
-    "message": "Custom"
+    "message": "Propra"
   },
   "deleteSendConfirmation": {
     "message": "Are you sure you want to delete this Send?",
@@ -1841,7 +2201,7 @@
     "message": "Copy link"
   },
   "disabled": {
-    "message": "Disabled"
+    "message": "Malŝaltita"
   },
   "removePassword": {
     "message": "Remove password"
@@ -1873,6 +2233,9 @@
   "emailVerificationRequired": {
     "message": "Email verification required"
   },
+  "emailVerifiedV2": {
+    "message": "Email verified"
+  },
   "emailVerificationRequiredDesc": {
     "message": "You must verify your email to use this feature."
   },
@@ -1897,8 +2260,11 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+  },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Reprovi"
   },
   "verificationRequiredForActionSetPinToContinue": {
     "message": "Verification required for this action. Set a PIN to continue."
@@ -1934,13 +2300,13 @@
     "message": "Resend code"
   },
   "hours": {
-    "message": "Hours"
+    "message": "Horoj"
   },
   "minutes": {
-    "message": "Minutes"
+    "message": "Minutoj"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -1981,6 +2347,9 @@
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
   },
+  "inviteAccepted": {
+    "message": "Invitation accepted"
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatic enrollment"
   },
@@ -1994,7 +2363,7 @@
     "message": "One or more organization policies prevents you from exporting your personal vault."
   },
   "addAccount": {
-    "message": "Add account"
+    "message": "Aldoni konton"
   },
   "removeMasterPassword": {
     "message": "Remove master password"
@@ -2024,7 +2393,7 @@
     "message": "Key connector error: make sure key connector is available and working correctly."
   },
   "lockAllVaults": {
-    "message": "Lock all vaults"
+    "message": "Ŝlosi ĉiujn trezorejojn"
   },
   "accountLimitReached": {
     "message": "No more than 5 accounts may be logged in at the same time."
@@ -2050,6 +2419,9 @@
   "switchAccount": {
     "message": "Switch account"
   },
+  "alreadyHaveAccount": {
+    "message": "Already have an account?"
+  },
   "options": {
     "message": "Options"
   },
@@ -2068,14 +2440,30 @@
       }
     }
   },
+  "exportingOrganizationVaultTitle": {
+    "message": "Exporting organization vault"
+  },
+  "exportingOrganizationVaultDesc": {
+    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "ACME Moving Co."
+      }
+    }
+  },
   "locked": {
-    "message": "Locked"
+    "message": "Ŝlosita"
+  },
+  "yourVaultIsLockedV2": {
+    "message": "Your vault is locked"
   },
   "unlocked": {
-    "message": "Unlocked"
+    "message": "Malŝlosita"
   },
   "generator": {
-    "message": "Generator"
+    "message": "Generilo",
+    "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
     "message": "What would you like to generate?"
@@ -2088,6 +2476,43 @@
   },
   "generateUsername": {
     "message": "Generate username"
+  },
+  "generateEmail": {
+    "message": "Generate email"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Value must be between $MIN$ and $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Username type"
@@ -2106,31 +2531,141 @@
     "message": "Use your domain's configured catch-all inbox."
   },
   "random": {
-    "message": "Random"
+    "message": "Hazarda"
   },
   "randomWord": {
-    "message": "Random word"
+    "message": "Hazarda vorto"
   },
   "websiteName": {
     "message": "Website name"
   },
   "service": {
-    "message": "Service"
+    "message": "Servo"
   },
   "allVaults": {
-    "message": "All vaults"
+    "message": "Ĉiuj trezorejoj"
   },
   "searchOrganization": {
     "message": "Search organization"
   },
   "searchMyVault": {
-    "message": "Search my vault"
+    "message": "Traserĉi mian trezorejon"
   },
   "forwardedEmail": {
     "message": "Forwarded email alias"
   },
   "forwardedEmailDesc": {
     "message": "Generate an email alias with an external forwarding service."
+  },
+  "forwarderDomainName": {
+    "message": "Email domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Choose a domain that is supported by the selected service",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
+  },
+  "forwarderError": {
+    "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
+    "description": "Reports an error returned by a forwarding service to the user.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Invalid characters in domain name."
+      }
+    }
+  },
+  "forwarderGeneratedBy": {
+    "message": "Generated by Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen."
+  },
+  "forwarderGeneratedByWithWebsite": {
+    "message": "Website: $WEBSITE$. Generated by Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen.",
+    "placeholders": {
+      "WEBSITE": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
+  "forwaderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
+    "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwarderNoAccountId": {
+    "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
+    "description": "Displayed when the forwarding service fails to return an account ID.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoDomain": {
+    "message": "Invalid $SERVICENAME$ domain.",
+    "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoUrl": {
+    "message": "Invalid $SERVICENAME$ url.",
+    "description": "Displayed when the url of the forwarding service wasn't supplied.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownError": {
+    "message": "Unknown $SERVICENAME$ error occurred.",
+    "description": "Displayed when the forwarding service failed due to an unknown error.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownForwarder": {
+    "message": "Unknown forwarder: '$SERVICENAME$'.",
+    "description": "Displayed when the forwarding service is not supported.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "JustTrust.us"
+      }
+    }
   },
   "hostname": {
     "message": "Hostname",
@@ -2140,7 +2675,7 @@
     "message": "API Access Token"
   },
   "apiKey": {
-    "message": "API key"
+    "message": "API-ŝlosilo"
   },
   "premiumSubcriptionRequired": {
     "message": "Premium subscription required"
@@ -2155,7 +2690,7 @@
     "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
   },
   "vault": {
-    "message": "Vault"
+    "message": "Trezorejo"
   },
   "loginWithMasterPassword": {
     "message": "Log in with master password"
@@ -2167,7 +2702,7 @@
     "message": "Remember email"
   },
   "notYou": {
-    "message": "Not you?"
+    "message": "Ĉu ne vi?"
   },
   "newAroundHere": {
     "message": "New around here?"
@@ -2190,14 +2725,29 @@
   "notificationSentDevice": {
     "message": "A notification has been sent to your device."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
+  },
   "fingerprintMatchInfo": {
     "message": "Please make sure your vault is unlocked and Fingerprint phrase matches the other device."
   },
   "fingerprintPhraseHeader": {
     "message": "Fingerprint phrase"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
+  },
   "needAnotherOption": {
     "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
+  },
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
   },
   "viewAllLoginOptions": {
     "message": "View all login options"
@@ -2225,19 +2775,16 @@
     "message": "Device Type"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "IP-adreso"
   },
   "time": {
-    "message": "Time"
+    "message": "Tempo"
   },
   "confirmLogIn": {
     "message": "Confirm login"
   },
   "denyLogIn": {
     "message": "Deny login"
-  },
-  "approveLoginRequests": {
-    "message": "Approve login requests"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Login confirmed for $EMAIL$ on $DEVICE$",
@@ -2273,9 +2820,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
-  "approveLoginRequestDesc": {
-    "message": "Use this device to approve login requests made from other devices."
-  },
   "confirmLoginAtemptForMail": {
     "message": "Confirm login attempt for $EMAIL$",
     "placeholders": {
@@ -2287,6 +2831,27 @@
   },
   "logInRequested": {
     "message": "Log in requested"
+  },
+  "creatingAccountOn": {
+    "message": "Creating account on"
+  },
+  "checkYourEmail": {
+    "message": "Check your email"
+  },
+  "followTheLinkInTheEmailSentTo": {
+    "message": "Follow the link in the email sent to"
+  },
+  "andContinueCreatingYourAccount": {
+    "message": "and continue creating your account."
+  },
+  "noEmail": {
+    "message": "No email?"
+  },
+  "goBack": {
+    "message": "Reveni"
+  },
+  "toEditYourEmailAddress": {
+    "message": "to edit your email address."
   },
   "exposedMasterPassword": {
     "message": "Exposed Master Password"
@@ -2303,8 +2868,20 @@
   "checkForBreaches": {
     "message": "Check known data breaches for this password"
   },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
   "important": {
     "message": "Important:"
+  },
+  "accessing": {
+    "message": "Accessing"
+  },
+  "accessTokenUnableToBeDecrypted": {
+    "message": "You have been logged out because your access token could not be decrypted. Please log in again to resolve this issue."
+  },
+  "refreshTokenSecureStorageRetrievalFailure": {
+    "message": "You have been logged out because your refresh token could not be retrieved. Please log in again to resolve this issue."
   },
   "masterPasswordHint": {
     "message": "Your master password cannot be recovered if you forget it!"
@@ -2324,8 +2901,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Recommended Settings Update"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Device approval required. Select an approval option below:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Remember this device"
@@ -2343,7 +2929,7 @@
     "message": "Approve with master password"
   },
   "region": {
-    "message": "Region"
+    "message": "Regiono"
   },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
@@ -2351,9 +2937,6 @@
   "eu": {
     "message": "EU",
     "description": "European Union"
-  },
-  "loggingInOn": {
-    "message": "Logging in on"
   },
   "selfHostedServer": {
     "message": "self-hosted"
@@ -2382,6 +2965,9 @@
   "userEmailMissing": {
     "message": "User email missing"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
+  },
   "deviceTrusted": {
     "message": "Device trusted"
   },
@@ -2392,7 +2978,7 @@
     "message": "required"
   },
   "search": {
-    "message": "Search"
+    "message": "Serĉi"
   },
   "inputMinLength": {
     "message": "Input must be at least $COUNT$ characters long.",
@@ -2459,7 +3045,7 @@
     }
   },
   "selectPlaceholder": {
-    "message": "-- Select --"
+    "message": "-- Elekti --"
   },
   "multiSelectPlaceholder": {
     "message": "-- Type to filter --"
@@ -2474,7 +3060,7 @@
     "message": "Clear all"
   },
   "plusNMore": {
-    "message": "+ $QUANTITY$ more",
+    "message": "+ $QUANTITY$ pli",
     "placeholders": {
       "quantity": {
         "content": "$1",
@@ -2483,7 +3069,10 @@
     }
   },
   "submenu": {
-    "message": "Submenu"
+    "message": "Submenuo"
+  },
+  "toggleSideNavigation": {
+    "message": "Toggle side navigation"
   },
   "skipToContent": {
     "message": "Skip to content"
@@ -2514,7 +3103,7 @@
     "message": "Resolve the errors below and try again."
   },
   "description": {
-    "message": "Description"
+    "message": "Priskribo"
   },
   "importSuccess": {
     "message": "Data successfully imported"
@@ -2540,6 +3129,9 @@
       }
     }
   },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+  },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Launch Duo and follow the steps to finish logging in."
   },
@@ -2561,8 +3153,8 @@
   "invalidFilePassword": {
     "message": "Invalid file password, please use the password you entered when you created the export file."
   },
-  "importDestination": {
-    "message": "Import destination"
+  "destination": {
+    "message": "Celo"
   },
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
@@ -2619,6 +3211,9 @@
   },
   "confirmFilePassword": {
     "message": "Confirm file password"
+  },
+  "exportSuccess": {
+    "message": "Vault data exported"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor authentication cancelled"
@@ -2688,7 +3283,7 @@
     "message": "Try again or look for an email from LastPass to verify it's you."
   },
   "collection": {
-    "message": "Collection"
+    "message": "Kolekto"
   },
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
@@ -2720,5 +3315,120 @@
   },
   "errorAssigningTargetFolder": {
     "message": "Error assigning target folder."
+  },
+  "viewItemsIn": {
+    "message": "View items in $NAME$",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "Reveni al $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "back": {
+    "message": "Reveni",
+    "description": "Button text to navigate back"
+  },
+  "removeItem": {
+    "message": "Remove $NAME$",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "data": {
+    "message": "Datumoj"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
+  },
+  "ssoError": {
+    "message": "No free ports could be found for the sso login."
+  },
+  "authorize": {
+    "message": "Authorize"
+  },
+  "deny": {
+    "message": "Deny"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Confirm SSH key usage"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "is requesting access to"
+  },
+  "unknownApplication": {
+    "message": "An application"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "Importing password protected SSH keys is not yet supported"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyPasted": {
+    "message": "SSH key imported successfully"
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
   }
 }

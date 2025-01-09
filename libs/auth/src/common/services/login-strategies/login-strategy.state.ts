@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { KeyDefinition, LOGIN_STRATEGY_MEMORY } from "@bitwarden/common/platform/state";
 
@@ -36,7 +38,7 @@ export const CACHE_EXPIRATION_KEY = new KeyDefinition<Date | null>(
  * foreground instance to send out the notification.
  * TODO: Move to Auth Request service.
  */
-export const AUTH_REQUEST_PUSH_NOTIFICATION_KEY = new KeyDefinition<string>(
+export const AUTH_REQUEST_PUSH_NOTIFICATION_KEY = new KeyDefinition<string | null>(
   LOGIN_STRATEGY_MEMORY,
   "authRequestPushNotification",
   {

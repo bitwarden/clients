@@ -47,7 +47,7 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
     token: string,
     email: string,
     organizationUserId: string,
-  ): Promise<ListResponse<PolicyResponse>> {
+  ): Promise<Policy[] | undefined> {
     const r = await this.apiService.send(
       "GET",
       "/organizations/" +
@@ -63,7 +63,7 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
       false,
       true,
     );
-    return new ListResponse(r, PolicyResponse);
+    return Policy.fromListResponse(new ListResponse(r, PolicyResponse));
   }
 
   private async getMasterPasswordPolicyResponseForOrgUser(

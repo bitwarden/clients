@@ -1,9 +1,12 @@
-import { Component, Inject, OnDestroy, ViewChild, ViewContainerRef } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, Inject, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { Subject, takeUntil, lastValueFrom } from "rxjs";
 
 import { TwoFactorComponent as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor.component";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
@@ -14,7 +17,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -23,18 +25,33 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 
-import { TwoFactorOptionsComponent } from "./two-factor-options.component";
+import {
+  TwoFactorOptionsDialogResult,
+  TwoFactorOptionsComponent,
+  TwoFactorOptionsDialogResultType,
+} from "./two-factor-options.component";
 
 @Component({
   selector: "app-two-factor",
   templateUrl: "two-factor.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDestroy {
+export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit, OnDestroy {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;
-
+  formGroup = this.formBuilder.group({
+    token: [
+      "",
+      {
+        validators: [Validators.required],
+        updateOn: "submit",
+      },
+    ],
+    remember: [false],
+  });
+  private destroy$ = new Subject<void>();
   constructor(
     loginStrategyService: LoginStrategyServiceAbstraction,
     router: Router,
@@ -43,7 +60,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
     platformUtilsService: PlatformUtilsService,
     stateService: StateService,
     environmentService: EnvironmentService,
-    private modalService: ModalService,
+    private dialogService: DialogService,
     route: ActivatedRoute,
     logService: LogService,
     twoFactorService: TwoFactorService,
@@ -54,6 +71,8 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
     configService: ConfigService,
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
     accountService: AccountService,
+    toastService: ToastService,
+    private formBuilder: FormBuilder,
     @Inject(WINDOW) protected win: Window,
   ) {
     super(
@@ -75,27 +94,28 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
       configService,
       masterPasswordService,
       accountService,
+      toastService,
     );
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
   }
+  async ngOnInit() {
+    await super.ngOnInit();
+    this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      this.token = value.token;
+      this.remember = value.remember;
+    });
+  }
+  submitForm = async () => {
+    await this.submit();
+  };
 
   async anotherMethod() {
-    const [modal] = await this.modalService.openViewRef(
-      TwoFactorOptionsComponent,
-      this.twoFactorOptionsModal,
-      (comp) => {
-        // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-        comp.onProviderSelected.subscribe(async (provider: TwoFactorProviderType) => {
-          modal.close();
-          this.selectedProviderType = provider;
-          await this.init();
-        });
-        // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-        comp.onRecoverSelected.subscribe(() => {
-          modal.close();
-        });
-      },
-    );
+    const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
+    const response: TwoFactorOptionsDialogResultType = await lastValueFrom(dialogRef.closed);
+    if (response.result === TwoFactorOptionsDialogResult.Provider) {
+      this.selectedProviderType = response.type;
+      await this.init();
+    }
   }
 
   protected override handleMigrateEncryptionKey(result: AuthResult): boolean {
@@ -132,17 +152,6 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
     this.token = msg.data.code + "|" + msg.data.state;
     await this.submit();
   };
-
-  override async launchDuoFrameless() {
-    const duoHandOffMessage = {
-      title: this.i18nService.t("youSuccessfullyLoggedIn"),
-      message: this.i18nService.t("thisWindowWillCloseIn5Seconds"),
-      buttonText: this.i18nService.t("close"),
-      isCountdown: true,
-    };
-    document.cookie = `duoHandOffMessage=${JSON.stringify(duoHandOffMessage)}; SameSite=strict;`;
-    this.platformUtilsService.launchUri(this.duoFramelessUrl);
-  }
 
   async ngOnDestroy() {
     super.ngOnDestroy();

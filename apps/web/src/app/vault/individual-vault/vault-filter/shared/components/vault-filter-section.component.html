@@ -25,7 +25,7 @@
     >
       <h3
         [ngClass]="{
-          active: isAllVaultsSelected || isNodeSelected(headerNode)
+          active: isAllVaultsSelected || isNodeSelected(headerNode),
         }"
       >
         &nbsp;{{ headerNode.node.name | i18n }}
@@ -44,7 +44,7 @@
       <li
         *ngFor="let f of filters"
         [ngClass]="{
-          active: isNodeSelected(f)
+          active: isNodeSelected(f),
         }"
         class="filter-option"
       >
@@ -62,7 +62,7 @@
               class="bwi bwi-fw"
               [ngClass]="{
                 'bwi-angle-right': isCollapsed(f.node),
-                'bwi-angle-down': !isCollapsed(f.node)
+                'bwi-angle-down': !isCollapsed(f.node),
               }"
               aria-hidden="true"
             ></i>

@@ -1,18 +1,27 @@
-import { firstValueFrom } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, Subscription } from "rxjs";
 
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { setAlarmTime } from "../../platform/alarms/alarm-state";
-
-import { clearClipboardAlarmName } from "./clear-clipboard";
+import { ClearClipboard } from "./clear-clipboard";
 import { copyToClipboard } from "./copy-to-clipboard-command";
 
 export class GeneratePasswordToClipboardCommand {
+  private clearClipboardSubscription: Subscription;
+
   constructor(
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-  ) {}
+    private taskSchedulerService: TaskSchedulerService,
+  ) {
+    this.taskSchedulerService.registerTaskHandler(
+      ScheduledTaskNames.generatePasswordClearClipboardTimeout,
+      () => ClearClipboard.run(),
+    );
+  }
 
   async getClearClipboard() {
     return await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
@@ -22,14 +31,18 @@ export class GeneratePasswordToClipboardCommand {
     const [options] = await this.passwordGenerationService.getOptions();
     const password = await this.passwordGenerationService.generatePassword(options);
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    copyToClipboard(tab, password);
+    await copyToClipboard(tab, password);
 
-    const clearClipboard = await this.getClearClipboard();
-
-    if (clearClipboard != null) {
-      await setAlarmTime(clearClipboardAlarmName, clearClipboard * 1000);
+    const clearClipboardDelayInSeconds = await this.getClearClipboard();
+    if (!clearClipboardDelayInSeconds) {
+      return;
     }
+
+    const timeoutInMs = clearClipboardDelayInSeconds * 1000;
+    this.clearClipboardSubscription?.unsubscribe();
+    this.clearClipboardSubscription = this.taskSchedulerService.setTimeout(
+      ScheduledTaskNames.generatePasswordClearClipboardTimeout,
+      timeoutInMs,
+    );
   }
 }

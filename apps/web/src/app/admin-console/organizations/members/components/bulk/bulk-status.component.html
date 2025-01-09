@@ -1,57 +1,38 @@
-<div class="modal fade" role="dialog" aria-modal="true" aria-labelledby="bulkTitle">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title" id="bulkTitle">
-          {{ "bulkConfirmStatus" | i18n }}
-        </h1>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          appA11yTitle="{{ 'close' | i18n }}"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="card-body text-center" *ngIf="loading">
-          <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-          {{ "loading" | i18n }}
-        </div>
-        <table class="table table-hover table-list" *ngIf="!loading">
-          <thead>
-            <tr>
-              <th colspan="2">{{ "user" | i18n }}</th>
-              <th>{{ "status" | i18n }}</th>
-            </tr>
-          </thead>
-          <tr *ngFor="let item of users">
-            <td width="30">
-              <bit-avatar
-                [text]="item.user | userName"
-                [id]="item.user.id"
-                size="small"
-              ></bit-avatar>
-            </td>
-            <td>
-              {{ item.user.email }}
-              <small class="text-muted d-block" *ngIf="item.user.name">{{ item.user.name }}</small>
-            </td>
-            <td class="text-danger" *ngIf="item.error">
-              {{ item.message }}
-            </td>
-            <td *ngIf="!item.error">
-              {{ item.message }}
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-          {{ "close" | i18n }}
-        </button>
-      </div>
+<bit-dialog dialogSize="large" [title]="'bulkConfirmStatus' | i18n">
+  <ng-container bitDialogContent>
+    <div class="tw-text-center" *ngIf="loading">
+      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+      {{ "loading" | i18n }}
     </div>
-  </div>
-</div>
+    <bit-table *ngIf="!loading">
+      <ng-container header>
+        <tr>
+          <th colspan="2" bitCell>{{ "user" | i18n }}</th>
+          <th bitCell>{{ "status" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        <tr bitRow *ngFor="let item of users">
+          <td width="30" bitCell>
+            <bit-avatar [text]="item.user | userName" [id]="item.user.id" size="small"></bit-avatar>
+          </td>
+          <td bitCell>
+            {{ item.user.email }}
+            <small class="text-muted d-block" *ngIf="item.user.name">{{ item.user.name }}</small>
+          </td>
+          <td class="tw-text-danger" *ngIf="item.error" bitCell>
+            {{ item.message }}
+          </td>
+          <td *ngIf="!item.error" bitCell>
+            {{ item.message }}
+          </td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

@@ -1,8 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { filter, map, Observable, startWith, concatMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 
 import { ReportVariant, reports, ReportType, ReportEntry } from "../../../tools/reports";
 
@@ -20,7 +23,7 @@ export class ReportsHomeComponent implements OnInit {
     private router: Router,
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.homepage$ = this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
       map((event) => this.isReportsHomepageRouteUrl((event as NavigationEnd).urlAfterRedirects)),
@@ -29,16 +32,15 @@ export class ReportsHomeComponent implements OnInit {
 
     this.reports$ = this.route.params.pipe(
       concatMap((params) => this.organizationService.get$(params.organizationId)),
-      map((org) => this.buildReports(org.isFreeOrg)),
+      map((org) => this.buildReports(org.productTierType)),
     );
   }
 
-  private buildReports(upgradeRequired: boolean): ReportEntry[] {
-    const reportRequiresUpgrade = upgradeRequired
-      ? ReportVariant.RequiresUpgrade
-      : ReportVariant.Enabled;
+  private buildReports(productType: ProductTierType): ReportEntry[] {
+    const reportRequiresUpgrade =
+      productType == ProductTierType.Free ? ReportVariant.RequiresUpgrade : ReportVariant.Enabled;
 
-    return [
+    const reportsArray = [
       {
         ...reports[ReportType.ExposedPasswords],
         variant: reportRequiresUpgrade,
@@ -59,7 +61,16 @@ export class ReportsHomeComponent implements OnInit {
         ...reports[ReportType.Inactive2fa],
         variant: reportRequiresUpgrade,
       },
+      {
+        ...reports[ReportType.MemberAccessReport],
+        variant:
+          productType == ProductTierType.Enterprise
+            ? ReportVariant.Enabled
+            : ReportVariant.RequiresEnterprise,
+      },
     ];
+
+    return reportsArray;
   }
 
   private isReportsHomepageRouteUrl(url: string): boolean {

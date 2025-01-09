@@ -1,46 +1,34 @@
-import { Observable, filter, firstValueFrom, tap } from "rxjs";
-
 import { AppIdService as AppIdServiceAbstraction } from "../abstractions/app-id.service";
+import { LogService } from "../abstractions/log.service";
+import { AbstractStorageService } from "../abstractions/storage.service";
 import { Utils } from "../misc/utils";
-import { APPLICATION_ID_DISK, GlobalStateProvider, KeyDefinition } from "../state";
 
-export const APP_ID_KEY = new KeyDefinition(APPLICATION_ID_DISK, "appId", {
-  deserializer: (value: string) => value,
-});
-export const ANONYMOUS_APP_ID_KEY = new KeyDefinition(APPLICATION_ID_DISK, "anonymousAppId", {
-  deserializer: (value: string) => value,
-});
+export const APP_ID_KEY = "global_applicationId_appId";
+export const ANONYMOUS_APP_ID_KEY = "global_applicationId_appId";
 
 export class AppIdService implements AppIdServiceAbstraction {
-  appId$: Observable<string>;
-  anonymousAppId$: Observable<string>;
-
-  constructor(globalStateProvider: GlobalStateProvider) {
-    const appIdState = globalStateProvider.get(APP_ID_KEY);
-    const anonymousAppIdState = globalStateProvider.get(ANONYMOUS_APP_ID_KEY);
-    this.appId$ = appIdState.state$.pipe(
-      tap(async (appId) => {
-        if (!appId) {
-          await appIdState.update(() => Utils.newGuid());
-        }
-      }),
-      filter((appId) => !!appId),
-    );
-    this.anonymousAppId$ = anonymousAppIdState.state$.pipe(
-      tap(async (appId) => {
-        if (!appId) {
-          await anonymousAppIdState.update(() => Utils.newGuid());
-        }
-      }),
-      filter((appId) => !!appId),
-    );
-  }
+  constructor(
+    private readonly storageService: AbstractStorageService,
+    private readonly logService: LogService,
+  ) {}
 
   async getAppId(): Promise<string> {
-    return await firstValueFrom(this.appId$);
+    this.logService.info("Retrieving application id");
+    return await this.getEnsuredValue(APP_ID_KEY);
   }
 
   async getAnonymousAppId(): Promise<string> {
-    return await firstValueFrom(this.anonymousAppId$);
+    return await this.getEnsuredValue(ANONYMOUS_APP_ID_KEY);
+  }
+
+  private async getEnsuredValue(key: string) {
+    let value = await this.storageService.get<string | null>(key);
+
+    if (value == null) {
+      value = Utils.newGuid();
+      await this.storageService.save(key, value);
+    }
+
+    return value;
   }
 }

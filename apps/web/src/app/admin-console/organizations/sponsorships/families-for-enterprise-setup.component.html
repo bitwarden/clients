@@ -1,51 +1,37 @@
-<div class="container page-content">
-  <div class="page-header">
-    <h1>{{ "sponsoredFamiliesOffer" | i18n }}</h1>
-  </div>
-  <div *ngIf="loading" class="mt-5 d-flex justify-content-center">
+<div class="tw-container">
+  <h1 bitTypography="h1">{{ "sponsoredFamiliesOffer" | i18n }}</h1>
+  <div *ngIf="loading" class="tw-mt-5 tw-flex tw-justify-center">
     <i
-      class="bwi bwi-spinner bwi-spin bwi-2x text-muted"
+      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
-    <span class="sr-only">{{ "loading" | i18n }}</span>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </div>
-  <div *ngIf="!loading && badToken" class="mt-5 d-flex justify-content-center">
+  <div *ngIf="!loading && badToken" class="tw-mt-5 tw-flex tw-justify-center">
     <span>{{ "badToken" | i18n }}</span>
   </div>
-  <form
-    #form
-    (ngSubmit)="submit()"
-    [appApiAction]="formPromise"
-    ngNativeValidate
-    *ngIf="!loading && !badToken"
-  >
-    <p>
-      <span>{{ "acceptBitwardenFamiliesHelp" | i18n }}</span>
-    </p>
-    <div class="form-group col-6">
-      <label for="availableSponsorshipOrg">{{ "sponsoredFamiliesSelectOffer" | i18n }}</label>
-      <select
-        id="availableSponsorshipOrg"
-        name="Available Sponsorship Organization"
-        [(ngModel)]="selectedFamilyOrganizationId"
-        class="form-control"
-        required
-      >
-        <option value="" disabled>-- {{ "select" | i18n }} --</option>
-        <option value="createNew">{{ "newFamiliesOrganization" | i18n }}</option>
-        <option *ngFor="let o of existingFamilyOrganizations$ | async" [ngValue]="o.id">
-          {{ o.name }}
-        </option>
-      </select>
-    </div>
-    <div *ngIf="showNewOrganization" class="col-12">
+  <form [bitSubmit]="submit" [formGroup]="formGroup" *ngIf="!loading && !badToken">
+    <p bitTypography="body1">{{ "acceptBitwardenFamiliesHelp" | i18n }}</p>
+    <bit-form-field class="tw-w-1/2">
+      <bit-label>{{ "sponsoredFamiliesSelectOffer" | i18n }}</bit-label>
+      <bit-select formControlName="selectedFamilyOrganizationId">
+        <bit-option value="" label="-- {{ 'select' | i18n }} --" disabled></bit-option>
+        <bit-option value="createNew" label="{{ 'newFamiliesOrganization' | i18n }}"></bit-option>
+        <bit-option
+          *ngFor="let o of existingFamilyOrganizations$ | async"
+          [label]="o.name"
+          [value]="o.id"
+        >
+        </bit-option>
+      </bit-select>
+    </bit-form-field>
+    <div *ngIf="showNewOrganization">
       <app-organization-plans></app-organization-plans>
     </div>
-    <div class="form-group col-6" *ngIf="!showNewOrganization">
-      <button class="btn btn-primary mt-2 btn-submit" [disabled]="form.loading" type="submit">
-        <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-        <span>{{ "acceptOffer" | i18n }}</span>
+    <div class="w-1/2" *ngIf="!showNewOrganization">
+      <button bitButton buttonType="primary" bitFormButton type="submit">
+        {{ "acceptOffer" | i18n }}
       </button>
     </div>
   </form>

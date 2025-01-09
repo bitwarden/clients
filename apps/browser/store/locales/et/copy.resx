@@ -118,58 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwardeni Paroolihaldur</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Kodus, tööl ja teel - Bitwarden hoiustab imelihtsalt kõik su paroolid, pääsuvõtmed ja tundliku info.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Tunnustatud firmade PCMag, WIRED, The Verge, CNET, G2 ja teiste poolt kui parim paroolihaldur!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+KAITSE ENDA DIGITAALSET MAAILMA
+Lukusta oma digitaalne maailm ja kaitse seda andmelekete vastu luues ja salvestades unikaalsed ja tugevad paroolid iga konto jaoks. Halda kõike täielikult krüpteeritud hoidlas, kuhu pääsed ainult sina ligi.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+PÄÄSE OMA ANDMETELE LIGI IGALT POOLT, IGAL AJAL, IGAST SEADMEST
+Halda, hoiusta, kaitse ja jaga lõpmatult palju paroole mööda lõpmatult paljusid seadmeid ilma piiranguteta.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+KÕIGIL PEAKSID OLEMA TÖÖRIISTAD OHUTULT INTERNETIS SEIKLEMISEKS
+Kasuta Bitwardenit tasuta ilma reklaamide või andmete müümisega. Bitwarden usub, et kõigil peaks olema võimalus surfata ohutult internetis. Preemium plaanid pakuvad juurdepääsu veel rohkematele funktsioonidele.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+VÕIMENDA OMA TIIME BITWARDENIGA
+Tiimide ja ettevõtete plaanid tulevad koos professionaalsete ärifunktsioonidega. Mõned näited on SSO liides, ise majutamine, arvutikataloogide ühendamine ja SCIM kasutamine, globaalsed seaded, API, sündmuste logid ja veel rohkemgi.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Kasuta Bitwardenit oma töötajate turvamiseks ja tundliku informatsiooni jagamiseks kolleegidega.
 
 
-More reasons to choose Bitwarden:
+Veel Põhjusi Miks Valida Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Maailmatasemel Krüpteering
+Paroolid on kaitstud tipptehnoloogilise täieliku krüpteerimisega (AES-256 bit, salted hashtag ja PBKDF2 SHA-256), nii et sinu andmed püsivad privaatsete ja turvalistena.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Põhjalikud turvatestid kolmandate firmade poolt
+Bitwarden korraldab regulaarselt põhjalike turvateste tuntud kolmandate firmade poolt. Need igaaastased kontrolltestid sisaldavad kogu koodibaasi ülevaatust ja test-küberrünnakuid Bitwardeni IP-de, serverite ja veebirakenduste vastu.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Kõrgetasemeline 2-astmeline autentiteerimine (2FA)
+Kaitse oma andmeid kolmanda poole autentitaatoriga, emailile saadetud koodide või FIDO2 WebAuthn süsteemidega, nagu näiteks füüsiline turvavõti või pääsuvõti.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Jaga andmeid otse teistega kasutades täieliku krüpteerimist ja vähenda lekke tõenäosust.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Sisse ehitatud Generaator
+Loo igale oma saidile pikkasid, keerulisi ning täiesti kordumatuid paroole ja ainulaadseid kasutajanimesid. Veel paremaks privaatsuseks saad end ühendada ka variemaili (email alias) pakkujatega.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Paljudes Keeltes
+Bitwardenit on tõlgitud juba 60 erinevasse keelde ja see arv kasvab, tänu meie globaalsele kogukonnale Crowdin platvormil.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Kõigis Sinu Seadmetes
+Kaitse ja jaga oma tundliku informatsiooni Bitwardeni Hoidlas nii brauserist, telefonist, arvutist kui ka mujaltki.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden hoiustab peale paroolide veel muudki
+Täielikult krüpteeritud andmehalduse lahendused Bitwardenilt võimendavad organisatsioone ja hoiustavad kõike, kaasa arvatud arendajate saladusi ja pääsuvõtmeid. Külasta veebilehte bitwarden.com, et uurida lähemalt Bitwarden Secrets Manageri kohta ja vaata lähemalt passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Kodus, tööl ja teel - Bitwarden hoiustab imelihtsalt kõik su paroolid, pääsuvõtmed ja tundliku info.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sünkroniseeri ja halda oma kontot erinevates seadmetes</value>

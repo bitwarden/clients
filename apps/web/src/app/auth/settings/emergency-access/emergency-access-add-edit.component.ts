@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
@@ -5,7 +7,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
@@ -51,6 +53,7 @@ export class EmergencyAccessAddEditComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
     private dialogRef: DialogRef<EmergencyAccessAddEditDialogResult>,
+    private toastService: ToastService,
   ) {}
   async ngOnInit() {
     this.editMode = this.loading = this.params.emergencyAccessId != null;
@@ -104,11 +107,14 @@ export class EmergencyAccessAddEditComponent implements OnInit {
           this.addEditForm.value.waitTime,
         );
       }
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.editMode ? "editedUserId" : "invitedUsers", this.params.name),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(
+          this.editMode ? "editedUserId" : "invitedUsers",
+          this.params.name,
+        ),
+      });
       this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
     } catch (e) {
       this.logService.error(e);

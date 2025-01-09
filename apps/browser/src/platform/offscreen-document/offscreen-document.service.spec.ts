@@ -1,3 +1,7 @@
+import { mock } from "jest-mock-extended";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+
 import { DefaultOffscreenDocumentService } from "./offscreen-document.service";
 
 class TestCase {
@@ -21,6 +25,7 @@ describe.each([
   new TestCase("synchronous callback", () => 42),
   new TestCase("asynchronous callback", () => Promise.resolve(42)),
 ])("DefaultOffscreenDocumentService %s", (testCase) => {
+  const logService = mock<LogService>();
   let sut: DefaultOffscreenDocumentService;
   const reasons = [chrome.offscreen.Reason.TESTING];
   const justification = "justification is testing";
@@ -37,11 +42,17 @@ describe.each([
     callback = testCase.callback;
     chrome.offscreen = api;
 
-    sut = new DefaultOffscreenDocumentService();
+    sut = new DefaultOffscreenDocumentService(logService);
   });
 
   afterEach(() => {
     jest.resetAllMocks();
+  });
+
+  describe("offscreenApiSupported", () => {
+    it("indicates whether the offscreen API is supported", () => {
+      expect(sut.offscreenApiSupported()).toBe(true);
+    });
   });
 
   describe("withDocument", () => {

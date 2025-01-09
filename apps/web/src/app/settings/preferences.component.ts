@@ -1,10 +1,13 @@
-import { Component, OnInit } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { concatMap, filter, firstValueFrom, map, Observable, Subject, takeUntil, tap } from "rxjs";
 
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -12,13 +15,18 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import {
+  VaultTimeout,
+  VaultTimeoutOption,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-preferences",
   templateUrl: "preferences.component.html",
 })
-export class PreferencesComponent implements OnInit {
+export class PreferencesComponent implements OnInit, OnDestroy {
   // For use in template
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 
@@ -28,7 +36,7 @@ export class PreferencesComponent implements OnInit {
     timeout: { hours: number; minutes: number };
     action: VaultTimeoutAction;
   }>;
-  vaultTimeoutOptions: { name: string; value: number }[];
+  vaultTimeoutOptions: VaultTimeoutOption[];
   localeOptions: any[];
   themeOptions: any[];
 
@@ -36,7 +44,7 @@ export class PreferencesComponent implements OnInit {
   private destroy$ = new Subject<void>();
 
   form = this.formBuilder.group({
-    vaultTimeout: [null as number | null],
+    vaultTimeout: [null as VaultTimeout | null],
     vaultTimeoutAction: [VaultTimeoutAction.Lock],
     enableFavicons: true,
     theme: [ThemeType.Light],
@@ -52,6 +60,7 @@ export class PreferencesComponent implements OnInit {
     private themeStateService: ThemeStateService,
     private domainSettingsService: DomainSettingsService,
     private dialogService: DialogService,
+    private accountService: AccountService,
   ) {
     this.vaultTimeoutOptions = [
       { name: i18nService.t("oneMinute"), value: 1 },
@@ -60,10 +69,13 @@ export class PreferencesComponent implements OnInit {
       { name: i18nService.t("thirtyMinutes"), value: 30 },
       { name: i18nService.t("oneHour"), value: 60 },
       { name: i18nService.t("fourHours"), value: 240 },
-      { name: i18nService.t("onRefresh"), value: -1 },
+      { name: i18nService.t("onRefresh"), value: VaultTimeoutStringType.OnRestart },
     ];
     if (this.platformUtilsService.isDev()) {
-      this.vaultTimeoutOptions.push({ name: i18nService.t("never"), value: null });
+      this.vaultTimeoutOptions.push({
+        name: i18nService.t("never"),
+        value: VaultTimeoutStringType.Never,
+      });
     }
 
     const localeOptions: any[] = [];
@@ -130,10 +142,15 @@ export class PreferencesComponent implements OnInit {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    const activeAcct = await firstValueFrom(this.accountService.activeAccount$);
+
     const initialFormValues = {
-      vaultTimeout: await this.vaultTimeoutSettingsService.getVaultTimeout(),
+      vaultTimeout: await firstValueFrom(
+        this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(activeAcct.id),
+      ),
       vaultTimeoutAction: await firstValueFrom(
-        this.vaultTimeoutSettingsService.vaultTimeoutAction$(),
+        this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAcct.id),
       ),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
@@ -143,7 +160,7 @@ export class PreferencesComponent implements OnInit {
     this.form.setValue(initialFormValues, { emitEvent: false });
   }
 
-  async submit() {
+  submit = async () => {
     if (!this.form.controls.vaultTimeout.valid) {
       this.platformUtilsService.showToast(
         "error",
@@ -152,9 +169,15 @@ export class PreferencesComponent implements OnInit {
       );
       return;
     }
-    const values = this.form.value;
+
+    // must get raw value b/c the vault timeout action is disabled when a policy is applied
+    // which removes the timeout action property and value from the normal form.value.
+    const values = this.form.getRawValue();
+
+    const activeAcct = await firstValueFrom(this.accountService.activeAccount$);
 
     await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
+      activeAcct.id,
       values.vaultTimeout,
       values.vaultTimeoutAction,
     );
@@ -170,7 +193,7 @@ export class PreferencesComponent implements OnInit {
         this.i18nService.t("preferencesUpdated"),
       );
     }
-  }
+  };
 
   ngOnDestroy() {
     this.destroy$.next();

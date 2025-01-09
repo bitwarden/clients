@@ -1,9 +1,29 @@
+<bit-banner
+  id="free-trial-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  icon="bwi-billing"
+  [showClose]="false"
+  *ngIf="freeTrialData?.shownBanner"
+>
+  {{ freeTrialData?.message }}
+  <a
+    bitLink
+    linkType="secondary"
+    (click)="changePayment()"
+    class="tw-cursor-pointer"
+    rel="noreferrer noopener"
+  >
+    {{ "clickHereToAddPaymentMethod" | i18n }}
+  </a>
+</bit-banner>
+
 <app-header *ngIf="organizationId">
   <button
     type="button"
     bitButton
     buttonType="secondary"
-    (click)="load()"
+    [bitAction]="load"
     class="tw-ml-auto"
     *ngIf="firstLoaded"
     [disabled]="loading"
@@ -14,128 +34,81 @@
 </app-header>
 
 <bit-container>
-  <div class="tabbed-header" *ngIf="!organizationId">
-    <!--TODO: Organization and individual should use different "page" components -->
-    <h1>{{ "paymentMethod" | i18n }}</h1>
-  </div>
+  <!-- TODO: Organization and individual should use different "page" components -->
+  <h2 bitTypography="h1" *ngIf="!organizationId">{{ "paymentMethod" | i18n }}</h2>
 
   <ng-container *ngIf="!firstLoaded && loading">
     <i
-      class="bwi bwi-spinner bwi-spin text-muted"
+      class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
-    <span class="sr-only">{{ "loading" | i18n }}</span>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
   <ng-container *ngIf="billing">
-    <h2>{{ (isCreditBalance ? "accountCredit" : "accountBalance") | i18n }}</h2>
-    <p class="text-lg">
-      <strong>{{ creditOrBalance | currency: "$" }}</strong>
-    </p>
-    <p>{{ "creditAppliedDesc" | i18n }}</p>
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      (click)="addCredit()"
-      *ngIf="!showAddCredit"
-    >
-      {{ "addCredit" | i18n }}
-    </button>
-    <app-add-credit
-      [organizationId]="organizationId"
-      (onAdded)="closeAddCredit(true)"
-      (onCanceled)="closeAddCredit(false)"
-      *ngIf="showAddCredit"
-    >
-    </app-add-credit>
-    <h2 class="spaced-header">{{ "paymentMethod" | i18n }}</h2>
-    <p *ngIf="!paymentSource">{{ "noPaymentMethod" | i18n }}</p>
-    <ng-container *ngIf="paymentSource">
-      <app-callout
-        type="warning"
-        title="{{ 'verifyBankAccount' | i18n }}"
-        *ngIf="
-          forOrganization &&
-          paymentSource.type === paymentMethodType.BankAccount &&
-          paymentSource.needsVerification
-        "
-      >
-        <p>{{ "verifyBankAccountDesc" | i18n }} {{ "verifyBankAccountFailureWarning" | i18n }}</p>
-        <form
-          #verifyForm
-          class="form-inline"
-          (ngSubmit)="verifyBank()"
-          [formGroup]="verifyBankForm"
-          [appApiAction]="verifyBankPromise"
-          ngNativeValidate
+    <bit-section>
+      <h2 bitTypography="h2">
+        {{ (isCreditBalance ? "accountCredit" : "accountBalance") | i18n }}
+      </h2>
+      <p class="tw-text-lg tw-font-bold">{{ creditOrBalance | currency: "$" }}</p>
+      <p bitTypography="body1">{{ "creditAppliedDesc" | i18n }}</p>
+      <button type="button" bitButton buttonType="secondary" [bitAction]="addCredit">
+        {{ "addCredit" | i18n }}
+      </button>
+    </bit-section>
+    <bit-section>
+      <h2 bitTypography="h2">{{ "paymentMethod" | i18n }}</h2>
+      <p *ngIf="!paymentSource" bitTypography="body1">{{ "noPaymentMethod" | i18n }}</p>
+      <ng-container *ngIf="paymentSource">
+        <bit-callout
+          type="warning"
+          title="{{ 'verifyBankAccount' | i18n }}"
+          *ngIf="
+            forOrganization &&
+            paymentSource.type === paymentMethodType.BankAccount &&
+            paymentSource.needsVerification
+          "
         >
-          <bit-form-field class="tw-mr-2 tw-w-40">
-            <bit-label>{{ "amountX" | i18n: "1" }}</bit-label>
-            <input bitInput type="number" step="1" placeholder="xx" formControlName="amount1" />
-            <span bitPrefix>$0.</span>
-          </bit-form-field>
-          <bit-form-field class="tw-mr-2 tw-w-40">
-            <bit-label>{{ "amountX" | i18n: "2" }}</bit-label>
-            <input bitInput type="number" step="1" placeholder="xx" formControlName="amount2" />
-            <span bitPrefix>$0.</span>
-          </bit-form-field>
-          <button
-            type="button"
-            bitButton
-            buttonType="primary"
-            type="submit"
-            class="btn-submit"
-            [disabled]="verifyForm.loading"
+          <p bitTypography="body1">
+            {{ "verifyBankAccountDesc" | i18n }} {{ "verifyBankAccountFailureWarning" | i18n }}
+          </p>
+          <form
+            [formGroup]="verifyBankForm"
+            [bitSubmit]="verifyBank"
+            class="tw-flex tw-flex-wrap tw-items-center tw-space-x-2"
           >
-            <i
-              class="bwi bwi-spinner bwi-spin"
-              title="{{ 'loading' | i18n }}"
-              aria-hidden="true"
-            ></i>
-            <span>{{ "verifyBankAccount" | i18n }}</span>
-          </button>
-        </form>
-      </app-callout>
-      <p>
-        <i class="bwi bwi-fw" [ngClass]="paymentSourceClasses"></i>
-        {{ paymentSource.description }}
-      </p>
-    </ng-container>
-    <button type="button" bitButton buttonType="secondary" [bitAction]="changePayment">
-      {{ (paymentSource ? "changePaymentMethod" : "addPaymentMethod") | i18n }}
-    </button>
-    <p *ngIf="isUnpaid">{{ "paymentChargedWithUnpaidSubscription" | i18n }}</p>
-    <ng-container *ngIf="forOrganization">
-      <h2 class="spaced-header">{{ "taxInformation" | i18n }}</h2>
-      <p>{{ "taxInformationDesc" | i18n }}</p>
-      <div *ngIf="!org || loading">
-        <i
-          class="bwi bwi-spinner bwi-spin text-muted"
-          title="{{ 'loading' | i18n }}"
-          aria-hidden="true"
-        ></i>
-        <span class="sr-only">{{ "loading" | i18n }}</span>
-      </div>
-      <form
-        *ngIf="org && !loading"
-        #formTax
-        (ngSubmit)="submitTaxInfo()"
-        [appApiAction]="taxFormPromise"
-        ngNativeValidate
+            <bit-form-field class="tw-w-40">
+              <bit-label>{{ "amountX" | i18n: "1" }}</bit-label>
+              <input bitInput type="number" step="1" placeholder="xx" formControlName="amount1" />
+              <span bitPrefix>$0.</span>
+            </bit-form-field>
+            <bit-form-field class="tw-w-40">
+              <bit-label>{{ "amountX" | i18n: "2" }}</bit-label>
+              <input bitInput type="number" step="1" placeholder="xx" formControlName="amount2" />
+              <span bitPrefix>$0.</span>
+            </bit-form-field>
+            <button bitButton bitFormButton buttonType="primary" type="submit">
+              {{ "verifyBankAccount" | i18n }}
+            </button>
+          </form>
+        </bit-callout>
+        <p>
+          <i class="bwi bwi-fw" [ngClass]="paymentSourceClasses"></i>
+          {{ paymentSource.description }}
+        </p>
+      </ng-container>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        class="payment_trigger_button"
+        [bitAction]="changePayment"
       >
-        <app-tax-info></app-tax-info>
-        <button
-          bitButton
-          buttonType="primary"
-          type="submit"
-          class="btn-submit"
-          [disabled]="formTax.loading"
-        >
-          <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-          <span>{{ "save" | i18n }}</span>
-        </button>
-      </form>
-    </ng-container>
+        {{ (paymentSource ? "changePaymentMethod" : "addPaymentMethod") | i18n }}
+      </button>
+      <p *ngIf="isUnpaid" bitTypography="body1">
+        {{ "paymentChargedWithUnpaidSubscription" | i18n }}
+      </p>
+    </bit-section>
   </ng-container>
 </bit-container>

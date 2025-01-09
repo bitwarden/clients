@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 
@@ -18,7 +20,7 @@ export type ToastOptions = {
 export class ToastService {
   constructor(private toastrService: ToastrService) {}
 
-  showToast(options: ToastOptions) {
+  showToast(options: ToastOptions): void {
     const toastrConfig: Partial<IndividualConfig> = {
       payload: {
         message: options.message,

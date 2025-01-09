@@ -1,85 +1,52 @@
 <form [formGroup]="formGroup" [bitSubmit]="load">
-  <div
-    class="tw-mx-auto tw-mt-5 tw-flex tw-max-w-xl tw-flex-col tw-items-center tw-justify-center tw-p-8"
-  >
-    <img class="logo logo-themed" alt="Bitwarden" />
-    <div class="tw-mt-5 tw-w-full">
-      <h2 bitTypography="h2" class="tw-mb-4 tw-text-center">View Send</h2>
-    </div>
-    <div class="tw-w-full tw-text-center" *ngIf="creatorIdentifier != null">
-      <p>{{ "sendAccessCreatorIdentifier" | i18n: creatorIdentifier }}</p>
-    </div>
-    <bit-callout *ngIf="hideEmail" type="warning" title="{{ 'warning' | i18n }}">
-      {{ "viewSendHiddenEmailWarning" | i18n }}
-      <a bitLink href="https://bitwarden.com/help/receive-send/" target="_blank" rel="noreferrer">{{
-        "learnMore" | i18n
-      }}</a
-      >.
-    </bit-callout>
-    <div
-      class="tw-mt-3 tw-w-10/12 tw-rounded-md tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-6"
-    >
-      <ng-container *ngIf="!loading; else spinner">
-        <app-send-access-password
-          (setPasswordEvent)="setPassword($event)"
-          *ngIf="passwordRequired && !error"
-        ></app-send-access-password>
-        <bit-no-items [icon]="expiredSendIcon" class="tw-text-main" *ngIf="unavailable">
-          <ng-container slot="description">{{ "sendAccessUnavailable" | i18n }}</ng-container>
-        </bit-no-items>
-        <bit-no-items [icon]="expiredSendIcon" class="tw-text-main" *ngIf="error">
-          <ng-container slot="description">{{ "unexpectedErrorSend" | i18n }}</ng-container>
-        </bit-no-items>
-        <div *ngIf="!passwordRequired && send && !error && !unavailable">
-          <p class="tw-text-center">
-            <b>{{ send.name }}</b>
-          </p>
-          <hr />
-          <!-- Text -->
-          <ng-container *ngIf="send.type === sendType.Text">
-            <app-send-access-text [send]="send"></app-send-access-text>
-          </ng-container>
-          <!-- File -->
-          <ng-container *ngIf="send.type === sendType.File">
-            <app-send-access-file
-              [send]="send"
-              [decKey]="decKey"
-              [accessRequest]="accessRequest"
-            ></app-send-access-file>
-          </ng-container>
-          <p *ngIf="expirationDate" class="tw-text-center tw-text-muted">
-            Expires: {{ expirationDate | date: "medium" }}
-          </p>
-        </div>
+  <bit-callout *ngIf="hideEmail" type="warning" title="{{ 'warning' | i18n }}">
+    {{ "viewSendHiddenEmailWarning" | i18n }}
+    <a bitLink href="https://bitwarden.com/help/receive-send/" target="_blank" rel="noreferrer">{{
+      "learnMore" | i18n
+    }}</a
+    >.
+  </bit-callout>
+  <ng-container *ngIf="!loading; else spinner">
+    <app-send-access-password
+      (setPasswordEvent)="setPassword($event)"
+      *ngIf="passwordRequired && !error"
+    ></app-send-access-password>
+    <bit-no-items [icon]="expiredSendIcon" class="tw-text-main" *ngIf="unavailable">
+      <ng-container slot="description">{{ "sendAccessUnavailable" | i18n }}</ng-container>
+    </bit-no-items>
+    <bit-no-items [icon]="expiredSendIcon" class="tw-text-main" *ngIf="error">
+      <ng-container slot="description">{{ "unexpectedErrorSend" | i18n }}</ng-container>
+    </bit-no-items>
+    <div *ngIf="!passwordRequired && send && !error && !unavailable">
+      <p class="tw-text-center">
+        <b>{{ send.name }}</b>
+      </p>
+      <hr />
+      <!-- Text -->
+      <ng-container *ngIf="send.type === sendType.Text">
+        <app-send-access-text [send]="send"></app-send-access-text>
       </ng-container>
-      <ng-template #spinner>
-        <div class="tw-text-center">
-          <i
-            class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
-            title="{{ 'loading' | i18n }}"
-            aria-hidden="true"
-          ></i>
-          <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-        </div>
-      </ng-template>
-    </div>
-    <div class="tw-mt-5 tw-w-10/12 tw-text-center tw-text-muted">
-      <p bitTypography="body2" class="tw-mb-0">
-        {{ "sendAccessTaglineProductDesc" | i18n }}
-        {{ "sendAccessTaglineLearnMore" | i18n }}
-        <a
-          bitLink
-          href="https://www.bitwarden.com/products/send?source=web-vault"
-          target="_blank"
-          rel="noreferrer"
-          >Bitwarden Send</a
-        >
-        {{ "sendAccessTaglineOr" | i18n }}
-        <a bitLink routerLink="/register" target="_blank" rel="noreferrer">{{
-          "sendAccessTaglineSignUp" | i18n
-        }}</a>
-        {{ "sendAccessTaglineTryToday" | i18n }}
+      <!-- File -->
+      <ng-container *ngIf="send.type === sendType.File">
+        <app-send-access-file
+          [send]="send"
+          [decKey]="decKey"
+          [accessRequest]="accessRequest"
+        ></app-send-access-file>
+      </ng-container>
+      <p *ngIf="expirationDate" class="tw-text-center tw-text-muted">
+        Expires: {{ expirationDate | date: "medium" }}
       </p>
     </div>
-  </div>
+  </ng-container>
+  <ng-template #spinner>
+    <div class="tw-text-center">
+      <i
+        class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </div>
+  </ng-template>
 </form>

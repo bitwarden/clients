@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 
@@ -38,7 +40,7 @@ export class ExportCommand {
     // format is 'undefined' => Defaults to 'csv'
     // Any other case => returns the options.format
     const format =
-      password && options.format == "json" ? "encrypted_json" : options.format ?? "csv";
+      password && options.format == "json" ? "encrypted_json" : (options.format ?? "csv");
 
     if (!this.isSupportedExportFormat(format)) {
       return Response.badRequest(

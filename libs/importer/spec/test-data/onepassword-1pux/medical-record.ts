@@ -26,7 +26,7 @@ export const MedicalRecordData: ExportData = {
               favIndex: 0,
               createdAt: 1641220207,
               updatedAt: 1641220326,
-              trashed: false,
+              state: "active",
               categoryUuid: "113",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const MedicalRecordData: ExportData = {
                         value: {
                           date: 1641038460,
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const MedicalRecordData: ExportData = {
                         value: {
                           string: "some hospital/clinic",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -74,7 +72,6 @@ export const MedicalRecordData: ExportData = {
                         value: {
                           string: "Some Doctor",
                         },
-                        indexAtSource: 2,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -91,7 +88,6 @@ export const MedicalRecordData: ExportData = {
                         value: {
                           string: "Me",
                         },
-                        indexAtSource: 3,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -108,7 +104,6 @@ export const MedicalRecordData: ExportData = {
                         value: {
                           string: "unwell",
                         },
-                        indexAtSource: 4,
                         guarded: true,
                         multiline: true,
                         dontGenerate: false,
@@ -131,7 +126,6 @@ export const MedicalRecordData: ExportData = {
                         value: {
                           string: "Insuline",
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -148,7 +142,6 @@ export const MedicalRecordData: ExportData = {
                         value: {
                           string: "1",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -165,7 +158,6 @@ export const MedicalRecordData: ExportData = {
                         value: {
                           string: "multiple times a day",
                         },
-                        indexAtSource: 2,
                         guarded: true,
                         multiline: true,
                         dontGenerate: false,

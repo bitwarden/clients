@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -9,6 +11,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 import { BaseEventsComponent } from "@bitwarden/web-vault/app/admin-console/common/base.events.component";
 import { EventService } from "@bitwarden/web-vault/app/core";
 import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export";
@@ -37,6 +40,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
     logService: LogService,
     private userNamePipe: UserNamePipe,
     fileDownloadService: FileDownloadService,
+    toastService: ToastService,
   ) {
     super(
       eventService,
@@ -45,6 +49,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
       platformUtilsService,
       logService,
       fileDownloadService,
+      toastService,
     );
   }
 
@@ -70,7 +75,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit {
       this.providerUsersIdMap.set(u.id, { name: name, email: u.email });
       this.providerUsersUserIdMap.set(u.userId, { name: name, email: u.email });
     });
-    await this.loadEvents(true);
+    await this.refreshEvents();
     this.loaded = true;
   }
 

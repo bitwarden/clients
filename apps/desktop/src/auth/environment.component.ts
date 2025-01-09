@@ -5,6 +5,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-environment",
@@ -16,7 +17,8 @@ export class EnvironmentComponent extends BaseEnvironmentComponent {
     environmentService: EnvironmentService,
     i18nService: I18nService,
     modalService: ModalService,
+    toastService: ToastService,
   ) {
-    super(platformUtilsService, environmentService, i18nService, modalService);
+    super(platformUtilsService, environmentService, i18nService, modalService, toastService);
   }
 }

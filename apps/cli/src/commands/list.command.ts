@@ -1,20 +1,23 @@
+import { firstValueFrom, map } from "rxjs";
+
+import {
+  OrganizationUserApiService,
+  CollectionService,
+  CollectionData,
+  Collection,
+  CollectionDetailsResponse as ApiCollectionDetailsResponse,
+  CollectionResponse as ApiCollectionResponse,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
-import { Collection } from "@bitwarden/common/vault/models/domain/collection";
-import {
-  CollectionDetailsResponse as ApiCollectionDetailsResponse,
-  CollectionResponse as ApiCollectionResponse,
-} from "@bitwarden/common/vault/models/response/collection.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
@@ -33,9 +36,10 @@ export class ListCommand {
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
     private searchService: SearchService,
-    private organizationUserService: OrganizationUserService,
+    private organizationUserApiService: OrganizationUserApiService,
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -126,24 +130,17 @@ export class ListCommand {
       ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
     }
 
-    for (let i = 0; i < ciphers.length; i++) {
-      const c = ciphers[i];
-      // Set upload immediately on the last item in the ciphers collection to avoid the event collection
-      // service from uploading each time.
-      await this.eventCollectionService.collect(
-        EventType.Cipher_ClientViewed,
-        c.id,
-        i === ciphers.length - 1,
-        c.organizationId,
-      );
-    }
+    await this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, ciphers, true);
 
     const res = new ListResponse(ciphers.map((o) => new CipherResponse(o)));
     return Response.success(res);
   }
 
   private async listFolders(options: Options) {
-    let folders = await this.folderService.getAllDecryptedFromState();
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
 
     if (options.search != null && options.search.trim() !== "") {
       folders = CliUtils.searchFolders(folders, options.search);
@@ -219,7 +216,7 @@ export class ListCommand {
     }
 
     try {
-      const response = await this.organizationUserService.getAllUsers(options.organizationId);
+      const response = await this.organizationUserApiService.getAllUsers(options.organizationId);
       const res = new ListResponse(
         response.data.map((r) => {
           const u = new OrganizationUserResponse();
@@ -239,7 +236,7 @@ export class ListCommand {
   }
 
   private async listOrganizations(options: Options) {
-    let organizations = await this.organizationService.getAll();
+    let organizations = await firstValueFrom(this.organizationService.memberOrganizations$);
 
     if (options.search != null && options.search.trim() !== "") {
       organizations = CliUtils.searchOrganizations(organizations, options.search);

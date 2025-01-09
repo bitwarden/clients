@@ -1,0 +1,143 @@
+name: Publish Web
+run-name: Publish Web ${{ inputs.publish_type }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_type:
+        description: 'Publish Options'
+        required: true
+        default: 'Initial Release'
+        type: choice
+        options:
+          - Initial Release
+          - Redeploy
+          - Dry Run
+
+env:
+  _AZ_REGISTRY: bitwardenprod.azurecr.io
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-22.04
+    outputs:
+      release_version: ${{ steps.version.outputs.version }}
+      tag_version: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Branch check
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/rc" ]] && [[ "$GITHUB_REF" != "refs/heads/hotfix-rc-web" ]]; then
+            echo "==================================="
+            echo "[!] Can only publish from the 'rc' or 'hotfix-rc-web' branches"
+            echo "==================================="
+            exit 1
+          fi
+
+      - name: Check Release Version
+        id: version
+        uses: bitwarden/gh-actions/release-version-check@main
+        with:
+          release-type: ${{ inputs.publish_type }}
+          project-type: ts
+          file: apps/web/package.json
+          monorepo: true
+          monorepo-project: web
+
+  self-host:
+    name: Release self-host docker
+    runs-on: ubuntu-22.04
+    needs: setup
+    env:
+      _BRANCH_NAME: ${{ github.ref_name }}
+      _RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
+      _RELEASE_OPTION: ${{ inputs.publish_type }}
+    steps:
+      - name: Print environment
+        run: |
+          whoami
+          docker --version
+          echo "GitHub ref: $GITHUB_REF"
+          echo "GitHub event: $GITHUB_EVENT"
+          echo "Github Release Option: $_RELEASE_OPTION"
+
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      ########## ACR ##########
+      - name: Login to Azure - PROD Subscription
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
+
+      - name: Login to Azure ACR
+        run: az acr login -n bitwardenprod
+
+      - name: Create GitHub deployment
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
+        id: deployment
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          initial-status: 'in_progress'
+          environment-url: http://vault.bitwarden.com
+          environment: 'Web Vault - US Production Cloud'
+          description: 'Deployment ${{ needs.setup.outputs.release_version }} from branch ${{ github.ref_name }}'
+          task: release
+
+      - name: Pull branch image
+        run: |
+          if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
+            docker pull $_AZ_REGISTRY/web:latest
+          else
+            docker pull $_AZ_REGISTRY/web:$_BRANCH_NAME
+          fi
+
+      - name: Tag version
+        run: |
+          if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
+            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web:dryrun
+            docker tag $_AZ_REGISTRY/web:latest $_AZ_REGISTRY/web-sh:dryrun
+          else
+            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:$_RELEASE_VERSION
+            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
+            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web:latest
+            docker tag $_AZ_REGISTRY/web:$_BRANCH_NAME $_AZ_REGISTRY/web-sh:latest
+          fi
+
+      - name: Push version
+        run: |
+          if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
+            docker push $_AZ_REGISTRY/web:dryrun
+            docker push $_AZ_REGISTRY/web-sh:dryrun
+          else
+            docker push $_AZ_REGISTRY/web:$_RELEASE_VERSION
+            docker push $_AZ_REGISTRY/web-sh:$_RELEASE_VERSION
+            docker push $_AZ_REGISTRY/web:latest
+            docker push $_AZ_REGISTRY/web-sh:latest
+          fi
+
+      - name: Update deployment status to Success
+        if: ${{ inputs.publish_type != 'Dry Run' && success() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          environment-url: http://vault.bitwarden.com
+          state: 'success'
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+
+      - name: Update deployment status to Failure
+        if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          environment-url: http://vault.bitwarden.com
+          state: 'failure'
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+
+      - name: Log out of Docker
+        run: docker logout

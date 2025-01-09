@@ -1,9 +1,11 @@
 <bit-section>
-  <h3 bitTypography="h3">{{ "invoices" | i18n }}</h3>
-  <p bitTypography="body1" *ngIf="!invoices || !invoices.length">{{ "noInvoices" | i18n }}</p>
+  <h3 bitTypography="h3">{{ "unpaid" | i18n }} {{ "invoices" | i18n }}</h3>
+  <p bitTypography="body1" *ngIf="!openInvoices || !openInvoices.length">
+    {{ "noUnpaidInvoices" | i18n }}
+  </p>
   <bit-table>
     <ng-template body>
-      <tr bitRow *ngFor="let i of invoices">
+      <tr bitRow *ngFor="let i of openInvoices">
         <td bitCell>{{ i.date | date: "mediumDate" }}</td>
         <td bitCell>
           <a
@@ -15,12 +17,62 @@
           >
             <i class="bwi bwi-file-pdf" aria-hidden="true"></i
           ></a>
-          <a href="{{ i.url }}" target="_blank" rel="noreferrer" title="{{ 'viewInvoice' | i18n }}">
+          <a
+            bitLink
+            href="{{ i.url }}"
+            target="_blank"
+            rel="noreferrer"
+            title="{{ 'viewInvoice' | i18n }}"
+          >
             {{ "invoiceNumber" | i18n: i.number }}</a
           >
         </td>
         <td bitCell>{{ i.amount | currency: "$" }}</td>
+        <td bitCell class="tw-w-28">
+          <span *ngIf="i.paid">
+            <i class="bwi bwi-check tw-text-success" aria-hidden="true"></i>
+            {{ "paid" | i18n }}
+          </span>
+          <span *ngIf="!i.paid">
+            <i class="bwi bwi-exclamation-circle tw-text-muted" aria-hidden="true"></i>
+            {{ "unpaid" | i18n }}
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+  </bit-table>
+</bit-section>
+<bit-section>
+  <h3 bitTypography="h3">{{ "paid" | i18n }} {{ "invoices" | i18n }}</h3>
+  <p bitTypography="body1" *ngIf="!paidInvoices || !paidInvoices.length">
+    {{ "noPaidInvoices" | i18n }}
+  </p>
+  <bit-table>
+    <ng-template body>
+      <tr bitRow *ngFor="let i of paidInvoices">
+        <td bitCell>{{ i.date | date: "mediumDate" }}</td>
         <td bitCell>
+          <a
+            href="{{ i.pdfUrl }}"
+            target="_blank"
+            rel="noreferrer"
+            class="tw-mr-2"
+            appA11yTitle="{{ 'downloadInvoice' | i18n }}"
+          >
+            <i class="bwi bwi-file-pdf" aria-hidden="true"></i
+          ></a>
+          <a
+            bitLink
+            href="{{ i.url }}"
+            target="_blank"
+            rel="noreferrer"
+            title="{{ 'viewInvoice' | i18n }}"
+          >
+            {{ "invoiceNumber" | i18n: i.number }}</a
+          >
+        </td>
+        <td bitCell>{{ i.amount | currency: "$" }}</td>
+        <td bitCell class="tw-w-28">
           <span *ngIf="i.paid">
             <i class="bwi bwi-check tw-text-success" aria-hidden="true"></i>
             {{ "paid" | i18n }}

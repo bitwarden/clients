@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { PlanType } from "../../../billing/enums";
 import { PlanResponse } from "../../../billing/models/response/plan.response";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -32,9 +34,10 @@ export class OrganizationResponse extends BaseResponse {
   smServiceAccounts?: number;
   maxAutoscaleSmSeats?: number;
   maxAutoscaleSmServiceAccounts?: number;
-  limitCollectionCreationDeletion: boolean;
+  limitCollectionCreation: boolean;
+  limitCollectionDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
-  flexibleCollections: boolean;
+  useRiskInsights: boolean;
 
   constructor(response: any) {
     super(response);
@@ -70,12 +73,11 @@ export class OrganizationResponse extends BaseResponse {
     this.smServiceAccounts = this.getResponseProperty("SmServiceAccounts");
     this.maxAutoscaleSmSeats = this.getResponseProperty("MaxAutoscaleSmSeats");
     this.maxAutoscaleSmServiceAccounts = this.getResponseProperty("MaxAutoscaleSmServiceAccounts");
-    this.limitCollectionCreationDeletion = this.getResponseProperty(
-      "LimitCollectionCreationDeletion",
-    );
+    this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
+    this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );
-    this.flexibleCollections = this.getResponseProperty("FlexibleCollections");
+    this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
   }
 }

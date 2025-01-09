@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, HostBinding, Input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -9,9 +11,10 @@ let nextId = 0;
   selector: "bit-error",
   template: `<i class="bwi bwi-error"></i> {{ displayError }}`,
   host: {
-    class: "tw-block tw-mt-1 tw-text-danger",
+    class: "tw-block tw-mt-1 tw-text-danger tw-text-xs",
     "aria-live": "assertive",
   },
+  standalone: true,
 })
 export class BitErrorComponent {
   @HostBinding() id = `bit-error-${nextId++}`;

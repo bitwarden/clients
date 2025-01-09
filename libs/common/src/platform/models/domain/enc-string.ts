@@ -1,10 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify, Opaque } from "type-fest";
 
+import { EncryptService } from "../../abstractions/encrypt.service";
 import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../enums";
 import { Encrypted } from "../../interfaces/encrypted";
 import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
+
+export const DECRYPT_ERROR = "[error: cannot decrypt]";
 
 export class EncString implements Encrypted {
   encryptedString?: EncryptedString;
@@ -76,6 +81,7 @@ export class EncString implements Encrypted {
     }
 
     const { encType, encPieces } = EncString.parseEncryptedString(this.encryptedString);
+
     this.encryptionType = encType;
 
     if (encPieces.length !== EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType]) {
@@ -97,6 +103,11 @@ export class EncString implements Encrypted {
       case EncryptionType.Rsa2048_OaepSha1_B64:
         this.data = encPieces[0];
         break;
+      case EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64:
+      case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
+        this.data = encPieces[0];
+        this.mac = encPieces[1];
+        break;
       default:
         return;
     }
@@ -115,7 +126,7 @@ export class EncString implements Encrypted {
         encType = parseInt(headerPieces[0], null);
         encPieces = headerPieces[1].split("|");
       } catch (e) {
-        return;
+        return { encType: NaN, encPieces: [] };
       }
     } else {
       encPieces = encryptedString.split("|");
@@ -132,7 +143,15 @@ export class EncString implements Encrypted {
   }
 
   static isSerializedEncString(s: string): boolean {
+    if (s == null) {
+      return false;
+    }
+
     const { encType, encPieces } = this.parseEncryptedString(s);
+
+    if (isNaN(encType) || encPieces.length === 0) {
+      return false;
+    }
 
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
@@ -142,27 +161,51 @@ export class EncString implements Encrypted {
       return this.decryptedValue;
     }
 
+    let keyContext = "provided-key";
     try {
       if (key == null) {
         key = await this.getKeyForDecryption(orgId);
+        keyContext = orgId == null ? `domain-orgkey-${orgId}` : "domain-userkey|masterkey";
+        if (orgId != null) {
+          keyContext = `domain-orgkey-${orgId}`;
+        } else {
+          const cryptoService = Utils.getContainerService().getKeyService();
+          keyContext =
+            (await cryptoService.getUserKey()) == null
+              ? "domain-withlegacysupport-masterkey"
+              : "domain-withlegacysupport-userkey";
+        }
       }
       if (key == null) {
         throw new Error("No key to decrypt EncString with orgId " + orgId);
       }
 
       const encryptService = Utils.getContainerService().getEncryptService();
-      this.decryptedValue = await encryptService.decryptToUtf8(this, key);
+      this.decryptedValue = await encryptService.decryptToUtf8(this, key, keyContext);
     } catch (e) {
-      this.decryptedValue = "[error: cannot decrypt]";
+      this.decryptedValue = DECRYPT_ERROR;
     }
     return this.decryptedValue;
   }
 
+  async decryptWithKey(key: SymmetricCryptoKey, encryptService: EncryptService) {
+    try {
+      if (key == null) {
+        throw new Error("No key to decrypt EncString");
+      }
+
+      this.decryptedValue = await encryptService.decryptToUtf8(this, key, "domain-withkey");
+    } catch (e) {
+      this.decryptedValue = DECRYPT_ERROR;
+    }
+
+    return this.decryptedValue;
+  }
   private async getKeyForDecryption(orgId: string) {
-    const cryptoService = Utils.getContainerService().getCryptoService();
+    const keyService = Utils.getContainerService().getKeyService();
     return orgId != null
-      ? await cryptoService.getOrgKey(orgId)
-      : await cryptoService.getUserKeyWithLegacySupport();
+      ? await keyService.getOrgKey(orgId)
+      : await keyService.getUserKeyWithLegacySupport();
   }
 }
 

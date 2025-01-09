@@ -1,16 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  OrganizationUserApiService,
+  OrganizationUserConfirmRequest,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
-import { OrganizationUserConfirmRequest } from "@bitwarden/common/admin-console/abstractions/organization-user/requests";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { KeyService } from "@bitwarden/key-management";
 
 import { Response } from "../../models/response";
 
 export class ConfirmCommand {
   constructor(
     private apiService: ApiService,
-    private cryptoService: CryptoService,
-    private organizationUserService: OrganizationUserService,
+    private keyService: KeyService,
+    private encryptService: EncryptService,
+    private organizationUserApiService: OrganizationUserApiService,
   ) {}
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -38,11 +44,11 @@ export class ConfirmCommand {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
     try {
-      const orgKey = await this.cryptoService.getOrgKey(options.organizationId);
+      const orgKey = await this.keyService.getOrgKey(options.organizationId);
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
-      const orgUser = await this.organizationUserService.getOrganizationUser(
+      const orgUser = await this.organizationUserApiService.getOrganizationUser(
         options.organizationId,
         id,
       );
@@ -51,10 +57,10 @@ export class ConfirmCommand {
       }
       const publicKeyResponse = await this.apiService.getUserPublicKey(orgUser.userId);
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-      const key = await this.cryptoService.rsaEncrypt(orgKey.key, publicKey);
+      const key = await this.encryptService.rsaEncrypt(orgKey.key, publicKey);
       const req = new OrganizationUserConfirmRequest();
       req.key = key.encryptedString;
-      await this.organizationUserService.postOrganizationUserConfirm(
+      await this.organizationUserApiService.postOrganizationUserConfirm(
         options.organizationId,
         id,
         req,

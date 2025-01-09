@@ -1,174 +1,106 @@
-<form
-  #form
-  (ngSubmit)="submit()"
-  [appApiAction]="formPromise"
-  class="container"
-  ngNativeValidate
-  autocomplete="off"
->
-  <div class="row justify-content-md-center mt-5">
-    <div
-      class="col-5"
-      [ngClass]="{
-        'col-9': !duoFrameless && isDuoProvider
-      }"
+<form [bitSubmit]="submitForm" [formGroup]="formGroup" autocomplete="off">
+  <div class="tw-min-w-96">
+    <ng-container
+      *ngIf="
+        selectedProviderType === providerType.Email ||
+        selectedProviderType === providerType.Authenticator
+      "
     >
-      <p class="lead text-center mb-4">{{ title }}</p>
-      <div class="card d-block">
-        <div class="card-body">
-          <ng-container
-            *ngIf="
-              selectedProviderType === providerType.Email ||
-              selectedProviderType === providerType.Authenticator
-            "
+      <p bitTypography="body1" *ngIf="selectedProviderType === providerType.Authenticator">
+        {{ "enterVerificationCodeApp" | i18n }}
+      </p>
+      <p bitTypography="body1" *ngIf="selectedProviderType === providerType.Email">
+        {{ "enterVerificationCodeEmail" | i18n: twoFactorEmail }}
+      </p>
+      <bit-form-field>
+        <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+        <input bitInput type="text" formControlName="token" appAutofocus appInputVerbatim />
+        <bit-hint *ngIf="selectedProviderType === providerType.Email">
+          <a
+            bitLink
+            href="#"
+            appStopClick
+            (click)="sendEmail(true)"
+            *ngIf="selectedProviderType === providerType.Email"
           >
-            <p *ngIf="selectedProviderType === providerType.Authenticator">
-              {{ "enterVerificationCodeApp" | i18n }}
-            </p>
-            <p *ngIf="selectedProviderType === providerType.Email">
-              {{ "enterVerificationCodeEmail" | i18n: twoFactorEmail }}
-            </p>
-            <div class="form-group">
-              <label for="code" class="sr-only">{{ "verificationCode" | i18n }}</label>
-              <input
-                id="code"
-                type="text"
-                name="Code"
-                class="form-control"
-                [(ngModel)]="token"
-                required
-                appAutofocus
-                inputmode="tel"
-                appInputVerbatim
-              />
-              <small class="form-text" *ngIf="selectedProviderType === providerType.Email">
-                <a
-                  href="#"
-                  appStopClick
-                  (click)="sendEmail(true)"
-                  [appApiAction]="emailPromise"
-                  *ngIf="selectedProviderType === providerType.Email"
-                >
-                  {{ "sendVerificationCodeEmailAgain" | i18n }}
-                </a>
-              </small>
-            </div>
-          </ng-container>
-          <ng-container *ngIf="selectedProviderType === providerType.Yubikey">
-            <p class="text-center">{{ "insertYubiKey" | i18n }}</p>
-            <picture>
-              <source srcset="../../images/yubikey.avif" type="image/avif" />
-              <source srcset="../../images/yubikey.webp" type="image/webp" />
-              <img src="../../images/yubikey.jpg" class="rounded img-fluid mb-3" alt="" />
-            </picture>
-            <div class="form-group">
-              <label for="code" class="sr-only">{{ "verificationCode" | i18n }}</label>
-              <input
-                id="code"
-                type="password"
-                name="Code"
-                class="form-control"
-                [(ngModel)]="token"
-                required
-                appAutofocus
-                appInputVerbatim
-                autocomplete="new-password"
-              />
-            </div>
-          </ng-container>
-          <ng-container *ngIf="selectedProviderType === providerType.WebAuthn">
-            <div id="web-authn-frame" class="mb-3">
-              <iframe id="webauthn_iframe" sandbox="allow-scripts allow-same-origin"></iframe>
-            </div>
-          </ng-container>
-          <!-- Duo -->
-          <ng-container *ngIf="isDuoProvider">
-            <ng-container *ngIf="duoFrameless">
-              <p *ngIf="selectedProviderType === providerType.OrganizationDuo" class="tw-mb-0">
-                {{ "duoRequiredByOrgForAccount" | i18n }}
-              </p>
-              <p>{{ "launchDuoAndFollowStepsToFinishLoggingIn" | i18n }}</p>
-            </ng-container>
-
-            <ng-container *ngIf="!duoFrameless">
-              <div id="duo-frame" class="mb-3">
-                <iframe
-                  id="duo_iframe"
-                  sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-                ></iframe>
-              </div>
-            </ng-container>
-          </ng-container>
-          <i
-            class="bwi bwi-spinner text-muted bwi-spin pull-right"
-            title="{{ 'loading' | i18n }}"
-            *ngIf="form.loading && selectedProviderType === providerType.WebAuthn"
-            aria-hidden="true"
-          ></i>
-          <div class="form-check" *ngIf="selectedProviderType != null">
-            <input
-              id="remember"
-              type="checkbox"
-              name="Remember"
-              class="form-check-input"
-              [(ngModel)]="remember"
-            />
-            <label for="remember" class="form-check-label">{{ "rememberMe" | i18n }}</label>
-          </div>
-          <ng-container *ngIf="selectedProviderType == null">
-            <p>{{ "noTwoStepProviders" | i18n }}</p>
-            <p>{{ "noTwoStepProviders2" | i18n }}</p>
-          </ng-container>
-          <hr />
-          <div [hidden]="!showCaptcha()">
-            <iframe
-              id="hcaptcha_iframe"
-              height="80"
-              sandbox="allow-scripts allow-same-origin"
-            ></iframe>
-          </div>
-          <!-- Buttons -->
-          <div class="tw-flex tw-flex-col tw-mb-3">
-            <button
-              type="submit"
-              class="btn btn-primary btn-block btn-submit"
-              [disabled]="form.loading"
-              *ngIf="
-                selectedProviderType != null &&
-                !isDuoProvider &&
-                selectedProviderType !== providerType.WebAuthn
-              "
-            >
-              <span>
-                <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ "continue" | i18n }}
-              </span>
-              <i
-                class="bwi bwi-spinner bwi-spin"
-                title="{{ 'loading' | i18n }}"
-                aria-hidden="true"
-              ></i>
-            </button>
-            <button
-              (click)="launchDuoFrameless()"
-              type="button"
-              class="btn btn-primary btn-block"
-              [disabled]="form.loading"
-              *ngIf="duoFrameless && isDuoProvider"
-            >
-              <span> {{ "launchDuo" | i18n }} </span>
-            </button>
-            <a routerLink="/login" class="btn btn-outline-secondary btn-block">
-              {{ "cancel" | i18n }}
-            </a>
-          </div>
-          <div class="text-center">
-            <a href="#" appStopClick (click)="anotherMethod()">{{
-              "useAnotherTwoStepMethod" | i18n
-            }}</a>
-          </div>
-        </div>
+            {{ "sendVerificationCodeEmailAgain" | i18n }}
+          </a></bit-hint
+        >
+      </bit-form-field>
+    </ng-container>
+    <ng-container *ngIf="selectedProviderType === providerType.Yubikey">
+      <p bitTypography="body1" class="tw-text-center">{{ "insertYubiKey" | i18n }}</p>
+      <picture>
+        <source srcset="../../images/yubikey.avif" type="image/avif" />
+        <source srcset="../../images/yubikey.webp" type="image/webp" />
+        <img src="../../images/yubikey.jpg" class="tw-rounded img-fluid tw-mb-3" alt="" />
+      </picture>
+      <bit-form-field>
+        <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+        <input type="password" bitInput formControlName="token" appAutofocus appInputVerbatim />
+      </bit-form-field>
+    </ng-container>
+    <ng-container *ngIf="selectedProviderType === providerType.WebAuthn">
+      <div id="web-authn-frame" class="tw-mb-3">
+        <iframe id="webauthn_iframe" sandbox="allow-scripts allow-same-origin"></iframe>
       </div>
+    </ng-container>
+    <!-- Duo -->
+    <ng-container *ngIf="isDuoProvider">
+      <p
+        bitTypography="body1"
+        *ngIf="selectedProviderType === providerType.OrganizationDuo"
+        class="tw-mb-0"
+      >
+        {{ "duoRequiredByOrgForAccount" | i18n }}
+      </p>
+      <p bitTypography="body1">{{ "launchDuoAndFollowStepsToFinishLoggingIn" | i18n }}</p>
+    </ng-container>
+    <bit-form-control *ngIf="selectedProviderType != null">
+      <bit-label>{{ "rememberMe" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox formControlName="remember" />
+    </bit-form-control>
+    <ng-container *ngIf="selectedProviderType == null">
+      <p bitTypography="body1">{{ "noTwoStepProviders" | i18n }}</p>
+      <p bitTypography="body1">{{ "noTwoStepProviders2" | i18n }}</p>
+    </ng-container>
+    <hr />
+    <div [hidden]="!showCaptcha()">
+      <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+    <!-- Buttons -->
+    <div class="tw-flex tw-flex-col tw-space-y-2.5 tw-mb-3">
+      <button
+        type="submit"
+        buttonType="primary"
+        bitButton
+        bitFormButton
+        *ngIf="
+          selectedProviderType != null &&
+          !isDuoProvider &&
+          selectedProviderType !== providerType.WebAuthn
+        "
+      >
+        <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ "continue" | i18n }} </span>
+      </button>
+      <button
+        (click)="launchDuoFrameless()"
+        type="button"
+        buttonType="primary"
+        bitButton
+        bitFormButton
+        *ngIf="isDuoProvider"
+      >
+        <span> {{ "launchDuo" | i18n }} </span>
+      </button>
+      <a routerLink="/login" bitButton buttonType="secondary">
+        {{ "cancel" | i18n }}
+      </a>
+    </div>
+    <div class="text-center">
+      <a bitLink href="#" appStopClick (click)="anotherMethod()">{{
+        "useAnotherTwoStepMethod" | i18n
+      }}</a>
     </div>
   </div>
 </form>
-<ng-template #twoFactorOptions></ng-template>

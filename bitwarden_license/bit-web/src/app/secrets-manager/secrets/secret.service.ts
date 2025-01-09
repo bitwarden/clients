@@ -1,15 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { KeyService } from "@bitwarden/key-management";
 
+import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
 import { SecretListView } from "../models/view/secret-list.view";
 import { SecretProjectView } from "../models/view/secret-project.view";
 import { SecretView } from "../models/view/secret.view";
+import { AccessPolicyService } from "../shared/access-policies/access-policy.service";
 import { BulkOperationStatus } from "../shared/dialogs/bulk-status-dialog.component";
 
 import { SecretRequest } from "./requests/secret.request";
@@ -27,9 +31,10 @@ export class SecretService {
   secret$ = this._secret.asObservable();
 
   constructor(
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
     private encryptService: EncryptService,
+    private accessPolicyService: AccessPolicyService,
   ) {}
 
   async getBySecretId(secretId: string): Promise<SecretView> {
@@ -65,8 +70,16 @@ export class SecretService {
     return await this.createSecretsListView(organizationId, results);
   }
 
-  async create(organizationId: string, secretView: SecretView) {
-    const request = await this.getSecretRequest(organizationId, secretView);
+  async create(
+    organizationId: string,
+    secretView: SecretView,
+    secretAccessPoliciesView: SecretAccessPoliciesView,
+  ) {
+    const request = await this.getSecretRequest(
+      organizationId,
+      secretView,
+      secretAccessPoliciesView,
+    );
     const r = await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/secrets",
@@ -77,8 +90,16 @@ export class SecretService {
     this._secret.next(await this.createSecretView(new SecretResponse(r)));
   }
 
-  async update(organizationId: string, secretView: SecretView) {
-    const request = await this.getSecretRequest(organizationId, secretView);
+  async update(
+    organizationId: string,
+    secretView: SecretView,
+    secretAccessPoliciesView: SecretAccessPoliciesView,
+  ) {
+    const request = await this.getSecretRequest(
+      organizationId,
+      secretView,
+      secretAccessPoliciesView,
+    );
     const r = await this.apiService.send("PUT", "/secrets/" + secretView.id, request, true, true);
     this._secret.next(await this.createSecretView(new SecretResponse(r)));
   }
@@ -134,12 +155,13 @@ export class SecretService {
   }
 
   private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
-    return await this.cryptoService.getOrgKey(organizationId);
+    return await this.keyService.getOrgKey(organizationId);
   }
 
   private async getSecretRequest(
     organizationId: string,
     secretView: SecretView,
+    secretAccessPoliciesView: SecretAccessPoliciesView,
   ): Promise<SecretRequest> {
     const orgKey = await this.getOrganizationKey(organizationId);
     const request = new SecretRequest();
@@ -154,6 +176,9 @@ export class SecretService {
     request.projectIds = [];
 
     secretView.projects?.forEach((e) => request.projectIds.push(e.id));
+
+    request.accessPoliciesRequests =
+      this.accessPolicyService.getSecretAccessPoliciesRequest(secretAccessPoliciesView);
 
     return request;
   }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 import { Observable } from "rxjs";
 
@@ -5,6 +7,7 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 import { EncryptionType } from "../src/platform/enums";
 import { Utils } from "../src/platform/misc/utils";
+import { SymmetricCryptoKey } from "../src/platform/models/domain/symmetric-crypto-key";
 
 function newGuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -43,6 +46,17 @@ export function makeStaticByteArray(length: number, start = 0) {
     arr[i] = start + i;
   }
   return arr;
+}
+
+/**
+ * Creates a symmetric crypto key for use in tests. This is deterministic, i.e. it will produce identical keys
+ * for identical argument values. Provide a unique value to the `seed` parameter to create different keys.
+ */
+export function makeSymmetricCryptoKey<T extends SymmetricCryptoKey>(
+  length: 32 | 64 = 64,
+  seed = 0,
+) {
+  return new SymmetricCryptoKey(makeStaticByteArray(length, seed)) as T;
 }
 
 /**

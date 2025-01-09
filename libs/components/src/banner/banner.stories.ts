@@ -48,12 +48,12 @@ export const Premium: Story = {
   args: {
     bannerType: "premium",
   },
-  render: (args: BannerComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-banner [bannerType]="bannerType" (onClose)="onClose($event)" [showClose]=showClose>
         Content Really Long Text Lorem Ipsum Ipsum Ipsum
-        <button bitLink linkType="contrast">Button</button>
+        <button bitLink linkType="secondary">Button</button>
       </bit-banner>
       `,
   }),
@@ -93,7 +93,7 @@ export const HideClose: Story = {
 
 export const Stacked: Story = {
   args: {},
-  render: (args: BannerComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-banner bannerType="premium" (onClose)="onClose($event)">

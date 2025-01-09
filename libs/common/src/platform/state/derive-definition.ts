@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { UserId } from "../../types/guid";
@@ -164,7 +166,7 @@ export class DeriveDefinition<TFrom, TTo, TDeps extends DerivedStateDependencies
   }
 
   get cleanupDelayMs() {
-    return this.options.cleanupDelayMs < 0 ? 0 : this.options.cleanupDelayMs ?? 1000;
+    return this.options.cleanupDelayMs < 0 ? 0 : (this.options.cleanupDelayMs ?? 1000);
   }
 
   get clearOnCleanup() {

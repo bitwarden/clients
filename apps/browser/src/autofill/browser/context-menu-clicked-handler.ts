@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -16,45 +18,24 @@ import {
   CREATE_CARD_ID,
   CREATE_IDENTITY_ID,
   CREATE_LOGIN_ID,
+  ExtensionCommand,
   GENERATE_PASSWORD_ID,
   NOOP_COMMAND_SUFFIX,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
-import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
-import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { accountServiceFactory } from "../../auth/background/service-factories/account-service.factory";
-import {
-  authServiceFactory,
-  AuthServiceInitOptions,
-} from "../../auth/background/service-factories/auth-service.factory";
-import { KeyConnectorServiceInitOptions } from "../../auth/background/service-factories/key-connector-service.factory";
-import { userVerificationServiceFactory } from "../../auth/background/service-factories/user-verification-service.factory";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
-import { autofillSettingsServiceFactory } from "../../autofill/background/service_factories/autofill-settings-service.factory";
-import { eventCollectionServiceFactory } from "../../background/service-factories/event-collection-service.factory";
-import { Account } from "../../models/account";
-import { CachedServices } from "../../platform/background/service-factories/factory-options";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { passwordGenerationServiceFactory } from "../../tools/background/service_factories/password-generation-service.factory";
-import {
-  cipherServiceFactory,
-  CipherServiceInitOptions,
-} from "../../vault/background/service_factories/cipher-service.factory";
-import { totpServiceFactory } from "../../vault/background/service_factories/totp-service.factory";
 import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { LockedVaultPendingNotificationsData } from "../background/abstractions/notification.background";
-import { autofillServiceFactory } from "../background/service_factories/autofill-service.factory";
-import { copyToClipboard, GeneratePasswordToClipboardCommand } from "../clipboard";
-import { AutofillTabCommand } from "../commands/autofill-tab-command";
 import { AutofillCipherTypeId } from "../types";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
@@ -62,9 +43,6 @@ export type CopyToClipboardAction = (options: CopyToClipboardOptions) => void;
 export type AutofillAction = (tab: chrome.tabs.Tab, cipher: CipherView) => Promise<void>;
 
 export type GeneratePasswordToClipboardAction = (tab: chrome.tabs.Tab) => Promise<void>;
-
-const NOT_IMPLEMENTED = (..._args: unknown[]) =>
-  Promise.reject<never>("This action is not implemented inside of a service worker context.");
 
 export class ContextMenuClickedHandler {
   constructor(
@@ -78,92 +56,6 @@ export class ContextMenuClickedHandler {
     private userVerificationService: UserVerificationService,
     private accountService: AccountService,
   ) {}
-
-  static async mv3Create(cachedServices: CachedServices) {
-    const stateFactory = new StateFactory(GlobalState, Account);
-    const serviceOptions: AuthServiceInitOptions &
-      CipherServiceInitOptions &
-      KeyConnectorServiceInitOptions = {
-      apiServiceOptions: {
-        logoutCallback: NOT_IMPLEMENTED,
-      },
-      cryptoFunctionServiceOptions: {
-        win: self,
-      },
-      encryptServiceOptions: {
-        logMacFailures: false,
-      },
-      i18nServiceOptions: {
-        systemLanguage: chrome.i18n.getUILanguage(),
-      },
-      keyConnectorServiceOptions: {
-        logoutCallback: NOT_IMPLEMENTED,
-      },
-      logServiceOptions: {
-        isDev: false,
-      },
-      platformUtilsServiceOptions: {
-        biometricCallback: NOT_IMPLEMENTED,
-        clipboardWriteCallback: NOT_IMPLEMENTED,
-        win: self,
-      },
-      stateServiceOptions: {
-        stateFactory: stateFactory,
-      },
-      autofillSettingsServiceOptions: {
-        stateFactory: autofillSettingsServiceFactory,
-      },
-    };
-
-    const generatePasswordToClipboardCommand = new GeneratePasswordToClipboardCommand(
-      await passwordGenerationServiceFactory(cachedServices, serviceOptions),
-      await autofillSettingsServiceFactory(cachedServices, serviceOptions),
-    );
-
-    const autofillCommand = new AutofillTabCommand(
-      await autofillServiceFactory(cachedServices, serviceOptions),
-    );
-
-    return new ContextMenuClickedHandler(
-      (options) => copyToClipboard(options.tab, options.text),
-      (tab) => generatePasswordToClipboardCommand.generatePasswordToClipboard(tab),
-      (tab, cipher) => autofillCommand.doAutofillTabWithCipherCommand(tab, cipher),
-      await authServiceFactory(cachedServices, serviceOptions),
-      await cipherServiceFactory(cachedServices, serviceOptions),
-      await totpServiceFactory(cachedServices, serviceOptions),
-      await eventCollectionServiceFactory(cachedServices, serviceOptions),
-      await userVerificationServiceFactory(cachedServices, serviceOptions),
-      await accountServiceFactory(cachedServices, serviceOptions),
-    );
-  }
-
-  static async onClickedListener(
-    info: chrome.contextMenus.OnClickData,
-    tab?: chrome.tabs.Tab,
-    cachedServices: CachedServices = {},
-  ) {
-    const contextMenuClickedHandler = await ContextMenuClickedHandler.mv3Create(cachedServices);
-    await contextMenuClickedHandler.run(info, tab);
-  }
-
-  static async messageListener(
-    message: { command: string; data: LockedVaultPendingNotificationsData },
-    sender: chrome.runtime.MessageSender,
-    cachedServices: CachedServices,
-  ) {
-    if (
-      message.command !== "unlockCompleted" ||
-      message.data.target !== "contextmenus.background"
-    ) {
-      return;
-    }
-
-    const contextMenuClickedHandler = await ContextMenuClickedHandler.mv3Create(cachedServices);
-    await contextMenuClickedHandler.run(
-      message.data.commandToRetry.message.contextMenuOnClickData,
-      message.data.commandToRetry.sender.tab,
-    );
-  }
 
   async run(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) {
     if (!tab) {
@@ -190,7 +82,7 @@ export class ContextMenuClickedHandler {
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
       const retryMessage: LockedVaultPendingNotificationsData = {
         commandToRetry: {
-          message: { command: NOOP_COMMAND_SUFFIX, contextMenuOnClickData: info },
+          message: { command: ExtensionCommand.NoopCommand, contextMenuOnClickData: info },
           sender: { tab: tab },
         },
         target: "contextmenus.background",

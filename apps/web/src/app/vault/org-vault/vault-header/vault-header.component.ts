@@ -1,28 +1,53 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import {
+  CollectionAdminService,
+  CollectionAdminView,
+  Unassigned,
+} from "@bitwarden/admin-console/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ProductType } from "@bitwarden/common/enums";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
+import {
+  BreadcrumbsModule,
+  DialogService,
+  MenuModule,
+  SearchModule,
+  SimpleDialogOptions,
+} from "@bitwarden/components";
 
-import { CollectionAdminView } from "../../../vault/core/views/collection-admin.view";
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 import { CollectionDialogTabType } from "../../components/collection-dialog";
-import { CollectionAdminService } from "../../core/collection-admin.service";
 import {
   All,
   RoutedVaultFilterModel,
-  Unassigned,
 } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 @Component({
+  standalone: true,
   selector: "app-org-vault-header",
   templateUrl: "./vault-header.component.html",
+  imports: [
+    CommonModule,
+    MenuModule,
+    SharedModule,
+    BreadcrumbsModule,
+    HeaderModule,
+    SearchModule,
+    JslibModule,
+  ],
 })
 export class VaultHeaderComponent implements OnInit {
   protected All = All;
@@ -34,7 +59,7 @@ export class VaultHeaderComponent implements OnInit {
    */
   @Input() loading: boolean;
 
-  /** Current active fitler */
+  /** Current active filter */
   @Input() filter: RoutedVaultFilterModel;
 
   /** The organization currently being viewed */
@@ -47,7 +72,7 @@ export class VaultHeaderComponent implements OnInit {
   @Input() searchText: string;
 
   /** Emits an event when the new item button is clicked in the header */
-  @Output() onAddCipher = new EventEmitter<void>();
+  @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
 
   /** Emits an event when the new collection button is clicked in the header */
   @Output() onAddCollection = new EventEmitter<void>();
@@ -67,8 +92,13 @@ export class VaultHeaderComponent implements OnInit {
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected organizations$ = this.organizationService.organizations$;
 
-  protected flexibleCollectionsV1Enabled = false;
-  private restrictProviderAccessFlag = false;
+  /**
+   * Whether the extension refresh feature flag is enabled.
+   */
+  protected extensionRefreshEnabled = false;
+
+  /** The cipher type enum. */
+  protected CipherType = CipherType;
 
   constructor(
     private organizationService: OrganizationService,
@@ -80,18 +110,13 @@ export class VaultHeaderComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.flexibleCollectionsV1Enabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.FlexibleCollectionsV1),
-    );
-    this.restrictProviderAccessFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.RestrictProviderAccess,
+    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
     );
   }
 
   get title() {
-    const headerType = this.organization?.flexibleCollections
-      ? this.i18nService.t("collections").toLowerCase()
-      : this.i18nService.t("vault").toLowerCase();
+    const headerType = this.i18nService.t("collections").toLowerCase();
 
     if (this.collection != null) {
       return this.collection.node.name;
@@ -101,7 +126,9 @@ export class VaultHeaderComponent implements OnInit {
       return this.i18nService.t("unassigned");
     }
 
-    return `${this.organization?.name} ${headerType}`;
+    return this.organization?.name
+      ? `${this.organization?.name} ${headerType}`
+      : this.i18nService.t("collections");
   }
 
   get icon() {
@@ -177,15 +204,15 @@ export class VaultHeaderComponent implements OnInit {
     }
 
     // Otherwise, check if we can edit the specified collection
-    return this.collection.node.canEdit(this.organization, this.flexibleCollectionsV1Enabled);
+    return this.collection.node.canEdit(this.organization);
   }
 
-  addCipher() {
-    this.onAddCipher.emit();
+  addCipher(cipherType?: CipherType) {
+    this.onAddCipher.emit(cipherType);
   }
 
   async addCollection() {
-    if (this.organization.planProductType === ProductType.Free) {
+    if (this.organization.productTierType === ProductTierType.Free) {
       const collections = await this.collectionAdminService.getAll(this.organization.id);
       if (collections.length === this.organization.maxCollections) {
         this.showFreeOrgUpgradeDialog();
@@ -219,7 +246,7 @@ export class VaultHeaderComponent implements OnInit {
   }
 
   get canCreateCipher(): boolean {
-    if (this.organization?.isProviderUser && this.restrictProviderAccessFlag) {
+    if (this.organization?.isProviderUser && !this.organization?.isMember) {
       return false;
     }
     return true;

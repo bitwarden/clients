@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
@@ -184,14 +186,6 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
 
   readFromClipboard(options?: any): Promise<string> {
     throw new Error("Cannot read from clipboard on web.");
-  }
-
-  supportsBiometric() {
-    return Promise.resolve(false);
-  }
-
-  authenticateBiometric() {
-    return Promise.resolve(false);
   }
 
   supportsSecureStorage() {

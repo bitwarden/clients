@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UserId } from "../../../types/guid";
@@ -77,5 +79,5 @@ export abstract class PolicyService {
 
 export abstract class InternalPolicyService extends PolicyService {
   upsert: (policy: PolicyData) => Promise<void>;
-  replace: (policies: { [id: string]: PolicyData }) => Promise<void>;
+  replace: (policies: { [id: string]: PolicyData }, userId: UserId) => Promise<void>;
 }

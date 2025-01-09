@@ -1,19 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ipcMain } from "electron";
 
-import { BiometricKey } from "@bitwarden/common/auth/types/biometric-key";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { passwords } from "@bitwarden/desktop-native";
-
-import { BiometricMessage, BiometricAction } from "../../types/biometric-message";
-
-import { BiometricsServiceAbstraction } from "./biometric/index";
-
-const AuthRequiredSuffix = "_biometric";
+import { passwords } from "@bitwarden/desktop-napi";
 
 export class DesktopCredentialStorageListener {
   constructor(
     private serviceName: string,
-    private biometricService: BiometricsServiceAbstraction,
     private logService: ConsoleLogService,
   ) {}
 
@@ -50,53 +44,11 @@ export class DesktopCredentialStorageListener {
         this.logService.info(e);
       }
     });
-
-    ipcMain.handle("biometric", async (event: any, message: BiometricMessage) => {
-      try {
-        let serviceName = this.serviceName;
-        message.keySuffix = "_" + (message.keySuffix ?? "");
-        if (message.keySuffix !== "_") {
-          serviceName += message.keySuffix;
-        }
-
-        let val: string | boolean = null;
-
-        if (!message.action) {
-          return val;
-        }
-
-        switch (message.action) {
-          case BiometricAction.EnabledForUser:
-            if (!message.key || !message.userId) {
-              break;
-            }
-            val = await this.biometricService.canAuthBiometric({
-              service: serviceName,
-              key: message.key,
-              userId: message.userId,
-            });
-            break;
-          case BiometricAction.OsSupported:
-            val = await this.biometricService.osSupportsBiometric();
-            break;
-          default:
-        }
-
-        return val;
-      } catch (e) {
-        this.logService.info(e);
-      }
-    });
   }
 
   // Gracefully handle old keytar values, and if detected updated the entry to the proper format
   private async getPassword(serviceName: string, key: string, keySuffix: string) {
-    let val: string;
-    if (keySuffix === AuthRequiredSuffix) {
-      val = (await this.biometricService.getBiometricKey(serviceName, key)) ?? null;
-    } else {
-      val = await passwords.getPassword(serviceName, key);
-    }
+    const val = await passwords.getPassword(serviceName, key);
 
     try {
       JSON.parse(val);
@@ -108,25 +60,10 @@ export class DesktopCredentialStorageListener {
   }
 
   private async setPassword(serviceName: string, key: string, value: string, keySuffix: string) {
-    if (keySuffix === AuthRequiredSuffix) {
-      const valueObj = JSON.parse(value) as BiometricKey;
-      await this.biometricService.setEncryptionKeyHalf({
-        service: serviceName,
-        key,
-        value: valueObj?.clientEncKeyHalf,
-      });
-      // Value is usually a JSON string, but we need to pass the key half as well, so we re-stringify key here.
-      await this.biometricService.setBiometricKey(serviceName, key, JSON.stringify(valueObj?.key));
-    } else {
-      await passwords.setPassword(serviceName, key, value);
-    }
+    await passwords.setPassword(serviceName, key, value);
   }
 
   private async deletePassword(serviceName: string, key: string, keySuffix: string) {
-    if (keySuffix === AuthRequiredSuffix) {
-      await this.biometricService.deleteBiometricKey(serviceName, key);
-    } else {
-      await passwords.deletePassword(serviceName, key);
-    }
+    await passwords.deletePassword(serviceName, key);
   }
 }

@@ -1,35 +1,21 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/src/auth/abstractions/device-trust.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import {
-  InternalUserDecryptionOptionsServiceAbstraction,
-  AuthRequestServiceAbstraction,
-} from "../abstractions";
+import { AuthRequestServiceAbstraction } from "../abstractions";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
@@ -83,41 +69,13 @@ export class SsoLoginStrategy extends LoginStrategy {
 
   constructor(
     data: SsoLoginStrategyData,
-    accountService: AccountService,
-    masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    cryptoService: CryptoService,
-    apiService: ApiService,
-    tokenService: TokenService,
-    appIdService: AppIdService,
-    platformUtilsService: PlatformUtilsService,
-    messagingService: MessagingService,
-    logService: LogService,
-    stateService: StateService,
-    twoFactorService: TwoFactorService,
-    userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private keyConnectorService: KeyConnectorService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
     private i18nService: I18nService,
-    billingAccountProfileStateService: BillingAccountProfileStateService,
-    kdfConfigService: KdfConfigService,
+    ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
-    super(
-      accountService,
-      masterPasswordService,
-      cryptoService,
-      apiService,
-      tokenService,
-      appIdService,
-      platformUtilsService,
-      messagingService,
-      logService,
-      stateService,
-      twoFactorService,
-      userDecryptionOptionsService,
-      billingAccountProfileStateService,
-      kdfConfigService,
-    );
+    super(...sharedDeps);
 
     this.cache = new BehaviorSubject(data);
     this.email$ = this.cache.pipe(map((state) => state.email));
@@ -131,12 +89,16 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     data.userEnteredEmail = credentials.email;
 
+    const deviceRequest = await this.buildDeviceRequest();
+
+    this.logService.info("Logging in with appId %s.", deviceRequest.identifier);
+
     data.tokenRequest = new SsoTokenRequest(
       credentials.code,
       credentials.codeVerifier,
       credentials.redirectUrl,
       await this.buildTwoFactor(credentials.twoFactor, credentials.email),
-      await this.buildDeviceRequest(),
+      deviceRequest,
     );
 
     this.cache.next(data);
@@ -232,19 +194,25 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     if (masterKeyEncryptedUserKey) {
       // set the master key encrypted user key if it exists
-      await this.cryptoService.setMasterKeyEncryptedUserKey(masterKeyEncryptedUserKey, userId);
+      await this.keyService.setMasterKeyEncryptedUserKey(masterKeyEncryptedUserKey, userId);
     }
 
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
     // Note: TDE and key connector are mutually exclusive
     if (userDecryptionOptions?.trustedDeviceOption) {
+      this.logService.info("Attempting to set user key with approved admin auth request.");
+
+      // Try to use the user key from an approved admin request if it exists.
+      // Using it will clear it from state and future requests will use the device key.
       await this.trySetUserKeyWithApprovedAdminRequestIfExists(userId);
 
-      const hasUserKey = await this.cryptoService.hasUserKey(userId);
+      const hasUserKey = await this.keyService.hasUserKey(userId);
 
-      // Only try to set user key with device key if admin approval request was not successful
+      // Only try to set user key with device key if admin approval request was not successful.
       if (!hasUserKey) {
+        this.logService.info("Attempting to set user key with device key.");
+
         await this.trySetUserKeyWithDeviceKey(tokenResponse, userId);
       }
     } else if (
@@ -289,6 +257,7 @@ export class SsoLoginStrategy extends LoginStrategy {
         await this.authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash(
           adminAuthReqResponse,
           adminAuthReqStorable.privateKey,
+          userId,
         );
       } else {
         // if masterPasswordHash is null, we will always receive authReqResponse.key
@@ -296,10 +265,11 @@ export class SsoLoginStrategy extends LoginStrategy {
         await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
           adminAuthReqResponse,
           adminAuthReqStorable.privateKey,
+          userId,
         );
       }
 
-      if (await this.cryptoService.hasUserKey()) {
+      if (await this.keyService.hasUserKey()) {
         // Now that we have a decrypted user key in memory, we can check if we
         // need to establish trust on the current device
         await this.deviceTrustService.trustDeviceIfRequired(userId);
@@ -319,11 +289,31 @@ export class SsoLoginStrategy extends LoginStrategy {
   ): Promise<void> {
     const trustedDeviceOption = tokenResponse.userDecryptionOptions?.trustedDeviceOption;
 
+    if (!trustedDeviceOption) {
+      this.logService.error("Unable to set user key due to missing trustedDeviceOption.");
+      return;
+    }
+
     const deviceKey = await this.deviceTrustService.getDeviceKey(userId);
     const encDevicePrivateKey = trustedDeviceOption?.encryptedPrivateKey;
     const encUserKey = trustedDeviceOption?.encryptedUserKey;
 
     if (!deviceKey || !encDevicePrivateKey || !encUserKey) {
+      if (!deviceKey) {
+        this.logService.warning("Unable to set user key due to missing device key.");
+      } else if (!encDevicePrivateKey || !encUserKey) {
+        // Tell the server that we have a device key, but received no decryption keys
+        await this.deviceTrustService.recordDeviceTrustLoss();
+      }
+      if (!encDevicePrivateKey) {
+        this.logService.warning(
+          "Unable to set user key due to missing encrypted device private key.",
+        );
+      }
+      if (!encUserKey) {
+        this.logService.warning("Unable to set user key due to missing encrypted user key.");
+      }
+
       return;
     }
 
@@ -335,7 +325,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     );
 
     if (userKey) {
-      await this.cryptoService.setUserKey(userKey);
+      await this.keyService.setUserKey(userKey, userId);
     }
   }
 
@@ -350,8 +340,8 @@ export class SsoLoginStrategy extends LoginStrategy {
       return;
     }
 
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
-    await this.cryptoService.setUserKey(userKey);
+    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
+    await this.keyService.setUserKey(userKey, userId);
   }
 
   protected override async setPrivateKey(
@@ -361,7 +351,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     const newSsoUser = tokenResponse.key == null;
 
     if (!newSsoUser) {
-      await this.cryptoService.setPrivateKey(
+      await this.keyService.setPrivateKey(
         tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
         userId,
       );

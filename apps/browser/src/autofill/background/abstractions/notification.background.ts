@@ -9,6 +9,7 @@ interface NotificationQueueMessage {
   type: NotificationQueueMessageTypes;
   domain: string;
   tab: chrome.tabs.Tab;
+  launchTimestamp: number;
   expires: Date;
   wasVaultLocked: boolean;
 }
@@ -88,9 +89,8 @@ type NotificationBackgroundExtensionMessage = {
   tab?: chrome.tabs.Tab;
   sender?: string;
   notificationType?: string;
+  fadeOutNotification?: boolean;
 };
-
-type SaveOrUpdateCipherResult = undefined | { error: string };
 
 type BackgroundMessageParam = { message: NotificationBackgroundExtensionMessage };
 type BackgroundSenderParam = { sender: chrome.runtime.MessageSender };
@@ -100,7 +100,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   unlockCompleted: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgGetFolderData: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<FolderView[]>;
-  bgCloseNotificationBar: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  bgCloseNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAddLogin: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgChangedPassword: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
@@ -129,7 +129,6 @@ export {
   ChangePasswordMessageData,
   UnlockVaultMessageData,
   AddLoginMessageData,
-  SaveOrUpdateCipherResult,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
 };

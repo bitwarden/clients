@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { TitleCasePipe } from "@angular/common";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
@@ -9,23 +11,30 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { PlanType } from "@bitwarden/common/billing/enums";
-import { ProductType } from "@bitwarden/common/enums";
+import {
+  OrganizationInformation,
+  PlanInformation,
+  OrganizationBillingServiceAbstraction as OrganizationBillingService,
+} from "@bitwarden/common/billing/abstractions/organization-billing.service";
+import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ReferenceEventRequest } from "@bitwarden/common/models/request/reference-event.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import {
   OrganizationCreatedEvent,
   SubscriptionProduct,
   TrialOrganizationType,
 } from "../../billing/accounts/trial-initiation/trial-billing-step.component";
+import { AcceptOrganizationInviteService } from "../organization-invite/accept-organization.service";
+import { OrganizationInvite } from "../organization-invite/organization-invite";
 
 import { RouterService } from "./../../core/router.service";
 import { VerticalStepperComponent } from "./vertical-stepper/vertical-stepper.component";
 
-enum ValidOrgParams {
+export enum ValidOrgParams {
   families = "families",
   enterprise = "enterprise",
   teams = "teams",
@@ -66,9 +75,10 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   billingSubLabel = "";
   layout = "default";
   plan: PlanType;
-  product: ProductType;
+  productTier: ProductTierType;
   accountCreateOnly = true;
   useTrialStepper = false;
+  loading = false;
   policies: Policy[];
   enforcedPolicyOptions: MasterPasswordPolicyOptions;
   trialFlowOrgs: string[] = [
@@ -115,18 +125,23 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   private destroy$ = new Subject<void>();
+  protected enableTrialPayment$ = this.configService.getFeatureFlag$(
+    FeatureFlag.TrialPaymentOptional,
+  );
 
   constructor(
     private route: ActivatedRoute,
     protected router: Router,
     private formBuilder: UntypedFormBuilder,
     private titleCasePipe: TitleCasePipe,
-    private stateService: StateService,
     private logService: LogService,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyService: PolicyService,
     private i18nService: I18nService,
     private routerService: RouterService,
+    private acceptOrgInviteService: AcceptOrganizationInviteService,
+    private organizationBillingService: OrganizationBillingService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -152,16 +167,16 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
 
         if (this.org === ValidOrgParams.families) {
           this.plan = PlanType.FamiliesAnnually;
-          this.product = ProductType.Families;
+          this.productTier = ProductTierType.Families;
         } else if (this.org === ValidOrgParams.teamsStarter) {
           this.plan = PlanType.TeamsStarter;
-          this.product = ProductType.TeamsStarter;
+          this.productTier = ProductTierType.TeamsStarter;
         } else if (this.org === ValidOrgParams.teams) {
           this.plan = PlanType.TeamsAnnually;
-          this.product = ProductType.Teams;
+          this.productTier = ProductTierType.Teams;
         } else if (this.org === ValidOrgParams.enterprise) {
           this.plan = PlanType.EnterpriseAnnually;
-          this.product = ProductType.Enterprise;
+          this.productTier = ProductTierType.Enterprise;
         }
       } else if (this.routeFlowOrgs.includes(qParams.org)) {
         this.referenceData.flow = qParams.org;
@@ -180,30 +195,10 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
         : "Password Manager trial from marketing website";
     });
 
-    const invite = await this.stateService.getOrganizationInvitation();
-    if (invite != null) {
-      try {
-        const policies = await this.policyApiService.getPoliciesByToken(
-          invite.organizationId,
-          invite.token,
-          invite.email,
-          invite.organizationUserId,
-        );
-        if (policies.data != null) {
-          this.policies = Policy.fromListResponse(policies);
-        }
-      } catch (e) {
-        this.logService.error(e);
-      }
-    }
-
-    if (this.policies != null) {
-      this.policyService
-        .masterPasswordPolicyOptions$(this.policies)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((enforcedPasswordPolicyOptions) => {
-          this.enforcedPolicyOptions = enforcedPasswordPolicyOptions;
-        });
+    // If there's a deep linked org invite, use it to get the password policies
+    const orgInvite = await this.acceptOrgInviteService.getOrganizationInvite();
+    if (orgInvite != null) {
+      await this.initPasswordPolicies(orgInvite);
     }
 
     this.orgInfoFormGroup.controls.name.valueChanges
@@ -233,6 +228,30 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     if (event.selectedIndex === 2) {
       this.billingSubLabel = this.i18nService.t("billingTrialSubLabel");
     }
+  }
+
+  async createOrganizationOnTrial() {
+    this.loading = true;
+    const organization: OrganizationInformation = {
+      name: this.orgInfoFormGroup.get("name").value,
+      billingEmail: this.orgInfoFormGroup.get("email").value,
+      initiationPath: "Password Manager trial from marketing website",
+    };
+
+    const plan: PlanInformation = {
+      type: this.plan,
+      passwordManagerSeats: 1,
+    };
+
+    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod({
+      organization,
+      plan,
+    });
+
+    this.orgId = response?.id;
+    this.billingSubLabel = `${this.i18nService.t("annual")} ($0/${this.i18nService.t("yr")})`;
+    this.loading = false;
+    this.verticalStepper.next();
   }
 
   createdAccount(email: string) {
@@ -287,11 +306,11 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   get trialOrganizationType(): TrialOrganizationType {
-    switch (this.product) {
-      case ProductType.Free:
+    switch (this.productTier) {
+      case ProductTierType.Free:
         return null;
       default:
-        return this.product;
+        return this.productTier;
     }
   }
 
@@ -301,6 +320,32 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
         queryParams: { plan: sponsorshipToken },
       });
       this.routerService.setPreviousUrl(route.toString());
+    }
+  }
+
+  private async initPasswordPolicies(invite: OrganizationInvite): Promise<void> {
+    if (invite == null) {
+      return;
+    }
+
+    try {
+      this.policies = await this.policyApiService.getPoliciesByToken(
+        invite.organizationId,
+        invite.token,
+        invite.email,
+        invite.organizationUserId,
+      );
+    } catch (e) {
+      this.logService.error(e);
+    }
+
+    if (this.policies != null) {
+      this.policyService
+        .masterPasswordPolicyOptions$(this.policies)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((enforcedPasswordPolicyOptions) => {
+          this.enforcedPolicyOptions = enforcedPasswordPolicyOptions;
+        });
     }
   }
 

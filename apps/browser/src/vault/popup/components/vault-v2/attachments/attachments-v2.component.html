@@ -1,0 +1,24 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'attachments' | i18n" showBackButton>
+    <app-pop-out slot="end" />
+  </popup-header>
+
+  <app-cipher-attachments
+    *ngIf="cipherId"
+    [cipherId]="cipherId"
+    [submitBtn]="submitButton"
+    (onUploadSuccess)="navigateBack()"
+  ></app-cipher-attachments>
+
+  <popup-footer slot="footer">
+    <button
+      #submitButton
+      bitButton
+      type="submit"
+      buttonType="primary"
+      [attr.form]="attachmentFormId"
+    >
+      {{ "upload" | i18n }}
+    </button>
+  </popup-footer>
+</popup-page>

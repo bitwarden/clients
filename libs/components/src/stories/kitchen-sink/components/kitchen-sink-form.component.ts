@@ -76,6 +76,8 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
             linkType="primary"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
+            type="button"
+            slot="end"
           >
             <i class="bwi bwi-question-circle"></i>
           </button>

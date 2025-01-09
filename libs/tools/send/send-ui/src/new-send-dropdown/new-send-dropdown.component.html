@@ -1,0 +1,25 @@
+<button bitButton [bitMenuTriggerFor]="itemOptions" buttonType="primary" type="button">
+  <i *ngIf="!hideIcon" class="bwi bwi-plus-f" aria-hidden="true"></i>
+  {{ (hideIcon ? "createSend" : "new") | i18n }}
+</button>
+<bit-menu #itemOptions>
+  <a
+    bitMenuItem
+    [routerLink]="buildRouterLink(sendType.Text)"
+    [queryParams]="buildQueryParams(sendType.Text)"
+  >
+    <i class="bwi bwi-file-text" slot="start" aria-hidden="true"></i>
+    {{ "sendTypeText" | i18n }}
+  </a>
+  <a
+    bitMenuItem
+    [routerLink]="buildRouterLink(sendType.File)"
+    [queryParams]="buildQueryParams(sendType.File)"
+  >
+    <i class="bwi bwi-file" slot="start" aria-hidden="true"></i>
+    {{ "sendTypeFile" | i18n }}
+    <button type="button" slot="end" *ngIf="hasNoPremium" bitBadge variant="success">
+      {{ "premium" | i18n }}
+    </button>
+  </a>
+</bit-menu>

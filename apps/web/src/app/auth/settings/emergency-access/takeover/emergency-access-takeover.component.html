@@ -5,7 +5,7 @@
       <small class="tw-text-muted" *ngIf="params.name">{{ params.name }}</small>
     </span>
     <div bitDialogContent>
-      <app-callout type="warning">{{ "loggedOutWarning" | i18n }}</app-callout>
+      <bit-callout type="warning">{{ "loggedOutWarning" | i18n }}</bit-callout>
       <auth-password-callout [policy]="enforcedPolicyOptions" *ngIf="enforcedPolicyOptions">
       </auth-password-callout>
       <div class="tw-w-full tw-flex tw-gap-4">

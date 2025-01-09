@@ -1,0 +1,51 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>
+    {{ "twoStepOptions" | i18n }}
+  </span>
+  <ng-container bitDialogContent>
+    <div *ngFor="let p of providers" class="tw-m-2">
+      <div class="tw-flex tw-items-center tw-justify-center tw-gap-4">
+        <div
+          class="tw-flex tw-items-center tw-justify-center tw-min-w-[100px]"
+          *ngIf="!areIconsDisabled"
+        >
+          <img [class]="'mfaType' + p.type" [alt]="p.name + ' logo'" />
+        </div>
+        <div class="tw-flex-1">
+          <h3 bitTypography="h3">{{ p.name }}</h3>
+          <p bitTypography="body1">{{ p.description }}</p>
+        </div>
+        <div class="tw-min-w-20">
+          <button bitButton type="button" buttonType="secondary" (click)="choose(p)">
+            {{ "select" | i18n }}
+          </button>
+        </div>
+      </div>
+      <hr />
+    </div>
+    <div class="tw-m-2" (click)="recover()">
+      <div class="tw-flex tw-items-center tw-justify-center tw-gap-4">
+        <div
+          class="tw-flex tw-items-center tw-justify-center tw-min-w-[100px]"
+          *ngIf="!areIconsDisabled"
+        >
+          <img class="recovery-code-img" alt="rc logo" />
+        </div>
+        <div class="tw-flex-1">
+          <h3 bitTypography="h3">{{ "recoveryCodeTitle" | i18n }}</h3>
+          <p bitTypography="body1">{{ "recoveryCodeDesc" | i18n }}</p>
+        </div>
+        <div class="tw-min-w-20">
+          <button bitButton type="button" buttonType="secondary" (click)="recover()">
+            {{ "select" | i18n }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

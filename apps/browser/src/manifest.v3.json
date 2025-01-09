@@ -3,7 +3,7 @@
   "minimum_chrome_version": "102.0",
   "name": "__MSG_extName__",
   "short_name": "__MSG_appName__",
-  "version": "2024.5.0",
+  "version": "2025.1.0",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
   "author": "Bitwarden Inc.",
@@ -39,8 +39,10 @@
     }
   ],
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "background.js"
+  },
+  "__firefox__background": {
+    "scripts": ["background.js"]
   },
   "action": {
     "default_icon": {
@@ -52,27 +54,54 @@
   },
   "permissions": [
     "activeTab",
-    "tabs",
-    "contextMenus",
-    "storage",
-    "unlimitedStorage",
+    "alarms",
     "clipboardRead",
     "clipboardWrite",
+    "contextMenus",
     "idle",
-    "scripting",
     "offscreen",
+    "scripting",
+    "storage",
+    "tabs",
+    "unlimitedStorage",
+    "webNavigation",
+    "webRequest",
+    "webRequestAuthProvider"
+  ],
+  "__safari__permissions": [
+    "activeTab",
+    "alarms",
+    "clipboardRead",
+    "clipboardWrite",
+    "contextMenus",
+    "idle",
+    "nativeMessaging",
+    "offscreen",
+    "scripting",
+    "storage",
+    "tabs",
+    "unlimitedStorage",
+    "webNavigation",
     "webRequest",
     "webRequestAuthProvider"
   ],
   "optional_permissions": ["nativeMessaging", "privacy"],
+  "__firefox__optional_permissions": ["nativeMessaging"],
+  "__safari__optional_permissions": null,
   "host_permissions": ["https://*/*", "http://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
     "sandbox": "sandbox allow-scripts; script-src 'self'"
   },
   "sandbox": {
-    "pages": ["overlay/button.html", "overlay/list.html"]
+    "pages": [
+      "overlay/menu-button.html",
+      "overlay/menu-list.html",
+      "overlay/button.html",
+      "overlay/list.html"
+    ]
   },
+  "__firefox__sandbox": null,
   "commands": {
     "_execute_action": {
       "suggested_key": {
@@ -81,7 +110,7 @@
       },
       "description": "__MSG_commandOpenPopup__"
     },
-    "_execute_sidebar_action": {
+    "__firefox___execute_sidebar_action": {
       "suggested_key": {
         "default": "Alt+Shift+Y",
         "linux": "Alt+Shift+U"
@@ -92,7 +121,13 @@
       "suggested_key": {
         "default": "Ctrl+Shift+L"
       },
-      "description": "__MSG_commandAutofillDesc__"
+      "description": "__MSG_commandAutofillLoginDesc__"
+    },
+    "autofill_card": {
+      "description": "__MSG_commandAutofillCardDesc__"
+    },
+    "autofill_identity": {
+      "description": "__MSG_commandAutofillIdentityDesc__"
     },
     "generate_password": {
       "suggested_key": {
@@ -107,10 +142,13 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "content/fido2/page-script.js",
+        "content/fido2-page-script.js",
         "notification/bar.html",
         "images/icon38.png",
         "images/icon38_locked.png",
+        "overlay/menu-button.html",
+        "overlay/menu-list.html",
+        "overlay/menu.html",
         "overlay/button.html",
         "overlay/list.html",
         "popup/fonts/*"
@@ -118,18 +156,20 @@
       "matches": ["<all_urls>"]
     }
   ],
-  "applications": {
+  "__firefox__browser_specific_settings": {
     "gecko": {
       "id": "{446900e4-71c2-419f-a6a7-df9c091e268b}",
       "strict_min_version": "91.0"
     }
   },
-  "sidebar_action": {
+  "__firefox__sidebar_action": {
     "default_title": "Bitwarden",
     "default_panel": "popup/index.html?uilocation=sidebar",
-    "default_icon": "images/icon19.png"
+    "default_icon": "images/icon19.png",
+    "open_at_install": false
   },
   "storage": {
     "managed_schema": "managed_schema.json"
-  }
+  },
+  "__firefox__storage": null
 }

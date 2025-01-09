@@ -1,52 +1,36 @@
-<div class="modal fade" role="dialog" aria-modal="true" aria-labelledby="confirmUserTitle">
-  <div class="modal-dialog modal-dialog-scrollable" role="document">
-    <form class="modal-content" #form (ngSubmit)="submit()" [appApiAction]="formPromise">
-      <div class="modal-header">
-        <h1 class="modal-title" id="confirmUserTitle">
-          {{ "confirmUser" | i18n }}
-          <small class="text-muted" *ngIf="name">{{ name }}</small>
-        </h1>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          appA11yTitle="{{ 'close' | i18n }}"
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="default">
+    <span bitDialogTitle>
+      {{ "confirmUser" | i18n }}
+      <span class="tw-text-muted" bitTypography="body1">{{ name }}</span>
+    </span>
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">
+        {{ "fingerprintEnsureIntegrityVerify" | i18n }}
+        <a
+          bitLink
+          href="https://bitwarden.com/help/fingerprint-phrase/"
+          target="_blank"
+          rel="noreferrer"
         >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>
-          {{ "fingerprintEnsureIntegrityVerify" | i18n }}
-          <a href="https://bitwarden.com/help/fingerprint-phrase/" target="_blank" rel="noreferrer">
-            {{ "learnMore" | i18n }}</a
-          >
-        </p>
-        <p>
-          <code>{{ fingerprint }}</code>
-        </p>
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="dontAskAgain"
-            name="DontAskAgain"
-            [(ngModel)]="dontAskAgain"
-          />
-          <label class="form-check-label" for="dontAskAgain">
-            {{ "dontAskFingerprintAgain" | i18n }}
-          </label>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
-          <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-          <span>{{ "confirm" | i18n }}</span>
-        </button>
-        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-          {{ "cancel" | i18n }}
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+          {{ "learnMore" | i18n }}</a
+        >
+      </p>
+      <p bitTypography="body1">
+        <code>{{ fingerprint }}</code>
+      </p>
+      <bit-form-control>
+        <input type="checkbox" bitCheckbox formControlName="dontAskAgain" />
+        <bit-label>{{ "dontAskFingerprintAgain" | i18n }}</bit-label>
+      </bit-form-control>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton type="submit" buttonType="primary">
+        {{ "confirm" | i18n }}
+      </button>
+      <button bitButton bitFormButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

@@ -118,61 +118,60 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden Διαχειριστής Κωδικών Πρόσβασης</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Στο σπίτι, στην εργασία, ή εν κινήσει, το Bitwarden ασφαλίζει εύκολα όλους τους κωδικούς πρόσβασης, τα κλειδιά πρόσβασης και τις ευαίσθητες πληροφορίες.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Αναγνωρίστηκε ως ο καλύτερος διαχειριστής κωδικών πρόσβασης από τα PCMag, WIRED, The Verge, CNET, G2 και άλλα!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+ΑΣΦΑΛΙΣΤΕ ΤΗΝ ΨΗΦΙΑΚΗ ΣΑΣ ΖΩΗ
+Ασφαλίστε την ψηφιακή σας ζωή και προστατέψτε την από παραβιάσεις δεδομένων δημιουργώντας και αποθηκεύοντας μοναδικούς, ισχυρούς κωδικούς πρόσβασης για κάθε λογαριασμό. Διατηρήστε τα πάντα σε ένα κρυπτογραφημένο από άκρη σε άκρη θησαυροφυλάκιο κωδικών πρόσβασης στο οποίο μόνο εσείς έχετε πρόσβαση.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+ΠΡΟΣΒΑΣΗ ΣΤΑ ΔΕΔΟΜΕΝΑ ΣΑΣ, ΟΠΟΥΔΗΠΟΤΕ, ΟΠΟΤΕΔΗΠΟΤΕ, ΣΕ ΟΠΟΙΑΔΗΠΟΤΕ ΣΥΣΚΕΥΗ
+Διαχειριστείτε, αποθηκεύστε, ασφαλίστε και μοιραστείτε εύκολα απεριόριστους κωδικούς πρόσβασης σε απεριόριστες συσκευές χωρίς περιορισμούς.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+ΟΛΟΙ ΠΡΕΠΕΙ ΝΑ ΕΧΟΥΝ ΤΑ ΕΡΓΑΛΕΙΑ ΓΙΑ ΝΑ ΠΑΡΑΜΕΝΟΥΝ ΑΣΦΑΛΕΙΣ ΣΤΟ ΔΙΑΔΙΚΤΥΟ
+Χρησιμοποιήστε το Bitwarden δωρεάν χωρίς διαφημίσεις ή πώληση δεδομένων. Το Bitwarden πιστεύει ότι όλοι πρέπει να έχουν τη δυνατότητα να παραμένουν ασφαλείς στο διαδίκτυο. Τα Premium πακέτα προσφέρουν πρόσβαση σε προηγμένες δυνατότητες.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+ΕΝΔΥΝΑΜΩΣΤΕ ΤΙΣ ΟΜΑΔΕΣ ΣΑΣ ΜΕ ΤΟ BITWARDEN
+Τα πακέτα για ομάδες και επιχειρήσεις διαθέτουν επαγγελματικές επιχειρηματικές δυνατότητες. Ορισμένα παραδείγματα περιλαμβάνουν ενσωμάτωση SSO, αυτο-εξυπηρέτηση, ενσωμάτωση καταλόγου και παροχή SCIM, παγκόσμιες πολιτικές, πρόσβαση στο API, αρχεία καταγραφής συμβάντων και πολλά άλλα.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Χρησιμοποιήστε το Bitwarden για να ασφαλίσετε το εργατικό σας δυναμικό και να μοιραστείτε ευαίσθητες πληροφορίες με τους συναδέλφους σας.
 
+Περισσότεροι λόγοι για να επιλέξετε το Bitwarden:
 
-More reasons to choose Bitwarden:
+Κρυπτογράφηση Παγκόσμιας Κλάσης
+Οι κωδικοί πρόσβασης προστατεύονται με προηγμένη κρυπτογράφηση από άκρο σε άκρο (AES-256 bit, salted hashtag και PBKDF2 SHA-256), ώστε τα δεδομένα σας να παραμένουν ασφαλή και ιδιωτικά.
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Έλεγχοι από Τρίτους
+Το Bitwarden διεξάγει τακτικά ολοκληρωμένους ελέγχους ασφαλείας από τρίτους με αξιόλογες εταιρείες ασφαλείας. Αυτοί οι ετήσιοι έλεγχοι περιλαμβάνουν αξιολογήσεις πηγαίου κώδικα και δοκιμές διείσδυσης σε όλες τις IP του Bitwarden, τους διακομιστές και τις εφαρμογές ιστού.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
-
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Προηγμένο 2FA
+Ασφαλίστε τη σύνδεσή σας με εφαρμογή αυθεντικοποίησης, κωδικούς που αποστέλλονται μέσω ηλ. ταχυδρομείου ή διαπιστευτήρια FIDO2 WebAuthn, όπως ένα φυσικό κλειδί ασφαλείας ή ένα κλειδί πρόσβασης.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Μεταδώστε δεδομένα απευθείας σε άλλους, διατηρώντας κρυπτογραφημένη ασφάλεια από άκρο σε άκρο και περιορίζοντας την έκθεση.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Ενσωματωμένη γεννήτρια
+Δημιουργήστε μεγάλους, σύνθετους και ξεχωριστούς κωδικούς πρόσβασης και μοναδικά ονόματα χρήστη για κάθε ιστότοπο που επισκέπτεστε. Ενσωματώστε παρόχους ψευδώνυμων για τη διεύθυνση ηλ. ταχυδρομείου για επιπλέον προστασία της ιδιωτικής σας ζωής.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Παγκόσμιες μεταφράσεις
+Υπάρχουν μεταφράσεις του Bitwarden για περισσότερες από 60 γλώσσες, μεταφρασμένες από την παγκόσμια κοινότητα μέσω του Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Εφαρμογές Πολλαπλών Πλατφορμών
+Ασφαλίστε και μοιραστείτε ευαίσθητα δεδομένα μέσα στο Θησαυροφυλάκιο Bitwarden από οποιοδήποτε περιηγητή, κινητή συσκευή ή λειτουργικό σύστημα και πολλά άλλα.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Το Bitwarden διασφαλίζει πολλά περισσότερα από κωδικούς πρόσβασης
+Οι λύσεις διαχείρισης κρυπτογραφημένων διαπιστευτηρίων από άκρη σε άκρη του Bitwarden δίνουν τη δυνατότητα στους οργανισμούς να ασφαλίζουν τα πάντα, συμπεριλαμβανομένων των μυστικών των προγραμματιστών και των κλειδιών πρόσβασης. Επισκεφθείτε το Bitwarden.com για να μάθετε περισσότερα για το Bitwarden Secrets Manager και το Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Στο σπίτι, στην εργασία, ή εν κινήσει, το Bitwarden ασφαλίζει εύκολα όλους τους κωδικούς πρόσβασης, τα κλειδιά πρόσβασης και τις ευαίσθητες πληροφορίες.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Συγχρονίστε και αποκτήστε πρόσβαση στο θησαυροφυλάκιό σας από πολλαπλές συσκευές</value>
+    <value>Συγχρονίστε και αποκτήστε πρόσβαση στο θησαυ/κιό σας από πολλαπλές συσκευές</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
     <value>Διαχειριστείτε όλες τις συνδέσεις και τους κωδικούς σας με ασφάλεια</value>

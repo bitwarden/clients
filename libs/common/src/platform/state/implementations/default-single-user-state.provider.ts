@@ -1,8 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { UserId } from "../../../types/guid";
+import { LogService } from "../../abstractions/log.service";
 import { StorageServiceProvider } from "../../services/storage-service.provider";
-import { KeyDefinition } from "../key-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
-import { UserKeyDefinition, isUserKeyDefinition } from "../user-key-definition";
+import { UserKeyDefinition } from "../user-key-definition";
 import { SingleUserState } from "../user-state";
 import { SingleUserStateProvider } from "../user-state.provider";
 
@@ -14,15 +16,10 @@ export class DefaultSingleUserStateProvider implements SingleUserStateProvider {
   constructor(
     private readonly storageServiceProvider: StorageServiceProvider,
     private readonly stateEventRegistrarService: StateEventRegistrarService,
+    private readonly logService: LogService,
   ) {}
 
-  get<T>(
-    userId: UserId,
-    keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>,
-  ): SingleUserState<T> {
-    if (!isUserKeyDefinition(keyDefinition)) {
-      keyDefinition = UserKeyDefinition.fromBaseKeyDefinition(keyDefinition);
-    }
+  get<T>(userId: UserId, keyDefinition: UserKeyDefinition<T>): SingleUserState<T> {
     const [location, storageService] = this.storageServiceProvider.get(
       keyDefinition.stateDefinition.defaultStorageLocation,
       keyDefinition.stateDefinition.storageLocationOverrides,
@@ -40,6 +37,7 @@ export class DefaultSingleUserStateProvider implements SingleUserStateProvider {
       keyDefinition,
       storageService,
       this.stateEventRegistrarService,
+      this.logService,
     );
     this.cache[cacheKey] = newUserState;
     return newUserState;

@@ -9,8 +9,8 @@
       <!-- Show optional content when verification is server side or client side and verification methods were found. -->
       <ng-container
         *ngIf="
-          !dialogOptions.clientSideOnlyVerification ||
-          (dialogOptions.clientSideOnlyVerification &&
+          dialogOptions.verificationType !== 'client' ||
+          (dialogOptions.verificationType === 'client' &&
             activeClientVerificationOption !== ActiveClientVerificationOption.None)
         "
       >
@@ -29,7 +29,7 @@
       <!-- Shown when client side verification methods picked and no verification methods found -->
       <ng-container
         *ngIf="
-          dialogOptions.clientSideOnlyVerification &&
+          dialogOptions.verificationType === 'client' &&
           activeClientVerificationOption === ActiveClientVerificationOption.None
         "
       >
@@ -41,7 +41,7 @@
       <app-user-verification-form-input
         [(invalidSecret)]="invalidSecret"
         formControlName="secret"
-        [verificationType]="dialogOptions.clientSideOnlyVerification ? 'client' : 'server'"
+        [verificationType]="dialogOptions.verificationType === 'client' ? 'client' : 'server'"
         (activeClientVerificationOptionChange)="handleActiveClientVerificationOptionChange($event)"
         (biometricsVerificationResultChange)="handleBiometricsVerificationResultChange($event)"
       ></app-user-verification-form-input>
@@ -50,8 +50,8 @@
       <!-- Confirm button container - shown for server side validation but hidden if client side validation + biometrics  -->
       <ng-container
         *ngIf="
-          !dialogOptions.clientSideOnlyVerification ||
-          (dialogOptions.clientSideOnlyVerification &&
+          dialogOptions.verificationType !== 'client' ||
+          (dialogOptions.verificationType === 'client' &&
             activeClientVerificationOption !== ActiveClientVerificationOption.Biometrics)
         "
       >
@@ -85,10 +85,12 @@
         <ng-container
           *ngIf="activeClientVerificationOption === ActiveClientVerificationOption.None"
         >
-          <!-- For no client verifications found, show set a pin confirm button. 
-            Note: this doesn't make sense for web as web doesn't support PINs, but this is how we are handling it for now 
-          as the expectation is that only browser and desktop will use the new clientSideOnlyVerification flow. 
-          We might genericize this in the future to just tell the user they need to configure a valid user verification option like PIN or Biometrics.  -->
+          <!--
+            For no client verifications found, show set a pin confirm button.
+            Note: this doesn't make sense for web as web doesn't support PINs, but this is how we are handling it for now
+            as the expectation is that only browser and desktop will use the new verificationType 'client' flow.
+            We might genericize this in the future to just tell the user they need to configure a valid user verification option like PIN or Biometrics.
+          -->
           <button type="submit" bitButton bitFormButton buttonType="primary">
             {{ "setPin" | i18n }}
           </button>

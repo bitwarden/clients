@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>مدیریت رمز عبور Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>در خانه، محل کار، یا در حال حرکت، Bitwarden به سادگی تمامی رمزهای عبور، passkeyها، و اطلاعات حساس شما را امن نگاه می‌دارد.</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
@@ -169,7 +169,7 @@ End-to-end encrypted credential management solutions from Bitwarden empower orga
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>در خانه، محل کار، یا در حال حرکت، Bitwarden به سادگی تمامی رمزهای عبور، passkeyها، و اطلاعات حساس شما را امن نگاه می‌دارد.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>همگام‌سازی و دسترسی به گاوصندوق خود از دستگاه های مختلف</value>

@@ -27,8 +27,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { SsoComponent } from "./sso.component";
 // test component that extends the SsoComponent
@@ -65,7 +66,7 @@ describe("SsoComponent", () => {
 
   let mockSsoLoginService: MockProxy<SsoLoginServiceAbstraction>;
   let mockStateService: MockProxy<StateService>;
-  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let mockToastService: MockProxy<ToastService>;
   let mockApiService: MockProxy<ApiService>;
   let mockCryptoFunctionService: MockProxy<CryptoFunctionService>;
   let mockEnvironmentService: MockProxy<EnvironmentService>;
@@ -75,6 +76,7 @@ describe("SsoComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockMasterPasswordService: FakeMasterPasswordService;
   let mockAccountService: FakeAccountService;
+  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
 
   // Mock authService.logIn params
   let code: string;
@@ -117,7 +119,7 @@ describe("SsoComponent", () => {
 
     mockSsoLoginService = mock();
     mockStateService = mock();
-    mockPlatformUtilsService = mock();
+    mockToastService = mock();
     mockApiService = mock();
     mockCryptoFunctionService = mock();
     mockEnvironmentService = mock();
@@ -127,6 +129,7 @@ describe("SsoComponent", () => {
     mockConfigService = mock();
     mockAccountService = mockAccountServiceWith(userId);
     mockMasterPasswordService = new FakeMasterPasswordService();
+    mockPlatformUtilsService = mock();
 
     // Mock loginStrategyService.logIn params
     code = "code";
@@ -154,12 +157,12 @@ describe("SsoComponent", () => {
       }),
       withMasterPasswordAndTrustedDevice: new UserDecryptionOptions({
         hasMasterPassword: true,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false, false),
         keyConnectorOption: undefined,
       }),
       withMasterPasswordAndTrustedDeviceWithManageResetPassword: new UserDecryptionOptions({
         hasMasterPassword: true,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true, false),
         keyConnectorOption: undefined,
       }),
       withMasterPasswordAndKeyConnector: new UserDecryptionOptions({
@@ -169,12 +172,12 @@ describe("SsoComponent", () => {
       }),
       noMasterPasswordWithTrustedDevice: new UserDecryptionOptions({
         hasMasterPassword: false,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false, false),
         keyConnectorOption: undefined,
       }),
       noMasterPasswordWithTrustedDeviceWithManageResetPassword: new UserDecryptionOptions({
         hasMasterPassword: false,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true, false),
         keyConnectorOption: undefined,
       }),
       noMasterPasswordWithKeyConnector: new UserDecryptionOptions({
@@ -196,12 +199,15 @@ describe("SsoComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: StateService, useValue: mockStateService },
-        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: ToastService, useValue: mockToastService },
 
         { provide: ApiService, useValue: mockApiService },
         { provide: CryptoFunctionService, useValue: mockCryptoFunctionService },
         { provide: EnvironmentService, useValue: mockEnvironmentService },
-        { provide: PasswordGenerationServiceAbstraction, useValue: mockPasswordGenerationService },
+        {
+          provide: PasswordGenerationServiceAbstraction,
+          useValue: mockPasswordGenerationService,
+        },
 
         {
           provide: UserDecryptionOptionsServiceAbstraction,
@@ -211,6 +217,7 @@ describe("SsoComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: InternalMasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
       ],
     });
 
@@ -591,12 +598,12 @@ describe("SsoComponent", () => {
       expect(mockLogService.error).toHaveBeenCalledTimes(1);
       expect(mockLogService.error).toHaveBeenCalledWith(error);
 
-      expect(mockPlatformUtilsService.showToast).toHaveBeenCalledTimes(1);
-      expect(mockPlatformUtilsService.showToast).toHaveBeenCalledWith(
-        "error",
-        null,
-        "ssoKeyConnectorError",
-      );
+      expect(mockToastService.showToast).toHaveBeenCalledTimes(1);
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: null,
+        message: "ssoKeyConnectorError",
+      });
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();
     });

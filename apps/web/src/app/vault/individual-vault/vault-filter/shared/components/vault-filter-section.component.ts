@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, InjectionToken, Injector, Input, OnDestroy, OnInit } from "@angular/core";
 import { Observable, Subject, takeUntil } from "rxjs";
 import { map } from "rxjs/operators";
@@ -15,7 +17,6 @@ import { VaultFilter } from "../models/vault-filter.model";
 })
 export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  protected flexibleCollectionsEnabled: boolean;
 
   @Input() activeFilter: VaultFilter;
   @Input() section: VaultFilterSection;
@@ -40,12 +41,6 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     this.section?.data$?.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       this.data = data;
     });
-    this.vaultFilterService
-      .getOrganizationFilter()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((org) => {
-        this.flexibleCollectionsEnabled = org != null ? org.flexibleCollections : false;
-      });
   }
 
   ngOnDestroy() {
@@ -77,10 +72,9 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     const { organizationId, cipherTypeId, folderId, collectionId, isCollectionSelected } =
       this.activeFilter;
 
-    const collectionStatus = this.flexibleCollectionsEnabled
-      ? filterNode?.node.id === "AllCollections" &&
-        (isCollectionSelected || collectionId === "AllCollections")
-      : collectionId === filterNode?.node.id;
+    const collectionStatus =
+      filterNode?.node.id === "AllCollections" &&
+      (isCollectionSelected || collectionId === "AllCollections");
 
     return (
       organizationId === filterNode?.node.id ||

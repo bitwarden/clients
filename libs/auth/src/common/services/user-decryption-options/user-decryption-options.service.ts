@@ -1,4 +1,6 @@
-import { map } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Observable, map } from "rxjs";
 
 import {
   ActiveUserState,
@@ -25,8 +27,8 @@ export class UserDecryptionOptionsService
 {
   private userDecryptionOptionsState: ActiveUserState<UserDecryptionOptions>;
 
-  userDecryptionOptions$;
-  hasMasterPassword$;
+  userDecryptionOptions$: Observable<UserDecryptionOptions>;
+  hasMasterPassword$: Observable<boolean>;
 
   constructor(private stateProvider: StateProvider) {
     this.userDecryptionOptionsState = this.stateProvider.getActive(USER_DECRYPTION_OPTIONS);
@@ -37,7 +39,7 @@ export class UserDecryptionOptionsService
     );
   }
 
-  userDecryptionOptionsById$(userId: UserId) {
+  userDecryptionOptionsById$(userId: UserId): Observable<UserDecryptionOptions> {
     return this.stateProvider.getUser(userId, USER_DECRYPTION_OPTIONS).state$;
   }
 

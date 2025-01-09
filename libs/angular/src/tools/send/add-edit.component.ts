@@ -1,7 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil, map, BehaviorSubject, concatMap } from "rxjs";
+import {
+  Subject,
+  firstValueFrom,
+  takeUntil,
+  map,
+  BehaviorSubject,
+  concatMap,
+  switchMap,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -22,7 +32,7 @@ import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 // Value = hours
 enum DatePreset {
@@ -120,6 +130,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected formBuilder: FormBuilder,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected accountService: AccountService,
+    protected toastService: ToastService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -194,8 +205,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     const env = await firstValueFrom(this.environmentService.environment$);
     this.sendLinkBaseUrl = env.getSendUrl();
 
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((hasPremiumFromAnySource) => {
         this.canAccessPremium = hasPremiumFromAnySource;
       });
@@ -269,11 +285,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.formGroup.markAllAsTouched();
 
     if (this.disableSend) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("sendDisabledWarning"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("sendDisabledWarning"),
+      });
       return false;
     }
 
@@ -289,11 +305,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.send.type = this.type;
 
     if (Utils.isNullOrWhitespace(this.send.name)) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nameRequired"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("nameRequired"),
+      });
       return false;
     }
 
@@ -302,22 +318,22 @@ export class AddEditComponent implements OnInit, OnDestroy {
       const fileEl = document.getElementById("file") as HTMLInputElement;
       const files = fileEl.files;
       if (files == null || files.length === 0) {
-        this.platformUtilsService.showToast(
-          "error",
-          this.i18nService.t("errorOccurred"),
-          this.i18nService.t("selectFile"),
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("selectFile"),
+        });
         return;
       }
 
       file = files[0];
       if (files[0].size > 524288000) {
         // 500 MB
-        this.platformUtilsService.showToast(
-          "error",
-          this.i18nService.t("errorOccurred"),
-          this.i18nService.t("maxFileSize"),
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("maxFileSize"),
+        });
         return;
       }
     }
@@ -340,11 +356,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
         await this.handleCopyLinkToClipboard();
         return;
       }
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.editMode ? "editedSend" : "createdSend"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(this.editMode ? "editedSend" : "createdSend"),
+      });
     });
     try {
       await this.formPromise;
@@ -377,7 +393,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     try {
       this.deletePromise = this.sendApiService.delete(this.send.id);
       await this.deletePromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("deletedSend"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("deletedSend"),
+      });
       await this.load();
       this.onDeletedSend.emit(this.send);
       return true;
@@ -470,11 +490,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private async handleCopyLinkToClipboard() {
     const copySuccess = await this.copyLinkToClipboard(this.link);
     if (copySuccess ?? true) {
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.editMode ? "editedSend" : "createdSend"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(this.editMode ? "editedSend" : "createdSend"),
+      });
     } else {
       await this.dialogService.openSimpleDialog({
         title: "",

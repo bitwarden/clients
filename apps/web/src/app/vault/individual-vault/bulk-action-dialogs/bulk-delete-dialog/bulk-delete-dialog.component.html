@@ -4,8 +4,8 @@
   </span>
   <span bitDialogContent>
     <ng-container *ngIf="!permanent">
-      <span *ngIf="cipherIds?.length">
-        {{ "deleteSelectedItemsDesc" | i18n: cipherIds.length }}
+      <span *ngIf="cipherIds?.length || unassignedCiphers?.length">
+        {{ "deleteSelectedItemsDesc" | i18n: cipherIds.length + unassignedCiphers.length }}
       </span>
       <span *ngIf="collections?.length">
         {{ "deleteSelectedCollectionsDesc" | i18n: collections.length }}
@@ -13,7 +13,7 @@
       {{ "deleteSelectedConfirmation" | i18n }}
     </ng-container>
     <ng-container *ngIf="permanent">
-      {{ "permanentlyDeleteSelectedItemsDesc" | i18n: cipherIds.length }}
+      {{ "permanentlyDeleteSelectedItemsDesc" | i18n: cipherIds.length + unassignedCiphers.length }}
     </ng-container>
   </span>
   <ng-container bitDialogFooter>

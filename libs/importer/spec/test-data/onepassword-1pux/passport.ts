@@ -26,7 +26,7 @@ export const PassportData: ExportData = {
               favIndex: 0,
               createdAt: 1619467498,
               updatedAt: 1619467655,
-              trashed: false,
+              state: "active",
               categoryUuid: "106",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const PassportData: ExportData = {
                         value: {
                           string: "US Passport",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const PassportData: ExportData = {
                         value: {
                           string: "United States of America",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const PassportData: ExportData = {
                         value: {
                           string: "76436847",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -89,7 +86,6 @@ export const PassportData: ExportData = {
                         value: {
                           string: "David Global",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -105,7 +101,6 @@ export const PassportData: ExportData = {
                         value: {
                           gender: "female",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -121,7 +116,6 @@ export const PassportData: ExportData = {
                         value: {
                           string: "International",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -137,7 +131,6 @@ export const PassportData: ExportData = {
                         value: {
                           string: "Department of State",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -153,7 +146,6 @@ export const PassportData: ExportData = {
                         value: {
                           date: 418046460,
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -169,7 +161,6 @@ export const PassportData: ExportData = {
                         value: {
                           string: "A cave somewhere in Maine",
                         },
-                        indexAtSource: 8,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -185,7 +176,6 @@ export const PassportData: ExportData = {
                         value: {
                           date: 1577880060,
                         },
-                        indexAtSource: 9,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -201,7 +191,6 @@ export const PassportData: ExportData = {
                         value: {
                           date: 2524651260,
                         },
-                        indexAtSource: 10,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

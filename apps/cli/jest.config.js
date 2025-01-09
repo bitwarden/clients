@@ -10,7 +10,11 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
-    prefix: "<rootDir>/",
-  }),
+  moduleNameMapper: {
+    "@bitwarden/common/platform/services/sdk/default-sdk-client-factory":
+      "<rootDir>/../../libs/common/spec/jest-sdk-client-factory",
+    ...pathsToModuleNameMapper(compilerOptions?.paths || {}, {
+      prefix: "<rootDir>/",
+    }),
+  },
 };

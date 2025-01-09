@@ -1,9 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
+import { ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../shared";
 
@@ -25,6 +28,7 @@ export class SendAccessTextComponent {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private formBuilder: FormBuilder,
+    private toastService: ToastService,
   ) {}
 
   get send(): SendAccessView {
@@ -46,11 +50,11 @@ export class SendAccessTextComponent {
 
   protected copyText() {
     this.platformUtilsService.copyToClipboard(this.send.text.text);
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t("sendTypeText")),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t("sendTypeText")),
+    });
   }
 
   protected toggleText() {

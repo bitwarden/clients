@@ -1,19 +1,11 @@
-<app-callout type="tip" title="{{ 'prerequisite' | i18n }}">
+<bit-callout type="info" title="{{ 'prerequisite' | i18n }}">
   {{ "requireSsoPolicyReq" | i18n }}
-</app-callout>
-<app-callout type="warning">
+</bit-callout>
+<bit-callout type="warning">
   {{ "requireSsoExemption" | i18n }}
-</app-callout>
+</bit-callout>
 
-<div class="form-group">
-  <div class="form-check">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      id="enabled"
-      [formControl]="enabled"
-      name="Enabled"
-    />
-    <label class="form-check-label" for="enabled">{{ "turnOn" | i18n }}</label>
-  </div>
-</div>
+<bit-form-control>
+  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>

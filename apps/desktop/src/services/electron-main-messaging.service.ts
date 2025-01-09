@@ -87,7 +87,10 @@ export class ElectronMainMessagingService implements MessageSender {
     });
   }
 
-  send<T extends object>(commandDefinition: CommandDefinition<T> | string, arg: T | object = {}) {
+  send<T extends Record<string, unknown>>(
+    commandDefinition: CommandDefinition<T> | string,
+    arg: T | Record<string, unknown> = {},
+  ) {
     const command = getCommand(commandDefinition);
     const message = Object.assign({}, { command: command }, arg);
     if (this.windowMain.win != null) {

@@ -3,7 +3,7 @@
 <bit-container>
   <ng-container *ngIf="!firstLoaded && loading">
     <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
-    <span class="sr-only">{{ "loading" | i18n }}</span>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
 
   <app-org-subscription-hidden
@@ -32,7 +32,7 @@
           rel="noreferrer"
         >
           <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-          <span class="sr-only">{{ "licensePaidFeaturesHelp" | i18n }}</span>
+          <span class="tw-sr-only">{{ "licensePaidFeaturesHelp" | i18n }}</span>
         </a>
       </dt>
       <dd *ngIf="subscription.hasExpiration" [ngClass]="{ 'tw-text-danger': showAsExpired }">
@@ -65,7 +65,7 @@
       {{ "launchCloudSubscription" | i18n }}
     </a>
     <form [formGroup]="form">
-      <bit-radio-group formControlName="updateMethod">
+      <bit-radio-group formControlName="updateMethod" [block]="true">
         <h2 class="mt-5">
           {{ "licenseAndBillingManagement" | i18n }}
         </h2>
@@ -73,7 +73,7 @@
           id="automatic-sync"
           [value]="licenseOptions.SYNC"
           [disabled]="disableLicenseSyncControl"
-          class="tw-block"
+          *ngIf="showAutomaticSyncAndManualUpload"
         >
           <bit-label
             >{{ "automaticSync" | i18n }}
@@ -81,48 +81,59 @@
               href="https://bitwarden.com/help/families-for-enterprise-self-hosted/"
               target="_blank"
               rel="noreferrer"
+              slot="end"
+              bitLink
             >
               <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-              <span class="sr-only">{{ "billingSyncHelp" | i18n }}</span>
+              <span class="tw-sr-only">{{ "billingSyncHelp" | i18n }}</span>
             </a>
           </bit-label>
           <bit-hint>
-            {{ "billingSyncDesc" | i18n }}
+            {{ "automaticBillingSyncDesc" | i18n }}
           </bit-hint>
         </bit-radio-button>
         <ng-container *ngIf="updateMethod === licenseOptions.SYNC">
-          <button
-            bitButton
-            buttonType="secondary"
-            type="button"
-            (click)="manageBillingSyncSelfHosted()"
-          >
-            {{ "manageBillingSync" | i18n }}
-          </button>
-          <button
-            bitButton
-            buttonType="primary"
-            type="button"
-            [bitAction]="syncLicense"
-            [disabled]="!billingSyncEnabled"
-          >
-            {{ "syncLicense" | i18n }}
-          </button>
+          <div class="tw-mt-6">
+            <button
+              bitButton
+              buttonType="secondary"
+              type="button"
+              (click)="manageBillingSyncSelfHosted()"
+            >
+              {{ "manageBillingTokenSync" | i18n }}
+            </button>
+            <button
+              bitButton
+              buttonType="primary"
+              type="button"
+              [bitAction]="syncLicense"
+              [disabled]="!billingSyncEnabled"
+            >
+              {{ "syncLicense" | i18n }}
+            </button>
+          </div>
         </ng-container>
 
         <bit-radio-button
           id="manual-upload"
           [value]="licenseOptions.UPLOAD"
-          class="tw-mt-6 tw-block"
+          class="tw-mt-6"
+          *ngIf="showAutomaticSyncAndManualUpload"
         >
           <bit-label>{{ "manualUpload" | i18n }}</bit-label>
           <bit-hint>
-            {{ "manualUploadDesc" | i18n }}
+            {{ "manualBillingTokenUploadDesc" | i18n }}
           </bit-hint>
         </bit-radio-button>
         <ng-container *ngIf="updateMethod === licenseOptions.UPLOAD">
-          <h3 class="tw-font-semibold">{{ "uploadLicense" | i18n }}</h3>
+          <bit-label class="tw-mb-6 tw-block" *ngIf="!showAutomaticSyncAndManualUpload">
+            {{ "licenseAndBillingManagementDesc" | i18n }}
+          </bit-label>
+          <h3 *ngIf="showAutomaticSyncAndManualUpload" class="tw-font-semibold tw-mt-6">
+            {{ "uploadLicense" | i18n }}
+          </h3>
           <app-update-license
+            [showAutomaticSyncAndManualUpload]="showAutomaticSyncAndManualUpload"
             [organizationId]="organizationId"
             [showCancel]="false"
             (onUpdated)="licenseUploaded()"

@@ -8,8 +8,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { I18nMockService } from "@bitwarden/components/src";
+import { I18nMockService, ToastService } from "@bitwarden/components/src";
 
 import { canAccessFeature } from "./feature-flag.guard";
 
@@ -22,11 +21,11 @@ describe("canAccessFeature", () => {
   const redirectRoute = "redirect";
 
   let mockConfigService: MockProxy<ConfigService>;
-  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let mockToastService: MockProxy<ToastService>;
 
   const setup = (featureGuard: CanActivateFn, flagValue: any) => {
     mockConfigService = mock<ConfigService>();
-    mockPlatformUtilsService = mock<PlatformUtilsService>();
+    mockToastService = mock<ToastService>();
 
     // Mock the correct getter based on the type of flagValue; also mock default values if one is not provided
     if (typeof flagValue === "boolean") {
@@ -57,7 +56,7 @@ describe("canAccessFeature", () => {
       ],
       providers: [
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: ToastService, useValue: mockToastService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -117,11 +116,11 @@ describe("canAccessFeature", () => {
 
     await router.navigate([featureRoute]);
 
-    expect(mockPlatformUtilsService.showToast).toHaveBeenCalledWith(
-      "error",
-      null,
-      "Access Denied!",
-    );
+    expect(mockToastService.showToast).toHaveBeenCalledWith({
+      variant: "error",
+      title: null,
+      message: "Access Denied!",
+    });
   });
 
   it("does not show an error toast when the feature flag is enabled", async () => {
@@ -129,7 +128,7 @@ describe("canAccessFeature", () => {
 
     await router.navigate([featureRoute]);
 
-    expect(mockPlatformUtilsService.showToast).not.toHaveBeenCalled();
+    expect(mockToastService.showToast).not.toHaveBeenCalled();
   });
 
   it("redirects to the specified redirect url when the feature flag is disabled", async () => {

@@ -126,7 +126,7 @@
             [value]="passwordOptions.length"
           />
           <span
-            class="sr-only"
+            class="tw-sr-only"
             attr.aria-label="{{ 'passwordMinLength' | i18n }}"
             role="status"
             aria-live="polite"
@@ -210,7 +210,7 @@
             [disabled]="enforcedPasswordPolicyOptions?.useSpecial"
             attr.aria-label="{{ 'specialCharacters' | i18n }}"
           />
-          <label for="special" class="form-check-label">!@#$%^&amp;*</label>
+          <label for="special" class="form-check-label">!&#64;#$%^&amp;*</label>
         </div>
         <div class="form-check">
           <input

@@ -1,4 +1,127 @@
 {
+  "allApplications": {
+    "message": "All applications"
+  },
+  "criticalApplications": {
+    "message": "Critical applications"
+  },
+  "accessIntelligence": {
+    "message": "Access Intelligence"
+  },
+  "riskInsights": {
+    "message": "Risk Insights"
+  },
+  "passwordRisk": {
+    "message": "Password Risk"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+  },
+  "dataLastUpdated": {
+    "message": "Data last updated: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2021-01-01"
+      }
+    }
+  },
+  "notifiedMembers": {
+    "message": "Notified members"
+  },
+  "revokeMembers": {
+    "message": "Revoke members"
+  },
+  "restoreMembers": {
+    "message": "Restore members"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Cannot restore organization access"
+  },
+  "allApplicationsWithCount": {
+    "message": "All applications ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "createNewLoginItem": {
+    "message": "Create new login item"
+  },
+  "criticalApplicationsWithCount": {
+    "message": "Critical applications ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notifiedMembersWithCount": {
+    "message": "Notified members ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "noAppsInOrgTitle": {
+    "message": "No applications found in $ORG NAME$",
+    "placeholders": {
+      "org name": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "noAppsInOrgDescription": {
+    "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
+  },
+  "noCriticalAppsTitle": {
+    "message": "You haven't marked any applications as a Critical"
+  },
+  "noCriticalAppsDescription": {
+    "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
+  },
+  "markCriticalApps": {
+    "message": "Mark critical apps"
+  },
+  "markAppAsCritical": {
+    "message": "Mark app as critical"
+  },
+  "appsMarkedAsCritical": {
+    "message": "Apps marked as critical"
+  },
+  "application": {
+    "message": "Application"
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "requestPasswordChange": {
+    "message": "Request password change"
+  },
+  "totalPasswords": {
+    "message": "Total passwords"
+  },
+  "searchApps": {
+    "message": "Search applications"
+  },
+  "atRiskMembers": {
+    "message": "At-risk members"
+  },
+  "totalMembers": {
+    "message": "Total members"
+  },
+  "atRiskApplications": {
+    "message": "At-risk applications"
+  },
+  "totalApplications": {
+    "message": "Total applications"
+  },
   "whatTypeOfItem": {
     "message": "Mis tüüpi kirje see on?"
   },
@@ -36,11 +159,100 @@
   "notes": {
     "message": "Märkmed"
   },
+  "note": {
+    "message": "Märge"
+  },
   "customFields": {
     "message": "Kohandatud väljad"
   },
   "cardholderName": {
     "message": "Kaardiomaniku nimi"
+  },
+  "loginCredentials": {
+    "message": "Sisselogimise andmed"
+  },
+  "personalDetails": {
+    "message": "Isikuandmed"
+  },
+  "identification": {
+    "message": "Tuvastamine"
+  },
+  "contactInfo": {
+    "message": "Kontaktinfo"
+  },
+  "cardDetails": {
+    "message": "Pangakaardi detailid"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ detailid",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Kirje ajalugu"
+  },
+  "authenticatorKey": {
+    "message": "Autentiteerimise võti"
+  },
+  "autofillOptions": {
+    "message": "Automaatse täitmise valikud"
+  },
+  "websiteUri": {
+    "message": "Veebileht (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Veebileht (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Veebileht lisatud"
+  },
+  "addWebsite": {
+    "message": "Lisa veebileht"
+  },
+  "deleteWebsite": {
+    "message": "Kustuta veebileht"
+  },
+  "defaultLabel": {
+    "message": "Vaikimisi ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "Show match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "Hide match detection $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Täida automaatselt lehe laadimisel"
   },
   "number": {
     "message": "Kaardi number"
@@ -53,6 +265,9 @@
   },
   "securityCode": {
     "message": "Kaardi turvakood (CVV)"
+  },
+  "securityCodeSlashCVV": {
+    "message": "Security code / CVV"
   },
   "identityName": {
     "message": "Identiteedi nimi"
@@ -124,10 +339,16 @@
     "message": "Pr"
   },
   "mx": {
-    "message": "Mx"
+    "message": "Lp"
   },
   "dr": {
     "message": "Dr"
+  },
+  "cardExpiredTitle": {
+    "message": "Aegunud kaart"
+  },
+  "cardExpiredMessage": {
+    "message": "Kui sa oled uuendanud seda, värskenda kaardi informatsiooni"
   },
   "expirationMonth": {
     "message": "Aegumise kuu"
@@ -136,7 +357,19 @@
     "message": "Aegumise aasta"
   },
   "authenticatorKeyTotp": {
-    "message": "Autentimise võti (TOTP)"
+    "message": "Autentiseerimise võti (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Muuda 2-astmeline kinnitamine sujuvaks"
+  },
+  "totpHelper": {
+    "message": "Bitwarden saab hoiustada ja täita 2-astmelise kinnitamise koode. Kopeeri ja kleebi võti siia."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden saab hoiustada ja täita 2-astmelise kinnitamise koode. Vajuta kaamera ikoonile, et teha ekraanipilt autentiteerimise QR koodist või kopeeri ja kleebi võti siia."
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Uuri lisa autentikaatorite kohta"
   },
   "folder": {
     "message": "Kaust"
@@ -159,9 +392,18 @@
   "cfTypeBoolean": {
     "message": "Boolean"
   },
+  "cfTypeCheckbox": {
+    "message": "Checkbox"
+  },
   "cfTypeLinked": {
-    "message": "Ühenduses",
+    "message": "Seotud",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "fieldType": {
+    "message": "Field type"
+  },
+  "fieldLabel": {
+    "message": "Field label"
   },
   "remove": {
     "message": "Eemalda"
@@ -173,6 +415,10 @@
     "message": "Kaust puudub",
     "description": "This is the folder for uncategorized items"
   },
+  "selfOwnershipLabel": {
+    "message": "Sina",
+    "description": "Used as a label to indicate that the user is the owner of an item."
+  },
   "addFolder": {
     "message": "Kausta lisamine"
   },
@@ -180,7 +426,7 @@
     "message": "Muuda kausta"
   },
   "baseDomain": {
-    "message": "Baasdomeen",
+    "message": "Domeen",
     "description": "Domain name. Example: website.com"
   },
   "domainName": {
@@ -210,23 +456,26 @@
     "description": "Default URI match detection for auto-fill."
   },
   "never": {
-    "message": "Ära tuvasta"
+    "message": "Mitte kunagi"
   },
   "toggleVisibility": {
-    "message": "Näita sisu"
+    "message": "Näita"
   },
   "toggleCollapse": {
-    "message": "Ava",
+    "message": "Näita vähem",
     "description": "Toggling an expand/collapse state."
   },
   "generatePassword": {
     "message": "Loo parool"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "checkPassword": {
-    "message": "Vaata, kas parool on lekkinud."
+    "message": "Kontrolli, kas parool on lekkinud."
   },
   "passwordExposed": {
-    "message": "See parool on erinevates andmeleketes kokku $VALUE$ korda lekkinud. Peaksid selle ära muutma.",
+    "message": "See parool on erinevates andmeleketes $VALUE$ korda lekkinud. Peaksid selle ära muutma.",
     "placeholders": {
       "value": {
         "content": "$1",
@@ -235,7 +484,7 @@
     }
   },
   "passwordSafe": {
-    "message": "Seda parooli ei õnnestu andmeleketest leida. Parooli edasi kasutamine peaks olema turvaline."
+    "message": "Seda parooli ei õnnestunud andmeleketest leida. Parooli edasi kasutamine peaks olema ohutu."
   },
   "save": {
     "message": "Salvesta"
@@ -265,13 +514,13 @@
     "message": "Otsi kogumikku"
   },
   "searchFolder": {
-    "message": "Otsi andmeid"
+    "message": "Otsi kausta"
   },
   "searchFavorites": {
-    "message": "Otsi lemmikute hulgast"
+    "message": "Otsi lemmikutest"
   },
   "searchLogin": {
-    "message": "Otsi kirjeid",
+    "message": "Otsi kirjetest",
     "description": "Search Login type"
   },
   "searchCard": {
@@ -283,7 +532,7 @@
     "description": "Search Identity type"
   },
   "searchSecureNote": {
-    "message": "Otsi turvalisi märkmeid",
+    "message": "Otsi turvalistest märkmetest",
     "description": "Search Secure Note type"
   },
   "searchVault": {
@@ -299,7 +548,7 @@
     "message": "Otsi liikmeid"
   },
   "searchGroups": {
-    "message": "Otsi gruppe"
+    "message": "Otsi gruppidest"
   },
   "allItems": {
     "message": "Kõik kirjed"
@@ -311,7 +560,7 @@
     "message": "Tüübid"
   },
   "typeLogin": {
-    "message": "Kasutajakonto andmed"
+    "message": "Konto paroolid"
   },
   "typeCard": {
     "message": "Pangakaart"
@@ -322,11 +571,14 @@
   "typeSecureNote": {
     "message": "Turvaline märkus"
   },
+  "typeSshKey": {
+    "message": "SSH key"
+  },
   "typeLoginPlural": {
     "message": "Kontod"
   },
   "typeCardPlural": {
-    "message": "Kaardid"
+    "message": "Pangakaardid"
   },
   "typeIdentityPlural": {
     "message": "Identiteedid"
@@ -351,6 +603,9 @@
   },
   "fullName": {
     "message": "Täisnimi"
+  },
+  "address": {
+    "message": "Aadress"
   },
   "address1": {
     "message": "Aadress 1"
@@ -394,12 +649,54 @@
   "viewItem": {
     "message": "Kirje vaatamine"
   },
+  "newItemHeader": {
+    "message": "New $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
+  },
+  "editItemHeader": {
+    "message": "Edit $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
+  },
+  "viewItemType": {
+    "message": "Vaata $ITEMTYPE$",
+    "placeholders": {
+      "itemtype": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
+  },
   "new": {
     "message": "Uus",
     "description": "for adding new items"
   },
   "item": {
     "message": "Kirje"
+  },
+  "itemDetails": {
+    "message": "Vaata detaile"
+  },
+  "itemName": {
+    "message": "Kirje nimi"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Sa ei saa eemaldada neid kogumikke ainult vaatamisloaga: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "ex": {
     "message": "nt.",
@@ -424,6 +721,9 @@
       }
     }
   },
+  "copySuccessful": {
+    "message": "Copy Successful"
+  },
   "copyValue": {
     "message": "Kopeeri kirje",
     "description": "Copy value to clipboard"
@@ -431,6 +731,13 @@
   "copyPassword": {
     "message": "Kopeeri parool",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
+  },
+  "passwordCopied": {
+    "message": "Password copied"
   },
   "copyUsername": {
     "message": "Kopeeri kasutajanimi",
@@ -447,6 +754,45 @@
   "copyUri": {
     "message": "Kopeeri URI",
     "description": "Copy URI to clipboard"
+  },
+  "copyCustomField": {
+    "message": "Copy $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
+  "copyWebsite": {
+    "message": "Copy website"
+  },
+  "copyNotes": {
+    "message": "Copy notes"
+  },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyEmail": {
+    "message": "Copy email"
+  },
+  "copyCompany": {
+    "message": "Copy company"
+  },
+  "copySSN": {
+    "message": "Copy Social Security number"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
+  },
+  "copyName": {
+    "message": "Copy name"
   },
   "me": {
     "message": "Mina"
@@ -536,6 +882,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Kirjed liigutatud $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Kirje liigutatud $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Kustuta kirje"
   },
@@ -579,13 +943,31 @@
     "message": "Juurdepääs"
   },
   "accessLevel": {
-    "message": "Access level"
+    "message": "Juurdepääsu aste"
+  },
+  "accessing": {
+    "message": "Hangin juurdepääsu"
   },
   "loggedOut": {
     "message": "Välja logitud"
   },
+  "loggedOutDesc": {
+    "message": "Sa logisid oma kontolt välja."
+  },
   "loginExpired": {
     "message": "Sessioon on aegunud."
+  },
+  "restartRegistration": {
+    "message": "Alusta registreerimist uuesti"
+  },
+  "expiredLink": {
+    "message": "Aegunud link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Palun alusta uuesti registreerimist või proovi sisse logida."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Sul on võib-olla juba konto"
   },
   "logOutConfirmation": {
     "message": "Oled kindel, et soovid välja logida?"
@@ -606,82 +988,91 @@
     "message": "Logi sisse või loo uus konto."
   },
   "loginWithDevice": {
-    "message": "Log in with device"
+    "message": "Logi sisse teise seadmega"
   },
   "loginWithDeviceEnabledNote": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
+    "message": "Bitwardeni rakenduse seadistuses peab olema konfigureeritud sisselogimine läbi seadme. Soovid teist valikut?"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
   },
   "loginWithMasterPassword": {
     "message": "Logi sisse ülemparooliga"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "Loen pääsuvõtit..."
   },
   "readingPasskeyLoadingInfo": {
-    "message": "Keep this window open and follow prompts from your browser."
+    "message": "Hoia see aken lahti ja järgi brauseri juhiseid."
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Kasuta teist logimismeetodit"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Log in with passkey"
   },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
+  },
   "invalidPasskeyPleaseTryAgain": {
-    "message": "Invalid Passkey. Please try again."
+    "message": "Vigane pääsuvõti. Palun proovi uuesti."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "2FA for passkeys is not supported. Update the app to log in."
+    "message": "2FA pääsuvõtmed pole toetatud. Uuenda sisse logimiseks rakendust."
   },
   "loginWithPasskeyInfo": {
-    "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
+    "message": "Kasuta automaatselt genereeritud pääsuvõtit, mis logib sind ilma paroolita sisse. Enda tuvastamiseks saad kasutada biomeetriat, nagu näotuvastus, sõrmejälg või mõni teine FIDO2 turvameetod."
   },
   "newPasskey": {
-    "message": "New passkey"
+    "message": "Uus pääsukood"
   },
   "learnMoreAboutPasswordless": {
-    "message": "Learn more about passwordless"
+    "message": "Uuri lähemalt paroolita sisselogimise kohta"
   },
   "creatingPasskeyLoading": {
-    "message": "Creating passkey..."
+    "message": "Loon pääsuvõtit..."
   },
   "creatingPasskeyLoadingInfo": {
-    "message": "Keep this window open and follow prompts from your browser."
+    "message": "Hoia see aken lahti ja järgi brauseri juhiseid."
   },
   "errorCreatingPasskey": {
-    "message": "Error creating passkey"
+    "message": "Pääsuvõtme loomine ebaõnnestus"
   },
   "errorCreatingPasskeyInfo": {
-    "message": "There was a problem creating your passkey."
+    "message": "Tekkis probleem pääsuvõtme loomisel."
   },
   "passkeySuccessfullyCreated": {
-    "message": "Passkey successfully created!"
+    "message": "Pääsuvõti edukalt loodud!"
   },
   "customPasskeyNameInfo": {
-    "message": "Name your passkey to help you identify it."
+    "message": "Anna oma pääsuvõtmele nimi, et seda hiljem lihtsamini tuvastada."
   },
   "useForVaultEncryption": {
-    "message": "Use for vault encryption"
+    "message": "Kasuta hoidla krüpteerimiseks"
   },
   "useForVaultEncryptionInfo": {
-    "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
+    "message": "Kasuta toetatud seadmetel sisselogimis- ja avamisfunktsioone ilma ülemparoolita. Järgi brauseri juhiseid, et lõpetada seadistus."
   },
   "useForVaultEncryptionErrorReadingPasskey": {
-    "message": "Error reading passkey. Try again or uncheck this option."
+    "message": "Ei õnnestunud pääsuvõtit lugeda. Proovi uuesti või tühjendage see valik."
   },
   "encryptionNotSupported": {
-    "message": "Encryption not supported"
+    "message": "Krüpteerimine ei ole toetatud"
   },
   "enablePasskeyEncryption": {
-    "message": "Set up encryption"
+    "message": "Seadista krüpteerimine"
   },
   "usedForEncryption": {
-    "message": "Used for encryption"
+    "message": "Kasutatakse krüpteerimiseks"
   },
   "loginWithPasskeyEnabled": {
-    "message": "Log in with passkey turned on"
+    "message": "Logi sisse pääsuvõti sisse lülitatult"
   },
   "passkeySaved": {
-    "message": "$NAME$ saved",
+    "message": "$NAME$ salvestatud",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -690,25 +1081,34 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "Pääsuvõti eemaldatud"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "Eemalda pääsuvõti"
   },
   "removePasskeyInfo": {
-    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+    "message": "Kui kõik pääsuvõtmed on eemaldatud, ei saa sa sisse logida uutesse seadmetesse ilma ülemparoolita."
   },
   "passkeyLimitReachedInfo": {
-    "message": "Passkey limit reached. Remove a passkey to add another."
+    "message": "Pääsuvõtmete limiit täitus. Eemalda mõni, et uusi lisada."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Proovi uuesti"
   },
   "createAccount": {
     "message": "Konto loomine"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
+  "setAStrongPassword": {
+    "message": "Määra tugev parool"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "Lõpeta konto loomine määrates parooli"
+  },
   "newAroundHere": {
-    "message": "New around here?"
+    "message": "Kas oled uus?"
   },
   "startTrial": {
     "message": "Alusta prooviperioodi"
@@ -716,8 +1116,20 @@
   "logIn": {
     "message": "Logi sisse"
   },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
+  "verifyIdentity": {
+    "message": "Kinnitage oma Identiteet"
+  },
   "logInInitiated": {
-    "message": "Log in initiated"
+    "message": "Sisselogimine käivitatud"
   },
   "submit": {
     "message": "Kinnita"
@@ -749,11 +1161,39 @@
   "masterPassHint": {
     "message": "Ülemparooli vihje (ei ole kohustuslik)"
   },
+  "newMasterPassHint": {
+    "message": "Uue ülemparooli vihje (valikuline)"
+  },
   "masterPassHintLabel": {
     "message": "Ülemparooli vihje"
   },
+  "masterPassHintText": {
+    "message": "Kui sa unustad oma parooli, saad saata parooli vihje e-mailile.\n$CURRENT$/$MAXIMUM$ tähepiirang.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
   "settings": {
     "message": "Seaded"
+  },
+  "accountEmail": {
+    "message": "Account email"
+  },
+  "requestHint": {
+    "message": "Request hint"
+  },
+  "requestPasswordHint": {
+    "message": "Request password hint"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Enter your account email address and your password hint will be sent to you"
   },
   "passwordHint": {
     "message": "Parooli vihje"
@@ -777,7 +1217,7 @@
     "message": "Vajalik on ülemparooli uuesti sisestamine."
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least $VALUE$ characters long.",
+    "message": "Ülemparool peab olema vähemalt $VALUE$ märki pikk.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -792,6 +1232,12 @@
   "newAccountCreated": {
     "message": "Sinu konto on loodud! Saad nüüd sellesse sisse logida."
   },
+  "newAccountCreated2": {
+    "message": "Uus konto loodud!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Olete logitud sisse!"
+  },
   "trialAccountCreated": {
     "message": "Konto on edukalt loodud."
   },
@@ -802,13 +1248,16 @@
     "message": "Tekkis ootamatu viga."
   },
   "expirationDateError": {
-    "message": "Please select an expiration date that is in the future."
+    "message": "Palun vali kehtivuse lõppemise tähtaeg tulevikust."
   },
   "emailAddress": {
     "message": "E-posti aadress"
   },
-  "yourVaultIsLocked": {
-    "message": "Hoidla on lukus. Jätkamiseks sisesta ülemparool."
+  "yourVaultIsLockedV2": {
+    "message": "Sinu hoidla on lukus."
+  },
+  "yourAccountIsLocked": {
+    "message": "Your account is locked"
   },
   "uuid": {
     "message": "UUID"
@@ -833,7 +1282,7 @@
     "message": "Vale ülemparool"
   },
   "invalidFilePassword": {
-    "message": "Invalid file password, please use the password you entered when you created the export file."
+    "message": "Vale parool, palun kasuta seda parooli mille sisestasid eksport faili loomisel."
   },
   "lockNow": {
     "message": "Lukusta paroolihoidla"
@@ -842,7 +1291,10 @@
     "message": "Puuduvad kirjed, mida kuvada."
   },
   "noPermissionToViewAllCollectionItems": {
-    "message": "You do not have permission to view all items in this collection."
+    "message": "Sul ei ole õigust vaadata kõiki asju selles kogus."
+  },
+  "youDoNotHavePermissions": {
+    "message": "You do not have permissions to this collection"
   },
   "noCollectionsInList": {
     "message": "Puuduvad kollektsioonid, mida kuvada."
@@ -854,7 +1306,7 @@
     "message": "Puuduvad kasutajad, keda kuvada."
   },
   "noMembersInList": {
-    "message": "There are no members to list."
+    "message": "Puuduvad kasutajad, keda kuvada."
   },
   "noEventsInList": {
     "message": "Puuduvad sündmused, mida kuvada."
@@ -866,7 +1318,13 @@
     "message": "Sa ei kuulu ühessegi organisatsiooni. Organisatsioonid võimaldavad sul kirjeid turvaliselt teiste kasutajatega jagada."
   },
   "notificationSentDevice": {
-    "message": "A notification has been sent to your device."
+    "message": "Sinu seadmesse saadeti teavitus."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "Versioon $VERSION_NUMBER$",
@@ -934,18 +1392,18 @@
   "authenticatorAppTitle": {
     "message": "Autentimise rakendus"
   },
-  "authenticatorAppDesc": {
-    "message": "Kasuta autentimise rakendust (näiteks Authy või Google Authenticator), et kasutada sisselogimiseks ajal baseeruvat kinnituskoodi.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Sisesta oma autentikaatori (näiteks Bitwarden Authenticator) genereeritud kood.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "YubiKey OTP Turvaline võti"
+  "yubiKeyTitleV2": {
+    "message": "Yubico OTP turvavõti"
   },
   "yubiKeyDesc": {
     "message": "Kasuta kontole ligipääsemiseks YubiKey-d. See töötab YubiKey 4, 5 ja NEO seadmetega."
   },
-  "duoDesc": {
-    "message": "Kinnita Duo Security abil, kasutades selleks Duo Mobile rakendust, SMS-i, telefonikõnet või U2F turvavõtit.",
+  "duoDescV2": {
+    "message": "Sisesta Duo Security genereeritud kood.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -970,8 +1428,8 @@
   "emailTitle": {
     "message": "E-post"
   },
-  "emailDesc": {
-    "message": "Kinnituskoodid saadetakse e-postiga."
+  "emailDescV2": {
+    "message": "Sisesta oma emailile saadetud kood."
   },
   "continue": {
     "message": "Jätka"
@@ -1001,7 +1459,7 @@
     }
   },
   "deleteSelectedCollectionsDesc": {
-    "message": "$COUNT$ collection(s) will be permanently deleted.",
+    "message": "$COUNT$ kogumikku kustutatakse jäädavalt.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1010,10 +1468,10 @@
     }
   },
   "deleteSelectedConfirmation": {
-    "message": "Are you sure you want to continue?"
+    "message": "Kas olete kindel?"
   },
   "moveSelectedItemsDesc": {
-    "message": "Vali kaust, kuhu soovid need $COUNT$ kirjet liigutada.",
+    "message": "Vali kaust, kuhu soovid lisada $COUNT$ valitud kirjet.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1045,7 +1503,13 @@
     "message": "Kopeeri kinnituskood"
   },
   "copyUuid": {
-    "message": "Copy UUID"
+    "message": "Kopeeri UUID"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "Juurdepääsukoodi Värskendamine Ebaõnnestus"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "Ei leidnud värskendamise koodi või API võtit. Palun proovi logida välja ja uuesti sisse."
   },
   "warning": {
     "message": "Hoiatus"
@@ -1054,13 +1518,13 @@
     "message": "Hoidla eksportimise kinnitamine"
   },
   "confirmSecretsExport": {
-    "message": "Confirm secrets export"
+    "message": "Kinnita saladuste eksportimine"
   },
   "exportWarningDesc": {
     "message": "Eksporditav fail on krüpteeringuta ja sisaldab hoidla sisu. Seda faili ei tohiks kaua käidelda ning mitte mingil juhul ebaturvaliselt saata (näiteks e-postiga). Kustuta see koheselt pärast kasutamist."
   },
   "exportSecretsWarningDesc": {
-    "message": "This export contains your secrets data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Eksporditav fail sisaldab krüpteerimata salajast informatsiooni. Seda faili ei tohiks säilitada või saata läbi ebaturvaliste kanalite (näiteks e-post). Kustuta see kohe peale kasutamist."
   },
   "encExportKeyWarningDesc": {
     "message": "Eksporditavate andmete krüpteerimiseks kasutatakse kontol olevat krüpteerimisvõtit. Kui sa peaksid seda krüpteerimise võtit roteerima, ei saa sa järgnevalt eksporditavaid andmeid enam dekrüpteerida."
@@ -1072,58 +1536,58 @@
     "message": "Ekspordi"
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "Ekspordi asukohast"
   },
   "exportVault": {
     "message": "Hoidla sisu eksportimine"
   },
   "exportSecrets": {
-    "message": "Export secrets"
+    "message": "Ekspordi saladused"
   },
   "fileFormat": {
     "message": "Failivorming"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "This file export will be password protected and require the file password to decrypt."
+    "message": "See eksporditav fail on parooliga kaitstud ja nõuab dekrüpteerimiseks parooli."
   },
   "exportPasswordDescription": {
-    "message": "This password will be used to export and import this file"
+    "message": "Seda parooli kasutatakse selle faili eksportimiseks ja importimiseks"
   },
   "confirmMasterPassword": {
-    "message": "Confirm master password"
+    "message": "Kinnita ülemparool"
   },
   "confirmFormat": {
-    "message": "Confirm format"
+    "message": "Kinnita formaat"
   },
   "filePassword": {
-    "message": "File password"
+    "message": "Faili parool"
   },
   "confirmFilePassword": {
-    "message": "Confirm file password"
+    "message": "Kinnita faili parool"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
+    "message": "Kasuta oma konto krüpteerimise võtit, mis koosneb sinu kasutajanimest ja ülemparoolist, et krüpteerida fail ja takistada selle importimine teistele kontodele."
   },
   "passwordProtectedOptionDescription": {
-    "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
+    "message": "Määra faili parool, et see krüpteerida ja importida teise Bitwardeni kontosse kasutates seda parooli dekrüpteerimiseks."
   },
   "exportTypeHeading": {
-    "message": "Export type"
+    "message": "Ekspordi tüüp"
   },
   "accountRestricted": {
-    "message": "Account restricted"
+    "message": "Kontosisene"
   },
   "passwordProtected": {
-    "message": "Password protected"
+    "message": "Parooliga kaitstud"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
+    "message": "\"Faili parool\" ja \"Faili parooli kinnitus\" ei kattu."
   },
   "confirmVaultImport": {
-    "message": "Confirm vault import"
+    "message": "Kinnita hoidla importimine"
   },
   "confirmVaultImportDesc": {
-    "message": "This file is password-protected. Please enter the file password to import data."
+    "message": "Fail on parooliga kaitstud. Palun sisesta faili importimiseks selle parool."
   },
   "exportSuccess": {
     "message": "Hoidla on eksporditud."
@@ -1142,7 +1606,12 @@
     "description": "Minimum special characters"
   },
   "ambiguous": {
-    "message": "Väldi ebamääraseid kirjamärke"
+    "message": "Väldi ebamääraseid kirjamärke",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Avoid ambiguous characters",
+    "description": "Label for the avoid ambiguous characters checkbox."
   },
   "regeneratePassword": {
     "message": "Genereeri parool uuesti"
@@ -1151,18 +1620,19 @@
     "message": "Pikkus"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Parooli miinimumpikkus"
   },
   "uppercase": {
     "message": "Suurtäht (A-Z)",
-    "description": "Include uppercase letters in the password generator."
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
     "message": "Väiketäht (a-z)",
-    "description": "Include lowercase letters in the password generator."
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Numbrid (0-9)"
+    "message": "Numbrid (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
     "message": "Erimärgid (!@#$%^&*)"
@@ -1180,11 +1650,33 @@
   "includeNumber": {
     "message": "Numbriga"
   },
+  "generatorPolicyInEffect": {
+    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "description": "Indicates that a policy limits the credential generator screen."
+  },
   "passwordHistory": {
     "message": "Paroolide ajalugu"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "noPasswordsInList": {
     "message": "Puuduvad paroolid, mida kuvada."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "clear": {
     "message": "Tühjenda",
@@ -1269,17 +1761,17 @@
     }
   },
   "kdfMemory": {
-    "message": "KDF memory (MB)",
+    "message": "KDF mälumaht (MB)",
     "description": "Memory refers to computer memory (RAM). MB is short for megabytes."
   },
   "argon2Warning": {
-    "message": "Setting your KDF iterations, memory, and parallelism too high could result in poor performance when logging into (and unlocking) Bitwarden on slower or older devices. We recommend changing these individually in small increments and then test all of your devices."
+    "message": "Muutes oma KDF korduste, mälumahu ja paralleelsuse liiga kõrgeks, võib tulemus väljenduda aeglases kiiruses Bitwardeni sisse logimisel (ja lahti lukustamisel) vanematel ja aeglasematel seadmetel. Me soovitame neid muuta ühekaupa väikestes ühikutes ja testida kõigil oma seadmetel."
   },
   "kdfParallelism": {
-    "message": "KDF parallelism"
+    "message": "KDF paralleelsus"
   },
   "argon2Desc": {
-    "message": "Higher KDF iterations, memory, and parallelism can help protect your master password from being brute forced by an attacker."
+    "message": "Rohkem KDF kordusi, mälumahtu ja paralleelsust aitab sul kaitsta ülemparooli toore jõuga lahti murdmisest ründaja poolt."
   },
   "changeKdf": {
     "message": "Muuda KDF-i"
@@ -1293,6 +1785,9 @@
   "dangerZoneDesc": {
     "message": "Ettevaatust, neid toiminguid ei saa tagasi võtta!"
   },
+  "dangerZoneDescSingular": {
+    "message": "Careful, this action is not reversible!"
+  },
   "deauthorizeSessions": {
     "message": "Sessioonide tühistamine"
   },
@@ -1304,6 +1799,15 @@
   },
   "sessionsDeauthorized": {
     "message": "Kõikidest seadmetest on välja logitud"
+  },
+  "accountIsOwnedMessage": {
+    "message": "This account is owned by $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "Organization"
+      }
+    }
   },
   "purgeVault": {
     "message": "Likvideeri Hoidla"
@@ -1341,6 +1845,9 @@
   "accountDeletedDesc": {
     "message": "Konto on suletud ja kõik sellega seonduvad andmed on kustutatud."
   },
+  "deleteOrganizationWarning": {
+    "message": "Organisatsiooni kustutamine on lõplik. Seda ei saa taastatada."
+  },
   "myAccount": {
     "message": "Minu konto"
   },
@@ -1351,19 +1858,23 @@
     "message": "Andmete importimine"
   },
   "onboardingImportDataDetailsPartOne": {
-    "message": "If you don't have any data to import, you can create a ",
+    "message": "Kui sul ei ole mingit informatsiooni importida, võid luua ",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
-    "message": "new item",
+    "message": "uue kirje",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
+  "onboardingImportDataDetailsLoginLink": {
+    "message": "uue konto kirje",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
   "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " instead.",
+    "message": " selle asemel.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
   },
   "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " instead. You may need to wait until your administrator confirms your organization membership.",
+    "message": " selle asemel. Sa pead võib-olla ootama, kuni su administraator kinnitab sinu liikmesuse organisatsioonis.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -1376,7 +1887,7 @@
     "message": "Andmed on edukalt hoidlasse imporditud."
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "Kokku imporditi $AMOUNT$ kirjet.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -1385,7 +1896,7 @@
     }
   },
   "dataExportSuccess": {
-    "message": "Data successfully exported"
+    "message": "Andmed edukalt eksporditud"
   },
   "importWarning": {
     "message": "Impordid andmeid organisatsiooni $ORGANIZATION$. Imporditavaid andmeid võidakse jagada teiste organisatsiooni liikmetega. Soovid jätkata?",
@@ -1405,20 +1916,20 @@
   "importEncKeyError": {
     "message": "Eksporditud faili dekrüpteerimine nurjus. Sinu krüpteerimisvõti ei ühti selle võtmega, mida kasutati andmete eksportimisel."
   },
-  "importDestination": {
-    "message": "Import destination"
+  "destination": {
+    "message": "Sihtpunkt"
   },
   "learnAboutImportOptions": {
-    "message": "Learn about your import options"
+    "message": "Lisainfo impordi valikute kohta"
   },
   "selectImportFolder": {
-    "message": "Select a folder"
+    "message": "Vali kaust"
   },
   "selectImportCollection": {
-    "message": "Select a collection"
+    "message": "Vali kogumik"
   },
   "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
+    "message": "Tee siin valik, kui soovid, et imporditud faili sisu liigutatakse asukohta $DESTINATION$",
     "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
     "placeholders": {
       "destination": {
@@ -1428,7 +1939,7 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "File contains unassigned items."
+    "message": "Fail sisaldab määramata kirjeid."
   },
   "selectFormat": {
     "message": "Vali imporditava faili vorming"
@@ -1437,10 +1948,10 @@
     "message": "Vali imporditav fail"
   },
   "chooseFile": {
-    "message": "Choose File"
+    "message": "Vali fail"
   },
   "noFileChosen": {
-    "message": "No file chosen"
+    "message": "Ühtegi faili pole valitud"
   },
   "orCopyPasteFileContents": {
     "message": "või kopeeri/kleebi imporditava faili sisu"
@@ -1525,26 +2036,26 @@
     "message": "Kaheastmeline kinnitamine"
   },
   "twoStepLoginEnforcement": {
-    "message": "Two-step Login Enforcement"
+    "message": "Kaheastmelise Logimise Jõustamine"
   },
   "twoStepLoginDesc": {
     "message": "Kaitse oma kontot, nõudes sisselogimisel lisakinnitust."
   },
   "twoStepLoginTeamsDesc": {
-    "message": "Enable two-step login for your organization."
+    "message": "Luba kaheastmeline logimine enda organisatsioonis."
   },
   "twoStepLoginEnterpriseDescStart": {
-    "message": "Enforce Bitwarden Two-step Login options for members by using the ",
+    "message": "Jõusta Bitwardeni Kaheastmelise Logimise valikud liikmetele kasutades ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
-    "message": "Two-step Login Policy"
+    "message": "Kaheastmelise Sisselogimise Reeglid"
   },
   "twoStepLoginOrganizationDuoDesc": {
-    "message": "To enforce Two-step Login through Duo, use the options below."
+    "message": "Et jõustada Kaheastmeline Logimine läbi Duo, kasuta allolevaid valikuid."
   },
   "twoStepLoginOrganizationSsoDesc": {
-    "message": "If you have setup SSO or plan to, Two-step Login may already be enforced through your Identity Provider."
+    "message": "Kui sa oled seadistanud SSO või plaanid seda, Kaheastmeline Logimine võib juba olla jõustatud läbi sinu Identiteedi Pakkuja."
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Kaheastmelise kinnitamine aktiveerimine võib luua olukorra, kus sul on võimatu oma Bitwardeni kontosse sisse logida. Näiteks kui kaotad oma nutiseadme. Taastamise kood võimaldab aga kontole ligi pääseda ka olukorras, kus kaheastmelist kinnitamist ei ole võimalik läbi viia. Sellistel juhtudel ei saa ka Bitwardeni klienditugi sinu kontole ligipääsu taastada. Selle tõttu soovitame taastekoodi välja printida ja seda turvalises kohas hoida."
@@ -1588,7 +2099,7 @@
     "message": "Haldus"
   },
   "canManage": {
-    "message": "Can manage"
+    "message": "Saab muuta"
   },
   "disable": {
     "message": "Keela"
@@ -1602,35 +2113,47 @@
   "twoStepLoginAuthDesc": {
     "message": "Kaheastmelise kinnitamise seadete muutmiseks pead sisestama ülemparooli."
   },
-  "twoStepAuthenticatorDesc": {
-    "message": "Järgnevad juhised aitavad sul kaheastmelise kinnituse äpi ära seadistada:"
+  "twoStepAuthenticatorInstructionPrefix": {
+    "message": "Lae alla autentiteerimise rakendus nagu"
   },
-  "twoStepAuthenticatorDownloadApp": {
-    "message": "Laadi kaheastmelise kinnitamise äpp alla"
+  "twoStepAuthenticatorInstructionInfix1": {
+    "message": ","
   },
-  "twoStepAuthenticatorNeedApp": {
-    "message": "Vajad kaheastmelise kinnitamise äppi? Proovi mõnda järgnevatest"
+  "twoStepAuthenticatorInstructionInfix2": {
+    "message": "või"
   },
-  "iosDevices": {
-    "message": "iOS seadmed"
+  "twoStepAuthenticatorInstructionSuffix": {
+    "message": "."
   },
-  "androidDevices": {
-    "message": "Android seadmed"
+  "continueToExternalUrlTitle": {
+    "message": "Mine edasi $URL$-i?",
+    "placeholders": {
+      "url": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
   },
-  "windowsDevices": {
-    "message": "Windows seadmed"
+  "continueToExternalUrlDesc": {
+    "message": "Oled lahkumas Bitwardenist ja avamas välist veebilehte uues aknas."
   },
-  "twoStepAuthenticatorAppsRecommended": {
-    "message": "Need äpid on soovituslikud. Saad ka teisi autentimise äppe kasutada."
+  "twoStepContinueToBitwardenUrlTitle": {
+    "message": "Mine edasi bitwarden.com-i?"
   },
-  "twoStepAuthenticatorScanCode": {
-    "message": "Skaneeri seda QR koodi oma autentimisrakendusega"
+  "twoStepContinueToBitwardenUrlDesc": {
+    "message": "Bitwardeni Autentiteerijaga saad sa hoiustada autentiteerimise võtmeid ja luua TOTP koode kaheastmeliseks kinnitamiseks. Uuri lähemalt bitwarden.com veebilehelt."
+  },
+  "twoStepAuthenticatorScanCodeV2": {
+    "message": "Skänneeri allolev QR-kood oma autentiteerimisrakendusega või sisesta kood."
+  },
+  "twoStepAuthenticatorQRCanvasError": {
+    "message": "Ei õnnestunud laadida QR-koodi. Proovi uuesti või kasuta allolevat koodi."
   },
   "key": {
     "message": "Võti"
   },
-  "twoStepAuthenticatorEnterCode": {
-    "message": "Sisesta äpi kuvatav 6 kohaline kinnituskood"
+  "twoStepAuthenticatorEnterCodeV2": {
+    "message": "Kinnituskood"
   },
   "twoStepAuthenticatorReaddDesc": {
     "message": "Kui soovid lisada veel seadmeid, siis all on kuvatud QR kood (ehk võti), mida autentimisrakendusega kasutada saad."
@@ -1710,11 +2233,11 @@
   "twoFactorDuoDesc": {
     "message": "Sisesta oma Bitwardeni rakenduse informatsioon Duo admini paneelist."
   },
-  "twoFactorDuoIntegrationKey": {
-    "message": "Integratsiooni võti"
+  "twoFactorDuoClientId": {
+    "message": "Kliendi Id"
   },
-  "twoFactorDuoSecretKey": {
-    "message": "Salajane võti"
+  "twoFactorDuoClientSecret": {
+    "message": "Kliendi Saladus"
   },
   "twoFactorDuoApiHostname": {
     "message": "API hostinimi"
@@ -1797,7 +2320,7 @@
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "orgsReportsDesc": {
-    "message": "Identify and close security gaps in your organization's accounts by clicking the reports below.",
+    "message": "Idenfitseeri ja paranda turvaprobleeme oma organisatsiooni kontodes vajutades allolevatele raportidele.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -1810,7 +2333,7 @@
     "message": "Leiti ebaturvalisi veebilehti"
   },
   "unsecuredWebsitesFoundReportDesc": {
-    "message": "We found $COUNT$ items in your $VAULT$ with unsecured URIs. You should change their URI scheme to https:// if the website allows it.",
+    "message": "Leidsime sinu hoidla(st/test) $COUNT$ eset ebaturvaliste URI-dega. Peaksid muutma neid, kui su sait lubab, https:// -iks.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1835,7 +2358,7 @@
     "message": "Kaheastmelise kinnituseta kontod"
   },
   "inactive2faFoundReportDesc": {
-    "message": "We found $COUNT$ website(s) in your $VAULT$ that may not be configured with two-step login (according to 2fa.directory). To further protect these accounts, you should set up two-step login.",
+    "message": "Me leitsime $COUNT$ veebilehe(veebilehte) sinu $VAULT$ mis ei pruugi olla seadistatud kaheastmelise logimisega (2fa andmebaasi järgi). Et oma kontosid kaitsta, soovitame tungivalt sisse seada kaheastmelise sisselogimise.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1863,7 +2386,7 @@
     "message": "Avastatud on lekkinud paroole"
   },
   "exposedPasswordsFoundReportDesc": {
-    "message": "We found $COUNT$ items in your $VAULT$ that have passwords that were exposed in known data breaches. You should change them to use a new password.",
+    "message": "Leidsime $COUNT$ eseme(eset) sinu $VAULT$ mille parool paljastati hiljutiste andmelekete käigus. Soovitame tungivalt muuta kohe need paroolid.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1880,6 +2403,9 @@
   },
   "checkExposedPasswords": {
     "message": "Kontrolli lekkinud paroole"
+  },
+  "timesExposed": {
+    "message": "Times exposed"
   },
   "exposedXTimes": {
     "message": "Lekkinud $COUNT$ korda",
@@ -1900,7 +2426,7 @@
     "message": "Avastatud on nõrgad paroolid"
   },
   "weakPasswordsFoundReportDesc": {
-    "message": "We found $COUNT$ items in your $VAULT$ with passwords that are not strong. You should update them to use stronger passwords.",
+    "message": "Me leidsime $COUNT$ eset sinu $VAULT$ nõrkade paroolidega. Sa peaksid vahetama need tugevamate vastu.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1915,6 +2441,9 @@
   "noWeakPasswords": {
     "message": "Hoidlas olevatest kirjetest ei leitud nõrku paroole."
   },
+  "weakness": {
+    "message": "Weakness"
+  },
   "reusedPasswordsReport": {
     "message": "Korduvate paroolide raport"
   },
@@ -1925,7 +2454,7 @@
     "message": "Leiti korduvalt kasutatud paroole"
   },
   "reusedPasswordsFoundReportDesc": {
-    "message": "We found $COUNT$ passwords that are being reused in your $VAULT$. You should change them to a unique value.",
+    "message": "Me leidsime $COUNT$ parooli, mida on korduvalt kasutatud sinu $VAULT$. Sa peaksid korduvad paroolid välja vahetama ainulaadsete vastu.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1939,6 +2468,9 @@
   },
   "noReusedPasswords": {
     "message": "Hoidlas puuduvad paroolid, mida kasutatakse rohkem kui üks kord."
+  },
+  "timesReused": {
+    "message": "Times reused"
   },
   "reusedXTimes": {
     "message": "Kasutusel $COUNT$ korral.",
@@ -2056,7 +2588,7 @@
     "message": "1 GB ulatuses krüpteeritud salvestusruum."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Eraomanduses kaheastmelise logimise valikud, nagu näiteks YubiKey ja Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Hädaolukorra ligipääs"
@@ -2083,7 +2615,7 @@
     }
   },
   "premiumPriceWithFamilyPlan": {
-    "message": "Go premium for just $PRICE$ /year, or get premium accounts for $FAMILYPLANUSERCOUNT$ users and unlimited family sharing with a ",
+    "message": "Hangi preemiumi ainult $PRICE$ eest aastas või hangi preemium $FAMILYPLANUSERCOUNT$ kasutajale pluss piiramatu peresisene jagamine ",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -2096,7 +2628,7 @@
     }
   },
   "bitwardenFamiliesPlan": {
-    "message": "Bitwarden Families plan."
+    "message": "Bitwardeni Pereplaaniga."
   },
   "addons": {
     "message": "Lisad"
@@ -2172,7 +2704,7 @@
     }
   },
   "paymentChargedWithUnpaidSubscription": {
-    "message": "Your payment method will be charged for any unpaid subscriptions."
+    "message": "Sinu maksemeetodit kasutatakse maksmata tellimuste tasumiseks."
   },
   "paymentChargedWithTrial": {
     "message": "Valitud pakett sisaldab 7 päevast prooviperioodi. Krediitkaardilt ei võeta raha enne, kui prooviperiood läbi saab. Väljatoodud summa debiteeritakse iga $INTERVAL$. Tellimust on võimalik igal ajal tühistada."
@@ -2196,7 +2728,7 @@
     "message": "Tühista tellimus"
   },
   "subscriptionExpiration": {
-    "message": "Subscription expiration"
+    "message": "Tellimuse lõppemine"
   },
   "subscriptionCanceled": {
     "message": "Tellimus on tühistatud."
@@ -2237,6 +2769,9 @@
   "downloadLicense": {
     "message": "Laadi litsents alla"
   },
+  "viewBillingToken": {
+    "message": "View Billing Token"
+  },
   "updateLicense": {
     "message": "Uuenda litsentsi"
   },
@@ -2244,7 +2779,7 @@
     "message": "Tellimuse haldamine"
   },
   "launchCloudSubscription": {
-    "message": "Launch Cloud Subscription"
+    "message": "Ühenda Tasuline Tellimus"
   },
   "storage": {
     "message": "Salvestusruum"
@@ -2283,8 +2818,11 @@
   "invoices": {
     "message": "Arved"
   },
-  "noInvoices": {
-    "message": "Arved puuduvad."
+  "noUnpaidInvoices": {
+    "message": "No unpaid invoices."
+  },
+  "noPaidInvoices": {
+    "message": "No paid invoices."
   },
   "paid": {
     "message": "Makstud",
@@ -2343,7 +2881,7 @@
     "message": "Võta klienditoega ühendust"
   },
   "contactSupportShort": {
-    "message": "Contact Support"
+    "message": "Klienditugi"
   },
   "updatedPaymentMethod": {
     "message": "Maksemeetod on muudetud."
@@ -2561,7 +3099,7 @@
     }
   },
   "trialSecretsManagerThankYou": {
-    "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
+    "message": "Aitäh soetamast Bitwarden Secrets Manageri $PLAN$ tellimusega!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -2654,7 +3192,7 @@
     "message": "Tahad kindlasti selle grupi kustutada?"
   },
   "deleteMultipleGroupsConfirmation": {
-    "message": "Are you sure you want to delete the following $QUANTITY$ group(s)?",
+    "message": "Kas sa oled kindel, et tahad kustudada $QUANTITY$ gruppi?",
     "placeholders": {
       "quantity": {
         "content": "$1",
@@ -2672,7 +3210,7 @@
     "message": "Kui kasutaja ligipääsu luba on tühistatud, ei saa ta enam origanisatsiooni andmetele ligi. Ligipääsu taastamiseks ava \"Tühistatud\" kaart."
   },
   "removeUserConfirmationKeyConnector": {
-    "message": "Warning! This user requires Key Connector to manage their encryption. Removing this user from your organization will permanently deactivate their account. This action cannot be undone. Do you want to proceed?"
+    "message": "Hoiatus! See kasutaja vajab Key Connectorit oma krüpteeringu haldamiseks. Tema eemaldamine organisatsioonist deaktiveerib jäädavalt tema konto. Seda otsust ei saa muuta. Oled kindel?"
   },
   "externalId": {
     "message": "Väline ID"
@@ -2681,16 +3219,10 @@
     "message": "Välist Id-d kasutatakse viitena või näiteks selleks, et siduda need ressursid välise süsteemiga, nagu näites kasutaja kataloog."
   },
   "nestCollectionUnder": {
-    "message": "Nest collection under"
+    "message": "Lisa kogumike jaotisesse"
   },
   "accessControl": {
     "message": "Ligipääsu haldamine"
-  },
-  "groupAccessAllItems": {
-    "message": "See grupp pääseb ligi ja saab muuta kõiki kirjeid."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "See grupp pääseb ligi ainult valitud kirjetele."
   },
   "readOnly": {
     "message": "Saab ainult lugeda"
@@ -2705,16 +3237,16 @@
     "message": "Muuda kogumikku"
   },
   "collectionInfo": {
-    "message": "Collection info"
+    "message": "Kogumiku info"
   },
   "deleteCollectionConfirmation": {
     "message": "Oled kindel, et soovid selle kogumiku kustutada?"
   },
   "editMember": {
-    "message": "Edit member"
+    "message": "Muuda liiget"
   },
   "fieldOnTabRequiresAttention": {
-    "message": "A field on the '$TAB$' tab requires your attention.",
+    "message": "Tekstiväli $TAB$ real vajab tähelepanu.",
     "placeholders": {
       "tab": {
         "content": "$1",
@@ -2737,20 +3269,11 @@
   "userUsingTwoStep": {
     "message": "Sellel kasutajal on kaheastmeline kinnitamine sisse lülitatud."
   },
-  "userAccessAllItems": {
-    "message": "See kasutaja pääseb ligi ja saab muuta kõiki kirjeid."
-  },
-  "userAccessSelectedCollections": {
-    "message": "See kasutaja pääseb ligi ja saab muuta ainult valitud kollektsioone."
-  },
   "search": {
     "message": "Otsi"
   },
   "invited": {
     "message": "Kutsutud"
-  },
-  "accepted": {
-    "message": "Nõustunud"
   },
   "confirmed": {
     "message": "Kinnitatud"
@@ -2779,14 +3302,14 @@
   "userDesc": {
     "message": "Tavaline kasutaja, kel on ligipääsu organisatsiooni kirjetele."
   },
-  "manager": {
-    "message": "Haldaja"
-  },
-  "managerDesc": {
-    "message": "Administraatorid pääsevad ligi ja saavad hallata organisatsiooni poolt määratud kollektsioone."
-  },
   "all": {
     "message": "Kõik"
+  },
+  "addAccess": {
+    "message": "Anna Juurdepääs"
+  },
+  "addAccessFilter": {
+    "message": "Piira Juurdepääsu"
   },
   "refresh": {
     "message": "Värskenda"
@@ -2822,7 +3345,7 @@
     "message": "CLI"
   },
   "bitWebVault": {
-    "message": "Bitwarden Web vault"
+    "message": "Bitwarden Web Vault"
   },
   "bitSecretsManager": {
     "message": "Bitwarden Secrets Manager"
@@ -2849,13 +3372,17 @@
     "message": "Sisselogimine nurjus vale kaheastmelise kinnituse tõttu."
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "Vale parool"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "Vale kood"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "Vale PIN-kood"
+  },
+  "pin": {
+    "message": "PIN",
+    "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
   },
   "exportedVault": {
     "message": "Eksportis hoidla."
@@ -2902,8 +3429,11 @@
       }
     }
   },
-  "viewAllLoginOptions": {
+  "viewAllLogInOptions": {
     "message": "View all log in options"
+  },
+  "viewAllLoginOptions": {
+    "message": "Vaata kõiki sisselogimise valikuid"
   },
   "viewedItemId": {
     "message": "Vaatas kirjet $ID$.",
@@ -2933,7 +3463,7 @@
     }
   },
   "viewedCardNumberItemId": {
-    "message": "Viewed Card Number for item $ID$.",
+    "message": "Vaatas $ID$ kirje pangakaardi numbrit.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -2951,7 +3481,7 @@
     }
   },
   "viewCollectionWithName": {
-    "message": "View collection - $NAME$",
+    "message": "Vaata kogumikku - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2960,7 +3490,7 @@
     }
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Muuda kirjet - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3023,7 +3553,7 @@
     }
   },
   "deletedCollections": {
-    "message": "Deleted collections"
+    "message": "Kustutatud kogumikud"
   },
   "deletedCollectionId": {
     "message": "Kustutas kollektsiooni $ID$.",
@@ -3071,7 +3601,7 @@
     }
   },
   "deletedManyGroups": {
-    "message": "Deleted $QUANTITY$ group(s).",
+    "message": "Edukalt $QUANTITY$ grupp(i) kustutatud.",
     "placeholders": {
       "quantity": {
         "content": "$1",
@@ -3098,7 +3628,7 @@
     }
   },
   "revokedUserId": {
-    "message": "Revoked organization access for $ID$.",
+    "message": "Kasutaja $ID$ ligipääs organisatsioonile eemaldatud.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3107,7 +3637,7 @@
     }
   },
   "restoredUserId": {
-    "message": "Restored organization access for $ID$.",
+    "message": "Kasutaja $ID$ juurdepääs organisatsioonile taastatud.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3116,7 +3646,7 @@
     }
   },
   "revokeUserId": {
-    "message": "Revoke $ID$ access",
+    "message": "Eemalda kasutaja $ID$ juurdepääs",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3235,6 +3765,27 @@
   "device": {
     "message": "Seade"
   },
+  "creatingAccountOn": {
+    "message": "Konto loomise asukoht"
+  },
+  "checkYourEmail": {
+    "message": "Kontrolli oma e-posti"
+  },
+  "followTheLinkInTheEmailSentTo": {
+    "message": "Ava sulle emailiga saadetud link"
+  },
+  "andContinueCreatingYourAccount": {
+    "message": "ja jätka konto loomist."
+  },
+  "noEmail": {
+    "message": "Pole emaili?"
+  },
+  "goBack": {
+    "message": "Tagasi"
+  },
+  "toEditYourEmailAddress": {
+    "message": "et muuta oma meiliaadressi."
+  },
   "view": {
     "message": "Vaata"
   },
@@ -3316,6 +3867,9 @@
   "emailVerified": {
     "message": "E-posti aadress on kinnitatud."
   },
+  "emailVerifiedV2": {
+    "message": "Email kinnitatud"
+  },
   "emailVerifiedFailed": {
     "message": "E-posti kinnitamine nurjus. Proovi uut kinnituskirja saata."
   },
@@ -3328,14 +3882,78 @@
   "updateBrowser": {
     "message": "Uuenda brauserit"
   },
+  "generatingRiskInsights": {
+    "message": "Generating your risk insights..."
+  },
   "updateBrowserDesc": {
     "message": "Kasutad brauserit, mida ei toetata. Veebihoidla ei pruugi hästi töötada."
+  },
+  "freeTrialEndPromptCount": {
+    "message": "Your free trial ends in $COUNT$ days.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, your free trial ends in $COUNT$ days.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, your free trial ends tomorrow.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Your free trial ends tomorrow."
+  },
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, your free trial ends today.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Your free trial ends today."
+  },
+  "clickHereToAddPaymentMethod": {
+    "message": "Click here to add a payment method."
   },
   "joinOrganization": {
     "message": "Liitu organisatsiooniga"
   },
+  "joinOrganizationName": {
+    "message": "Join $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "joinOrganizationDesc": {
     "message": "Sind on kutsutud ülal oleva organisatsiooniga liituma. Liitumise kinnitamiseks pead oma Bitwardeni kontosse sisse logima. Kui sul ei ole veel kontot, saad selle luua."
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Lõpeta organisatsiooniga liitumine määrates ülemparool."
   },
   "inviteAccepted": {
     "message": "Kutse on vastu võetud"
@@ -3344,7 +3962,7 @@
     "message": "Pääsed organisatsiooni kirjetele ligi niipea, kui administraator sinu liikmelisuse kinnitab. Teavitame sind sellest e-posti teel."
   },
   "inviteInitAcceptedDesc": {
-    "message": "You can now access this organization."
+    "message": "Sul on nüüd ligipääs sellele organisatsioonile."
   },
   "inviteAcceptFailed": {
     "message": "Kutse vastuvõtmine nurjus. Palu organisatsiooni administraatoril uus kutse saata."
@@ -3382,17 +4000,20 @@
   "deleteRecoverConfirmDesc": {
     "message": "Oled avaldanud soovi oma Bitwardeni konto kustutamiseks. Selle kinnitamiseks kliki allolevale nupule."
   },
+  "deleteRecoverOrgConfirmDesc": {
+    "message": "Kas sa oled kindel, et soovid kustudada oma Bitwardeni organisatsiooni?"
+  },
   "myOrganization": {
     "message": "Minu organisatsioon"
   },
   "organizationInfo": {
-    "message": "Organization info"
+    "message": "Organisatsiooni info"
   },
   "deleteOrganization": {
     "message": "Kustuta organisatsioon"
   },
   "deletingOrganizationContentWarning": {
-    "message": "Enter the master password to confirm deletion of $ORGANIZATION$ and all associated data. Vault data in $ORGANIZATION$ includes:",
+    "message": "Sisesta ülemparool, et kinnitada organisatsiooni $ORGANIZATION$ ja sellega seotud andmete kustutamise. $ORGANIZATION$ hoidla andmed sisaldavad:",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3401,10 +4022,10 @@
     }
   },
   "deletingOrganizationActiveUserAccountsWarning": {
-    "message": "User accounts will remain active after deletion but will no longer be associated to this organization."
+    "message": "Kasutajate kontod jäävad aktiivseks peale kustutamist, aga pole siis enam seotud selle organisatsiooniga."
   },
   "deletingOrganizationIsPermanentWarning": {
-    "message": "Deleting $ORGANIZATION$ is permanent and irreversible.",
+    "message": "Organisatsiooni $ORGANIZATION$ kustutamine on lõplik ja pöördumatu.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3509,14 +4130,14 @@
     "message": "Määra maksimaalne kasutajate limiit. Limiidi täitumisel ei saa enam uusi kasutajaid kutsuda."
   },
   "limitSmSubscriptionDesc": {
-    "message": "Set a seat limit for your Secrets Manager subscription. Once this limit is reached, you will not be able to invite new members."
+    "message": "Määra maksimaalne Secrets Manageri kasutajate limiit. Limiidi täitumisel ei saa enam uusi liikmeid kutsuda."
   },
   "maxSeatLimit": {
-    "message": "Maksimaalne kasutajate limiit (valikuline)",
+    "message": "Kasutajate limiit (valikuline)",
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "maxSeatCost": {
-    "message": "Max potential seat cost"
+    "message": "Suurim võimalik hind inimese kohta"
   },
   "addSeats": {
     "message": "Lisa kasutajaid",
@@ -3527,7 +4148,7 @@
     "description": "Seat = User Seat"
   },
   "subscriptionDesc": {
-    "message": "Adjustments to your subscription will result in prorated changes to your billing totals. If newly invited users exceed your subscription seats, you will immediately receive a prorated charge for the additional users."
+    "message": "Muudatused sinu tellimusele kajastuvad arve lõppsummas. Kui sinu kasutajate arv ületab tellimuse kohtade arvu, saad kohe arve uute kasutajate eest."
   },
   "subscriptionUserSeats": {
     "message": "Sinu tellimus lubab kasutada/luua kokku $COUNT$ kasutajakontot.",
@@ -3539,28 +4160,34 @@
     }
   },
   "limitSubscription": {
-    "message": "Limit subscription (optional)"
+    "message": "Määra kasutajate ülempiir (valikuline)"
   },
   "subscriptionSeats": {
-    "message": "Subscription seats"
+    "message": "Tellimuse kasutajate arv"
   },
   "subscriptionUpdated": {
-    "message": "Subscription updated"
+    "message": "Tellimus uuendatud"
   },
   "subscribedToSecretsManager": {
-    "message": "Subscription updated. You now have access to Secrets Manager."
+    "message": "Tellimus uuendatud. Nüüd on sul ligipääs Secrets Managerile."
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Lisavalikud"
   },
   "additionalOptionsDesc": {
-    "message": "For additional help in managing your subscription, please contact Customer Support."
+    "message": "Küsimustega seoses oma tellimuse haldamisega kontakteeruge Kasutajatoega."
   },
   "subscriptionUserSeatsUnlimitedAutoscale": {
-    "message": "Adjustments to your subscription will result in prorated changes to your billing totals. If newly invited members exceed your subscription seats, you will immediately receive a prorated charge for the additional members."
+    "message": "Muudatused sinu tellimusele kajastuvad arve lõppsummas. Kui sinu liikmete arv ületab tellimuse kohtade arvu, saad kohe arve uute liikmete eest."
+  },
+  "smStandaloneTrialSeatCountUpdateMessageFragment1": {
+    "message": "Kui sa soovid lisada tootesse"
+  },
+  "smStandaloneTrialSeatCountUpdateMessageFragment2": {
+    "message": "teisi liikmeid ilma teiste pakkumisteta, võta ühendust osakonnaga"
   },
   "subscriptionUserSeatsLimitedAutoscale": {
-    "message": "Adjustments to your subscription will result in prorated changes to your billing totals. If newly invited members exceed your subscription seats, you will immediately receive a prorated charge for the additional members until your $MAX$ seat limit is reached.",
+    "message": "Muudatused sinu tellimusele kajastuvad arve lõppsummas. Kui sinu liikmete arv ületab tellimuse kohtade arvu, saad kohe arve uute liikmete eest, kuni su maksimaalne liikmete arv ($MAX$) on saavutatud.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -3569,7 +4196,7 @@
     }
   },
   "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
-    "message": "You can invite up to $COUNT$ members for no additional charge. Contact Customer Support to upgrade your plan and invite more members.",
+    "message": "Sa saad kutsuda tasuta kuni $COUNT$ liiget. Kontakteeru kasutajatoega, et muuta oma tellimust ja kutsuda veel rohkem liikmeid.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3578,7 +4205,7 @@
     }
   },
   "subscriptionFreePlan": {
-    "message": "You cannot invite more than $COUNT$ members without upgrading your plan.",
+    "message": "Sa ei saa kutsuda rohkem kui $COUNT$ liiget ilma oma tellimust muutmata.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3587,7 +4214,7 @@
     }
   },
   "subscriptionUpgrade": {
-    "message": "You cannot invite more than $COUNT$ members without upgrading your plan.",
+    "message": "Sa ei saa kutsuda rohkem kui $COUNT$ liiget ilma oma tellimust muutmata.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3596,7 +4223,7 @@
     }
   },
   "subscriptionSponsoredFamiliesPlan": {
-    "message": "Your subscription allows for a total of $COUNT$ members. Your plan is sponsored and billed to an external organization.",
+    "message": "Sinu tellimust saab kasutada korraga kuni $COUNT$ liiget. Seda tellimust haldab väline organisatsioon.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3605,7 +4232,16 @@
     }
   },
   "subscriptionMaxReached": {
-    "message": "Adjustments to your subscription will result in prorated changes to your billing totals. You cannot invite more than $COUNT$ members without increasing your subscription seats.",
+    "message": "Muudatused sinu tellimusele kajastuvad arve lõppsummas. Sa ei saa kutsuda rohkem kui $COUNT$ liiget ilma oma tellimuse kasutajate arvu suurendamata.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "subscriptionSeatMaxReached": {
+    "message": "Sa ei saa kutsuda rohkem kui $COUNT$ liiget ilma oma tellimuse kasutajate arvu muutmata.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3634,6 +4270,12 @@
       }
     }
   },
+  "encryptionKeyUpdateCannotProceed": {
+    "message": "Encryption key update cannot proceed"
+  },
+  "keyUpdateFoldersFailed": {
+    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
+  },
   "keyUpdated": {
     "message": "Võti on uuendatud"
   },
@@ -3641,7 +4283,7 @@
     "message": "Uuenda krüpteerimisvõtit"
   },
   "updateEncryptionSchemeDesc": {
-    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
+    "message": "Me muutsime krüpteerimise meetodit, et tagada parem turvalisus. Uuenda oma krüpteerimisvõtit sisestades enda ülemparool."
   },
   "updateEncryptionKeyWarning": {
     "message": "Pärast krüpteerimisvõtme uuendamist pead kõikides seadmetes, kus Bitwardeni rakendust kasutad, oma kontosse uuesti sisse logima (nt nutitelefonis ja brauseris). Välja- ja sisselogimise (mis ühtlasi laadib ka uue krüpteerimisvõtme) nurjumine võib tingida andmete riknemise. Üritame sinu seadmetest ise välja logida, aga see võib võtta natukene aega."
@@ -3676,6 +4318,21 @@
   "nothingSelected": {
     "message": "Midagi pole valitud."
   },
+  "receiveMarketingEmailsV2": {
+    "message": "Soovin saada nõuandeid, uudiseid ja pakkumisi Bitwardenilt oma postkasti."
+  },
+  "unsubscribe": {
+    "message": "Lõpeta tellimus"
+  },
+  "atAnyTime": {
+    "message": "iga hetk."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "Jätkates nõustud"
+  },
+  "and": {
+    "message": "ja"
+  },
   "acceptPolicies": {
     "message": "Märkeruudu markeerimisel nõustud järgnevaga:"
   },
@@ -3694,11 +4351,14 @@
   "vaultTimeout": {
     "message": "Hoidla ajalõpp"
   },
+  "vaultTimeout1": {
+    "message": "Timeout"
+  },
   "vaultTimeoutDesc": {
     "message": "Vali aeg, peale mida sooritatakse allpool valitud tegevus."
   },
   "vaultTimeoutLogoutDesc": {
-    "message": "Choose when your vault will be logged out."
+    "message": "Vali millal logitakse sind hoidlast välja."
   },
   "oneMinute": {
     "message": "1 minuti pärast"
@@ -3726,7 +4386,7 @@
     "description": "ex. Date this item was updated"
   },
   "dateCreated": {
-    "message": "Created",
+    "message": "Loodud",
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
@@ -3734,19 +4394,19 @@
     "description": "ex. Date this password was updated"
   },
   "organizationIsDisabled": {
-    "message": "Organisatsioon on välja lülitatud."
+    "message": "Organisatsioon on määramata ajaks peatatud"
   },
   "secretsAccessSuspended": {
-    "message": "Suspended organizations cannot be accessed. Please contact your organization owner for assistance."
+    "message": "Peatatud organisatsioonidele ei ole võimalik ligi pääseda. Palun kontakteeruge oma organisatsiooni haldajaga."
   },
   "secretsCannotCreate": {
-    "message": "Secrets cannot be created in suspended organizations. Please contact your organization owner for assistance."
+    "message": "Peatatud organisatsioonidesse ei ole võimalik salvestada uusi IT-saladusi. Palun kontakteeruge oma organisatsiooni haldajaga."
   },
   "projectsCannotCreate": {
-    "message": "Projects cannot be created in suspended organizations. Please contact your organization owner for assistance."
+    "message": "Peatatud organisatsioonides ei ole võimalik luua uusi projekte. Palun kontakteeruge oma organisatsiooni haldajaga."
   },
   "serviceAccountsCannotCreate": {
-    "message": "Service accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
+    "message": "Peatatud organisatsioonides ei ole võimalik luua uusi kontosid. Palun kontakteeruge oma organisatsiooni haldajaga."
   },
   "disabledOrganizationFilterError": {
     "message": "Organisatsiooni alla kuuluvatele kirjetele ei ole ligipääsu. Kontakteeru oma organisatsiooni omanikuga."
@@ -3759,6 +4419,9 @@
   },
   "selected": {
     "message": "Valitud"
+  },
+  "recommended": {
+    "message": "Soovituslik"
   },
   "ownership": {
     "message": "Omanik"
@@ -3801,7 +4464,7 @@
     "message": "Sellel kirjel on vanu manuseid, mille peab parandama."
   },
   "attachmentFixDescription": {
-    "message": "This attachment uses outdated encryption. Select 'Fix' to download, re-encrypt, and re-upload the attachment."
+    "message": "See manus kasutab aegunud krüpteeringut. Vajuta 'Paranda', et see fail alla laadida, uuesti krüpteerida ja üles laadida."
   },
   "fix": {
     "message": "Paranda",
@@ -3811,22 +4474,25 @@
     "message": "Hoidlas on vanu failimanuseid, mida peab enne konto krüpteerimise võtme roteerimist parandama."
   },
   "yourAccountsFingerprint": {
-    "message": "Konto sõrmejälje fraas",
+    "message": "Sinu konto unikaalne sõnajada",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintEnsureIntegrityVerify": {
-    "message": "Selleks, et sinu krüpteeringu terviklikkus säiliks, pead jätkamiseks kinnitama kasutaja sõrmejälje fraasi.",
+    "message": "Selleks, et sinu krüpteerimisvõtmete terviklikkus säiliks, pead jätkamiseks kinnitama kasutaja unikaalse sõnajada.",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintMatchInfo": {
-    "message": "Please make sure your vault is unlocked and Fingerprint phrase matches the other device."
+    "message": "Palun kontrolli, et sinu hoidla on avatud ja unikaalne sõnajada ühtib teise seadmega."
   },
   "fingerprintPhraseHeader": {
-    "message": "Fingerprint phrase"
+    "message": "Unikaalne sõnajada"
   },
   "dontAskFingerprintAgain": {
-    "message": "Ära enam sõrmejälje fraasi kinnitamist küsi",
+    "message": "Ära enam küsi kutsutud kasutajate unikaalse sõnajada kinnitamist (mittesoovitatav)",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
   },
   "free": {
     "message": "Tasuta",
@@ -3873,13 +4539,13 @@
     "message": "Klooni"
   },
   "masterPassPolicyTitle": {
-    "message": "Master password requirements"
+    "message": "Ülemparooli nõuded"
   },
   "masterPassPolicyDesc": {
     "message": "Määra minimaalsed ülemparooli tugevuse tingimused."
   },
   "twoStepLoginPolicyTitle": {
-    "message": "Require two-step login"
+    "message": "Nõua kahe-astmelist sisselogimist"
   },
   "twoStepLoginPolicyDesc": {
     "message": "Nõua, et kasutajad seadistaksid oma kontodes kaheastmelise kinnituse."
@@ -3941,8 +4607,9 @@
   "minimumNumberOfWords": {
     "message": "Minimaalne sõnade arv"
   },
-  "defaultType": {
-    "message": "Vaiketüüp"
+  "overridePasswordTypePolicy": {
+    "message": "Parooli Tüüp",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Kasutaja eelistus"
@@ -3958,7 +4625,7 @@
   },
   "lock": {
     "message": "Lukusta",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Prügikast",
@@ -4057,6 +4724,12 @@
   "ssoLogInWithOrgIdentifier": {
     "message": "Sisselogimine läbi organisatsiooni ühekordse sisselogimise portaali. Jätkamiseks sisesta ettevõtte identifikaator."
   },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Enter your organization's SSO identifier to begin"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "To log in with your SSO provider, enter your organization's SSO identifier to begin. You may need to enter this SSO identifier when you log in from a new device."
+  },
   "enterpriseSingleSignOn": {
     "message": "Ettevõtte Single Sign-On"
   },
@@ -4064,10 +4737,13 @@
     "message": "Võid nüüd selle vahelehe sulgeda ning jätkata brauseri laienduses."
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "Edukalt sisse logitud"
   },
   "thisWindowWillCloseIn5Seconds": {
-    "message": "This window will automatically close in 5 seconds"
+    "message": "See aken sulgub automaatselt 5 sekundi pärast"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
   },
   "includeAllTeamsFeatures": {
     "message": "Kõik Meeskonna funktsioonid, lisaks:"
@@ -4110,7 +4786,7 @@
     "message": "Ühenda SSO lahti"
   },
   "unlinkSsoConfirmation": {
-    "message": "Are you sure you want to unlink SSO for this organization?"
+    "message": "Kas oled kindel, et soovid eemaldada SSO selle organisatsiooni jaoks?"
   },
   "linkSso": {
     "message": "Ühenda SSO"
@@ -4121,11 +4797,17 @@
   "singleOrgDesc": {
     "message": "Keela kasutajatel teiste organisatsioonidega liitumine."
   },
+  "singleOrgPolicyDesc": {
+    "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "Sinu praeguse organisatsiooni poliitika kohaselt ei saa sa olla rohkem kui ühe organisatsiooni liige. Palun kontakteeru oma praeguse organisatsiooni administraatoritega või kasuta liitumiseks teist Bitwardeni kontot."
   },
   "singleOrgPolicyWarning": {
     "message": "Sisselülitamisel eemaldatakse organisatsioonist liikmed, kes on juba mõne teise organisatsiooniga liitunud. See ei puuduta liikmeid, kelle staatus on Omanik või Administraator."
+  },
+  "singleOrgPolicyMemberWarning": {
+    "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
   },
   "requireSso": {
     "message": "Single Sign-On autentimine"
@@ -4219,11 +4901,14 @@
     "message": "Keelatud"
   },
   "revoked": {
-    "message": "Revoked"
+    "message": "Eemaldatud"
   },
   "sendLink": {
     "message": "Sendi link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copyLink": {
+    "message": "Kopeeri link"
   },
   "copySendLink": {
     "message": "Kopeeri Sendi link",
@@ -4275,7 +4960,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "downloadAttachments": {
-    "message": "Download attachments"
+    "message": "Lae manused alla"
   },
   "sendAccessUnavailable": {
     "message": "Send, millele üritad ligi pääseda, ei eksisteeri või see pole enam saadaval.",
@@ -4525,12 +5210,6 @@
   "permission": {
     "message": "Permission"
   },
-  "managerPermissions": {
-    "message": "Manager Permissions"
-  },
-  "adminPermissions": {
-    "message": "Admin Permissions"
-  },
   "accessEventLogs": {
     "message": "Ligipääs sündmuste logile"
   },
@@ -4554,15 +5233,6 @@
   },
   "deleteAnyCollection": {
     "message": "Kustutada mistahes kollektsiooni"
-  },
-  "manageAssignedCollections": {
-    "message": "Saab hallata määratud kollektsioone"
-  },
-  "editAssignedCollections": {
-    "message": "Hallata määratud kollektsioone"
-  },
-  "deleteAssignedCollections": {
-    "message": "Kustutada määratud kollektsioone"
   },
   "manageGroups": {
     "message": "Gruppide haldamine"
@@ -4649,6 +5319,75 @@
     "message": "või",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Arendus- ja IT-tiimid kasutavad Bitwarden Secrets Manageri, et turvaliselt hallata ja hoiustada oma infrastruktuuri ja süsteemide saladusi."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Koguge IT-saladused ühte kohta."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Hoiusta ja halda ohutult IT-saladusi ühes asukohas, et vältida nende kadumist organisatsioonis laiali valgudes."
+  },
+  "preventSecretLeaks": {
+    "message": "Väldi saladuste lekkimist."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Kaitse IT-saladusi täieliku krüpteerimisega. Ütle ei nende koodibaasi lisamisele või jagamisele läbi .env failide."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Paranda programmeerijate ja arendajate produktiivsust."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Kasuta IT-saladusi otse läbi programmi ja loo uusi saladusi masinat peatamata, nii et arendajad saavad keskenduda sellele, mis on kõige tähtsam, näiteks vigade parandamisele."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Paranda firma turvalisust."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Säilita kontroll masinate ja inimeste ligipääsu üle IT-saladustele läbi SSO kasutamise, sündmuste ajaloo ja ligipääsu uuendamise."
+  },
+  "tryItNow": {
+    "message": "Proovi kohe"
+  },
+  "sendRequest": {
+    "message": "Saada taotlus"
+  },
+  "addANote": {
+    "message": "Lisa märge"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Veel tooteid Bitwardenilt"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Esita taotlus Secrets Manageri kasutamiseks"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "Sul on vaja enda administraatori nõusolekut Secrets Manageri proovimiseks."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Secrets Manageri kasutamise taotlus saadetud administraatorile."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Tere!\n\nEsitan palve Bitwarden Secrets Manageri kasutamiseks meie tiimi jaoks. Teie toetus oleks meile suureks abiks!\n\nBitwarden Secrets Manager on täielikult krüpteeritud IT-saladuste (näiteks API võtmete, andmebaasi paroolide ja autentiteerimise sertifikaatide) haldamise lahendus, mis on mõeldud nende turvaliselt hoiustamiseks, jagamiseks ja kasutamiseks.\n\nSecrets Manager aitab meil:\n\n- Parandada turvalisust\n- Muuta toimingud sujuvamaks\n- Takistada võimalikke andmelekkeid\n\nEt esitada taotlus tasuta prooviajaks, palun kontakteeruge Bitwardeniga.\n\nSuur tänu teie abi eest!"
+  },
+  "giveMembersAccess": {
+    "message": "Give members access:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "vaata ja vali liikmeid, kellele sa soovid anda ligipääsu Secrets Managerile."
+  },
+  "openYourOrganizations": {
+    "message": "Open your organization's"
+  },
+  "usingTheMenuSelect": {
+    "message": "Using the menu, select"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "to grant access to selected members."
+  },
   "sendVaultCardTryItNow": {
     "message": "proovi ise järele",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, or **try it now**.'"
@@ -4673,6 +5412,10 @@
         "example": "An email address"
       }
     }
+  },
+  "viewSend": {
+    "message": "View Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Selle Sendi looja ei soovi oma e-posti aadressi avaldada. Palun veendu, et see pärineb usaldusväärsest allikast, enne kui asud selle sisu kasutama või faile alla laadima.",
@@ -4891,6 +5634,12 @@
   "bulkFilteredMessage": {
     "message": "Välja jäetud, ei rakendu sellel tegevuse puhul."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Non-compliant members"
+  },
+  "nonCompliantMembersError": {
+    "message": "Members that are non-compliant with the Single organization or Two-step login policy cannot be restored until they adhere to the policy requirements"
+  },
   "fingerprint": {
     "message": "Sõrmejälg"
   },
@@ -4925,10 +5674,10 @@
     "message": "Provider successfully set up"
   },
   "clients": {
-    "message": "Clients"
+    "message": "Kliendid"
   },
   "client": {
-    "message": "Client",
+    "message": "Klient",
     "description": "This is used as a table header to describe which client application created an event log."
   },
   "providerAdmin": {
@@ -5008,7 +5757,7 @@
     }
   },
   "providerIsDisabled": {
-    "message": "Provider suspended"
+    "message": "Teenusepakkuja on peatatud määramata ajaks"
   },
   "providerUpdated": {
     "message": "Provider saved"
@@ -5052,6 +5801,21 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
   },
+  "automaticAppLogin": {
+    "message": "Logi kasutajad lubatud rakendustesse automaatselt sisse"
+  },
+  "automaticAppLoginDesc": {
+    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider."
+  },
+  "automaticAppLoginIdpHostLabel": {
+    "message": "Identity provider host"
+  },
+  "automaticAppLoginIdpHostDesc": {
+    "message": "Enter your identity provider host URL. Enter multiple URLs by separating with a comma."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
+  },
   "maximumVaultTimeout": {
     "message": "Hoidla ajalõpp"
   },
@@ -5072,6 +5836,19 @@
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Organisatsiooni poliitikad mõjutavad sinu hoidla ajalõppu. Maksimaalne lubatud hoidla ajalõpp on $HOURS$ tund(i) ja $MINUTES$ minut(it)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5108,9 +5885,6 @@
         "example": "Lock"
       }
     }
-  },
-  "customVaultTimeout": {
-    "message": "Custom vault timeout"
   },
   "vaultTimeoutToLarge": {
     "message": "Your vault timeout exceeds the restriction set by your organization."
@@ -5266,43 +6040,43 @@
     "message": "Single sign-on configuration saved"
   },
   "sponsoredFamilies": {
-    "message": "Free Bitwarden Families"
+    "message": "Tasuta Bitwarden Families pakett"
   },
   "sponsoredFamiliesEligible": {
-    "message": "You and your family are eligible for Free Bitwarden Families. Redeem with your personal email to keep your data secure even when you are not at work."
+    "message": "Sina ja su pere olete valitud tasuta Bitwarden Families paketi saamiseks. Lunasta see läbi oma emaili, et hoida oma andmed ohutus kohas isegi kui sa ei ole tööl."
   },
   "sponsoredFamiliesEligibleCard": {
-    "message": "Redeem your Free Bitwarden for Families plan today to keep your data secure even when you are not at work."
+    "message": "Lunasta tasuta pakett Bitwarden for Families juba täna, et kaitsta oma andmeid isegi siis, kui sa ei ole tööl."
   },
   "sponsoredFamiliesInclude": {
-    "message": "The Bitwarden for Families plan include"
+    "message": "Pakett Bitwarden for Families sisaldab"
   },
   "sponsoredFamiliesPremiumAccess": {
-    "message": "Premium access for up to 6 users"
+    "message": "Ligipääs Preemiumile kuni kuuele inimesele"
   },
   "sponsoredFamiliesSharedCollections": {
-    "message": "Shared collections for Family secrets"
+    "message": "Jagatud kogumikud pere saladuste talletamiseks"
   },
   "badToken": {
-    "message": "The link is no longer valid. Please have the sponsor resend the offer."
+    "message": "See link ei ole enam aktiivne. Uue lingi saamiseks kontakteeruge oma sponsoriga, et ta saadaks pakkumise uuesti."
   },
   "reclaimedFreePlan": {
-    "message": "Reclaimed free plan"
+    "message": "Uuendatud tasuta pakett"
   },
   "redeem": {
-    "message": "Redeem"
+    "message": "Lunasta"
   },
   "sponsoredFamiliesSelectOffer": {
-    "message": "Select the organization you would like sponsored"
+    "message": "Vali organisatsioon, mida soovid sponsoreerida"
   },
   "familiesSponsoringOrgSelect": {
-    "message": "Which Free Families offer would you like to redeem?"
+    "message": "Millist Free Families pakkumist soovid sa lunastada?"
   },
   "sponsoredFamiliesEmail": {
-    "message": "Enter your personal email to redeem Bitwarden Families"
+    "message": "Sisesta oma isiklik email, et lunastada Bitwarden Families"
   },
   "sponsoredFamiliesLeaveCopy": {
-    "message": "If you remove an offer or are removed from the sponsoring organization, your Families sponsorship will expire at the next renewal date."
+    "message": "Kui sa lõpetad pakkumise, või sind eemaldatakse sponsoreerivast organisatsioonist, siis sinu Families sponsorlus lõpetatakse perioodi lõpus."
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "Accept offer for an existing organization or create a new Families organization."
@@ -5362,19 +6136,16 @@
     "message": "Recipient"
   },
   "removeSponsorship": {
-    "message": "Remove sponsorship"
+    "message": "Eemalda sponsorlus"
   },
   "removeSponsorshipConfirmation": {
-    "message": "After removing a sponsorship, you will be responsible for this subscription and related invoices. Are you sure you want to continue?"
+    "message": "Peale sponsorluse eemaldamist vastutad sa selle tellimusega seotud arvete eest. Kas oled kindel, et soovid jätkata?"
   },
   "sponsorshipCreated": {
-    "message": "Sponsorship created"
+    "message": "Sponsorlus loodud"
   },
   "emailSent": {
     "message": "E-kiri on saadetud"
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "After removing this account, the Families plan sponsorship will expire at the end of the billing period. You will not be able to redeem a new sponsorship offer until the existing one expires. Are you sure you want to continue?"
   },
   "removeSponsorshipSuccess": {
     "message": "Sponsorship removed"
@@ -5395,16 +6166,19 @@
     "message": "Kood on saadetud"
   },
   "verificationCode": {
-    "message": "Verification code"
+    "message": "Kinnituskood"
   },
   "confirmIdentity": {
     "message": "Jätkamiseks kinnita oma identiteet."
   },
   "verificationCodeRequired": {
-    "message": "Verification code is required."
+    "message": "Kinnituskood on nõutav."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "The authentication was cancelled or took too long. Please try again."
   },
   "invalidVerificationCode": {
-    "message": "Invalid verification code"
+    "message": "Vale kinnituskood"
   },
   "convertOrganizationEncryptionDesc": {
     "message": "$ORGANIZATION$ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.",
@@ -5416,30 +6190,30 @@
     }
   },
   "leaveOrganization": {
-    "message": "Leave organization"
+    "message": "Lahku organisatsioonist"
   },
   "removeMasterPassword": {
-    "message": "Remove master password"
+    "message": "Eemalda ülemparool"
   },
   "removedMasterPassword": {
-    "message": "Master password removed"
+    "message": "Ülemparool eemaldatud"
   },
   "allowSso": {
-    "message": "Allow SSO authentication"
+    "message": "Lülita SSO autentiteerimine sisse"
   },
   "allowSsoDesc": {
     "message": "Once set up, your configuration will be saved and members will be able to authenticate using their Identity Provider credentials."
   },
   "ssoPolicyHelpStart": {
-    "message": "Use the",
+    "message": "Kasuta",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "\"nõua ühekordse sisselogimise autentimise (SSO) kasutamist\",",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
-    "message": "to require all members to log in with SSO.",
+    "message": "et nõuda liikmetelt SSO kasutamist.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "memberDecryptionOption": {
@@ -5467,10 +6241,10 @@
     "message": "\"Login with SSO and Key Connector Decryption\" is activated. This policy will only apply to owners and admins."
   },
   "enabledSso": {
-    "message": "SSO turned on"
+    "message": "SSO sisse lülitatud"
   },
   "disabledSso": {
-    "message": "SSO turned on"
+    "message": "SSO välja lülitatud"
   },
   "enabledKeyConnector": {
     "message": "Key Connector activated"
@@ -5494,7 +6268,7 @@
     "message": "New Families organization"
   },
   "acceptOffer": {
-    "message": "Accept offer"
+    "message": "Nõustu pakkumisega"
   },
   "sponsoringOrg": {
     "message": "Sponsoring organization"
@@ -5517,8 +6291,8 @@
   "viewBillingSyncToken": {
     "message": "View billing sync token"
   },
-  "generateBillingSyncToken": {
-    "message": "Generate billing sync token"
+  "generateBillingToken": {
+    "message": "Generate billing token"
   },
   "copyPasteBillingSync": {
     "message": "Copy and paste this token into the billing sync settings of your self-hosted organization."
@@ -5526,8 +6300,8 @@
   "billingSyncCanAccess": {
     "message": "Your billing sync token can access and edit this organization's subscription settings."
   },
-  "manageBillingSync": {
-    "message": "Manage billing sync"
+  "manageBillingTokenSync": {
+    "message": "Manage Billing Token"
   },
   "setUpBillingSync": {
     "message": "Set up billing sync"
@@ -5544,6 +6318,39 @@
   "rotateBillingSyncTokenTitle": {
     "message": "Rotating the billing sync token will invalidate the previous token."
   },
+  "selfHostedServer": {
+    "message": "self-hosted"
+  },
+  "customEnvironment": {
+    "message": "Custom environment"
+  },
+  "selfHostedBaseUrlHint": {
+    "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "For advanced configuration, you can specify the base URL of each service independently."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "You must add either the base Server URL or at least one custom environment."
+  },
+  "apiUrl": {
+    "message": "API server URL"
+  },
+  "webVaultUrl": {
+    "message": "Web vault server URL"
+  },
+  "identityUrl": {
+    "message": "Identity server URL"
+  },
+  "notificationsUrl": {
+    "message": "Notifications server URL"
+  },
+  "iconsUrl": {
+    "message": "Icons server URL"
+  },
+  "environmentSaved": {
+    "message": "Environment URLs saved"
+  },
   "selfHostingTitle": {
     "message": "Self-hosting"
   },
@@ -5553,14 +6360,14 @@
   "billingSyncApiKeyRotated": {
     "message": "Token rotated"
   },
-  "billingSyncDesc": {
-    "message": "Billing sync unlocks Families sponsorships and automatic license syncing on your server. After making updates in the Bitwarden cloud server, select Sync License to apply changes."
-  },
   "billingSyncKeyDesc": {
     "message": "A billing sync token from your cloud organization's subscription settings is required to complete this form."
   },
   "billingSyncKey": {
     "message": "Billing sync token"
+  },
+  "automaticBillingSyncDesc": {
+    "message": "Automatic sync unlocks Families sponsorships and allows you to sync your license without uploading a file. After making updates in the Bitwarden cloud server, select Sync License to apply changes."
   },
   "active": {
     "message": "Active"
@@ -5572,16 +6379,16 @@
     "message": "Sent (awaiting sync)"
   },
   "sent": {
-    "message": "Sent"
+    "message": "Saadetud"
   },
   "requestRemoved": {
     "message": "Removed (awaiting sync)"
   },
   "requested": {
-    "message": "Requested"
+    "message": "Taotlus esitatud"
   },
   "formErrorSummaryPlural": {
-    "message": "$COUNT$ fields above need your attention.",
+    "message": "$COUNT$ välja nõuab tähelepanu.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5590,10 +6397,10 @@
     }
   },
   "formErrorSummarySingle": {
-    "message": "1 field above needs your attention."
+    "message": "1 väli nõuab tähelepanu."
   },
   "fieldRequiredError": {
-    "message": "$FIELDNAME$ is required.",
+    "message": "$FIELDNAME$ on nõutud.",
     "placeholders": {
       "fieldname": {
         "content": "$1",
@@ -5602,7 +6409,7 @@
     }
   },
   "required": {
-    "message": "required"
+    "message": "nõutud"
   },
   "charactersCurrentAndMaximum": {
     "message": "$CURRENT$/$MAX$ character maximum",
@@ -5628,6 +6435,9 @@
   },
   "idpSingleSignOnServiceUrlRequired": {
     "message": "Required if Entity ID is not a URL."
+  },
+  "offerNoLongerValid": {
+    "message": "This offer is no longer valid. Contact your organization administrators for more information."
   },
   "openIdOptionalCustomizations": {
     "message": "Optional customizations"
@@ -5703,7 +6513,8 @@
     "message": "Konto seaded"
   },
   "generator": {
-    "message": "Genereerija"
+    "message": "Genereerija",
+    "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
     "message": "Mida sa soovid genereerida?"
@@ -5716,6 +6527,43 @@
   },
   "generateUsername": {
     "message": "Genereeri kasutajanimi"
+  },
+  "generateEmail": {
+    "message": "Generate email"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Value must be between $MIN$ and $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Kasutajanime tüüp"
@@ -5739,6 +6587,26 @@
   },
   "randomWord": {
     "message": "Juhuslik sõna"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
     "message": "Teenus"
@@ -5777,8 +6645,8 @@
     }
   },
   "lastSync": {
-    "message": "Last sync",
-    "description": "Used as a prefix to indicate the last time a sync occured. Example \"Last sync 1968-11-16 00:00:00\""
+    "message": "Viimane sünkroniseerimine",
+    "description": "Used as a prefix to indicate the last time a sync occurred. Example \"Last sync 1968-11-16 00:00:00\""
   },
   "sponsorshipsSynced": {
     "message": "Self-hosted sponsorships synced."
@@ -5802,12 +6670,122 @@
   "forwardedEmailDesc": {
     "message": "Genereeri e-posti alias, kasutades selleks välist teenuspakkujat."
   },
+  "forwarderDomainName": {
+    "message": "Email domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Choose a domain that is supported by the selected service",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
+  },
+  "forwarderError": {
+    "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
+    "description": "Reports an error returned by a forwarding service to the user.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Invalid characters in domain name."
+      }
+    }
+  },
+  "forwarderGeneratedBy": {
+    "message": "Generated by Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen."
+  },
+  "forwarderGeneratedByWithWebsite": {
+    "message": "Website: $WEBSITE$. Generated by Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen.",
+    "placeholders": {
+      "WEBSITE": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
+  "forwaderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
+    "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwarderNoAccountId": {
+    "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
+    "description": "Displayed when the forwarding service fails to return an account ID.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoDomain": {
+    "message": "Invalid $SERVICENAME$ domain.",
+    "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoUrl": {
+    "message": "Invalid $SERVICENAME$ url.",
+    "description": "Displayed when the url of the forwarding service wasn't supplied.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownError": {
+    "message": "Unknown $SERVICENAME$ error occurred.",
+    "description": "Displayed when the forwarding service failed due to an unknown error.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownForwarder": {
+    "message": "Unknown forwarder: '$SERVICENAME$'.",
+    "description": "Displayed when the forwarding service is not supported.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "JustTrust.us"
+      }
+    }
+  },
   "hostname": {
     "message": "Hosti nimi",
     "description": "Part of a URL."
   },
   "apiAccessToken": {
-    "message": "API ligipääsu märk"
+    "message": "API võti"
   },
   "deviceVerification": {
     "message": "Seadme kinnitamine"
@@ -5835,57 +6813,61 @@
   },
   "scim": {
     "message": "SCIM provisioning",
-    "description": "The text, 'SCIM', is an acronymn and should not be translated."
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
   "scimDescription": {
     "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning. Find supported integrations",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
     "message": "Enable SCIM",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDescHelpText": {
     "message": "Set up your preferred identity provider by configuring the URL and SCIM API Key",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimApiKeyHelperText": {
     "message": "This API key has access to manage users within your organization. It should be kept secret."
   },
   "copyScimKey": {
     "message": "Copy the SCIM API key to your clipboard",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
     "message": "Rotate the SCIM API key",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKeyWarning": {
     "message": "Are you sure you want to rotate the SCIM API Key? The current key will no longer work for any existing integrations.",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateKey": {
     "message": "Rotate key"
   },
   "scimApiKey": {
     "message": "SCIM API key",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "copyScimUrl": {
     "message": "Copy the SCIM endpoint URL to your clipboard",
-    "description": "the text, 'SCIM' and 'URL', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimUrl": {
     "message": "SCIM URL",
-    "description": "the text, 'SCIM' and 'URL', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimApiKeyRotated": {
     "message": "SCIM API key successfully rotated",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "scimSettingsSaved": {
     "message": "SCIM settings saved",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "inputRequired": {
     "message": "Sisestus on nõutav."
@@ -5958,6 +6940,21 @@
         "example": "4"
       }
     }
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 field needs your attention."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ fields need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Launch Duo and follow the steps to finish logging in."
@@ -6086,17 +7083,17 @@
     "description": "Action to delete a single secret from the system."
   },
   "deleteSecrets": {
-    "message": "Delete secrets",
+    "message": "Kustuta IT-saladusi",
     "description": "The action to delete multiple secrets from the system."
   },
   "hardDeleteSecret": {
     "message": "Permanently delete secret"
   },
   "hardDeleteSecrets": {
-    "message": "Permanently delete secrets"
+    "message": "Kustuta valitud jäädavalt"
   },
   "secretProjectAssociationDescription": {
-    "message": "Select projects that the secret will be associated with. Only organization users with access to these projects will be able to see the secret.",
+    "message": "Vali projektid, millega see saladus seotud on. Seda saladust saavad vaadata ainult organisatsiooni kasutajad ligipääsuga nendele projektidele.",
     "description": "A prompt explaining how secrets can be associated with projects."
   },
   "selectProjects": {
@@ -6108,7 +7105,7 @@
     "description": "Label for the search bar used to search projects."
   },
   "project": {
-    "message": "Project",
+    "message": "Projekt",
     "description": "Similar to collections, projects can be used to group secrets."
   },
   "editProject": {
@@ -6140,11 +7137,11 @@
     "description": "The title for the section that deals with service accounts."
   },
   "secrets": {
-    "message": "Secrets",
+    "message": "IT-saladused",
     "description": "The title for the section of the application that deals with secrets."
   },
   "nameValuePair": {
-    "message": "Name/Value pair",
+    "message": "Nimi/Väärtus",
     "description": "Title for a name/ value pair. Secrets typically consist of a name and value pair."
   },
   "secretEdited": {
@@ -6152,7 +7149,7 @@
     "description": "Notification for the successful editing of a secret."
   },
   "secretCreated": {
-    "message": "Secret created",
+    "message": "Uus saladus loodud",
     "description": "Notification for the successful creation of a secret."
   },
   "newSecret": {
@@ -6164,15 +7161,15 @@
     "description": "Title for creating a new service account."
   },
   "secretsNoItemsTitle": {
-    "message": "No secrets to show",
+    "message": "Siin ei ole ühtegi saladust",
     "description": "Empty state to indicate that there are no secrets to display."
   },
   "secretsNoItemsMessage": {
-    "message": "To get started, add a new secret or import secrets.",
+    "message": "Alustamiseks loo uus IT-saladus või kasuta meie importimise funktsiooni.",
     "description": "Message to encourage the user to start adding secrets."
   },
   "secretsTrashNoItemsMessage": {
-    "message": "There are no secrets in the trash."
+    "message": "Prügikast on tühi."
   },
   "serviceAccountsNoItemsMessage": {
     "message": "Create a new service account to get started automating secret access.",
@@ -6183,7 +7180,7 @@
     "description": "Title to indicate that there are no service accounts to display."
   },
   "searchSecrets": {
-    "message": "Search secrets",
+    "message": "Otsi IT-saladusi",
     "description": "Placeholder text for searching secrets."
   },
   "deleteServiceAccounts": {
@@ -6246,7 +7243,7 @@
     "description": "Notification for the successful saving of a project."
   },
   "projectCreated": {
-    "message": "Project created",
+    "message": "Projekt loodud",
     "description": "Notification for the successful creation of a project."
   },
   "projectName": {
@@ -6258,21 +7255,21 @@
     "description": "Title for creating a new project."
   },
   "softDeleteSecretWarning": {
-    "message": "Deleting secrets can affect existing integrations.",
+    "message": "IT-saladuste kustutamine võib mõjuta ühendatud süsteeme.",
     "description": "Warns that deleting secrets can have consequences on integrations"
   },
   "softDeletesSuccessToast": {
-    "message": "Secrets sent to trash",
+    "message": "IT-saladused prügikasti teisaldatud",
     "description": "Notifies that the selected secrets have been moved to the trash"
   },
   "hardDeleteSecretConfirmation": {
     "message": "Are you sure you want to permanently delete this secret?"
   },
   "hardDeleteSecretsConfirmation": {
-    "message": "Are you sure you want to permanently delete these secrets?"
+    "message": "Kas sa oled kindel, et soovid kustutada need IT-saladused?"
   },
   "hardDeletesSuccessToast": {
-    "message": "Secrets permanently deleted"
+    "message": "IT-saladused lõplikult kustutatud"
   },
   "smAccess": {
     "message": "Access",
@@ -6295,7 +7292,7 @@
     "description": "Notifies that a service account has been updated"
   },
   "newSaSelectAccess": {
-    "message": "Type or select projects or secrets",
+    "message": "Trüki või vali mõni projekt või saladus",
     "description": "Instructions for selecting projects or secrets for a new service account"
   },
   "newSaTypeToFilter": {
@@ -6359,7 +7356,7 @@
     "description": "Empty state to be displayed when there are no projects to display in the list."
   },
   "projectsNoItemsMessage": {
-    "message": "Add a new project to get started organizing secrets.",
+    "message": "Loo uus projekt, et alustada oma saladuste organiseerimisega.",
     "description": "Message to be displayed when there are no projects to display in the list."
   },
   "smConfirmationRequired": {
@@ -6418,7 +7415,7 @@
     "description": "Copies the generated access token to the user's clipboard."
   },
   "accessToken": {
-    "message": "Access token",
+    "message": "Juurdepääsuvõti",
     "description": "A unique string that gives a client application (eg. CLI) access to a secret or set of secrets."
   },
   "accessTokenExpirationRequired": {
@@ -6426,11 +7423,11 @@
     "description": "Error message indicating that an expiration date for the access token must be set."
   },
   "accessTokenCreatedAndCopied": {
-    "message": "Access token created and copied to clipboard",
+    "message": "Juurdepääsuvõti loodud ja lõikelauale kopeeritud",
     "description": "Notification to inform the user that the access token has been created and copied to the clipboard."
   },
   "revokeAccessToken": {
-    "message": "Revoke access token",
+    "message": "Eemalda juurdepääsuvõti",
     "description": "Invalidates / cancels an access token and as such removes access to secrets for the client application."
   },
   "revokeAccessTokens": {
@@ -6480,14 +7477,8 @@
   "editGroupCollectionsDesc": {
     "message": "Grant access to collections by adding them to this group."
   },
-  "editGroupCollectionsRestrictionsDesc": {
+  "restrictedCollectionAssignmentDesc": {
     "message": "You can only assign collections you manage."
-  },
-  "accessAllCollectionsDesc": {
-    "message": "Grant access to all current and future collections."
-  },
-  "accessAllCollectionsHelp": {
-    "message": "If checked, this will replace all other collection permissions."
   },
   "selectMembers": {
     "message": "Select members"
@@ -6530,12 +7521,6 @@
   },
   "group": {
     "message": "Group"
-  },
-  "groupAccessAll": {
-    "message": "This group can access and modify all items."
-  },
-  "memberAccessAll": {
-    "message": "This member can access and modify all items."
   },
   "domainVerification": {
     "message": "Domain verification"
@@ -6714,8 +7699,8 @@
   "selectGroups": {
     "message": "Select groups"
   },
-  "userPermissionOverrideHelper": {
-    "message": "Permissions set for a member will replace permissions set by that member's group"
+  "userPermissionOverrideHelperDesc": {
+    "message": "Permissions set for a member will replace permissions set by that member's group."
   },
   "noMembersOrGroupsAdded": {
     "message": "No members or groups added"
@@ -6805,7 +7790,7 @@
     "message": "Exporting Organization Secret Data"
   },
   "exportingOrganizationSecretDataDescription": {
-    "message": "Only the Secrets Manager data associated with $ORGANIZATION$ will be exported. Items in other products or from other organizations will not be included.",
+    "message": "Ainult organisatsiooni $ORGANIZATION$ Secrets Manageri andmed eksporditakse. Kirjed teistes toodetes või organisatsioonides ei kuulu nende hulka.",
     "placeholders": {
       "ORGANIZATION": {
         "content": "$1",
@@ -6816,6 +7801,9 @@
   "fileUpload": {
     "message": "File upload"
   },
+  "upload": {
+    "message": "Upload"
+  },
   "acceptedFormats": {
     "message": "Accepted Formats:"
   },
@@ -6824,6 +7812,15 @@
   },
   "or": {
     "message": "or"
+  },
+  "unlockWithBiometrics": {
+    "message": "Unlock with biometrics"
+  },
+  "unlockWithPin": {
+    "message": "Unlock with PIN"
+  },
+  "unlockWithMasterPassword": {
+    "message": "Unlock with master password"
   },
   "licenseAndBillingManagement": {
     "message": "License and billing management"
@@ -6834,11 +7831,11 @@
   "manualUpload": {
     "message": "Manual upload"
   },
-  "manualUploadDesc": {
-    "message": "If you do not want to opt into billing sync, manually upload your license here."
+  "manualBillingTokenUploadDesc": {
+    "message": "If you do not want to opt into billing sync, manually upload your license here. This will not automatically unlock Families sponsorships."
   },
   "syncLicense": {
-    "message": "Sync license"
+    "message": "Sync License"
   },
   "licenseSyncSuccess": {
     "message": "Successfully synced license"
@@ -6906,17 +7903,17 @@
   "updateLowKdfIterationsDesc": {
     "message": "Update your encryption settings to meet new security recommendations and improve account protection."
   },
-  "changeKdfLoggedOutWarning": {
-    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
+  "kdfSettingsChangeLogoutWarning": {
+    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login, if any. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
   "secretsManager": {
     "message": "Secrets Manager"
   },
   "secretsManagerAccessDescription": {
-    "message": "Activate user access to Secrets Manager."
+    "message": "Anna kasutajale juurdepääs Secrets Managerile."
   },
   "userAccessSecretsManagerGA": {
-    "message": "This user can access Secrets Manager"
+    "message": "See kasutaja pääseb ligi Secrets Managerile"
   },
   "important": {
     "message": "Important:"
@@ -6972,14 +7969,14 @@
     "message": "Create a service account"
   },
   "downloadThe": {
-    "message": "Download the",
+    "message": "Lae alla",
     "description": "Link to a downloadable resource. This will be used as part of a larger phrase. Example: Download the Secrets Manager CLI"
   },
   "smCLI": {
     "message": "Secrets Manager CLI"
   },
   "importSecrets": {
-    "message": "Import secrets"
+    "message": "Impordi saladusi"
   },
   "getStarted": {
     "message": "Get started"
@@ -7001,19 +7998,19 @@
     "message": "Restore secret"
   },
   "restoreSecrets": {
-    "message": "Restore secrets"
+    "message": "Taasta saladusi"
   },
   "restoreSecretPrompt": {
     "message": "Are you sure you want to restore this secret?"
   },
   "restoreSecretsPrompt": {
-    "message": "Are you sure you want to restore these secrets?"
+    "message": "Kas sa oled kindel, et soovid taastada need saladused?"
   },
   "secretRestoredSuccessToast": {
     "message": "Secret restored"
   },
   "secretsRestoredSuccessToast": {
-    "message": "Secrets restored"
+    "message": "IT-saladused taastatud"
   },
   "selectionIsRequired": {
     "message": "Selection is required."
@@ -7083,7 +8080,7 @@
     "message": "This feature is not available for free organizations. Contact your organization owner to upgrade."
   },
   "smProjectSecretsNoItemsNoAccess": {
-    "message": "Contact your organization's admin to manage secrets for this project.",
+    "message": "Kontakteeruge oma organisatsiooni administraatoriga, et hallata selle projekti saladusi.",
     "description": "The message shown to the user under a project's secrets tab when the user only has read access to the project."
   },
   "enforceOnLoginDesc": {
@@ -7103,8 +8100,17 @@
   "loginInitiated": {
     "message": "Login initiated"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Device approval required. Select an approval option below:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Remember this device"
@@ -7163,6 +8169,15 @@
     "message": "Your organization requires you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "cardMetrics": {
+    "message": "out of $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notFound": {
     "message": "$RESOURCE$ not found",
     "placeholders": {
@@ -7183,21 +8198,21 @@
     "message": "User updated a password issued through account recovery."
   },
   "activatedAccessToSecretsManager": {
-    "message": "Activated access to Secrets Manager",
+    "message": "Juurdepääs Secrets Managerile aktiveeritud",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
     "message": "Activate access"
   },
   "bulkEnableSecretsManagerDescription": {
-    "message": "Grant the following members access to Secrets Manager. The role granted in the Password Manager will apply to Secrets Manager.",
+    "message": "Anna järgnevatele inimestele ligipääs Secrets Managerile. Password Manageris antud roll kehtib ka Secrets Managerile.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "Activate Secrets Manager"
+    "message": "Aktiveeri Secrets Manager"
   },
   "yourOrganizationsFingerprint": {
-    "message": "Your organization's fingerprint phrase",
+    "message": "Sinu organisatsiooni unikaalne sõnajada",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their organization's public key with another user, for the purposes of sharing."
   },
   "deviceApprovals": {
@@ -7275,6 +8290,9 @@
   "requestedDeviceApproval": {
     "message": "Requested device approval."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Start your 7-Day free trial of Bitwarden for $ORG$",
     "placeholders": {
@@ -7285,7 +8303,7 @@
     }
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for $ORG$",
+    "message": "Alusta oma organisatsiooni $ORG$ 7-päevast tasuta Bitwarden Secrets Manageri katseperioodi",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7303,7 +8321,7 @@
     "message": "Selected region flag"
   },
   "accountSuccessfullyCreated": {
-    "message": "Account successfully created!"
+    "message": "Konto edukalt loodud!"
   },
   "adminApprovalRequested": {
     "message": "Admin approval requested"
@@ -7323,6 +8341,9 @@
   "userEmailMissing": {
     "message": "User email missing"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
+  },
   "deviceTrusted": {
     "message": "Device trusted"
   },
@@ -7338,7 +8359,7 @@
     "message": "Invite Users"
   },
   "secretsManagerForPlan": {
-    "message": "Secrets Manager for $PLAN$",
+    "message": "Secrets Manager plaanile $PLAN$",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -7347,13 +8368,13 @@
     }
   },
   "secretsManagerForPlanDesc": {
-    "message": "For engineering and DevOps teams to manage secrets throughout the software development lifecycle."
+    "message": "Arendus- ja programmeerimistiimidele, et hallata saladusi läbi kogu tarkvara arendustsükli."
   },
   "free2PersonOrganization": {
     "message": "Free 2-person Organizations"
   },
   "unlimitedSecrets": {
-    "message": "Unlimited secrets"
+    "message": "Piiramatult IT-saladusi"
   },
   "unlimitedProjects": {
     "message": "Unlimited projects"
@@ -7386,10 +8407,10 @@
     }
   },
   "subscribeToSecretsManager": {
-    "message": "Subscribe to Secrets Manager"
+    "message": "Telli Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
-    "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
+    "message": "Lisa Secrets Manager oma uude plaani, et säilitada juurdepääs kõigile eelmise plaaniga loodud saladustele."
   },
   "additionalServiceAccounts": {
     "message": "Additional service accounts"
@@ -7418,8 +8439,11 @@
   "collectionManagementDesc": {
     "message": "Manage the collection behavior for the organization"
   },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Limit collection creation and deletion to owners and admins"
+  "limitCollectionCreationDesc": {
+    "message": "Limit collection creation to owners and admins"
+  },
+  "limitCollectionDeletionDesc": {
+    "message": "Limit collection deletion to owners and admins"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
@@ -7431,10 +8455,10 @@
     "message": "Password Manager plan price"
   },
   "secretsManagerPlanPrice": {
-    "message": "Secrets Manager plan price"
+    "message": "Secrets Manageri plaani hind"
   },
   "passwordManager": {
-    "message": "Password Manager"
+    "message": "Paroolihaldur"
   },
   "freeOrganization": {
     "message": "Free Organization"
@@ -7466,11 +8490,18 @@
   "baseUrl": {
     "message": "Serveri URL"
   },
+  "selfHostBaseUrl": {
+    "message": "Self-host server URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Alias domeen"
   },
   "alreadyHaveAccount": {
     "message": "Already have an account?"
+  },
+  "toggleSideNavigation": {
+    "message": "Toggle side navigation"
   },
   "skipToContent": {
     "message": "Skip to content"
@@ -7527,6 +8558,12 @@
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
   },
+  "grantAddAccessCollectionWarningTitle": {
+    "message": "Missing Can Manage Permissions"
+  },
+  "grantAddAccessCollectionWarning": {
+    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
   },
@@ -7555,14 +8592,7 @@
   },
   "addAPaymentMethod": {
     "message": "add a payment method",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
-  },
-  "collectionEnhancementsDesc": {
-    "message": "Add new settings and permissions for additional flexibility. Replace the Manager role with the \"can manage\" permission, and introduce options to allow users to create collections as well as restrict administrative access to collections.",
-    "description": "This describes new features and improvements for user roles and collections"
-  },
-  "collectionEnhancementsLearnMore": {
-    "message": "Learn more about collection management"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "Organization information"
@@ -7571,16 +8601,10 @@
     "message": "Confirmation details"
   },
   "smFreeTrialThankYou": {
-    "message": "Thank you for signing up for Bitwarden Secrets Manager!"
+    "message": "Aitäh registreerimast Bitwarden Secrets Manageri!"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "We've sent a confirmation email to your email at "
-  },
-  "confirmCollectionEnhancementsDialogTitle": {
-    "message": "This action is irreversible"
-  },
-  "confirmCollectionEnhancementsDialogContent": {
-    "message": "Turning on this feature will deprecate the manager role and replace it with a Can manage permission. This will take a few moments. Do not make any organization changes until it is complete. Are you sure you want to proceed?"
   },
   "sorryToSeeYouGo": {
     "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
@@ -7632,13 +8656,10 @@
   "success": {
     "message": "Success"
   },
-  "viewCollection": {
-    "message": "View collection"
-  },
   "restrictedGroupAccess": {
     "message": "You cannot add yourself to groups."
   },
-  "restrictedCollectionAccess": {
+  "cannotAddYourselfToCollections": {
     "message": "You cannot add yourself to collections."
   },
   "assign": {
@@ -7650,8 +8671,11 @@
   "assignToTheseCollections": {
     "message": "Assign to these collections"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Select the collections that the items will be shared with. Once an item is updated in one collection, it will be reflected in all collections. Only organization members with access to these collections will be able to see the items."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Only organization members with access to these collections will be able to see the item."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Only organization members with access to these collections will be able to see the items."
   },
   "selectCollectionsToAssign": {
     "message": "Select collections to assign"
@@ -7674,6 +8698,12 @@
         "example": "3"
       }
     }
+  },
+  "addField": {
+    "message": "Add field"
+  },
+  "editField": {
+    "message": "Edit field"
   },
   "items": {
     "message": "Items"
@@ -7700,7 +8730,7 @@
     "message": "Adjustments to seats will be reflected in the next billing cycle."
   },
   "unassignedSeatsDescription": {
-    "message": "Unassigned subscription seats"
+    "message": "Unassigned seats"
   },
   "purchaseSeatDescription": {
     "message": "Additional seats purchased"
@@ -7764,10 +8794,10 @@
     "description": "The date header used when a subscription is cancelled."
   },
   "machineAccountsCannotCreate": {
-    "message": "Machine accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
+    "message": "Peatatud organisatsioonides ei ole võimalik luua uusi kontosid arvutitele. Palun kontakteeruge oma organisatsiooni haldajaga."
   },
   "machineAccount": {
-    "message": "Machine account",
+    "message": "Arvuti konto",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
   "machineAccounts": {
@@ -7838,7 +8868,7 @@
     "description": "Label for the name of a machine account"
   },
   "machineAccountCreated": {
-    "message": "Machine account created",
+    "message": "Konto arvutile loodud",
     "description": "Notifies that a new machine account has been created"
   },
   "machineAccountUpdated": {
@@ -7929,23 +8959,6 @@
   "restrictedGroupAccessDesc": {
     "message": "You cannot add yourself to a group."
   },
-  "unassignedItemsBannerSelfHost": {
-    "message": "Notice: On May 2, 2024, unassigned organization items will no longer be visible in your All Vaults view across devices and will only be accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible."
-  },
-  "unassignedItemsBannerNotice": {
-    "message": "Notice: Unassigned organization items are no longer visible in your All Vaults view across devices and are now only accessible via the Admin Console."
-  },
-  "unassignedItemsBannerSelfHostNotice": {
-    "message": "Notice: On May 16, 2024, unassigned organization items will no longer be visible in your All Vaults view across devices and will only be accessible via the Admin Console."
-  },
-  "unassignedItemsBannerCTAPartOne": {
-    "message": "Assign these items to a collection from the",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
-  "unassignedItemsBannerCTAPartTwo": {
-    "message": "to make them visible.",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
   "deleteProvider": {
     "message": "Delete provider"
   },
@@ -7996,46 +9009,107 @@
     "message": "Integrations"
   },
   "integrationsDesc": {
-    "message": "Automatically sync secrets from Bitwarden Secrets Manager to a third-party service."
+    "message": "Sünkroniseeri enda Bitwarden Secrets Manageri saladusi kolmandate isikutega."
   },
   "sdks": {
     "message": "SDKs"
   },
   "sdksDesc": {
-    "message": "Use Bitwarden Secrets Manager SDK in the following programming languages to build your own applications."
+    "message": "Kasuta Bitwarden Secrets Manageri SDK järgnevates programmeerimiskeeltes, millega saad ehitada enda rakendusi."
   },
-  "setUpGithubActions": {
-    "message": "Set up Github Actions"
+  "ssoDescStart": {
+    "message": "Configure",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Set up GitLab CI/CD"
+  "ssoDescEnd": {
+    "message": "for Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpAnsible": {
-    "message": "Set up Ansible"
+  "userProvisioning": {
+    "message": "User provisioning"
   },
-  "cSharpSDKRepo": {
-    "message": "View C# repository"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "View C++ repository"
+  "scimIntegrationDescStart": {
+    "message": "Configure ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "View JS WebAssembly repository"
+  "scimIntegrationDescEnd": {
+    "message": "(System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "javaSDKRepo": {
-    "message": "View Java repository"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "pythonSDKRepo": {
-    "message": "View Python repository"
+  "bwdcDesc": {
+    "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
-  "phpSDKRepo": {
-    "message": "View php repository"
+  "eventManagement": {
+    "message": "Event management"
   },
-  "rubySDKRepo": {
-    "message": "View Ruby repository"
+  "eventManagementDesc": {
+    "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
-  "goSDKRepo": {
-    "message": "View Go repository"
+  "deviceManagement": {
+    "message": "Device management"
+  },
+  "deviceManagementDesc": {
+    "message": "Configure device management for Bitwarden using the implementation guide for your platform."
+  },
+  "integrationCardTooltip": {
+    "message": "Launch $INTEGRATION$ implementation guide.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Set up $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "View $SDK$ repository",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "open $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "view $SDK$ repository in a new tab.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "set up $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
@@ -8075,5 +9149,918 @@
   },
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
+  },
+  "continueSettingUpFreeTrial": {
+    "message": "Continue setting up your free trial of Bitwarden"
+  },
+  "continueSettingUpFreeTrialPasswordManager": {
+    "message": "Continue setting up your free trial of Bitwarden Password Manager"
+  },
+  "continueSettingUpFreeTrialSecretsManager": {
+    "message": "Continue setting up your free trial of Bitwarden Secrets Manager"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Enter your Teams organization information"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Enter your Families organization information"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Enter your Enterprise organization information"
+  },
+  "viewItemsIn": {
+    "message": "View items in $NAME$",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "Back to $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "back": {
+    "message": "Back",
+    "description": "Button text to navigate back"
+  },
+  "removeItem": {
+    "message": "Remove $NAME$",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "viewInfo": {
+    "message": "View info"
+  },
+  "viewAccess": {
+    "message": "View access"
+  },
+  "noCollectionsSelected": {
+    "message": "You have not selected any collections."
+  },
+  "updateName": {
+    "message": "Update name"
+  },
+  "updatedOrganizationName": {
+    "message": "Updated organization name"
+  },
+  "providerPlan": {
+    "message": "Managed Service Provider"
+  },
+  "managedServiceProvider": {
+    "message": "Managed service provider"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "Multi-organization enterprise"
+  },
+  "orgSeats": {
+    "message": "Organization Seats"
+  },
+  "providerDiscount": {
+    "message": "$AMOUNT$% Discount",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "lowKDFIterationsBanner": {
+    "message": "Low KDF iterations. Increase your iterations to improve the security of your account."
+  },
+  "changeKDFSettings": {
+    "message": "Change KDF settings"
+  },
+  "secureYourInfrastructure": {
+    "message": "Secure your infrastructure"
+  },
+  "protectYourFamilyOrBusiness": {
+    "message": "Protect your family or business"
+  },
+  "upgradeOrganizationCloseSecurityGaps": {
+    "message": "Close security gaps with monitoring reports"
+  },
+  "upgradeOrganizationCloseSecurityGapsDesc": {
+    "message": "Stay ahead of security vulnerabilities by upgrading to a paid plan for enhanced monitoring."
+  },
+  "approveAllRequests": {
+    "message": "Approve all requests"
+  },
+  "allLoginRequestsApproved": {
+    "message": "All login requests approved"
+  },
+  "payPal": {
+    "message": "PayPal"
+  },
+  "bitcoin": {
+    "message": "Bitcoin"
+  },
+  "updatedTaxInformation": {
+    "message": "Updated tax information"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "An error occurred while previewing the invoice. Please try again later."
+  },
+  "unverified": {
+    "message": "Unverified"
+  },
+  "verified": {
+    "message": "Verified"
+  },
+  "viewSecret": {
+    "message": "View secret"
+  },
+  "noClients": {
+    "message": "There are no clients to list"
+  },
+  "providerBillingEmailHint": {
+    "message": "This email address will receive all invoices pertaining to this provider",
+    "description": "A hint that shows up on the Provider setup page to inform the admin the billing email will receive the provider's invoices."
+  },
+  "upgradeOrganizationEnterprise": {
+    "message": "Identify security risks by auditing member access"
+  },
+  "onlyAvailableForEnterpriseOrganization": {
+    "message": "Quickly view member access across the organization by upgrading to an Enterprise plan."
+  },
+  "date": {
+    "message": "Date"
+  },
+  "exportClientReport": {
+    "message": "Export client report"
+  },
+  "memberAccessReport": {
+    "message": "Member access"
+  },
+  "memberAccessReportDesc": {
+    "message": "Ensure members have access to the right credentials and their accounts are secure. Use this report to obtain a CSV of member access and account configurations."
+  },
+  "memberAccessReportPageDesc": {
+    "message": "Audit organization member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  },
+  "memberAccessReportNoCollection": {
+    "message": "(No Collection)"
+  },
+  "memberAccessReportNoCollectionPermission": {
+    "message": "(No Collection Permission)"
+  },
+  "memberAccessReportNoGroup": {
+    "message": "(No Group)"
+  },
+  "memberAccessReportTwoFactorEnabledTrue": {
+    "message": "On"
+  },
+  "memberAccessReportTwoFactorEnabledFalse": {
+    "message": "Off"
+  },
+  "memberAccessReportAuthenticationEnabledTrue": {
+    "message": "On"
+  },
+  "memberAccessReportAuthenticationEnabledFalse": {
+    "message": "Off"
+  },
+  "higherKDFIterations": {
+    "message": "Higher KDF iterations can help protect your master password from being brute forced by an attacker."
+  },
+  "incrementsOf100,000": {
+    "message": "increments of 100,000"
+  },
+  "smallIncrements": {
+    "message": "small increments"
+  },
+  "kdfIterationRecommends": {
+    "message": "We recommend 600,000 or more"
+  },
+  "kdfToHighWarningIncreaseInIncrements": {
+    "message": "For older devices, setting your KDF too high may lead to performance issues. Increase the value in $VALUE$ and test your devices.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "increments of 100,000"
+      }
+    }
+  },
+  "providerReinstate": {
+    "message": " Contact Customer Support to reinstate your subscription."
+  },
+  "secretPeopleDescription": {
+    "message": "Grant groups or people access to this secret. Permissions set for people will override permissions set by groups."
+  },
+  "secretPeopleEmptyMessage": {
+    "message": "Add people or groups to share access to this secret"
+  },
+  "secretMachineAccountsDescription": {
+    "message": "Grant machine accounts access to this secret."
+  },
+  "secretMachineAccountsEmptyMessage": {
+    "message": "Add machine accounts to grant access to this secret"
+  },
+  "smAccessRemovalWarningSecretTitle": {
+    "message": "Remove access to this secret"
+  },
+  "smAccessRemovalSecretMessage": {
+    "message": "This action will remove your access to this secret."
+  },
+  "invoice": {
+    "message": "Invoice"
+  },
+  "unassignedSeatsAvailable": {
+    "message": "You have $SEATS$ unassigned seats available.",
+    "placeholders": {
+      "seats": {
+        "content": "$1",
+        "example": "10"
+      }
+    },
+    "description": "A message showing how many unassigned seats are available for a provider."
+  },
+  "contactYourProviderForAdditionalSeats": {
+    "message": "Contact your provider admin to purchase additional seats."
+  },
+  "open": {
+    "message": "Open",
+    "description": "The status of an invoice."
+  },
+  "uncollectible": {
+    "message": "Uncollectible",
+    "description": "The status of an invoice."
+  },
+  "clientDetails": {
+    "message": "Client details"
+  },
+  "downloadCSV": {
+    "message": "Download CSV"
+  },
+  "monthlySubscriptionUserSeatsMessage": {
+    "message": "Muudatused sinu tellimusele kajastuvad järgmise perioodi arve lõppsummas. "
+  },
+  "annualSubscriptionUserSeatsMessage": {
+    "message": "Muudatused sinu tellimusele kajastuvad igakuiselt arvete lõppsummades. "
+  },
+  "billingHistoryDescription": {
+    "message": "Download a CSV to obtain client details for each billing date. Prorated charges are not included in the CSV and may vary from the linked invoice. For the most accurate billing details, refer to your monthly invoices.",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "noInvoicesToList": {
+    "message": "There are no invoices to list",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "providerClientVaultPrivacyNotification": {
+    "message": "Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions,",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
+  },
+  "contactBitwardenSupport": {
+    "message": "contact Bitwarden support.",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
+  },
+  "sponsored": {
+    "message": "Sponsored"
+  },
+  "licenseAndBillingManagementDesc": {
+    "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
+  },
+  "addToFolder": {
+    "message": "Add to folder"
+  },
+  "selectFolder": {
+    "message": "Select folder"
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "data": {
+    "message": "Data"
+  },
+  "purchasedSeatsRemoved": {
+    "message": "purchased seats removed"
+  },
+  "environmentVariables": {
+    "message": "Environment variables"
+  },
+  "organizationId": {
+    "message": "Organization ID"
+  },
+  "projectIds": {
+    "message": "Project IDs"
+  },
+  "projectId": {
+    "message": "Project ID"
+  },
+  "projectsAccessedByMachineAccount": {
+    "message": "The following projects can be accessed by this machine account."
+  },
+  "config": {
+    "message": "Config"
+  },
+  "learnMoreAboutEmergencyAccess": {
+    "message": "Learn more about emergency access"
+  },
+  "learnMoreAboutMatchDetection": {
+    "message": "Learn more about match detection"
+  },
+  "learnMoreAboutMasterPasswordReprompt": {
+    "message": "Learn more about master password re-prompt"
+  },
+  "learnMoreAboutSearchingYourVault": {
+    "message": "Learn more about searching your vault"
+  },
+  "learnMoreAboutYourAccountFingerprintPhrase": {
+    "message": "Learn about your account fingerprint phrase"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "learnMoreAboutEncryptionAlgorithms": {
+    "message": "Learn more about encryption algorithms"
+  },
+  "learnMoreAboutKDFIterations": {
+    "message": "Learn more about KDF iterations"
+  },
+  "learnMoreAboutLocalization": {
+    "message": "Learn more about localization"
+  },
+  "learnMoreAboutWebsiteIcons": {
+    "message": "Learn more about using website icons"
+  },
+  "learnMoreAboutUserAccess": {
+    "message": "Learn more about user access"
+  },
+  "learnMoreAboutMemberRoles": {
+    "message": "Learn more about member roles and permissions"
+  },
+  "whatIsACvvNumber": {
+    "message": "What is a CVV number?"
+  },
+  "learnMoreAboutApi": {
+    "message": "Learn more about Bitwarden's API"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
+  },
+  "includesXMembers": {
+    "message": "for $COUNT$ member",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Optional on-premises hosting"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Upgrade your $NAME$ organization ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO Authentication"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlans": {
+    "message": "Upgrade your plan to invite members and experience powerful security features."
+  },
+  "upgradeDiscount": {
+    "message": "Save $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "enterprisePlanUpgradeMessage": {
+    "message": "Advanced capabilities for larger organizations"
+  },
+  "teamsPlanUpgradeMessage": {
+    "message": "Resilient protection for growing teams"
+  },
+  "teamsInviteMessage": {
+    "message": "Invite unlimited members"
+  },
+  "accessToCreateGroups": {
+    "message": "Access to create groups"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Sync groups and users from a directory"
+  },
+  "familyPlanUpgradeMessage": {
+    "message": "Secure your family logins"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Access to Premium features"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB additional storage"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Key algorithm"
+  },
+  "sshKeyFingerprint": {
+    "message": "Fingerprint"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Private key"
+  },
+  "sshKeyPublicKey": {
+    "message": "Public key"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "premiumAccounts": {
+    "message": "6 premium accounts"
+  },
+  "unlimitedSharing": {
+    "message": "Unlimited sharing"
+  },
+  "unlimitedCollections": {
+    "message": "Unlimited collections"
+  },
+  "secureDataSharing": {
+    "message": "Secure data sharing"
+  },
+  "eventLogMonitoring": {
+    "message": "Event log monitoring"
+  },
+  "directoryIntegration": {
+    "message": "Directory integration"
+  },
+  "passwordLessSso": {
+    "message": "Passwordless SSO"
+  },
+  "accountRecovery": {
+    "message": "Account recovery"
+  },
+  "customRoles": {
+    "message": "Custom roles"
+  },
+  "unlimitedSecretsStorage": {
+    "message": "Piiramatult ruumi saladustele"
+  },
+  "unlimitedUsers": {
+    "message": "Unlimited users"
+  },
+  "UpTo50MachineAccounts": {
+    "message": "Up to 50 machine accounts"
+  },
+  "UpTo20MachineAccounts": {
+    "message": "Up to 20 machine accounts"
+  },
+  "current": {
+    "message": "Current"
+  },
+  "secretsManagerSubscriptionInfo": {
+    "message": "Your Secrets Manager subscription will upgrade based on the plan selected"
+  },
+  "bitwardenPasswordManager": {
+    "message": "Bitwarden Password Manager"
+  },
+  "secretsManagerComplimentaryPasswordManager": {
+    "message": "Your complimentary one year Password Manager subscription will upgrade to the selected plan. You will not be charged until the complimentary period is over."
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
+  },
+  "publicApi": {
+    "message": "Public API",
+    "description": "The text, 'API', is an acronym and should not be translated."
+  },
+  "showCharacterCount": {
+    "message": "Show character count"
+  },
+  "hideCharacterCount": {
+    "message": "Hide character count"
+  },
+  "editAccess": {
+    "message": "Edit access"
+  },
+  "textHelpText": {
+    "message": "Use text fields for data like security questions"
+  },
+  "hiddenHelpText": {
+    "message": "Use hidden fields for sensitive data like a password"
+  },
+  "checkBoxHelpText": {
+    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+  },
+  "linkedHelpText": {
+    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+  },
+  "linkedLabelHelpText": {
+    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  },
+  "uppercaseDescription": {
+    "message": "Include uppercase characters",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Include lowercase characters",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Include numbers",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Include special characters",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
+  },
+  "addAttachment": {
+    "message": "Add attachment"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximum file size is 500 MB"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Manage subscription from the",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "To host Bitwarden on your own server, you will need to upload your license file. To support Free Families plans and advanced billing capabilities for your self-hosted organization, you will need to set up automatic sync in your self-hosted organization."
+  },
+  "selfHostingTitleProper": {
+    "message": "Self-Hosting"
+  },
+  "claim-domain-single-org-warning": {
+    "message": "Claiming a domain will turn on the single organization policy."
+  },
+  "single-org-revoked-user-warning": {
+    "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
+  },
+  "deleteOrganizationUser": {
+    "message": "Delete $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      },
+      "description": "Title for the delete organization user dialog"
+    }
+  },
+  "deleteOrganizationUserWarningDesc": {
+    "message": "This will permanently delete all items owned by $NAME$. Collection items are not impacted.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "This will permanently delete all items owned by the following members. Collection items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog"
+  },
+  "organizationUserDeleted": {
+    "message": "Deleted $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "organizationUserDeletedDesc": {
+    "message": "The user was removed from the organization and all associated user data has been deleted."
+  },
+  "deletedUserId": {
+    "message": "Deleted user $ID$ - an owner / admin deleted the user account",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "User $ID$ left organization",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "The $ORGANIZATION$ is suspended",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "Contact your organization owner for assistance."
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "To regain access to your organization, add a payment method."
+  },
+  "deleteMembers": {
+    "message": "Delete members"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "This action is not applicable to any of the selected members."
+  },
+  "deletedSuccessfully": {
+    "message": "Deleted successfully"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "Remove Free Bitwarden Families sponsorship"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "Do not allow members to redeem a Families plan through this organization."
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "We have made a micro-deposit to your bank account (this may take 1-2 business days). Enter the six-digit code starting with 'SM' found on the deposit description. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "descriptorCode": {
+    "message": "Descriptor code"
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
+  "removeMembers": {
+    "message": "Remove members"
+  },
+  "claimedDomains": {
+    "message": "Claimed domains"
+  },
+  "claimDomain": {
+    "message": "Claim domain"
+  },
+  "reclaimDomain": {
+    "message": "Reclaim domain"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Example: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automatic Claimed Domains"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden will attempt to claim the domain 3 times during the first 72 hours. If the domain can’t be claimed, check the DNS record in your host and manually claim. The domain will be removed from your organization in 7 days if it is not claimed."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ not claimed. Check your DNS records.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Claimed"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Under verification"
+  },
+  "claimedDomainsDesc": {
+    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ not claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan cannot be redeemed. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $40 + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domain claimed"
+  },
+  "organizationNameMaxLength": {
+    "message": "Organization name cannot exceed 50 characters."
+  },
+  "resellerRenewalWarning": {
+    "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "The invoice for your subscription has not been paid. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
   }
 }

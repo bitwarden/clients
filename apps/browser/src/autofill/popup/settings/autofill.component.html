@@ -1,143 +1,292 @@
-<header>
-  <div class="left">
-    <button type="button" routerLink="/tabs/settings">
-      <span class="header-icon"><i class="bwi bwi-angle-left" aria-hidden="true"></i></span>
-      <span>{{ "back" | i18n }}</span>
-    </button>
-  </div>
-  <h1 class="center">
-    <span class="title">{{ "autofill" | i18n }}</span>
-  </h1>
-  <div class="right"></div>
-</header>
-<main tabindex="-1">
-  <div class="box tw-mt-4">
-    <div class="box-content">
-      <button
-        type="button"
-        class="box-content-row box-content-row-link box-content-row-flex"
-        (click)="commandSettings()"
-      >
-        <div class="row-main">{{ "autofillShortcut" | i18n }}</div>
-        <i class="bwi bwi-external-link bwi-lg bwi-fw" aria-hidden="true"></i>
-      </button>
-    </div>
-    <div id="autofillKeyboardHelp" class="box-footer">
-      {{ autofillKeyboardHelperText }}
-    </div>
-  </div>
-  <div class="box">
-    <div class="box-content">
-      <div class="box-content-row" appBoxRow>
-        <label for="autofill-overlay-settings">{{ "showAutoFillMenuOnFormFields" | i18n }}</label>
-        <select
-          id="autofill-overlay-settings"
-          name="autofill-overlay-settings"
-          [(ngModel)]="autoFillOverlayVisibility"
-          (change)="updateAutoFillOverlayVisibility()"
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'autofill' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <div class="tw-bg-background-alt">
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "autofillSuggestionsSectionTitle" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-form-control [disableMargin]="!enableInlineMenu && !canOverrideBrowserAutofillSetting">
+          <input
+            bitCheckbox
+            id="show-inline-menu"
+            type="checkbox"
+            (change)="updateInlineMenuVisibility()"
+            [(ngModel)]="enableInlineMenu"
+          />
+          <bit-label for="show-inline-menu">{{ "showInlineMenuLabel" | i18n }}</bit-label>
+          <bit-hint
+            *ngIf="accountSwitcherEnabled && canOverrideBrowserAutofillSetting"
+            class="tw-text-sm"
+          >
+            {{ "showInlineMenuOnFormFieldsDescAlt" | i18n }}
+          </bit-hint>
+          <bit-hint
+            *ngIf="!canOverrideBrowserAutofillSetting"
+            [class]="!enableInlineMenu ? 'tw-text-sm tw-mb-6' : 'tw-text-sm'"
+          >
+            {{ "turnOffBrowserBuiltInPasswordManagerSettings" | i18n }}
+            <a
+              bitLink
+              class="tw-no-underline"
+              rel="noreferrer"
+              target="_blank"
+              (click)="openURI($event, disablePasswordManagerURI)"
+              [attr.href]="disablePasswordManagerURI"
+            >
+              {{ "turnOffBrowserBuiltInPasswordManagerSettingsLink" | i18n }}
+            </a>
+          </bit-hint>
+        </bit-form-control>
+        <bit-form-control
+          *ngIf="inlineMenuPositioningImprovementsEnabled && enableInlineMenu"
+          class="tw-ml-5"
         >
-          <option *ngFor="let o of autoFillOverlayVisibilityOptions" [ngValue]="o.value">
-            {{ o.name }}
-          </option>
-        </select>
-      </div>
-      <div class="box-footer" *ngIf="accountSwitcherEnabled && canOverrideBrowserAutofillSetting">
-        {{ "showAutoFillMenuOnFormFieldsDescAlt" | i18n }}
-      </div>
-    </div>
-  </div>
-  <div class="box">
-    <div class="box-content" *ngIf="canOverrideBrowserAutofillSetting">
-      <div class="box-content-row box-content-row-checkbox" appBoxRow>
-        <label for="overrideBrowserAutofill" class="!tw-mr-0">{{
-          "overrideDefaultBrowserAutoFillSettings" | i18n
-        }}</label>
-        <input
-          id="overrideBrowserAutofill"
-          type="checkbox"
-          (change)="updateDefaultBrowserAutofillDisabled()"
-          [(ngModel)]="defaultBrowserAutofillDisabled"
-        />
-      </div>
-    </div>
-    <div class="box-footer">
-      <span *ngIf="accountSwitcherEnabled">{{ "showAutoFillMenuOnFormFieldsDescAlt" | i18n }}</span>
-      {{ "turnOffBrowserBuiltInPasswordManagerSettings" | i18n }}
-      <a
-        [attr.href]="disablePasswordManagerLink"
-        (click)="openDisablePasswordManagerLink($event)"
-        target="_blank"
-        rel="noreferrer"
-      >
-        {{ "turnOffBrowserBuiltInPasswordManagerSettingsLink" | i18n }}
-      </a>
-    </div>
-  </div>
-  <div class="box tw-mt-4">
-    <div class="box-content">
-      <div class="box-content-row box-content-row-checkbox" appBoxRow>
-        <label for="autofill">{{ "enableAutoFillOnPageLoad" | i18n }}</label>
-        <input
-          id="autofill"
-          type="checkbox"
-          aria-describedby="autofillHelp"
-          (change)="updateAutoFillOnPageLoad()"
-          [(ngModel)]="enableAutoFillOnPageLoad"
-        />
-      </div>
-    </div>
-    <div id="autofillHelp" class="box-footer">
-      {{ "enableAutoFillOnPageLoadDesc" | i18n }}
-      <b>{{ "warning" | i18n }}</b
-      >: {{ "experimentalFeature" | i18n }}
-      <a href="https://bitwarden.com/help/auto-fill-browser/" target="_blank" rel="noreferrer">
-        {{ "learnMoreAboutAutofill" | i18n }}.
-        <i
-          [attr.aria-label]="'opensInANewWindow' | i18n"
-          class="bwi bwi-external-link bwi-sm bwi-fw"
-        ></i>
-      </a>
-    </div>
-  </div>
-  <div class="box">
-    <div class="box-content">
-      <div class="box-content-row" appBoxRow>
-        <label for="defaultAutofill">{{ "defaultAutoFillOnPageLoad" | i18n }}</label>
-        <select
-          id="defaultAutofill"
-          name="DefaultAutofill"
-          aria-describedby="defaultAutofillHelp"
-          [(ngModel)]="autoFillOnPageLoadDefault"
-          (change)="updateAutoFillOnPageLoadDefault()"
-          [disabled]="!enableAutoFillOnPageLoad"
+          <input
+            bitCheckbox
+            id="show-inline-menu-identities"
+            type="checkbox"
+            (change)="updateShowInlineMenuIdentities()"
+            [(ngModel)]="showInlineMenuIdentities"
+          />
+          <bit-label for="show-inline-menu-identities">
+            {{ "showInlineMenuIdentitiesLabel" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control
+          *ngIf="inlineMenuPositioningImprovementsEnabled && enableInlineMenu"
+          class="tw-ml-5"
         >
-          <option *ngFor="let o of autoFillOnPageLoadOptions" [ngValue]="o.value">
-            {{ o.name }}
-          </option>
-        </select>
-      </div>
-    </div>
-    <div id="defaultAutofillHelp" class="box-footer">
-      {{ "defaultAutoFillOnPageLoadDesc" | i18n }}
-    </div>
+          <input
+            bitCheckbox
+            id="show-inline-menu-cards"
+            type="checkbox"
+            (change)="updateShowInlineMenuCards()"
+            [(ngModel)]="showInlineMenuCards"
+          />
+          <bit-label for="show-inline-menu-cards">
+            {{ "showInlineMenuCardsLabel" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control *ngIf="enableInlineMenu" class="tw-ml-5">
+          <input
+            bitCheckbox
+            id="show-autofill-suggestions-on-icon"
+            type="checkbox"
+            (change)="updateInlineMenuVisibility()"
+            [(ngModel)]="enableInlineMenuOnIconSelect"
+          />
+          <bit-label for="show-autofill-suggestions-on-icon">
+            {{ "showInlineMenuOnIconSelectionLabel" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control *ngIf="canOverrideBrowserAutofillSetting">
+          <input
+            bitCheckbox
+            id="overrideBrowserAutofill"
+            type="checkbox"
+            (change)="updateDefaultBrowserAutofillDisabled()"
+            [(ngModel)]="defaultBrowserAutofillDisabled"
+          />
+          <bit-label for="overrideBrowserAutofill">{{
+            "overrideDefaultBrowserAutoFillSettings" | i18n
+          }}</bit-label>
+          <bit-hint class="tw-text-sm">
+            {{ "turnOffBrowserBuiltInPasswordManagerSettings" | i18n }}
+            <a
+              bitLink
+              class="tw-no-underline"
+              rel="noreferrer"
+              target="_blank"
+              (click)="openURI($event, disablePasswordManagerURI)"
+              [attr.href]="disablePasswordManagerURI"
+            >
+              {{ "turnOffBrowserBuiltInPasswordManagerSettingsLink" | i18n }}
+            </a>
+          </bit-hint>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="showCardsSuggestions"
+            type="checkbox"
+            (change)="updateShowCardsCurrentTab()"
+            [(ngModel)]="showCardsCurrentTab"
+          />
+          <bit-label for="showCardsSuggestions">{{ "showCardsInVaultView" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="showIdentitiesSuggestions"
+            type="checkbox"
+            (change)="updateShowIdentitiesCurrentTab()"
+            [(ngModel)]="showIdentitiesCurrentTab"
+          />
+          <bit-label for="showIdentitiesSuggestions" class="tw-whitespace-normal">
+            {{ "showIdentitiesInVaultView" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control disableMargin>
+          <input
+            bitCheckbox
+            id="clickToAutofill"
+            type="checkbox"
+            (change)="updateClickItemsVaultView()"
+            [(ngModel)]="clickItemsVaultView"
+          />
+          <bit-label for="clickToAutofill" class="tw-whitespace-normal">
+            {{ "clickToAutofillOnVault" | i18n }}
+          </bit-label>
+        </bit-form-control>
+      </bit-card>
+    </bit-section>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "autofillKeyboardShortcutSectionTitle" | i18n }}</h2>
+      </bit-section-header>
+      <bit-item>
+        <button bit-item-content type="button" (click)="openURI($event, browserShortcutsURI)">
+          <h3 bitTypography="body2">{{ "autofillKeyboardManagerShortcutsLabel" | i18n }}</h3>
+          <bit-hint slot="secondary" class="tw-text-sm tw-whitespace-normal">
+            {{ autofillKeyboardHelperText }}
+          </bit-hint>
+          <i
+            appA11yTitle="{{ 'opensInANewWindow' | i18n }}"
+            aria-hidden="true"
+            class="bwi bwi-fw bwi-external-link bwi-lg tw-text-muted"
+            slot="end"
+          ></i>
+        </button>
+      </bit-item>
+    </bit-section>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "enableAutoFillOnPageLoadSectionTitle" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-hint class="tw-mb-6 tw-text-sm">
+          {{ "enableAutoFillOnPageLoadDesc" | i18n }}
+          <span
+            ><b>{{ "warningCapitalized" | i18n }}</b
+            >: {{ "experimentalFeature" | i18n }}</span
+          >
+          <a
+            bitLink
+            class="tw-no-underline"
+            href="https://bitwarden.com/help/auto-fill-browser/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            {{ "learnMoreAboutAutofillOnPageLoadLinkText" | i18n }}
+          </a>
+        </bit-hint>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="autofillOnPageLoad"
+            type="checkbox"
+            (change)="updateAutofillOnPageLoad()"
+            [(ngModel)]="enableAutofillOnPageLoad"
+            [disabled]="autofillOnPageLoadFromPolicy$ | async"
+          />
+          <bit-label for="autofillOnPageLoad">{{ "enableAutoFillOnPageLoad" | i18n }}</bit-label>
+          <bit-hint class="tw-text-sm" *ngIf="autofillOnPageLoadFromPolicy$ | async">{{
+            "enterprisePolicyRequirementsApplied" | i18n
+          }}</bit-hint>
+        </bit-form-control>
+        <bit-form-field disableMargin>
+          <bit-label for="defaultAutofill">{{ "defaultAutoFillOnPageLoad" | i18n }}</bit-label>
+          <select
+            bitInput
+            id="defaultAutofill"
+            (change)="updateAutofillOnPageLoadDefault()"
+            [(ngModel)]="autofillOnPageLoadDefault"
+            [disabled]="!enableAutofillOnPageLoad"
+          >
+            <option
+              *ngFor="let o of autofillOnPageLoadOptions"
+              [ngValue]="o.value"
+              [label]="o.name"
+            ></option>
+          </select>
+          <bit-hint class="tw-text-sm">
+            {{ "defaultAutoFillOnPageLoadDesc" | i18n }}
+          </bit-hint>
+        </bit-form-field>
+      </bit-card>
+    </bit-section>
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="context-menu"
+            type="checkbox"
+            (change)="updateContextMenuItem()"
+            [(ngModel)]="enableContextMenuItem"
+          />
+          <bit-label for="context-menu">{{ "enableContextMenuItem" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="totp"
+            type="checkbox"
+            (change)="updateAutoTotpCopy()"
+            [(ngModel)]="enableAutoTotpCopy"
+          />
+          <bit-label for="totp">{{ "enableAutoTotpCopy" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-field>
+          <bit-label for="clearClipboard">{{ "clearClipboard" | i18n }}</bit-label>
+          <select
+            aria-describedby="clearClipboardHelp"
+            bitInput
+            id="clearClipboard"
+            (change)="saveClearClipboard()"
+            [(ngModel)]="clearClipboard"
+          >
+            <option
+              *ngFor="let o of clearClipboardOptions"
+              [label]="o.name"
+              [ngValue]="o.value"
+            ></option>
+          </select>
+          <bit-hint class="tw-text-sm" id="clearClipboardHelp">
+            {{ "clearClipboardDesc" | i18n }}
+          </bit-hint>
+        </bit-form-field>
+        <bit-form-field disableMargin>
+          <bit-label for="defaultUriMatch">{{ "defaultUriMatchDetection" | i18n }}</bit-label>
+          <select
+            aria-describedby="defaultUriMatchHelp"
+            bitInput
+            id="defaultUriMatch"
+            (change)="saveDefaultUriMatch()"
+            [(ngModel)]="defaultUriMatch"
+          >
+            <option *ngFor="let o of uriMatchOptions" [label]="o.name" [ngValue]="o.value"></option>
+          </select>
+          <bit-hint class="tw-text-sm" id="defaultUriMatchHelp">
+            {{ "defaultUriMatchDetectionDesc" | i18n }}
+          </bit-hint>
+        </bit-form-field>
+      </bit-card>
+    </bit-section>
+    <bit-section *ngIf="blockBrowserInjectionsByDomainEnabled">
+      <bit-item>
+        <a bit-item-content routerLink="/blocked-domains">{{ "blockedDomains" | i18n }}</a>
+        <i slot="end" class="bwi bwi-angle-right bwi-lg row-sub-icon" aria-hidden="true"></i>
+      </bit-item>
+    </bit-section>
   </div>
-  <div class="box">
-    <div class="box-content">
-      <div class="box-content-row" appBoxRow>
-        <label for="defaultUriMatch">{{ "defaultUriMatchDetection" | i18n }}</label>
-        <select
-          id="defaultUriMatch"
-          name="DefaultUriMatch"
-          aria-describedby="defaultUriMatchHelp"
-          [(ngModel)]="defaultUriMatch"
-          (change)="saveDefaultUriMatch()"
-        >
-          <option *ngFor="let o of uriMatchOptions" [ngValue]="o.value">{{ o.name }}</option>
-        </select>
-      </div>
-    </div>
-    <div id="defaultUriMatchHelp" class="box-footer">
-      {{ "defaultUriMatchDetectionDesc" | i18n }}
-    </div>
-  </div>
-</main>
+</popup-page>

@@ -7,8 +7,6 @@
 
 The Bitwarden CLI is a powerful, full-featured command-line interface (CLI) tool to access and manage a Bitwarden vault. The CLI is written with TypeScript and Node.js and can be run on Windows, macOS, and Linux distributions.
 
-![CLI](https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/cli-macos.png "CLI")
-
 ## Developer Documentation
 
 Please refer to the [CLI section](https://contributing.bitwarden.com/getting-started/clients/cli/) of the [Contributing Documentation](https://contributing.bitwarden.com/) for build instructions, recommended tooling, code style tips, and lots of other great information to get you started.
@@ -41,6 +39,9 @@ We provide natively packaged versions of the CLI for each platform which have no
   ```bash
   brew install bitwarden-cli
   ```
+  > ⚠️ The homebrew version is not recommended for all users.
+  >
+  > Homebrew pulls the CLI's GPL build and does not include device approval commands for Enterprise SSO customers.
 - [Snap](https://snapcraft.io/bw)
   ```bash
   sudo snap install bw

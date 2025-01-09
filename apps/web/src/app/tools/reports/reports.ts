@@ -1,6 +1,7 @@
 import { ReportBreach } from "./icons/report-breach.icon";
 import { ReportExposedPasswords } from "./icons/report-exposed-passwords.icon";
 import { ReportInactiveTwoFactor } from "./icons/report-inactive-two-factor.icon";
+import { MemberAccess } from "./icons/report-member-access.icon";
 import { ReportReusedPasswords } from "./icons/report-reused-passwords.icon";
 import { ReportUnsecuredWebsites } from "./icons/report-unsecured-websites.icon";
 import { ReportWeakPasswords } from "./icons/report-weak-passwords.icon";
@@ -13,6 +14,7 @@ export enum ReportType {
   UnsecuredWebsites = "unsecuredWebsites",
   Inactive2fa = "inactive2fa",
   DataBreach = "dataBreach",
+  MemberAccessReport = "memberAccessReport",
 }
 
 type ReportWithoutVariant = Omit<ReportEntry, "variant">;
@@ -53,5 +55,11 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     description: "breachDesc",
     route: "breach-report",
     icon: ReportBreach,
+  },
+  [ReportType.MemberAccessReport]: {
+    title: "memberAccessReport",
+    description: "memberAccessReportDesc",
+    route: "member-access-report",
+    icon: MemberAccess,
   },
 };

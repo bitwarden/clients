@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnChanges, Output } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -8,6 +10,9 @@ export interface PasswordColorText {
   text: string;
 }
 
+/**
+ * @deprecated July 2024: Use new PasswordStrengthV2Component instead
+ */
 @Component({
   selector: "app-password-strength",
   templateUrl: "password-strength.component.html",

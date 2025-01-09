@@ -118,58 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden Adgangskodehåndtering</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Hjemme, på arbejde eller på farten sikrer Bitwarden nemt alle adgangskoder, adgangskort og sensitive oplysninger.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Anerkendt som den bedste adgangskodehåndtering af PCMag, WIRED, The Verge, CNET, G2 og flere!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+SIKR DIT DIGITALE LIV
+Sikr dit digitale liv og vær beskyttet mod dataindbrud ved at generere og gemme unikke, stærke adgangskoder til hver konto. Vedligehold alt i en ende-til-ende krypteret adgangskodeboks, som kun du har adgang til.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+FÅ ADGANG TIL DATAENE, hvor som helst, når som helst, PÅ ENHVER ENHED
+Håndtér, gem, beskyt og del nemt et ubegrænset antal adgangskoder på tværs af et ubegrænset antal enheder uden restriktioner.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+ALLE BØR HAVE VÆRKTØJERNE TIL AT KUNNE VÆRE SIKKER ONLINE
+Brug Bitwarden gratis uden annoncer eller salgsdata. Bitwarden mener, at alle bør have muligheden for at forblive sikre online. Premium-abonnementer giver adgang til avancerede funktioner.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+STYRK DINE HOLD MED BITWARDEN
+Abonnementer til Teams og Enterprise kommer med professionelle forretningsfunktioner, f.eks. SSO-integration, selvhosting, katalogintegration og SCIM-klargøring, globale politikker, API-adgang, hændelseslogfiler og mere.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Brug Bitwarden til at sikre arbejdsstyrken og dele sensitive oplysninger med kolleger.
 
 
-More reasons to choose Bitwarden:
+Flere grunde til at vælge Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Kryptering i verdensklasse
+Adgangskoder er beskyttet med avanceret ende-til-ende-kryptering (AES-256 bit, saltet hashtag og PBKDF2 SHA-256), så dataene forbliver sikre og private.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Tredjepartsrevisioner
+Bitwarden udfører regelmæssigt omfattende tredjeparts sikkerhedsrevisioner med velrenommerede sikkerhedsfirmaer. Disse årlige revisioner inkluderer kildekodevurderinger og penetrationstest på tværs af Bitwarden IP'er, servere og webapplikationer.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Avanceret 2FA
+Sikre dit login med en tredjepartsgodkendelse, e-mailede koder eller FIDO2 WebAuthn-legitimationsoplysninger, såsom en hardwaresikkerhedsnøgle eller adgangsnøgle.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Overfør data direkte til andre, mens ende-til-ende krypteret sikkerhed opretholdes og begrænser eksponeringen.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Indbygget generator
+Opret lange, komplekse og distinkte adgangskoder og unikke brugernavne til hvert websted, som besøges. Integrér med udbydere af e-mailalias for yderligere fortrolighed.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Globale oversættelser
+Bitwarden-lokaliseringer findes til flere end 60 sprog, oversat af det globale fællesskab via Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Applikationer på tværs af platforme
+Sikr og del følsomme data i Bitwarden Vault fra enhver webbrowser, mobilenhed eller computer-OS og mere.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden sikrer mere end blot adgangskoder
+Ende-til-ende krypterede legitimationshåndteringsløsninger fra Bitwarden giver organisationer mulighed for at sikre alt, herunder udviklerhemmeligheder og adgangsnøgleoplevelser. Besøg Bitwarden.com for at læse mere om Bitwarden Secrets Manager og Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Hjemme, på arbejde eller på farten sikrer Bitwarden nemt alle adgangskoder, adgangskort og sensitive oplysninger.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synkroniser og få adgang til din boks fra flere enheder</value>

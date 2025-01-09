@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 
@@ -27,7 +29,7 @@ export class ImportCommand {
         );
       }
 
-      if (!organization.canAccessImportExport) {
+      if (!organization.canAccessImport) {
         return Response.badRequest(
           "You are not authorized to import into the provided organization.",
         );

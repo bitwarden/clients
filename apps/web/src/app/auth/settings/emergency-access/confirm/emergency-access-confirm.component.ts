@@ -1,13 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, OnInit, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 export enum EmergencyAccessConfirmDialogResult {
   Confirmed = "confirmed",
@@ -19,6 +19,8 @@ type EmergencyAccessConfirmDialogData = {
   userId: string;
   /** traces a unique emergency request  */
   emergencyAccessId: string;
+  /** user public key */
+  publicKey: Uint8Array;
 };
 @Component({
   selector: "emergency-access-confirm",
@@ -34,8 +36,7 @@ export class EmergencyAccessConfirmComponent implements OnInit {
   constructor(
     @Inject(DIALOG_DATA) protected params: EmergencyAccessConfirmDialogData,
     private formBuilder: FormBuilder,
-    private apiService: ApiService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
     private logService: LogService,
     private dialogRef: DialogRef<EmergencyAccessConfirmDialogResult>,
@@ -43,13 +44,12 @@ export class EmergencyAccessConfirmComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      const publicKeyResponse = await this.apiService.getUserPublicKey(this.params.userId);
-      if (publicKeyResponse != null) {
-        const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-        const fingerprint = await this.cryptoService.getFingerprint(this.params.userId, publicKey);
-        if (fingerprint != null) {
-          this.fingerprint = fingerprint.join("-");
-        }
+      const fingerprint = await this.keyService.getFingerprint(
+        this.params.userId,
+        this.params.publicKey,
+      );
+      if (fingerprint != null) {
+        this.fingerprint = fingerprint.join("-");
       }
     } catch (e) {
       this.logService.error(e);

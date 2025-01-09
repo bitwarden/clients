@@ -242,6 +242,7 @@ export function mockMigrationHelper(
   mockHelper.remove.mockImplementation((key) => helper.remove(key));
 
   mockHelper.type = helper.type;
+  mockHelper.clientType = helper.clientType;
 
   return mockHelper;
 }
@@ -355,10 +356,12 @@ export async function runMigrator<
   initalData?: InitialDataHint<TUsers>,
   direction: "migrate" | "rollback" = "migrate",
 ): Promise<Record<string, unknown>> {
-  // Inject fake data at every level of the object
-  const allInjectedData = injectData(initalData, []);
+  const clonedData = JSON.parse(JSON.stringify(initalData ?? {}));
 
-  const fakeStorageService = new FakeStorageService(initalData);
+  // Inject fake data at every level of the object
+  const allInjectedData = injectData(clonedData, []);
+
+  const fakeStorageService = new FakeStorageService(clonedData);
   const helper = new MigrationHelper(
     migrator.fromVersion,
     fakeStorageService,

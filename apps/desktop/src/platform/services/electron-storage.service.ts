@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as fs from "fs";
 
 import { ipcMain } from "electron";
@@ -82,9 +84,14 @@ export class ElectronStorageService implements AbstractStorageService {
   }
 
   save(key: string, obj: unknown): Promise<void> {
+    if (obj === undefined) {
+      return this.remove(key);
+    }
+
     if (obj instanceof Set) {
       obj = Array.from(obj);
     }
+
     this.store.set(key, obj);
     this.updatesSubject.next({ key, updateType: "save" });
     return Promise.resolve();

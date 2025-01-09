@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
@@ -47,8 +49,8 @@ export class LoginUri extends Domain {
       return false;
     }
 
-    const cryptoService = Utils.getContainerService().getEncryptService();
-    const localChecksum = await cryptoService.hash(clearTextUri, "sha256");
+    const keyService = Utils.getContainerService().getEncryptService();
+    const localChecksum = await keyService.hash(clearTextUri, "sha256");
 
     const remoteChecksum = await this.uriChecksum.decrypt(orgId, encKey);
     return remoteChecksum === localChecksum;

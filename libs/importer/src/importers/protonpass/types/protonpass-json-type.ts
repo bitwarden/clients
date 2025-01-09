@@ -24,6 +24,7 @@ export type ProtonPassItem = {
   contentFormatVersion: number;
   createTime: number;
   modifyTime: number;
+  pinned: boolean;
 };
 
 export enum ProtonPassItemState {
@@ -34,8 +35,12 @@ export enum ProtonPassItemState {
 export type ProtonPassItemData = {
   metadata: ProtonPassItemMetadata;
   extraFields: ProtonPassItemExtraField[];
-  type: "login" | "alias" | "creditCard" | "note";
-  content: ProtonPassLoginItemContent | ProtonPassCreditCardItemContent;
+  platformSpecific?: any;
+  type: "login" | "alias" | "creditCard" | "note" | "identity";
+  content:
+    | ProtonPassLoginItemContent
+    | ProtonPassCreditCardItemContent
+    | ProtonPassIdentityItemContent;
 };
 
 export type ProtonPassItemMetadata = {
@@ -56,10 +61,12 @@ export type ProtonPassItemExtraFieldData = {
 };
 
 export type ProtonPassLoginItemContent = {
-  username?: string;
+  itemEmail?: string;
   password?: string;
   urls?: string[];
   totpUri?: string;
+  passkeys: [];
+  itemUsername?: string;
 };
 
 export type ProtonPassCreditCardItemContent = {
@@ -69,4 +76,49 @@ export type ProtonPassCreditCardItemContent = {
   verificationNumber?: string;
   expirationDate?: string;
   pin?: string;
+};
+
+export type ProtonPassIdentityItemExtraSection = {
+  sectionName?: string;
+  sectionFields?: ProtonPassItemExtraField[];
+};
+
+export type ProtonPassIdentityItemContent = {
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  birthdate?: string;
+  gender?: string;
+  extraPersonalDetails?: ProtonPassItemExtraField[];
+  organization?: string;
+  streetAddress?: string;
+  zipOrPostalCode?: string;
+  city?: string;
+  stateOrProvince?: string;
+  countryOrRegion?: string;
+  floor?: string;
+  county?: string;
+  extraAddressDetails?: ProtonPassItemExtraField[];
+  socialSecurityNumber?: string;
+  passportNumber?: string;
+  licenseNumber?: string;
+  website?: string;
+  xHandle?: string;
+  secondPhoneNumber?: string;
+  linkedin?: string;
+  reddit?: string;
+  facebook?: string;
+  yahoo?: string;
+  instagram?: string;
+  extraContactDetails?: ProtonPassItemExtraField[];
+  company?: string;
+  jobTitle?: string;
+  personalWebsite?: string;
+  workPhoneNumber?: string;
+  workEmail?: string;
+  extraWorkDetails?: ProtonPassItemExtraField[];
+  extraSections?: ProtonPassIdentityItemExtraSection[];
 };

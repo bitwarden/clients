@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { AllowedFeatureFlagTypes } from "../../../enums/feature-flag.enum";
@@ -6,6 +8,7 @@ import {
   ThirdPartyServerConfigData,
   EnvironmentServerConfigData,
 } from "../../models/data/server-config.data";
+import { ServerSettings } from "../../models/domain/server-settings";
 
 const dayInMilliseconds = 24 * 3600 * 1000;
 
@@ -16,6 +19,7 @@ export class ServerConfig {
   environment?: EnvironmentServerConfigData;
   utcDate: Date;
   featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
+  settings: ServerSettings;
 
   constructor(serverConfigData: ServerConfigData) {
     this.version = serverConfigData.version;
@@ -24,6 +28,7 @@ export class ServerConfig {
     this.utcDate = new Date(serverConfigData.utcDate);
     this.environment = serverConfigData.environment;
     this.featureStates = serverConfigData.featureStates;
+    this.settings = serverConfigData.settings;
 
     if (this.server?.name == null && this.server?.url == null) {
       this.server = null;

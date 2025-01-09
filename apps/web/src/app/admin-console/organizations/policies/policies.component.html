@@ -3,24 +3,24 @@
 <bit-container>
   <ng-container *ngIf="loading">
     <i
-      class="bwi bwi-spinner bwi-spin text-muted"
+      class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
-    <span class="sr-only">{{ "loading" | i18n }}</span>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
-  <table class="table table-hover table-list" *ngIf="!loading">
-    <tbody>
-      <tr *ngFor="let p of policies">
-        <td *ngIf="p.display(organization)">
-          <a href="#" appStopClick (click)="edit(p)">{{ p.name | i18n }}</a>
+  <bit-table *ngIf="!loading">
+    <ng-template body>
+      <tr bitRow *ngFor="let p of policies">
+        <td bitCell *ngIf="p.display(organization)">
+          <button type="button" bitLink (click)="edit(p)">{{ p.name | i18n }}</button>
           <span bitBadge variant="success" *ngIf="policiesEnabledMap.get(p.type)">{{
             "on" | i18n
           }}</span>
-          <small class="text-muted d-block">{{ p.description | i18n }}</small>
+          <small class="tw-text-muted tw-block">{{ p.description | i18n }}</small>
         </td>
       </tr>
-    </tbody>
-  </table>
+    </ng-template>
+  </bit-table>
   <ng-template #editTemplate></ng-template>
 </bit-container>

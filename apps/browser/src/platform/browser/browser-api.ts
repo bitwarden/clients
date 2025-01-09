@@ -1,6 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { DeviceType } from "@bitwarden/common/enums";
+import { isBrowserSafariApi } from "@bitwarden/platform";
 
 import { TabMessage } from "../../types/tab-messages";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
@@ -9,10 +12,7 @@ import { registerContentScriptsPolyfill } from "./browser-api.register-content-s
 
 export class BrowserApi {
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
-  static isSafariApi: boolean =
-    navigator.userAgent.indexOf(" Safari/") !== -1 &&
-    navigator.userAgent.indexOf(" Chrome/") === -1 &&
-    navigator.userAgent.indexOf(" Chromium/") === -1;
+  static isSafariApi: boolean = isBrowserSafariApi();
   static isChromeApi: boolean = !BrowserApi.isSafariApi && typeof chrome !== "undefined";
   static isFirefoxOnAndroid: boolean =
     navigator.userAgent.indexOf("Firefox/") !== -1 && navigator.userAgent.indexOf("Android") !== -1;
@@ -60,11 +60,33 @@ export class BrowserApi {
   }
 
   static async createWindow(options: chrome.windows.CreateData): Promise<chrome.windows.Window> {
-    return new Promise((resolve) =>
-      chrome.windows.create(options, (window) => {
-        resolve(window);
-      }),
-    );
+    return new Promise((resolve) => {
+      chrome.windows.create(options, async (newWindow) => {
+        if (!BrowserApi.isSafariApi) {
+          return resolve(newWindow);
+        }
+        // Safari doesn't close the default extension popup when a new window is created so we need to
+        // manually trigger the close by focusing the main window after the new window is created
+        const allWindows = await new Promise<chrome.windows.Window[]>((resolve) => {
+          chrome.windows.getAll({ windowTypes: ["normal"] }, (windows) => resolve(windows));
+        });
+
+        const mainWindow = allWindows.find((window) => window.id !== newWindow.id);
+
+        // No main window found, resolve the new window
+        if (mainWindow == null || !mainWindow.id) {
+          return resolve(newWindow);
+        }
+
+        // Focus the main window to close the extension popup
+        chrome.windows.update(mainWindow.id, { focused: true }, () => {
+          // Refocus the newly created window
+          chrome.windows.update(newWindow.id, { focused: true }, () => {
+            resolve(newWindow);
+          });
+        });
+      });
+    });
   }
 
   /**
@@ -143,6 +165,21 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Fetch the currently open browser tab
+   */
+  static async getCurrentTab(): Promise<chrome.tabs.Tab> | null {
+    if (BrowserApi.isManifestVersion(3)) {
+      return await chrome.tabs.getCurrent();
+    }
+
+    return new Promise((resolve) =>
+      chrome.tabs.getCurrent((tab) => {
+        resolve(tab);
+      }),
+    );
+  }
+
   static async tabsQuery(options: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> {
     return new Promise((resolve) => {
       chrome.tabs.query(options, (tabs) => {
@@ -176,21 +213,23 @@ export class BrowserApi {
     return BrowserApi.tabSendMessage(tab, obj);
   }
 
-  static async tabSendMessage<T>(
+  static async tabSendMessage<T, TResponse = unknown>(
     tab: chrome.tabs.Tab,
     obj: T,
     options: chrome.tabs.MessageSendOptions = null,
-  ): Promise<void> {
+    rejectOnError = false,
+  ): Promise<TResponse> {
     if (!tab || !tab.id) {
       return;
     }
 
-    return new Promise<void>((resolve) => {
-      chrome.tabs.sendMessage(tab.id, obj, options, () => {
-        if (chrome.runtime.lastError) {
+    return new Promise<TResponse>((resolve, reject) => {
+      chrome.tabs.sendMessage(tab.id, obj, options, (response) => {
+        if (chrome.runtime.lastError && rejectOnError) {
           // Some error happened
+          reject();
         }
-        resolve();
+        resolve(response);
       });
     });
   }
@@ -261,6 +300,28 @@ export class BrowserApi {
     return new Promise((resolve) =>
       chrome.tabs.create({ url: url, active: active }, (tab) => resolve(tab)),
     );
+  }
+
+  /**
+   * Gathers the details for a specified sub-frame of a tab.
+   *
+   * @param details - The details of the frame to get.
+   */
+  static async getFrameDetails(
+    details: chrome.webNavigation.GetFrameDetails,
+  ): Promise<chrome.webNavigation.GetFrameResultDetails> {
+    return new Promise((resolve) => chrome.webNavigation.getFrame(details, resolve));
+  }
+
+  /**
+   * Gets all frames associated with a tab.
+   *
+   * @param tabId - The id of the tab to get the frames for.
+   */
+  static async getAllFrameDetails(
+    tabId: chrome.tabs.Tab["id"],
+  ): Promise<chrome.webNavigation.GetAllFrameResultDetails[]> {
+    return new Promise((resolve) => chrome.webNavigation.getAllFrames({ tabId }, resolve));
   }
 
   // Keep track of all the events registered in a Safari popup so we can remove
@@ -390,18 +451,15 @@ export class BrowserApi {
   }
 
   /**
-   * Handles reloading the extension, either by calling the window location
-   * to reload or by calling the extension's runtime to reload.
-   *
-   * @param globalContext - The global context to use for the reload.
+   * Handles reloading the extension using the underlying functionality exposed by the browser API.
    */
-  static reloadExtension(globalContext: (Window & typeof globalThis) | null) {
-    // The passed globalContext might be a ServiceWorkerGlobalScope, as a result
-    // we need to check if the location object exists before calling reload on it.
-    if (typeof globalContext?.location?.reload === "function") {
-      return (globalContext as any).location.reload(true);
+  static reloadExtension() {
+    // If we do `chrome.runtime.reload` on safari they will send an onInstalled reason of install
+    // and that prompts us to show a new tab, this apparently doesn't happen on sideloaded
+    // extensions and only shows itself production scenarios. See: https://bitwarden.atlassian.net/browse/PM-12298
+    if (this.isSafariApi) {
+      return self.location.reload();
     }
-
     return chrome.runtime.reload();
   }
 
@@ -500,12 +558,20 @@ export class BrowserApi {
     },
   ): Promise<unknown> {
     if (BrowserApi.isManifestVersion(3)) {
+      const target: chrome.scripting.InjectionTarget = {
+        tabId,
+      };
+
+      if (typeof details.frameId === "number") {
+        target.frameIds = [details.frameId];
+      }
+
+      if (!target.frameIds?.length && details.allFrames) {
+        target.allFrames = details.allFrames;
+      }
+
       return chrome.scripting.executeScript({
-        target: {
-          tabId: tabId,
-          allFrames: details.allFrames,
-          frameIds: details.frameId ? [details.frameId] : null,
-        },
+        target,
         files: details.file ? [details.file] : null,
         injectImmediately: details.runAt === "document_start",
         world: scriptingApiDetails?.world || "ISOLATED",

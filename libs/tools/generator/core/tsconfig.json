@@ -1,0 +1,9 @@
+{
+  "extends": "../../../shared/tsconfig.libs",
+  "include": [
+    "src",
+    "../extensions/src/history/generator-history.abstraction.ts",
+    "../extensions/src/navigation/generator-navigation.service.abstraction.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

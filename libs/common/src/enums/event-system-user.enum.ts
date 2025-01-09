@@ -2,4 +2,5 @@
 export enum EventSystemUser {
   SCIM = 1,
   DomainVerification = 2,
+  PublicApi = 3,
 }

@@ -64,27 +64,33 @@
           </bit-form-field>
         </bit-tab>
         <bit-tab label="{{ 'access' | i18n }}">
-          <div class="tw-mb-3" *ngIf="organization.flexibleCollections">
+          <div class="tw-mb-3">
             <ng-container *ngIf="dialogReadonly">
               <span>{{ "readOnlyCollectionAccess" | i18n }}</span>
             </ng-container>
             <ng-container *ngIf="!dialogReadonly">
+              <bit-callout
+                title="{{ 'grantAddAccessCollectionWarningTitle' | i18n }}"
+                type="warning"
+                *ngIf="showAddAccessWarning"
+              >
+                {{ "grantAddAccessCollectionWarning" | i18n }}
+              </bit-callout>
               <span *ngIf="organization.useGroups">{{ "grantCollectionAccess" | i18n }}</span>
               <span *ngIf="!organization.useGroups">{{
                 "grantCollectionAccessMembersOnly" | i18n
               }}</span>
-              <span
-                *ngIf="
-                  (flexibleCollectionsV1Enabled$ | async) &&
-                  organization.allowAdminAccessToAllCollectionItems
-                "
-                >{{ " " + ("adminCollectionAccess" | i18n) }}</span
-              >
+              <span *ngIf="organization.allowAdminAccessToAllCollectionItems">
+                {{ " " + ("adminCollectionAccess" | i18n) }}
+              </span>
             </ng-container>
           </div>
           <div
             class="tw-mb-3 tw-text-danger"
-            *ngIf="formGroup.controls.access.hasError('managePermissionRequired')"
+            *ngIf="
+              formGroup.controls.access.hasError('managePermissionRequired') &&
+              !showAddAccessWarning
+            "
           >
             <i class="bwi bwi-error"></i> {{ "managePermissionRequired" | i18n }}
           </div>
@@ -95,9 +101,8 @@
             [items]="accessItems"
             [columnHeader]="'groupSlashMemberColumnHeader' | i18n"
             [selectorLabelText]="'selectGroupsAndMembers' | i18n"
-            [selectorHelpText]="'userPermissionOverrideHelper' | i18n"
+            [selectorHelpText]="'userPermissionOverrideHelperDesc' | i18n"
             [emptySelectionText]="'noMembersOrGroupsAdded' | i18n"
-            [flexibleCollectionsEnabled]="organization.flexibleCollections"
           ></bit-access-selector>
           <bit-access-selector
             *ngIf="!organization.useGroups"
@@ -107,7 +112,6 @@
             [columnHeader]="'memberColumnHeader' | i18n"
             [selectorLabelText]="'selectMembers' | i18n"
             [emptySelectionText]="'noMembersAdded' | i18n"
-            [flexibleCollectionsEnabled]="organization.flexibleCollections"
           ></bit-access-selector>
         </bit-tab>
       </bit-tab-group>

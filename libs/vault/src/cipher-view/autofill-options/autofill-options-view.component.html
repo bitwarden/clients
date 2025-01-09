@@ -1,0 +1,44 @@
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "autofillOptions" | i18n }}</h2>
+  </bit-section-header>
+  <bit-card>
+    <ng-container *ngFor="let login of loginUris; let last = last">
+      <bit-form-field
+        [disableMargin]="last"
+        [disableReadOnlyBorder]="last"
+        data-testid="autofill-view-list"
+      >
+        <bit-label>
+          {{ "website" | i18n }}
+        </bit-label>
+        <input
+          readonly
+          bitInput
+          type="text"
+          [value]="login.hostOrUri"
+          aria-readonly="true"
+          data-testid="login-website"
+        />
+        <button
+          bitIconButton="bwi-external-link"
+          bitSuffix
+          type="button"
+          (click)="openWebsite(login.launchUri)"
+          data-testid="launch-website"
+          [attr.aria-label]="('launch' | i18n) + ' ' + login.hostOrUri"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [appCopyClick]="login.launchUri"
+          [valueLabel]="'website' | i18n"
+          showToast
+          [appA11yTitle]="'copyWebsite' | i18n"
+          data-testid="copy-website"
+        ></button>
+      </bit-form-field>
+    </ng-container>
+  </bit-card>
+</bit-section>

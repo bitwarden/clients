@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
@@ -19,6 +21,7 @@ import { Identity } from "./identity";
 import { Login } from "./login";
 import { Password } from "./password";
 import { SecureNote } from "./secure-note";
+import { SshKey } from "./ssh-key";
 
 export class Cipher extends Domain implements Decryptable<CipherView> {
   readonly initializerKey = InitializerKey.Cipher;
@@ -39,6 +42,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   identity: Identity;
   card: Card;
   secureNote: SecureNote;
+  sshKey: SshKey;
   attachments: Attachment[];
   fields: Field[];
   passwordHistory: Password[];
@@ -97,6 +101,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       case CipherType.Identity:
         this.identity = new Identity(obj.identity);
         break;
+      case CipherType.SshKey:
+        this.sshKey = new SshKey(obj.sshKey);
+        break;
       default:
         break;
     }
@@ -129,7 +136,13 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
-      encKey = new SymmetricCryptoKey(await encryptService.decryptToBytes(this.key, encKey));
+      const keyBytes = await encryptService.decryptToBytes(this.key, encKey);
+      if (keyBytes == null) {
+        model.name = "[error: cannot decrypt]";
+        model.decryptionFailure = true;
+        return model;
+      }
+      encKey = new SymmetricCryptoKey(keyBytes);
       bypassValidation = false;
     }
 
@@ -155,6 +168,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         break;
       case CipherType.Identity:
         model.identity = await this.identity.decrypt(this.organizationId, encKey);
+        break;
+      case CipherType.SshKey:
+        model.sshKey = await this.sshKey.decrypt(this.organizationId, encKey);
         break;
       default:
         break;
@@ -240,6 +256,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       case CipherType.Identity:
         c.identity = this.identity.toIdentityData();
         break;
+      case CipherType.SshKey:
+        c.sshKey = this.sshKey.toSshKeyData();
+        break;
       default:
         break;
     }
@@ -294,6 +313,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         break;
       case CipherType.SecureNote:
         domain.secureNote = SecureNote.fromJSON(obj.secureNote);
+        break;
+      case CipherType.SshKey:
+        domain.sshKey = SshKey.fromJSON(obj.sshKey);
         break;
       default:
         break;

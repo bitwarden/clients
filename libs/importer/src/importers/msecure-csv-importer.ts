@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
@@ -9,7 +11,7 @@ import { Importer } from "./importer";
 export class MSecureCsvImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
     const result = new ImportResult();
-    const results = this.parseCsv(data, false);
+    const results = this.parseCsv(data, false, { delimiter: "," });
     if (results == null) {
       result.success = false;
       return Promise.resolve(result);
@@ -21,17 +23,43 @@ export class MSecureCsvImporter extends BaseImporter implements Importer {
       }
 
       const folderName =
-        this.getValueOrDefault(value[0], "Unassigned") !== "Unassigned" ? value[0] : null;
+        this.getValueOrDefault(value[2], "Unassigned") !== "Unassigned" ? value[2] : null;
       this.processFolder(result, folderName);
 
       const cipher = this.initLoginCipher();
-      cipher.name = this.getValueOrDefault(value[2], "--");
+      cipher.name = this.getValueOrDefault(value[0].split("|")[0], "--");
 
       if (value[1] === "Web Logins" || value[1] === "Login") {
-        cipher.login.uris = this.makeUriArray(value[4]);
-        cipher.login.username = this.getValueOrDefault(value[5]);
-        cipher.login.password = this.getValueOrDefault(value[6]);
+        cipher.login.username = this.getValueOrDefault(this.splitValueRetainingLastPart(value[5]));
+        cipher.login.uris = this.makeUriArray(this.splitValueRetainingLastPart(value[4]));
+        cipher.login.password = this.getValueOrDefault(this.splitValueRetainingLastPart(value[6]));
         cipher.notes = !this.isNullOrWhitespace(value[3]) ? value[3].split("\\n").join("\n") : null;
+      } else if (value[1] === "Credit Card") {
+        cipher.type = CipherType.Card;
+        cipher.card.number = this.getValueOrDefault(this.splitValueRetainingLastPart(value[4]));
+
+        const [month, year] = this.getValueOrDefault(
+          this.splitValueRetainingLastPart(value[5]),
+        ).split("/");
+        cipher.card.expMonth = month.trim();
+        cipher.card.expYear = year.trim();
+        cipher.card.code = this.getValueOrDefault(this.splitValueRetainingLastPart(value[6]));
+        cipher.card.cardholderName = this.getValueOrDefault(
+          this.splitValueRetainingLastPart(value[7]),
+        );
+        cipher.card.brand = this.getValueOrDefault(this.splitValueRetainingLastPart(value[9]));
+        cipher.notes =
+          this.getValueOrDefault(value[8].split("|")[0]) +
+          ": " +
+          this.getValueOrDefault(this.splitValueRetainingLastPart(value[8]), "") +
+          "\n" +
+          this.getValueOrDefault(value[10].split("|")[0]) +
+          ": " +
+          this.getValueOrDefault(this.splitValueRetainingLastPart(value[10]), "") +
+          "\n" +
+          this.getValueOrDefault(value[11].split("|")[0]) +
+          ": " +
+          this.getValueOrDefault(this.splitValueRetainingLastPart(value[11]), "");
       } else if (value.length > 3) {
         cipher.type = CipherType.SecureNote;
         cipher.secureNote = new SecureNoteView();
@@ -43,7 +71,11 @@ export class MSecureCsvImporter extends BaseImporter implements Importer {
         }
       }
 
-      if (!this.isNullOrWhitespace(value[1]) && cipher.type !== CipherType.Login) {
+      if (
+        !this.isNullOrWhitespace(value[1]) &&
+        cipher.type !== CipherType.Login &&
+        cipher.type !== CipherType.Card
+      ) {
         cipher.name = value[1] + ": " + cipher.name;
       }
 
@@ -57,5 +89,12 @@ export class MSecureCsvImporter extends BaseImporter implements Importer {
 
     result.success = true;
     return Promise.resolve(result);
+  }
+
+  // mSecure returns values separated by "|" where after the second separator is the value
+  // like "Password|8|myPassword", we want to keep the "myPassword" but also ensure that if
+  // the value contains any "|" it works fine
+  private splitValueRetainingLastPart(value: string) {
+    return value.split("|").slice(0, 2).concat(value.split("|").slice(2).join("|")).pop();
   }
 }

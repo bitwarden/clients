@@ -1,68 +1,45 @@
-<div class="modal fade" role="dialog" aria-modal="true" aria-labelledby="twoStepOptionsTitle">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title" id="twoStepOptionsTitle">{{ "twoStepOptions" | i18n }}</h1>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          appA11yTitle="{{ 'close' | i18n }}"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="list-group list-group-flush-2fa">
-          <div *ngFor="let p of providers" class="list-group-item list-group-item-action">
-            <div class="two-factor-content">
-              <div class="logo-col">
-                <img [class]="'mfaType' + p.type" [alt]="p.name + ' logo'" />
-              </div>
-              <div class="text-col">
-                <h3>{{ p.name }}</h3>
-                {{ p.description }}
-              </div>
-              <div class="btn-col">
-                <button
-                  [attr.aria-describedby]="p.name"
-                  type="button"
-                  class="btn btn-outline-secondary btn-sm"
-                  (click)="choose(p)"
-                >
-                  {{ "select" | i18n }}
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="list-group-item list-group-item-action" (click)="recover()">
-            <div class="two-factor-content">
-              <div class="logo-col">
-                <img class="recovery-code-img" alt="rc logo" />
-              </div>
-              <div class="text-col">
-                <h3>{{ "recoveryCodeTitle" | i18n }}</h3>
-                {{ "recoveryCodeDesc" | i18n }}
-              </div>
-              <div class="btn-col">
-                <button
-                  [attr.aria-describedby]="'recoveryCodeTitle' | i18n"
-                  type="button"
-                  class="btn btn-outline-secondary btn-sm"
-                  (click)="recover()"
-                >
-                  {{ "select" | i18n }}
-                </button>
-              </div>
-            </div>
-          </div>
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>
+    {{ "twoStepOptions" | i18n }}
+  </span>
+  <ng-container bitDialogContent>
+    <div *ngFor="let p of providers" class="tw-m-2">
+      <div class="tw-flex tw-items-center tw-justify-center tw-gap-4">
+        <div class="tw-flex tw-items-center tw-justify-center tw-min-w-[120px]">
+          <auth-two-factor-icon [provider]="p.type" />
+        </div>
+        <div class="tw-flex-1">
+          <h3 bitTypography="h3">{{ p.name }}</h3>
+          <p bitTypography="body1">{{ p.description }}</p>
+        </div>
+        <div class="tw-min-w-20">
+          <button bitButton type="button" buttonType="secondary" (click)="choose(p)">
+            {{ "select" | i18n }}
+          </button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-          {{ "close" | i18n }}
-        </button>
+      <hr />
+    </div>
+    <div class="tw-m-2" (click)="recover()">
+      <div class="tw-flex tw-items-center tw-justify-center tw-gap-4">
+        <div class="tw-flex tw-items-center tw-justify-center tw-min-w-[120px]">
+          <auth-two-factor-icon provider="rc" />
+        </div>
+        <div class="tw-flex-1">
+          <h3 bitTypography="h3">{{ "recoveryCodeTitle" | i18n }}</h3>
+          <p bitTypography="body1">{{ "recoveryCodeDesc" | i18n }}</p>
+        </div>
+        <div class="tw-min-w-20">
+          <button bitButton type="button" buttonType="secondary" (click)="recover()">
+            {{ "select" | i18n }}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

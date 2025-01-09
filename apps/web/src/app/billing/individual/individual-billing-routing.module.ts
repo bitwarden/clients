@@ -1,10 +1,14 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
 import { PaymentMethodComponent } from "../shared";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
-import { PremiumComponent } from "./premium.component";
+import { PremiumV2Component } from "./premium/premium-v2.component";
+import { PremiumComponent } from "./premium/premium.component";
 import { SubscriptionComponent } from "./subscription.component";
 import { UserSubscriptionComponent } from "./user-subscription.component";
 
@@ -20,11 +24,15 @@ const routes: Routes = [
         component: UserSubscriptionComponent,
         data: { titleId: "premiumMembership" },
       },
-      {
-        path: "premium",
-        component: PremiumComponent,
-        data: { titleId: "goPremium" },
-      },
+      ...featureFlaggedRoute({
+        defaultComponent: PremiumComponent,
+        flaggedComponent: PremiumV2Component,
+        featureFlag: FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
+        routeOptions: {
+          path: "premium",
+          data: { titleId: "goPremium" },
+        },
+      }),
       {
         path: "payment-method",
         component: PaymentMethodComponent,

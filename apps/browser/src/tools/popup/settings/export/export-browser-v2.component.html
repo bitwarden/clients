@@ -1,0 +1,27 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'exportVault' | i18n" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <tools-export
+    (formDisabled)="this.disabled = $event"
+    (formLoading)="this.loading = $event"
+    (onSuccessfulExport)="this.onSuccessfulExport($event)"
+  ></tools-export>
+
+  <popup-footer slot="footer">
+    <button
+      [disabled]="disabled"
+      [loading]="loading"
+      form="export_form_exportForm"
+      bitButton
+      type="submit"
+      bitFormButton
+      buttonType="primary"
+    >
+      {{ "exportVault" | i18n }}
+    </button>
+  </popup-footer>
+</popup-page>

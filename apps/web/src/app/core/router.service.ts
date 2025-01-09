@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
@@ -11,6 +13,20 @@ import {
   StateProvider,
   GlobalState,
 } from "@bitwarden/common/platform/state";
+
+/**
+ * Data properties acceptable for use in route objects (see usage in oss-routing.module.ts for example)
+ */
+export interface RouteDataProperties {
+  /**
+   * Title of the current HTML document (shows in browser tab)
+   */
+  titleId?: string;
+  /**
+   * doNotSaveUrl - choose to not keep track of the previous URL in memory in the RouterService
+   */
+  doNotSaveUrl?: boolean;
+}
 
 const DEEP_LINK_REDIRECT_URL = new KeyDefinition(ROUTER_DISK, "deepLinkRedirectUrl", {
   deserializer: (value: string) => value,
@@ -92,7 +108,7 @@ export class RouterService {
   /**
    * Fetch and clear persisted LoginRedirectUrl if present in state
    */
-  async getAndClearLoginRedirectUrl(): Promise<string> | undefined {
+  async getAndClearLoginRedirectUrl(): Promise<string | undefined> {
     const persistedPreLoginUrl = await firstValueFrom(this.deepLinkRedirectUrlState.state$);
 
     if (!Utils.isNullOrEmpty(persistedPreLoginUrl)) {

@@ -8,6 +8,14 @@ export enum EncryptionType {
   Rsa2048_OaepSha1_HmacSha256_B64 = 6,
 }
 
+export function encryptionTypeToString(encryptionType: EncryptionType): string {
+  if (encryptionType in EncryptionType) {
+    return EncryptionType[encryptionType];
+  } else {
+    return "Unknown encryption type " + encryptionType;
+  }
+}
+
 /** The expected number of parts to a serialized EncString of the given encryption type.
  * For example, an EncString of type AesCbc256_B64 will have 2 parts, and an EncString of type
  * AesCbc128_HmacSha256_B64 will have 3 parts.

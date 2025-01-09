@@ -11,7 +11,7 @@ import { Message, CommandDefinition } from "./types";
  * or vault data changes and those observables should be preferred over messaging.
  */
 export class MessageListener {
-  constructor(private readonly messageStream: Observable<Message<object>>) {}
+  constructor(private readonly messageStream: Observable<Message<Record<string, unknown>>>) {}
 
   /**
    * A stream of all messages sent through the application. It does not contain type information for the
@@ -28,7 +28,9 @@ export class MessageListener {
    *
    * @param commandDefinition The CommandDefinition containing the information about the message type you care about.
    */
-  messages$<T extends object>(commandDefinition: CommandDefinition<T>): Observable<T> {
+  messages$<T extends Record<string, unknown>>(
+    commandDefinition: CommandDefinition<T>,
+  ): Observable<T> {
     return this.allMessages$.pipe(
       filter((msg) => msg?.command === commandDefinition.command),
     ) as Observable<T>;

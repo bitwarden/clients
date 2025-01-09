@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards";
+import { authGuard } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   canAccessOrgAdmin,
   canAccessGroupsTab,
@@ -11,35 +14,45 @@ import {
   canAccessSettingsTab,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
-import { OrganizationPermissionsGuard } from "../../admin-console/organizations/guards/org-permissions.guard";
-import { OrganizationRedirectGuard } from "../../admin-console/organizations/guards/org-redirect.guard";
+import { organizationPermissionsGuard } from "../../admin-console/organizations/guards/org-permissions.guard";
+import { organizationRedirectGuard } from "../../admin-console/organizations/guards/org-redirect.guard";
 import { OrganizationLayoutComponent } from "../../admin-console/organizations/layouts/organization-layout.component";
-import { GroupsComponent } from "../../admin-console/organizations/manage/groups.component";
 import { deepLinkGuard } from "../../auth/guards/deep-link.guard";
 import { VaultModule } from "../../vault/org-vault/vault.module";
+
+import { isEnterpriseOrgGuard } from "./guards/is-enterprise-org.guard";
+import { AdminConsoleIntegrationsComponent } from "./integrations/integrations.component";
+import { GroupsComponent } from "./manage/groups.component";
 
 const routes: Routes = [
   {
     path: ":organizationId",
     component: OrganizationLayoutComponent,
-    canActivate: [deepLinkGuard(), AuthGuard, OrganizationPermissionsGuard],
-    data: {
-      organizationPermissions: canAccessOrgAdmin,
-    },
+    canActivate: [deepLinkGuard(), authGuard, organizationPermissionsGuard(canAccessOrgAdmin)],
     children: [
       {
         path: "",
         pathMatch: "full",
-        canActivate: [OrganizationRedirectGuard],
-        data: {
-          autoRedirectCallback: getOrganizationRoute,
-        },
+        canActivate: [organizationRedirectGuard(getOrganizationRoute)],
         children: [], // This is required to make the auto redirect work, },
       },
       {
         path: "vault",
         loadChildren: () => VaultModule,
+      },
+      {
+        path: "integrations",
+        canActivate: [
+          canAccessFeature(FeatureFlag.PM14505AdminConsoleIntegrationPage),
+          isEnterpriseOrgGuard(false),
+          organizationPermissionsGuard(canAccessIntegrations),
+        ],
+        component: AdminConsoleIntegrationsComponent,
+        data: {
+          titleId: "integrations",
+        },
       },
       {
         path: "settings",
@@ -53,12 +66,11 @@ const routes: Routes = [
         loadChildren: () => import("./members").then((m) => m.MembersModule),
       },
       {
-        path: "groups",
         component: GroupsComponent,
-        canActivate: [OrganizationPermissionsGuard],
+        path: "groups",
+        canActivate: [organizationPermissionsGuard(canAccessGroupsTab)],
         data: {
           titleId: "groups",
-          organizationPermissions: canAccessGroupsTab,
         },
       },
       {
@@ -96,6 +108,10 @@ function getOrganizationRoute(organization: Organization): string {
     return "settings";
   }
   return undefined;
+}
+
+function canAccessIntegrations(organization: Organization) {
+  return organization.canAccessIntegrations;
 }
 
 @NgModule({

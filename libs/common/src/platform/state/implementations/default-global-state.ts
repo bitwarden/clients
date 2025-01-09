@@ -1,3 +1,4 @@
+import { LogService } from "../../abstractions/log.service";
 import {
   AbstractStorageService,
   ObservableStorageService,
@@ -14,7 +15,8 @@ export class DefaultGlobalState<T>
   constructor(
     keyDefinition: KeyDefinition<T>,
     chosenLocation: AbstractStorageService & ObservableStorageService,
+    logService: LogService,
   ) {
-    super(globalKeyBuilder(keyDefinition), chosenLocation, keyDefinition);
+    super(globalKeyBuilder(keyDefinition), chosenLocation, keyDefinition, logService);
   }
 }

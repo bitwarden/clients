@@ -1,25 +1,35 @@
----
 name: Chromatic
 
 on:
   push:
-    branches-ignore:
-      - 'renovate/**'
-    paths-ignore:
-      - '.github/workflows/**'
+    branches:
+      - "main"
+      - "rc"
+      - "hotfix-rc"
+  pull_request_target:
+    types: [opened, synchronize]
 
 jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+
   chromatic:
     name: Chromatic
     runs-on: ubuntu-22.04
+    needs: check-run
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          ref: ${{  github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Get Node Version
+      - name: Get Node version
         id: retrieve-node-version
         run: |
           NODE_NVMRC=$(cat .nvmrc)
@@ -27,13 +37,13 @@ jobs:
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
-      - name: Cache npm
+      - name: Cache NPM
         id: npm-cache
-        uses: actions/cache@ab5e6d0c87105b4c9c2047343972218f562e4319 # v4.0.1
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
@@ -41,12 +51,12 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      # Manual build the storybook to resolve a chromatic/storybook bug related to TurboSnap
+      # Manually build the Storybook to resolve a bug related to TurboSnap
       - name: Build Storybook
         run: npm run build-storybook:ci
 
       - name: Publish to Chromatic
-        uses: chromaui/action@c9067691aca4a28d6fbb40d9eea6e144369fbcae # v10.9.5
+        uses: chromaui/action@64a9c0ca3bfb724389b0d536e544f56b7b5ff5b3 # v11.20.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}

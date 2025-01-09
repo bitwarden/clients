@@ -1,19 +1,23 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil, Observable, firstValueFrom } from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
 import { OrganizationDomainRequest } from "@bitwarden/common/admin-console/services/organization-domain/requests/organization-domain.request";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { domainNameValidator } from "./validators/domain-name.validator";
 import { uniqueInArrayValidator } from "./validators/unique-in-array.validator";
@@ -29,20 +33,8 @@ export interface DomainAddEditDialogData {
 export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   private componentDestroyed$: Subject<void> = new Subject();
 
-  domainForm: FormGroup = this.formBuilder.group({
-    domainName: [
-      "",
-      [
-        Validators.required,
-        domainNameValidator(this.i18nService.t("invalidDomainNameMessage")),
-        uniqueInArrayValidator(
-          this.data.existingDomainNames,
-          this.i18nService.t("duplicateDomainError"),
-        ),
-      ],
-    ],
-    txt: [{ value: null, disabled: true }],
-  });
+  accountDeprovisioningEnabled$: Observable<boolean>;
+  domainForm: FormGroup;
 
   get domainNameCtrl(): FormControl {
     return this.domainForm.controls.domainName as FormControl;
@@ -66,11 +58,35 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     private orgDomainService: OrgDomainServiceAbstraction,
     private validationService: ValidationService,
     private dialogService: DialogService,
-  ) {}
+    private toastService: ToastService,
+    private configService: ConfigService,
+  ) {
+    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AccountDeprovisioning,
+    );
+  }
 
   // Angular Method Implementations
 
   async ngOnInit(): Promise<void> {
+    this.domainForm = this.formBuilder.group({
+      domainName: [
+        "",
+        [
+          Validators.required,
+          domainNameValidator(
+            (await firstValueFrom(this.accountDeprovisioningEnabled$))
+              ? this.i18nService.t("invalidDomainNameClaimMessage")
+              : this.i18nService.t("invalidDomainNameMessage"),
+          ),
+          uniqueInArrayValidator(
+            this.data.existingDomainNames,
+            this.i18nService.t("duplicateDomainError"),
+          ),
+        ],
+      ],
+      txt: [{ value: null, disabled: true }],
+    });
     // If we have data.orgDomain, then editing, otherwise creating new domain
     await this.populateForm();
   }
@@ -104,6 +120,11 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
 
   copyDnsTxt(): void {
     this.orgDomainService.copyDnsTxt(this.txtCtrl.value);
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
+    });
   }
 
   // End Form methods
@@ -112,7 +133,11 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   // Creates a new domain record. The DNS TXT Record will be generated server-side and returned in the response.
   saveDomain = async (): Promise<void> => {
     if (this.domainForm.invalid) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("domainFormInvalid"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("domainFormInvalid"),
+      });
       return;
     }
 
@@ -126,7 +151,11 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
       this.data.orgDomain = await this.orgDomainApiService.post(this.data.organizationId, request);
       // Patch the DNS TXT Record that was generated server-side
       this.domainForm.controls.txt.patchValue(this.data.orgDomain.txt);
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("domainSaved"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("domainSaved"),
+      });
     } catch (e) {
       this.handleDomainSaveError(e);
     }
@@ -177,7 +206,11 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   verifyDomain = async (): Promise<void> => {
     if (this.domainForm.invalid) {
       // Note: shouldn't be possible, but going to leave this to be safe.
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("domainFormInvalid"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("domainFormInvalid"),
+      });
       return;
     }
 
@@ -188,12 +221,25 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
       );
 
       if (this.data.orgDomain.verifiedDate) {
-        this.platformUtilsService.showToast("success", null, this.i18nService.t("domainVerified"));
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t(
+            (await firstValueFrom(this.accountDeprovisioningEnabled$))
+              ? "domainClaimed"
+              : "domainVerified",
+          ),
+        });
         this.dialogRef.close();
       } else {
         this.domainNameCtrl.setErrors({
           errorPassthrough: {
-            message: this.i18nService.t("domainNotVerified", this.domainNameCtrl.value),
+            message: this.i18nService.t(
+              (await firstValueFrom(this.accountDeprovisioningEnabled$))
+                ? "domainNotClaimed"
+                : "domainNotVerified",
+              this.domainNameCtrl.value,
+            ),
           },
         });
         // For the case where user opens dialog and reverifies when domain name formControl disabled.
@@ -250,7 +296,11 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     }
 
     await this.orgDomainApiService.delete(this.data.organizationId, this.data.orgDomain.id);
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("domainRemoved"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("domainRemoved"),
+    });
 
     this.dialogRef.close();
   };

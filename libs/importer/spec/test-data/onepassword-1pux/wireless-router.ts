@@ -26,7 +26,7 @@ export const WirelessRouterData: ExportData = {
               favIndex: 0,
               createdAt: 1577652307,
               updatedAt: 1577652307,
-              trashed: false,
+              state: "active",
               categoryUuid: "109",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const WirelessRouterData: ExportData = {
                         value: {
                           string: "pixel 2Xl",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const WirelessRouterData: ExportData = {
                         value: {
                           concealed: "BqatGTVQ9TCN72tLbjrsHqkb",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const WirelessRouterData: ExportData = {
                         value: {
                           string: "127.0.0.1",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -89,7 +86,6 @@ export const WirelessRouterData: ExportData = {
                         value: {
                           string: "some airportId",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -105,7 +101,6 @@ export const WirelessRouterData: ExportData = {
                         value: {
                           string: "some network name",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -121,7 +116,6 @@ export const WirelessRouterData: ExportData = {
                         value: {
                           menu: "WPA",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -137,7 +131,6 @@ export const WirelessRouterData: ExportData = {
                         value: {
                           concealed: "wifipassword",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -153,7 +146,6 @@ export const WirelessRouterData: ExportData = {
                         value: {
                           concealed: "diskpassword",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

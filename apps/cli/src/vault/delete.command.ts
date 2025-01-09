@@ -1,11 +1,13 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 
 import { Response } from "../models/response";
 import { CliUtils } from "../utils";
@@ -17,6 +19,8 @@ export class DeleteCommand {
     private apiService: ApiService,
     private folderApiService: FolderApiServiceAbstraction,
     private accountProfileService: BillingAccountProfileStateService,
+    private cipherAuthorizationService: CipherAuthorizationService,
+    private accountService: AccountService,
   ) {}
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -43,6 +47,14 @@ export class DeleteCommand {
     const cipher = await this.cipherService.get(id);
     if (cipher == null) {
       return Response.notFound();
+    }
+
+    const canDeleteCipher = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(cipher),
+    );
+
+    if (!canDeleteCipher) {
+      return Response.error("You do not have permission to delete this item.");
     }
 
     try {
@@ -77,8 +89,9 @@ export class DeleteCommand {
       return Response.error("Attachment `" + id + "` was not found.");
     }
 
+    const account = await firstValueFrom(this.accountService.activeAccount$);
     const canAccessPremium = await firstValueFrom(
-      this.accountProfileService.hasPremiumFromAnySource$,
+      this.accountProfileService.hasPremiumFromAnySource$(account.id),
     );
     if (cipher.organizationId == null && !canAccessPremium) {
       return Response.error("Premium status is required to use this feature.");
@@ -93,13 +106,16 @@ export class DeleteCommand {
   }
 
   private async deleteFolder(id: string) {
-    const folder = await this.folderService.getFromState(id);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    const folder = await this.folderService.getFromState(id, activeUserId);
     if (folder == null) {
       return Response.notFound();
     }
 
     try {
-      await this.folderApiService.delete(id);
+      await this.folderApiService.delete(id, activeUserId);
       return Response.success();
     } catch (e) {
       return Response.error(e);

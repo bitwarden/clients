@@ -1,16 +1,13 @@
-<app-callout type="warning">
-  {{ "singleOrgPolicyWarning" | i18n }}
-</app-callout>
+<bit-callout *ngIf="accountDeprovisioningEnabled$ | async; else disabledBlock" type="warning">
+  {{ "singleOrgPolicyMemberWarning" | i18n }}
+</bit-callout>
+<ng-template #disabledBlock>
+  <bit-callout type="warning">
+    {{ "singleOrgPolicyWarning" | i18n }}
+  </bit-callout>
+</ng-template>
 
-<div class="form-group">
-  <div class="form-check">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      id="enabled"
-      [formControl]="enabled"
-      name="Enabled"
-    />
-    <label class="form-check-label" for="enabled">{{ "turnOn" | i18n }}</label>
-  </div>
-</div>
+<bit-form-control>
+  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>

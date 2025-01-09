@@ -15,13 +15,9 @@ type UpdateAutofillDataAttributeParams = {
 };
 
 interface CollectAutofillContentService {
+  autofillFormElements: AutofillFormElements;
   getPageDetails(): Promise<AutofillPageDetails>;
   getAutofillFieldElementByOpid(opid: string): HTMLElement | null;
-  queryAllTreeWalkerNodes(
-    rootNode: Node,
-    filterCallback: CallableFunction,
-    isObservingShadowRoot?: boolean,
-  ): Node[];
   destroy(): void;
 }
 

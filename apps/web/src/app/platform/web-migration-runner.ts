@@ -4,9 +4,8 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { MigrationHelper } from "@bitwarden/common/state-migrations/migration-helper";
-
-import { WindowStorageService } from "./window-storage.service";
 
 export class WebMigrationRunner extends MigrationRunner {
   constructor(

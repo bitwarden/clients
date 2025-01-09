@@ -1,4 +1,16 @@
-import { Component, HostBinding, Input } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { NgClass } from "@angular/common";
+import {
+  AfterContentChecked,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostBinding,
+  Input,
+  signal,
+  ViewChild,
+} from "@angular/core";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 
@@ -8,16 +20,23 @@ let nextId = 0;
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",
   preserveWhitespaces: false,
+  standalone: true,
+  imports: [NgClass],
 })
-export class ToggleComponent<TValue> {
+export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewInit {
   id = nextId++;
 
   @Input() value?: TValue;
+  @ViewChild("labelContent") labelContent: ElementRef<HTMLSpanElement>;
+  @ViewChild("bitBadgeContainer") bitBadgeContainer: ElementRef<HTMLSpanElement>;
 
   constructor(private groupComponent: ToggleGroupComponent<TValue>) {}
 
   @HostBinding("tabIndex") tabIndex = "-1";
-  @HostBinding("class") classList = ["tw-group"];
+  @HostBinding("class") classList = ["tw-group/toggle", "tw-flex", "tw-min-w-16"];
+
+  protected bitBadgeContainerHasChidlren = signal(false);
+  protected labelTitle = signal<string>(null);
 
   get name() {
     return this.groupComponent.name;
@@ -28,54 +47,69 @@ export class ToggleComponent<TValue> {
   }
 
   get inputClasses() {
-    return ["tw-peer", "tw-appearance-none", "tw-outline-none"];
+    return ["tw-peer/toggle-input", "tw-appearance-none", "tw-outline-none"];
   }
 
   get labelClasses() {
     return [
+      "tw-h-full",
+      "tw-w-full",
+      "tw-flex",
+      "tw-items-center",
+      "tw-justify-center",
+      "tw-gap-1.5",
       "!tw-font-semibold",
+      "tw-leading-5",
       "tw-transition",
       "tw-text-center",
-      "tw-border-text-muted",
-      "!tw-text-muted",
+      "tw-text-sm",
+      "tw-border-primary-600",
+      "!tw-text-primary-600",
       "tw-border-solid",
       "tw-border-y",
       "tw-border-r",
       "tw-border-l-0",
       "tw-cursor-pointer",
-      "group-first-of-type:tw-border-l",
-      "group-first-of-type:tw-rounded-l",
-      "group-last-of-type:tw-rounded-r",
+      "hover:tw-bg-primary-100",
 
-      "peer-focus:tw-outline-none",
-      "peer-focus:tw-ring",
-      "peer-focus:tw-ring-offset-2",
-      "peer-focus:tw-ring-primary-600",
-      "peer-focus:tw-z-10",
-      "peer-focus:tw-bg-primary-600",
-      "peer-focus:tw-border-primary-600",
-      "peer-focus:!tw-text-contrast",
+      "group-first-of-type/toggle:tw-border-l",
+      "group-first-of-type/toggle:tw-rounded-l-full",
+      "group-last-of-type/toggle:tw-rounded-r-full",
 
-      "hover:tw-no-underline",
-      "hover:tw-bg-text-muted",
-      "hover:tw-border-text-muted",
-      "hover:!tw-text-contrast",
+      "peer-focus-visible/toggle-input:tw-outline-none",
+      "peer-focus-visible/toggle-input:tw-ring",
+      "peer-focus-visible/toggle-input:tw-ring-offset-2",
+      "peer-focus-visible/toggle-input:tw-ring-primary-600",
+      "peer-focus-visible/toggle-input:tw-z-10",
+      "peer-focus-visible/toggle-input:tw-bg-primary-600",
+      "peer-focus-visible/toggle-input:tw-border-primary-600",
+      "peer-focus-visible/toggle-input:!tw-text-contrast",
 
-      "peer-checked:tw-bg-primary-600",
-      "peer-checked:tw-border-primary-600",
-      "peer-checked:!tw-text-contrast",
+      "peer-checked/toggle-input:tw-bg-primary-600",
+      "peer-checked/toggle-input:tw-border-primary-600",
+      "peer-checked/toggle-input:!tw-text-contrast",
       "tw-py-1.5",
       "tw-px-3",
 
       // Fix for bootstrap styles that add bottom margin
       "!tw-mb-0",
-
-      // Fix for badge being slightly off center vertically
-      "[&>[bitBadge]]:tw-mt-px",
     ];
   }
 
   onInputInteraction() {
     this.groupComponent.onInputInteraction(this.value);
+  }
+
+  ngAfterContentChecked() {
+    this.bitBadgeContainerHasChidlren.set(
+      this.bitBadgeContainer?.nativeElement.childElementCount > 0,
+    );
+  }
+
+  ngAfterViewInit() {
+    const labelText = this.labelContent?.nativeElement.innerText;
+    if (labelText) {
+      this.labelTitle.set(labelText);
+    }
   }
 }

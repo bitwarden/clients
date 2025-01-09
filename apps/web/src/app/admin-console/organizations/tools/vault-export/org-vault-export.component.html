@@ -1,0 +1,21 @@
+<app-header></app-header>
+
+<bit-container>
+  <tools-export
+    (formDisabled)="this.disabled = $event"
+    (formLoading)="this.loading = $event"
+    (onSuccessfulExport)="this.onSuccessfulExport($event)"
+    organizationId="{{ routeOrgId }}"
+  ></tools-export>
+  <button
+    [disabled]="disabled"
+    [loading]="loading"
+    form="export_form_exportForm"
+    bitButton
+    type="submit"
+    bitFormButton
+    buttonType="primary"
+  >
+    {{ "confirmFormat" | i18n }}
+  </button>
+</bit-container>

@@ -1,0 +1,11 @@
+<div class="tw-flex tw-w-full tw-justify-between tw-items-center tw-gap-2">
+  <span class="tw-flex tw-gap-2 tw-items-center tw-overflow-hidden">
+    <span #startSlot [ngClass]="{ 'tw-hidden': startSlot.childElementCount === 0 }">
+      <ng-content select="[slot=start]"></ng-content>
+    </span>
+    <span class="tw-truncate"><ng-content></ng-content></span>
+  </span>
+  <span #endSlot [ngClass]="{ 'tw-hidden': endSlot.childElementCount === 0 }">
+    <ng-content select="[slot=end]"></ng-content>
+  </span>
+</div>

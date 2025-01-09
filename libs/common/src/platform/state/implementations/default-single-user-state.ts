@@ -1,6 +1,7 @@
 import { Observable, combineLatest, of } from "rxjs";
 
 import { UserId } from "../../../types/guid";
+import { LogService } from "../../abstractions/log.service";
 import {
   AbstractStorageService,
   ObservableStorageService,
@@ -22,8 +23,9 @@ export class DefaultSingleUserState<T>
     keyDefinition: UserKeyDefinition<T>,
     chosenLocation: AbstractStorageService & ObservableStorageService,
     private stateEventRegistrarService: StateEventRegistrarService,
+    logService: LogService,
   ) {
-    super(keyDefinition.buildKey(userId), chosenLocation, keyDefinition);
+    super(keyDefinition.buildKey(userId), chosenLocation, keyDefinition, logService);
     this.combinedState$ = combineLatest([of(userId), this.state$]);
   }
 

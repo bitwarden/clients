@@ -1,5 +1,14 @@
 import { Meta, Story, Source } from "@storybook/addon-docs";
 
+import * as formStories from "./form.stories";
+import * as fieldStories from "../form-field/form-field.stories";
+import * as passwordToggleStories from "../form-field/password-input-toggle.stories";
+import * as searchStories from "../search/search.stories";
+import * as selectStories from "../select/select.stories";
+import * as multiSelectStories from "../form-field/multi-select.stories";
+import * as radioStories from "../radio-button/radio-button.stories";
+import * as checkboxStories from "../checkbox/checkbox.stories";
+
 <Meta title="Component Library/Form" />
 
 # Forms
@@ -8,9 +17,9 @@ Component Library forms should always be built using [Angular Reactive Forms][re
 [ADR-0001][adr-0001] for a background to this decision. In practice this means that forms should
 always use the native `form` element and bind a `formGroup`.
 
-<Story id="component-library-form--full-example" />
+<Story of={formStories.FullExample} />
 
-<Source id="component-library-form--full-example" />
+<br />
 
 ## Form spacing and sections
 
@@ -46,27 +55,39 @@ Be sure to use an appropriate type attribute on fields when defining new field c
 `email` for email address or `number` for numerical information) to take advantage of newer input
 controls like email verification, number selection, and more.
 
+Labels accept an optional `end` slot for any content that should not be truncated if the label text
+is too long, such as info link buttons or badges.
+
+```
+<bit-label>
+  Label text goes here
+  <a href="#" slot="end" bitLink>
+    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+  </a>
+</bit-label>
+```
+
 #### Default with required attribute
 
-<Story id="component-library-form-field--default" />
+<Story of={fieldStories.Default} />
 
 #### Password Toggle
 
-<Story id="component-library-form-password-toggle--default" />
+<Story of={passwordToggleStories.Default} />
 
-#### Search
+### Search
 
-<Story id="component-library-form-search--default" />
+<Story of={searchStories.Default} />
 
 ### Selects
 
 #### Searchable single select (default)
 
-<Story id="component-library-form-select--default" />
+<Story of={selectStories.Default} />
 
 #### Multi-select
 
-<Story id="component-library-form-multi-select--members" />
+<Story of={multiSelectStories.Members} />
 
 ### Radio group
 
@@ -76,6 +97,9 @@ Radio groups are form fields that consists of a main label and multiple radio bu
 button consists of a label and a radio input.
 
 The full form control + label should be selectable to allow the user a larger click target.
+
+Labels accept an optional `end` slot for any content that is not part of the main label text, such
+as info link buttons or badges.
 
 Radio groups should always have a default selected value.
 
@@ -89,14 +113,11 @@ using a radio group for more than 5 options even if the options require addition
 
 #### Block
 
-<Story id="component-library-form-radio-button--block" />
+<Story of={radioStories.Block} />
 
 #### Inline
 
-<Story id="component-library-form-radio-button--inline" />
-
-[reactive]: https://angular.io/guide/reactive-forms
-[adr-0001]: https://contributing.bitwarden.com/architecture/adr/reactive-forms
+<Story of={radioStories.Inline} />
 
 ### Checkbox
 
@@ -105,6 +126,9 @@ The checkbox input is used to toggle an action on/off.
 Checkboxes can be displayed on their own or in a group (select multiple form question). When
 displayed in a group, include an input Label and any associated required/validation logic for the
 field.
+
+Labels accept an optional `end` slot for any content that is not part of the main label text, such
+as info link buttons or badges.
 
 Unlike radio groups, checkbox groups are not required to have a default selected value.
 
@@ -116,7 +140,7 @@ If a checkbox group has more than 4 options a
 
 #### Single checkbox
 
-<Story id="component-library-form-checkbox--default" />
+<Story of={checkboxStories.Default} />
 
 ## Accessibility
 
@@ -127,6 +151,12 @@ If a checkbox group has more than 4 options a
 - If whether or not a form field is required depends on another field, add this to the field's
   helper text.
   - **Example:** "Billing Email is required if owned by a business".
+
+### Icon Buttons in Form Fields
+
+When adding prefix or suffix icon buttons to a form field, be sure to use the `appA11yTitle`
+directive to provide a label for screenreaders. Typically, the label should follow this pattern:
+`{Action} {field label}`, i.e. "Copy username".
 
 ### Form Field Errors
 
@@ -176,3 +206,6 @@ the field’s label.
   Maintain a ratio of 3:1 with the form's background.
 - Error styling should not rely only on using the `danger-600`color change. Use
   <i class="bwi bwi-error"></i> as a prefix to highlight the text as error text versus helper
+
+[reactive]: https://angular.io/guide/reactive-forms
+[adr-0001]: https://contributing.bitwarden.com/architecture/adr/reactive-forms

@@ -14,7 +14,9 @@ import {
   getByRole,
   getByLabelText,
   fireEvent,
-} from "@storybook/testing-library";
+  getByText,
+  getAllByLabelText,
+} from "@storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -22,6 +24,7 @@ import { DialogService } from "../../dialog";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 
+import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
 import { KitchenSinkForm } from "./components/kitchen-sink-form.component";
 import { KitchenSinkMainComponent } from "./components/kitchen-sink-main.component";
 import { KitchenSinkTable } from "./components/kitchen-sink-table.component";
@@ -70,6 +73,9 @@ export default {
               skipToContent: "Skip to content",
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
+              toggleSideNavigation: "Toggle side navigation",
+              yes: "Yes",
+              no: "No",
             });
           },
         },
@@ -83,6 +89,7 @@ export default {
             [
               { path: "", redirectTo: "bitwarden", pathMatch: "full" },
               { path: "bitwarden", component: KitchenSinkMainComponent },
+              { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
             ],
             { useHash: true },
           ),
@@ -99,14 +106,15 @@ export const Default: Story = {
     return {
       props: args,
       template: /* HTML */ `<bit-layout>
-        <nav slot="sidebar">
+        <bit-side-nav>
           <bit-nav-group text="Password Managers" icon="bwi-collection" [open]="true">
             <bit-nav-group text="Favorites" icon="bwi-collection" variant="tree" [open]="true">
               <bit-nav-item text="Bitwarden" route="bitwarden"></bit-nav-item>
               <bit-nav-divider></bit-nav-divider>
             </bit-nav-group>
+            <bit-nav-item text="Virtual Scroll" route="virtual-scroll"></bit-nav-item>
           </bit-nav-group>
-        </nav>
+        </bit-side-nav>
         <router-outlet></router-outlet>
       </bit-layout>`,
     };
@@ -122,18 +130,21 @@ export const MenuOpen: Story = {
     const menuButton = getAllByRole(table, "button")[0];
     await userEvent.click(menuButton);
   },
+  parameters: {
+    chromatic: { ignoreSelectors: [".bit-menu-panel-backdrop"] },
+  },
 };
 
 export const DefaultDialogOpen: Story = {
   ...Default,
-  play: (context) => {
+  play: async (context) => {
     const canvas = context.canvasElement;
     const dialogButton = getByRole(canvas, "button", {
       name: "Open Dialog",
     });
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
-    fireEvent.click(dialogButton);
+    await fireEvent.click(dialogButton);
   },
 };
 
@@ -151,14 +162,14 @@ export const PopoverOpen: Story = {
 
 export const SimpleDialogOpen: Story = {
   ...Default,
-  play: (context) => {
+  play: async (context) => {
     const canvas = context.canvasElement;
     const submitButton = getByRole(canvas, "button", {
       name: "Submit",
     });
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
-    fireEvent.click(submitButton);
+    await fireEvent.click(submitButton);
   },
 };
 
@@ -168,5 +179,21 @@ export const EmptyTab: Story = {
     const canvas = context.canvasElement;
     const emptyTab = getByRole(canvas, "tab", { name: "Empty tab" });
     await userEvent.click(emptyTab);
+  },
+};
+
+export const VirtualScrollBlockingDialog: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const navItem = getByText(canvas, "Virtual Scroll");
+    await userEvent.click(navItem);
+
+    const htmlEl = canvas.ownerDocument.documentElement;
+    htmlEl.scrollTop = 2000;
+
+    const dialogButton = getAllByLabelText(canvas, "Options")[0];
+
+    await userEvent.click(dialogButton);
   },
 };

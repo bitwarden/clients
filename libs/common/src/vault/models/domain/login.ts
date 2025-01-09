@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import Domain from "../../../platform/models/domain/domain-base";
@@ -69,6 +71,11 @@ export class Login extends Domain {
     if (this.uris != null) {
       view.uris = [];
       for (let i = 0; i < this.uris.length; i++) {
+        // If the uri is null, there is nothing to decrypt or validate
+        if (this.uris[i].uri == null) {
+          continue;
+        }
+
         const uri = await this.uris[i].decrypt(orgId, encKey);
         // URIs are shared remotely after decryption
         // we need to validate that the string hasn't been changed by a compromised server

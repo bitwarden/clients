@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, forwardRef, Input, OnDestroy, OnInit } from "@angular/core";
 import {
   ControlValueAccessor,
@@ -37,8 +39,6 @@ export class AccessPolicySelectorComponent implements ControlValueAccessor, OnIn
 
   /**
    * Updates the enabled/disabled state of provided row form group based on the item's readonly state.
-   * If a row is enabled, it also updates the enabled/disabled state of the permission control
-   * based on the item's accessAllItems state and the current value of `permissionMode`.
    * @param controlRow - The form group for the row to update
    * @param item - The access item that is represented by the row
    */

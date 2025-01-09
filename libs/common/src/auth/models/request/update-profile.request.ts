@@ -1,10 +1,8 @@
 export class UpdateProfileRequest {
   name: string;
-  masterPasswordHint: string;
   culture = "en-US"; // deprecated
 
-  constructor(name: string, masterPasswordHint: string) {
+  constructor(name: string) {
     this.name = name;
-    this.masterPasswordHint = masterPasswordHint ? masterPasswordHint : null;
   }
 }

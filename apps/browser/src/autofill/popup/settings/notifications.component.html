@@ -1,89 +1,57 @@
-<header>
-  <div class="left">
-    <button type="button" routerLink="/tabs/settings">
-      <span class="header-icon"><i class="bwi bwi-angle-left" aria-hidden="true"></i></span>
-      <span>{{ "back" | i18n }}</span>
-    </button>
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'notifications' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <div class="tw-bg-background-alt">
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "vaultSaveOptionsTitle" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="use-passkeys"
+            type="checkbox"
+            (change)="updateEnablePasskeys()"
+            [(ngModel)]="enablePasskeys"
+          />
+          <bit-label for="use-passkeys">{{ "enableUsePasskeys" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="addlogin-notification-bar"
+            type="checkbox"
+            (change)="updateAddLoginNotification()"
+            [(ngModel)]="enableAddLoginNotification"
+          />
+          <bit-label for="addlogin-notification-bar">{{
+            "enableAddLoginNotification" | i18n
+          }}</bit-label>
+        </bit-form-control>
+        <bit-form-control disableMargin>
+          <input
+            bitCheckbox
+            id="changedpass-notification-bar"
+            type="checkbox"
+            (change)="updateChangedPasswordNotification()"
+            [(ngModel)]="enableChangedPasswordNotification"
+          />
+          <bit-label for="changedpass-notification-bar">{{
+            "enableChangedPasswordNotification" | i18n
+          }}</bit-label>
+        </bit-form-control>
+      </bit-card>
+    </bit-section>
+    <bit-section>
+      <bit-item>
+        <a bit-item-content routerLink="/excluded-domains">{{ "excludedDomains" | i18n }}</a>
+        <i slot="end" class="bwi bwi-angle-right row-sub-icon" aria-hidden="true"></i>
+      </bit-item>
+    </bit-section>
   </div>
-  <h1 class="center">
-    <span class="title">{{ "notifications" | i18n }}</span>
-  </h1>
-  <div class="right">
-    <app-pop-out></app-pop-out>
-  </div>
-</header>
-<main tabindex="-1">
-  <div class="box">
-    <div class="box-content">
-      <div class="box-content-row box-content-row-checkbox" appBoxRow>
-        <label for="use-passkeys">{{ "enableUsePasskeys" | i18n }}</label>
-        <input
-          id="use-passkeys"
-          type="checkbox"
-          aria-describedby="use-passkeysHelp"
-          (change)="updateEnablePasskeys()"
-          [(ngModel)]="enablePasskeys"
-        />
-      </div>
-    </div>
-    <div id="use-passkeysHelp" class="box-footer">
-      {{ "usePasskeysDesc" | i18n }}
-    </div>
-  </div>
-  <div class="box">
-    <div class="box-content">
-      <div class="box-content-row box-content-row-checkbox" appBoxRow>
-        <label for="addlogin-notification-bar">{{ "enableAddLoginNotification" | i18n }}</label>
-        <input
-          id="addlogin-notification-bar"
-          type="checkbox"
-          aria-describedby="addlogin-notification-barHelp"
-          (change)="updateAddLoginNotification()"
-          [(ngModel)]="enableAddLoginNotification"
-        />
-      </div>
-    </div>
-    <div id="addlogin-notification-barHelp" class="box-footer">
-      {{
-        accountSwitcherEnabled
-          ? ("addLoginNotificationDescAlt" | i18n)
-          : ("addLoginNotificationDesc" | i18n)
-      }}
-    </div>
-  </div>
-  <div class="box">
-    <div class="box-content">
-      <div class="box-content-row box-content-row-checkbox" appBoxRow>
-        <label for="changedpass-notification-bar">{{
-          "enableChangedPasswordNotification" | i18n
-        }}</label>
-        <input
-          id="changedpass-notification-bar"
-          type="checkbox"
-          aria-describedby="changedpass-notification-barHelp"
-          (change)="updateChangedPasswordNotification()"
-          [(ngModel)]="enableChangedPasswordNotification"
-        />
-      </div>
-    </div>
-    <div id="changedpass-notification-barHelp" class="box-footer">
-      {{
-        accountSwitcherEnabled
-          ? ("changedPasswordNotificationDescAlt" | i18n)
-          : ("changedPasswordNotificationDesc" | i18n)
-      }}
-    </div>
-  </div>
-  <div class="box list">
-    <div class="box-content single-line">
-      <button
-        type="button"
-        class="box-content-row box-content-row-flex text-default"
-        routerLink="/excluded-domains"
-      >
-        <div class="row-main">{{ "excludedDomains" | i18n }}</div>
-        <i class="bwi bwi-angle-right bwi-lg row-sub-icon" aria-hidden="true"></i>
-      </button>
-    </div>
-  </div>
-</main>
+</popup-page>

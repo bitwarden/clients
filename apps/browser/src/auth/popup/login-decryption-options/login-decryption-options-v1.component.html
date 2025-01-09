@@ -1,0 +1,111 @@
+<div id="login-initiated">
+  <app-header>
+    <div class="left">
+      <app-pop-out></app-pop-out>
+    </div>
+    <h1 class="center">
+      <span class="title">{{ "loginInitiated" | i18n }}</span>
+    </h1>
+    <div class="right"></div>
+  </app-header>
+  <div class="content login-page">
+    <div class="full-loading-spinner" *ngIf="loading">
+      <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+    </div>
+
+    <ng-container *ngIf="!loading">
+      <ng-container *ngIf="data.state == State.ExistingUserUntrustedDevice">
+        <div class="standard-x-margin">
+          <p class="lead">{{ "loginInitiated" | i18n }}</p>
+          <h6 class="mb-20px">{{ "deviceApprovalRequired" | i18n }}</h6>
+        </div>
+
+        <form
+          id="rememberDeviceForm"
+          class="mb-20px standard-x-margin"
+          [formGroup]="rememberDeviceForm"
+        >
+          <div>
+            <input
+              type="checkbox"
+              id="rememberDevice"
+              name="rememberDevice"
+              formControlName="rememberDevice"
+            />
+            <label for="rememberDevice">
+              {{ "rememberThisDevice" | i18n }}
+            </label>
+            <p id="rememberThisDeviceHintText">{{ "uncheckIfPublicDevice" | i18n }}</p>
+          </div>
+        </form>
+
+        <div class="box mb-20px">
+          <button
+            *ngIf="data.showApproveFromOtherDeviceBtn"
+            (click)="approveFromOtherDevice()"
+            type="button"
+            class="btn primary block"
+          >
+            <b>{{ "approveFromYourOtherDevice" | i18n }}</b>
+          </button>
+          <button
+            *ngIf="data.showReqAdminApprovalBtn"
+            (click)="requestAdminApproval()"
+            type="button"
+            class="btn block btn-top-margin"
+          >
+            {{ "requestAdminApproval" | i18n }}
+          </button>
+          <button
+            *ngIf="data.showApproveWithMasterPasswordBtn"
+            type="button"
+            class="btn block btn-top-margin"
+            (click)="approveWithMasterPassword()"
+          >
+            {{ "approveWithMasterPassword" | i18n }}
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="data.state == State.NewUser">
+        <div class="standard-x-margin">
+          <p class="lead">{{ "loginInitiated" | i18n }}</p>
+        </div>
+
+        <form
+          id="rememberDeviceForm"
+          class="mb-20px standard-x-margin"
+          [formGroup]="rememberDeviceForm"
+        >
+          <div>
+            <input
+              type="checkbox"
+              id="rememberDevice"
+              name="rememberDevice"
+              formControlName="rememberDevice"
+            />
+            <label for="rememberDevice">
+              {{ "rememberThisDevice" | i18n }}
+            </label>
+            <p id="rememberThisDeviceHintText">{{ "uncheckIfPublicDevice" | i18n }}</p>
+          </div>
+        </form>
+
+        <div class="box mb-20px">
+          <button (click)="createUser()" type="button" class="btn primary block">
+            <b>{{ "continue" | i18n }}</b>
+          </button>
+        </div>
+      </ng-container>
+
+      <hr class="muted-hr mx-5px mb-20px" />
+
+      <div class="small mx-5px">
+        <p class="no-margin">{{ "loggingInAs" | i18n }} {{ data.userEmail }}</p>
+        <a tabindex="0" role="button" style="cursor: pointer" (click)="logOut()">{{
+          "notYou" | i18n
+        }}</a>
+      </div>
+    </ng-container>
+  </div>
+</div>

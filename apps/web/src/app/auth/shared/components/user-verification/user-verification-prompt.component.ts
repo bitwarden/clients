@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
@@ -9,7 +11,7 @@ import {
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 /**
  * @deprecated Jan 24, 2024: Use new libs/auth UserVerificationDialogComponent instead.
@@ -25,8 +27,17 @@ export class UserVerificationPromptComponent extends BaseUserVerificationPrompt 
     formBuilder: FormBuilder,
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
+    toastService: ToastService,
   ) {
-    super(null, data, userVerificationService, formBuilder, platformUtilsService, i18nService);
+    super(
+      null,
+      data,
+      userVerificationService,
+      formBuilder,
+      platformUtilsService,
+      i18nService,
+      toastService,
+    );
   }
 
   override close(success: boolean) {

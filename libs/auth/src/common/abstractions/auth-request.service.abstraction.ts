@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
@@ -10,20 +12,6 @@ export abstract class AuthRequestServiceAbstraction {
   /** Emits an auth request id when an auth request has been approved. */
   authRequestPushNotification$: Observable<string>;
 
-  /**
-   * Returns true if the user has chosen to allow auth requests to show on this client.
-   * Intended to prevent spamming the user with auth requests.
-   * @param userId The user id.
-   * @throws If `userId` is not provided.
-   */
-  abstract getAcceptAuthRequests: (userId: UserId) => Promise<boolean>;
-  /**
-   * Sets whether to allow auth requests to show on this client for this user.
-   * @param accept Whether to allow auth requests to show on this client.
-   * @param userId The user id.
-   * @throws If `userId` is not provided.
-   */
-  abstract setAcceptAuthRequests: (accept: boolean, userId: UserId) => Promise<void>;
   /**
    * Returns an admin auth request for the given user if it exists.
    * @param userId The user id.
@@ -63,19 +51,23 @@ export abstract class AuthRequestServiceAbstraction {
    * Sets the `UserKey` from an auth request. Auth request must have a `UserKey`.
    * @param authReqResponse The auth request.
    * @param authReqPrivateKey The private key corresponding to the public key sent in the auth request.
+   * @param userId The ID of the user for whose account we will set the key.
    */
   abstract setUserKeyAfterDecryptingSharedUserKey: (
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: ArrayBuffer,
+    userId: UserId,
   ) => Promise<void>;
   /**
    * Sets the `MasterKey` and `MasterKeyHash` from an auth request. Auth request must have a `MasterKey` and `MasterKeyHash`.
    * @param authReqResponse The auth request.
    * @param authReqPrivateKey The private key corresponding to the public key sent in the auth request.
+   * @param userId The ID of the user for whose account we will set the keys.
    */
   abstract setKeysAfterDecryptingSharedMasterKeyAndHash: (
     authReqResponse: AuthRequestResponse,
     authReqPrivateKey: ArrayBuffer,
+    userId: UserId,
   ) => Promise<void>;
   /**
    * Decrypts a `UserKey` from a public key encrypted `UserKey`.
@@ -106,4 +98,12 @@ export abstract class AuthRequestServiceAbstraction {
    * @remark We should only be receiving approved push notifications to prevent enumeration.
    */
   abstract sendAuthRequestPushNotification: (notification: AuthRequestPushNotification) => void;
+
+  /**
+   * Creates a dash-delimited fingerprint for use in confirming the `AuthRequest` between the requesting and approving device.
+   * @param email The email address of the user.
+   * @param publicKey The public key for the user.
+   * @returns The dash-delimited fingerprint phrase.
+   */
+  abstract getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string>;
 }

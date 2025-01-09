@@ -1,12 +1,19 @@
 export class AutoFillConstants {
-  static readonly UsernameFieldNames: string[] = [
+  static readonly EmailFieldNames: string[] = [
     // English
-    "username",
-    "user name",
     "email",
     "email address",
     "e-mail",
     "e-mail address",
+    // German
+    "email adresse",
+    "e-mail adresse",
+  ];
+
+  static readonly UsernameFieldNames: string[] = [
+    // English
+    "username",
+    "user name",
     "userid",
     "user id",
     "customer id",
@@ -15,40 +22,40 @@ export class AutoFillConstants {
     // German
     "benutzername",
     "benutzer name",
-    "email adresse",
-    "e-mail adresse",
     "benutzerid",
     "benutzer id",
+    ...AutoFillConstants.EmailFieldNames,
   ];
 
   static readonly TotpFieldNames: string[] = [
     "totp",
-    "2fa",
-    "mfa",
     "totpcode",
     "2facode",
     "approvals_code",
-    "code",
     "mfacode",
-    "otc",
     "otc-code",
+    "onetimecode",
     "otp-code",
     "otpcode",
-    "pin",
+    "onetimepassword",
     "security_code",
     "twofactor",
     "twofa",
     "twofactorcode",
-    "verificationCode",
+    "verificationcode",
+    "verification code",
   ];
+
+  static readonly AmbiguousTotpFieldNames: string[] = ["code", "pin", "otc", "otp", "2fa", "mfa"];
 
   static readonly SearchFieldNames: string[] = ["search", "query", "find", "go"];
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
   static readonly PasswordFieldExcludeList: string[] = [
+    "hint",
     ...AutoFillConstants.FieldIgnoreList,
-    "onetimepassword",
+    ...AutoFillConstants.TotpFieldNames,
   ];
 
   static readonly ExcludedAutofillLoginTypes: string[] = [
@@ -66,10 +73,15 @@ export class AutoFillConstants {
     ...AutoFillConstants.ExcludedAutofillLoginTypes,
   ];
 
-  static readonly ExcludedOverlayTypes: string[] = [
+  static readonly ExcludedInlineMenuTypes: string[] = [
     "textarea",
     ...AutoFillConstants.ExcludedAutofillTypes,
   ];
+
+  static readonly ExcludedIdentityAutocompleteTypes: Set<string> = new Set([
+    "current-password",
+    "new-password",
+  ]);
 }
 
 export class CreditCardAutoFillConstants {
@@ -78,6 +90,7 @@ export class CreditCardAutoFillConstants {
     "data-stripe",
     "htmlName",
     "htmlID",
+    "title",
     "label-tag",
     "placeholder",
     "label-left",
@@ -91,6 +104,7 @@ export class CreditCardAutoFillConstants {
   ];
 
   static readonly CardHolderFieldNames: string[] = [
+    "accountholdername",
     "cc-name",
     "card-name",
     "cardholder-name",
@@ -100,6 +114,7 @@ export class CreditCardAutoFillConstants {
   ];
 
   static readonly CardHolderFieldNameValues: string[] = [
+    "accountholdername",
     "cc-name",
     "card-name",
     "cardholder-name",
@@ -287,12 +302,65 @@ export class CreditCardAutoFillConstants {
     "cb-type",
   ];
 
+  // Note, these are expressions of user-guidance for the expected expiry date format to be used
+  static readonly CardExpiryDateFormats: CardExpiryDateFormat[] = [
+    // English
+    {
+      Month: "mm",
+      MonthShort: "m",
+      Year: "yyyy",
+      YearShort: "yy",
+    },
+    // Danish
+    {
+      Month: "mm",
+      MonthShort: "m",
+      Year: "åååå",
+      YearShort: "åå",
+    },
+    // German/Dutch
+    {
+      Month: "mm",
+      MonthShort: "m",
+      Year: "jjjj",
+      YearShort: "jj",
+    },
+    // French/Spanish/Italian
+    {
+      Month: "mm",
+      MonthShort: "m",
+      Year: "aa",
+      YearShort: "aa",
+    },
+    // Russian
+    {
+      Month: "мм",
+      MonthShort: "м",
+      Year: "гггг",
+      YearShort: "гг",
+    },
+    // Portuguese
+    {
+      Month: "mm",
+      MonthShort: "m",
+      Year: "rrrr",
+      YearShort: "rr",
+    },
+  ];
+
   // Each index represents a language. These three arrays should all be the same length.
   // 0: English, 1: Danish, 2: German/Dutch, 3: French/Spanish/Italian, 4: Russian, 5: Portuguese
   static readonly MonthAbbr = ["mm", "mm", "mm", "mm", "мм", "mm"];
   static readonly YearAbbrShort = ["yy", "åå", "jj", "aa", "гг", "rr"];
   static readonly YearAbbrLong = ["yyyy", "åååå", "jjjj", "aa", "гггг", "rrrr"];
 }
+
+export type CardExpiryDateFormat = {
+  Month: string;
+  MonthShort: string;
+  Year: string;
+  YearShort: string;
+};
 
 export class IdentityAutoFillConstants {
   static readonly IdentityAttributes: string[] = [
@@ -305,6 +373,7 @@ export class IdentityAutoFillConstants {
     "label-left",
     "label-top",
     "data-recurly",
+    "accountCreationFieldType",
   ];
 
   static readonly FullNameFieldNames: string[] = ["name", "full-name", "your-name"];
@@ -387,6 +456,7 @@ export class IdentityAutoFillConstants {
     "address-line-2",
     "addr-2",
     "street-2",
+    "address-ext",
   ];
 
   static readonly Address3FieldNames: string[] = [
@@ -403,6 +473,7 @@ export class IdentityAutoFillConstants {
     "zip-code",
     "postal-code",
     "post-code",
+    "postcode",
     "address-zip",
     "address-postal",
     "address-code",
@@ -798,3 +869,21 @@ export class IdentityAutoFillConstants {
     saskatchewan: "SK",
   };
 }
+
+export const SubmitLoginButtonNames: string[] = [
+  "login",
+  "signin",
+  "submit",
+  "continue",
+  "next",
+  "verify",
+];
+
+export const SubmitChangePasswordButtonNames: string[] = [
+  "change",
+  "save",
+  "savepassword",
+  "updatepassword",
+  "changepassword",
+  "resetpassword",
+];

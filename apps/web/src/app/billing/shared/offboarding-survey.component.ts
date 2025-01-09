@@ -1,11 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
-import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billilng-api.service.abstraction";
+import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 type UserOffboardingParams = {
   type: "User";
@@ -88,6 +90,7 @@ export class OffboardingSurveyComponent {
     private billingApiService: BillingApiService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {}
 
   submit = async () => {
@@ -106,11 +109,11 @@ export class OffboardingSurveyComponent {
       ? await this.billingApiService.cancelOrganizationSubscription(this.dialogParams.id, request)
       : await this.billingApiService.cancelPremiumUserSubscription(request);
 
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("canceledSubscription"),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("canceledSubscription"),
+    });
 
     this.dialogRef.close(this.ResultType.Submitted);
   };

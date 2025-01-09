@@ -26,7 +26,7 @@ export const CreditCardData: ExportData = {
               favIndex: 0,
               createdAt: 1619465282,
               updatedAt: 1619465447,
-              trashed: false,
+              state: "active",
               categoryUuid: "002",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           string: "Fred Engels",
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           creditCardType: "discover",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           creditCardNumber: "6011111111111117",
                         },
-                        indexAtSource: 2,
                         guarded: true,
                         clipboardFilter: "0123456789",
                         multiline: false,
@@ -90,7 +87,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           concealed: "1312",
                         },
-                        indexAtSource: 3,
                         guarded: true,
                         multiline: false,
                         dontGenerate: true,
@@ -106,7 +102,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           monthYear: 209912,
                         },
-                        indexAtSource: 4,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -122,7 +117,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           monthYear: 200101,
                         },
-                        indexAtSource: 5,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -138,7 +132,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           string: "card",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -160,7 +153,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           string: "Some bank",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -176,7 +168,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           phone: "123456",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -192,7 +183,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           phone: "0800123456",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -208,7 +198,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           phone: "+49123456",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -224,7 +213,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           url: "somebank.com",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -246,7 +234,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           concealed: "1234",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: true,
@@ -262,7 +249,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           string: "$1312",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -278,7 +264,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           string: "$500",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -294,7 +279,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           string: "1%",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -310,7 +294,6 @@ export const CreditCardData: ExportData = {
                         value: {
                           string: "123456",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { projectAccessGuard } from "./guards/project-access.guard";
 import { ProjectPeopleComponent } from "./project/project-people.component";
 import { ProjectSecretsComponent } from "./project/project-secrets.component";
 import { ProjectServiceAccountsComponent } from "./project/project-service-accounts.component";
@@ -15,6 +16,7 @@ const routes: Routes = [
   {
     path: ":projectId",
     component: ProjectComponent,
+    canActivate: [projectAccessGuard],
     children: [
       {
         path: "",

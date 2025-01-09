@@ -1,9 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -19,6 +19,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, PinKey, UserKey } from "@bitwarden/common/types/key";
+import { KdfConfig, KdfConfigService } from "@bitwarden/key-management";
 
 import { PinServiceAbstraction } from "../../abstractions/pin.service.abstraction";
 
@@ -292,6 +293,34 @@ export class PinService implements PinServiceAbstraction {
     return (await this.getPinLockType(userId)) !== "DISABLED";
   }
 
+  async isPinDecryptionAvailable(userId: UserId): Promise<boolean> {
+    this.validateUserId(userId, "Cannot determine if decryption of user key via PIN is available.");
+
+    const pinLockType = await this.getPinLockType(userId);
+
+    switch (pinLockType) {
+      case "DISABLED":
+        return false;
+      case "PERSISTENT":
+        // The above getPinLockType call ensures that we have either a PinKeyEncryptedUserKey or OldPinKeyEncryptedMasterKey set.
+        return true;
+      case "EPHEMERAL": {
+        // The above getPinLockType call ensures that we have a UserKeyEncryptedPin set.
+        // However, we must additively check to ensure that we have a set PinKeyEncryptedUserKeyEphemeral b/c otherwise
+        // we cannot take a PIN, derive a PIN key, and decrypt the ephemeral UserKey.
+        const pinKeyEncryptedUserKeyEphemeral =
+          await this.getPinKeyEncryptedUserKeyEphemeral(userId);
+        return Boolean(pinKeyEncryptedUserKeyEphemeral);
+      }
+
+      default: {
+        // Compile-time check for exhaustive switch
+        const _exhaustiveCheck: never = pinLockType;
+        throw new Error(`Unexpected pinLockType: ${_exhaustiveCheck}`);
+      }
+    }
+  }
+
   async decryptUserKeyWithPin(pin: string, userId: UserId): Promise<UserKey | null> {
     this.validateUserId(userId, "Cannot decrypt user key with PIN.");
 
@@ -387,9 +416,11 @@ export class PinService implements PinServiceAbstraction {
     );
 
     const encUserKey = await this.stateService.getEncryptedCryptoSymmetricKey({ userId: userId });
+
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
       masterKey,
-      new EncString(encUserKey),
+      userId,
+      encUserKey ? new EncString(encUserKey) : undefined,
     );
 
     const pinKeyEncryptedUserKey = await this.createPinKeyEncryptedUserKey(pin, userKey, userId);
@@ -403,9 +434,6 @@ export class PinService implements PinServiceAbstraction {
     await this.setUserKeyEncryptedPin(userKeyEncryptedPin, userId);
 
     await this.clearOldPinKeyEncryptedMasterKey(userId);
-
-    // This also clears the old Biometrics key since the new Biometrics key will be created when the user key is set.
-    await this.stateService.setCryptoMasterKeyBiometric(null, { userId: userId });
 
     return userKey;
   }

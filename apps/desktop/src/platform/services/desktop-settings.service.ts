@@ -4,7 +4,9 @@ import {
   DESKTOP_SETTINGS_DISK,
   KeyDefinition,
   StateProvider,
+  UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { WindowState } from "../models/domain/window-state";
 
@@ -48,6 +50,31 @@ const ALWAYS_ON_TOP_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "alw
   deserializer: (b) => b,
 });
 
+const BROWSER_INTEGRATION_ENABLED = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "browserIntegrationEnabled",
+  {
+    deserializer: (b) => b,
+  },
+);
+
+const BROWSER_INTEGRATION_FINGERPRINT_ENABLED = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "browserIntegrationFingerprintEnabled",
+  {
+    deserializer: (b) => b,
+  },
+);
+
+const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "sshAgentEnabled", {
+  deserializer: (b) => b,
+});
+
+const MINIMIZE_ON_COPY = new UserKeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "minimizeOnCopy", {
+  deserializer: (b) => b,
+  clearOn: [], // User setting, no need to clear
+});
+
 /**
  * Various settings for controlling application behavior specific to the desktop client.
  */
@@ -61,41 +88,72 @@ export class DesktopSettingsService {
   /**
    * Tha applications setting for whether or not to close the application into the system tray.
    */
-  closeToTray$ = this.closeToTrayState.state$.pipe(map((value) => value ?? false));
+  closeToTray$ = this.closeToTrayState.state$.pipe(map(Boolean));
 
   private readonly minimizeToTrayState = this.stateProvider.getGlobal(MINIMIZE_TO_TRAY_KEY);
   /**
    * The application setting for whether or not to minimize the applicaiton into the system tray.
    */
-  minimizeToTray$ = this.minimizeToTrayState.state$.pipe(map((value) => value ?? false));
+  minimizeToTray$ = this.minimizeToTrayState.state$.pipe(map(Boolean));
 
   private readonly startToTrayState = this.stateProvider.getGlobal(START_TO_TRAY_KEY);
   /**
    * The application setting for whether or not to start the application into the system tray.
    */
-  startToTray$ = this.startToTrayState.state$.pipe(map((value) => value ?? false));
+  startToTray$ = this.startToTrayState.state$.pipe(map(Boolean));
 
   private readonly trayEnabledState = this.stateProvider.getGlobal(TRAY_ENABLED_KEY);
   /**
    * Whether or not the system tray has been enabled.
    */
-  trayEnabled$ = this.trayEnabledState.state$.pipe(map((value) => value ?? false));
+  trayEnabled$ = this.trayEnabledState.state$.pipe(map(Boolean));
 
   private readonly openAtLoginState = this.stateProvider.getGlobal(OPEN_AT_LOGIN_KEY);
   /**
    * The application setting for whether or not the application should open at system login.
    */
-  openAtLogin$ = this.openAtLoginState.state$.pipe(map((value) => value ?? false));
+  openAtLogin$ = this.openAtLoginState.state$.pipe(map(Boolean));
 
   private readonly alwaysShowDockState = this.stateProvider.getGlobal(ALWAYS_SHOW_DOCK_KEY);
   /**
    * The application setting for whether or not the application should show up in the dock.
    */
-  alwaysShowDock$ = this.alwaysShowDockState.state$.pipe(map((value) => value ?? false));
+  alwaysShowDock$ = this.alwaysShowDockState.state$.pipe(map(Boolean));
 
   private readonly alwaysOnTopState = this.stateProvider.getGlobal(ALWAYS_ON_TOP_KEY);
 
-  alwaysOnTop$ = this.alwaysOnTopState.state$.pipe(map((value) => value ?? false));
+  alwaysOnTop$ = this.alwaysOnTopState.state$.pipe(map(Boolean));
+
+  private readonly browserIntegrationEnabledState = this.stateProvider.getGlobal(
+    BROWSER_INTEGRATION_ENABLED,
+  );
+
+  /**
+   * The application setting for whether or not the browser integration is enabled.
+   */
+  browserIntegrationEnabled$ = this.browserIntegrationEnabledState.state$.pipe(map(Boolean));
+
+  private readonly browserIntegrationFingerprintEnabledState = this.stateProvider.getGlobal(
+    BROWSER_INTEGRATION_FINGERPRINT_ENABLED,
+  );
+
+  /**
+   * The application setting for whether or not the fingerprint should be verified before browser communication.
+   */
+  browserIntegrationFingerprintEnabled$ =
+    this.browserIntegrationFingerprintEnabledState.state$.pipe(map(Boolean));
+
+  private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
+
+  sshAgentEnabled$ = this.sshAgentEnabledState.state$.pipe(map(Boolean));
+
+  private readonly minimizeOnCopyState = this.stateProvider.getActive(MINIMIZE_ON_COPY);
+
+  /**
+   * The active users setting for whether or not the application should minimize itself
+   * when a value is copied to the clipboard.
+   */
+  minimizeOnCopy$ = this.minimizeOnCopyState.state$.pipe(map(Boolean));
 
   constructor(private stateProvider: StateProvider) {
     this.window$ = this.windowState.state$.pipe(
@@ -176,5 +234,40 @@ export class DesktopSettingsService {
    */
   async setAlwaysOnTop(value: boolean) {
     await this.alwaysOnTopState.update(() => value);
+  }
+
+  /**
+   * Sets a setting for whether or not the browser integration has been enabled.
+   * @param value `true` if the integration with the browser extension is enabled,
+   * `false` if it is not.
+   */
+  async setBrowserIntegrationEnabled(value: boolean) {
+    await this.browserIntegrationEnabledState.update(() => value);
+  }
+
+  /**
+   * Sets a setting for whether or not the browser fingerprint should be verified before
+   * communication with the browser integration should be done.
+   * @param value `true` if the fingerprint should be validated before use, `false` if it should not.
+   */
+  async setBrowserIntegrationFingerprintEnabled(value: boolean) {
+    await this.browserIntegrationFingerprintEnabledState.update(() => value);
+  }
+
+  /**
+   * Sets a setting for whether or not the SSH agent is enabled.
+   */
+  async setSshAgentEnabled(value: boolean) {
+    await this.sshAgentEnabledState.update(() => value);
+  }
+
+  /**
+   * Sets the minimize on copy value for the current user.
+   * @param value `true` if the application should minimize when a value is copied,
+   * `false` if it should not.
+   * @param userId The user id of the user to update the setting for.
+   */
+  async setMinimizeOnCopy(value: boolean, userId: UserId) {
+    await this.stateProvider.getUser(userId, MINIMIZE_ON_COPY).update(() => value);
   }
 }

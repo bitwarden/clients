@@ -118,70 +118,67 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden Parol Meneceri</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Bitwarden evdə və ya işdə olarkən bütün parol, keçid açarı və həssas məlumatlarınızı asanlıqla qoruyur.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2 və daha çoxu tərəfindən ən yaxşı parol meneceri olaraq tanındı!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+RƏQƏMSAL HƏYATINIZI GÜVƏNDƏ SAXLAYIN
+Hər hesab üçün unikal, güclü parollar yaradıb saxlayaraq rəqəmsal həyatınızı güvəndə saxlatyın və məlumat pozuntularına qarşı qorunun. Hər şeyi yalnız sizin müraciət edə biləcəyiniz ucdan uca şifrələnmiş parol seyfində saxlayın.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+DATANIZA HƏR YERDƏN, HƏR CİHAZDAN, İSTƏNİLƏN VAXT MÜRACİƏT EDİN
+Limitsiz parolları limitsiz cihazlarda məhdudiyyət olmadan asanlıqla idarə edin, saxlayın, güvənlə qoruyun və paylaşın.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+HƏR KƏS İNTERNETDƏ GÜVƏNDƏ QALMAQ ÜÇÜN ALƏTLƏRƏ SAHİB OLMALIDIR
+Bitwarden-i heç bir reklam və ya satış datası olmadan ödənişsiz istifadə edin. Bitwarden hesab edir ki, hər kəs internetdə güvəndə qalmaq bacarığına sahib olmalıdır. Premium planlar qabaqcıl özəlliklərə müraciət təklif edir.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+BITWARDEN İLƏ KOMANDALARINIZI GÜCLƏNDİRİN
+Komanda və Müəssisələr üçün planlar, professional biznes özəllikləri ilə birgə gəlir. Bəzi nümunələrə SSO inteqrasiyası, öz-özünə sahiblik, kataloq inteqrasiyası və SCIM təqdim etmə, qlobal siyasətlər, API müraciəti, olay jurnalları və daha çoxu daxildir.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+İş gücünüzün güvənliyini qorumaq və həssas məlumatları həmkarlarınızla paylaşmaq üçün Bitwarden-i istifadə edin.
 
+Bitwarden-i seçmək üçün daha çox səbəb:
+Dünya səviyyəli şifrələmə
+Parollar, qabaqcıl ucdan uca şifrələmə (AES-256 bit, salted hashtag və PBKDF2 SHA-256) ilə qorunur, beləliklə datanız güvəndə və məxfi qalır.
 
-More reasons to choose Bitwarden:
+3-cü tərəf auditləri
+Bitwarden, müntəzəm olaraq tanınmış təhlükəsizlik firmaları ilə hərtərəfli üçüncü tərəf təhlükəsizlik auditləri keçirir. Bu illik auditlərə Bitwarden IP-ləri, serverləri və veb tətbiqləri arasında mənbə kodu qiymətləndirmələri və nüfuz testi daxildir.
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
-
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
-
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Qabaqcıl 2FA
+Giriş məlumatlarınızı üçüncü tərəf autentifikatoru, e-poçtla göndərilən kodlar və ya avadanlıq güvənlik açarı və ya keçid açarı kimi FIDO2 WebAuthn kimlik məlumatları ilə güvəndə saxlayın.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Ucdan-uca şifrələmə güvənliyini qoruyarkən və pozuntunu məhdudlaşdırarkən dataları birbaşa başqalarına göndərin.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Daxili Generator
+Ziyarət etdiyiniz hər sayt üçün uzun, mürəkkəb və fərqli parollar və unikal istifadəçi adları yaradın. Əlavə məxfilik üçün e-poçt ləqəb provayderləri ilə inteqrasiya edin.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Qlobal Tərcümələr
+Bitwarden tərcümələri 60-dan çox dildə mövcuddur, Crowdin vasitəsilə qlobal icma tərəfindən tərcümə edilmişdir.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Çarpaz Platforma Tətbiqləri
+İstənilən brauzerdən, mobil cihazdan və ya masaüstü əməliyyat sistemindən və daha çoxundan Bitwarden Seyfinizdəki həssas dataları güvəndə saxlayın və paylaşın.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden parollardan daha çox qoruyur
+Bitwarden-nin ucdan-uca şifrələnmiş kimlik məlumatlarını idarəetmə həlləri, təşkilatlara hər şeyi, o cümlədən tərtibatçı sirrlərini və keçid açarı təcrübələrini qorumaq gücü verir. Bitwarden Sirr Meneceri və Bitwarden Passwordless.dev haqqında daha ətraflı öyrənmək üçün Bitwarden.com saytını ziyarət edin!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Bitwarden evdə və ya işdə olarkən bütün parol, keçid açarı və həssas məlumatlarınızı asanlıqla qoruyur.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Anbarınıza bir neçə cihazdan eyniləşdirərək müraciət edin</value>
+    <value>Bir neçə cihaz arasında sinxronlaşdıraraq seyfinizə müraciəti genişləndirin</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Bütün giriş məlumatlarınızı və parollarınızı güvənli bir anbardan idarə edin</value>
+    <value>Bütün girişlərinizi və parollarınızı güvənli bir seyfdən idarə edin</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
     <value>Giriş kimlik məlumatlarınızı ziyarət etdiyiniz istənilən veb sayta dərhal avtomatik doldurun</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Anbarınıza sağ klikləmə menyusundan da asanlıqla müraciət edə bilərsiniz</value>
+    <value>Həmçinin sağ klikləmə menyusu ilə seyfinizə asanlıqla müraciət edə bilərsiniz</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
     <value>Güclü, təsadüfi və güvənli parolların avtomatik yaradılması</value>

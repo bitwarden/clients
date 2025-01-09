@@ -90,20 +90,12 @@
 
         <!-- Duo -->
         <ng-container *ngIf="isDuoProvider">
-          <ng-container *ngIf="duoFrameless">
-            <div>
-              <span *ngIf="selectedProviderType === providerType.OrganizationDuo" class="tw-mb-0">
-                {{ "duoRequiredByOrgForAccount" | i18n }}
-              </span>
-              {{ "launchDuoAndFollowStepsToFinishLoggingIn" | i18n }}
-            </div>
-          </ng-container>
-          <ng-container id="duo-frame" *ngIf="!duoFrameless">
-            <iframe
-              id="duo_iframe"
-              sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-            ></iframe>
-          </ng-container>
+          <div>
+            <span *ngIf="selectedProviderType === providerType.OrganizationDuo" class="tw-mb-0">
+              {{ "duoRequiredByOrgForAccount" | i18n }}
+            </span>
+            {{ "launchDuoAndFollowStepsToFinishLoggingIn" | i18n }}
+          </div>
         </ng-container>
       </div>
 
@@ -148,10 +140,7 @@
 
       <!-- Submit Buttons -->
       <div class="buttons with-rows">
-        <div
-          class="buttons-row"
-          *ngIf="duoFrameless && selectedProviderType != null && isDuoProvider"
-        >
+        <div class="buttons-row" *ngIf="selectedProviderType != null && isDuoProvider">
           <button
             (click)="launchDuoFrameless()"
             type="button"

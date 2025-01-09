@@ -1,6 +1,9 @@
 import { mock } from "jest-mock-extended";
 import { lastValueFrom } from "rxjs";
 
+import { VerifiedOrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
@@ -80,6 +83,19 @@ const mockedOrganizationDomainSsoDetailsServerResponse = {
 const mockedOrganizationDomainSsoDetailsResponse = new OrganizationDomainSsoDetailsResponse(
   mockedOrganizationDomainSsoDetailsServerResponse,
 );
+
+const mockedVerifiedOrganizationDomain = {
+  organizationIdentifier: "fake-org-identifier",
+  organizationName: "fake-org",
+  domainName: "fake-domain-name",
+};
+
+const mockedVerifiedOrganizationDomainSsoResponse =
+  new VerifiedOrganizationDomainSsoDetailsResponse(mockedVerifiedOrganizationDomain);
+
+const mockedVerifiedOrganizationDomainSsoDetailsListResponse = {
+  data: [mockedVerifiedOrganizationDomain],
+} as ListResponse<VerifiedOrganizationDomainSsoDetailsResponse>;
 
 describe("Org Domain API Service", () => {
   let orgDomainApiService: OrgDomainApiService;
@@ -228,5 +244,22 @@ describe("Org Domain API Service", () => {
     );
 
     expect(result).toEqual(mockedOrganizationDomainSsoDetailsResponse);
+  });
+
+  it("getVerifiedOrgDomainsByEmail should call ApiService.send with correct parameters and return response", async () => {
+    const email = "test@example.com";
+    apiService.send.mockResolvedValue(mockedVerifiedOrganizationDomainSsoDetailsListResponse);
+
+    const result = await orgDomainApiService.getVerifiedOrgDomainsByEmail(email);
+
+    expect(apiService.send).toHaveBeenCalledWith(
+      "POST",
+      "/organizations/domain/sso/verified",
+      new OrganizationDomainSsoDetailsRequest(email),
+      false, //anonymous
+      true,
+    );
+
+    expect(result.data).toContainEqual(mockedVerifiedOrganizationDomainSsoResponse);
   });
 });

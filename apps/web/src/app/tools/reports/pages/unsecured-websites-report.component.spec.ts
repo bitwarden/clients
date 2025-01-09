@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -19,11 +20,13 @@ describe("UnsecuredWebsitesReportComponent", () => {
   let fixture: ComponentFixture<UnsecuredWebsitesReportComponent>;
   let organizationService: MockProxy<OrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
+  let collectionService: MockProxy<CollectionService>;
 
   beforeEach(() => {
     organizationService = mock<OrganizationService>();
     organizationService.organizations$ = of([]);
     syncServiceMock = mock<SyncService>();
+    collectionService = mock<CollectionService>();
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
@@ -52,6 +55,10 @@ describe("UnsecuredWebsitesReportComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: CollectionService,
+          useValue: collectionService,
         },
       ],
       schemas: [],

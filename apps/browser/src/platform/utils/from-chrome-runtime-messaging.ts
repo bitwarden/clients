@@ -1,5 +1,6 @@
 import { map, share } from "rxjs";
 
+import { Message } from "@bitwarden/common/platform/messaging";
 import { tagAsExternal } from "@bitwarden/common/platform/messaging/internal";
 
 import { fromChromeEvent } from "../browser/from-chrome-event";
@@ -20,7 +21,7 @@ export const fromChromeRuntimeMessaging = () => {
 
       return message;
     }),
-    tagAsExternal,
+    tagAsExternal<Message<Record<string, unknown>>>(),
     share(),
   );
 };

@@ -1,0 +1,47 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'settings' | i18n }}">
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+      <app-current-account></app-current-account>
+    </ng-container>
+  </popup-header>
+
+  <bit-item-group>
+    <bit-item>
+      <a bit-item-content routerLink="/account-security"
+        >{{ "accountSecurity" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/autofill"
+        >{{ "autofill" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/notifications"
+        >{{ "notifications" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/vault-settings"
+        >{{ "vault" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/appearance"
+        >{{ "appearance" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/about"
+        >{{ "about" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+  </bit-item-group>
+</popup-page>

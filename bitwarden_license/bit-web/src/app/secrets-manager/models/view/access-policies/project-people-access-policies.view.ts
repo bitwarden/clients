@@ -1,6 +1,8 @@
-import { GroupProjectAccessPolicyView, UserProjectAccessPolicyView } from "./access-policy.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { GroupAccessPolicyView, UserAccessPolicyView } from "./access-policy.view";
 
 export class ProjectPeopleAccessPoliciesView {
-  userAccessPolicies: UserProjectAccessPolicyView[];
-  groupAccessPolicies: GroupProjectAccessPolicyView[];
+  userAccessPolicies: UserAccessPolicyView[];
+  groupAccessPolicies: GroupAccessPolicyView[];
 }

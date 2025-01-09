@@ -32,6 +32,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
 
 import { TwoFactorComponent } from "./two-factor.component";
 
@@ -71,6 +72,7 @@ describe("TwoFactorComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockMasterPasswordService: FakeMasterPasswordService;
   let mockAccountService: FakeAccountService;
+  let mockToastService: MockProxy<ToastService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -84,9 +86,12 @@ describe("TwoFactorComponent", () => {
   };
 
   let selectedUserDecryptionOptions: BehaviorSubject<UserDecryptionOptions>;
+  let twoFactorTimeoutSubject: BehaviorSubject<boolean>;
 
   beforeEach(() => {
+    twoFactorTimeoutSubject = new BehaviorSubject<boolean>(false);
     mockLoginStrategyService = mock<LoginStrategyServiceAbstraction>();
+    mockLoginStrategyService.twoFactorTimeout$ = twoFactorTimeoutSubject;
     mockRouter = mock<Router>();
     mockI18nService = mock<I18nService>();
     mockApiService = mock<ApiService>();
@@ -102,6 +107,7 @@ describe("TwoFactorComponent", () => {
     mockSsoLoginService = mock<SsoLoginServiceAbstraction>();
     mockConfigService = mock<ConfigService>();
     mockAccountService = mockAccountServiceWith(userId);
+    mockToastService = mock<ToastService>();
     mockMasterPasswordService = new FakeMasterPasswordService();
 
     mockUserDecryptionOpts = {
@@ -117,12 +123,12 @@ describe("TwoFactorComponent", () => {
       }),
       withMasterPasswordAndTrustedDevice: new UserDecryptionOptions({
         hasMasterPassword: true,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false, false),
         keyConnectorOption: undefined,
       }),
       withMasterPasswordAndTrustedDeviceWithManageResetPassword: new UserDecryptionOptions({
         hasMasterPassword: true,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true, false),
         keyConnectorOption: undefined,
       }),
       withMasterPasswordAndKeyConnector: new UserDecryptionOptions({
@@ -132,12 +138,12 @@ describe("TwoFactorComponent", () => {
       }),
       noMasterPasswordWithTrustedDevice: new UserDecryptionOptions({
         hasMasterPassword: false,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, false, false),
         keyConnectorOption: undefined,
       }),
       noMasterPasswordWithTrustedDeviceWithManageResetPassword: new UserDecryptionOptions({
         hasMasterPassword: false,
-        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true),
+        trustedDeviceOption: new TrustedDeviceUserDecryptionOption(true, false, true, false),
         keyConnectorOption: undefined,
       }),
       noMasterPasswordWithKeyConnector: new UserDecryptionOptions({
@@ -182,6 +188,7 @@ describe("TwoFactorComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: InternalMasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: ToastService, useValue: mockToastService },
       ],
     });
 
@@ -487,5 +494,11 @@ describe("TwoFactorComponent", () => {
         });
       });
     });
+  });
+
+  it("navigates to the timeout route when timeout expires", async () => {
+    twoFactorTimeoutSubject.next(true);
+
+    expect(mockRouter.navigate).toHaveBeenCalledWith(["2fa-timeout"]);
   });
 });

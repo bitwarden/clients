@@ -37,8 +37,10 @@ const plugins = [
     contextRegExp: /node-fetch/,
   }),
   new webpack.EnvironmentPlugin({
+    ENV: ENV,
     BWCLI_ENV: ENV,
     FLAGS: envConfig.flags,
+    DEV_FLAGS: envConfig.devFlags,
   }),
   new webpack.IgnorePlugin({
     resourceRegExp: /canvas/,
@@ -79,6 +81,9 @@ const webpackConfig = {
       allowlist: [/@bitwarden/],
     }),
   ],
+  experiments: {
+    asyncWebAssembly: true,
+  },
 };
 
 module.exports = webpackConfig;

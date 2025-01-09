@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { animate, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
@@ -197,8 +199,8 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
       }
     }
 
-    // Don't bother executing secret changes if biometrics verification is active.
-    if (this.activeClientVerificationOption === ActiveClientVerificationOption.Biometrics) {
+    // Executing secret changes for all non biometrics verification. Biometrics doesn't have a user entered secret.
+    if (this.activeClientVerificationOption !== ActiveClientVerificationOption.Biometrics) {
       this.processSecretChanges(this.secret.value);
     }
 

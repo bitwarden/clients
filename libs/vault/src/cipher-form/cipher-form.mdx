@@ -1,0 +1,17 @@
+import { Controls, Meta, Primary } from "@storybook/addon-docs";
+
+import * as stories from "./cipher-form.stories";
+
+<Meta of={stories} />
+
+# Cipher Form
+
+The cipher form is a re-usable form component that can be used to create, update, and clone ciphers.
+It is configured via a `CipherFormConfig` object that is passed to the component as a prop. The
+`CipherFormConfig` object can be created manually, or a `CipherFormConfigService` can be used to
+create it. A default implementation of the `CipherFormConfigService` exists in the
+`@bitwarden/vault` library.
+
+<Primary />
+
+<Controls include={["config", "submitBtn"]} />

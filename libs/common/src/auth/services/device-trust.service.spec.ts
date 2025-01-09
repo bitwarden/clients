@@ -4,13 +4,14 @@ import { BehaviorSubject, of } from "rxjs";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 
 import { UserDecryptionOptions } from "../../../../auth/src/common/models/domain/user-decryption-options";
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeActiveUserState } from "../../../spec/fake-state";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
 import { DeviceType } from "../../enums";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
@@ -42,7 +43,7 @@ describe("deviceTrustService", () => {
 
   const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const encryptService = mock<EncryptService>();
   const appIdService = mock<AppIdService>();
   const devicesApiService = mock<DevicesApiServiceAbstraction>();
@@ -50,6 +51,7 @@ describe("deviceTrustService", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   const secureStorageService = mock<AbstractStorageService>();
   const logService = mock<LogService>();
+  const configService = mock<ConfigService>();
 
   const userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
   const decryptionOptions = new BehaviorSubject<UserDecryptionOptions>(null);
@@ -115,7 +117,7 @@ describe("deviceTrustService", () => {
 
       expect(deviceTrustService.getShouldTrustDevice).toHaveBeenCalledTimes(1);
       expect(deviceTrustService.trustDevice).toHaveBeenCalledTimes(1);
-      expect(deviceTrustService.setShouldTrustDevice).toHaveBeenCalledWith(mockUserId, false);
+      expect(deviceTrustService.setShouldTrustDevice).toHaveBeenCalledWith(mockUserId, null);
     });
 
     it("should not trust device nor reset when getShouldTrustDevice returns false", async () => {
@@ -366,11 +368,11 @@ describe("deviceTrustService", () => {
           .mockResolvedValue(mockDeviceRsaKeyPair);
 
         cryptoSvcGetUserKeySpy = jest
-          .spyOn(cryptoService, "getUserKey")
+          .spyOn(keyService, "getUserKey")
           .mockResolvedValue(mockUserKey);
 
         cryptoSvcRsaEncryptSpy = jest
-          .spyOn(cryptoService, "rsaEncrypt")
+          .spyOn(encryptService, "rsaEncrypt")
           .mockResolvedValue(mockDevicePublicKeyEncryptedUserKey);
 
         encryptServiceEncryptSpy = jest
@@ -533,6 +535,32 @@ describe("deviceTrustService", () => {
         ).rejects.toThrow("UserId is required. Cannot decrypt user key with device key.");
       });
 
+      it("throws an error when a nullish encrypted device private key is passed in", async () => {
+        await expect(
+          deviceTrustService.decryptUserKeyWithDeviceKey(
+            mockUserId,
+            null,
+            mockEncryptedUserKey,
+            mockDeviceKey,
+          ),
+        ).rejects.toThrow(
+          "Encrypted device private key is required. Cannot decrypt user key with device key.",
+        );
+      });
+
+      it("throws an error when a nullish encrypted user key is passed in", async () => {
+        await expect(
+          deviceTrustService.decryptUserKeyWithDeviceKey(
+            mockUserId,
+            mockEncryptedDevicePrivateKey,
+            null,
+            mockDeviceKey,
+          ),
+        ).rejects.toThrow(
+          "Encrypted user key is required. Cannot decrypt user key with device key.",
+        );
+      });
+
       it("returns null when device key isn't provided", async () => {
         const result = await deviceTrustService.decryptUserKeyWithDeviceKey(
           mockUserId,
@@ -549,7 +577,7 @@ describe("deviceTrustService", () => {
           .spyOn(encryptService, "decryptToBytes")
           .mockResolvedValue(new Uint8Array(userKeyBytesLength));
         const rsaDecryptSpy = jest
-          .spyOn(cryptoService, "rsaDecrypt")
+          .spyOn(encryptService, "rsaDecrypt")
           .mockResolvedValue(new Uint8Array(userKeyBytesLength));
 
         const result = await deviceTrustService.decryptUserKeyWithDeviceKey(
@@ -595,7 +623,7 @@ describe("deviceTrustService", () => {
         const fakeNewUserKeyData = new Uint8Array(64);
         fakeNewUserKeyData.fill(FakeNewUserKeyMarker, 0, 1);
         fakeNewUserKey = new SymmetricCryptoKey(fakeNewUserKeyData) as UserKey;
-        cryptoService.activeUserKey$ = of(fakeNewUserKey);
+        keyService.userKey$.mockReturnValue(of(fakeNewUserKey));
       });
 
       it("throws an error when a null user id is passed in", async () => {
@@ -631,7 +659,9 @@ describe("deviceTrustService", () => {
           fakeOldUserKeyData.fill(FakeOldUserKeyMarker, 0, 1);
 
           // Mock the retrieval of a user key that differs from the new one passed into the method
-          cryptoService.activeUserKey$ = of(new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey);
+          keyService.userKey$.mockReturnValue(
+            of(new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey),
+          );
 
           appIdService.getAppId.mockResolvedValue("test_device_identifier");
 
@@ -666,7 +696,7 @@ describe("deviceTrustService", () => {
           });
 
           // Mock the encryption of the new user key with the decrypted public key
-          cryptoService.rsaEncrypt.mockImplementationOnce((data, publicKey) => {
+          encryptService.rsaEncrypt.mockImplementationOnce((data, publicKey) => {
             expect(data.byteLength).toBe(64); // New key should also be 64 bytes
             expect(new Uint8Array(data)[0]).toBe(FakeNewUserKeyMarker); // New key should have the first byte be '1';
 
@@ -719,7 +749,7 @@ describe("deviceTrustService", () => {
     return new DeviceTrustService(
       keyGenerationService,
       cryptoFunctionService,
-      cryptoService,
+      keyService,
       encryptService,
       appIdService,
       devicesApiService,
@@ -729,6 +759,7 @@ describe("deviceTrustService", () => {
       secureStorageService,
       userDecryptionOptionsService,
       logService,
+      configService,
     );
   }
 });

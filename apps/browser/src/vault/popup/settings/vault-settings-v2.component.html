@@ -1,0 +1,41 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'vault' | i18n" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <bit-item-group>
+    <bit-item>
+      <a bit-item-content routerLink="/folders">
+        {{ "folders" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <button type="button" bit-item-content (click)="import()">
+        {{ "importItems" | i18n }}
+        <i slot="end" class="bwi bwi-popout" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/export">
+        {{ "exportVault" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/trash">
+        {{ "trash" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <button type="button" bit-item-content (click)="sync()">
+        {{ "syncVaultNow" | i18n }}
+        <span slot="secondary">{{ lastSync }}</span>
+        <i slot="end" class="bwi bwi-refresh" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+  </bit-item-group>
+</popup-page>

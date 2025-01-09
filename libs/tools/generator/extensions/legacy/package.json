@@ -1,0 +1,26 @@
+{
+  "name": "@bitwarden/generator-legacy",
+  "version": "0.0.0",
+  "description": "Deprecated Bitwarden credential generation services",
+  "keywords": [
+    "bitwarden"
+  ],
+  "author": "Bitwarden Inc.",
+  "homepage": "https://bitwarden.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitwarden/clients"
+  },
+  "license": "GPL-3.0",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "build:watch": "npm run clean && tsc -watch"
+  },
+  "dependencies": {
+    "@bitwarden/common": "file:../../../common",
+    "@bitwarden/generator-core": "file:../../core",
+    "@bitwarden/generator-history": "file:../history",
+    "@bitwarden/generator-navigation": "file:../navigation"
+  }
+}

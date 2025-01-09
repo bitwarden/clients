@@ -1,76 +1,40 @@
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" class="container" ngNativeValidate>
-  <div class="row justify-content-md-center mt-5">
-    <div class="col-5">
-      <p class="lead text-center mb-4">{{ "recoverAccountTwoStep" | i18n }}</p>
-      <div class="card">
-        <div class="card-body">
-          <p>
-            {{ "recoverAccountTwoStepDesc" | i18n }}
-            <a
-              href="https://bitwarden.com/help/lost-two-step-device/"
-              target="_blank"
-              rel="noreferrer"
-              >{{ "learnMore" | i18n }}</a
-            >
-          </p>
-          <div class="form-group">
-            <label for="email">{{ "emailAddress" | i18n }}</label>
-            <input
-              id="email"
-              class="form-control"
-              type="text"
-              name="Email"
-              [(ngModel)]="email"
-              required
-              appAutofocus
-              inputmode="email"
-              appInputVerbatim="false"
-            />
-          </div>
-          <div class="form-group">
-            <label for="masterPassword">{{ "masterPass" | i18n }}</label>
-            <input
-              id="masterPassword"
-              type="password"
-              name="MasterPassword"
-              class="form-control"
-              [(ngModel)]="masterPassword"
-              required
-              appInputVerbatim
-            />
-          </div>
-          <div class="form-group">
-            <label for="recoveryCode">{{ "recoveryCodeTitle" | i18n }}</label>
-            <input
-              id="recoveryCode"
-              class="text-monospace form-control"
-              type="text"
-              name="RecoveryCode"
-              [(ngModel)]="recoveryCode"
-              required
-              appInputVerbatim
-            />
-          </div>
-          <hr />
-          <div class="d-flex">
-            <button
-              type="submit"
-              class="btn btn-primary btn-block btn-submit"
-              [disabled]="form.loading"
-            >
-              <span>{{ "submit" | i18n }}</span>
-              <i
-                class="bwi bwi-spinner bwi-spin"
-                title="{{ 'loading' | i18n }}"
-                aria-hidden="true"
-              ></i>
-            </button>
-            <a routerLink="/login" class="btn btn-outline-secondary btn-block ml-2 mt-0">
-              {{ "cancel" | i18n }}
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <p bitTypography="body1">
+    {{ "recoverAccountTwoStepDesc" | i18n }}
+    <a
+      bitLink
+      href="https://bitwarden.com/help/lost-two-step-device/"
+      target="_blank"
+      rel="noreferrer"
+      >{{ "learnMore" | i18n }}</a
+    >
+  </p>
+  <bit-form-field>
+    <bit-label>{{ "emailAddress" | i18n }}</bit-label>
+    <input
+      bitInput
+      type="text"
+      formControlName="email"
+      appAutofocus
+      inputmode="email"
+      appInputVerbatim="false"
+    />
+  </bit-form-field>
+  <bit-form-field>
+    <bit-label>{{ "masterPass" | i18n }}</bit-label>
+    <input bitInput type="password" formControlName="masterPassword" appInputVerbatim />
+  </bit-form-field>
+  <bit-form-field>
+    <bit-label>{{ "recoveryCodeTitle" | i18n }}</bit-label>
+    <input bitInput type="text" formControlName="recoveryCode" appInputVerbatim />
+  </bit-form-field>
+  <hr />
+  <div class="tw-flex tw-gap-2">
+    <button type="submit" bitButton bitFormButton buttonType="primary" [block]="true">
+      {{ "submit" | i18n }}
+    </button>
+    <a bitButton buttonType="secondary" routerLink="/login" [block]="true">
+      {{ "cancel" | i18n }}
+    </a>
   </div>
 </form>

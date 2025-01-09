@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map, Observable } from "rxjs";
+
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
@@ -55,6 +59,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     private stateService: StateService,
     private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
+    private logService: LogService,
   ) {}
 
   masterKey$(userId: UserId): Observable<MasterKey> {
@@ -149,10 +154,9 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
 
   async decryptUserKeyWithMasterKey(
     masterKey: MasterKey,
+    userId: UserId,
     userKey?: EncString,
-    userId?: UserId,
   ): Promise<UserKey> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
     userKey ??= await this.getMasterKeyEncryptedUserKey(userId);
     masterKey ??= await firstValueFrom(this.masterKey$(userId));
 
@@ -185,6 +189,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     }
 
     if (decUserKey == null) {
+      this.logService.warning("Failed to decrypt user key with master key.");
       return null;
     }
 

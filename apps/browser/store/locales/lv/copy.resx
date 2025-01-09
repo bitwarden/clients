@@ -118,58 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden paroļu pārvaldnieks</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Bitwarden viegli aizsargā visas paroles, paroļu atslēgas un jutīgu informāciju mājās, darbā vai ceļā.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2 un vēl ir atzinuši Bitwarden kā labāko paroļu pārvaldnieku.
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+AIZSARGĀ SAVU DIGITĀLO DZĪVI
+Aizsargā savu digitālo dzīvi un nodrošinies pret datu noplūdēm ar vienreizēju, spēcīgu paruļu izveidošanu un saglabāšanu katram kontam! Glabā visu pilnīgi šifrētā paroļu glabātavā, kurai vari piekļūt vienīgi Tu!
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+PIEKĻŪSTI SAVIEM DATIEM JEBKUR, JEBKAD UN JEBKURĀ IERĪCĒ
+Viegla paroļu pārvaldīšana, glabāšana, nodrošināšana un kopīgošana bez ierobežojumiem dažādās ierīcēs.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+IKVIENAM VAJADZĒTU IZMANTOT RĪKUS, LAI TIEŠSAISTĒ BŪTU DROŠI
+Bitwarden ir izmantojams bez maksas, reklāmām un datu pārdošanas. Bitwarden tic, ka ikvienam vajadzētu būt iespējai būt drošam tiešsaistē. Premium plāni sniedz piekļuvi papildu iespējām.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+SPĒCINI SAVAS KOMANDAS AR BITWARDEN
+Komandu un uzņēmumu plāni satur profesionālas uzņēmējdarbības iespējas. Piemēram, SSO iekļaušana, pašmitināšana, direktorijas iekļaušana un SCIM apgāde, visaptveroši nosacījumi, API piekļuve, notikumu žurnāli un vēl.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Izmanto bitwarden, lai drošinātu savu darbaspēku un kopīgotu jutīgu informāciju ar darbabiedriem!
 
 
-More reasons to choose Bitwarden:
+Vairāk iemelsu, lai izvēlētos Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Pasaules klases šifrēšana
+Paroles ir aizsargātas ar sarežģītu pilnīgu šifrēšanu (AES-256 bitu, sālīts jaucējkods un PBKDF2 SHA-256), līdz ar to Tavi dati ir droši un privāti.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Trešo pušu pārbaudes
+Bitwarden pastāvīgi veic aptverošas trešo pušu drošības pārbaudes ar atzīstamiem drošības uzņēmumiem. Šīs ikgadējās pārbaudes iekļauj pirmkoda izvērtēšanu un ielaušanās pārbaudes dažādās Bitwarden IP adresēs, serveros un tīmekļa lietotnēs.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Papildu 2FA
+Aizsargā savu pieteikšanos ar trešo pušu autentificētāju, e-pastā nosūtītiem kodiem vai tādiem FIDO2 WebAuthn pieteikšanās datiem kā aparatūras drošības atslēgu vai piekļuves atslēgu!
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Datu pārsūtīšana citiem, saglabājot pilnīgu šifrēšanas drošību un ierobežojot atklāšanu.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Iebūvēts veidotājs
+Izveido garas, sarežģītas un atšķirīgas paroles un vienreizējus lietotājvārdus katrai apmeklētajai vietnei! Papildu privātumam var apvienot ar e-pasta aizstājvārdu nodrošinātājiem.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Vispasaules tulkojumi
+Bitwarden ir tulkots vairāk nekā 60 valodās ar vispasaules kopienas palīdzību tulkošanas rīkā Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Starpplatformu lietotnes
+Aizsargā un kopīgo jutīgus datus savā Bitwarden glabātavā jebkurā pārlūkā, mobilajā ierīcē vai darbvirsmas operētājsistēmā un vēl!
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden aizsargā vairāk nekā tikai paroles
+Pilnīgas šifrēšanas pieteikšanās datu pārvaldības risinājumi no Bitwarden sniedz iespēju apvienībām aizsargāt visu, tajā skaitā izstrādātāju noslēpumus un piekļuves atslēgu pieredzes. Bitwarden.com ir ampeklējams, lai uzzinātu vairāk par Bitwarden noslēpumu pārvaldnieku un Bitwarden Passwordless.dev.
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Bitwarden viegli aizsargā visas paroles, paroļu atslēgas un jutīgu informāciju mājās, darbā vai ceļā.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sinhronizē un piekļūsti savai glabātavai no vairākām ierīcēm</value>

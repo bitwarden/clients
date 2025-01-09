@@ -20,7 +20,7 @@
       </div>
       <div class="modal-body">
         <p>{{ "deauthorizeSessionsDesc" | i18n }}</p>
-        <app-callout type="warning">{{ "deauthorizeSessionsWarning" | i18n }}</app-callout>
+        <bit-callout type="warning">{{ "deauthorizeSessionsWarning" | i18n }}</bit-callout>
         <app-user-verification [(ngModel)]="masterPassword" ngDefaultControl name="secret">
         </app-user-verification>
       </div>

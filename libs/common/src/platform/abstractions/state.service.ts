@@ -1,8 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BiometricKey } from "../../auth/types/biometric-key";
-import { GeneratorOptions } from "../../tools/generator/generator-options";
-import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
-import { UsernameGeneratorOptions } from "../../tools/generator/username";
-import { UserId } from "../../types/guid";
 import { Account } from "../models/domain/account";
 import { StorageOptions } from "../models/domain/storage-options";
 
@@ -22,7 +20,6 @@ export type InitOptions = {
 
 export abstract class StateService<T extends Account = Account> {
   addAccount: (account: T) => Promise<void>;
-  clearDecryptedData: (userId: UserId) => Promise<void>;
   clean: (options?: StorageOptions) => Promise<void>;
   init: (initOptions?: InitOptions) => Promise<void>;
 
@@ -61,65 +58,16 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use setUserKeyAuto instead
    */
   setCryptoMasterKeyAuto: (value: string, options?: StorageOptions) => Promise<void>;
-  /**
-   * @deprecated For migration purposes only, use getUserKeyBiometric instead
-   */
-  getCryptoMasterKeyBiometric: (options?: StorageOptions) => Promise<string>;
-  /**
-   * @deprecated For migration purposes only, use hasUserKeyBiometric instead
-   */
-  hasCryptoMasterKeyBiometric: (options?: StorageOptions) => Promise<boolean>;
-  /**
-   * @deprecated For migration purposes only, use setUserKeyBiometric instead
-   */
-  setCryptoMasterKeyBiometric: (value: BiometricKey, options?: StorageOptions) => Promise<void>;
-  getDecryptedPasswordGenerationHistory: (
-    options?: StorageOptions,
-  ) => Promise<GeneratedPasswordHistory[]>;
-  setDecryptedPasswordGenerationHistory: (
-    value: GeneratedPasswordHistory[],
-    options?: StorageOptions,
-  ) => Promise<void>;
   getDuckDuckGoSharedKey: (options?: StorageOptions) => Promise<string>;
   setDuckDuckGoSharedKey: (value: string, options?: StorageOptions) => Promise<void>;
-  getEmail: (options?: StorageOptions) => Promise<string>;
-  setEmail: (value: string, options?: StorageOptions) => Promise<void>;
-  getEnableBrowserIntegration: (options?: StorageOptions) => Promise<boolean>;
-  setEnableBrowserIntegration: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getEnableBrowserIntegrationFingerprint: (options?: StorageOptions) => Promise<boolean>;
-  setEnableBrowserIntegrationFingerprint: (
-    value: boolean,
-    options?: StorageOptions,
-  ) => Promise<void>;
-  getEncryptedPasswordGenerationHistory: (
-    options?: StorageOptions,
-  ) => Promise<GeneratedPasswordHistory[]>;
-  setEncryptedPasswordGenerationHistory: (
-    value: GeneratedPasswordHistory[],
-    options?: StorageOptions,
-  ) => Promise<void>;
+
+  /**
+   * @deprecated Use `TokenService.hasAccessToken$()` or `AuthService.authStatusFor$` instead.
+   */
   getIsAuthenticated: (options?: StorageOptions) => Promise<boolean>;
-  getLastSync: (options?: StorageOptions) => Promise<string>;
-  setLastSync: (value: string, options?: StorageOptions) => Promise<void>;
-  getMinimizeOnCopyToClipboard: (options?: StorageOptions) => Promise<boolean>;
-  setMinimizeOnCopyToClipboard: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getOrganizationInvitation: (options?: StorageOptions) => Promise<any>;
-  setOrganizationInvitation: (value: any, options?: StorageOptions) => Promise<void>;
-  getPasswordGenerationOptions: (options?: StorageOptions) => Promise<PasswordGeneratorOptions>;
-  setPasswordGenerationOptions: (
-    value: PasswordGeneratorOptions,
-    options?: StorageOptions,
-  ) => Promise<void>;
-  getUsernameGenerationOptions: (options?: StorageOptions) => Promise<UsernameGeneratorOptions>;
-  setUsernameGenerationOptions: (
-    value: UsernameGeneratorOptions,
-    options?: StorageOptions,
-  ) => Promise<void>;
-  getGeneratorOptions: (options?: StorageOptions) => Promise<GeneratorOptions>;
-  setGeneratorOptions: (value: GeneratorOptions, options?: StorageOptions) => Promise<void>;
+
+  /**
+   * @deprecated Use `AccountService.activeAccount$` instead.
+   */
   getUserId: (options?: StorageOptions) => Promise<string>;
-  getVaultTimeout: (options?: StorageOptions) => Promise<number>;
-  setVaultTimeout: (value: number, options?: StorageOptions) => Promise<void>;
-  getVaultTimeoutAction: (options?: StorageOptions) => Promise<string>;
-  setVaultTimeoutAction: (value: string, options?: StorageOptions) => Promise<void>;
 }

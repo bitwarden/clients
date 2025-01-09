@@ -1,18 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
-  NEVER,
-  Observable,
-  Subject,
   combineLatest,
   firstValueFrom,
   map,
   mergeWith,
+  NEVER,
+  Observable,
   of,
   shareReplay,
+  Subject,
   switchMap,
   tap,
 } from "rxjs";
 import { SemVer } from "semver";
 
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import {
   DefaultFeatureFlagValue,
   FeatureFlag,
@@ -22,12 +26,18 @@ import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { ServerConfig } from "../../abstractions/config/server-config";
-import { EnvironmentService, Region } from "../../abstractions/environment.service";
+import { Environment, EnvironmentService, Region } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
+import { devFlagEnabled, devFlagValue } from "../../misc/flags";
 import { ServerConfigData } from "../../models/data/server-config.data";
+import { ServerSettings } from "../../models/domain/server-settings";
 import { CONFIG_DISK, KeyDefinition, StateProvider, UserKeyDefinition } from "../../state";
 
-export const RETRIEVAL_INTERVAL = 3_600_000; // 1 hour
+export const RETRIEVAL_INTERVAL = devFlagEnabled("configRetrievalIntervalMs")
+  ? (devFlagValue("configRetrievalIntervalMs") as number)
+  : 3_600_000; // 1 hour
+
+export const SLOW_EMISSION_GUARD = 800;
 
 export type ApiUrl = string;
 
@@ -50,6 +60,8 @@ export class DefaultConfigService implements ConfigService {
 
   serverConfig$: Observable<ServerConfig>;
 
+  serverSettings$: Observable<ServerSettings>;
+
   cloudRegion$: Observable<Region>;
 
   constructor(
@@ -57,22 +69,34 @@ export class DefaultConfigService implements ConfigService {
     private environmentService: EnvironmentService,
     private logService: LogService,
     private stateProvider: StateProvider,
+    private authService: AuthService,
   ) {
-    const apiUrl$ = this.environmentService.environment$.pipe(
-      map((environment) => environment.getApiUrl()),
+    const userId$ = this.stateProvider.activeUserId$;
+    const authStatus$ = userId$.pipe(
+      switchMap((userId) => (userId == null ? of(null) : this.authService.authStatusFor$(userId))),
     );
 
-    this.serverConfig$ = combineLatest([this.stateProvider.activeUserId$, apiUrl$]).pipe(
-      switchMap(([userId, apiUrl]) => {
-        const config$ =
-          userId == null ? this.globalConfigFor$(apiUrl) : this.userConfigFor$(userId);
-        return config$.pipe(map((config) => [config, userId, apiUrl] as const));
+    this.serverConfig$ = combineLatest([
+      userId$,
+      this.environmentService.environment$,
+      authStatus$,
+    ]).pipe(
+      switchMap(([userId, environment, authStatus]) => {
+        if (userId == null || authStatus !== AuthenticationStatus.Unlocked) {
+          return this.globalConfigFor$(environment.getApiUrl()).pipe(
+            map((config) => [config, null, environment] as const),
+          );
+        }
+
+        return this.userConfigFor$(userId).pipe(
+          map((config) => [config, userId, environment] as const),
+        );
       }),
       tap(async (rec) => {
-        const [existingConfig, userId, apiUrl] = rec;
+        const [existingConfig, userId, environment] = rec;
         // Grab new config if older retrieval interval
         if (!existingConfig || this.olderThanRetrievalInterval(existingConfig.utcDate)) {
-          await this.renewConfig(existingConfig, userId, apiUrl);
+          await this.renewConfig(existingConfig, userId, environment);
         }
       }),
       switchMap(([existingConfig]) => {
@@ -92,18 +116,33 @@ export class DefaultConfigService implements ConfigService {
     this.cloudRegion$ = this.serverConfig$.pipe(
       map((config) => config?.environment?.cloudRegion ?? Region.US),
     );
+
+    this.serverSettings$ = this.serverConfig$.pipe(
+      map((config) => config?.settings ?? new ServerSettings()),
+    );
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
     return this.serverConfig$.pipe(
-      map((serverConfig) => {
-        if (serverConfig?.featureStates == null || serverConfig.featureStates[key] == null) {
-          return DefaultFeatureFlagValue[key];
-        }
-
-        return serverConfig.featureStates[key] as FeatureFlagValueType<Flag>;
-      }),
+      map((serverConfig) => this.getFeatureFlagValue(serverConfig, key)),
     );
+  }
+
+  private getFeatureFlagValue<Flag extends FeatureFlag>(
+    serverConfig: ServerConfig | null,
+    flag: Flag,
+  ) {
+    if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
+      return DefaultFeatureFlagValue[flag];
+    }
+
+    return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;
+  }
+
+  userCachedFeatureFlag$<Flag extends FeatureFlag>(key: Flag, userId: UserId) {
+    return this.stateProvider
+      .getUser(userId, USER_SERVER_CONFIG)
+      .state$.pipe(map((config) => this.getFeatureFlagValue(config, key)));
   }
 
   async getFeatureFlag<Flag extends FeatureFlag>(key: Flag) {
@@ -135,10 +174,20 @@ export class DefaultConfigService implements ConfigService {
   private async renewConfig(
     existingConfig: ServerConfig,
     userId: UserId,
-    apiUrl: string,
+    environment: Environment,
   ): Promise<void> {
     try {
+      // Feature flags often have a big impact on user experience, lets ensure we return some value
+      // somewhat quickly even though it may not be accurate, we won't cancel the HTTP request
+      // though so that hopefully it can have finished and hydrated a more accurate value.
+      const handle = setTimeout(() => {
+        this.logService.info(
+          "Self-host environment did not respond in time, emitting previous config.",
+        );
+        this.failedFetchFallbackSubject.next(existingConfig);
+      }, SLOW_EMISSION_GUARD);
       const response = await this.configApiService.get(userId);
+      clearTimeout(handle);
       const newConfig = new ServerConfig(new ServerConfigData(response));
 
       // Update the environment region
@@ -153,7 +202,7 @@ export class DefaultConfigService implements ConfigService {
       if (userId == null) {
         // update global state with new pulled config
         await this.stateProvider.getGlobal(GLOBAL_SERVER_CONFIGURATIONS).update((configs) => {
-          return { ...configs, [apiUrl]: newConfig };
+          return { ...configs, [environment.getApiUrl()]: newConfig };
         });
       } else {
         // update state with new pulled config
@@ -161,9 +210,7 @@ export class DefaultConfigService implements ConfigService {
       }
     } catch (e) {
       // mutate error to be handled by catchError
-      this.logService.error(
-        `Unable to fetch ServerConfig from ${apiUrl}: ${(e as Error)?.message}`,
-      );
+      this.logService.error(`Unable to fetch ServerConfig from ${environment.getApiUrl()}`, e);
       // Emit the existing config
       this.failedFetchFallbackSubject.next(existingConfig);
     }

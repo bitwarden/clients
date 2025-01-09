@@ -7,6 +7,7 @@
     cdkOverlayOrigin
     #trigger="cdkOverlayOrigin"
     [hidden]="!view.showSwitcher"
+    [disabled]="disabled"
     aria-haspopup="dialog"
   >
     <ng-container *ngIf="view.activeAccount; else noActiveAccount">

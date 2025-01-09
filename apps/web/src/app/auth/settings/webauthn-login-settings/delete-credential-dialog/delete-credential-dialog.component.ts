@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
@@ -8,7 +10,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { WebauthnLoginAdminService } from "../../../core";
 import { WebauthnLoginCredentialView } from "../../../core/views/webauthn-login-credential.view";
@@ -38,6 +40,7 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private logService: LogService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -55,17 +58,21 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.disableClose = true;
     try {
       await this.webauthnService.deleteCredential(this.credential.id, this.formGroup.value.secret);
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("passkeyRemoved"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("passkeyRemoved"),
+      });
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 400) {
         this.invalidSecret = true;
       } else {
         this.logService?.error(error);
-        this.platformUtilsService.showToast(
-          "error",
-          this.i18nService.t("unexpectedError"),
-          error.message,
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("unexpectedError"),
+          message: error.message,
+        });
       }
       return false;
     } finally {

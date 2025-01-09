@@ -18,6 +18,7 @@
     "build:watch": "npm run clean && tsc -watch"
   },
   "dependencies": {
-    "@bitwarden/common": "file:../../../../common"
+    "@bitwarden/common": "file:../../../../common",
+    "@bitwarden/admin-console-common": "file:../../../../admin-console/src/common"
   }
 }

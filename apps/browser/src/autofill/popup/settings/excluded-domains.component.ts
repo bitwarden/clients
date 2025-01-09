@@ -1,141 +1,212 @@
-import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { CommonModule } from "@angular/common";
+import {
+  QueryList,
+  Component,
+  ElementRef,
+  OnDestroy,
+  AfterViewInit,
+  ViewChildren,
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { RouterModule } from "@angular/router";
+import { Subject, takeUntil } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import {
+  ButtonModule,
+  CardComponent,
+  FormFieldModule,
+  IconButtonModule,
+  ItemModule,
+  LinkModule,
+  SectionComponent,
+  SectionHeaderComponent,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 
-import { BrowserApi } from "../../../platform/browser/browser-api";
 import { enableAccountSwitching } from "../../../platform/flags";
-
-interface ExcludedDomain {
-  uri: string;
-  showCurrentUris: boolean;
-}
-
-const BroadcasterSubscriptionId = "excludedDomains";
+import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
+import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
+import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 @Component({
   selector: "app-excluded-domains",
   templateUrl: "excluded-domains.component.html",
+  standalone: true,
+  imports: [
+    ButtonModule,
+    CardComponent,
+    CommonModule,
+    FormFieldModule,
+    FormsModule,
+    IconButtonModule,
+    ItemModule,
+    JslibModule,
+    LinkModule,
+    PopOutComponent,
+    PopupFooterComponent,
+    PopupHeaderComponent,
+    PopupPageComponent,
+    RouterModule,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+  ],
 })
-export class ExcludedDomainsComponent implements OnInit, OnDestroy {
-  excludedDomains: ExcludedDomain[] = [];
-  existingExcludedDomains: ExcludedDomain[] = [];
-  currentUris: string[];
-  loadCurrentUrisTimeout: number;
+export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
+  @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>> =
+    new QueryList();
+
   accountSwitcherEnabled = false;
+  dataIsPristine = true;
+  isLoading = false;
+  excludedDomainsState: string[] = [];
+  storedExcludedDomains: string[] = [];
+  // How many fields should be non-editable before editable fields
+  fieldsEditThreshold: number = 0;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
-    private router: Router,
-    private broadcasterService: BroadcasterService,
-    private ngZone: NgZone,
-    private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {
     this.accountSwitcherEnabled = enableAccountSwitching();
   }
 
-  async ngOnInit() {
-    const savedDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
-    if (savedDomains) {
-      for (const uri of Object.keys(savedDomains)) {
-        this.excludedDomains.push({ uri: uri, showCurrentUris: false });
-        this.existingExcludedDomains.push({ uri: uri, showCurrentUris: false });
-      }
-    }
+  async ngAfterViewInit() {
+    this.domainSettingsService.neverDomains$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((neverDomains: NeverDomains) => this.handleStateUpdate(neverDomains));
 
-    await this.loadCurrentUris();
-
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.ngZone.run(async () => {
-        switch (message.command) {
-          case "tabChanged":
-          case "windowChanged":
-            if (this.loadCurrentUrisTimeout != null) {
-              window.clearTimeout(this.loadCurrentUrisTimeout);
-            }
-            this.loadCurrentUrisTimeout = window.setTimeout(
-              async () => await this.loadCurrentUris(),
-              500,
-            );
-            break;
-          default:
-            break;
-        }
-      });
+    this.uriInputElements.changes.pipe(takeUntil(this.destroy$)).subscribe(({ last }) => {
+      this.focusNewUriInput(last);
     });
   }
 
   ngOnDestroy() {
-    this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  async addUri() {
-    this.excludedDomains.push({ uri: "", showCurrentUris: false });
+  handleStateUpdate(neverDomains: NeverDomains) {
+    if (neverDomains) {
+      this.storedExcludedDomains = Object.keys(neverDomains);
+    }
+
+    this.excludedDomainsState = [...this.storedExcludedDomains];
+
+    // Do not allow the first x (pre-existing) fields to be edited
+    this.fieldsEditThreshold = this.storedExcludedDomains.length;
+
+    this.dataIsPristine = true;
+    this.isLoading = false;
   }
 
-  async removeUri(i: number) {
-    this.excludedDomains.splice(i, 1);
+  focusNewUriInput(elementRef: ElementRef) {
+    if (elementRef?.nativeElement) {
+      elementRef.nativeElement.focus();
+    }
   }
 
-  async submit() {
-    const savedDomains: { [name: string]: null } = {};
-    const newExcludedDomains = this.getNewlyAddedDomains(this.excludedDomains);
-    for (const domain of this.excludedDomains) {
-      const resp = newExcludedDomains.filter((e) => e.uri === domain.uri);
-      if (resp.length === 0) {
-        savedDomains[domain.uri] = null;
-      } else {
-        if (domain.uri && domain.uri !== "") {
-          const validDomain = Utils.getHostname(domain.uri);
-          if (!validDomain) {
-            this.platformUtilsService.showToast(
-              "error",
-              null,
-              this.i18nService.t("excludedDomainsInvalidDomain", domain.uri),
-            );
-            return;
-          }
-          savedDomains[validDomain] = null;
+  async addNewDomain() {
+    // add empty field to the Domains list interface
+    this.excludedDomainsState.push("");
+
+    await this.fieldChange();
+  }
+
+  async removeDomain(i: number) {
+    this.excludedDomainsState.splice(i, 1);
+
+    // If a pre-existing field was dropped, lower the edit threshold
+    if (i < this.fieldsEditThreshold) {
+      this.fieldsEditThreshold--;
+    }
+
+    await this.fieldChange();
+  }
+
+  async fieldChange() {
+    if (this.dataIsPristine) {
+      this.dataIsPristine = false;
+    }
+  }
+
+  async saveChanges() {
+    if (this.dataIsPristine) {
+      return;
+    }
+
+    this.isLoading = true;
+
+    const newExcludedDomainsSaveState: NeverDomains = {};
+    const uniqueExcludedDomains = new Set(this.excludedDomainsState);
+
+    for (const uri of uniqueExcludedDomains) {
+      if (uri && uri !== "") {
+        const validatedHost = Utils.getHostname(uri);
+
+        if (!validatedHost) {
+          this.toastService.showToast({
+            message: this.i18nService.t("excludedDomainsInvalidDomain", uri),
+            title: "",
+            variant: "error",
+          });
+
+          // Don't reset via `handleStateUpdate` to allow existing input value correction
+          this.isLoading = false;
+          return;
         }
+
+        newExcludedDomainsSaveState[validatedHost] = null;
       }
     }
 
-    await this.domainSettingsService.setNeverDomains(savedDomains);
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/tabs/settings"]);
-  }
+    try {
+      const existingState = new Set(this.storedExcludedDomains);
+      const newState = new Set(Object.keys(newExcludedDomainsSaveState));
+      const stateIsUnchanged =
+        existingState.size === newState.size &&
+        new Set([...existingState, ...newState]).size === existingState.size;
 
-  trackByFunction(index: number, item: any) {
-    return index;
-  }
+      // The subscriber updates don't trigger if `setNeverDomains` sets an equivalent state
+      if (stateIsUnchanged) {
+        // Reset UI state directly
+        const constructedNeverDomainsState = this.storedExcludedDomains.reduce(
+          (neverDomains: NeverDomains, uri: string) => ({ ...neverDomains, [uri]: null }),
+          {},
+        );
+        this.handleStateUpdate(constructedNeverDomainsState);
+      } else {
+        await this.domainSettingsService.setNeverDomains(newExcludedDomainsSaveState);
+      }
 
-  getNewlyAddedDomains(domain: ExcludedDomain[]): ExcludedDomain[] {
-    const result = this.excludedDomains.filter(
-      (newDomain) =>
-        !this.existingExcludedDomains.some((oldDomain) => newDomain.uri === oldDomain.uri),
-    );
-    return result;
-  }
+      this.toastService.showToast({
+        message: this.i18nService.t("excludedDomainsSavedSuccess"),
+        title: "",
+        variant: "success",
+      });
+    } catch {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        title: "",
+        variant: "error",
+      });
 
-  toggleUriInput(domain: ExcludedDomain) {
-    domain.showCurrentUris = !domain.showCurrentUris;
-  }
-
-  async loadCurrentUris() {
-    const tabs = await BrowserApi.tabsQuery({ windowType: "normal" });
-    if (tabs) {
-      const uriSet = new Set(tabs.map((tab) => Utils.getHostname(tab.url)));
-      uriSet.delete(null);
-      this.currentUris = Array.from(uriSet);
+      // Don't reset via `handleStateUpdate` to preserve input values
+      this.isLoading = false;
     }
+  }
+
+  trackByFunction(index: number, _: string) {
+    return index;
   }
 }

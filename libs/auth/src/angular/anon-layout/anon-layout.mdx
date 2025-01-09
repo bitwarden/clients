@@ -6,8 +6,11 @@ import * as stories from "./anon-layout.stories";
 
 # AnonLayout Component
 
-The Auth-owned AnonLayoutComponent is to be used for unauthenticated pages, where we don't know who
-the user is (this includes viewing a Send).
+The Auth-owned AnonLayoutComponent is to be used primarily for unauthenticated pages\*, where we
+don't know who the user is.
+
+\*There will be a few exceptions to this&mdash;that is, AnonLayout will also be used for the Unlock
+and View Send pages.
 
 ---
 
@@ -31,23 +34,28 @@ writing:
 Instead the AnonLayoutComponent is implemented solely in the router via routable composition, which
 gives us the advantages of nested routes in Angular.
 
-To allow for routable composition, Auth will also provide a wrapper component in each client, called
-AnonLayout**Wrapper**Component.
+To allow for routable composition, Auth also provides an AnonLayout**Wrapper**Component which embeds
+the AnonLayoutComponent.
 
 For clarity:
 
-- AnonLayoutComponent = the Auth-owned library component - `<auth-anon-layout>`
-- AnonLayout**Wrapper**Component = the client-specific wrapper component to be used in a client
-  routing module
+- AnonLayoutComponent = the base, Auth-owned library component - `<auth-anon-layout>`
+- AnonLayout**Wrapper**Component = the wrapper to be used in client routing modules
 
 The AnonLayout**Wrapper**Component embeds the AnonLayoutComponent along with the router outlets:
 
 ```html
 <!-- File: anon-layout-wrapper.component.html -->
 
-<auth-anon-layout>
+<auth-anon-layout
+  [title]="pageTitle"
+  [subtitle]="pageSubtitle"
+  [icon]="pageIcon"
+  [showReadonlyHostname]="showReadonlyHostname"
+>
   <router-outlet></router-outlet>
   <router-outlet slot="secondary" name="secondary"></router-outlet>
+  <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
 </auth-anon-layout>
 ```
 
@@ -55,53 +63,60 @@ To implement, the developer does not need to work with the base AnonLayoutCompon
 devoloper simply uses the AnonLayout**Wrapper**Component in `oss-routing.module.ts` (for Web, for
 example) to construct the page via routable composition:
 
-```javascript
+```typescript
 // File: oss-routing.module.ts
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, LockIcon } from "@bitwarden/auth/angular";
 
 {
-    path: "",
-    component: AnonLayoutWrapperComponent, // Wrapper component
-    children: [
-      {
-        path: "sample-route", // replace with your route
-        children: [
-          {
-            path: "",
-            component: MyPrimaryComponent, // replace with your component
-          },
-          {
-            path: "",
-            component: MySecondaryComponent, // replace with your component (or remove this secondary outlet object entirely if not needed)
-            outlet: "secondary",
-          },
-        ],
-        data: {
-          pageTitle: "logIn", // example of a translation key from messages.json
-          pageSubtitle: "loginWithMasterPassword", // example of a translation key from messages.json
-          pageIcon: LockIcon, // example of an icon to pass in
+  path: "",
+  component: AnonLayoutWrapperComponent, // Wrapper component
+  children: [
+    {
+      path: "sample-route", // replace with your route
+      children: [
+        {
+          path: "",
+          component: MyPrimaryComponent, // replace with your component
         },
-      },
-    ],
-  },
+        {
+          path: "",
+          component: MySecondaryComponent, // replace with your component (or remove this secondary outlet object entirely if not needed)
+          outlet: "secondary",
+        },
+      ],
+      data: {
+        pageTitle: "logIn", // example of a translation key from messages.json
+        pageSubtitle: "loginWithMasterPassword", // example of a translation key from messages.json
+        pageIcon: LockIcon, // example of an icon to pass in
+      } satisfies AnonLayoutWrapperData,
+    },
+  ],
+},
 ```
 
-And if the AnonLayout**Wrapper**Component is already being used in your client's routing module,
-then your work will be as simple as just adding another child route under the `children` array.
+(Notice that you can optionally add an `outlet: "secondary"` if you want to project secondary
+content below the primary content).
+
+If the AnonLayout**Wrapper**Component is already being used in your client's routing module, then
+your work will be as simple as just adding another child route under the `children` array.
+
+<br />
 
 ### Data Properties
 
-In the `oss-routing.module.ts` example above, notice the data properties being passed in:
+Routes that use the AnonLayou**tWrapper**Component can take several unique data properties defined
+in the `AnonLayoutWrapperData` interface:
 
 - For the `pageTitle` and `pageSubtitle` - pass in a translation key from `messages.json`.
 - For the `pageIcon` - import an icon (of type `Icon`) into the router file and use the icon
   directly.
+- `showReadonlyHostname` - set to `true` if you want to show the hostname in the footer (ex:
+  "Accessing bitwarden.com")
 
-All 3 of these properties are optional.
+All of these properties are optional.
 
-```javascript
-import { LockIcon } from "@bitwarden/auth/angular";
-
-// ...
+```typescript
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, LockIcon } from "@bitwarden/auth/angular";
 
 {
   // ...
@@ -109,8 +124,43 @@ import { LockIcon } from "@bitwarden/auth/angular";
     pageTitle: "logIn",
     pageSubtitle: "loginWithMasterPassword",
     pageIcon: LockIcon,
-  },
+    showReadonlyHostname: true,
+  } satisfies AnonLayoutWrapperData,
 }
+```
+
+### Environment Selector
+
+For some routes, you may want to display the environment selector in the footer of the
+AnonLayoutComponent. To do so, add the relevant environment selector (Web or Libs version, depending
+on your client) as a component with `outlet: "environment-selector"`.
+
+```javascript
+// File: oss-routing.module.ts
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, LockIcon } from "@bitwarden/auth/angular";
+import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
+
+{
+  path: "",
+  component: AnonLayoutWrapperComponent,
+  children: [
+    {
+      path: "sample-route",
+      children: [
+        {
+          path: "",
+          component: MyPrimaryComponent,
+        },
+        {
+          path: "",
+          component: EnvironmentSelectorComponent, // use Web or Libs component depending on your client
+          outlet: "environment-selector",
+        },
+      ],
+      // ...
+    },
+  ],
+},
 ```
 
 ---

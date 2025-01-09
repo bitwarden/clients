@@ -1,6 +1,12 @@
 import { Meta, Story, Source } from "@storybook/addon-docs";
 
+import * as stories from "./dialog.service.stories";
+
 <Meta title="Component Library/Dialogs" />
+
+```ts
+import { DialogModule } from "@bitwarden/components";
+```
 
 # Dialog
 
@@ -24,7 +30,7 @@ dialog should become scrollable.
 
 A backdrop should be used to hide the content below the dialog. Use `#000000` with `30% opacity`.
 
-<Story id="component-library-dialogs-service--default" />
+<Story of={stories.Default} />
 
 ## Accessibility
 

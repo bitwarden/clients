@@ -1,0 +1,35 @@
+<ng-container [formGroup]="uriForm">
+  <bit-form-field [class.!tw-mb-1]="showMatchDetection">
+    <bit-label>{{ uriLabel }}</bit-label>
+    <input bitInput formControlName="uri" #uriInput />
+    <button
+      type="button"
+      bitIconButton="bwi-cog"
+      bitSuffix
+      [appA11yTitle]="toggleTitle"
+      (click)="toggleMatchDetection()"
+      data-testid="toggle-match-detection-button"
+    ></button>
+    <button
+      type="button"
+      bitIconButton="bwi-minus-circle"
+      buttonType="danger"
+      bitSuffix
+      [appA11yTitle]="'deleteWebsite' | i18n"
+      *ngIf="canRemove"
+      (click)="removeUri()"
+      data-testid="remove-uri-button"
+    ></button>
+  </bit-form-field>
+
+  <bit-form-field *ngIf="showMatchDetection" class="!tw-mb-5">
+    <bit-label>{{ "matchDetection" | i18n }}</bit-label>
+    <bit-select formControlName="matchDetection" #matchDetectionSelect>
+      <bit-option
+        *ngFor="let o of uriMatchOptions"
+        [label]="o.label"
+        [value]="o.value"
+      ></bit-option>
+    </bit-select>
+  </bit-form-field>
+</ng-container>

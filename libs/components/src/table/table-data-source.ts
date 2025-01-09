@@ -1,21 +1,25 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { _isNumberValue } from "@angular/cdk/coercion";
 import { DataSource } from "@angular/cdk/collections";
 import { BehaviorSubject, combineLatest, map, Observable, Subscription } from "rxjs";
 
 export type SortDirection = "asc" | "desc";
-export type SortFn = (a: any, b: any) => number;
+export type SortFn = (a: any, b: any, direction?: SortDirection) => number;
 export type Sort = {
   column?: string;
   direction: SortDirection;
   fn?: SortFn;
 };
 
+export type FilterFn<T> = (data: T) => boolean;
+
 // Loosely based on CDK TableDataSource
 //  https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
 export class TableDataSource<T> extends DataSource<T> {
   private readonly _data: BehaviorSubject<T[]>;
   private readonly _sort: BehaviorSubject<Sort>;
-  private readonly _filter = new BehaviorSubject<string>("");
+  private readonly _filter = new BehaviorSubject<string | FilterFn<T>>(null);
   private readonly _renderData = new BehaviorSubject<T[]>([]);
   private _renderChangesSubscription: Subscription | null = null;
 
@@ -55,11 +59,15 @@ export class TableDataSource<T> extends DataSource<T> {
     return this._sort.value;
   }
 
+  /**
+   * Filter to apply to the `data`.
+   *
+   * If a string is provided, it will be converted to a filter using {@link simpleStringFilter}
+   **/
   get filter() {
     return this._filter.value;
   }
-
-  set filter(filter: string) {
+  set filter(filter: string | FilterFn<T>) {
     this._filter.next(filter);
     // Normally the `filteredData` is updated by the re-render
     // subscription, but that won't happen if it's inactive.
@@ -68,7 +76,7 @@ export class TableDataSource<T> extends DataSource<T> {
     }
   }
 
-  connect(): Observable<readonly T[]> {
+  connect(): Observable<T[]> {
     if (!this._renderChangesSubscription) {
       this.updateChangeSubscription();
     }
@@ -95,10 +103,11 @@ export class TableDataSource<T> extends DataSource<T> {
   }
 
   private filterData(data: T[]): T[] {
-    this.filteredData =
-      this.filter == null || this.filter === ""
-        ? data
-        : data.filter((obj) => this.filterPredicate(obj, this.filter));
+    const filter =
+      typeof this.filter === "string"
+        ? TableDataSource.simpleStringFilter(this.filter)
+        : this.filter;
+    this.filteredData = this.filter == null ? data : data.filter((obj) => filter(obj));
 
     return this.filteredData;
   }
@@ -159,7 +168,7 @@ export class TableDataSource<T> extends DataSource<T> {
     return data.sort((a, b) => {
       // If a custom sort function is provided, use it instead of the default.
       if (sort.fn) {
-        return sort.fn(a, b) * directionModifier;
+        return sort.fn(a, b, sort.direction) * directionModifier;
       }
 
       let valueA = this.sortingDataAccessor(a, column);
@@ -207,36 +216,39 @@ export class TableDataSource<T> extends DataSource<T> {
   }
 
   /**
-   * Copied from https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
+   * Modified from https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
    * License: MIT
    * Copyright (c) 2022 Google LLC.
    *
-   * Checks if a data object matches the data source's filter string. By default, each data object
+   * @param filter the string to search for
+   * @returns a function that checks if a data object matches the provided `filter` string. Each data object
    * is converted to a string of its properties and returns true if the filter has
-   * at least one occurrence in that string. By default, the filter string has its whitespace
-   * trimmed and the match is case-insensitive. May be overridden for a custom implementation of
-   * filter matching.
-   * @param data Data object used to check against the filter.
-   * @param filter Filter string that has been set on the data source.
-   * @returns Whether the filter matches against the data
+   * at least one occurrence in that string. The filter string has its whitespace
+   * trimmed and the match is case-insensitive.
    */
-  protected filterPredicate(data: T, filter: string): boolean {
-    // Transform the data into a lowercase string of all property values.
-    const dataStr = Object.keys(data as unknown as Record<string, any>)
-      .reduce((currentTerm: string, key: string) => {
-        // Use an obscure Unicode character to delimit the words in the concatenated string.
-        // This avoids matches where the values of two columns combined will match the user's query
-        // (e.g. `Flute` and `Stop` will match `Test`). The character is intended to be something
-        // that has a very low chance of being typed in by somebody in a text field. This one in
-        // particular is "White up-pointing triangle with dot" from
-        // https://en.wikipedia.org/wiki/List_of_Unicode_characters
-        return currentTerm + (data as unknown as Record<string, any>)[key] + "◬";
-      }, "")
-      .toLowerCase();
+  static readonly simpleStringFilter = <T>(filter: string): FilterFn<T> => {
+    return (data: T): boolean => {
+      if (!filter) {
+        return true;
+      }
 
-    // Transform the filter by converting it to lowercase and removing whitespace.
-    const transformedFilter = filter.trim().toLowerCase();
+      // Transform the data into a lowercase string of all property values.
+      const dataStr = Object.keys(data as unknown as Record<string, any>)
+        .reduce((currentTerm: string, key: string) => {
+          // Use an obscure Unicode character to delimit the words in the concatenated string.
+          // This avoids matches where the values of two columns combined will match the user's query
+          // (e.g. `Flute` and `Stop` will match `Test`). The character is intended to be something
+          // that has a very low chance of being typed in by somebody in a text field. This one in
+          // particular is "White up-pointing triangle with dot" from
+          // https://en.wikipedia.org/wiki/List_of_Unicode_characters
+          return currentTerm + (data as unknown as Record<string, any>)[key] + "◬";
+        }, "")
+        .toLowerCase();
 
-    return dataStr.indexOf(transformedFilter) != -1;
-  }
+      // Transform the filter by converting it to lowercase and removing whitespace.
+      const transformedFilter = filter.trim().toLowerCase();
+
+      return dataStr.indexOf(transformedFilter) != -1;
+    };
+  };
 }

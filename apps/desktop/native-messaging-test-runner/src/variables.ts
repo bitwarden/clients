@@ -1,5 +1,5 @@
 export const applicationName = "Native Messaging Test Runner";
-export const encryptionAlgorithm = "sha1";
+export const hashAlgorithmForEncryption = "sha1";
 export const testRsaPublicKey =
   "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAl0Vawl/toXzkEvB82FEtqHP" +
   "4xlU2ab/v0crqIfXfIoWF/XXdHGIdrZeilnRXPPJT1B9dTsasttEZNnua/0Rek/cjNDHtzT52irfoZYS7X6HNIfOi54Q+egP" +

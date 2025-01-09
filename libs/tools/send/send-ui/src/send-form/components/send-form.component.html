@@ -1,0 +1,8 @@
+<form [id]="formId" [formGroup]="sendForm" [bitSubmit]="submit">
+  <ng-container *ngIf="!loading">
+    <tools-send-details
+      [config]="config"
+      [originalSendView]="originalSendView"
+    ></tools-send-details>
+  </ng-container>
+</form>

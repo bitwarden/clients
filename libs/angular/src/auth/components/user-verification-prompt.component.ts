@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
@@ -5,6 +7,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 import { ModalRef } from "../../components/modal/modal.ref";
 
@@ -37,6 +40,7 @@ export class UserVerificationPromptComponent {
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
+    private toastService: ToastService,
   ) {}
 
   get secret() {
@@ -56,7 +60,11 @@ export class UserVerificationPromptComponent {
       this.invalidSecret = false;
     } catch (e) {
       this.invalidSecret = true;
-      this.platformUtilsService.showToast("error", this.i18nService.t("error"), e.message);
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("error"),
+        message: e.message,
+      });
       return;
     }
 

@@ -6,31 +6,27 @@
   <div bitDialogContent>
     <form [formGroup]="filterFormGroup" [bitSubmit]="refreshEvents">
       <div class="tw-flex tw-items-center tw-space-x-2">
-        <div>
-          <label class="tw-sr-only" for="start">{{ "startDate" | i18n }}</label>
-          <span>
-            <input
-              bitInput
-              type="datetime-local"
-              id="start"
-              placeholder="{{ 'startDate' | i18n }}"
-              formControlName="start"
-            />
-          </span>
-        </div>
+        <bit-form-field>
+          <bit-label>{{ "from" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="datetime-local"
+            id="start"
+            placeholder="{{ 'startDate' | i18n }}"
+            formControlName="start"
+          />
+        </bit-form-field>
         <span class="tw-mx-2">-</span>
-        <div>
-          <label class="tw-sr-only" for="end">{{ "endDate" | i18n }}</label>
-          <span>
-            <input
-              bitInput
-              type="datetime-local"
-              id="end"
-              placeholder="{{ 'endDate' | i18n }}"
-              formControlName="end"
-            />
-          </span>
-        </div>
+        <bit-form-field>
+          <bit-label>{{ "to" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="datetime-local"
+            id="end"
+            placeholder="{{ 'endDate' | i18n }}"
+            formControlName="end"
+          />
+        </bit-form-field>
         <button type="submit" bitButton buttonType="primary" bitFormButton>
           <i class="bwi bwi-refresh bwi-fw" aria-hidden="true"></i>
           {{ "refresh" | i18n }}

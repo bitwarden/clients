@@ -1,13 +1,23 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
+
+import { LogoutReason } from "@bitwarden/auth/common";
+import {
+  Argon2KdfConfig,
+  KdfConfig,
+  PBKDF2KdfConfig,
+  KeyService,
+  KdfType,
+} from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../admin-console/enums";
+import { Organization } from "../../admin-console/models/domain/organization";
 import { KeysRequest } from "../../models/request/keys.request";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
-import { KdfType } from "../../platform/enums/kdf-type.enum";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import {
@@ -22,12 +32,11 @@ import { AccountService } from "../abstractions/account.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import { TokenService } from "../abstractions/token.service";
-import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "../models/domain/kdf-config";
 import { KeyConnectorUserKeyRequest } from "../models/request/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../models/request/set-key-connector-key.request";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
-export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean>(
+export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(
   KEY_CONNECTOR_DISK,
   "usesKeyConnector",
   {
@@ -36,7 +45,7 @@ export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean>(
   },
 );
 
-export const CONVERT_ACCOUNT_TO_KEY_CONNECTOR = new UserKeyDefinition<boolean>(
+export const CONVERT_ACCOUNT_TO_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(
   KEY_CONNECTOR_DISK,
   "convertAccountToKeyConnector",
   {
@@ -51,13 +60,13 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   constructor(
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
     private logService: LogService,
     private organizationService: OrganizationService,
     private keyGenerationService: KeyGenerationService,
-    private logoutCallback: (expired: boolean, userId?: string) => Promise<void>,
+    private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
     private stateProvider: StateProvider,
   ) {
     this.usesKeyConnectorState = this.stateProvider.getActive(USES_KEY_CONNECTOR);
@@ -66,25 +75,25 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     );
   }
 
-  async setUsesKeyConnector(usesKeyConnector: boolean) {
-    await this.usesKeyConnectorState.update(() => usesKeyConnector);
+  async setUsesKeyConnector(usesKeyConnector: boolean, userId: UserId) {
+    await this.stateProvider.getUser(userId, USES_KEY_CONNECTOR).update(() => usesKeyConnector);
   }
 
-  getUsesKeyConnector(): Promise<boolean> {
-    return firstValueFrom(this.usesKeyConnectorState.state$);
+  getUsesKeyConnector(userId: UserId): Promise<boolean> {
+    return firstValueFrom(this.stateProvider.getUserState$(USES_KEY_CONNECTOR, userId));
   }
 
-  async userNeedsMigration() {
-    const loggedInUsingSso = await this.tokenService.getIsExternal();
-    const requiredByOrganization = (await this.getManagingOrganization()) != null;
-    const userIsNotUsingKeyConnector = !(await this.getUsesKeyConnector());
+  async userNeedsMigration(userId: UserId) {
+    const loggedInUsingSso = await this.tokenService.getIsExternal(userId);
+    const requiredByOrganization = (await this.getManagingOrganization(userId)) != null;
+    const userIsNotUsingKeyConnector = !(await this.getUsesKeyConnector(userId));
 
     return loggedInUsingSso && requiredByOrganization && userIsNotUsingKeyConnector;
   }
 
-  async migrateUser() {
-    const organization = await this.getManagingOrganization();
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+  async migrateUser(userId?: UserId) {
+    userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    const organization = await this.getManagingOrganization(userId);
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
 
@@ -112,8 +121,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     }
   }
 
-  async getManagingOrganization() {
-    const orgs = await this.organizationService.getAll();
+  async getManagingOrganization(userId?: UserId): Promise<Organization> {
+    const orgs = await this.organizationService.getAll(userId);
     return orgs.find(
       (o) =>
         o.keyConnectorEnabled &&
@@ -143,7 +152,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         ? new PBKDF2KdfConfig(kdfIterations)
         : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
 
-    const masterKey = await this.cryptoService.makeMasterKey(
+    const masterKey = await this.keyService.makeMasterKey(
       password.keyB64,
       await this.tokenService.getEmail(),
       kdfConfig,
@@ -151,11 +160,11 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
 
-    const userKey = await this.cryptoService.makeUserKey(masterKey);
-    await this.cryptoService.setUserKey(userKey[0], userId);
-    await this.cryptoService.setMasterKeyEncryptedUserKey(userKey[1].encryptedString, userId);
+    const userKey = await this.keyService.makeUserKey(masterKey);
+    await this.keyService.setUserKey(userKey[0], userId);
+    await this.keyService.setMasterKeyEncryptedUserKey(userKey[1].encryptedString, userId);
 
-    const [pubKey, privKey] = await this.cryptoService.makeKeyPair(userKey[0]);
+    const [pubKey, privKey] = await this.keyService.makeKeyPair(userKey[0]);
 
     try {
       const keyConnectorUrl =
@@ -175,16 +184,16 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.apiService.postSetKeyConnectorKey(setPasswordRequest);
   }
 
-  async setConvertAccountRequired(status: boolean) {
-    await this.convertAccountToKeyConnectorState.update(() => status);
+  async setConvertAccountRequired(status: boolean, userId?: UserId) {
+    await this.stateProvider.setUserState(CONVERT_ACCOUNT_TO_KEY_CONNECTOR, status, userId);
   }
 
   getConvertAccountRequired(): Promise<boolean> {
     return firstValueFrom(this.convertAccountToKeyConnectorState.state$);
   }
 
-  async removeConvertAccountRequired() {
-    await this.setConvertAccountRequired(null);
+  async removeConvertAccountRequired(userId?: UserId) {
+    await this.setConvertAccountRequired(null, userId);
   }
 
   private handleKeyConnectorError(e: any) {
@@ -192,7 +201,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     if (this.logoutCallback != null) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.logoutCallback(false);
+      this.logoutCallback("keyConnectorError");
     }
     throw new Error("Key Connector error");
   }

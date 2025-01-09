@@ -1,11 +1,16 @@
-import { Component, Input, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
 import { firstValueFrom, Subject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { DialogService } from "@bitwarden/components";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../individual-vault/vault-filter/components/vault-filter.component"; //../../vault/vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "../../individual-vault/vault-filter/services/abstractions/vault-filter.service";
@@ -20,7 +25,10 @@ import { CollectionFilter } from "../../individual-vault/vault-filter/shared/mod
   selector: "app-organization-vault-filter",
   templateUrl: "../../individual-vault/vault-filter/components/vault-filter.component.html",
 })
-export class VaultFilterComponent extends BaseVaultFilterComponent implements OnInit, OnDestroy {
+export class VaultFilterComponent
+  extends BaseVaultFilterComponent
+  implements OnInit, OnDestroy, OnChanges
+{
   @Input() set organization(value: Organization) {
     if (value && value !== this._organization) {
       this._organization = value;
@@ -35,8 +43,19 @@ export class VaultFilterComponent extends BaseVaultFilterComponent implements On
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
+    protected billingApiService: BillingApiServiceAbstraction,
+    protected dialogService: DialogService,
+    protected configService: ConfigService,
   ) {
-    super(vaultFilterService, policyService, i18nService, platformUtilsService);
+    super(
+      vaultFilterService,
+      policyService,
+      i18nService,
+      platformUtilsService,
+      billingApiService,
+      dialogService,
+      configService,
+    );
   }
 
   async ngOnInit() {
@@ -103,11 +122,7 @@ export class VaultFilterComponent extends BaseVaultFilterComponent implements On
   async buildAllFilters(): Promise<VaultFilterList> {
     const builderFilter = {} as VaultFilterList;
     builderFilter.typeFilter = await this.addTypeFilter(["favorites"]);
-    if (this._organization?.flexibleCollections) {
-      builderFilter.collectionFilter = await this.addCollectionFilter();
-    } else {
-      builderFilter.collectionFilter = await super.addCollectionFilter();
-    }
+    builderFilter.collectionFilter = await this.addCollectionFilter();
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
   }

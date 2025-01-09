@@ -9,19 +9,18 @@ $ng-select-highlight: rgb(var(--color-primary-700)) !default;
 $ng-select-primary-text: rgb(var(--color-text-main)) !default;
 $ng-select-disabled-text: rgb(var(--color-secondary-100)) !default;
 $ng-select-border: rgb(var(--color-secondary-600)) !default;
-$ng-select-border-radius: 4px !default;
-$ng-select-bg: rgb(var(--color-background-alt)) !default;
+$ng-select-border-radius: 0.5rem !default;
+$ng-select-bg: rgb(var(--color-background)) !default;
 $ng-select-selected: transparent !default;
-$ng-select-selected-alt: rgb(var(--color-text-main) / 0.06) !default;
 $ng-select-selected-text: $ng-select-primary-text !default;
 
-$ng-select-marked: rgb(var(--color-text-main) / 0.12) !default;
+$ng-select-marked: rgb(var(--color-primary-100)) !default;
 $ng-select-marked-text: $ng-select-primary-text !default;
 
 $ng-select-box-shadow: none !default;
 $ng-select-placeholder: rgb(var(--color-text-muted)) !default;
-$ng-select-height: 35px !default;
-$ng-select-value-padding-left: 10px !default;
+$ng-select-height: 100%;
+$ng-select-value-padding-left: 1rem !default;
 $ng-select-value-font-size: 0.9em !default;
 $ng-select-value-text: $ng-select-primary-text !default;
 
@@ -31,7 +30,7 @@ $ng-select-dropdown-optgroup-text: rgb(var(--color-text-muted)) !default;
 $ng-select-dropdown-optgroup-marked: $ng-select-dropdown-optgroup-text !default;
 $ng-select-dropdown-option-bg: $ng-select-dropdown-bg !default;
 $ng-select-dropdown-option-text: $ng-select-primary-text !default;
-$ng-select-dropdown-option-disabled: rgb(var(--color-text-muted) / 0.6) !default;
+$ng-select-dropdown-option-disabled: rgb(var(--color-secondary-300)) !default;
 
 $ng-select-input-text: $ng-select-primary-text !default;
 
@@ -41,12 +40,12 @@ $ng-clear-icon-hover: rgb(var(--color-text-main)) !default;
 $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
 
 .ng-select {
+  height: $ng-select-height;
   &.ng-select-opened {
     > .ng-select-container {
-      background: $ng-select-bg;
-      border-color: $ng-select-border;
+      background: transparent;
       &:hover {
-        box-shadow: none;
+        box-shadow: $ng-select-box-shadow;
       }
       .ng-arrow {
         top: -2px;
@@ -100,15 +99,15 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     color: $ng-select-primary-text;
     background-color: $ng-select-bg;
     border-radius: $ng-select-border-radius;
-    border: 1px solid $ng-select-border;
-    min-height: $ng-select-height;
+    border: none;
+    height: $ng-select-height;
     align-items: center;
     &:hover {
-      box-shadow: 0 1px 0 $ng-dropdown-shadow;
+      box-shadow: $ng-select-box-shadow;
     }
     .ng-value-container {
       align-items: center;
-      padding-left: $ng-select-value-padding-left;
+      padding: 6px 0px 5px $ng-select-value-padding-left;
       @include rtl {
         padding-right: $ng-select-value-padding-left;
         padding-left: 0;
@@ -118,6 +117,7 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
       }
 
       .ng-input {
+        padding-top: 2px;
         > input {
           color: $ng-select-input-text;
         }
@@ -128,8 +128,9 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     .ng-select-container {
       height: $ng-select-height;
       .ng-value-container {
+        display: flex;
+        height: 100%;
         .ng-input {
-          top: 5px;
           left: 0;
           padding-left: $ng-select-value-padding-left;
           padding-right: 50px;
@@ -153,19 +154,16 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     }
     .ng-select-container {
       .ng-value-container {
-        padding-top: 5px;
-        padding-left: 7px;
+        height: 100%;
         @include rtl {
-          padding-right: 7px;
           padding-left: 0;
         }
         .ng-value {
           font-size: $ng-select-value-font-size;
-          margin-bottom: 5px;
           color: $ng-select-value-text;
           background-color: $ng-select-selected;
           border-radius: 2px;
-          margin-right: 5px;
+          margin: 4px 5px 4px 0px;
           @include rtl {
             margin-right: 0;
             margin-left: 5px;
@@ -206,21 +204,6 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
             }
           }
         }
-        .ng-input {
-          padding: 0 0 3px 3px;
-          @include rtl {
-            padding: 0 3px 3px 0;
-          }
-        }
-        .ng-placeholder {
-          top: 5px;
-          padding-bottom: 5px;
-          padding-left: 3px;
-          @include rtl {
-            padding-right: 3px;
-            padding-left: 0;
-          }
-        }
       }
     }
   }
@@ -230,6 +213,8 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     &:hover .ng-clear {
       color: $ng-clear-icon-hover;
     }
+    border-radius: $ng-select-border-radius;
+    text-align: center;
   }
   .ng-spinner-zone {
     padding: 5px 5px 0 0;
@@ -262,7 +247,8 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
   z-index: 2050 !important;
   background-color: $ng-select-dropdown-bg;
   border: 1px solid $ng-select-dropdown-border;
-  box-shadow: 0 1px 0 $ng-dropdown-shadow;
+  border-radius: $ng-select-border-radius;
+  box-shadow: $ng-select-box-shadow;
   left: 0;
   &.ng-select-top {
     bottom: 100%;
@@ -335,6 +321,8 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     padding: 5px 7px;
   }
   .ng-dropdown-panel-items {
+    border-radius: $ng-select-border-radius;
+    background: $ng-select-bg;
     .ng-optgroup {
       user-select: none;
       padding: 8px 10px;
@@ -357,10 +345,7 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     .ng-option {
       background-color: $ng-select-dropdown-option-bg;
       color: $ng-select-dropdown-option-text;
-      padding: 8px 10px;
-      &.ng-option-selected {
-        background-color: $ng-select-selected-alt;
-      }
+      padding: 0.375rem 0.75rem;
       &.ng-option-selected.ng-option-marked {
         background-color: $ng-select-marked;
       }

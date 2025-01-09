@@ -1,34 +1,16 @@
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" class="container" ngNativeValidate>
-  <div class="row justify-content-md-center mt-5">
-    <div class="col-5">
-      <p class="lead text-center mb-4">{{ "deleteAccount" | i18n }}</p>
-      <div class="card">
-        <div class="card-body">
-          <app-callout type="warning">{{ "deleteAccountWarning" | i18n }}</app-callout>
-          <p class="text-center">
-            <strong>{{ email }}</strong>
-          </p>
-          <p>{{ "deleteRecoverConfirmDesc" | i18n }}</p>
-          <hr />
-          <div class="d-flex">
-            <button
-              type="submit"
-              class="btn btn-danger btn-block btn-submit"
-              [disabled]="form.loading"
-            >
-              <span>{{ "deleteAccount" | i18n }}</span>
-              <i
-                class="bwi bwi-spinner bwi-spin"
-                title="{{ 'loading' | i18n }}"
-                aria-hidden="true"
-              ></i>
-            </button>
-            <a routerLink="/login" class="btn btn-outline-secondary btn-block ml-2 mt-0">
-              {{ "cancel" | i18n }}
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+<form [bitSubmit]="submit" [formGroup]="formGroup">
+  <app-callout type="warning">{{ "deleteAccountWarning" | i18n }}</app-callout>
+  <p bitTypography="body1" class="tw-text-center">
+    <strong>{{ email }}</strong>
+  </p>
+  <p bitTypography="body1">{{ "deleteRecoverConfirmDesc" | i18n }}</p>
+  <hr />
+  <div class="tw-flex tw-gap-2">
+    <button type="submit" bitButton bitFormButton buttonType="danger" [block]="true">
+      {{ "deleteAccount" | i18n }}
+    </button>
+    <a bitButton buttonType="secondary" routerLink="/login" [block]="true">
+      {{ "cancel" | i18n }}
+    </a>
   </div>
 </form>

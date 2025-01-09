@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
@@ -13,6 +15,7 @@ import {
   CalloutModule,
   DialogModule,
   DialogService,
+  ToastService,
 } from "@bitwarden/components";
 
 import { UserVerificationComponent } from "../app/components/user-verification.component";
@@ -41,6 +44,7 @@ export class DeleteAccountComponent {
     private platformUtilsService: PlatformUtilsService,
     private formBuilder: FormBuilder,
     private accountApiService: AccountApiService,
+    private toastService: ToastService,
   ) {}
 
   static open(dialogService: DialogService): DialogRef<DeleteAccountComponent> {
@@ -54,10 +58,10 @@ export class DeleteAccountComponent {
   submit = async () => {
     const verification = this.deleteForm.get("verification").value;
     await this.accountApiService.deleteAccount(verification);
-    this.platformUtilsService.showToast(
-      "success",
-      this.i18nService.t("accountDeleted"),
-      this.i18nService.t("accountDeletedDesc"),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("accountDeleted"),
+      message: this.i18nService.t("accountDeletedDesc"),
+    });
   };
 }

@@ -13,7 +13,7 @@
           aria-hidden="true"
           [ngClass]="{
             'bwi-angle-right': isCollapsed(collectionsGrouping),
-            'bwi-angle-down': !isCollapsed(collectionsGrouping)
+            'bwi-angle-down': !isCollapsed(collectionsGrouping),
           }"
         ></i>
         &nbsp;{{ collectionsGrouping.name | i18n }}
@@ -42,7 +42,7 @@
               aria-hidden="true"
               [ngClass]="{
                 'bwi-angle-right': isCollapsed(c.node),
-                'bwi-angle-down': !isCollapsed(c.node)
+                'bwi-angle-down': !isCollapsed(c.node),
               }"
             ></i>
           </button>

@@ -1,4 +1,4 @@
-import { VAULT_SETTINGS_DISK, KeyDefinition } from "../../../platform/state";
+import { VAULT_SETTINGS_DISK, KeyDefinition, UserKeyDefinition } from "../../../platform/state";
 
 export const USER_ENABLE_PASSKEYS = new KeyDefinition<boolean>(
   VAULT_SETTINGS_DISK,
@@ -8,16 +8,29 @@ export const USER_ENABLE_PASSKEYS = new KeyDefinition<boolean>(
   },
 );
 
-export const SHOW_CARDS_CURRENT_TAB = new KeyDefinition<boolean>(
+export const SHOW_CARDS_CURRENT_TAB = new UserKeyDefinition<boolean>(
   VAULT_SETTINGS_DISK,
   "showCardsCurrentTab",
   {
     deserializer: (obj) => obj,
+    clearOn: [], // do not clear user settings
   },
 );
 
-export const SHOW_IDENTITIES_CURRENT_TAB = new KeyDefinition<boolean>(
+export const SHOW_IDENTITIES_CURRENT_TAB = new UserKeyDefinition<boolean>(
   VAULT_SETTINGS_DISK,
   "showIdentitiesCurrentTab",
-  { deserializer: (obj) => obj },
+  {
+    deserializer: (obj) => obj,
+    clearOn: [], // do not clear user settings
+  },
+);
+
+export const CLICK_ITEMS_AUTOFILL_VAULT_VIEW = new UserKeyDefinition<boolean>(
+  VAULT_SETTINGS_DISK,
+  "clickItemsToAutofillOnVaultView",
+  {
+    deserializer: (obj) => obj,
+    clearOn: [], // do not clear user settings
+  },
 );

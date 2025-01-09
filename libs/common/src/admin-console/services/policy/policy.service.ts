@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { combineLatest, firstValueFrom, map, Observable, of } from "rxjs";
 
 import { UserKeyDefinition, POLICIES_DISK, StateProvider } from "../../../platform/state";
@@ -32,7 +34,7 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
     private organizationService: OrganizationService,
   ) {}
 
-  get$(policyType: PolicyType) {
+  get$(policyType: PolicyType): Observable<Policy> {
     const filteredPolicies$ = this.activeUserPolicies$.pipe(
       map((policies) => policies.filter((p) => p.type === policyType)),
     );
@@ -219,8 +221,8 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
     });
   }
 
-  async replace(policies: { [id: string]: PolicyData }): Promise<void> {
-    await this.activeUserPolicyState.update(() => policies);
+  async replace(policies: { [id: string]: PolicyData }, userId: UserId): Promise<void> {
+    await this.stateProvider.setUserState(POLICIES, policies, userId);
   }
 
   /**
@@ -234,6 +236,12 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
         return organization.isOwner;
       case PolicyType.PasswordGenerator:
         // password generation policy applies to everyone
+        return false;
+      case PolicyType.PersonalOwnership:
+        // individual vault policy applies to everyone except admins and owners
+        return organization.isAdmin;
+      case PolicyType.FreeFamiliesSponsorshipPolicy:
+        // free Bitwarden families policy applies to everyone
         return false;
       default:
         return organization.canManagePolicies;

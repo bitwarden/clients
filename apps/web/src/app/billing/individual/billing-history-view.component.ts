@@ -1,8 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
+import { AccountBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/account/account-billing-api.service.abstraction";
+import {
+  BillingInvoiceResponse,
+  BillingTransactionResponse,
+} from "@bitwarden/common/billing/models/response/billing.response";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 @Component({
@@ -11,12 +16,15 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 export class BillingHistoryViewComponent implements OnInit {
   loading = false;
   firstLoaded = false;
-  billing: BillingHistoryResponse;
+  openInvoices: BillingInvoiceResponse[] = [];
+  paidInvoices: BillingInvoiceResponse[] = [];
+  transactions: BillingTransactionResponse[] = [];
+  hasAdditionalHistory: boolean = false;
 
   constructor(
-    private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
+    private accountBillingApiService: AccountBillingApiServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -35,7 +43,38 @@ export class BillingHistoryViewComponent implements OnInit {
       return;
     }
     this.loading = true;
-    this.billing = await this.apiService.getUserBillingHistory();
+
+    const openInvoicesPromise = this.accountBillingApiService.getBillingInvoices(
+      "open",
+      this.openInvoices.length > 0 ? this.openInvoices[this.openInvoices.length - 1].id : null,
+    );
+
+    const paidInvoicesPromise = this.accountBillingApiService.getBillingInvoices(
+      "paid",
+      this.paidInvoices.length > 0 ? this.paidInvoices[this.paidInvoices.length - 1].id : null,
+    );
+
+    const transactionsPromise = this.accountBillingApiService.getBillingTransactions(
+      this.transactions.length > 0
+        ? this.transactions[this.transactions.length - 1].createdDate
+        : null,
+    );
+
+    const openInvoices = await openInvoicesPromise;
+    const paidInvoices = await paidInvoicesPromise;
+    const transactions = await transactionsPromise;
+
+    const pageSize = 5;
+
+    this.openInvoices = [...this.openInvoices, ...openInvoices];
+    this.paidInvoices = [...this.paidInvoices, ...paidInvoices];
+    this.transactions = [...this.transactions, ...transactions];
+
+    this.hasAdditionalHistory =
+      openInvoices.length >= pageSize ||
+      paidInvoices.length >= pageSize ||
+      transactions.length >= pageSize;
+
     this.loading = false;
   }
 }

@@ -1,21 +1,29 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, map } from "rxjs";
+
+import {
+  CollectionService,
+  CollectionWithIdRequest,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
 import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/request/import-organization-ciphers.request";
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.request";
-import { CollectionWithIdRequest } from "@bitwarden/common/vault/models/request/collection-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { KeyService } from "@bitwarden/key-management";
 
 import {
   AscendoCsvImporter,
@@ -48,6 +56,7 @@ import {
   MSecureCsvImporter,
   MeldiumCsvImporter,
   MykiCsvImporter,
+  NetwrixPasswordSecureCsvImporter,
   NordPassCsvImporter,
   OnePassword1PifImporter,
   OnePassword1PuxImporter,
@@ -77,6 +86,7 @@ import {
   UpmCsvImporter,
   YotiCsvImporter,
   ZohoVaultCsvImporter,
+  PasswordXPCsvImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -100,8 +110,10 @@ export class ImportService implements ImportServiceAbstraction {
     private importApiService: ImportApiServiceAbstraction,
     private i18nService: I18nService,
     private collectionService: CollectionService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
+    private encryptService: EncryptService,
     private pinService: PinServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   getImportOptions(): ImportOption[] {
@@ -202,10 +214,12 @@ export class ImportService implements ImportServiceAbstraction {
       case "bitwardenjson":
       case "bitwardenpasswordprotected":
         return new BitwardenPasswordProtectedImporter(
-          this.cryptoService,
+          this.keyService,
+          this.encryptService,
           this.i18nService,
           this.cipherService,
           this.pinService,
+          this.accountService,
           promptForPassword_callback,
         );
       case "lastpasscsv":
@@ -325,6 +339,10 @@ export class ImportService implements ImportServiceAbstraction {
         return new PasskyJsonImporter();
       case "protonpass":
         return new ProtonPassJsonImporter(this.i18nService);
+      case "passwordxpcsv":
+        return new PasswordXPCsvImporter();
+      case "netwrixpasswordsecure":
+        return new NetwrixPasswordSecureCsvImporter();
       default:
         return null;
     }
@@ -332,13 +350,17 @@ export class ImportService implements ImportServiceAbstraction {
 
   private async handleIndividualImport(importResult: ImportResult) {
     const request = new ImportCiphersRequest();
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     for (let i = 0; i < importResult.ciphers.length; i++) {
-      const c = await this.cipherService.encrypt(importResult.ciphers[i]);
+      const c = await this.cipherService.encrypt(importResult.ciphers[i], activeUserId);
       request.ciphers.push(new CipherRequest(c));
     }
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
     if (importResult.folders != null) {
       for (let i = 0; i < importResult.folders.length; i++) {
-        const f = await this.folderService.encrypt(importResult.folders[i]);
+        const f = await this.folderService.encrypt(importResult.folders[i], userKey);
         request.folders.push(new FolderWithIdRequest(f));
       }
     }
@@ -352,9 +374,12 @@ export class ImportService implements ImportServiceAbstraction {
 
   private async handleOrganizationalImport(importResult: ImportResult, organizationId: string) {
     const request = new ImportOrganizationCiphersRequest();
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     for (let i = 0; i < importResult.ciphers.length; i++) {
       importResult.ciphers[i].organizationId = organizationId;
-      const c = await this.cipherService.encrypt(importResult.ciphers[i]);
+      const c = await this.cipherService.encrypt(importResult.ciphers[i], activeUserId);
       request.ciphers.push(new CipherRequest(c));
     }
     if (importResult.collections != null) {

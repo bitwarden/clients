@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
@@ -8,6 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-verify-email-token",
@@ -23,6 +26,7 @@ export class VerifyEmailTokenComponent implements OnInit {
     private apiService: ApiService,
     private logService: LogService,
     private stateService: StateService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit() {
@@ -36,7 +40,11 @@ export class VerifyEmailTokenComponent implements OnInit {
           if (await this.stateService.getIsAuthenticated()) {
             await this.apiService.refreshIdentityToken();
           }
-          this.platformUtilsService.showToast("success", null, this.i18nService.t("emailVerified"));
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("emailVerified"),
+          });
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate(["/"]);
@@ -45,7 +53,11 @@ export class VerifyEmailTokenComponent implements OnInit {
           this.logService.error(e);
         }
       }
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("emailVerifiedFailed"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("emailVerifiedFailed"),
+      });
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);

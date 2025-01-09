@@ -1,12 +1,18 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  OrganizationUserApiService,
+  OrganizationUserResetPasswordEnrollmentRequest,
+} from "@bitwarden/admin-console/common";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
-import { OrganizationUserResetPasswordEnrollmentRequest } from "@bitwarden/common/admin-console/abstractions/organization-user/requests";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { VerificationWithSecret } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { OrganizationUserResetPasswordService } from "../members/services/organization-user-reset-password/organization-user-reset-password.service";
 
@@ -21,11 +27,13 @@ export class EnrollMasterPasswordReset {
     dialogService: DialogService,
     data: EnrollMasterPasswordResetData,
     resetPasswordService: OrganizationUserResetPasswordService,
-    organizationUserService: OrganizationUserService,
+    organizationUserApiService: OrganizationUserApiService,
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
     syncService: SyncService,
     logService: LogService,
+    userVerificationService: UserVerificationService,
+    toastService: ToastService,
   ) {
     const result = await UserVerificationDialogComponent.open(dialogService, {
       title: "enrollAccountRecovery",
@@ -33,36 +41,46 @@ export class EnrollMasterPasswordReset {
         text: "resetPasswordEnrollmentWarning",
         type: "warning",
       },
+      verificationType: {
+        type: "custom",
+        verificationFn: async (secret: VerificationWithSecret) => {
+          const request =
+            await userVerificationService.buildRequest<OrganizationUserResetPasswordEnrollmentRequest>(
+              secret,
+            );
+          request.resetPasswordKey = await resetPasswordService.buildRecoveryKey(
+            data.organization.id,
+          );
+
+          // Process the enrollment request, which is an endpoint that is
+          // gated by a server-side check of the master password hash
+          await organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
+            data.organization.id,
+            data.organization.userId,
+            request,
+          );
+          return true;
+        },
+      },
     });
 
-    // Handle the result of the dialog based on user action and verification success
+    // User canceled enrollment
     if (result.userAction === "cancel") {
       return;
     }
 
-    // User confirmed the dialog so check verification success
+    // Enrollment failed
     if (!result.verificationSuccess) {
-      // verification failed
       return;
     }
 
-    // Verification succeeded
+    // Enrollment succeeded
     try {
-      // This object is missing most of the properties in the
-      // `OrganizationUserResetPasswordEnrollmentRequest()`, but those
-      // properties don't carry over to the server model anyway and are
-      // never used by this flow.
-      const request = new OrganizationUserResetPasswordEnrollmentRequest();
-      request.resetPasswordKey = await resetPasswordService.buildRecoveryKey(data.organization.id);
-
-      await organizationUserService.putOrganizationUserResetPasswordEnrollment(
-        data.organization.id,
-        data.organization.userId,
-        request,
-      );
-
-      platformUtilsService.showToast("success", null, i18nService.t("enrollPasswordResetSuccess"));
-
+      toastService.showToast({
+        variant: "success",
+        title: null,
+        message: i18nService.t("enrollPasswordResetSuccess"),
+      });
       await syncService.fullSync(true);
     } catch (e) {
       logService.error(e);

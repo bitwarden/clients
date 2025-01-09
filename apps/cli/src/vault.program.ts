@@ -1,14 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { program, Command } from "commander";
 
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
-import { Main } from "./bw";
+import { BaseProgram } from "./base-program";
 import { EditCommand } from "./commands/edit.command";
 import { GetCommand } from "./commands/get.command";
 import { ListCommand } from "./commands/list.command";
 import { RestoreCommand } from "./commands/restore.command";
 import { Response } from "./models/response";
-import { Program } from "./program";
 import { ExportCommand } from "./tools/export.command";
 import { ImportCommand } from "./tools/import.command";
 import { CliUtils } from "./utils";
@@ -17,12 +18,8 @@ import { DeleteCommand } from "./vault/delete.command";
 
 const writeLn = CliUtils.writeLn;
 
-export class VaultProgram extends Program {
-  constructor(protected main: Main) {
-    super(main);
-  }
-
-  async register() {
+export class VaultProgram extends BaseProgram {
+  register() {
     program
       .addCommand(this.listCommand())
       .addCommand(this.getCommand())
@@ -108,14 +105,15 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new ListCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.collectionService,
-          this.main.organizationService,
-          this.main.searchService,
-          this.main.organizationUserService,
-          this.main.apiService,
-          this.main.eventCollectionService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.collectionService,
+          this.serviceContainer.organizationService,
+          this.serviceContainer.searchService,
+          this.serviceContainer.organizationUserApiService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.eventCollectionService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(object, cmd);
 
@@ -177,18 +175,19 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new GetCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.collectionService,
-          this.main.totpService,
-          this.main.auditService,
-          this.main.cryptoService,
-          this.main.stateService,
-          this.main.searchService,
-          this.main.apiService,
-          this.main.organizationService,
-          this.main.eventCollectionService,
-          this.main.billingAccountProfileStateService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.collectionService,
+          this.serviceContainer.totpService,
+          this.serviceContainer.auditService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.encryptService,
+          this.serviceContainer.searchService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.organizationService,
+          this.serviceContainer.eventCollectionService,
+          this.serviceContainer.billingAccountProfileStateService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);
@@ -225,12 +224,15 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new CreateCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.cryptoService,
-          this.main.apiService,
-          this.main.folderApiService,
-          this.main.billingAccountProfileStateService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.encryptService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.folderApiService,
+          this.serviceContainer.billingAccountProfileStateService,
+          this.serviceContainer.organizationService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(object, encodedJson, cmd);
         this.processResponse(response);
@@ -271,11 +273,13 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new EditCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.cryptoService,
-          this.main.apiService,
-          this.main.folderApiService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.encryptService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.folderApiService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(object, id, encodedJson, cmd);
         this.processResponse(response);
@@ -312,11 +316,13 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new DeleteCommand(
-          this.main.cipherService,
-          this.main.folderService,
-          this.main.apiService,
-          this.main.folderApiService,
-          this.main.billingAccountProfileStateService,
+          this.serviceContainer.cipherService,
+          this.serviceContainer.folderService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.folderApiService,
+          this.serviceContainer.billingAccountProfileStateService,
+          this.serviceContainer.cipherAuthorizationService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);
@@ -341,7 +347,7 @@ export class VaultProgram extends Program {
         }
 
         await this.exitIfLocked();
-        const command = new RestoreCommand(this.main.cipherService);
+        const command = new RestoreCommand(this.serviceContainer.cipherService);
         const response = await command.run(object, id);
         this.processResponse(response);
       });
@@ -379,7 +385,10 @@ export class VaultProgram extends Program {
       })
       .action(async (id, organizationId, encodedJson, cmd) => {
         await this.exitIfLocked();
-        const command = new ShareCommand(this.main.cipherService);
+        const command = new ShareCommand(
+          this.serviceContainer.cipherService,
+          this.serviceContainer.accountService,
+        );
         const response = await command.run(id, organizationId, encodedJson);
         this.processResponse(response);
       });
@@ -408,9 +417,10 @@ export class VaultProgram extends Program {
 
         await this.exitIfLocked();
         const command = new ConfirmCommand(
-          this.main.apiService,
-          this.main.cryptoService,
-          this.main.organizationUserService,
+          this.serviceContainer.apiService,
+          this.serviceContainer.keyService,
+          this.serviceContainer.encryptService,
+          this.serviceContainer.organizationUserApiService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);
@@ -437,9 +447,9 @@ export class VaultProgram extends Program {
       .action(async (format, filepath, options) => {
         await this.exitIfLocked();
         const command = new ImportCommand(
-          this.main.importService,
-          this.main.organizationService,
-          this.main.syncService,
+          this.serviceContainer.importService,
+          this.serviceContainer.organizationService,
+          this.serviceContainer.syncService,
         );
         const response = await command.run(format, filepath, options);
         this.processResponse(response);
@@ -484,9 +494,9 @@ export class VaultProgram extends Program {
       .action(async (options) => {
         await this.exitIfLocked();
         const command = new ExportCommand(
-          this.main.exportService,
-          this.main.policyService,
-          this.main.eventCollectionService,
+          this.serviceContainer.exportService,
+          this.serviceContainer.policyService,
+          this.serviceContainer.eventCollectionService,
         );
         const response = await command.run(options);
         this.processResponse(response);

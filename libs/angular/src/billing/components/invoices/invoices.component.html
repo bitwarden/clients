@@ -1,0 +1,60 @@
+<ng-container *ngIf="loading">
+  <i
+    class="bwi bwi-spinner bwi-spin text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="sr-only">{{ "loading" | i18n }}</span>
+</ng-container>
+<bit-table *ngIf="!loading">
+  <ng-container header>
+    <tr>
+      <th bitCell>{{ "date" | i18n }}</th>
+      <th bitCell>{{ "invoice" | i18n }}</th>
+      <th bitCell>{{ "total" | i18n }}</th>
+      <th bitCell>{{ "status" | i18n }}</th>
+      <th bitCell>{{ "clientDetails" | i18n }}</th>
+    </tr>
+  </ng-container>
+  <ng-template body>
+    <tr bitRow *ngFor="let invoice of invoices">
+      <td bitCell>{{ invoice.date | date: "mediumDate" }}</td>
+      <td bitCell>
+        <a
+          href="{{ invoice.url }}"
+          target="_blank"
+          rel="noreferrer"
+          title="{{ 'viewInvoice' | i18n }}"
+        >
+          {{ invoice.number }}
+        </a>
+      </td>
+      <td bitCell>{{ invoice.total | currency: "$" }}</td>
+      <td bitCell *ngIf="expandInvoiceStatus(invoice) as expandedInvoiceStatus">
+        <span *ngIf="expandedInvoiceStatus === 'open'">
+          {{ "open" | i18n | titlecase }}
+        </span>
+        <span *ngIf="expandedInvoiceStatus === 'unpaid'">
+          <i class="bwi bwi-exclamation-circle tw-text-muted" aria-hidden="true"></i>
+          {{ "unpaid" | i18n | titlecase }}
+        </span>
+        <span *ngIf="expandedInvoiceStatus === 'paid'">
+          <i class="bwi bwi-check tw-text-success" aria-hidden="true"></i>
+          {{ "paid" | i18n | titlecase }}
+        </span>
+        <span *ngIf="expandedInvoiceStatus === 'uncollectible'">
+          <i class="bwi bwi-error tw-text-muted" aria-hidden="true"></i>
+          {{ "uncollectible" | i18n | titlecase }}
+        </span>
+      </td>
+      <td bitCell>
+        <button type="button" bitLink (click)="runExport(invoice.id)">
+          <span class="tw-font-normal">{{ "downloadCSV" | i18n }}</span>
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+</bit-table>
+<div *ngIf="!invoices || invoices.length === 0" class="tw-mt-10">
+  <app-no-invoices></app-no-invoices>
+</div>

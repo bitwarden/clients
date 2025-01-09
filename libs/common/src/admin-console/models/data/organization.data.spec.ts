@@ -1,4 +1,4 @@
-import { ProductType } from "../../../enums/product-type.enum";
+import { ProductTierType } from "../../../billing/enums/product-tier-type.enum";
 import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
 import { ORGANIZATIONS } from "../../services/organization/organization.service";
 
@@ -39,6 +39,7 @@ describe("ORGANIZATIONS state", () => {
         permissions: undefined,
         resetPasswordEnrolled: false,
         userId: "userId",
+        organizationUserId: "organizationUserId",
         hasPublicAndPrivateKeys: false,
         providerId: "providerId",
         providerName: "providerName",
@@ -46,14 +47,16 @@ describe("ORGANIZATIONS state", () => {
         isMember: false,
         familySponsorshipFriendlyName: "fsfn",
         familySponsorshipAvailable: false,
-        planProductType: ProductType.Free,
+        productTierType: ProductTierType.Free,
         keyConnectorEnabled: false,
         keyConnectorUrl: "kcu",
         accessSecretsManager: false,
-        limitCollectionCreationDeletion: false,
+        limitCollectionCreation: false,
+        limitCollectionDeletion: false,
         allowAdminAccessToAllCollectionItems: false,
-        flexibleCollections: false,
         familySponsorshipLastSyncDate: new Date(),
+        userIsManagedByOrganization: false,
+        useRiskInsights: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

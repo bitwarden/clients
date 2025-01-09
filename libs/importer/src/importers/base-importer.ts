@@ -1,11 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as papa from "papaparse";
 
+import { CollectionView } from "@bitwarden/admin-console/common";
+import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -263,7 +266,8 @@ export abstract class BaseImporter {
 
     cipher.card.expMonth = expiryMatch.groups.month;
     const year: string = expiryMatch.groups.year;
-    cipher.card.expYear = year.length === 2 ? "20" + year : year;
+    cipher.card.expYear = normalizeExpiryYearFormat(year);
+
     return true;
   }
 

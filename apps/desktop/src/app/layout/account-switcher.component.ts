@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { ConnectedPosition } from "@angular/cdk/overlay";
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
@@ -12,7 +14,10 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
+
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 
 type ActiveAccount = {
   id: string;
@@ -50,7 +55,7 @@ type InactiveAccount = ActiveAccount & {
     ]),
   ],
 })
-export class AccountSwitcherComponent {
+export class AccountSwitcherComponent implements OnInit {
   activeAccount$: Observable<ActiveAccount | null>;
   inactiveAccounts$: Observable<{ [userId: string]: InactiveAccount }>;
   authStatus = AuthenticationStatus;
@@ -75,16 +80,19 @@ export class AccountSwitcherComponent {
   showSwitcher$: Observable<boolean>;
 
   numberOfAccounts$: Observable<number>;
+  disabled = false;
 
   constructor(
     private stateService: StateService,
     private authService: AuthService,
     private avatarService: AvatarService,
     private messagingService: MessagingService,
+    private messageListener: MessageListener,
     private router: Router,
     private environmentService: EnvironmentService,
     private loginEmailService: LoginEmailServiceAbstraction,
     private accountService: AccountService,
+    private biometricsService: DesktopBiometricsService,
   ) {
     this.activeAccount$ = this.accountService.activeAccount$.pipe(
       switchMap(async (active) => {
@@ -148,6 +156,24 @@ export class AccountSwitcherComponent {
     );
   }
 
+  async ngOnInit() {
+    const active = await firstValueFrom(this.accountService.activeAccount$);
+    if (active == null) {
+      return;
+    }
+    const authStatus = await firstValueFrom(
+      this.authService.authStatuses$.pipe(map((statuses) => statuses[active.id])),
+    );
+    if (authStatus === AuthenticationStatus.LoggedOut) {
+      const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
+      if (nextUpAccount != null) {
+        await this.switch(nextUpAccount.id);
+      } else {
+        await this.addAccount();
+      }
+    }
+  }
+
   toggle() {
     this.isOpen = !this.isOpen;
   }
@@ -158,20 +184,22 @@ export class AccountSwitcherComponent {
 
   async switch(userId: string) {
     this.close();
+    await this.biometricsService.setShouldAutopromptNow(true);
 
-    this.messagingService.send("switchAccount", { userId: userId });
+    this.disabled = true;
+    const accountSwitchFinishedPromise = firstValueFrom(
+      this.messageListener.messages$(new CommandDefinition("finishSwitchAccount")),
+    );
+    this.messagingService.send("switchAccount", { userId });
+    await accountSwitchFinishedPromise;
+    this.disabled = false;
   }
 
   async addAccount() {
     this.close();
 
-    this.loginEmailService.setRememberEmail(false);
-    await this.loginEmailService.saveEmailSettings();
-
-    await this.router.navigate(["/login"]);
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    await this.stateService.clearDecryptedData(activeAccount?.id as UserId);
     await this.accountService.switchAccount(null);
+    await this.router.navigate(["/login"]);
   }
 
   private async createInactiveAccounts(baseAccounts: {
@@ -179,8 +207,11 @@ export class AccountSwitcherComponent {
   }): Promise<{ [userId: string]: InactiveAccount }> {
     const inactiveAccounts: { [userId: string]: InactiveAccount } = {};
 
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     for (const userId in baseAccounts) {
-      if (userId == null || userId === (await this.stateService.getUserId())) {
+      if (userId == null || userId === activeUserId) {
         continue;
       }
 

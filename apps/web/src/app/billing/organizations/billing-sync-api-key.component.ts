@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
@@ -12,7 +14,7 @@ import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 export interface BillingSyncApiModalData {
   organizationId: string;
@@ -43,6 +45,7 @@ export class BillingSyncApiKeyComponent {
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private logService: LogService,
+    private toastService: ToastService,
   ) {
     this.organizationId = data.organizationId;
     this.hasBillingToken = data.hasBillingToken;
@@ -67,11 +70,11 @@ export class BillingSyncApiKeyComponent {
         });
         await this.load(response);
         this.showRotateScreen = false;
-        this.platformUtilsService.showToast(
-          "success",
-          null,
-          this.i18nService.t("billingSyncApiKeyRotated"),
-        );
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("billingSyncApiKeyRotated"),
+        });
       } else {
         const response = await request.then((request) => {
           return this.organizationApiService.getOrCreateApiKey(this.organizationId, request);

@@ -1,15 +1,18 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { randomBytes } from "crypto";
 
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { RotateableKeySet } from "@bitwarden/auth/common";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { WebAuthnLoginPrfCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-crypto.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { PrfKey } from "@bitwarden/common/types/key";
+import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
+import { PrfKey, UserKey } from "@bitwarden/common/types/key";
 
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../views/pending-webauthn-login-credential.view";
@@ -23,7 +26,7 @@ describe("WebauthnAdminService", () => {
   let apiService!: MockProxy<WebAuthnLoginAdminApiService>;
   let userVerificationService!: MockProxy<UserVerificationService>;
   let rotateableKeySetService!: MockProxy<RotateableKeySetService>;
-  let webAuthnLoginPrfCryptoService!: MockProxy<WebAuthnLoginPrfCryptoServiceAbstraction>;
+  let webAuthnLoginPrfKeyService!: MockProxy<WebAuthnLoginPrfKeyServiceAbstraction>;
   let credentials: MockProxy<CredentialsContainer>;
   let service!: WebauthnLoginAdminService;
 
@@ -37,13 +40,13 @@ describe("WebauthnAdminService", () => {
     apiService = mock<WebAuthnLoginAdminApiService>();
     userVerificationService = mock<UserVerificationService>();
     rotateableKeySetService = mock<RotateableKeySetService>();
-    webAuthnLoginPrfCryptoService = mock<WebAuthnLoginPrfCryptoServiceAbstraction>();
+    webAuthnLoginPrfKeyService = mock<WebAuthnLoginPrfKeyServiceAbstraction>();
     credentials = mock<CredentialsContainer>();
     service = new WebauthnLoginAdminService(
       apiService,
       userVerificationService,
       rotateableKeySetService,
-      webAuthnLoginPrfCryptoService,
+      webAuthnLoginPrfKeyService,
       credentials,
     );
 
@@ -182,6 +185,67 @@ describe("WebauthnAdminService", () => {
         expect(createKeySetMock).not.toHaveBeenCalled();
         expect(updateCredentialMock).not.toHaveBeenCalled();
       }
+    });
+  });
+
+  describe("rotateCredentials", () => {
+    it("should throw when old userkey is null", async () => {
+      const newUserKey = makeSymmetricCryptoKey(64) as UserKey;
+      try {
+        await service.getRotatedData(null, newUserKey, null);
+      } catch (error) {
+        expect(error).toEqual(new Error("oldUserKey is required"));
+      }
+    });
+    it("should throw when new userkey is null", async () => {
+      const oldUserKey = makeSymmetricCryptoKey(64) as UserKey;
+      try {
+        await service.getRotatedData(oldUserKey, null, null);
+      } catch (error) {
+        expect(error).toEqual(new Error("newUserKey is required"));
+      }
+    });
+    it("should call rotateKeySet with the correct parameters", async () => {
+      const oldUserKey = makeSymmetricCryptoKey(64) as UserKey;
+      const newUserKey = makeSymmetricCryptoKey(64) as UserKey;
+      const mockEncryptedPublicKey = new EncString("test_encryptedPublicKey");
+      const mockEncryptedUserKey = new EncString("test_encryptedUserKey");
+      jest.spyOn(apiService, "getCredentials").mockResolvedValue({
+        data: [
+          {
+            getRotateableKeyset: () =>
+              new RotateableKeySet<PrfKey>(mockEncryptedUserKey, mockEncryptedPublicKey),
+            hasPrfKeyset: () => true,
+          },
+        ],
+      } as any);
+      const rotateKeySetMock = jest
+        .spyOn(rotateableKeySetService, "rotateKeySet")
+        .mockResolvedValue(
+          new RotateableKeySet<PrfKey>(mockEncryptedUserKey, mockEncryptedPublicKey),
+        );
+      await service.getRotatedData(oldUserKey, newUserKey, null);
+      expect(rotateKeySetMock).toHaveBeenCalledWith(
+        expect.any(RotateableKeySet),
+        oldUserKey,
+        newUserKey,
+      );
+    });
+    it("should skip rotation when no prf keyset is available", async () => {
+      const oldUserKey = makeSymmetricCryptoKey(64) as UserKey;
+      const newUserKey = makeSymmetricCryptoKey(64) as UserKey;
+      jest.spyOn(apiService, "getCredentials").mockResolvedValue({
+        data: [
+          {
+            getRotateableKeyset: () =>
+              new RotateableKeySet<PrfKey>(new EncString("test_encryptedUserKey"), null),
+            hasPrfKeyset: () => false,
+          },
+        ],
+      } as any);
+      const rotateKeySetMock = jest.spyOn(rotateableKeySetService, "rotateKeySet");
+      await service.getRotatedData(oldUserKey, newUserKey, null);
+      expect(rotateKeySetMock).not.toHaveBeenCalled();
     });
   });
 });

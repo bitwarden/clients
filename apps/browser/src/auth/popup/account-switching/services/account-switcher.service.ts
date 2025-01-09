@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import {
   Observable,
@@ -41,7 +43,7 @@ export class AccountSwitcherService {
   SPECIAL_ADD_ACCOUNT_ID = "addAccount";
   availableAccounts$: Observable<AvailableAccount[]>;
 
-  switchAccountFinished$: Observable<string>;
+  switchAccountFinished$: Observable<{ userId: UserId; status: AuthenticationStatus }>;
 
   constructor(
     private accountService: AccountService,
@@ -80,7 +82,7 @@ export class AccountSwitcherService {
 
         if (!hasMaxAccounts) {
           options.push({
-            name: "Add account",
+            name: "addAccount",
             id: this.SPECIAL_ADD_ACCOUNT_ID,
             isActive: false,
           });
@@ -111,11 +113,11 @@ export class AccountSwitcherService {
     );
 
     // Create a reusable observable that listens to the switchAccountFinish message and returns the userId from the message
-    this.switchAccountFinished$ = fromChromeEvent<[message: { command: string; userId: string }]>(
-      chrome.runtime.onMessage,
-    ).pipe(
+    this.switchAccountFinished$ = fromChromeEvent<
+      [message: { command: string; userId: UserId; status: AuthenticationStatus }]
+    >(chrome.runtime.onMessage).pipe(
       filter(([message]) => message.command === "switchAccountFinish"),
-      map(([message]) => message.userId),
+      map(([message]) => ({ userId: message.userId, status: message.status })),
     );
   }
 
@@ -127,12 +129,45 @@ export class AccountSwitcherService {
     if (id === this.SPECIAL_ADD_ACCOUNT_ID) {
       id = null;
     }
+    const userId = id as UserId;
 
     // Creates a subscription to the switchAccountFinished observable but further
     // filters it to only care about the current userId.
-    const switchAccountFinishedPromise = firstValueFrom(
+    const switchAccountFinishedPromise = this.listenForSwitchAccountFinish(userId);
+
+    // Initiate the actions required to make account switching happen
+    this.messagingService.send("switchAccount", { userId }); // This message should cause switchAccountFinish to be sent
+
+    // Wait until we receive the switchAccountFinished message
+    return await switchAccountFinishedPromise;
+  }
+
+  /**
+   *
+   * @param userId the user id to logout
+   * @returns the userId and status of the that has been switch to due to the logout. null on errors.
+   */
+  async logoutAccount(
+    userId: UserId,
+  ): Promise<{ newUserId: UserId; status: AuthenticationStatus } | null> {
+    // logout creates an account switch to the next up user, which may be null
+    const switchPromise = this.listenForSwitchAccountFinish(null);
+
+    await this.messagingService.send("logout", { userId });
+
+    // wait for account switch to happen, the result will be the new user id and status
+    const result = await switchPromise;
+    return { newUserId: result.userId, status: result.status };
+  }
+
+  // Listens for the switchAccountFinish message and returns the userId from the message
+  // Optionally filters switchAccountFinish to an expected userId
+  private listenForSwitchAccountFinish(
+    expectedUserId: UserId | null,
+  ): Promise<{ userId: UserId; status: AuthenticationStatus } | null> {
+    return firstValueFrom(
       this.switchAccountFinished$.pipe(
-        filter((userId) => userId === id),
+        filter(({ userId }) => (expectedUserId ? userId === expectedUserId : true)),
         timeout({
           // Much longer than account switching is expected to take for normal accounts
           // but the account switching process includes a possible full sync so we need to account
@@ -143,20 +178,13 @@ export class AccountSwitcherService {
             throwError(() => new Error(AccountSwitcherService.incompleteAccountSwitchError)),
         }),
       ),
-    );
-
-    // Initiate the actions required to make account switching happen
-    await this.accountService.switchAccount(id as UserId);
-    this.messagingService.send("switchAccount", { userId: id }); // This message should cause switchAccountFinish to be sent
-
-    // Wait until we recieve the switchAccountFinished message
-    await switchAccountFinishedPromise.catch((err) => {
+    ).catch((err) => {
       if (
         err instanceof Error &&
         err.message === AccountSwitcherService.incompleteAccountSwitchError
       ) {
         this.logService.warning("message 'switchAccount' never responded.");
-        return;
+        return null;
       }
       throw err;
     });

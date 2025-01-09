@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -7,6 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-deauthorize-sessions",
@@ -23,6 +26,7 @@ export class DeauthorizeSessionsComponent {
     private userVerificationService: UserVerificationService,
     private messagingService: MessagingService,
     private logService: LogService,
+    private toastService: ToastService,
   ) {}
 
   async submit() {
@@ -31,11 +35,11 @@ export class DeauthorizeSessionsComponent {
         .buildRequest(this.masterPassword)
         .then((request) => this.apiService.postSecurityStamp(request));
       await this.formPromise;
-      this.platformUtilsService.showToast(
-        "success",
-        this.i18nService.t("sessionsDeauthorized"),
-        this.i18nService.t("logBackIn"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("sessionsDeauthorized"),
+        message: this.i18nService.t("logBackIn"),
+      });
       this.messagingService.send("logout");
     } catch (e) {
       this.logService.error(e);

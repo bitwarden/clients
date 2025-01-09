@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { distinctUntilChanged, firstValueFrom, map, Observable, switchMap } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -136,6 +138,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
   constructor(
     private stateProvider: StateProvider,
     private accountService: AccountService,
+    private additionalRegionConfigs: RegionConfig[] = [],
   ) {
     this.globalState = this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY);
     this.globalCloudRegionState = this.stateProvider.getGlobal(GLOBAL_CLOUD_REGION_KEY);
@@ -177,8 +180,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
   }
 
   availableRegions(): RegionConfig[] {
-    const additionalRegions = (process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[]) ?? [];
-    return PRODUCTION_REGIONS.concat(additionalRegions);
+    return PRODUCTION_REGIONS.concat(this.additionalRegionConfigs);
   }
 
   /**
@@ -269,23 +271,30 @@ export class DefaultEnvironmentService implements EnvironmentService {
     }
   }
 
-  async getEnvironment(userId?: UserId) {
+  getEnvironment$(userId?: UserId): Observable<Environment | undefined> {
     if (userId == null) {
-      return await firstValueFrom(this.environment$);
+      return this.environment$;
     }
 
-    const state = await this.getEnvironmentState(userId);
-    return this.buildEnvironment(state.region, state.urls);
+    return this.activeAccountId$.pipe(
+      switchMap((activeUserId) => {
+        // Previous rules dictated that we only get from user scoped state if there is an active user.
+        if (activeUserId == null) {
+          return this.globalState.state$;
+        }
+        return this.stateProvider.getUser(userId ?? activeUserId, USER_ENVIRONMENT_KEY).state$;
+      }),
+      map((state) => {
+        return this.buildEnvironment(state?.region, state?.urls);
+      }),
+    );
   }
 
-  private async getEnvironmentState(userId: UserId | null) {
-    // Previous rules dictated that we only get from user scoped state if there is an active user.
-    const activeUserId = await firstValueFrom(this.activeAccountId$);
-    return activeUserId == null
-      ? await firstValueFrom(this.globalState.state$)
-      : await firstValueFrom(
-          this.stateProvider.getUser(userId ?? activeUserId, USER_ENVIRONMENT_KEY).state$,
-        );
+  /**
+   * @deprecated Use getEnvironment$ instead.
+   */
+  async getEnvironment(userId?: UserId): Promise<Environment | undefined> {
+    return firstValueFrom(this.getEnvironment$(userId));
   }
 
   async seedUserEnvironment(userId: UserId) {

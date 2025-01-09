@@ -9,7 +9,7 @@
         target="_blank"
         rel="noreferrer"
       >
-        {{ "learnMore" | i18n }}.
+        {{ "learnMoreAboutEmergencyAccess" | i18n }}
       </a>
     </p>
     <bit-callout *ngIf="isOrganizationOwner" type="warning" title="{{ 'warning' | i18n }}">{{
@@ -64,7 +64,7 @@
                 bitBadge
                 variant="warning"
                 *ngIf="c.status === emergencyAccessStatusType.Accepted"
-                >{{ "accepted" | i18n }}</span
+                >{{ "needsConfirmation" | i18n }}</span
               >
               <span
                 bitBadge
@@ -184,7 +184,7 @@
                 bitBadge
                 variant="warning"
                 *ngIf="c.status === emergencyAccessStatusType.Accepted"
-                >{{ "accepted" | i18n }}</span
+                >{{ "needsConfirmation" | i18n }}</span
               >
               <span
                 bitBadge

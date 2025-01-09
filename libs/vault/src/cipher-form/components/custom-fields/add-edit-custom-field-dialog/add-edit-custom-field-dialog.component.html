@@ -1,0 +1,48 @@
+<form [formGroup]="customFieldForm" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ (variant === "add" ? "addField" : "editField") | i18n }}
+    </span>
+    <div bitDialogContent>
+      <bit-form-field *ngIf="variant === 'add'">
+        <bit-label>{{ "fieldType" | i18n }}</bit-label>
+        <bit-select id="fieldType" formControlName="type">
+          <bit-option
+            *ngFor="let type of fieldTypeOptions"
+            [value]="type.value"
+            [label]="type.name"
+          ></bit-option>
+        </bit-select>
+        <bit-hint>
+          {{ getTypeHint() }}
+        </bit-hint>
+      </bit-form-field>
+
+      <bit-form-field disableMargin>
+        <bit-label>{{ "fieldLabel" | i18n }}</bit-label>
+        <input bitInput id="fieldLabel" formControlName="label" type="text" />
+        <bit-hint *ngIf="customFieldForm.value.type === FieldType.Linked">
+          {{ "linkedLabelHelpText" | i18n }}
+        </bit-hint>
+      </bit-form-field>
+    </div>
+    <div bitDialogFooter class="tw-flex tw-gap-2 tw-w-full">
+      <button bitButton buttonType="primary" type="submit" [disabled]="customFieldForm.invalid">
+        {{ (variant === "add" ? "add" : "save") | i18n }}
+      </button>
+      <button bitButton bitDialogClose buttonType="secondary" type="button">
+        {{ "cancel" | i18n }}
+      </button>
+
+      <button
+        *ngIf="variant === 'edit'"
+        type="button"
+        buttonType="danger"
+        class="tw-ml-auto"
+        bitIconButton="bwi-trash"
+        [appA11yTitle]="'deleteCustomField' | i18n: customFieldForm.value.label"
+        (click)="removeField()"
+      ></button>
+    </div>
+  </bit-dialog>
+</form>

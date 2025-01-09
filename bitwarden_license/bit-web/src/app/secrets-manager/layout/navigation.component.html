@@ -1,27 +1,36 @@
-<nav>
-  <a routerLink="." class="tw-m-5 tw-mt-7 tw-block">
-    <bit-icon [icon]="logo"></bit-icon>
-  </a>
-
+<app-side-nav>
+  <bit-nav-logo [openIcon]="logo" route="." [label]="'secretsManager' | i18n"></bit-nav-logo>
   <org-switcher [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
   <bit-nav-item
     icon="bwi-collection"
     [text]="'projects' | i18n"
     route="projects"
     [relativeTo]="route.parent"
-  ></bit-nav-item>
+  >
+    <div slot="end" *ngIf="isOrgEnabled$ | async">
+      {{ organizationCounts?.projects }}
+    </div>
+  </bit-nav-item>
   <bit-nav-item
     icon="bwi-key"
     [text]="'secrets' | i18n"
     route="secrets"
     [relativeTo]="route.parent"
-  ></bit-nav-item>
+  >
+    <div slot="end" *ngIf="isOrgEnabled$ | async">
+      {{ organizationCounts?.secrets }}
+    </div>
+  </bit-nav-item>
   <bit-nav-item
     icon="bwi-wrench"
     [text]="'machineAccounts' | i18n"
     route="machine-accounts"
     [relativeTo]="route.parent"
-  ></bit-nav-item>
+  >
+    <div slot="end" *ngIf="isOrgEnabled$ | async">
+      {{ organizationCounts?.serviceAccounts }}
+    </div>
+  </bit-nav-item>
   <bit-nav-item
     icon="bwi-providers"
     [text]="'integrations' | i18n"
@@ -35,7 +44,13 @@
     [relativeTo]="route.parent"
     *ngIf="isAdmin$ | async"
   ></bit-nav-item>
-  <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" *ngIf="isAdmin$ | async">
+  <bit-nav-group
+    icon="bwi-cog"
+    [text]="'settings' | i18n"
+    *ngIf="isAdmin$ | async"
+    route="settings/import"
+    [relativeTo]="route.parent"
+  >
     <bit-nav-item
       [text]="'importData' | i18n"
       route="settings/import"
@@ -47,6 +62,4 @@
       [relativeTo]="route.parent"
     ></bit-nav-item>
   </bit-nav-group>
-
-  <app-toggle-width></app-toggle-width>
-</nav>
+</app-side-nav>

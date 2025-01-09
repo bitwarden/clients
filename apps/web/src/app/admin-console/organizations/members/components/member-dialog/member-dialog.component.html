@@ -14,7 +14,7 @@
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
-        <span class="sr-only">{{ "loading" | i18n }}</span>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
       </ng-container>
       <bit-tab-group
         *ngIf="!loading && organization$ | async as organization"
@@ -22,359 +22,134 @@
       >
         <bit-tab [label]="'role' | i18n">
           <ng-container *ngIf="!editMode">
-            <p>{{ "inviteUserDesc" | i18n }}</p>
-            <bit-form-field>
+            <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
+            <bit-form-field *ngIf="remainingSeats$ | async as remainingSeats">
               <bit-label>{{ "email" | i18n }}</bit-label>
               <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
-              <bit-hint>{{
-                "inviteMultipleEmailDesc"
-                  | i18n: (organization.planProductType === ProductType.TeamsStarter ? "10" : "20")
+              <bit-hint *ngIf="remainingSeats > 1; else singleSeat">{{
+                "inviteMultipleEmailDesc" | i18n: remainingSeats
               }}</bit-hint>
+              <ng-template #singleSeat>
+                <bit-hint>{{ "inviteSingleEmailDesc" | i18n: remainingSeats }}</bit-hint>
+              </ng-template>
             </bit-form-field>
           </ng-container>
-          <fieldset role="radiogroup" aria-labelledby="roleGroupLabel" class="tw-mb-6">
-            <legend
-              id="roleGroupLabel"
-              class="tw-mb-2 tw-block tw-text-base tw-font-semibold tw-text-main"
-            >
+          <bit-radio-group formControlName="type">
+            <bit-label>
               {{ "memberRole" | i18n }}
               <a
+                bitLink
                 target="_blank"
                 rel="noreferrer"
-                appA11yTitle="{{ 'learnMore' | i18n }}"
+                appA11yTitle="{{ 'learnMoreAboutMemberRoles' | i18n }}"
                 href="https://bitwarden.com/help/user-types-access-control/"
+                slot="end"
               >
                 <i class="bwi bwi-question-circle" aria-hidden="true"></i>
               </a>
-            </legend>
-            <div class="tw-mb-2 tw-flex tw-items-baseline">
-              <input
-                type="radio"
-                id="userTypeUser"
-                [value]="organizationUserType.User"
-                class="tw-relative tw-bottom-[-1px] tw-mr-2"
-                formControlName="type"
-                name="type"
-              />
-              <label class="tw-m-0" for="userTypeUser">
-                {{ "user" | i18n }}
-                <div class="text-base tw-block tw-font-normal tw-text-muted">
-                  {{ "userDesc" | i18n }}
-                </div>
-              </label>
-            </div>
-            <div
-              *ngIf="!organization.flexibleCollections"
-              class="tw-mb-2 tw-flex tw-items-baseline"
+            </bit-label>
+            <bit-radio-button id="userTypeUser" [value]="organizationUserType.User">
+              <bit-label>{{ "user" | i18n }}</bit-label>
+              <bit-hint>{{ "userDesc" | i18n }}</bit-hint>
+            </bit-radio-button>
+            <bit-radio-button id="userTypeAdmin" [value]="organizationUserType.Admin">
+              <bit-label>{{ "admin" | i18n }}</bit-label>
+              <bit-hint>{{ "adminDesc" | i18n }}</bit-hint>
+            </bit-radio-button>
+            <bit-radio-button id="userTypeOwner" [value]="organizationUserType.Owner">
+              <bit-label>{{ "owner" | i18n }}</bit-label>
+              <bit-hint>{{ "ownerDesc" | i18n }}</bit-hint>
+            </bit-radio-button>
+            <bit-radio-button
+              id="userTypeCustom"
+              [value]="organizationUserType.Custom"
+              [disabled]="!organization.useCustomPermissions || null"
             >
-              <input
-                type="radio"
-                id="userTypeManager"
-                [value]="organizationUserType.Manager"
-                class="tw-relative tw-bottom-[-1px] tw-mr-2"
-                formControlName="type"
-                name="type"
-              />
-              <label class="tw-m-0" for="userTypeManager">
-                {{ "manager" | i18n }}
-                <div class="text-base tw-block tw-font-normal tw-text-muted">
-                  {{ "managerDesc" | i18n }}
-                </div>
-              </label>
-            </div>
-            <div class="tw-mb-2 tw-flex tw-items-baseline">
-              <input
-                type="radio"
-                id="userTypeAdmin"
-                [value]="organizationUserType.Admin"
-                class="tw-relative tw-bottom-[-1px] tw-mr-2"
-                formControlName="type"
-                name="type"
-              />
-              <label class="tw-m-0" for="userTypeAdmin">
-                {{ "admin" | i18n }}
-                <div class="text-base tw-block tw-font-normal tw-text-muted">
-                  {{ "adminDesc" | i18n }}
-                </div>
-              </label>
-            </div>
-            <div class="tw-mb-2 tw-flex tw-items-baseline">
-              <input
-                type="radio"
-                id="userTypeOwner"
-                [value]="organizationUserType.Owner"
-                class="tw-relative tw-bottom-[-1px] tw-mr-2"
-                formControlName="type"
-                name="type"
-              />
-              <label class="tw-m-0" for="userTypeOwner">
-                {{ "owner" | i18n }}
-                <div class="text-base tw-block tw-font-normal tw-text-muted">
-                  {{ "ownerDesc" | i18n }}
-                </div>
-              </label>
-            </div>
-            <div class="tw-flex tw-items-baseline">
-              <input
-                type="radio"
-                id="userTypeCustom"
-                [value]="organizationUserType.Custom"
-                formControlName="type"
-                name="type"
-                class="tw-relative tw-bottom-[-1px] tw-mr-2"
-                [attr.disabled]="!organization.useCustomPermissions || null"
-              />
-              <label class="tw-m-0" for="userTypeCustom">
-                {{ "custom" | i18n }}
+              <bit-label>{{ "custom" | i18n }}</bit-label>
+              <bit-hint>
                 <ng-container *ngIf="!organization.useCustomPermissions; else enterprise">
-                  <div class="text-base tw-block tw-font-normal tw-text-muted">
+                  <p>
                     {{ "customDescNonEnterpriseStart" | i18n
-                    }}<a href="https://bitwarden.com/contact/" target="_blank" rel="noreferrer">{{
-                      "customDescNonEnterpriseLink" | i18n
-                    }}</a
+                    }}<a
+                      bitLink
+                      href="https://bitwarden.com/contact/"
+                      target="_blank"
+                      rel="noreferrer"
+                      >{{ "customDescNonEnterpriseLink" | i18n }}</a
                     >{{ "customDescNonEnterpriseEnd" | i18n }}
-                  </div>
+                  </p>
                 </ng-container>
                 <ng-template #enterprise>
-                  <div class="text-base tw-block tw-font-normal tw-text-muted">
-                    {{ "customDesc" | i18n }}
-                  </div>
+                  <p>{{ "customDesc" | i18n }}</p>
                 </ng-template>
-              </label>
-            </div>
-          </fieldset>
+              </bit-hint>
+            </bit-radio-button>
+          </bit-radio-group>
           <ng-container *ngIf="customUserTypeSelected">
-            <ng-container *ngIf="!organization.flexibleCollections; else customPermissionsFC">
-              <h3 class="mt-4 d-flex tw-font-semibold">
-                {{ "permissions" | i18n }}
-              </h3>
-              <div class="row" [formGroup]="permissionsGroup">
-                <div class="col-6">
-                  <div class="mb-3">
-                    <label class="tw-font-semibold">{{ "managerPermissions" | i18n }}</label>
-                    <hr class="tw-mb-2 tw-mr-2 tw-mt-0" />
-                    <app-nested-checkbox
-                      parentId="manageAssignedCollections"
-                      [checkboxes]="permissionsGroup.controls.manageAssignedCollectionsGroup"
-                    >
-                    </app-nested-checkbox>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="mb-3">
-                    <label class="tw-font-semibold">{{ "adminPermissions" | i18n }}</label>
-                    <hr class="tw-mb-2 tw-mr-2 tw-mt-0" />
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="accessEventLogs"
-                        id="accessEventLogs"
-                        formControlName="accessEventLogs"
-                      />
-                      <label class="!tw-font-normal" for="accessEventLogs">
-                        {{ "accessEventLogs" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="accessImportExport"
-                        id="accessImportExport"
-                        formControlName="accessImportExport"
-                      />
-                      <label class="!tw-font-normal" for="accessImportExport">
-                        {{ "accessImportExport" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="accessReports"
-                        id="accessReports"
-                        formControlName="accessReports"
-                      />
-                      <label class="!tw-font-normal" for="accessReports">
-                        {{ "accessReports" | i18n }}
-                      </label>
-                    </div>
-                    <app-nested-checkbox
-                      parentId="manageAllCollections"
-                      [checkboxes]="permissionsGroup.controls.manageAllCollectionsGroup"
-                    >
-                    </app-nested-checkbox>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="manageGroups"
-                        id="manageGroups"
-                        formControlName="manageGroups"
-                      />
-                      <label class="!tw-font-normal" for="manageGroups">
-                        {{ "manageGroups" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="manageSso"
-                        id="manageSso"
-                        formControlName="manageSso"
-                      />
-                      <label class="!tw-font-normal" for="manageSso">
-                        {{ "manageSso" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="managePolicies"
-                        id="managePolicies"
-                        formControlName="managePolicies"
-                      />
-                      <label class="!tw-font-normal" for="managePolicies">
-                        {{ "managePolicies" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="manageUsers"
-                        id="manageUsers"
-                        formControlName="manageUsers"
-                        (change)="handleDependentPermissions()"
-                      />
-                      <label class="!tw-font-normal" for="manageUsers">
-                        {{ "manageUsers" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="manageResetPassword"
-                        id="manageResetPassword"
-                        formControlName="manageResetPassword"
-                        (change)="handleDependentPermissions()"
-                      />
-                      <label class="!tw-font-normal" for="manageResetPassword">
-                        {{ "manageAccountRecovery" | i18n }}
-                      </label>
-                    </div>
-                  </div>
+            <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
+              <div class="tw-col-span-4">
+                <bit-form-control>
+                  <input type="checkbox" bitCheckbox formControlName="accessEventLogs" />
+                  <bit-label>{{ "accessEventLogs" | i18n }}</bit-label>
+                </bit-form-control>
+                <bit-form-control>
+                  <input type="checkbox" bitCheckbox formControlName="accessImportExport" />
+                  <bit-label>{{ "accessImportExport" | i18n }}</bit-label>
+                </bit-form-control>
+                <bit-form-control>
+                  <input type="checkbox" bitCheckbox formControlName="accessReports" />
+                  <bit-label>{{ "accessReports" | i18n }}</bit-label>
+                </bit-form-control>
+              </div>
+              <div class="tw-col-span-4">
+                <app-nested-checkbox
+                  parentId="manageAllCollections"
+                  [checkboxes]="permissionsGroup.controls.manageAllCollectionsGroup"
+                >
+                </app-nested-checkbox>
+              </div>
+              <div class="tw-col-span-4">
+                <div class="tw-mb-3">
+                  <bit-form-control>
+                    <input type="checkbox" bitCheckbox formControlName="manageGroups" />
+                    <bit-label>{{ "manageGroups" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input type="checkbox" bitCheckbox formControlName="manageSso" />
+                    <bit-label>{{ "manageSso" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input type="checkbox" bitCheckbox formControlName="managePolicies" />
+                    <bit-label>{{ "managePolicies" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input
+                      id="manageUsers"
+                      type="checkbox"
+                      bitCheckbox
+                      formControlName="manageUsers"
+                      (change)="handleDependentPermissions()"
+                    />
+                    <bit-label>{{ "manageUsers" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input
+                      type="checkbox"
+                      bitCheckbox
+                      formControlName="manageResetPassword"
+                      (change)="handleDependentPermissions()"
+                    />
+                    <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
+                  </bit-form-control>
                 </div>
               </div>
-            </ng-container>
-            <ng-template #customPermissionsFC>
-              <div class="row" [formGroup]="permissionsGroup">
-                <div class="col-4">
-                  <div>
-                    <input
-                      type="checkbox"
-                      name="accessEventLogs"
-                      id="accessEventLogs"
-                      formControlName="accessEventLogs"
-                    />
-                    <label class="!tw-font-normal" for="accessEventLogs">
-                      {{ "accessEventLogs" | i18n }}
-                    </label>
-                  </div>
-                  <div>
-                    <input
-                      type="checkbox"
-                      name="accessImportExport"
-                      id="accessImportExport"
-                      formControlName="accessImportExport"
-                    />
-                    <label class="!tw-font-normal" for="accessImportExport">
-                      {{ "accessImportExport" | i18n }}
-                    </label>
-                  </div>
-                  <div>
-                    <input
-                      type="checkbox"
-                      name="accessReports"
-                      id="accessReports"
-                      formControlName="accessReports"
-                    />
-                    <label class="!tw-font-normal" for="accessReports">
-                      {{ "accessReports" | i18n }}
-                    </label>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <app-nested-checkbox
-                    parentId="manageAllCollections"
-                    [checkboxes]="permissionsGroup.controls.manageAllCollectionsGroup"
-                  >
-                  </app-nested-checkbox>
-                </div>
-                <div class="col-4">
-                  <div class="mb-3">
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="manageGroups"
-                        id="manageGroups"
-                        formControlName="manageGroups"
-                      />
-                      <label class="!tw-font-normal" for="manageGroups">
-                        {{ "manageGroups" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="manageSso"
-                        id="manageSso"
-                        formControlName="manageSso"
-                      />
-                      <label class="!tw-font-normal" for="manageSso">
-                        {{ "manageSso" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="managePolicies"
-                        id="managePolicies"
-                        formControlName="managePolicies"
-                      />
-                      <label class="!tw-font-normal" for="managePolicies">
-                        {{ "managePolicies" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="manageUsers"
-                        id="manageUsers"
-                        formControlName="manageUsers"
-                        (change)="handleDependentPermissions()"
-                      />
-                      <label class="!tw-font-normal" for="manageUsers">
-                        {{ "manageUsers" | i18n }}
-                      </label>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        name="manageResetPassword"
-                        id="manageResetPassword"
-                        formControlName="manageResetPassword"
-                        (change)="handleDependentPermissions()"
-                      />
-                      <label class="!tw-font-normal" for="manageResetPassword">
-                        {{ "manageAccountRecovery" | i18n }}
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ng-template>
+            </div>
           </ng-container>
           <ng-container *ngIf="organization.useSecretsManager">
-            <h3 class="mt-4">
+            <h3 class="tw-mt-4">
               {{ "secretsManager" | i18n }}
               <a
+                bitLink
                 target="_blank"
                 rel="noreferrer"
                 appA11yTitle="{{ 'learnMore' | i18n }}"
@@ -405,7 +180,7 @@
         <bit-tab *ngIf="organization.useGroups" [label]="'groups' | i18n">
           <div class="tw-mb-6">
             {{
-              (restrictedAccess$ | async)
+              (restrictEditingSelf$ | async)
                 ? ("restrictedGroupAccess" | i18n)
                 : ("groupAccessUserDesc" | i18n)
             }}
@@ -416,36 +191,28 @@
             [columnHeader]="'groups' | i18n"
             [selectorLabelText]="'selectGroups' | i18n"
             [emptySelectionText]="'noGroupsAdded' | i18n"
-            [flexibleCollectionsEnabled]="organization.flexibleCollections"
-            [hideMultiSelect]="restrictedAccess$ | async"
+            [hideMultiSelect]="restrictEditingSelf$ | async"
           ></bit-access-selector>
         </bit-tab>
         <bit-tab [label]="'collections' | i18n">
-          <div class="tw-mb-6" *ngIf="restrictedAccess$ | async">
-            {{ "restrictedCollectionAccess" | i18n }}
+          <div class="tw-mb-6" *ngIf="restrictEditingSelf$ | async">
+            {{ "cannotAddYourselfToCollections" | i18n }}
           </div>
-          <div *ngIf="organization.useGroups && !(restrictedAccess$ | async)" class="tw-mb-6">
-            {{ "userPermissionOverrideHelper" | i18n }}
-          </div>
-          <div *ngIf="!organization.flexibleCollections" class="tw-mb-6">
-            <bit-form-control>
-              <input type="checkbox" bitCheckbox formControlName="accessAllCollections" />
-              <bit-label>
-                {{ "accessAllCollectionsDesc" | i18n }}
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  appA11yTitle="{{ 'learnMore' | i18n }}"
-                  href="https://bitwarden.com/help/user-types-access-control/#access-control"
-                >
-                  <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-                </a>
-              </bit-label>
-              <bit-hint>{{ "accessAllCollectionsHelp" | i18n }}</bit-hint>
-            </bit-form-control>
+          <div
+            *ngIf="
+              !(restrictEditingSelf$ | async) &&
+              (organization.useGroups || !(canAssignAccessToAnyCollection$ | async))
+            "
+            class="tw-mb-6"
+          >
+            <span *ngIf="organization.useGroups">
+              {{ "userPermissionOverrideHelperDesc" | i18n }}
+            </span>
+            <span *ngIf="!(canAssignAccessToAnyCollection$ | async)">
+              {{ "restrictedCollectionAssignmentDesc" | i18n }}
+            </span>
           </div>
           <bit-access-selector
-            *ngIf="!accessAllCollections"
             [permissionMode]="PermissionMode.Edit"
             formControlName="access"
             [showGroupColumn]="organization.useGroups"
@@ -453,8 +220,7 @@
             [columnHeader]="'collection' | i18n"
             [selectorLabelText]="'selectCollections' | i18n"
             [emptySelectionText]="'noCollectionsAdded' | i18n"
-            [flexibleCollectionsEnabled]="organization.flexibleCollections"
-            [hideMultiSelect]="restrictedAccess$ | async"
+            [hideMultiSelect]="restrictEditingSelf$ | async"
           ></bit-access-selector
         ></bit-tab>
       </bit-tab-group>
@@ -497,7 +263,21 @@
           {{ "revokeAccess" | i18n }}
         </button>
         <button
-          *ngIf="editMode"
+          *ngIf="
+            editMode && (!(accountDeprovisioningEnabled$ | async) || !params.managedByOrganization)
+          "
+          type="button"
+          bitIconButton="bwi-close"
+          buttonType="danger"
+          bitFormButton
+          [appA11yTitle]="'remove' | i18n"
+          [bitAction]="remove"
+          [disabled]="loading"
+        ></button>
+        <button
+          *ngIf="
+            editMode && (accountDeprovisioningEnabled$ | async) && params.managedByOrganization
+          "
           type="button"
           bitIconButton="bwi-trash"
           buttonType="danger"

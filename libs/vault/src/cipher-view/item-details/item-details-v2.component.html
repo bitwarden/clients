@@ -1,0 +1,83 @@
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field
+      [disableMargin]="!cipher.collectionIds?.length && !showOwnership && !cipher.folderId"
+      [disableReadOnlyBorder]="!cipher.collectionIds?.length && !showOwnership && !cipher.folderId"
+    >
+      <bit-label [appTextDrag]="cipher.name">
+        {{ "itemName" | i18n }}
+      </bit-label>
+      <input
+        readonly
+        id="itemName"
+        bitInput
+        type="text"
+        [value]="cipher.name"
+        aria-readonly="true"
+        data-testid="item-name"
+      />
+    </bit-form-field>
+
+    <ul
+      [attr.aria-label]="'itemLocation' | i18n"
+      *ngIf="cipher.collectionIds?.length || showOwnership || cipher.folderId"
+      class="tw-mb-0 tw-pl-0"
+    >
+      <li
+        *ngIf="showOwnership && organization"
+        class="tw-flex tw-items-center tw-list-none"
+        [ngClass]="{ 'tw-mb-3': cipher.collectionIds }"
+        bitTypography="body2"
+        [attr.aria-label]="('owner' | i18n) + organization.name"
+        data-testid="owner"
+      >
+        <i
+          appOrgIcon
+          [tierType]="organization.productTierType"
+          [size]="'large'"
+          [title]="'owner' | i18n"
+        ></i>
+        <span aria-hidden="true" class="tw-pl-1.5">
+          {{ organization.name }}
+        </span>
+      </li>
+      <li
+        class="tw-list-none"
+        *ngIf="cipher.collectionIds && collections"
+        [attr.aria-label]="'collection' | i18n"
+      >
+        <ul data-testid="collections" [ngClass]="{ 'tw-mb-0': !cipher.folderId }" class="tw-pl-0">
+          <li
+            *ngFor="let collection of collections; let last = last"
+            class="tw-flex tw-items-center tw-list-none"
+            bitTypography="body2"
+            [ngClass]="{ 'tw-mb-3': last && cipher.folderId }"
+            [attr.aria-label]="collection.name"
+          >
+            <i
+              class="bwi bwi-collection bwi-lg"
+              aria-hidden="true"
+              [title]="'collection' | i18n"
+            ></i>
+            <span aria-hidden="true" class="tw-pl-1.5">
+              {{ collection.name }}
+            </span>
+          </li>
+        </ul>
+      </li>
+      <li
+        *ngIf="cipher.folderId && folder"
+        bitTypography="body2"
+        class="tw-flex tw-items-center tw-list-none"
+        [attr.aria-label]="('folder' | i18n) + folder.name"
+        data-testid="folder"
+      >
+        <i class="bwi bwi-folder bwi-lg" aria-hidden="true" [title]="'folder' | i18n"></i>
+        <span aria-hidden="true" class="tw-pl-1.5">{{ folder.name }} </span>
+      </li>
+    </ul>
+  </bit-card>
+</bit-section>

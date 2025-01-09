@@ -1,59 +1,32 @@
-<app-callout type="tip" title="{{ 'prerequisite' | i18n }}">
+<bit-callout title="{{ 'prerequisite' | i18n }}">
   {{ "requireSsoPolicyReq" | i18n }}
-</app-callout>
+</bit-callout>
 
-<div class="form-group">
-  <div class="form-check">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      id="enabled"
-      [formControl]="enabled"
-      name="Enabled"
-    />
-    <label class="form-check-label" for="enabled">{{ "turnOn" | i18n }}</label>
-  </div>
-</div>
+<bit-form-control>
+  <input type="checkbox" id="enabled" bitCheckbox [formControl]="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>
 
 <div [formGroup]="data">
-  <div class="form-group">
-    <label for="hours">{{ "maximumVaultTimeoutLabel" | i18n }}</label>
-    <div class="row">
-      <div class="col-6">
-        <input
-          id="hours"
-          class="form-control"
-          type="number"
-          min="0"
-          name="hours"
-          formControlName="hours"
-        />
-        <small>{{ "hours" | i18n }}</small>
-      </div>
-      <div class="col-6">
-        <input
-          id="minutes"
-          class="form-control"
-          type="number"
-          min="0"
-          max="59"
-          name="minutes"
-          formControlName="minutes"
-        />
-        <small>{{ "minutes" | i18n }}</small>
-      </div>
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="row">
-      <div class="col-6">
-        <label for="action">{{ "vaultTimeoutAction" | i18n }}</label>
-        <select class="form-control" formControlName="action">
-          <option *ngFor="let o of vaultTimeoutActionOptions" [ngValue]="o.value">
-            {{ o.name }}
-          </option>
-        </select>
-      </div>
-    </div>
+  <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+    <bit-form-field class="tw-col-span-6 !tw-mb-0">
+      <bit-label>{{ "maximumVaultTimeoutLabel" | i18n }}</bit-label>
+      <input bitInput type="number" min="0" formControlName="hours" />
+      <bit-hint>{{ "hours" | i18n }}</bit-hint>
+    </bit-form-field>
+    <bit-form-field class="tw-col-span-6 tw-self-end !tw-mb-0">
+      <input bitInput type="number" min="0" max="59" formControlName="minutes" />
+      <bit-hint>{{ "minutes" | i18n }}</bit-hint>
+    </bit-form-field>
+    <bit-form-field class="tw-col-span-6">
+      <bit-label>{{ "vaultTimeoutAction" | i18n }}</bit-label>
+      <bit-select formControlName="action">
+        <bit-option
+          *ngFor="let option of vaultTimeoutActionOptions"
+          [value]="option.value"
+          [label]="option.name"
+        ></bit-option>
+      </bit-select>
+    </bit-form-field>
   </div>
 </div>

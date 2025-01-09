@@ -1,9 +1,9 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-import { ServiceAccountProjectAccessPolicyResponse } from "./access-policy.response";
+import { GrantedProjectAccessPolicyResponse } from "./access-policy.response";
 
-export class ServiceAccountProjectPolicyPermissionDetailsResponse extends BaseResponse {
-  accessPolicy: ServiceAccountProjectAccessPolicyResponse;
+export class GrantedProjectAccessPolicyPermissionDetailsResponse extends BaseResponse {
+  accessPolicy: GrantedProjectAccessPolicyResponse;
   hasPermission: boolean;
 
   constructor(response: any) {

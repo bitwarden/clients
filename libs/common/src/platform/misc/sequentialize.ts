@@ -1,3 +1,21 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+const caches = new Map<any, Map<string, Promise<any>>>();
+
+const getCache = (obj: any) => {
+  let cache = caches.get(obj);
+  if (cache != null) {
+    return cache;
+  }
+  cache = new Map<string, Promise<any>>();
+  caches.set(obj, cache);
+  return cache;
+};
+
+export function clearCaches() {
+  caches.clear();
+}
+
 /**
  * Use as a Decorator on async functions, it will prevent multiple 'active' calls as the same time
  *
@@ -11,17 +29,6 @@
 export function sequentialize(cacheKey: (args: any[]) => string) {
   return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
     const originalMethod: () => Promise<any> = descriptor.value;
-    const caches = new Map<any, Map<string, Promise<any>>>();
-
-    const getCache = (obj: any) => {
-      let cache = caches.get(obj);
-      if (cache != null) {
-        return cache;
-      }
-      cache = new Map<string, Promise<any>>();
-      caches.set(obj, cache);
-      return cache;
-    };
 
     return {
       value: function (...args: any[]) {

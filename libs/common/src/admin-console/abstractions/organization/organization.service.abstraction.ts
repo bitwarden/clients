@@ -1,13 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { map, Observable } from "rxjs";
 
-import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 
 export function canAccessVaultTab(org: Organization): boolean {
-  return org.canViewAssignedCollections || org.canViewAllCollections;
+  return org.canViewAllCollections;
 }
 
 export function canAccessSettingsTab(org: Organization): boolean {
@@ -16,7 +16,8 @@ export function canAccessSettingsTab(org: Organization): boolean {
     org.canManagePolicies ||
     org.canManageSso ||
     org.canManageScim ||
-    org.canAccessImportExport ||
+    org.canAccessImport ||
+    org.canAccessExport(false) || // Feature flag value doesn't matter here, providers will have access to this group anyway
     org.canManageDeviceApprovals
   );
 }
@@ -56,35 +57,6 @@ export function getOrganizationById(id: string) {
   return map<Organization[], Organization | undefined>((orgs) => orgs.find((o) => o.id === id));
 }
 
-export function canAccessAdmin(i18nService: I18nService) {
-  return map<Organization[], Organization[]>((orgs) =>
-    orgs.filter(canAccessOrgAdmin).sort(Utils.getSortFunction(i18nService, "name")),
-  );
-}
-
-/**
- * @deprecated
- * To be removed after Flexible Collections.
- **/
-export function canAccessImportExport(i18nService: I18nService) {
-  return map<Organization[], Organization[]>((orgs) =>
-    orgs
-      .filter((org) => org.canAccessImportExport)
-      .sort(Utils.getSortFunction(i18nService, "name")),
-  );
-}
-
-export function canAccessImport(i18nService: I18nService) {
-  return map<Organization[], Organization[]>((orgs) =>
-    orgs
-      .filter(
-        (org) =>
-          org.canAccessImportExport || (org.canCreateNewCollections && org.flexibleCollections),
-      )
-      .sort(Utils.getSortFunction(i18nService, "name")),
-  );
-}
-
 /**
  * Returns `true` if a user is a member of an organization (rather than only being a ProviderUser)
  * @deprecated Use organizationService.organizations$ with a filter instead
@@ -116,10 +88,20 @@ export abstract class OrganizationService {
    * https://bitwarden.atlassian.net/browse/AC-2252.
    */
   getFromState: (id: string) => Promise<Organization>;
+  /**
+   * Emits true if the user can create or manage a Free Bitwarden Families sponsorship.
+   */
   canManageSponsorships$: Observable<boolean>;
+  /**
+   * Emits true if any of the user's organizations have a Free Bitwarden Families sponsorship available.
+   */
+  familySponsorshipAvailable$: Observable<boolean>;
   hasOrganizations: () => Promise<boolean>;
   get$: (id: string) => Observable<Organization | undefined>;
   get: (id: string) => Promise<Organization>;
+  /**
+   * @deprecated This method is only used in key connector and will be removed soon as part of https://bitwarden.atlassian.net/browse/AC-2252.
+   */
   getAll: (userId?: string) => Promise<Organization[]>;
 
   /**

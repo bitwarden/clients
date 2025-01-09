@@ -12,7 +12,7 @@
         aria-hidden="true"
         [ngClass]="{
           'bwi-angle-right': isCollapsed,
-          'bwi-angle-down': !isCollapsed
+          'bwi-angle-down': !isCollapsed,
         }"
       ></i>
       &nbsp;{{ typesNode.name | i18n }}
@@ -76,6 +76,22 @@
         <i class="bwi bwi-fw bwi-sticky-note" aria-hidden="true"></i>&nbsp;{{
           "typeSecureNote" | i18n
         }}
+      </button>
+    </span>
+  </li>
+  <li
+    class="filter-option"
+    [ngClass]="{ active: activeFilter.cipherType === cipherTypeEnum.SshKey }"
+    *ngIf="isSshKeysEnabled"
+  >
+    <span class="filter-buttons">
+      <button
+        type="button"
+        class="filter-button"
+        (click)="applyFilter(cipherTypeEnum.SshKey)"
+        [attr.aria-pressed]="activeFilter.cipherType === cipherTypeEnum.SshKey"
+      >
+        <i class="bwi bwi-fw bwi-key" aria-hidden="true"></i>&nbsp;{{ "typeSshKey" | i18n }}
       </button>
     </span>
   </li>

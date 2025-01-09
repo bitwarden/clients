@@ -16,6 +16,9 @@ describe("ServerConfigData", () => {
           name: "test",
           url: "https://test.com",
         },
+        settings: {
+          disableUserRegistration: false,
+        },
         environment: {
           cloudRegion: Region.EU,
           vault: "https://vault.com",

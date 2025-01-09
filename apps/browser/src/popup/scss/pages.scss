@@ -217,7 +217,7 @@ app-vault-attachments {
   }
 }
 
-app-fido2 {
+app-fido2-v1 {
   .auth-wrapper {
     display: flex;
     flex-direction: column;
@@ -301,7 +301,7 @@ app-fido2 {
       margin-top: 32px;
 
       .subtitle {
-        font-family: Open Sans;
+        font-family: "DM Sans";
         font-size: 24px;
         font-style: normal;
         font-weight: 600;

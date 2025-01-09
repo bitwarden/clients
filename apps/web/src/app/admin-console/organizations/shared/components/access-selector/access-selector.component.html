@@ -3,13 +3,7 @@
 <div class="tw-flex" *ngIf="!hideMultiSelect">
   <bit-form-field *ngIf="permissionMode == 'edit'" class="tw-mr-3 tw-shrink-0">
     <bit-label>{{ "permission" | i18n }}</bit-label>
-    <!--
-      Built-in select height differs between browsers, this fix makes sure we match bit-multi-select height.
-      We might want to reconsider this fix when/if we implement
-      [CL-78] [Improvement] Completely restyled selects (https://bitwarden.atlassian.net/browse/CL-78)
-    -->
     <select
-      class="tw-h-[35px]"
       bitInput
       [disabled]="disabled"
       [(ngModel)]="initialPermission"
@@ -85,7 +79,7 @@
 
       <td bitCell *ngIf="permissionMode != 'hidden'">
         <ng-container *ngIf="canEditItemPermission(item); else readOnlyPerm">
-          <label class="sr-only" [for]="'permission' + i"
+          <label class="tw-sr-only" [for]="'permission' + i"
             >{{ item.labelName }} {{ "permission" | i18n }}</label
           >
           <div class="tw-relative tw-inline-block">
@@ -110,15 +104,6 @@
         </ng-container>
 
         <ng-template #readOnlyPerm>
-          <div
-            *ngIf="item.accessAllItems"
-            class="tw-max-w-40 tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap tw-border tw-border-solid tw-border-transparent tw-font-bold tw-text-muted"
-            [appA11yTitle]="accessAllLabelId(item) | i18n"
-          >
-            {{ "canEdit" | i18n }}
-            <i class="bwi bwi-filter tw-ml-1" aria-hidden="true"></i>
-          </div>
-
           <div
             *ngIf="item.readonly || disabled"
             class="tw-max-w-40 tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap tw-font-bold tw-text-muted"

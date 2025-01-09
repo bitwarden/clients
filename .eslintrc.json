@@ -16,11 +16,12 @@
       },
       "extends": [
         "eslint:recommended",
+        "plugin:@angular-eslint/recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:import/recommended",
         "plugin:import/typescript",
-        "prettier",
         "plugin:rxjs/recommended",
+        "prettier",
         "plugin:storybook/recommended"
       ],
       "settings": {
@@ -34,6 +35,19 @@
         }
       },
       "rules": {
+        "@angular-eslint/component-class-suffix": 0,
+        "@angular-eslint/contextual-lifecycle": 0,
+        "@angular-eslint/directive-class-suffix": 0,
+        "@angular-eslint/no-empty-lifecycle-method": 0,
+        "@angular-eslint/no-host-metadata-property": 0,
+        "@angular-eslint/no-input-rename": 0,
+        "@angular-eslint/no-inputs-metadata-property": 0,
+        "@angular-eslint/no-output-native": 0,
+        "@angular-eslint/no-output-on-prefix": 0,
+        "@angular-eslint/no-output-rename": 0,
+        "@angular-eslint/no-outputs-metadata-property": 0,
+        "@angular-eslint/use-lifecycle-interface": "error",
+        "@angular-eslint/use-pipe-transform-interface": 0,
         "@typescript-eslint/explicit-member-accessibility": [
           "error",
           { "accessibility": "no-public" }
@@ -87,6 +101,11 @@
           {
             "zones": [
               {
+                "target": ["libs/**/*"],
+                "from": ["apps/**/*"],
+                "message": "Libs should not import app-specific code."
+              },
+              {
                 // avoid specific frameworks or large dependencies in common
                 "target": "./libs/common/**/*",
                 "from": [
@@ -96,6 +115,11 @@
 
                   // Node
                   "./libs/node/**/*",
+
+                  //Generator
+                  "./libs/tools/generator/components/**/*",
+                  "./libs/tools/generator/core/**/*",
+                  "./libs/tools/generator/extensions/**/*",
 
                   // Import/export
                   "./libs/importer/**/*",
@@ -183,6 +207,51 @@
       }
     },
     {
+      "files": ["libs/tools/generator/components/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/generator-components/*", "src/**/*"] }
+        ]
+      }
+    },
+    {
+      "files": ["libs/tools/generator/core/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/generator-core/*", "src/**/*"] }
+        ]
+      }
+    },
+    {
+      "files": ["libs/tools/generator/extensions/history/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/generator-history/*", "src/**/*"] }
+        ]
+      }
+    },
+    {
+      "files": ["libs/tools/generator/extensions/legacy/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/generator-legacy/*", "src/**/*"] }
+        ]
+      }
+    },
+    {
+      "files": ["libs/tools/generator/extensions/navigation/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/generator-navigation/*", "src/**/*"] }
+        ]
+      }
+    },
+    {
       "files": ["libs/tools/export/vault-export/vault-export-core/src/**/*.ts"],
       "rules": {
         "no-restricted-imports": [
@@ -216,6 +285,18 @@
       "files": ["libs/platform/src/**/*.ts"],
       "rules": {
         "no-restricted-imports": ["error", { "patterns": ["@bitwarden/platform/*", "src/**/*"] }]
+      }
+    },
+    {
+      "files": ["libs/tools/send/send-ui/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/send-ui/*", "src/**/*"] }]
+      }
+    },
+    {
+      "files": ["libs/tools/card/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/tools-card/*", "src/**/*"] }]
       }
     },
     {
@@ -259,6 +340,32 @@
               // All features that have been converted to barrel files
               "**/platform/messaging/**"
             ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["bitwarden_license/bit-common/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/bit-common/*", "src/**/*"] }]
+      }
+    },
+    {
+      "files": ["apps/**/*.ts"],
+      "rules": {
+        // Catches static imports
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": ["biwarden_license/**", "@bitwarden/bit-common/*", "@bitwarden/bit-web/*"]
+          }
+        ],
+        // Catches dynamic imports, e.g. in routing modules where modules are lazy-loaded
+        "no-restricted-syntax": [
+          "error",
+          {
+            "message": "Don't import Bitwarden licensed code into OSS code.",
+            "selector": "ImportExpression > Literal.source[value=/.*(bitwarden_license|bit-common|bit-web).*/]"
           }
         ]
       }

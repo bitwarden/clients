@@ -1,0 +1,39 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'about' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <bit-item-group>
+    <bit-item>
+      <button type="button" bit-item-content (click)="about()">
+        {{ "aboutBitwarden" | i18n }}
+      </button>
+    </bit-item>
+    <bit-item>
+      <button type="button" bit-item-content (click)="launchHelp()">
+        {{ "helpCenter" | i18n }}
+        <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+    <bit-item>
+      <button type="button" bit-item-content (click)="openWebVault()">
+        {{ "bitWebVaultApp" | i18n }}
+        <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+    <bit-item>
+      <a bit-item-content routerLink="/more-from-bitwarden">
+        {{ "moreFromBitwarden" | i18n }}
+        <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+      </a>
+    </bit-item>
+    <bit-item>
+      <button type="button" bit-item-content (click)="rate()">
+        {{ "rateExtension" | i18n }}
+        <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+      </button>
+    </bit-item>
+  </bit-item-group>
+</popup-page>

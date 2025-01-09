@@ -128,10 +128,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "test-storybook:build:production"
+              "buildTarget": "test-storybook:build:production"
             },
             "development": {
-              "browserTarget": "test-storybook:build:development"
+              "buildTarget": "test-storybook:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -160,7 +160,15 @@
             "configDir": ".storybook",
             "browserTarget": "components:build",
             "compodoc": true,
-            "compodocArgs": ["-e", "json", "-d", "."],
+            "compodocArgs": [
+              "-p",
+              "./tsconfig.json",
+              "-e",
+              "json",
+              "-d",
+              ".",
+              "--disableRoutesGraph"
+            ],
             "outputDir": "storybook-static"
           }
         }

@@ -1,25 +1,78 @@
-import { firstValueFrom, map, from, zip } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, map, from, zip, Observable } from "rxjs";
 
 import { EventCollectionService as EventCollectionServiceAbstraction } from "../../abstractions/event/event-collection.service";
 import { EventUploadService } from "../../abstractions/event/event-upload.service";
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { EventType } from "../../enums";
 import { EventData } from "../../models/data/event.data";
 import { StateProvider } from "../../platform/state";
 import { CipherService } from "../../vault/abstractions/cipher.service";
+import { CipherView } from "../../vault/models/view/cipher.view";
 
 import { EVENT_COLLECTION } from "./key-definitions";
 
 export class EventCollectionService implements EventCollectionServiceAbstraction {
+  private orgIds$: Observable<string[]>;
+
   constructor(
     private cipherService: CipherService,
     private stateProvider: StateProvider,
     private organizationService: OrganizationService,
     private eventUploadService: EventUploadService,
     private authService: AuthService,
-  ) {}
+    private accountService: AccountService,
+  ) {
+    this.orgIds$ = this.organizationService.organizations$.pipe(
+      map((orgs) => orgs?.filter((o) => o.useEvents)?.map((x) => x.id) ?? []),
+    );
+  }
+
+  /** Adds an event to the active user's event collection
+   *  @param eventType the event type to be added
+   *  @param ciphers The collection of ciphers to log events for
+   *  @param uploadImmediately in some cases the recorded events should be uploaded right after being added
+   */
+  async collectMany(
+    eventType: EventType,
+    ciphers: CipherView[],
+    uploadImmediately = false,
+  ): Promise<any> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const eventStore = this.stateProvider.getUser(userId, EVENT_COLLECTION);
+
+    if (!(await this.shouldUpdate(null, eventType, ciphers))) {
+      return;
+    }
+
+    const events$ = this.orgIds$.pipe(
+      map((orgs) =>
+        ciphers
+          .filter((c) => orgs.includes(c.organizationId))
+          .map((c) => ({
+            type: eventType,
+            cipherId: c.id,
+            date: new Date().toISOString(),
+            organizationId: c.organizationId,
+          })),
+      ),
+    );
+
+    await eventStore.update(
+      (currentEvents, newEvents) => [...(currentEvents ?? []), ...newEvents],
+      {
+        combineLatestWith: events$,
+      },
+    );
+
+    if (uploadImmediately) {
+      await this.eventUploadService.uploadEvents();
+    }
+  }
 
   /** Adds an event to the active user's event collection
    *  @param eventType the event type to be added
@@ -33,10 +86,10 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
     uploadImmediately = false,
     organizationId: string = null,
   ): Promise<any> {
-    const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     const eventStore = this.stateProvider.getUser(userId, EVENT_COLLECTION);
 
-    if (!(await this.shouldUpdate(cipherId, organizationId, eventType))) {
+    if (!(await this.shouldUpdate(organizationId, eventType, undefined, cipherId))) {
       return;
     }
 
@@ -62,18 +115,15 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
    *  @param organizationId the organization for the event
    */
   private async shouldUpdate(
-    cipherId: string = null,
     organizationId: string = null,
     eventType: EventType = null,
+    ciphers: CipherView[] = [],
+    cipherId?: string,
   ): Promise<boolean> {
-    const orgIds$ = this.organizationService.organizations$.pipe(
-      map((orgs) => orgs?.filter((o) => o.useEvents)?.map((x) => x.id) ?? []),
-    );
-
     const cipher$ = from(this.cipherService.get(cipherId));
 
     const [authStatus, orgIds, cipher] = await firstValueFrom(
-      zip(this.authService.activeAccountStatus$, orgIds$, cipher$),
+      zip(this.authService.activeAccountStatus$, this.orgIds$, cipher$),
     );
 
     // The user must be authorized
@@ -91,14 +141,21 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
       return true;
     }
 
-    // If the cipher is null there must be an organization id provided
-    if (cipher == null && organizationId == null) {
+    // If the cipherId was provided and a cipher exists, add it to the collection
+    if (cipher != null) {
+      ciphers.push(new CipherView(cipher));
+    }
+
+    // If no ciphers there must be an organization id provided
+    if ((ciphers == null || ciphers.length == 0) && organizationId == null) {
       return false;
     }
 
-    // If the cipher is present it must be in the user's org list
-    if (cipher != null && !orgIds.includes(cipher?.organizationId)) {
-      return false;
+    // If the input list of ciphers is provided. Check the ciphers to see if any
+    // are in the user's org list
+    if (ciphers != null && ciphers.length > 0) {
+      const filtered = ciphers.filter((c) => orgIds.includes(c.organizationId));
+      return filtered.length > 0;
     }
 
     // If the organization id is provided it must be in the user's org list

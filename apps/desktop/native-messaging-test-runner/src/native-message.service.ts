@@ -219,7 +219,11 @@ export default class NativeMessageService {
     key: string,
   ): Promise<DecryptedCommandData> {
     const sharedKey = await this.getSharedKeyForKey(key);
-    const decrypted = await this.encryptService.decryptToUtf8(payload, sharedKey);
+    const decrypted = await this.encryptService.decryptToUtf8(
+      payload,
+      sharedKey,
+      "native-messaging-session",
+    );
 
     return JSON.parse(decrypted);
   }

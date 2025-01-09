@@ -1,6 +1,4 @@
 {
   "devFlags": {},
-  "flags": {
-    "enableCipherKeyEncryption": false
-  }
+  "flags": {}
 }

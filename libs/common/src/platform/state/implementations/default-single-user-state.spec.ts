@@ -10,6 +10,7 @@ import { Jsonify } from "type-fest";
 import { trackEmissions, awaitAsync } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { UserId } from "../../../types/guid";
+import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
@@ -45,6 +46,7 @@ describe("DefaultSingleUserState", () => {
   let diskStorageService: FakeStorageService;
   let userState: DefaultSingleUserState<TestState>;
   const stateEventRegistrarService = mock<StateEventRegistrarService>();
+  const logService = mock<LogService>();
   const newData = { date: new Date() };
 
   beforeEach(() => {
@@ -54,6 +56,7 @@ describe("DefaultSingleUserState", () => {
       testKeyDefinition,
       diskStorageService,
       stateEventRegistrarService,
+      logService,
     );
   });
 
@@ -99,6 +102,32 @@ describe("DefaultSingleUserState", () => {
         undefined,
       );
       expect(state).toBeTruthy();
+    });
+
+    it("should go to disk each subscription if a cleanupDelayMs of 0 is given", async () => {
+      const state = new DefaultSingleUserState(
+        userId,
+        new UserKeyDefinition(testStateDefinition, "test", {
+          cleanupDelayMs: 0,
+          deserializer: TestState.fromJSON,
+          clearOn: [],
+          debug: {
+            enableRetrievalLogging: true,
+          },
+        }),
+        diskStorageService,
+        stateEventRegistrarService,
+        logService,
+      );
+
+      await firstValueFrom(state.state$);
+      await firstValueFrom(state.state$);
+
+      expect(diskStorageService.mock.get).toHaveBeenCalledTimes(2);
+      expect(logService.info).toHaveBeenCalledTimes(2);
+      expect(logService.info).toHaveBeenCalledWith(
+        `Retrieving 'user_${userId}_fake_test' from storage, value is null`,
+      );
     });
   });
 
@@ -304,6 +333,57 @@ describe("DefaultSingleUserState", () => {
         await userState.update(() => updatedValue);
 
         expect(stateEventRegistrarService.registerEvents).not.toHaveBeenCalled();
+      },
+    );
+
+    const logCases: { startingValue: TestState; updateValue: TestState; phrase: string }[] = [
+      {
+        startingValue: null,
+        updateValue: null,
+        phrase: "null to null",
+      },
+      {
+        startingValue: null,
+        updateValue: new TestState(),
+        phrase: "null to non-null",
+      },
+      {
+        startingValue: new TestState(),
+        updateValue: null,
+        phrase: "non-null to null",
+      },
+      {
+        startingValue: new TestState(),
+        updateValue: new TestState(),
+        phrase: "non-null to non-null",
+      },
+    ];
+
+    it.each(logCases)(
+      "should log meta info about the update",
+      async ({ startingValue, updateValue, phrase }) => {
+        diskStorageService.internalUpdateStore({
+          [`user_${userId}_fake_fake`]: startingValue,
+        });
+        const state = new DefaultSingleUserState(
+          userId,
+          new UserKeyDefinition<TestState>(testStateDefinition, "fake", {
+            deserializer: TestState.fromJSON,
+            clearOn: [],
+            debug: {
+              enableUpdateLogging: true,
+            },
+          }),
+          diskStorageService,
+          stateEventRegistrarService,
+          logService,
+        );
+
+        await state.update(() => updateValue);
+
+        expect(logService.info).toHaveBeenCalledWith(
+          `Updating 'user_${userId}_fake_fake' from ${phrase}`,
+        );
       },
     );
   });

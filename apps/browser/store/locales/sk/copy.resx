@@ -118,58 +118,57 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden – Bezplatný správca hesiel</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Bitwarden zabezpečí všetky vaše heslá, prístupové kľúče a citlivé informácie doma, v práci alebo na cestách.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2 a ďalšie časopisy ho uznali za najlepšieho správcu hesiel!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+ZABEZPEČTE SVOJ DIGITÁLNY ŽIVOT
+Zabezpečte svoj digitálny život a chráňte sa pred únikmi údajov vytváraním a ukladaním jedinečných, silných hesiel pre každý účet. Všetko uchovávajte v trezore so šifrovaním end-to-end, ku ktorému máte prístup len vy.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+PRÍSTUP K ÚDAJOM KDEKOĽVEK, KEDYKOĽVEK A NA AKOMKOĽVEK ZARIADENÍ
+Jednoducho spravujte, ukladajte, zabezpečujte a zdieľajte neobmedzený počet hesiel v neobmedzenom počte zariadení bez obmedzení.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+KAŽDÝ BY MAL MAŤ NÁSTROJE NA ZAISTENIE BEZPEČNOSTI ONLINE
+Využívajte Bitwarden zadarmo bez reklám a predaja údajov. Bitwarden verí, že každý by mal mať možnosť zostať v bezpečí online. Prémiové balíky ponúkajú prístup k pokročilým funkciám.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+POSILNITE SVOJE TÍMY POMOCOU APLIKÁCIE BITWARDEN
+Plány pre tímy a podniky sú vybavené profesionálnymi obchodnými funkciami. Niektoré príklady zahŕňajú integráciu SSO, vlastný hosting, integráciu adresárov a poskytovanie SCIM, globálne politiky, prístup k API, protokoly udalostí a ďalšie.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Použite Bitwarden na zabezpečenie svojich zamestnancov a zdieľanie citlivých informácií s kolegami.
 
+Ďalšie dôvody, prečo si vybrať Bitwarden:
 
-More reasons to choose Bitwarden:
+Šifrovanie na svetovej úrovni
+Heslá sú chránené pokročilým šifrovaním end-to-end (AES-256 bitov, kryptografická soľ a PBKDF2 SHA-256), takže vaše údaje zostanú bezpečné a súkromné.
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Audity tretích strán
+Bitwarden pravidelne vykonáva komplexné bezpečnostné audity tretími stranami s významnými bezpečnostnými firmami. Tieto ročné audity zahŕňajú posúdenie zdrojového kódu a penetračné testy na IP adresách, serveroch a webových aplikáciách Bitwardenu.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
-
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Pokročilé 2FA
+Zabezpečte svoje prihlásenie pomocou overovateľa tretej strany, e-mailových kódov alebo poverení FIDO2 WebAuthn, ako je hardvérový bezpečnostný kľúč alebo prístupový kľúč.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Prenášajte údaje priamo ostatným pri zachovaní zabezpečenia šifrovaného end-to-end a obmedzení odhalenia.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Zabudovaný generátor
+Vytvárajte dlhé, zložité a odlišné heslá a jedinečné používateľské mená pre každú navštívenú stránku. Integrácia s poskytovateľmi e-mailových aliasov na zabezpečenie dodatočného súkromia.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Globálne preklady
+Preklady Bitwardenu existujú pre viac ako 60 jazykov, ktoré prekladá globálna komunita prostredníctvom Crowdinu.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Multiplatformové aplikácie
+Zabezpečte a zdieľajte citlivé údaje v rámci svojho trezora Bitwarden z akéhokoľvek prehliadača, mobilného zariadenia alebo desktopového operačného systému a ďalších.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden zabezpečuje viac ako len heslá
+Riešenia na komplexnú správu šifrovaných poverení od Bitwardenu umožňujú organizáciám zabezpečiť všetko vrátane tajomstiev vývojárov a skúseností s prístupovými kľúčmi. Navštívte Bitwarden.com a dozviete sa viac o Bitwarden Secrets Manager a Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Bitwarden zabezpečí všetky vaše heslá, prístupové kľúče a citlivé informácie doma, v práci alebo na cestách.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synchronizujte a pristupujte k vášmu trezoru z viacerých zariadení</value>

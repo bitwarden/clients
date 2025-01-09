@@ -5,9 +5,6 @@ import "bootstrap";
 import "jquery";
 import "popper.js";
 
-require("./scss/styles.scss");
-require("./scss/tailwind.css");
-
 import { AppModule } from "./app/app.module";
 
 if (process.env.NODE_ENV === "production") {

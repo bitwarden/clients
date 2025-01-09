@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   Component,
@@ -19,6 +21,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LinkModule } from "@bitwarden/components";
@@ -26,48 +29,54 @@ import { LinkModule } from "@bitwarden/components";
 import { OnboardingModule } from "../../../shared/components/onboarding/onboarding.module";
 
 import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./services/abstraction/vault-onboarding.service";
-import { VaultOnboardingTasks } from "./services/vault-onboarding.service";
+import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-onboarding.service";
 
 @Component({
   standalone: true,
   imports: [OnboardingModule, CommonModule, JslibModule, LinkModule],
+  providers: [
+    {
+      provide: VaultOnboardingServiceAbstraction,
+      useClass: VaultOnboardingService,
+    },
+  ],
   selector: "app-vault-onboarding",
   templateUrl: "vault-onboarding.component.html",
 })
 export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
   @Input() ciphers: CipherView[];
   @Input() orgs: Organization[];
-  @Output() onAddCipher = new EventEmitter<void>();
+  @Output() onAddCipher = new EventEmitter<CipherType>();
 
   extensionUrl: string;
   isIndividualPolicyVault: boolean;
   private destroy$ = new Subject<void>();
   isNewAccount: boolean;
   private readonly onboardingReleaseDate = new Date("2024-04-02");
-  showOnboardingAccess$: Observable<boolean>;
 
   protected currentTasks: VaultOnboardingTasks;
 
   protected onboardingTasks$: Observable<VaultOnboardingTasks>;
   protected showOnboarding = false;
+  protected extensionRefreshEnabled = false;
 
   constructor(
     protected platformUtilsService: PlatformUtilsService,
     protected policyService: PolicyService,
     private apiService: ApiService,
-    private configService: ConfigService,
     private vaultOnboardingService: VaultOnboardingServiceAbstraction,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
-    this.showOnboardingAccess$ = await this.configService.getFeatureFlag$(
-      FeatureFlag.VaultOnboarding,
-    );
     this.onboardingTasks$ = this.vaultOnboardingService.vaultOnboardingState$;
     await this.setOnboardingTasks();
     this.setInstallExtLink();
     this.individualVaultPolicyCheck();
     this.checkForBrowserExtension();
+    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
+    );
   }
 
   async ngOnChanges(changes: SimpleChanges) {
@@ -163,13 +172,13 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   emitToAddCipher() {
-    this.onAddCipher.emit();
+    this.onAddCipher.emit(CipherType.Login);
   }
 
   setInstallExtLink() {
     if (this.platformUtilsService.isChrome()) {
       this.extensionUrl =
-        "https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb";
+        "https://chromewebstore.google.com/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb";
     } else if (this.platformUtilsService.isFirefox()) {
       this.extensionUrl =
         "https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/";

@@ -1,0 +1,61 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="default" [title]="'addCredit' | i18n">
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">{{ "creditDelayed" | i18n }}</p>
+      <div class="tw-grid tw-grid-cols-2">
+        <bit-radio-group formControlName="method">
+          <bit-radio-button id="credit-method-paypal" [value]="paymentMethodType.PayPal">
+            <bit-label> <i class="bwi bwi-paypal"></i>PayPal</bit-label>
+          </bit-radio-button>
+          <bit-radio-button id="credit-method-bitcoin" [value]="paymentMethodType.BitPay">
+            <bit-label> <i class="bwi bwi-bitcoin"></i>Bitcoin</bit-label>
+          </bit-radio-button>
+        </bit-radio-group>
+      </div>
+      <div class="tw-grid tw-grid-cols-2">
+        <bit-form-field>
+          <bit-label>{{ "amount" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            formControlName="creditAmount"
+            (blur)="formatAmount()"
+            required
+          />
+          <span bitPrefix>$USD</span>
+        </bit-form-field>
+      </div>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "submit" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        [bitDialogClose]="DialogResult.Cancelled"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>
+<form #ppButtonForm action="{{ ppButtonFormAction }}" method="post" target="_top">
+  <input type="hidden" name="cmd" value="_xclick" />
+  <input type="hidden" name="business" value="{{ ppButtonBusinessId }}" />
+  <input type="hidden" name="button_subtype" value="services" />
+  <input type="hidden" name="no_note" value="1" />
+  <input type="hidden" name="no_shipping" value="1" />
+  <input type="hidden" name="rm" value="1" />
+  <input type="hidden" name="return" value="{{ returnUrl }}" />
+  <input type="hidden" name="cancel_return" value="{{ returnUrl }}" />
+  <input type="hidden" name="currency_code" value="USD" />
+  <input type="hidden" name="image_url" value="https://bitwarden.com/images/paypal-banner.png" />
+  <input type="hidden" name="bn" value="PP-BuyNowBF:btn_buynow_LG.gif:NonHosted" />
+  <input type="hidden" name="amount" value="{{ formGroup.get('creditAmount').value }}" />
+  <input type="hidden" name="custom" value="{{ ppButtonCustomField }}" />
+  <input type="hidden" name="item_name" value="Bitwarden Account Credit" />
+  <input type="hidden" name="item_number" value="{{ subject }}" />
+</form>

@@ -20,8 +20,6 @@ export class UserTypePipe implements PipeTransform {
         return this.i18nService.t("admin");
       case OrganizationUserType.User:
         return this.i18nService.t("user");
-      case OrganizationUserType.Manager:
-        return this.i18nService.t("manager");
       case OrganizationUserType.Custom:
         return this.i18nService.t("custom");
     }

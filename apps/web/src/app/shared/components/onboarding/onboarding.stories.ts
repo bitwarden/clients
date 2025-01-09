@@ -1,6 +1,6 @@
 import { importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { Meta, Story, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { delay, of, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -26,60 +26,61 @@ export default {
       ],
     }),
   ],
+  render: (args) => ({
+    props: {
+      createServiceAccount: false,
+      importSecrets$: of(false),
+      createSecret: false,
+      createProject: false,
+      ...args,
+    },
+    template: `
+      <app-onboarding title="Get started">
+        <app-onboarding-task
+          [title]="'createMachineAccount' | i18n"
+          icon="bwi-cli"
+          [completed]="createServiceAccount"
+        >
+          <span>
+            {{ "downloadThe" | i18n }} <a bitLink routerLink="">{{ "smCLI" | i18n }}</a>
+          </span>
+        </app-onboarding-task>
+        <app-onboarding-task
+          [title]="'createProject' | i18n"
+          icon="bwi-collection"
+          [completed]="createProject"
+        ></app-onboarding-task>
+        <app-onboarding-task
+          [title]="'importSecrets' | i18n"
+          icon="bwi-download"
+          [completed]="importSecrets$ | async"
+        ></app-onboarding-task>
+        <app-onboarding-task
+          [title]="'createSecret' | i18n"
+          icon="bwi-key"
+          [completed]="createSecret"
+        ></app-onboarding-task>
+      </app-onboarding>
+    `,
+  }),
 } as Meta;
 
-const Template: Story = (args) => ({
-  props: {
-    createServiceAccount: false,
-    importSecrets$: of(false),
-    createSecret: false,
-    createProject: false,
-    ...args,
+type Story = StoryObj<OnboardingComponent>;
+
+export const Empty: Story = {};
+
+export const Partial = {
+  args: {
+    createServiceAccount: true,
+    createProject: true,
   },
-  template: `
-    <app-onboarding title="Get started">
-      <app-onboarding-task
-        [title]="'createMachineAccount' | i18n"
-        icon="bwi-cli"
-        [completed]="createServiceAccount"
-      >
-        <span>
-          {{ "downloadThe" | i18n }} <a bitLink routerLink="">{{ "smCLI" | i18n }}</a>
-        </span>
-      </app-onboarding-task>
-      <app-onboarding-task
-        [title]="'createProject' | i18n"
-        icon="bwi-collection"
-        [completed]="createProject"
-      ></app-onboarding-task>
-      <app-onboarding-task
-        [title]="'importSecrets' | i18n"
-        icon="bwi-download"
-        [completed]="importSecrets$ | async"
-      ></app-onboarding-task>
-      <app-onboarding-task
-        [title]="'createSecret' | i18n"
-        icon="bwi-key"
-        [completed]="createSecret"
-      ></app-onboarding-task>
-    </app-onboarding>
-  `,
-});
-
-export const Empty = Template.bind({});
-
-export const Partial = Template.bind({});
-Partial.args = {
-  ...Template.args,
-  createServiceAccount: true,
-  createProject: true,
 };
 
-export const Full = Template.bind({});
-Full.args = {
-  ...Template.args,
-  createServiceAccount: true,
-  createProject: true,
-  createSecret: true,
-  importSecrets$: of(true).pipe(delay(0), startWith(false)),
+export const Full = {
+  args: {
+    createServiceAccount: true,
+    createProject: true,
+    createSecret: true,
+    importSecrets$: of(true).pipe(delay(0), startWith(false)),
+  },
 };

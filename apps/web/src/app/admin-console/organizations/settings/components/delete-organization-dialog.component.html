@@ -2,9 +2,9 @@
   <bit-dialog [loading]="!loaded">
     <span bitDialogTitle>{{ "deleteOrganization" | i18n }}</span>
     <div bitDialogContent>
-      <app-callout type="warning">{{
-        "deletingOrganizationIsPermanentWarning" | i18n: organization?.name
-      }}</app-callout>
+      <bit-callout type="warning">
+        {{ "deletingOrganizationIsPermanentWarning" | i18n: organization?.name }}
+      </bit-callout>
       <p id="organizationDeleteDescription">
         <ng-container
           *ngIf="

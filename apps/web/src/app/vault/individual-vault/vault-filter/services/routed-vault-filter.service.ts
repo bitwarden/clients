@@ -66,7 +66,7 @@ export class RoutedVaultFilterService implements OnDestroy {
         collectionId: filter.collectionId ?? null,
         folderId: filter.folderId ?? null,
         organizationId:
-          filter.organizationIdParamType === "path" ? null : filter.organizationId ?? null,
+          filter.organizationIdParamType === "path" ? null : (filter.organizationId ?? null),
         type: filter.type ?? null,
       },
       queryParamsHandling: "merge",

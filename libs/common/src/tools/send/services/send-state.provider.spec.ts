@@ -27,11 +27,11 @@ describe("Send State Provider", () => {
   describe("Encrypted Sends", () => {
     it("should return SendData", async () => {
       const sendData = { "1": testSendData("1", "Test Send Data") };
-      await sendStateProvider.setEncryptedSends(sendData);
+      await sendStateProvider.setEncryptedSends(sendData, mockUserId);
       await awaitAsync();
 
       const actual = await sendStateProvider.getEncryptedSends();
-      expect(actual).toStrictEqual(sendData);
+      expect(actual).toStrictEqual([mockUserId, sendData]);
     });
   });
 

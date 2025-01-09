@@ -1,50 +1,46 @@
 <div *ngIf="loading">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </div>
-<form
-  *ngIf="profile && !loading"
-  #form
-  (ngSubmit)="submit()"
-  [appApiAction]="formPromise"
-  ngNativeValidate
->
-  <div class="row">
-    <div class="col-6">
-      <div class="form-group">
-        <label for="name">{{ "name" | i18n }}</label>
-        <input id="name" class="form-control" type="text" name="Name" [(ngModel)]="profile.name" />
-      </div>
-      <div class="form-group">
-        <label for="email">{{ "email" | i18n }}</label>
-        <input
-          id="email"
-          class="form-control"
-          type="text"
-          name="Email"
-          [(ngModel)]="profile.email"
-          readonly
-        />
-      </div>
+<form *ngIf="profile && !loading" [formGroup]="formGroup" [bitSubmit]="submit">
+  <div class="tw-grid tw-grid-cols-12 tw-gap-6">
+    <div class="tw-col-span-6">
+      <bit-form-field>
+        <bit-label>{{ "name" | i18n }}</bit-label>
+        <input bitInput formControlName="name" />
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>{{ "email" | i18n }}</bit-label>
+        <input bitInput formControlName="email" readonly />
+      </bit-form-field>
     </div>
-    <div class="col-6">
-      <div class="mb-3">
-        <dynamic-avatar text="{{ profile | userName }}" [id]="profile.id" [size]="'large'">
+    <div class="tw-col-span-6">
+      <div class="tw-mb-3 tw-flex tw-align-middle tw-items-center">
+        <dynamic-avatar text="{{ profile | userName }}" [id]="profile.id" size="large">
         </dynamic-avatar>
         <button
+          class="tw-ml-3"
           type="button"
-          class="btn btn-outline-secondary tw-ml-3.5"
+          buttonType="secondary"
+          bitButton
+          bitFormButton
           appStopClick
           appStopProp
-          (click)="openChangeAvatar()"
+          [bitAction]="openChangeAvatar"
         >
           <i class="bwi bwi-lg bwi-pencil-square" aria-hidden="true"></i>
           Customize
         </button>
+      </div>
+      <div *ngIf="managingOrganization$ | async as managingOrganization">
+        {{ "accountIsOwnedMessage" | i18n: managingOrganization?.name }}
+        <a href="https://bitwarden.com/help/claimed-accounts">
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+        </a>
       </div>
       <app-account-fingerprint
         [fingerprintMaterial]="fingerprintMaterial"
@@ -53,9 +49,5 @@
       </app-account-fingerprint>
     </div>
   </div>
-  <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-    <span>{{ "save" | i18n }}</span>
-  </button>
+  <button bitButton bitFormButton type="submit" buttonType="primary">{{ "save" | i18n }}</button>
 </form>
-<ng-template #avatarModalTemplate></ng-template>

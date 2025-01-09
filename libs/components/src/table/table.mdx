@@ -105,7 +105,7 @@ within the `ng-template`which provides access to the rows using `let-rows$`.
 
 We provide a simple component for displaying sortable column headers. The `bitSortable` component
 wires up to the `TableDataSource` and will automatically sort the data when clicked and display an
-indicator for which column is currently sorted. The dafault sorting can be specified by setting the
+indicator for which column is currently sorted. The default sorting can be specified by setting the
 `default`.
 
 ```html
@@ -113,47 +113,69 @@ indicator for which column is currently sorted. The dafault sorting can be speci
 <th bitCell bitSortable="name" default>Name</th>
 ```
 
+For default sorting in descending order, set default="desc"
+
+```html
+<th bitCell bitSortable="name" default="desc">Name</th>
+```
+
 It's also possible to define a custom sorting function by setting the `fn` input.
 
 ```ts
+// Basic sort function
 const sortFn = (a: T, b: T) => (a.id > b.id ? 1 : -1);
+
+// Direction aware sort function
+const sortByName = (a: T, b: T, direction?: SortDirection) => {
+  const result = a.name.localeCompare(b.name);
+  return direction === "asc" ? result : -result;
+};
 ```
 
 ### Filtering
 
-The `TableDataSource` supports a rudimentary filtering capability most commonly used to implement a
-search function. It works by converting each entry into a string of it's properties. The string is
-then compared against the filter value using a simple `indexOf`check.
+Filtering is supported by passing a filter predicate to `filter`.
 
 ```ts
+dataSource.filter = (data) => data.orgType === "family";
+```
+
+Rudimentary string filtering is supported out of the box with `TableDataSource.simpleStringFilter`.
+It works by converting each entry into a string of it's properties. The provided string is then
+compared against the filter value using a simple `indexOf` check. For convienence, you can also just
+pass a string directly.
+
+```ts
+dataSource.filter = TableDataSource.simpleStringFilter("search value");
+// or
 dataSource.filter = "search value";
 ```
 
 ### Virtual Scrolling
 
 It's heavily adviced to use virtual scrolling if you expect the table to have any significant amount
-of data. This is easily done by wrapping the table in the `cdk-virtual-scroll-viewport` component,
-specify a `itemSize`, set `scrollWindow` to `true` and replace `*ngFor` with `*cdkVirtualFor`.
+of data. This is done by using the `bit-table-scroll` component instead of the `bit-table`
+component. This component behaves slightly different from the `bit-table` component. Instead of
+using the `*ngFor` directive to render the rows, you provide a `bitRowDef` template that will be
+used for rendering the rows.
+
+Due to limitations in the Angular Component Dev Kit you must provide an `rowSize` which corresponds
+to the height of each row. If the height of the rows are not uniform, you should set an explicit row
+height and align vertically.
 
 ```html
-<cdk-virtual-scroll-viewport scrollWindow itemSize="47">
-  <bit-table [dataSource]="dataSource">
-    <ng-container header>
-      <tr>
-        <th bitCell bitSortable="id" default>Id</th>
-        <th bitCell bitSortable="name">Name</th>
-        <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
-      </tr>
-    </ng-container>
-    <ng-template let-rows$>
-      <tr bitRow *cdkVirtualFor="let r of rows$">
-        <td bitCell>{{ r.id }}</td>
-        <td bitCell>{{ r.name }}</td>
-        <td bitCell>{{ r.other }}</td>
-      </tr>
-    </ng-template>
-  </bit-table>
-</cdk-virtual-scroll-viewport>
+<bit-table-scroll [dataSource]="dataSource" rowSize="47">
+  <ng-container header>
+    <th bitCell bitSortable="id" default>Id</th>
+    <th bitCell bitSortable="name">Name</th>
+    <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
+  </ng-container>
+  <ng-template bitRowDef let-row>
+    <td bitCell>{{ row.id }}</td>
+    <td bitCell>{{ row.name }}</td>
+    <td bitCell>{{ row.other }}</td>
+  </ng-template>
+</bit-table-scroll>
 ```
 
 ## Accessibility

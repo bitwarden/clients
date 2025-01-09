@@ -1,109 +1,104 @@
-<div class="tabbed-header">
-  <h1>{{ "encKeySettings" | i18n }}</h1>
-</div>
-<bit-callout type="warning">{{ "changeKdfLoggedOutWarning" | i18n }}</bit-callout>
-<form #form ngNativeValidate autocomplete="off">
-  <div class="row">
-    <div class="col-6">
-      <div class="form-group mb-0">
-        <label for="kdf">{{ "kdfAlgorithm" | i18n }}</label>
-        <a
-          class="ml-auto"
-          href="https://bitwarden.com/help/kdf-algorithms"
-          target="_blank"
-          rel="noreferrer"
-          appA11yTitle="{{ 'learnMore' | i18n }}"
-        >
-          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-        </a>
-        <select
-          id="kdf"
-          name="Kdf"
-          [(ngModel)]="kdfConfig.kdfType"
-          (ngModelChange)="onChangeKdf($event)"
-          class="form-control mb-3"
-          required
-        >
-          <option *ngFor="let o of kdfOptions" [ngValue]="o.value">{{ o.name }}</option>
-        </select>
-        <ng-container *ngIf="isArgon2(kdfConfig)">
-          <label for="kdfMemory">{{ "kdfMemory" | i18n }}</label>
-          <input
-            id="kdfMemory"
-            type="number"
-            [min]="ARGON2_MEMORY.min"
-            [max]="ARGON2_MEMORY.max"
-            name="Memory"
-            class="form-control mb-3"
-            [(ngModel)]="kdfConfig.memory"
-            required
-          />
-        </ng-container>
-      </div>
-    </div>
-    <div class="col-6">
-      <div class="form-group mb-0">
-        <ng-container *ngIf="isPBKDF2(kdfConfig)">
-          <label for="kdfIterations">{{ "kdfIterations" | i18n }}</label>
+<h2 bitTypography="h2">{{ "encKeySettings" | i18n }}</h2>
+<bit-callout type="warning">{{ "kdfSettingsChangeLogoutWarning" | i18n }}</bit-callout>
+<p bitTypography="body1">
+  {{ "higherKDFIterations" | i18n }}
+</p>
+<p bitTypography="body1">
+  {{
+    "kdfToHighWarningIncreaseInIncrements"
+      | i18n: (isPBKDF2(kdfConfig) ? ("incrementsOf100,000" | i18n) : ("smallIncrements" | i18n))
+  }}
+</p>
+<form [formGroup]="formGroup" autocomplete="off">
+  <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+    <div class="tw-col-span-6">
+      <bit-form-field>
+        <bit-label
+          >{{ "kdfAlgorithm" | i18n }}
           <a
-            class="ml-auto"
-            href="https://bitwarden.com/help/what-encryption-is-used/#changing-kdf-iterations"
+            class="tw-ml-auto"
+            bitLink
+            href="https://bitwarden.com/help/kdf-algorithms"
             target="_blank"
             rel="noreferrer"
-            appA11yTitle="{{ 'learnMore' | i18n }}"
+            appA11yTitle="{{ 'learnMoreAboutEncryptionAlgorithms' | i18n }}"
+            slot="end"
           >
             <i class="bwi bwi-question-circle" aria-hidden="true"></i>
           </a>
+        </bit-label>
+        <bit-select formControlName="kdf">
+          <bit-option
+            *ngFor="let option of kdfOptions"
+            [value]="option.value"
+            [label]="option.name"
+          ></bit-option>
+        </bit-select>
+      </bit-form-field>
+      <bit-form-field formGroupName="kdfConfig" *ngIf="isArgon2(kdfConfig)">
+        <bit-label>{{ "kdfMemory" | i18n }}</bit-label>
+        <input
+          bitInput
+          formControlName="memory"
+          type="number"
+          [min]="ARGON2_MEMORY.min"
+          [max]="ARGON2_MEMORY.max"
+        />
+      </bit-form-field>
+    </div>
+    <div class="tw-col-span-6">
+      <div class="tw-mb-0">
+        <bit-form-field formGroupName="kdfConfig" *ngIf="isPBKDF2(kdfConfig)">
+          <bit-label>
+            {{ "kdfIterations" | i18n }}
+            <a
+              bitLink
+              class="tw-ml-auto"
+              href="https://bitwarden.com/help/what-encryption-is-used/#changing-kdf-iterations"
+              target="_blank"
+              rel="noreferrer"
+              appA11yTitle="{{ 'learnMoreAboutKDFIterations' | i18n }}"
+              slot="end"
+            >
+              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+            </a>
+          </bit-label>
           <input
-            id="kdfIterations"
+            bitInput
             type="number"
+            formControlName="iterations"
             [min]="PBKDF2_ITERATIONS.min"
             [max]="PBKDF2_ITERATIONS.max"
-            name="KdfIterations"
-            class="form-control"
-            [(ngModel)]="kdfConfig.iterations"
-            required
           />
-        </ng-container>
+          <bit-hint>{{ "kdfIterationRecommends" | i18n }}</bit-hint>
+        </bit-form-field>
         <ng-container *ngIf="isArgon2(kdfConfig)">
-          <label for="kdfIterations">{{ "kdfIterations" | i18n }}</label>
-          <input
-            id="iterations"
-            type="number"
-            [min]="ARGON2_ITERATIONS.min"
-            [max]="ARGON2_ITERATIONS.max"
-            name="Iterations"
-            class="form-control mb-3"
-            [(ngModel)]="kdfConfig.iterations"
-            required
-          />
-          <label for="kdfParallelism">{{ "kdfParallelism" | i18n }}</label>
-          <input
-            id="kdfParallelism"
-            type="number"
-            [min]="ARGON2_PARALLELISM.min"
-            [max]="ARGON2_PARALLELISM.max"
-            name="Parallelism"
-            class="form-control"
-            [(ngModel)]="kdfConfig.parallelism"
-            required
-          />
+          <bit-form-field formGroupName="kdfConfig">
+            <bit-label>
+              {{ "kdfIterations" | i18n }}
+            </bit-label>
+            <input
+              bitInput
+              type="number"
+              formControlName="iterations"
+              [min]="ARGON2_ITERATIONS.min"
+              [max]="ARGON2_ITERATIONS.max"
+            />
+          </bit-form-field>
+          <bit-form-field formGroupName="kdfConfig">
+            <bit-label>
+              {{ "kdfParallelism" | i18n }}
+            </bit-label>
+            <input
+              bitInput
+              type="number"
+              formControlName="parallelism"
+              [min]="ARGON2_PARALLELISM.min"
+              [max]="ARGON2_PARALLELISM.max"
+            />
+          </bit-form-field>
         </ng-container>
       </div>
-    </div>
-    <div class="col-12">
-      <ng-container *ngIf="isPBKDF2(kdfConfig)">
-        <p class="small form-text text-muted">
-          {{ "kdfIterationsDesc" | i18n: (PBKDF2_ITERATIONS.defaultValue | number) }}
-        </p>
-        <bit-callout type="warning">
-          {{ "kdfIterationsWarning" | i18n: (100000 | number) }}
-        </bit-callout>
-      </ng-container>
-      <ng-container *ngIf="isArgon2(kdfConfig)">
-        <p class="small form-text text-muted">{{ "argon2Desc" | i18n }}</p>
-        <bit-callout type="warning"> {{ "argon2Warning" | i18n }}</bit-callout>
-      </ng-container>
     </div>
   </div>
   <button
@@ -111,7 +106,7 @@
     type="button"
     buttonType="primary"
     bitButton
-    [loading]="form.loading"
+    bitFormButton
   >
     {{ "changeKdf" | i18n }}
   </button>

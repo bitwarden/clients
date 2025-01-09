@@ -1,12 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
+import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VerifyDeleteRecoverRequest } from "@bitwarden/common/models/request/verify-delete-recover.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-verify-recover-delete",
@@ -15,10 +18,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class VerifyRecoverDeleteComponent implements OnInit {
   email: string;
-  formPromise: Promise<any>;
 
   private userId: string;
   private token: string;
+  protected formGroup = new FormGroup({});
 
   constructor(
     private router: Router,
@@ -26,7 +29,7 @@ export class VerifyRecoverDeleteComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
-    private logService: LogService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit() {
@@ -37,28 +40,19 @@ export class VerifyRecoverDeleteComponent implements OnInit {
         this.token = qParams.token;
         this.email = qParams.email;
       } else {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate(["/"]);
+        await this.router.navigate(["/"]);
       }
     });
   }
 
-  async submit() {
-    try {
-      const request = new VerifyDeleteRecoverRequest(this.userId, this.token);
-      this.formPromise = this.apiService.postAccountRecoverDeleteToken(request);
-      await this.formPromise;
-      this.platformUtilsService.showToast(
-        "success",
-        this.i18nService.t("accountDeleted"),
-        this.i18nService.t("accountDeletedDesc"),
-      );
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/"]);
-    } catch (e) {
-      this.logService.error(e);
-    }
-  }
+  submit = async () => {
+    const request = new VerifyDeleteRecoverRequest(this.userId, this.token);
+    await this.apiService.postAccountRecoverDeleteToken(request);
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("accountDeleted"),
+      message: this.i18nService.t("accountDeletedDesc"),
+    });
+    await this.router.navigate(["/"]);
+  };
 }

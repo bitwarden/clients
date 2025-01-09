@@ -1,11 +1,11 @@
 <app-change-kdf *ngIf="showChangeKdf"></app-change-kdf>
 <div
-  [ngClass]="{ 'tabbed-header': !showChangeKdf, 'secondary-header': showChangeKdf }"
-  class="border-0 mb-0"
+  [ngClass]="{ 'tw-mt-6': !showChangeKdf, 'tw-mt-16': showChangeKdf }"
+  class="tw-border-0 tw-mb-0 tw-pb-2.5"
 >
-  <h1>{{ "apiKey" | i18n }}</h1>
+  <h2 bitTypography="h2">{{ "apiKey" | i18n }}</h2>
 </div>
-<p>
+<p bitTypography="body1">
   {{ "userApiKeyDesc" | i18n }}
 </p>
 <button type="button" bitButton buttonType="secondary" (click)="viewUserApiKey()">

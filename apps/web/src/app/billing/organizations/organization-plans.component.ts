@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -10,7 +12,9 @@ import {
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
+import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -23,26 +27,34 @@ import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-organization-create.request";
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
-import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
+import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { TaxInformation } from "@bitwarden/common/billing/models/domain";
+import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
 import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment.request";
+import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
+import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ProductType } from "@bitwarden/common/enums";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
-import { PaymentComponent } from "../shared/payment.component";
-import { TaxInfoComponent } from "../shared/tax-info.component";
+import { PaymentV2Component } from "../shared/payment/payment-v2.component";
+import { PaymentComponent } from "../shared/payment/payment.component";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -63,26 +75,30 @@ const Allowed2020PlansForLegacyProviders = [
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
-  @ViewChild(TaxInfoComponent) taxComponent: TaxInfoComponent;
+  @ViewChild(PaymentV2Component) paymentV2Component: PaymentV2Component;
+  @ViewChild(ManageTaxInformationComponent) taxComponent: ManageTaxInformationComponent;
 
-  @Input() organizationId: string;
+  @Input() organizationId?: string;
   @Input() showFree = true;
   @Input() showCancel = false;
   @Input() acceptingSponsorship = false;
   @Input() currentPlan: PlanResponse;
+
   selectedFile: File;
 
   @Input()
-  get product(): ProductType {
-    return this._product;
+  get productTier(): ProductTierType {
+    return this._productTier;
   }
 
-  set product(product: ProductType) {
-    this._product = product;
-    this.formGroup?.controls?.product?.setValue(product);
+  set productTier(product: ProductTierType) {
+    this._productTier = product;
+    this.formGroup?.controls?.productTier?.setValue(product);
   }
 
-  private _product = ProductType.Free;
+  private _productTier = ProductTierType.Free;
+
+  protected taxInformation: TaxInformation;
 
   @Input()
   get plan(): PlanType {
@@ -96,17 +112,23 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   private _plan = PlanType.Free;
   @Input() providerId?: string;
+  @Input() preSelectedProductTier?: ProductTierType;
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
   @Output() onCanceled = new EventEmitter<void>();
   @Output() onTrialBillingSuccess = new EventEmitter();
 
   loading = true;
   selfHosted = false;
-  productTypes = ProductType;
+  productTypes = ProductTierType;
   formPromise: Promise<string>;
   singleOrgPolicyAppliesToActiveUser = false;
   isInTrialFlow = false;
   discount = 0;
+  deprecateStripeSourcesAPI: boolean;
+
+  protected useLicenseUploaderComponent$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader,
+  );
 
   secretsManagerSubscription = secretsManagerSubscribeFormFactory(this.formBuilder);
 
@@ -123,7 +145,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     additionalSeats: [0, [Validators.min(0), Validators.max(100000)]],
     clientOwnerEmail: ["", [Validators.email]],
     plan: [this.plan],
-    product: [this.product],
+    productTier: [this.productTier],
     secretsManager: this.secretsManagerSubscription,
   });
 
@@ -134,31 +156,45 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   billing: BillingResponse;
   provider: ProviderResponse;
 
-  private destroy$ = new Subject<void>();
+  protected estimatedTax: number = 0;
+  protected total: number = 0;
+
+  private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
+    private encryptService: EncryptService,
     private router: Router,
     private syncService: SyncService,
     private policyService: PolicyService,
     private organizationService: OrganizationService,
-    private logService: LogService,
     private messagingService: MessagingService,
     private formBuilder: FormBuilder,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private providerApiService: ProviderApiServiceAbstraction,
+    private toastService: ToastService,
+    private configService: ConfigService,
+    private billingApiService: BillingApiServiceAbstraction,
+    private taxService: TaxServiceAbstraction,
   ) {
-    this.selfHosted = platformUtilsService.isSelfHost();
+    this.selfHosted = this.platformUtilsService.isSelfHost();
   }
 
   async ngOnInit() {
+    this.deprecateStripeSourcesAPI = await this.configService.getFeatureFlag(
+      FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
+    );
+
     if (this.organizationId) {
       this.organization = await this.organizationService.get(this.organizationId);
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
+      this.taxInformation = await this.organizationApiService.getTaxInfo(this.organizationId);
+    } else {
+      this.taxInformation = await this.apiService.getTaxInfo();
     }
 
     if (!this.selfHosted) {
@@ -166,31 +202,35 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.passwordManagerPlans = plans.data.filter((plan) => !!plan.PasswordManager);
       this.secretsManagerPlans = plans.data.filter((plan) => !!plan.SecretsManager);
 
-      if (this.product === ProductType.Enterprise || this.product === ProductType.Teams) {
+      if (
+        this.productTier === ProductTierType.Enterprise ||
+        this.productTier === ProductTierType.Teams
+      ) {
         this.formGroup.controls.businessOwned.setValue(true);
       }
     }
 
-    if (this.currentPlan && this.currentPlan.product !== ProductType.Enterprise) {
+    if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) =>
-        this.currentPlan.product === ProductType.Free
+        this.currentPlan.productTier === ProductTierType.Free
           ? plan.type === PlanType.FamiliesAnnually
           : plan.upgradeSortOrder == this.currentPlan.upgradeSortOrder + 1,
       );
 
       this.plan = upgradedPlan.type;
-      this.product = upgradedPlan.product;
+      this.productTier = upgradedPlan.productTier;
     }
 
     if (this.hasProvider) {
       this.formGroup.controls.businessOwned.setValue(true);
+      this.formGroup.controls.clientOwnerEmail.addValidators(Validators.required);
       this.changedOwnedBusiness();
       this.provider = await this.providerApiService.getProvider(this.providerId);
       const providerDefaultPlan = this.passwordManagerPlans.find(
         (plan) => plan.type === PlanType.TeamsAnnually,
       );
       this.plan = providerDefaultPlan.type;
-      this.product = providerDefaultPlan.product;
+      this.productTier = providerDefaultPlan.productTier;
     }
 
     if (!this.createOrganization) {
@@ -207,11 +247,24 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });
 
+    if (this.preSelectedProductTier != null && this.productTier < this.preSelectedProductTier) {
+      this.productTier = this.preSelectedProductTier;
+    }
     if (!this.selfHosted) {
       this.changedProduct();
     }
 
     this.loading = false;
+
+    this.formGroup.valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(() => {
+      this.refreshSalesTax();
+    });
+
+    this.secretsManagerForm.valueChanges
+      .pipe(debounceTime(1000), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.refreshSalesTax();
+      });
   }
 
   ngOnDestroy() {
@@ -229,7 +282,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   get upgradeRequiresPaymentMethod() {
     return (
-      this.organization?.planProductType === ProductType.Free &&
+      this.organization?.productTierType === ProductTierType.Free &&
       !this.showFree &&
       !this.billing?.paymentSource
     );
@@ -277,12 +330,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       (plan) =>
         plan.type !== PlanType.Custom &&
         (!businessOwnedIsChecked || plan.canBeUsedByBusiness) &&
-        (this.showFree || plan.product !== ProductType.Free) &&
+        (this.showFree || plan.productTier !== ProductTierType.Free) &&
         (plan.isAnnual ||
-          plan.product === ProductType.Free ||
-          plan.product === ProductType.TeamsStarter) &&
+          plan.productTier === ProductTierType.Free ||
+          plan.productTier === ProductTierType.TeamsStarter) &&
         (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
-        (!this.hasProvider || plan.product !== ProductType.TeamsStarter) &&
+        (!this.hasProvider || plan.productTier !== ProductTierType.TeamsStarter) &&
         ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
           (this.isProviderQualifiedFor2020Plan() &&
             Allowed2020PlansForLegacyProviders.includes(plan.type))),
@@ -294,11 +347,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   get selectablePlans() {
-    const selectedProductType = this.formGroup.controls.product.value;
+    const selectedProductTierType = this.formGroup.controls.productTier.value;
     const result =
       this.passwordManagerPlans?.filter(
         (plan) =>
-          plan.product === selectedProductType &&
+          plan.productTier === selectedProductTierType &&
           ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
             (this.isProviderQualifiedFor2020Plan() &&
               Allowed2020PlansForLegacyProviders.includes(plan.type))),
@@ -409,17 +462,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return this.selectedPlan.trialPeriodDays != null;
   }
 
-  get taxCharges() {
-    return this.taxComponent != null && this.taxComponent.taxRate != null
-      ? (this.taxComponent.taxRate / 100) *
-          (this.passwordManagerSubtotal + this.secretsManagerSubtotal)
-      : 0;
-  }
-
-  get total() {
-    return this.passwordManagerSubtotal + this.secretsManagerSubtotal + this.taxCharges || 0;
-  }
-
   get paymentDesc() {
     if (this.acceptingSponsorship) {
       return this.i18nService.t("paymentSponsored");
@@ -436,6 +478,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   get planOffersSecretsManager() {
     return this.selectedSecretsManagerPlan != null;
+  }
+
+  get teamsStarterPlanIsAvailable() {
+    return this.selectablePlans.some((plan) => plan.type === PlanType.TeamsStarter);
   }
 
   changedProduct() {
@@ -511,66 +557,88 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (!this.formGroup.controls.businessOwned.value || this.selectedPlan.canBeUsedByBusiness) {
       return;
     }
-    this.formGroup.controls.product.setValue(ProductType.TeamsStarter);
-    this.formGroup.controls.plan.setValue(PlanType.TeamsStarter);
+    if (this.teamsStarterPlanIsAvailable) {
+      this.formGroup.controls.productTier.setValue(ProductTierType.TeamsStarter);
+      this.formGroup.controls.plan.setValue(PlanType.TeamsStarter);
+    } else {
+      this.formGroup.controls.productTier.setValue(ProductTierType.Teams);
+      this.formGroup.controls.plan.setValue(PlanType.TeamsAnnually);
+    }
     this.changedProduct();
   }
 
-  changedCountry() {
-    this.paymentComponent.hideBank = this.taxComponent.taxInfo.country !== "US";
-    // Bank Account payments are only available for US customers
-    if (
-      this.paymentComponent.hideBank &&
-      this.paymentComponent.method === PaymentMethodType.BankAccount
-    ) {
-      this.paymentComponent.method = PaymentMethodType.Card;
-      this.paymentComponent.changeMethod();
+  protected changedCountry(): void {
+    if (this.deprecateStripeSourcesAPI) {
+      this.paymentV2Component.showBankAccount = this.taxInformation?.country === "US";
+      if (
+        !this.paymentV2Component.showBankAccount &&
+        this.paymentV2Component.selected === PaymentMethodType.BankAccount
+      ) {
+        this.paymentV2Component.select(PaymentMethodType.Card);
+      }
+    } else {
+      this.paymentComponent.hideBank = this.taxInformation?.country !== "US";
+      if (
+        this.paymentComponent.hideBank &&
+        this.paymentComponent.method === PaymentMethodType.BankAccount
+      ) {
+        this.paymentComponent.method = PaymentMethodType.Card;
+        this.paymentComponent.changeMethod();
+      }
     }
   }
 
-  cancel() {
+  protected onTaxInformationChanged(event: TaxInformation): void {
+    this.taxInformation = event;
+    this.changedCountry();
+    this.refreshSalesTax();
+  }
+
+  protected cancel(): void {
     this.onCanceled.emit();
   }
 
-  setSelectedFile(event: Event) {
+  protected setSelectedFile(event: Event): void {
     const fileInputEl = <HTMLInputElement>event.target;
     this.selectedFile = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
   }
 
   submit = async () => {
+    if (this.taxComponent && !this.taxComponent.validate()) {
+      return;
+    }
+
     if (this.singleOrgPolicyBlock) {
       return;
     }
     const doSubmit = async (): Promise<string> => {
-      let orgId: string = null;
+      let orgId: string;
       if (this.createOrganization) {
-        const orgKey = await this.cryptoService.makeOrgKey<OrgKey>();
+        const orgKey = await this.keyService.makeOrgKey<OrgKey>();
         const key = orgKey[0].encryptedString;
-        const collection = await this.cryptoService.encrypt(
+        const collection = await this.encryptService.encrypt(
           this.i18nService.t("defaultCollection"),
           orgKey[1],
         );
         const collectionCt = collection.encryptedString;
-        const orgKeys = await this.cryptoService.makeKeyPair(orgKey[1]);
+        const orgKeys = await this.keyService.makeKeyPair(orgKey[1]);
 
-        if (this.selfHosted) {
-          orgId = await this.createSelfHosted(key, collectionCt, orgKeys);
-        } else {
-          orgId = await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
-        }
+        orgId = this.selfHosted
+          ? await this.createSelfHosted(key, collectionCt, orgKeys)
+          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
 
-        this.platformUtilsService.showToast(
-          "success",
-          this.i18nService.t("organizationCreated"),
-          this.i18nService.t("organizationReadyToGo"),
-        );
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("organizationCreated"),
+          message: this.i18nService.t("organizationReadyToGo"),
+        });
       } else {
-        orgId = await this.updateOrganization(orgId);
-        this.platformUtilsService.showToast(
-          "success",
-          null,
-          this.i18nService.t("organizationUpgraded"),
-        );
+        orgId = await this.updateOrganization();
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("organizationUpgraded"),
+        });
       }
 
       await this.apiService.refreshIdentityToken();
@@ -599,7 +667,63 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.messagingService.send("organizationCreated", { organizationId });
   };
 
-  private async updateOrganization(orgId: string) {
+  protected get showTaxIdField(): boolean {
+    switch (this.formGroup.controls.productTier.value) {
+      case ProductTierType.Free:
+      case ProductTierType.Families:
+        return false;
+      default:
+        return true;
+    }
+  }
+
+  private refreshSalesTax(): void {
+    if (this.formGroup.controls.plan.value == PlanType.Free) {
+      this.estimatedTax = 0;
+      return;
+    }
+
+    if (!this.taxComponent.validate()) {
+      return;
+    }
+
+    const request: PreviewOrganizationInvoiceRequest = {
+      organizationId: this.organizationId,
+      passwordManager: {
+        additionalStorage: this.formGroup.controls.additionalStorage.value,
+        plan: this.formGroup.controls.plan.value,
+        seats: this.formGroup.controls.additionalSeats.value,
+      },
+      taxInformation: {
+        postalCode: this.taxInformation.postalCode,
+        country: this.taxInformation.country,
+        taxId: this.taxInformation.taxId,
+      },
+    };
+
+    if (this.secretsManagerForm.controls.enabled.value === true) {
+      request.secretsManager = {
+        seats: this.secretsManagerForm.controls.userSeats.value,
+        additionalMachineAccounts: this.secretsManagerForm.controls.additionalServiceAccounts.value,
+      };
+    }
+
+    this.taxService
+      .previewOrganizationInvoice(request)
+      .then((invoice) => {
+        this.estimatedTax = invoice.taxAmount;
+        this.total = invoice.totalAmount;
+      })
+      .catch((error) => {
+        this.toastService.showToast({
+          title: "",
+          variant: "error",
+          message: this.i18nService.t(error.message),
+        });
+      });
+  }
+
+  private async updateOrganization() {
     const request = new OrganizationUpgradeRequest();
     request.additionalSeats = this.formGroup.controls.additionalSeats.value;
     request.additionalStorageGb = this.formGroup.controls.additionalStorage.value;
@@ -607,26 +731,38 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
       this.formGroup.controls.premiumAccessAddon.value;
     request.planType = this.selectedPlan.type;
-    request.billingAddressCountry = this.taxComponent.taxInfo.country;
-    request.billingAddressPostalCode = this.taxComponent.taxInfo.postalCode;
+    request.billingAddressCountry = this.taxInformation?.country;
+    request.billingAddressPostalCode = this.taxInformation?.postalCode;
 
     // Secrets Manager
     this.buildSecretsManagerRequest(request);
 
     if (this.upgradeRequiresPaymentMethod) {
-      const tokenResult = await this.paymentComponent.createPaymentToken();
-      const paymentRequest = new PaymentRequest();
-      paymentRequest.paymentToken = tokenResult[0];
-      paymentRequest.paymentMethodType = tokenResult[1];
-      paymentRequest.country = this.taxComponent.taxInfo.country;
-      paymentRequest.postalCode = this.taxComponent.taxInfo.postalCode;
-      await this.organizationApiService.updatePayment(this.organizationId, paymentRequest);
+      if (this.deprecateStripeSourcesAPI) {
+        const updatePaymentMethodRequest = new UpdatePaymentMethodRequest();
+        updatePaymentMethodRequest.paymentSource = await this.paymentV2Component.tokenize();
+        updatePaymentMethodRequest.taxInformation = ExpandedTaxInfoUpdateRequest.From(
+          this.taxInformation,
+        );
+        await this.billingApiService.updateOrganizationPaymentMethod(
+          this.organizationId,
+          updatePaymentMethodRequest,
+        );
+      } else {
+        const [paymentToken, paymentMethodType] = await this.paymentComponent.createPaymentToken();
+        const paymentRequest = new PaymentRequest();
+        paymentRequest.paymentToken = paymentToken;
+        paymentRequest.paymentMethodType = paymentMethodType;
+        paymentRequest.country = this.taxInformation?.country;
+        paymentRequest.postalCode = this.taxInformation?.postalCode;
+        await this.organizationApiService.updatePayment(this.organizationId, paymentRequest);
+      }
     }
 
     // Backfill pub/priv key if necessary
     if (!this.organization.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.cryptoService.getOrgKey(this.organizationId);
-      const orgKeys = await this.cryptoService.makeKeyPair(orgShareKey);
+      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 
@@ -642,7 +778,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     collectionCt: string,
     orgKeys: [string, EncString],
     orgKey: SymmetricCryptoKey,
-  ) {
+  ): Promise<string> {
     const request = new OrganizationCreateRequest();
     request.key = key;
     request.collectionName = collectionCt;
@@ -654,25 +790,30 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.selectedPlan.type === PlanType.Free) {
       request.planType = PlanType.Free;
     } else {
-      const tokenResult = await this.paymentComponent.createPaymentToken();
+      let type: PaymentMethodType;
+      let token: string;
 
-      request.paymentToken = tokenResult[0];
-      request.paymentMethodType = tokenResult[1];
+      if (this.deprecateStripeSourcesAPI) {
+        ({ type, token } = await this.paymentV2Component.tokenize());
+      } else {
+        [token, type] = await this.paymentComponent.createPaymentToken();
+      }
+
+      request.paymentToken = token;
+      request.paymentMethodType = type;
       request.additionalSeats = this.formGroup.controls.additionalSeats.value;
       request.additionalStorageGb = this.formGroup.controls.additionalStorage.value;
       request.premiumAccessAddon =
         this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
         this.formGroup.controls.premiumAccessAddon.value;
       request.planType = this.selectedPlan.type;
-      request.billingAddressPostalCode = this.taxComponent.taxInfo.postalCode;
-      request.billingAddressCountry = this.taxComponent.taxInfo.country;
-      if (this.taxComponent.taxInfo.includeTaxId) {
-        request.taxIdNumber = this.taxComponent.taxInfo.taxId;
-        request.billingAddressLine1 = this.taxComponent.taxInfo.line1;
-        request.billingAddressLine2 = this.taxComponent.taxInfo.line2;
-        request.billingAddressCity = this.taxComponent.taxInfo.city;
-        request.billingAddressState = this.taxComponent.taxInfo.state;
-      }
+      request.billingAddressPostalCode = this.taxInformation?.postalCode;
+      request.billingAddressCountry = this.taxInformation?.country;
+      request.taxIdNumber = this.taxInformation?.taxId;
+      request.billingAddressLine1 = this.taxInformation?.line1;
+      request.billingAddressLine2 = this.taxInformation?.line2;
+      request.billingAddressCity = this.taxInformation?.city;
+      request.billingAddressState = this.taxInformation?.state;
     }
 
     // Secrets Manager
@@ -683,9 +824,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.formGroup.controls.clientOwnerEmail.value,
         request,
       );
-      const providerKey = await this.cryptoService.getProviderKey(this.providerId);
+      const providerKey = await this.keyService.getProviderKey(this.providerId);
       providerRequest.organizationCreateRequest.key = (
-        await this.cryptoService.encrypt(orgKey.key, providerKey)
+        await this.encryptService.encrypt(orgKey.key, providerKey)
       ).encryptedString;
       const orgId = (
         await this.apiService.postProviderCreateOrganization(this.providerId, providerRequest)
@@ -757,25 +898,60 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   private upgradeFlowPrefillForm() {
     if (this.acceptingSponsorship) {
-      this.formGroup.controls.product.setValue(ProductType.Families);
+      this.formGroup.controls.productTier.setValue(ProductTierType.Families);
       this.changedProduct();
       return;
     }
 
-    if (this.currentPlan && this.currentPlan.product !== ProductType.Enterprise) {
-      const upgradedPlan = this.passwordManagerPlans.find((plan) =>
-        this.currentPlan.product === ProductType.Free
-          ? plan.type === PlanType.FamiliesAnnually
-          : plan.upgradeSortOrder == this.currentPlan.upgradeSortOrder + 1,
-      );
+    if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
+      const upgradedPlan = this.passwordManagerPlans.find((plan) => {
+        if (this.currentPlan.productTier === ProductTierType.Free) {
+          return plan.type === PlanType.FamiliesAnnually;
+        }
+
+        if (
+          this.currentPlan.productTier === ProductTierType.Families &&
+          !this.teamsStarterPlanIsAvailable
+        ) {
+          return plan.type === PlanType.TeamsAnnually;
+        }
+
+        return plan.upgradeSortOrder === this.currentPlan.upgradeSortOrder + 1;
+      });
 
       this.plan = upgradedPlan.type;
-      this.product = upgradedPlan.product;
+      this.productTier = upgradedPlan.productTier;
       this.changedProduct();
     }
   }
 
   private planIsEnabled(plan: PlanResponse) {
     return !plan.disabled && !plan.legacyYear;
+  }
+
+  protected async onLicenseFileUploaded(organizationId: string): Promise<void> {
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("organizationCreated"),
+      message: this.i18nService.t("organizationReadyToGo"),
+    });
+
+    if (!this.acceptingSponsorship && !this.isInTrialFlow) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.router.navigate(["/organizations/" + organizationId]);
+    }
+
+    if (this.isInTrialFlow) {
+      this.onTrialBillingSuccess.emit({
+        orgId: organizationId,
+        subLabelText: this.billingSubLabelText(),
+      });
+    }
+
+    this.onSuccess.emit({ organizationId: organizationId });
+
+    // TODO: No one actually listening to this message?
+    this.messagingService.send("organizationCreated", { organizationId: organizationId });
   }
 }

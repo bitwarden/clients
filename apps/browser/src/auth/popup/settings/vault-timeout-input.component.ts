@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import { VaultTimeoutInputComponent as VaultTimeoutInputComponentBase } from "@bitwarden/angular/components/settings/vault-timeout-input.component";
+import { VaultTimeoutInputComponent as VaultTimeoutInputComponentBase } from "@bitwarden/auth/angular";
 
 @Component({
   selector: "app-vault-timeout-input",

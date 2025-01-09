@@ -1,34 +1,25 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
-import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 
 import { BrowserApi } from "../browser/browser-api";
 import BrowserClipboardService from "../services/browser-clipboard.service";
 
 import {
-  OffscreenDocument as OffscreenDocumentInterface,
   OffscreenDocumentExtensionMessage,
   OffscreenDocumentExtensionMessageHandlers,
+  OffscreenDocument as OffscreenDocumentInterface,
 } from "./abstractions/offscreen-document";
 
 class OffscreenDocument implements OffscreenDocumentInterface {
-  private readonly consoleLogService: ConsoleLogService;
-  private encryptService: MultithreadEncryptServiceImplementation;
+  private consoleLogService: ConsoleLogService = new ConsoleLogService(false);
   private readonly extensionMessageHandlers: OffscreenDocumentExtensionMessageHandlers = {
     offscreenCopyToClipboard: ({ message }) => this.handleOffscreenCopyToClipboard(message),
     offscreenReadFromClipboard: () => this.handleOffscreenReadFromClipboard(),
-    offscreenDecryptItems: ({ message }) => this.handleOffscreenDecryptItems(message),
+    localStorageGet: ({ message }) => this.handleLocalStorageGet(message.key),
+    localStorageSave: ({ message }) => this.handleLocalStorageSave(message.key, message.value),
+    localStorageRemove: ({ message }) => this.handleLocalStorageRemove(message.key),
   };
-
-  constructor() {
-    const cryptoFunctionService = new WebCryptoFunctionService(self);
-    this.consoleLogService = new ConsoleLogService(false);
-    this.encryptService = new MultithreadEncryptServiceImplementation(
-      cryptoFunctionService,
-      this.consoleLogService,
-      true,
-    );
-  }
 
   /**
    * Initializes the offscreen document extension.
@@ -53,21 +44,16 @@ class OffscreenDocument implements OffscreenDocumentInterface {
     return await BrowserClipboardService.read(self);
   }
 
-  /**
-   * Decrypts the items in the message using the encrypt service.
-   *
-   * @param message - The extension message containing the items to decrypt
-   */
-  private async handleOffscreenDecryptItems(
-    message: OffscreenDocumentExtensionMessage,
-  ): Promise<string> {
-    const { decryptRequest } = message;
-    if (!decryptRequest) {
-      return "[]";
-    }
+  private handleLocalStorageGet(key: string) {
+    return self.localStorage.getItem(key);
+  }
 
-    const request = JSON.parse(decryptRequest);
-    return await this.encryptService.getDecryptedItemsFromWorker(request.items, request.key);
+  private handleLocalStorageSave(key: string, value: string) {
+    self.localStorage.setItem(key, value);
+  }
+
+  private handleLocalStorageRemove(key: string) {
+    self.localStorage.removeItem(key);
   }
 
   /**

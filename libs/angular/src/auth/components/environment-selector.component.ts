@@ -1,14 +1,42 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { ConnectedPosition } from "@angular/cdk/overlay";
-import { Component, EventEmitter, Output } from "@angular/core";
-import { Router } from "@angular/router";
-import { Observable, map } from "rxjs";
+import { Component, EventEmitter, Output, Input, OnInit, OnDestroy } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { Observable, map, Subject, takeUntil } from "rxjs";
 
+import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DialogService, ToastService } from "@bitwarden/components";
+
+export const ExtensionDefaultOverlayPosition: ConnectedPosition[] = [
+  {
+    originX: "start",
+    originY: "top",
+    overlayX: "start",
+    overlayY: "bottom",
+  },
+];
+export const DesktopDefaultOverlayPosition: ConnectedPosition[] = [
+  {
+    originX: "start",
+    originY: "top",
+    overlayX: "start",
+    overlayY: "bottom",
+  },
+];
+
+export interface EnvironmentSelectorRouteData {
+  overlayPosition?: ConnectedPosition[];
+}
 
 @Component({
   selector: "environment-selector",
@@ -34,11 +62,9 @@ import {
     ]),
   ],
 })
-export class EnvironmentSelectorComponent {
-  @Output() onOpenSelfHostedSettings = new EventEmitter();
-  protected isOpen = false;
-  protected ServerEnvironmentType = Region;
-  protected overlayPosition: ConnectedPosition[] = [
+export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
+  @Output() onOpenSelfHostedSettings = new EventEmitter<void>();
+  @Input() overlayPosition: ConnectedPosition[] = [
     {
       originX: "start",
       originY: "bottom",
@@ -47,6 +73,8 @@ export class EnvironmentSelectorComponent {
     },
   ];
 
+  protected isOpen = false;
+  protected ServerEnvironmentType = Region;
   protected availableRegions = this.environmentService.availableRegions();
   protected selectedRegion$: Observable<RegionConfig | undefined> =
     this.environmentService.environment$.pipe(
@@ -54,10 +82,29 @@ export class EnvironmentSelectorComponent {
       map((r) => this.availableRegions.find((ar) => ar.key === r)),
     );
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     protected environmentService: EnvironmentService,
-    protected router: Router,
+    private route: ActivatedRoute,
+    private dialogService: DialogService,
+    private configService: ConfigService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {}
+
+  ngOnInit() {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      if (data && data["overlayPosition"]) {
+        this.overlayPosition = data["overlayPosition"];
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   async toggle(option: Region) {
     this.isOpen = !this.isOpen;
@@ -65,8 +112,25 @@ export class EnvironmentSelectorComponent {
       return;
     }
 
+    /**
+     * Opens the self-hosted settings dialog.
+     *
+     * If the `UnauthenticatedExtensionUIRefresh` feature flag is enabled,
+     * the self-hosted settings dialog is opened directly. Otherwise, the
+     * `onOpenSelfHostedSettings` event is emitted.
+     */
     if (option === Region.SelfHosted) {
-      this.onOpenSelfHostedSettings.emit();
+      if (await this.configService.getFeatureFlag(FeatureFlag.UnauthenticatedExtensionUIRefresh)) {
+        if (await SelfHostedEnvConfigDialogComponent.open(this.dialogService)) {
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("environmentSaved"),
+          });
+        }
+      } else {
+        this.onOpenSelfHostedSettings.emit();
+      }
       return;
     }
 

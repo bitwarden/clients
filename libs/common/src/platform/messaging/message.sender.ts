@@ -3,9 +3,9 @@ import { CommandDefinition } from "./types";
 class MultiMessageSender implements MessageSender {
   constructor(private readonly innerMessageSenders: MessageSender[]) {}
 
-  send<T extends object>(
+  send<T extends Record<string, unknown>>(
     commandDefinition: string | CommandDefinition<T>,
-    payload: object | T = {},
+    payload: Record<string, unknown> | T = {},
   ): void {
     for (const messageSender of this.innerMessageSenders) {
       messageSender.send(commandDefinition, payload);
@@ -26,7 +26,10 @@ export abstract class MessageSender {
    * @param commandDefinition
    * @param payload
    */
-  abstract send<T extends object>(commandDefinition: CommandDefinition<T>, payload: T): void;
+  abstract send<T extends Record<string, unknown>>(
+    commandDefinition: CommandDefinition<T>,
+    payload: T,
+  ): void;
 
   /**
    * A legacy method for sending messages in a non-type safe way.
@@ -38,12 +41,12 @@ export abstract class MessageSender {
    * @param payload Extra contextual information regarding the message. Be aware that this payload may
    *   be serialized and lose all prototype information.
    */
-  abstract send(command: string, payload?: object): void;
+  abstract send(command: string, payload?: Record<string, unknown>): void;
 
   /** Implementation of the other two overloads, read their docs instead. */
-  abstract send<T extends object>(
+  abstract send<T extends Record<string, unknown>>(
     commandDefinition: CommandDefinition<T> | string,
-    payload: T | object,
+    payload: T | Record<string, unknown>,
   ): void;
 
   /**

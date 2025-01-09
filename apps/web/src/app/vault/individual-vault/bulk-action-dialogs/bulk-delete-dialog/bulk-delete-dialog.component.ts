@@ -1,17 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
-import { firstValueFrom } from "rxjs";
 
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { DialogService } from "@bitwarden/components";
 
 export interface BulkDeleteDialogParams {
@@ -20,6 +18,7 @@ export interface BulkDeleteDialogParams {
   organization?: Organization;
   organizations?: Organization[];
   collections?: CollectionView[];
+  unassignedCiphers?: string[];
 }
 
 export enum BulkDeleteDialogResult {
@@ -51,14 +50,7 @@ export class BulkDeleteDialogComponent {
   organization: Organization;
   organizations: Organization[];
   collections: CollectionView[];
-
-  private flexibleCollectionsV1Enabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollectionsV1,
-  );
-
-  private restrictProviderAccess$ = this.configService.getFeatureFlag$(
-    FeatureFlag.RestrictProviderAccess,
-  );
+  unassignedCiphers: string[];
 
   constructor(
     @Inject(DIALOG_DATA) params: BulkDeleteDialogParams,
@@ -68,13 +60,13 @@ export class BulkDeleteDialogComponent {
     private i18nService: I18nService,
     private apiService: ApiService,
     private collectionService: CollectionService,
-    private configService: ConfigService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
     this.permanent = params.permanent;
     this.organization = params.organization;
     this.organizations = params.organizations;
     this.collections = params.collections;
+    this.unassignedCiphers = params.unassignedCiphers || [];
   }
 
   protected async cancel() {
@@ -83,17 +75,16 @@ export class BulkDeleteDialogComponent {
 
   protected submit = async () => {
     const deletePromises: Promise<void>[] = [];
-    if (this.cipherIds.length) {
-      const flexibleCollectionsV1Enabled = await firstValueFrom(this.flexibleCollectionsV1Enabled$);
-      const restrictProviderAccess = await firstValueFrom(this.restrictProviderAccess$);
 
-      if (
-        !this.organization ||
-        !this.organization.canEditAllCiphers(flexibleCollectionsV1Enabled, restrictProviderAccess)
-      ) {
+    // Unassigned ciphers under an Owner/Admin OR Custom Users With Edit will call the deleteCiphersAdmin method
+    if (this.unassignedCiphers.length && this.organization.canEditUnassignedCiphers) {
+      deletePromises.push(this.deleteCiphersAdmin(this.unassignedCiphers));
+    }
+    if (this.cipherIds.length) {
+      if (!this.organization || !this.organization.canEditAllCiphers) {
         deletePromises.push(this.deleteCiphers());
       } else {
-        deletePromises.push(this.deleteCiphersAdmin());
+        deletePromises.push(this.deleteCiphersAdmin(this.cipherIds));
       }
     }
 
@@ -103,7 +94,7 @@ export class BulkDeleteDialogComponent {
 
     await Promise.all(deletePromises);
 
-    if (this.cipherIds.length) {
+    if (this.cipherIds.length || this.unassignedCiphers.length) {
       this.platformUtilsService.showToast(
         "success",
         null,
@@ -122,12 +113,7 @@ export class BulkDeleteDialogComponent {
   };
 
   private async deleteCiphers(): Promise<any> {
-    const flexibleCollectionsV1Enabled = await firstValueFrom(this.flexibleCollectionsV1Enabled$);
-    const restrictProviderAccess = await firstValueFrom(this.restrictProviderAccess$);
-    const asAdmin = this.organization?.canEditAllCiphers(
-      flexibleCollectionsV1Enabled,
-      restrictProviderAccess,
-    );
+    const asAdmin = this.organization?.canEditAllCiphers;
     if (this.permanent) {
       await this.cipherService.deleteManyWithServer(this.cipherIds, asAdmin);
     } else {
@@ -135,8 +121,8 @@ export class BulkDeleteDialogComponent {
     }
   }
 
-  private async deleteCiphersAdmin(): Promise<any> {
-    const deleteRequest = new CipherBulkDeleteRequest(this.cipherIds, this.organization.id);
+  private async deleteCiphersAdmin(ciphers: string[]): Promise<any> {
+    const deleteRequest = new CipherBulkDeleteRequest(ciphers, this.organization.id);
     if (this.permanent) {
       return await this.apiService.deleteManyCiphersAdmin(deleteRequest);
     } else {

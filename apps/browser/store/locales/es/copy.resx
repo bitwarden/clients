@@ -124,48 +124,47 @@
     <value>En casa, en el trabajo o en el viaje, Bitwarden asegura fácilmente todas sus contraseñas, claves de acceso e información confidencial.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>¡Reconocido como el mejor administrador de contraseñas por PCMag, WIRED, The Verge, CNET, G2 y más!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+ASEGURA TU VIDA DIGITAL
+Asegura tu vida digital y protéjete contra las filtraciones de datos generando y guardando contraseñas únicas y seguras para cada cuenta. Mantén todo en una caja fuerte de contraseñas cifrada de extremo a extremo a la que solo tú puedes acceder.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+ACCEDE A TUS DATOS, EN CUALQUIER LUGAR, EN CUALQUIER MOMENTO Y EN CUALQUIER DISPOSITIVO
+Administra, almacena, proteje y comparte fácilmente contraseñas ilimitadas en dispositivos ilimitados sin restricciones.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+TODO EL MUNDO DEBERÍA TENER LAS HERRAMIENTAS PARA MANTENERSE SEGURO EN LÍNEA
+Utiliza Bitwarden de forma gratuita sin anuncios ni vendiendo tus datos. Bitwarden cree que todo el mundo debería tener la capacidad de mantenerse seguro en línea. Los planes premium ofrecen acceso a funciones avanzadas.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+EMPODERA A TUS EQUIPOS CON BITWARDEN
+Los planes para Equipos y Empresa vienen con características empresariales profesionales. Algunos ejemplos incluyen integración de SSO, autoalojamiento, integración de directorios y aprovisionamiento de SCIM, políticas globales, acceso a la API, registros de eventos y más.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Utiliza Bitwarden para proteger a tu personal y compartir información confidencial con tus colegas.
 
+Más razones para elegir Bitwarden:
 
-More reasons to choose Bitwarden:
+Encriptación de clase mundial
+Las contraseñas están protegidas con cifrado avanzado de extremo a extremo (AES-256 bits, hashtag salado y PBKDF2 SHA-256) para que tus datos permanezcan seguros y privados.
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Auditorías de terceros
+Bitwarden realiza regularmente auditorías integrales de seguridad de terceros con empresas de seguridad notables. Estas auditorías anuales incluyen evaluaciones de código fuente y pruebas de penetración en las direcciones IP, los servidores y las aplicaciones web de Bitwarden.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
-
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+2FA avanzado
+Proteje tu inicio de sesión con un autenticador de terceros, códigos enviados por correo electrónico o credenciales FIDO2 WebAuthn, como una clave de seguridad de hardware o una clave de acceso.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Transmite datos directamente a otros mientras mantienes la seguridad cifrada de extremo a extremo y limitas la exposición.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Generador incorporado
+Crea contraseñas largas, complejas y distintas y nombres de usuario únicos para cada sitio que visites. Integra proveedores de alias de correo electrónico para mayor privacidad.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Traducciones Globales
+Existen traducciones de Bitwarden para más de 60 idiomas, traducidas por la comunidad global a través de Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Aplicaciones multiplataforma
+Proteje y comparte datos confidenciales dentro de tu Caja fuerte de Bitwarden desde cualquier navegador, dispositivo móvil o sistema operativo de escritorio, y más.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden protege más que solo contraseñas
+Las soluciones de gestión de credenciales cifradas de extremo a extremo de Bitwarden permiten a las organizaciones proteger todo, incluidos los secretos de los desarrolladores y las experiencias de clave de acceso. ¡Visita Bitwarden.com para obtener más información sobre Bitwarden Secrets Manager y Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">

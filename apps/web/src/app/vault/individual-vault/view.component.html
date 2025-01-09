@@ -1,0 +1,31 @@
+<bit-dialog dialogSize="large" background="alt">
+  <span bitDialogTitle>
+    {{ cipherTypeString }}
+  </span>
+  <ng-container bitDialogContent>
+    <app-cipher-view [cipher]="cipher" [collections]="collections"></app-cipher-view>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button
+      bitButton
+      (click)="edit()"
+      buttonType="primary"
+      type="button"
+      [disabled]="params.disableEdit"
+    >
+      {{ "edit" | i18n }}
+    </button>
+    <div class="tw-ml-auto">
+      <button
+        bitButton
+        type="button"
+        buttonType="danger"
+        [appA11yTitle]="'delete' | i18n"
+        [bitAction]="delete"
+        [disabled]="!(canDeleteCipher$ | async)"
+      >
+        <i class="bwi bwi-trash bwi-lg bwi-fw" aria-hidden="true"></i>
+      </button>
+    </div>
+  </ng-container>
+</bit-dialog>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Subject } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -8,6 +10,7 @@ import {
   ObservableStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
@@ -116,7 +119,11 @@ export class LocalBackedSessionStorageService
       return null;
     }
 
-    const valueJson = await this.encryptService.decryptToUtf8(new EncString(local), encKey);
+    const valueJson = await this.encryptService.decryptToUtf8(
+      new EncString(local),
+      encKey,
+      "browser-session-key",
+    );
     if (valueJson == null) {
       // error with decryption, value is lost, delete state and start over
       await this.localStorage.remove(this.sessionStorageKey(key));
@@ -190,23 +197,7 @@ export class LocalBackedSessionStorageService
 
   private compareValues<T>(value1: T, value2: T): boolean {
     try {
-      if (value1 == null && value2 == null) {
-        return true;
-      }
-
-      if (value1 && value2 == null) {
-        return false;
-      }
-
-      if (value1 == null && value2) {
-        return false;
-      }
-
-      if (typeof value1 !== "object" || typeof value2 !== "object") {
-        return value1 === value2;
-      }
-
-      return JSON.stringify(value1) === JSON.stringify(value2);
+      return compareValues(value1, value2);
     } catch (e) {
       this.logService.error(
         `error comparing values\n${JSON.stringify(value1)}\n${JSON.stringify(value2)}`,

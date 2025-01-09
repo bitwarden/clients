@@ -12,7 +12,7 @@
 }
 
 #web-authn-frame {
-  height: 290px;
+  height: 315px;
   @include themify($themes) {
     background: themed("imgLoading") 0 0 no-repeat;
   }
@@ -32,29 +32,37 @@
 
 .list-group-2fa {
   .logo-2fa {
-    min-width: 100px;
+    min-width: 120px;
   }
 }
 
 @each $mfaType in $mfaTypes {
   .mfaType#{$mfaType} {
     content: url("../images/two-factor/" + $mfaType + ".png");
-    max-width: 100px;
+    max-width: 120px;
+  }
+}
+
+.mfaType0 {
+  @include themify($themes) {
+    content: url("../images/two-factor/0.png");
+    max-width: 120px;
+    max-height: 62px;
   }
 }
 
 .mfaType1 {
   @include themify($themes) {
     content: url("../images/two-factor/1" + themed("mfaLogoSuffix"));
-    max-width: 100px;
-    max-height: 45px;
+    max-width: 120px;
+    max-height: 62px;
   }
 }
 
 .mfaType7 {
   @include themify($themes) {
     content: url("../images/two-factor/7" + themed("mfaLogoSuffix"));
-    max-width: 100px;
+    max-width: 120px;
   }
 }
 
@@ -98,6 +106,13 @@
 
 .braintree-sheet {
   border: none;
+}
+
+// hide duplicate paypal iframe
+.braintree-sheet__content--button
+  .braintree-sheet__button--paypal
+  iframe.zoid-prerender-frame.zoid-invisible {
+  display: none !important;
 }
 
 [data-braintree-id="upper-container"]::before {

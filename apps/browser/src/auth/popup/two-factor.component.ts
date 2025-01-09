@@ -1,4 +1,6 @@
-import { Component, Inject } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, Subscription, firstValueFrom } from "rxjs";
 import { filter, first, takeUntil } from "rxjs/operators";
@@ -25,7 +27,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
@@ -37,7 +39,7 @@ import { closeTwoFactorAuthPopout } from "./utils/auth-popout-window";
   selector: "app-two-factor",
   templateUrl: "two-factor.component.html",
 })
-export class TwoFactorComponent extends BaseTwoFactorComponent {
+export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   inPopout = BrowserPopupUtils.inPopout(window);
 
@@ -62,6 +64,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     private dialogService: DialogService,
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
     accountService: AccountService,
+    toastService: ToastService,
     @Inject(WINDOW) protected win: Window,
     private browserMessagingApi: ZonedMessageListenerService,
   ) {
@@ -84,24 +87,25 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       configService,
       masterPasswordService,
       accountService,
+      toastService,
     );
-    super.onSuccessfulLogin = async () => {
+    this.onSuccessfulLogin = async () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       syncService.fullSync(true);
     };
 
-    super.onSuccessfulLoginTde = async () => {
+    this.onSuccessfulLoginTde = async () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       syncService.fullSync(true);
     };
 
-    super.onSuccessfulLoginTdeNavigate = async () => {
+    this.onSuccessfulLoginTdeNavigate = async () => {
       this.win.close();
     };
 
-    super.successRoute = "/tabs/vault";
+    this.successRoute = "/tabs/vault";
     // FIXME: Chromium 110 has broken WebAuthn support in extensions via an iframe
     this.webAuthnNewTab = true;
   }
@@ -111,7 +115,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       // WebAuthn fallback response
       this.selectedProviderType = TwoFactorProviderType.WebAuthn;
       this.token = this.route.snapshot.paramMap.get("webAuthnResponse");
-      super.onSuccessfulLogin = async () => {
+      this.onSuccessfulLogin = async () => {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.syncService.fullSync(true);
@@ -153,7 +157,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
       if (qParams.sso === "true") {
-        super.onSuccessfulLogin = async () => {
+        this.onSuccessfulLogin = async () => {
           // This is not awaited so we don't pause the application while the sync is happening.
           // This call is executed by the service that lives in the background script so it will continue
           // the sync even if this tab closes.
@@ -226,6 +230,15 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
   }
 
   override async launchDuoFrameless() {
+    if (this.duoFramelessUrl === null) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("duoHealthCheckResultsInNullAuthUrlError"),
+      });
+      return;
+    }
+
     const duoHandOffMessage = {
       title: this.i18nService.t("youSuccessfullyLoggedIn"),
       message: this.i18nService.t("youMayCloseThisWindow"),

@@ -1,0 +1,83 @@
+import { Meta, Story, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./registration-start.stories";
+
+<Meta of={stories} />
+
+# RegistrationStart Component
+
+The Auth-owned RegistrationStartComponent is to be used for the first step in the new email
+verification stage gated registration process. It collects the environment (required), the user's
+email address (required) and optionally their name. On cloud environments, it offers a checkbox for
+the user to choose to receive marketing emails or not with the default value changing based on the
+environment (e.g., true for US, false for EU).
+
+## Web Examples
+
+Note that the self hosted option is not present in the environment selector.
+
+### US Region
+
+<Story of={stories.WebUSRegionExample} />
+
+### EU Region
+
+<Story of={stories.WebEURegionExample} />
+
+### Query Params
+
+The component accepts two query parameters: `email` and `emailReadonly`. If an email is provided, it
+will be pre-filled in the email input field. If `emailReadonly` is set to `true`, the email input
+field will be set to readonly. `emailReadonly` is primarily for the organization invite flow.
+
+<Story of={stories.WebUSRegionQueryParamsExample} />
+
+## Desktop
+
+Behavior to note:
+
+- The self hosted option is present in the environment selector.
+- If you go from non-self hosted to self hosted, the receive marketing emails checkbox will
+  disappear.
+- If you change regions, the receive marketing emails checkbox default value will change based on
+  the region.
+
+### US Region
+
+<Story of={stories.DesktopUSRegionExample} />
+
+### EU Region
+
+<Story of={stories.DesktopEURegionExample} />
+
+### Self Hosted
+
+Note the fact that the receive marketing emails checkbox is not present when the environment is self
+hosted.
+
+<Story of={stories.DesktopSelfHostExample} />
+
+## Browser Extension
+
+Behavior to note:
+
+- The self hosted option is present in the environment selector.
+- If you go from non-self hosted to self hosted, the receive marketing emails checkbox will
+  disappear.
+- If you change regions, the receive marketing emails checkbox default value will change based on
+  the region.
+
+### US Region
+
+<Story of={stories.BrowserExtensionUSRegionExample} />
+
+### EU Region
+
+<Story of={stories.BrowserExtensionEURegionExample} />
+
+### Self Hosted
+
+Note the fact that the receive marketing emails checkbox is not present when the environment is self
+hosted.
+
+<Story of={stories.BrowserExtensionSelfHostExample} />

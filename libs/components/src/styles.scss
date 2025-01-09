@@ -52,3 +52,10 @@ $card-icons-base: "../../src/billing/images/cards/";
 .sbdocs-preview pre.prismjs {
   color: white;
 }
+
+.sb-show-main app-current-account button {
+  border: none;
+  background-color: transparent;
+  padding-inline: 0px;
+  padding-block: 0px;
+}

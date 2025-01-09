@@ -1,0 +1,38 @@
+<form [id]="formId" [formGroup]="cipherForm" [bitSubmit]="submit">
+  <!-- TODO: Should we show a loading spinner here? Or emit a ready event for the container to handle loading state -->
+  <ng-container *ngIf="!loading">
+    <vault-item-details-section
+      [config]="config"
+      [originalCipherView]="originalCipherView"
+    ></vault-item-details-section>
+
+    <vault-login-details-section
+      *ngIf="config.cipherType === CipherType.Login"
+    ></vault-login-details-section>
+
+    <vault-identity-section
+      *ngIf="config.cipherType === CipherType.Identity"
+      [disabled]="config.mode === 'partial-edit'"
+      [originalCipherView]="originalCipherView"
+    ></vault-identity-section>
+
+    <vault-card-details-section
+      *ngIf="config.cipherType === CipherType.Card"
+      [originalCipherView]="originalCipherView"
+      [disabled]="config.mode === 'partial-edit'"
+    ></vault-card-details-section>
+
+    <vault-sshkey-section
+      *ngIf="config.cipherType === CipherType.SshKey"
+      [disabled]="config.mode === 'partial-edit'"
+      [originalCipherView]="originalCipherView"
+    ></vault-sshkey-section>
+
+    <vault-additional-options-section></vault-additional-options-section>
+
+    <!-- Attachments are only available for existing ciphers -->
+    <ng-container *ngIf="config.mode == 'edit'">
+      <ng-content select="[slot=attachment-button]"></ng-content>
+    </ng-container>
+  </ng-container>
+</form>

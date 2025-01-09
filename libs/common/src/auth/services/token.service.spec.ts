@@ -1,6 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
+import { LogoutReason } from "@bitwarden/auth/common";
+
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
@@ -9,10 +11,19 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
+import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";
+import { SetTokensResult } from "../models/domain/set-tokens-result";
 
 import { ACCOUNT_ACTIVE_ACCOUNT_ID } from "./account.service";
-import { DecodedAccessToken, TokenService } from "./token.service";
+import {
+  AccessTokenKey,
+  DecodedAccessToken,
+  TokenService,
+  TokenStorageLocation,
+} from "./token.service";
 import {
   ACCESS_TOKEN_DISK,
   ACCESS_TOKEN_MEMORY,
@@ -35,15 +46,19 @@ describe("TokenService", () => {
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let encryptService: MockProxy<EncryptService>;
   let logService: MockProxy<LogService>;
+  let logoutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason, userId?: string]>;
 
   const memoryVaultTimeoutAction = VaultTimeoutAction.LogOut;
-  const memoryVaultTimeout = 30;
+  const memoryVaultTimeout: VaultTimeout = 30;
 
   const diskVaultTimeoutAction = VaultTimeoutAction.Lock;
-  const diskVaultTimeout: number = null;
+  const diskVaultTimeout: VaultTimeout = VaultTimeoutStringType.Never;
 
   const accessTokenJwt =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwibmJmIjoxNzA5MzI0MTExLCJpYXQiOjE3MDkzMjQxMTEsImV4cCI6MTcwOTMyNzcxMSwic2NvcGUiOlsiYXBpIiwib2ZmbGluZV9hY2Nlc3MiXSwiYW1yIjpbIkFwcGxpY2F0aW9uIl0sImNsaWVudF9pZCI6IndlYiIsInN1YiI6ImVjZTcwYTEzLTcyMTYtNDNjNC05OTc3LWIxMDMwMTQ2ZTFlNyIsImF1dGhfdGltZSI6MTcwOTMyNDEwNCwiaWRwIjoiYml0d2FyZGVuIiwicHJlbWl1bSI6ZmFsc2UsImVtYWlsIjoiZXhhbXBsZUBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJzc3RhbXAiOiJHWTdKQU82NENLS1RLQkI2WkVBVVlMMldPUVU3QVNUMiIsIm5hbWUiOiJUZXN0IFVzZXIiLCJvcmdvd25lciI6WyI5MmI0OTkwOC1iNTE0LTQ1YTgtYmFkYi1iMTAzMDE0OGZlNTMiLCIzOGVkZTMyMi1iNGI0LTRiZDgtOWUwOS1iMTA3MDExMmRjMTEiLCJiMmQwNzAyOC1hNTgzLTRjM2UtOGQ2MC1iMTA3MDExOThjMjkiLCJiZjkzNGJhMi0wZmQ0LTQ5ZjItYTk1ZS1iMTA3MDExZmM5ZTYiLCJjMGI3Zjc1ZC0wMTVmLTQyYzktYjNhNi1iMTA4MDE3NjA3Y2EiXSwiZGV2aWNlIjoiNGI4NzIzNjctMGRhNi00MWEwLWFkY2ItNzdmMmZlZWZjNGY0IiwianRpIjoiNzUxNjFCRTQxMzFGRjVBMkRFNTExQjhDNEUyRkY4OUEifQ.n7roP8sSbfwcYdvRxZNZds27IK32TW6anorE6BORx_Q";
+
+  const encryptedAccessToken =
+    "2.rFNYSTJoljn8h6GOSNVYdQ==|4dIp7ONJzC+Kx1ClA+1aIAb7EqCQ4OjnADCYdCPg7BKkdheG+yM62ZiONFk+S6at84M+RnGWWO04aIjinTdJhlhyUmszePNATxIfX60Y+bFKQhlMuCtZpYdEmQDzXVgT43YRbf/6NnN9WzhefLqeMiocwoIJTEpLptb+Zcm7T3MJpkX4dR9w5LUOxUTNFEGd5PlWaI8FBavOkNsrzY5skRK70pvFABET5IDeRlKhi8NwbzvTzkO3SisLRzih+djiz5nEZf0+ujeGAp6P+o7l0mB0sXVsNJzcuE4S9QtHLnx31N6z3mQm5pOgP4EmEOdRIcQGc1p7dL1vXcXtaTJLtfKXoJjJbYT3wplnY9Pf8+2FVxdbM3bRB2yVsnEzgLcf9UchKThQSdOy8+5TO/prDbUt5mDpO4GmRltom5ncda8yJaD3Hw1DO7fa0Xh+kfeByxb1AwBC+GTPfqmo5uqr0J4dZsf9cGlPMTElwR3GYmD60OcQ6iDX36CZZjqqJqBwKSpepDXV39p9G347e6YAAvJenLDKtdjgfWXCMXbkwETbMgYooFDRd60KYsGIXV16UwzJSvczgTY2d+hYb2Cl0lClequaiwcRxLVtW2xau6qoEPjTqJjJi9I0Cs2WNL4LRH96Ir14a3bEtnTvkO1NjN+bQNon+KksaP2BqTbuiAfZbBP/cL4S1Oew4G00PSLZUGV5S1BI0ooJy6e2NLQJlYqfCeKM6RgpvgfOiXlZddVgkkB6lohLjyVvcSZNuKPjs1wZMZ9C76bKb6o39NFK8G3/YScELFf9gkueWjmhcjrs22+xNDn5rxXeedwIkVW9UJVNLc//eGxLfp70y8fNDcyTPRN1UUpqT8+wSz+9ZHl4DLUK0DE2jIveEDke8vi4MK/XLMC/c50rr1NCEuVy6iA3nwiOzVo/GNfeKTpzMcR/D9A0gxkC9GyZ3riSsMQsGNXhZCZLdsFYp0gLiiJxVilMUfyTWaygsNm87GPY3ep3GEHcq/pCuxrpLQQYT3V1j95WJvFxb8dSLiPHb8STR0GOZhe7SquI5LIRmYCFTo+3VBnItYeuin9i2xCIqWz886xIyllHN2BIPILbA1lCOsCsz1BRRGNqtLvmTeVRO8iujsHWBJicVgSI7/dgSJwcdOv2t4TIVtnN1hJkQnz+HZcJ2FYK/VWlo4UQYYoML52sBd1sSz/n8/8hrO2N4X9frHHNCrcxeoyChTKo2cm4rAxHylLbCZYvGt/KIW9x3AFkPBMr7tAc3yq98J0Crna8ukXc3F3uGb5QXLnBi//3zBDN6RCv7ByaFW5G0I+pglBegzeFBqKH8xwfy76B2e2VLFF8rz/r/wQzlumGFypsRhAoGxrkZyzjec/k+RNR0arf7TTX7ymC1cueTnItRDx89veW6WLlF53NpAGqC8GJSp4T2FGIIk01y29j6Ji7GOlQ8BUbyLWYjMfHf3khRzAfr6UC2QgVvKWQTKET4Y/b1nZCnwxeW8wC80GHtYGuarsU+KlsEw4242cjyIN1GobrWaA2GTOedQDEMWUA64McAw5fAvMEEao5DM7i57tMzJHeKfruyMuXYQkBca094vmATjJ/T+kIrWGIcmxCT/Fp2SW1hcxr6Ciwuog84LVfbVlUl2MAj3eC/xqL/5HP6Q3ObD0ld444GV+HSrQUqfIvEIn9gFmalW6TGugyhfROACCogoXbeIr1AyMUNDnl4EWlPl6u7SQvPX+itKyq4qhaK2J0W6f7ElLVQ5GbC2uwARuhXOi7mqEZ5FP0V675C5NPZOl2ZEd6BhmuyhGkmQEtEvw0DCKnbKM7bKMk90Y599DSnuEna4BNFBVjJ7k+BuNhXUKO+iNcDZT0pCQhOKRVLWsaqVff3BsuQ4zMEOVnccJwwAVipwSRyxZi8bF+Wyun6BVI8pz1CBvRMy+6ifmIq2awEL8NnV65hF2jyZDEVwsnrvCyT7MlM8l5C3MhqH/MgMcKqOsUz+P6Jv5sBi4WvojsaHzqxQ6miBHpHhGDpYH5K53LVs36henB/tOUTcg5ZnO4ZM67jjB7Oz7to+QnJsldp5Bdwvi1XD/4jeh/Llezu5/KwwytSHnZG1z6dZA7B8rKwnI+yN2Qnfi70h68jzGZ1xCOFPz9KMorNKP3XLw8x2g9H6lEBXdV95uc/TNw+WTJbvKRawns/DZhM1u/g13lU6JG19cht3dh/DlKRcJpj1AdOAxPiUubTSkhBmdwRj2BTTHrVlF3/9ladTP4s4f6Zj9TtQvR9CREVe7CboGflxDYC+Jww3PU50XLmxQjkuV5MkDAmBVcyFCFOcHhDRoxet4FX9ec0wjNeDpYtkI8B/qUS1Rp+is1jOxr4/ni|pabwMkF/SdYKdDlow4uKxaObrAP0urmv7N7fA9bedec=";
 
   const accessTokenDecoded: DecodedAccessToken = {
     iss: "http://localhost",
@@ -92,6 +107,7 @@ describe("TokenService", () => {
     keyGenerationService = mock<KeyGenerationService>();
     encryptService = mock<EncryptService>();
     logService = mock<LogService>();
+    logoutCallback = jest.fn();
 
     const supportsSecureStorage = false; // default to false; tests will override as needed
     tokenService = createTokenService(supportsSecureStorage);
@@ -110,7 +126,7 @@ describe("TokenService", () => {
         // Arrange
         singleUserStateProvider
           .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-          .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+          .nextState(accessTokenJwt);
 
         // Act
         const result = await firstValueFrom(tokenService.hasAccessToken$(userIdFromAccessToken));
@@ -123,11 +139,11 @@ describe("TokenService", () => {
         // Arrange
         singleUserStateProvider
           .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-          .stateSubject.next([userIdFromAccessToken, undefined]);
+          .nextState(undefined);
 
         singleUserStateProvider
           .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-          .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+          .nextState(accessTokenJwt);
 
         // Act
         const result = await firstValueFrom(tokenService.hasAccessToken$(userIdFromAccessToken));
@@ -140,7 +156,7 @@ describe("TokenService", () => {
         // Arrange
         singleUserStateProvider
           .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-          .stateSubject.next([userIdFromAccessToken, "encryptedAccessToken"]);
+          .nextState("encryptedAccessToken");
 
         secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
 
@@ -151,7 +167,7 @@ describe("TokenService", () => {
         expect(result).toEqual(true);
       });
 
-      it("should return false if no access token exists in memory, disk, or secure storage", async () => {
+      it("returns false when no access token exists in memory, disk, or secure storage", async () => {
         // Act
         const result = await firstValueFrom(tokenService.hasAccessToken$(userIdFromAccessToken));
 
@@ -161,31 +177,63 @@ describe("TokenService", () => {
     });
 
     describe("setAccessToken", () => {
-      it("should throw an error if the access token is null", async () => {
+      it("throws an error when the access token is null", async () => {
         // Act
-        const result = tokenService.setAccessToken(null, VaultTimeoutAction.Lock, null);
+        const result = tokenService.setAccessToken(
+          null,
+          VaultTimeoutAction.Lock,
+          VaultTimeoutStringType.Never,
+        );
         // Assert
         await expect(result).rejects.toThrow("Access token is required.");
       });
 
-      it("should throw an error if an invalid token is passed in", async () => {
+      it("throws an error when an invalid token is passed in", async () => {
         // Act
-        const result = tokenService.setAccessToken("invalidToken", VaultTimeoutAction.Lock, null);
+        const result = tokenService.setAccessToken(
+          "invalidToken",
+          VaultTimeoutAction.Lock,
+          VaultTimeoutStringType.Never,
+        );
         // Assert
         await expect(result).rejects.toThrow("JWT must have 3 parts");
       });
 
-      it("should not throw an error as long as the token is valid", async () => {
+      it("should throw an error if the vault timeout is missing", async () => {
         // Act
         const result = tokenService.setAccessToken(accessTokenJwt, VaultTimeoutAction.Lock, null);
+
+        // Assert
+        await expect(result).rejects.toThrow("Vault Timeout is required.");
+      });
+
+      it("should throw an error if the vault timeout action is missing", async () => {
+        // Act
+        const result = tokenService.setAccessToken(
+          accessTokenJwt,
+          null,
+          VaultTimeoutStringType.Never,
+        );
+
+        // Assert
+        await expect(result).rejects.toThrow("Vault Timeout Action is required.");
+      });
+
+      it("should not throw an error as long as the token is valid", async () => {
+        // Act
+        const result = tokenService.setAccessToken(
+          accessTokenJwt,
+          VaultTimeoutAction.Lock,
+          VaultTimeoutStringType.Never,
+        );
         // Assert
         await expect(result).resolves.not.toThrow();
       });
 
       describe("Memory storage tests", () => {
-        it("should set the access token in memory", async () => {
+        it("set the access token in memory", async () => {
           // Act
-          await tokenService.setAccessToken(
+          const result = await tokenService.setAccessToken(
             accessTokenJwt,
             memoryVaultTimeoutAction,
             memoryVaultTimeout,
@@ -194,13 +242,14 @@ describe("TokenService", () => {
           expect(
             singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
           ).toHaveBeenCalledWith(accessTokenJwt);
+          expect(result).toEqual(accessTokenJwt);
         });
       });
 
       describe("Disk storage tests (secure storage not supported on platform)", () => {
         it("should set the access token in disk", async () => {
           // Act
-          await tokenService.setAccessToken(
+          const result = await tokenService.setAccessToken(
             accessTokenJwt,
             diskVaultTimeoutAction,
             diskVaultTimeout,
@@ -209,10 +258,19 @@ describe("TokenService", () => {
           expect(
             singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
           ).toHaveBeenCalledWith(accessTokenJwt);
+          expect(result).toEqual(accessTokenJwt);
         });
       });
 
       describe("Disk storage tests (secure storage supported on platform)", () => {
+        const accessTokenKey = new SymmetricCryptoKey(
+          new Uint8Array(64) as CsprngArray,
+        ) as AccessTokenKey;
+
+        const accessTokenKeyB64 = {
+          keyB64:
+            "lI7lSoejJ1HsrTkRs2Ipm0x+YcZMKpgm7WQGCNjAWmFAyGOKossXwBJvvtbxcYDZ0G0XNY8Gp7DBXZV2tWAO5w==",
+        };
         beforeEach(() => {
           const supportsSecureStorage = true;
           tokenService = createTokenService(supportsSecureStorage);
@@ -224,9 +282,9 @@ describe("TokenService", () => {
           // For testing purposes, let's assume that the access token is already in memory
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+            .nextState(accessTokenJwt);
 
-          keyGenerationService.createKey.mockResolvedValue("accessTokenKey" as any);
+          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
 
           const mockEncryptedAccessToken = "encryptedAccessToken";
 
@@ -234,8 +292,13 @@ describe("TokenService", () => {
             encryptedString: mockEncryptedAccessToken,
           } as any);
 
+          // First call resolves to null to simulate no key in secure storage
+          // then resolves to the key to simulate the key being set in secure storage
+          // and retrieved successfully to ensure it was set.
+          secureStorageService.get.mockResolvedValueOnce(null).mockResolvedValue(accessTokenKeyB64);
+
           // Act
-          await tokenService.setAccessToken(
+          const result = await tokenService.setAccessToken(
             accessTokenJwt,
             diskVaultTimeoutAction,
             diskVaultTimeout,
@@ -245,7 +308,7 @@ describe("TokenService", () => {
           // assert that the AccessTokenKey was set in secure storage
           expect(secureStorageService.save).toHaveBeenCalledWith(
             accessTokenKeySecureStorageKey,
-            "accessTokenKey",
+            accessTokenKey,
             secureStorageOptions,
           );
 
@@ -258,23 +321,97 @@ describe("TokenService", () => {
           expect(
             singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
           ).toHaveBeenCalledWith(null);
+
+          // assert that the decrypted access token was returned
+          expect(result).toEqual(accessTokenJwt);
+        });
+
+        it("should fallback to disk storage for the access token if the access token cannot be set in secure storage", async () => {
+          // This tests the scenario where the access token key silently fails to be set in secure storage
+
+          // Arrange:
+          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+
+          // First call resolves to null to simulate no key in secure storage
+          // and then resolves to no key after it should have been set
+          secureStorageService.get.mockResolvedValueOnce(null).mockResolvedValue(null);
+
+          // Act
+          const result = await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+          // Assert
+
+          // assert that we tried to store the AccessTokenKey in secure storage
+          expect(secureStorageService.save).toHaveBeenCalledWith(
+            accessTokenKeySecureStorageKey,
+            accessTokenKey,
+            secureStorageOptions,
+          );
+
+          // assert that we logged the error
+          expect(logService.error).toHaveBeenCalledWith(
+            "SetAccessToken: storing encrypted access token in secure storage failed. Falling back to disk storage.",
+            new Error("New Access token key unable to be retrieved from secure storage."),
+          );
+
+          // assert that the access token was put on disk unencrypted
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
+          ).toHaveBeenCalledWith(accessTokenJwt);
+
+          // assert that the decrypted access token was returned
+          expect(result).toEqual(accessTokenJwt);
+        });
+
+        it("should fallback to disk storage for the access token if secure storage errors on trying to get an existing access token key", async () => {
+          // This tests the scenario for linux users who don't have secure storage configured.
+
+          // Arrange:
+          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+
+          // Mock linux secure storage error
+          const secureStorageError = "Secure storage error";
+          secureStorageService.get.mockRejectedValue(new Error(secureStorageError));
+
+          // Act
+          const result = await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+          // Assert
+
+          // assert that we logged the error
+          expect(logService.error).toHaveBeenCalledWith(
+            "SetAccessToken: storing encrypted access token in secure storage failed. Falling back to disk storage.",
+            new Error(secureStorageError),
+          );
+
+          // assert that the access token was put on disk unencrypted
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
+          ).toHaveBeenCalledWith(accessTokenJwt);
+
+          // assert that the decrypted access token was returned
+          expect(result).toEqual(accessTokenJwt);
         });
       });
     });
 
     describe("getAccessToken", () => {
-      it("should return undefined if no user id is provided and there is no active user in global state", async () => {
+      it("returns null when no user id is provided and there is no active user in global state", async () => {
         // Act
         const result = await tokenService.getAccessToken();
         // Assert
-        expect(result).toBeUndefined();
+        expect(result).toBeNull();
       });
 
-      it("should return null if no access token is found in memory, disk, or secure storage", async () => {
+      it("returns null when no access token is found in memory, disk, or secure storage", async () => {
         // Arrange
-        globalStateProvider
-          .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-          .stateSubject.next(userIdFromAccessToken);
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
         // Act
         const result = await tokenService.getAccessToken();
@@ -284,27 +421,22 @@ describe("TokenService", () => {
 
       describe("Memory storage tests", () => {
         test.each([
-          [
-            "should get the access token from memory for the provided user id",
-            userIdFromAccessToken,
-          ],
-          ["should get the access token from memory with no user id provided", undefined],
+          ["gets the access token from memory when a user id is provided ", userIdFromAccessToken],
+          ["gets the access token from memory when no user id is provided", undefined],
         ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+            .nextState(accessTokenJwt);
 
           // set disk to undefined
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           // Need to have global active id set to the user id
           if (!userId) {
-            globalStateProvider
-              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-              .stateSubject.next(userIdFromAccessToken);
+            globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
           }
 
           // Act
@@ -317,26 +449,21 @@ describe("TokenService", () => {
 
       describe("Disk storage tests (secure storage not supported on platform)", () => {
         test.each([
-          [
-            "should get the access token from disk for the specified user id",
-            userIdFromAccessToken,
-          ],
-          ["should get the access token from disk with no user id specified", undefined],
+          ["gets the access token from disk when the user id is specified", userIdFromAccessToken],
+          ["gets the access token from disk when no user id is specified", undefined],
         ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+            .nextState(accessTokenJwt);
 
           // Need to have global active id set to the user id
           if (!userId) {
-            globalStateProvider
-              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-              .stateSubject.next(userIdFromAccessToken);
+            globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
           }
 
           // Act
@@ -354,31 +481,29 @@ describe("TokenService", () => {
 
         test.each([
           [
-            "should get the encrypted access token from disk, decrypt it, and return it when user id is provided",
+            "gets the encrypted access token from disk, decrypts it, and returns it when a user id is provided",
             userIdFromAccessToken,
           ],
           [
-            "should get the encrypted access token from disk, decrypt it, and return it when no user id is provided",
+            "gets the encrypted access token from disk, decrypts it, and returns it when no user id is provided",
             undefined,
           ],
         ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, "encryptedAccessToken"]);
+            .nextState("encryptedAccessToken");
 
           secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
           encryptService.decryptToUtf8.mockResolvedValue("decryptedAccessToken");
 
           // Need to have global active id set to the user id
           if (!userId) {
-            globalStateProvider
-              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-              .stateSubject.next(userIdFromAccessToken);
+            globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
           }
 
           // Act
@@ -390,28 +515,26 @@ describe("TokenService", () => {
 
         test.each([
           [
-            "should fallback and get the unencrypted access token from disk when there isn't an access token key in secure storage and a user id is provided",
+            "falls back and gets the unencrypted access token from disk when there isn't an access token key in secure storage and a user id is provided",
             userIdFromAccessToken,
           ],
           [
-            "should fallback and get the unencrypted access token from disk when there isn't an access token key in secure storage and no user id is provided",
+            "falls back and gets the unencrypted access token from disk when there isn't an access token key in secure storage and no user id is provided",
             undefined,
           ],
         ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+            .nextState(accessTokenJwt);
 
           // Need to have global active id set to the user id
           if (!userId) {
-            globalStateProvider
-              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-              .stateSubject.next(userIdFromAccessToken);
+            globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
           }
 
           // No access token key set
@@ -422,11 +545,80 @@ describe("TokenService", () => {
           // Assert
           expect(result).toEqual(accessTokenJwt);
         });
+
+        it("logs the error and logs the user out when the access token key cannot be retrieved from secure storage if the access token is encrypted", async () => {
+          // This tests the intermittent windows 10/11 scenario in which the access token key was stored successfully in secure storage and the
+          // access token was encrypted with it and stored on disk successfully. However, on retrieval the access token key isn't able to
+          // retrieved for whatever reason.
+
+          // Arrange
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+            .nextState(undefined);
+
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
+            .nextState(encryptedAccessToken);
+
+          // No access token key set
+
+          // Act
+          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toBeNull();
+
+          // assert that we logged the error
+          expect(logService.error).toHaveBeenCalledWith(
+            "Access token key not found to decrypt encrypted access token. Logging user out.",
+          );
+
+          // assert that we logged the user out
+          expect(logoutCallback).toHaveBeenCalledWith(
+            "accessTokenUnableToBeDecrypted",
+            userIdFromAccessToken,
+          );
+        });
+
+        it("logs the error and logs the user out when secure storage errors on trying to get an access token key", async () => {
+          // This tests the linux scenario where users might not have secure storage support configured.
+
+          // Arrange
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+            .nextState(undefined);
+
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
+            .nextState(encryptedAccessToken);
+
+          // Mock linux secure storage error
+          const secureStorageError = "Secure storage error";
+          secureStorageService.get.mockRejectedValue(new Error(secureStorageError));
+
+          // Act
+          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toBeNull();
+
+          // assert that we logged the error
+          expect(logService.error).toHaveBeenCalledWith(
+            "Access token key retrieval failed. Unable to decrypt encrypted access token. Logging user out.",
+            new Error(secureStorageError),
+          );
+
+          // assert that we logged the user out
+          expect(logoutCallback).toHaveBeenCalledWith(
+            "accessTokenUnableToBeDecrypted",
+            userIdFromAccessToken,
+          );
+        });
       });
     });
 
     describe("clearAccessToken", () => {
-      it("should throw an error if no user id is provided and there is no active user in global state", async () => {
+      it("throws an error when no user id is provided and there is no active user in global state", async () => {
         // Act
         // note: don't await here because we want to test the error
         const result = tokenService.clearAccessToken();
@@ -442,28 +634,26 @@ describe("TokenService", () => {
 
         test.each([
           [
-            "should clear the access token from all storage locations for the provided user id",
+            "clears the access token from all storage locations when a user id is provided",
             userIdFromAccessToken,
           ],
           [
-            "should clear the access token from all storage locations for the global active user",
+            "clears the access token from all storage locations when there is a global active user",
             undefined,
           ],
         ])("%s", async (_, userId) => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+            .nextState(accessTokenJwt);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, accessTokenJwt]);
+            .nextState(accessTokenJwt);
 
           // Need to have global active id set to the user id
           if (!userId) {
-            globalStateProvider
-              .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-              .stateSubject.next(userIdFromAccessToken);
+            globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
           }
 
           // Act
@@ -486,8 +676,32 @@ describe("TokenService", () => {
     });
 
     describe("decodeAccessToken", () => {
-      it("should throw an error if no access token provided or retrieved from state", async () => {
-        // Access
+      it("retrieves the requested user's token when the passed in parameter is a Guid", async () => {
+        // Arrange
+        tokenService.getAccessToken = jest.fn().mockResolvedValue(accessTokenJwt);
+
+        // Act
+        const result = await tokenService.decodeAccessToken(userIdFromAccessToken);
+
+        // Assert
+        expect(result).toEqual(accessTokenDecoded);
+        expect(tokenService.getAccessToken).toHaveBeenCalledWith(userIdFromAccessToken);
+      });
+
+      it("decodes the given token when a string is passed in that is not a Guid", async () => {
+        // Arrange
+        tokenService.getAccessToken = jest.fn();
+
+        // Act
+        const result = await tokenService.decodeAccessToken(accessTokenJwt);
+
+        // Assert
+        expect(result).toEqual(accessTokenDecoded);
+        expect(tokenService.getAccessToken).not.toHaveBeenCalled();
+      });
+
+      it("throws an error when no access token is provided or retrievable from state", async () => {
+        // Arrange
         tokenService.getAccessToken = jest.fn().mockResolvedValue(null);
 
         // Act
@@ -497,7 +711,7 @@ describe("TokenService", () => {
         await expect(result).rejects.toThrow("Access token not found.");
       });
 
-      it("should decode the access token", async () => {
+      it("decodes the access token when a valid one is stored", async () => {
         // Arrange
         tokenService.getAccessToken = jest.fn().mockResolvedValue(accessTokenJwt);
 
@@ -511,7 +725,7 @@ describe("TokenService", () => {
 
     describe("Data methods", () => {
       describe("getTokenExpirationDate", () => {
-        it("should throw an error if the access token cannot be decoded", async () => {
+        it("throws an error when the access token cannot be decoded", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockRejectedValue(new Error("Mock error"));
 
@@ -522,7 +736,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("Failed to decode access token: Mock error");
         });
 
-        it("should return null if the decoded access token is null", async () => {
+        it("returns null when the decoded access token is null", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(null);
 
@@ -533,7 +747,7 @@ describe("TokenService", () => {
           expect(result).toBeNull();
         });
 
-        it("should return null if the decoded access token does not have an expiration date", async () => {
+        it("returns null when the decoded access token does not have an expiration date", async () => {
           // Arrange
           const accessTokenDecodedWithoutExp = { ...accessTokenDecoded };
           delete accessTokenDecodedWithoutExp.exp;
@@ -548,7 +762,7 @@ describe("TokenService", () => {
           expect(result).toBeNull();
         });
 
-        it("should return null if the decoded access token has an non numeric expiration date", async () => {
+        it("returns null when the decoded access token has a non numeric expiration date", async () => {
           // Arrange
           const accessTokenDecodedWithNonNumericExp = { ...accessTokenDecoded, exp: "non-numeric" };
           tokenService.decodeAccessToken = jest
@@ -562,7 +776,7 @@ describe("TokenService", () => {
           expect(result).toBeNull();
         });
 
-        it("should return the expiration date of the access token", async () => {
+        it("returns the expiration date of the access token when a valid access token is stored", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(accessTokenDecoded);
 
@@ -575,7 +789,7 @@ describe("TokenService", () => {
       });
 
       describe("tokenSecondsRemaining", () => {
-        it("should return 0 if the tokenExpirationDate is null", async () => {
+        it("returns 0 when the tokenExpirationDate is null", async () => {
           // Arrange
           tokenService.getTokenExpirationDate = jest.fn().mockResolvedValue(null);
 
@@ -586,7 +800,7 @@ describe("TokenService", () => {
           expect(result).toEqual(0);
         });
 
-        it("should return the number of seconds remaining until the token expires", async () => {
+        it("returns the number of seconds remaining until the token expires", async () => {
           // Arrange
           // Lock the time to ensure a consistent test environment
           // otherwise we have flaky issues with set system time date and the Date.now() call.
@@ -611,7 +825,7 @@ describe("TokenService", () => {
           jest.useRealTimers();
         });
 
-        it("should return the number of seconds remaining until the token expires, considering an offset", async () => {
+        it("returns the number of seconds remaining until the token expires when given an offset", async () => {
           // Arrange
           // Lock the time to ensure a consistent test environment
           // otherwise we have flaky issues with set system time date and the Date.now() call.
@@ -639,7 +853,7 @@ describe("TokenService", () => {
       });
 
       describe("tokenNeedsRefresh", () => {
-        it("should return true if token is within the default refresh threshold (5 min)", async () => {
+        it("returns true when the token is within the default refresh threshold (5 min)", async () => {
           // Arrange
           const tokenSecondsRemaining = 60;
           tokenService.tokenSecondsRemaining = jest.fn().mockResolvedValue(tokenSecondsRemaining);
@@ -651,7 +865,7 @@ describe("TokenService", () => {
           expect(result).toEqual(true);
         });
 
-        it("should return false if token is outside the default refresh threshold (5 min)", async () => {
+        it("returns false when the token is outside the default refresh threshold (5 min)", async () => {
           // Arrange
           const tokenSecondsRemaining = 600;
           tokenService.tokenSecondsRemaining = jest.fn().mockResolvedValue(tokenSecondsRemaining);
@@ -663,7 +877,7 @@ describe("TokenService", () => {
           expect(result).toEqual(false);
         });
 
-        it("should return true if token is within the specified refresh threshold", async () => {
+        it("returns true when the token is within the specified refresh threshold", async () => {
           // Arrange
           const tokenSecondsRemaining = 60;
           tokenService.tokenSecondsRemaining = jest.fn().mockResolvedValue(tokenSecondsRemaining);
@@ -675,7 +889,7 @@ describe("TokenService", () => {
           expect(result).toEqual(true);
         });
 
-        it("should return false if token is outside the specified refresh threshold", async () => {
+        it("returns false when the token is outside the specified refresh threshold", async () => {
           // Arrange
           const tokenSecondsRemaining = 600;
           tokenService.tokenSecondsRemaining = jest.fn().mockResolvedValue(tokenSecondsRemaining);
@@ -689,7 +903,7 @@ describe("TokenService", () => {
       });
 
       describe("getUserId", () => {
-        it("should throw an error if the access token cannot be decoded", async () => {
+        it("throws an error when the access token cannot be decoded", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockRejectedValue(new Error("Mock error"));
 
@@ -700,7 +914,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("Failed to decode access token: Mock error");
         });
 
-        it("should throw an error if the decoded access token is null", async () => {
+        it("throws an error when the decoded access token is null", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(null);
 
@@ -711,7 +925,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No user id found");
         });
 
-        it("should throw an error if the decoded access token has a non-string user id", async () => {
+        it("throws an error when the decoded access token has a non-string user id", async () => {
           // Arrange
           const accessTokenDecodedWithNonStringSub = { ...accessTokenDecoded, sub: 123 };
           tokenService.decodeAccessToken = jest
@@ -725,7 +939,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No user id found");
         });
 
-        it("should return the user id from the decoded access token", async () => {
+        it("returns the user id from the decoded access token when a valid access token is stored", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(accessTokenDecoded);
 
@@ -738,7 +952,7 @@ describe("TokenService", () => {
       });
 
       describe("getUserIdFromAccessToken", () => {
-        it("should throw an error if the access token cannot be decoded", async () => {
+        it("throws an error when the access token cannot be decoded", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockRejectedValue(new Error("Mock error"));
 
@@ -749,7 +963,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("Failed to decode access token: Mock error");
         });
 
-        it("should throw an error if the decoded access token is null", async () => {
+        it("throws an error when the decoded access token is null", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(null);
 
@@ -760,7 +974,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No user id found");
         });
 
-        it("should throw an error if the decoded access token has a non-string user id", async () => {
+        it("throws an error when the decoded access token has a non-string user id", async () => {
           // Arrange
           const accessTokenDecodedWithNonStringSub = { ...accessTokenDecoded, sub: 123 };
           tokenService.decodeAccessToken = jest
@@ -774,7 +988,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No user id found");
         });
 
-        it("should return the user id from the decoded access token", async () => {
+        it("returns the user id from the decoded access token when a valid access token is stored", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(accessTokenDecoded);
 
@@ -787,7 +1001,7 @@ describe("TokenService", () => {
       });
 
       describe("getEmail", () => {
-        it("should throw an error if the access token cannot be decoded", async () => {
+        it("throws an error when the access token cannot be decoded", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockRejectedValue(new Error("Mock error"));
 
@@ -798,7 +1012,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("Failed to decode access token: Mock error");
         });
 
-        it("should throw an error if the decoded access token is null", async () => {
+        it("throws an error when the decoded access token is null", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(null);
 
@@ -809,7 +1023,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No email found");
         });
 
-        it("should throw an error if the decoded access token has a non-string email", async () => {
+        it("throws an error when the decoded access token has a non-string email", async () => {
           // Arrange
           const accessTokenDecodedWithNonStringEmail = { ...accessTokenDecoded, email: 123 };
           tokenService.decodeAccessToken = jest
@@ -823,7 +1037,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No email found");
         });
 
-        it("should return the email from the decoded access token", async () => {
+        it("returns the email from the decoded access token when a valid access token is stored", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(accessTokenDecoded);
 
@@ -836,7 +1050,7 @@ describe("TokenService", () => {
       });
 
       describe("getEmailVerified", () => {
-        it("should throw an error if the access token cannot be decoded", async () => {
+        it("throws an error when the access token cannot be decoded", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockRejectedValue(new Error("Mock error"));
 
@@ -847,7 +1061,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("Failed to decode access token: Mock error");
         });
 
-        it("should throw an error if the decoded access token is null", async () => {
+        it("throws an error when the decoded access token is null", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(null);
 
@@ -858,7 +1072,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No email verification found");
         });
 
-        it("should throw an error if the decoded access token has a non-boolean email_verified", async () => {
+        it("throws an error when the decoded access token has a non-boolean email_verified", async () => {
           // Arrange
           const accessTokenDecodedWithNonBooleanEmailVerified = {
             ...accessTokenDecoded,
@@ -875,7 +1089,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No email verification found");
         });
 
-        it("should return the email_verified from the decoded access token", async () => {
+        it("returns the email_verified from the decoded access token when a valid access token is stored", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(accessTokenDecoded);
 
@@ -888,7 +1102,7 @@ describe("TokenService", () => {
       });
 
       describe("getName", () => {
-        it("should throw an error if the access token cannot be decoded", async () => {
+        it("throws an error when the access token cannot be decoded", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockRejectedValue(new Error("Mock error"));
 
@@ -899,7 +1113,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("Failed to decode access token: Mock error");
         });
 
-        it("should return null if the decoded access token is null", async () => {
+        it("returns null when the decoded access token is null", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(null);
 
@@ -910,7 +1124,7 @@ describe("TokenService", () => {
           expect(result).toBeNull();
         });
 
-        it("should return null if the decoded access token has a non-string name", async () => {
+        it("returns null when the decoded access token has a non-string name", async () => {
           // Arrange
           const accessTokenDecodedWithNonStringName = { ...accessTokenDecoded, name: 123 };
           tokenService.decodeAccessToken = jest
@@ -924,7 +1138,7 @@ describe("TokenService", () => {
           expect(result).toBeNull();
         });
 
-        it("should return the name from the decoded access token", async () => {
+        it("returns the name from the decoded access token when a valid access token is stored", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(accessTokenDecoded);
 
@@ -937,7 +1151,7 @@ describe("TokenService", () => {
       });
 
       describe("getIssuer", () => {
-        it("should throw an error if the access token cannot be decoded", async () => {
+        it("throws an error when the access token cannot be decoded", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockRejectedValue(new Error("Mock error"));
 
@@ -948,7 +1162,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("Failed to decode access token: Mock error");
         });
 
-        it("should throw an error if the decoded access token is null", async () => {
+        it("throws an error when the decoded access token is null", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(null);
 
@@ -959,7 +1173,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No issuer found");
         });
 
-        it("should throw an error if the decoded access token has a non-string iss", async () => {
+        it("throws an error when the decoded access token has a non-string iss", async () => {
           // Arrange
           const accessTokenDecodedWithNonStringIss = { ...accessTokenDecoded, iss: 123 };
           tokenService.decodeAccessToken = jest
@@ -973,7 +1187,7 @@ describe("TokenService", () => {
           await expect(result).rejects.toThrow("No issuer found");
         });
 
-        it("should return the issuer from the decoded access token", async () => {
+        it("returns the issuer from the decoded access token when a valid access token is stored", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockResolvedValue(accessTokenDecoded);
 
@@ -986,18 +1200,18 @@ describe("TokenService", () => {
       });
 
       describe("getIsExternal", () => {
-        it("should throw an error if the access token cannot be decoded", async () => {
+        it("throws an error when the access token cannot be decoded", async () => {
           // Arrange
           tokenService.decodeAccessToken = jest.fn().mockRejectedValue(new Error("Mock error"));
 
           // Act
           // note: don't await here because we want to test the error
-          const result = tokenService.getIsExternal();
+          const result = tokenService.getIsExternal(null);
           // Assert
           await expect(result).rejects.toThrow("Failed to decode access token: Mock error");
         });
 
-        it("should return false if the amr (Authentication Method Reference) claim does not contain 'external'", async () => {
+        it("returns false when the amr (Authentication Method Reference) claim does not contain 'external'", async () => {
           // Arrange
           const accessTokenDecodedWithoutExternalAmr = {
             ...accessTokenDecoded,
@@ -1008,13 +1222,13 @@ describe("TokenService", () => {
             .mockResolvedValue(accessTokenDecodedWithoutExternalAmr);
 
           // Act
-          const result = await tokenService.getIsExternal();
+          const result = await tokenService.getIsExternal(null);
 
           // Assert
           expect(result).toEqual(false);
         });
 
-        it("should return true if the amr (Authentication Method Reference) claim contains 'external'", async () => {
+        it("returns true when the amr (Authentication Method Reference) claim contains 'external'", async () => {
           // Arrange
           const accessTokenDecodedWithExternalAmr = {
             ...accessTokenDecoded,
@@ -1025,10 +1239,21 @@ describe("TokenService", () => {
             .mockResolvedValue(accessTokenDecodedWithExternalAmr);
 
           // Act
-          const result = await tokenService.getIsExternal();
+          const result = await tokenService.getIsExternal(null);
 
           // Assert
           expect(result).toEqual(true);
+        });
+
+        it("passes the requested userId to decode", async () => {
+          // Arrange
+          tokenService.decodeAccessToken = jest.fn().mockResolvedValue(accessTokenDecoded);
+
+          // Act
+          await tokenService.getIsExternal(userIdFromAccessToken);
+
+          // Assert
+          expect(tokenService.decodeAccessToken).toHaveBeenCalledWith(userIdFromAccessToken);
         });
       });
     });
@@ -1040,7 +1265,7 @@ describe("TokenService", () => {
     const refreshTokenSecureStorageKey = `${userIdFromAccessToken}${refreshTokenPartialSecureStorageKey}`;
 
     describe("setRefreshToken", () => {
-      it("should throw an error if no user id is provided", async () => {
+      it("throws an error when no user id is provided", async () => {
         // Act
         // note: don't await here because we want to test the error
         const result = (tokenService as any).setRefreshToken(
@@ -1053,8 +1278,34 @@ describe("TokenService", () => {
         await expect(result).rejects.toThrow("User id not found. Cannot save refresh token.");
       });
 
+      it("should throw an error if the vault timeout is missing", async () => {
+        // Act
+        const result = (tokenService as any).setRefreshToken(
+          refreshToken,
+          VaultTimeoutAction.Lock,
+          null,
+          userIdFromAccessToken,
+        );
+
+        // Assert
+        await expect(result).rejects.toThrow("Vault Timeout is required.");
+      });
+
+      it("should throw an error if the vault timeout action is missing", async () => {
+        // Act
+        const result = (tokenService as any).setRefreshToken(
+          refreshToken,
+          null,
+          VaultTimeoutStringType.Never,
+          userIdFromAccessToken,
+        );
+
+        // Assert
+        await expect(result).rejects.toThrow("Vault Timeout Action is required.");
+      });
+
       describe("Memory storage tests", () => {
-        it("should set the refresh token in memory for the specified user id", async () => {
+        it("sets the refresh token in memory when given a user id", async () => {
           // Act
           await (tokenService as any).setRefreshToken(
             refreshToken,
@@ -1071,7 +1322,7 @@ describe("TokenService", () => {
       });
 
       describe("Disk storage tests (secure storage not supported on platform)", () => {
-        it("should set the refresh token in disk for the specified user id", async () => {
+        it("sets the refresh token in disk when given a user id", async () => {
           // Act
           await (tokenService as any).setRefreshToken(
             refreshToken,
@@ -1093,16 +1344,19 @@ describe("TokenService", () => {
           tokenService = createTokenService(supportsSecureStorage);
         });
 
-        it("should set the refresh token in secure storage, null out data on disk or in memory, and set a flag to indicate the token has been migrated for the specified user id", async () => {
+        it("sets the refresh token in secure storage, removes data on disk or in memory, and sets a flag to indicate the token has been migrated when given a user id", async () => {
           // Arrange:
           // For testing purposes, let's assume that the token is already in disk and memory
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
+
+          // We immediately call to get the refresh token from secure storage after setting it to ensure it was set.
+          secureStorageService.get.mockResolvedValue(refreshToken);
 
           // Act
           await (tokenService as any).setRefreshToken(
@@ -1128,22 +1382,168 @@ describe("TokenService", () => {
             singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY).nextMock,
           ).toHaveBeenCalledWith(null);
         });
+
+        it("tries to set the refresh token in secure storage then falls back to disk storage when the refresh token cannot be read back out of secure storage", async () => {
+          // Arrange:
+          // We immediately call to get the refresh token from secure storage after setting it to ensure it was set.
+          // So, set it to return null to mock a failure to set the refresh token in secure storage.
+          // This mocks the windows 10/11 intermittent issue where the token is not set in secure storage successfully.
+          secureStorageService.get.mockResolvedValue(null);
+
+          // Act
+          await (tokenService as any).setRefreshToken(
+            refreshToken,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+            userIdFromAccessToken,
+          );
+          // Assert
+
+          // assert that the refresh token was set in secure storage
+          expect(secureStorageService.save).toHaveBeenCalledWith(
+            refreshTokenSecureStorageKey,
+            refreshToken,
+            secureStorageOptions,
+          );
+
+          // assert that we tried to set the refresh token in secure storage, but it failed, so we reverted to disk storage
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK).nextMock,
+          ).toHaveBeenCalledWith(refreshToken);
+        });
+
+        it("tries to set the refresh token in secure storage, throws an error, then falls back to disk storage when secure storage isn't supported", async () => {
+          // Arrange:
+          // Mock the secure storage service to throw an error when trying to save the refresh token
+          // to simulate linux scenarios where a secure storage provider isn't configured.
+          secureStorageService.save.mockRejectedValue(new Error("Secure storage not supported"));
+
+          // Act
+          await (tokenService as any).setRefreshToken(
+            refreshToken,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+            userIdFromAccessToken,
+          );
+          // Assert
+
+          // assert that the refresh token was set in secure storage
+          expect(secureStorageService.save).toHaveBeenCalledWith(
+            refreshTokenSecureStorageKey,
+            refreshToken,
+            secureStorageOptions,
+          );
+
+          // assert that we tried to set the refresh token in secure storage, but it failed, so we reverted to disk storage
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK).nextMock,
+          ).toHaveBeenCalledWith(refreshToken);
+        });
+
+        it("returns the unencrypted access token when secure storage retrieval fails but the access token is still pre-migration", async () => {
+          // This tests the linux scenario where users might not have secure storage support configured.
+
+          // Arrange
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+            .nextState(undefined);
+
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
+            .nextState(accessTokenJwt);
+
+          // Mock linux secure storage error
+          const secureStorageError = "Secure storage error";
+          secureStorageService.get.mockRejectedValue(new Error(secureStorageError));
+
+          // Act
+          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+
+          // Assert
+          // assert that we returned the unencrypted, pre-migration access token
+          expect(result).toBe(accessTokenJwt);
+
+          // assert that we did not log an error or log the user out
+          expect(logService.error).not.toHaveBeenCalled();
+
+          expect(logoutCallback).not.toHaveBeenCalled();
+        });
+
+        it("does not error and fallback to disk storage when passed a null value for the refresh token", async () => {
+          // Arrange
+          secureStorageService.get.mockResolvedValue(null);
+
+          // Act
+          await (tokenService as any).setRefreshToken(
+            null,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+            userIdFromAccessToken,
+          );
+
+          // Assert
+          expect(secureStorageService.save).toHaveBeenCalledWith(
+            refreshTokenSecureStorageKey,
+            null,
+            secureStorageOptions,
+          );
+
+          expect(logService.error).not.toHaveBeenCalled();
+
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK).nextMock,
+          ).toHaveBeenCalledWith(null);
+
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY).nextMock,
+          ).toHaveBeenCalledWith(null);
+        });
+
+        it("logs the error and logs the user out when the access token cannot be decrypted", async () => {
+          // Arrange
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+            .nextState(undefined);
+
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
+            .nextState(encryptedAccessToken);
+
+          secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
+          encryptService.decryptToUtf8.mockRejectedValue(new Error("Decryption error"));
+
+          // Act
+          const result = await tokenService.getAccessToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toBeNull();
+
+          // assert that we logged the error
+          expect(logService.error).toHaveBeenCalledWith(
+            "Failed to decrypt access token",
+            new Error("Decryption error"),
+          );
+
+          // assert that we logged the user out
+          expect(logoutCallback).toHaveBeenCalledWith(
+            "accessTokenUnableToBeDecrypted",
+            userIdFromAccessToken,
+          );
+        });
       });
     });
 
     describe("getRefreshToken", () => {
-      it("should return undefined if no user id is provided and there is no active user in global state", async () => {
+      it("returns null when no user id is provided and there is no active user in global state", async () => {
         // Act
         const result = await (tokenService as any).getRefreshToken();
         // Assert
-        expect(result).toBeUndefined();
+        expect(result).toBeNull();
       });
 
-      it("should return null if no refresh token is found in memory, disk, or secure storage", async () => {
+      it("returns null when no refresh token is found in memory, disk, or secure storage", async () => {
         // Arrange
-        globalStateProvider
-          .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-          .stateSubject.next(userIdFromAccessToken);
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
         // Act
         const result = await (tokenService as any).getRefreshToken();
@@ -1152,20 +1552,18 @@ describe("TokenService", () => {
       });
 
       describe("Memory storage tests", () => {
-        it("should get the refresh token from memory with no user id specified (uses global active user)", async () => {
+        it("gets the refresh token from memory when no user id is specified (uses global active user)", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           const result = await tokenService.getRefreshToken();
@@ -1174,15 +1572,15 @@ describe("TokenService", () => {
           expect(result).toEqual(refreshToken);
         });
 
-        it("should get the refresh token from memory for the specified user id", async () => {
+        it("gets the refresh token from memory when a user id is specified", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           // Act
           const result = await tokenService.getRefreshToken(userIdFromAccessToken);
@@ -1192,20 +1590,18 @@ describe("TokenService", () => {
       });
 
       describe("Disk storage tests (secure storage not supported on platform)", () => {
-        it("should get the refresh token from disk with no user id specified", async () => {
+        it("gets the refresh token from disk when no user id is specified", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           const result = await tokenService.getRefreshToken();
@@ -1213,15 +1609,15 @@ describe("TokenService", () => {
           expect(result).toEqual(refreshToken);
         });
 
-        it("should get the refresh token from disk for the specified user id", async () => {
+        it("gets the refresh token from disk when a user id is specified", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
 
           // Act
           const result = await tokenService.getRefreshToken(userIdFromAccessToken);
@@ -1236,22 +1632,20 @@ describe("TokenService", () => {
           tokenService = createTokenService(supportsSecureStorage);
         });
 
-        it("should get the refresh token from secure storage when no user id is specified and the migration flag is set to true", async () => {
+        it("gets the refresh token from secure storage when no user id is specified", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           secureStorageService.get.mockResolvedValue(refreshToken);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           const result = await tokenService.getRefreshToken();
@@ -1259,16 +1653,16 @@ describe("TokenService", () => {
           expect(result).toEqual(refreshToken);
         });
 
-        it("should get the refresh token from secure storage when user id is specified and the migration flag set to true", async () => {
+        it("gets the refresh token from secure storage when a user id is specified", async () => {
           // Arrange
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           secureStorageService.get.mockResolvedValue(refreshToken);
 
@@ -1278,15 +1672,15 @@ describe("TokenService", () => {
           expect(result).toEqual(refreshToken);
         });
 
-        it("should fallback and get the refresh token from disk when user id is specified and the migration flag is set to false even if the platform supports secure storage", async () => {
+        it("falls back and gets the refresh token from disk when a user id is specified even if the platform supports secure storage", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
 
           // Act
           const result = await tokenService.getRefreshToken(userIdFromAccessToken);
@@ -1298,20 +1692,18 @@ describe("TokenService", () => {
           expect(secureStorageService.get).not.toHaveBeenCalled();
         });
 
-        it("should fallback and get the refresh token from disk when no user id is specified and the migration flag is set to false even if the platform supports secure storage", async () => {
+        it("falls back and gets the refresh token from disk when no user id is specified even if the platform supports secure storage", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           const result = await tokenService.getRefreshToken();
@@ -1321,12 +1713,81 @@ describe("TokenService", () => {
 
           // assert that secure storage was not called
           expect(secureStorageService.get).not.toHaveBeenCalled();
+        });
+
+        it("returns null when the refresh token is not found in memory, on disk, or in secure storage", async () => {
+          // Arrange
+          secureStorageService.get.mockResolvedValue(null);
+
+          // Act
+          const result = await tokenService.getRefreshToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toBeNull();
+        });
+
+        it("returns null and logs when the refresh token is not found in secure storage when it should be", async () => {
+          // This scenario mocks the case where we have intermittent windows 10/11 issues w/ secure storage not
+          // returning the refresh token when it should be there.
+          // Arrange
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
+            .nextState(undefined);
+
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
+            .nextState(undefined);
+
+          secureStorageService.get.mockResolvedValue(null);
+
+          // Act
+          const result = await tokenService.getRefreshToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toBeNull();
+
+          expect(logService.error).toHaveBeenCalledWith(
+            "Refresh token not found in secure storage. Access token will fail to refresh upon expiration or manual refresh.",
+          );
+        });
+
+        it("logs out when retrieving the refresh token out of secure storage errors", async () => {
+          // This scenario mocks the case where linux users don't have secure storage configured.
+          // Arrange
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
+            .nextState(undefined);
+
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
+            .nextState(undefined);
+
+          const secureStorageSvcMockErrorMsg = "Secure storage retrieval error";
+
+          secureStorageService.get.mockRejectedValue(new Error(secureStorageSvcMockErrorMsg));
+
+          // Act
+          const result = await tokenService.getRefreshToken(userIdFromAccessToken);
+
+          // Assert
+          expect(result).toBeNull();
+
+          // expect that we logged an error and logged the user out
+          expect(logService.error).toHaveBeenCalledWith(
+            `Failed to retrieve refresh token from secure storage`,
+            new Error(secureStorageSvcMockErrorMsg),
+          );
+
+          expect(logoutCallback).toHaveBeenCalledWith(
+            "refreshTokenSecureStorageRetrievalFailure",
+            userIdFromAccessToken,
+          );
         });
       });
     });
 
     describe("clearRefreshToken", () => {
-      it("should throw an error if no user id is provided", async () => {
+      it("throws an error when no user id is provided", async () => {
         // Act
         // note: don't await here because we want to test the error
         const result = (tokenService as any).clearRefreshToken();
@@ -1340,15 +1801,15 @@ describe("TokenService", () => {
           tokenService = createTokenService(supportsSecureStorage);
         });
 
-        it("should clear the refresh token from all storage locations for the specified user id", async () => {
+        it("clears the refresh token from all storage locations when given a user id", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
-            .stateSubject.next([userIdFromAccessToken, refreshToken]);
+            .nextState(refreshToken);
 
           // Act
           await (tokenService as any).clearRefreshToken(userIdFromAccessToken);
@@ -1374,7 +1835,7 @@ describe("TokenService", () => {
     const clientId = "clientId";
 
     describe("setClientId", () => {
-      it("should throw an error if no user id is provided and there is no active user in global state", async () => {
+      it("throws an error when no user id is provided and there is no active user in global state", async () => {
         // Act
         // note: don't await here because we want to test the error
         const result = tokenService.setClientId(clientId, VaultTimeoutAction.Lock, null);
@@ -1382,12 +1843,34 @@ describe("TokenService", () => {
         await expect(result).rejects.toThrow("User id not found. Cannot save client id.");
       });
 
+      it("should throw an error if the vault timeout is missing", async () => {
+        // Arrange
+
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
+
+        // Act
+        const result = tokenService.setClientId(clientId, VaultTimeoutAction.Lock, null);
+
+        // Assert
+        await expect(result).rejects.toThrow("Vault Timeout is required.");
+      });
+
+      it("should throw an error if the vault timeout action is missing", async () => {
+        // Arrange
+
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
+
+        // Act
+        const result = tokenService.setClientId(clientId, null, VaultTimeoutStringType.Never);
+
+        // Assert
+        await expect(result).rejects.toThrow("Vault Timeout Action is required.");
+      });
+
       describe("Memory storage tests", () => {
-        it("should set the client id in memory when there is an active user in global state", async () => {
+        it("sets the client id in memory when there is an active user in global state", async () => {
           // Arrange
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           await tokenService.setClientId(clientId, memoryVaultTimeoutAction, memoryVaultTimeout);
@@ -1399,7 +1882,7 @@ describe("TokenService", () => {
           ).toHaveBeenCalledWith(clientId);
         });
 
-        it("should set the client id in memory for the specified user id", async () => {
+        it("sets the client id in memory when given a user id", async () => {
           // Act
           await tokenService.setClientId(
             clientId,
@@ -1417,11 +1900,9 @@ describe("TokenService", () => {
       });
 
       describe("Disk storage tests", () => {
-        it("should set the client id in disk when there is an active user in global state", async () => {
+        it("sets the client id in disk when there is an active user in global state", async () => {
           // Arrange
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           await tokenService.setClientId(clientId, diskVaultTimeoutAction, diskVaultTimeout);
@@ -1432,7 +1913,7 @@ describe("TokenService", () => {
           ).toHaveBeenCalledWith(clientId);
         });
 
-        it("should set the client id in disk for the specified user id", async () => {
+        it("sets the client id on disk when given a user id", async () => {
           // Act
           await tokenService.setClientId(
             clientId,
@@ -1450,18 +1931,16 @@ describe("TokenService", () => {
     });
 
     describe("getClientId", () => {
-      it("should return undefined if no user id is provided and there is no active user in global state", async () => {
+      it("returns undefined when no user id is provided and there is no active user in global state", async () => {
         // Act
         const result = await tokenService.getClientId();
         // Assert
         expect(result).toBeUndefined();
       });
 
-      it("should return null if no client id is found in memory or disk", async () => {
+      it("returns null when no client id is found in memory or disk", async () => {
         // Arrange
-        globalStateProvider
-          .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-          .stateSubject.next(userIdFromAccessToken);
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
         // Act
         const result = await tokenService.getClientId();
@@ -1470,21 +1949,19 @@ describe("TokenService", () => {
       });
 
       describe("Memory storage tests", () => {
-        it("should get the client id from memory with no user id specified (uses global active user)", async () => {
+        it("gets the client id from memory when no user id is specified (uses global active user)", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, clientId]);
+            .nextState(clientId);
 
           // set disk to undefined
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           const result = await tokenService.getClientId();
@@ -1493,16 +1970,16 @@ describe("TokenService", () => {
           expect(result).toEqual(clientId);
         });
 
-        it("should get the client id from memory for the specified user id", async () => {
+        it("gets the client id from memory when given a user id", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, clientId]);
+            .nextState(clientId);
 
           // set disk to undefined
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           // Act
           const result = await tokenService.getClientId(userIdFromAccessToken);
@@ -1512,20 +1989,18 @@ describe("TokenService", () => {
       });
 
       describe("Disk storage tests", () => {
-        it("should get the client id from disk with no user id specified", async () => {
+        it("gets the client id from disk when no user id is specified", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_DISK)
-            .stateSubject.next([userIdFromAccessToken, clientId]);
+            .nextState(clientId);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           const result = await tokenService.getClientId();
@@ -1533,15 +2008,15 @@ describe("TokenService", () => {
           expect(result).toEqual(clientId);
         });
 
-        it("should get the client id from disk for the specified user id", async () => {
+        it("gets the client id from disk when a user id is specified", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_DISK)
-            .stateSubject.next([userIdFromAccessToken, clientId]);
+            .nextState(clientId);
 
           // Act
           const result = await tokenService.getClientId(userIdFromAccessToken);
@@ -1552,7 +2027,7 @@ describe("TokenService", () => {
     });
 
     describe("clearClientId", () => {
-      it("should throw an error if no user id is provided and there is no active user in global state", async () => {
+      it("throws an error when no user id is provided and there is no active user in global state", async () => {
         // Act
         // note: don't await here because we want to test the error
         const result = (tokenService as any).clearClientId();
@@ -1560,15 +2035,15 @@ describe("TokenService", () => {
         await expect(result).rejects.toThrow("User id not found. Cannot clear client id.");
       });
 
-      it("should clear the client id from memory and disk for the specified user id", async () => {
+      it("clears the client id from memory and disk when a user id is specified", async () => {
         // Arrange
         singleUserStateProvider
           .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
-          .stateSubject.next([userIdFromAccessToken, clientId]);
+          .nextState(clientId);
 
         singleUserStateProvider
           .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_DISK)
-          .stateSubject.next([userIdFromAccessToken, clientId]);
+          .nextState(clientId);
 
         // Act
         await (tokenService as any).clearClientId(userIdFromAccessToken);
@@ -1582,20 +2057,18 @@ describe("TokenService", () => {
         ).toHaveBeenCalledWith(null);
       });
 
-      it("should clear the client id from memory and disk for the global active user", async () => {
+      it("clears the client id from memory and disk when there is a global active user", async () => {
         // Arrange
         singleUserStateProvider
           .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
-          .stateSubject.next([userIdFromAccessToken, clientId]);
+          .nextState(clientId);
 
         singleUserStateProvider
           .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_DISK)
-          .stateSubject.next([userIdFromAccessToken, clientId]);
+          .nextState(clientId);
 
         // Need to have global active id set to the user id
-        globalStateProvider
-          .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-          .stateSubject.next(userIdFromAccessToken);
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
         // Act
         await (tokenService as any).clearClientId();
@@ -1615,20 +2088,50 @@ describe("TokenService", () => {
     const clientSecret = "clientSecret";
 
     describe("setClientSecret", () => {
-      it("should throw an error if no user id is provided and there is no active user in global state", async () => {
+      it("throws an error when no user id is provided and there is no active user in global state", async () => {
         // Act
         // note: don't await here because we want to test the error
-        const result = tokenService.setClientSecret(clientSecret, VaultTimeoutAction.Lock, null);
+        const result = tokenService.setClientSecret(
+          clientSecret,
+          VaultTimeoutAction.Lock,
+          VaultTimeoutStringType.Never,
+        );
         // Assert
         await expect(result).rejects.toThrow("User id not found. Cannot save client secret.");
       });
 
+      it("should throw an error if the vault timeout is missing", async () => {
+        // Arrange
+
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
+
+        // Act
+        const result = tokenService.setClientSecret(clientSecret, VaultTimeoutAction.Lock, null);
+
+        // Assert
+        await expect(result).rejects.toThrow("Vault Timeout is required.");
+      });
+
+      it("should throw an error if the vault timeout action is missing", async () => {
+        // Arrange
+
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
+
+        // Act
+        const result = tokenService.setClientSecret(
+          clientSecret,
+          null,
+          VaultTimeoutStringType.Never,
+        );
+
+        // Assert
+        await expect(result).rejects.toThrow("Vault Timeout Action is required.");
+      });
+
       describe("Memory storage tests", () => {
-        it("should set the client secret in memory when there is an active user in global state", async () => {
+        it("sets the client secret in memory when there is an active user in global state", async () => {
           // Arrange
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           await tokenService.setClientSecret(
@@ -1644,7 +2147,7 @@ describe("TokenService", () => {
           ).toHaveBeenCalledWith(clientSecret);
         });
 
-        it("should set the client secret in memory for the specified user id", async () => {
+        it("sets the client secret in memory when a user id is specified", async () => {
           // Act
           await tokenService.setClientSecret(
             clientSecret,
@@ -1662,11 +2165,9 @@ describe("TokenService", () => {
       });
 
       describe("Disk storage tests", () => {
-        it("should set the client secret in disk when there is an active user in global state", async () => {
+        it("sets the client secret on disk when there is an active user in global state", async () => {
           // Arrange
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           await tokenService.setClientSecret(
@@ -1682,7 +2183,7 @@ describe("TokenService", () => {
           ).toHaveBeenCalledWith(clientSecret);
         });
 
-        it("should set the client secret in disk for the specified user id", async () => {
+        it("sets the client secret on disk when a user id is specified", async () => {
           // Act
           await tokenService.setClientSecret(
             clientSecret,
@@ -1701,18 +2202,16 @@ describe("TokenService", () => {
     });
 
     describe("getClientSecret", () => {
-      it("should return undefined if no user id is provided and there is no active user in global state", async () => {
+      it("returns undefined when no user id is provided and there is no active user in global state", async () => {
         // Act
         const result = await tokenService.getClientSecret();
         // Assert
         expect(result).toBeUndefined();
       });
 
-      it("should return null if no client secret is found in memory or disk", async () => {
+      it("returns null when no client secret is found in memory or disk", async () => {
         // Arrange
-        globalStateProvider
-          .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-          .stateSubject.next(userIdFromAccessToken);
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
         // Act
         const result = await tokenService.getClientSecret();
@@ -1721,21 +2220,19 @@ describe("TokenService", () => {
       });
 
       describe("Memory storage tests", () => {
-        it("should get the client secret from memory with no user id specified (uses global active user)", async () => {
+        it("gets the client secret from memory when no user id is specified (uses global active user)", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, clientSecret]);
+            .nextState(clientSecret);
 
           // set disk to undefined
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           const result = await tokenService.getClientSecret();
@@ -1744,16 +2241,16 @@ describe("TokenService", () => {
           expect(result).toEqual(clientSecret);
         });
 
-        it("should get the client secret from memory for the specified user id", async () => {
+        it("gets the client secret from memory when a user id is specified", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, clientSecret]);
+            .nextState(clientSecret);
 
           // set disk to undefined
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_DISK)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           // Act
           const result = await tokenService.getClientSecret(userIdFromAccessToken);
@@ -1763,20 +2260,18 @@ describe("TokenService", () => {
       });
 
       describe("Disk storage tests", () => {
-        it("should get the client secret from disk with no user id specified", async () => {
+        it("gets the client secret from disk when no user id specified", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_DISK)
-            .stateSubject.next([userIdFromAccessToken, clientSecret]);
+            .nextState(clientSecret);
 
           // Need to have global active id set to the user id
-          globalStateProvider
-            .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-            .stateSubject.next(userIdFromAccessToken);
+          globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
           // Act
           const result = await tokenService.getClientSecret();
@@ -1784,15 +2279,15 @@ describe("TokenService", () => {
           expect(result).toEqual(clientSecret);
         });
 
-        it("should get the client secret from disk for the specified user id", async () => {
+        it("gets the client secret from disk when a user id is specified", async () => {
           // Arrange
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-            .stateSubject.next([userIdFromAccessToken, undefined]);
+            .nextState(undefined);
 
           singleUserStateProvider
             .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_DISK)
-            .stateSubject.next([userIdFromAccessToken, clientSecret]);
+            .nextState(clientSecret);
 
           // Act
           const result = await tokenService.getClientSecret(userIdFromAccessToken);
@@ -1803,7 +2298,7 @@ describe("TokenService", () => {
     });
 
     describe("clearClientSecret", () => {
-      it("should throw an error if no user id is provided and there is no active user in global state", async () => {
+      it("throws an error when no user id is provided and there is no active user in global state", async () => {
         // Act
         // note: don't await here because we want to test the error
         const result = (tokenService as any).clearClientSecret();
@@ -1811,15 +2306,15 @@ describe("TokenService", () => {
         await expect(result).rejects.toThrow("User id not found. Cannot clear client secret.");
       });
 
-      it("should clear the client secret from memory and disk for the specified user id", async () => {
+      it("clears the client secret from memory and disk when a user id is specified", async () => {
         // Arrange
         singleUserStateProvider
           .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-          .stateSubject.next([userIdFromAccessToken, clientSecret]);
+          .nextState(clientSecret);
 
         singleUserStateProvider
           .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_DISK)
-          .stateSubject.next([userIdFromAccessToken, clientSecret]);
+          .nextState(clientSecret);
 
         // Act
         await (tokenService as any).clearClientSecret(userIdFromAccessToken);
@@ -1835,20 +2330,18 @@ describe("TokenService", () => {
         ).toHaveBeenCalledWith(null);
       });
 
-      it("should clear the client secret from memory and disk for the global active user", async () => {
+      it("clears the client secret from memory and disk when there is a global active user", async () => {
         // Arrange
         singleUserStateProvider
           .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-          .stateSubject.next([userIdFromAccessToken, clientSecret]);
+          .nextState(clientSecret);
 
         singleUserStateProvider
           .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_DISK)
-          .stateSubject.next([userIdFromAccessToken, clientSecret]);
+          .nextState(clientSecret);
 
         // Need to have global active id set to the user id
-        globalStateProvider
-          .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-          .stateSubject.next(userIdFromAccessToken);
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
         // Act
         await (tokenService as any).clearClientSecret();
@@ -1867,7 +2360,7 @@ describe("TokenService", () => {
   });
 
   describe("setTokens", () => {
-    it("should call to set all passed in tokens after deriving user id from the access token", async () => {
+    it("calls to set all tokens after deriving user id from the access token when called with valid params", async () => {
       // Arrange
       const refreshToken = "refreshToken";
       // specific vault timeout actions and vault timeouts don't change this test so values don't matter.
@@ -1876,18 +2369,21 @@ describe("TokenService", () => {
       const clientId = "clientId";
       const clientSecret = "clientSecret";
 
-      (tokenService as any)._setAccessToken = jest.fn();
       // any hack allows for mocking private method.
-      (tokenService as any).setRefreshToken = jest.fn();
-      tokenService.setClientId = jest.fn();
-      tokenService.setClientSecret = jest.fn();
+      (tokenService as any)._setAccessToken = jest.fn().mockReturnValue(accessTokenJwt);
+      (tokenService as any).setRefreshToken = jest.fn().mockReturnValue(refreshToken);
+      tokenService.setClientId = jest.fn().mockReturnValue(clientId);
+      tokenService.setClientSecret = jest.fn().mockReturnValue(clientSecret);
 
       // Act
       // Note: passing a valid access token so that a valid user id can be determined from the access token
-      await tokenService.setTokens(accessTokenJwt, vaultTimeoutAction, vaultTimeout, refreshToken, [
-        clientId,
-        clientSecret,
-      ]);
+      const result = await tokenService.setTokens(
+        accessTokenJwt,
+        vaultTimeoutAction,
+        vaultTimeout,
+        refreshToken,
+        [clientId, clientSecret],
+      );
 
       // Assert
       expect((tokenService as any)._setAccessToken).toHaveBeenCalledWith(
@@ -1917,21 +2413,64 @@ describe("TokenService", () => {
         vaultTimeout,
         userIdFromAccessToken,
       );
+
+      expect(result).toStrictEqual(
+        new SetTokensResult(accessTokenJwt, refreshToken, [clientId, clientSecret]),
+      );
     });
 
-    it("should not try to set client id and client secret if they are not passed in", async () => {
+    it("does not try to set the refresh token when it is not passed in", async () => {
       // Arrange
-      const refreshToken = "refreshToken";
       const vaultTimeoutAction = VaultTimeoutAction.Lock;
       const vaultTimeout = 30;
 
-      (tokenService as any)._setAccessToken = jest.fn();
+      (tokenService as any)._setAccessToken = jest.fn().mockReturnValue(accessTokenJwt);
       (tokenService as any).setRefreshToken = jest.fn();
       tokenService.setClientId = jest.fn();
       tokenService.setClientSecret = jest.fn();
 
       // Act
-      await tokenService.setTokens(accessTokenJwt, vaultTimeoutAction, vaultTimeout, refreshToken);
+      const result = await tokenService.setTokens(
+        accessTokenJwt,
+        vaultTimeoutAction,
+        vaultTimeout,
+        null,
+      );
+
+      // Assert
+      expect((tokenService as any)._setAccessToken).toHaveBeenCalledWith(
+        accessTokenJwt,
+        vaultTimeoutAction,
+        vaultTimeout,
+        userIdFromAccessToken,
+      );
+
+      // any hack allows for testing private methods
+      expect((tokenService as any).setRefreshToken).not.toHaveBeenCalled();
+      expect(tokenService.setClientId).not.toHaveBeenCalled();
+      expect(tokenService.setClientSecret).not.toHaveBeenCalled();
+
+      expect(result).toStrictEqual(new SetTokensResult(accessTokenJwt));
+    });
+
+    it("does not try to set client id and client secret when they are not passed in", async () => {
+      // Arrange
+      const refreshToken = "refreshToken";
+      const vaultTimeoutAction = VaultTimeoutAction.Lock;
+      const vaultTimeout = 30;
+
+      (tokenService as any)._setAccessToken = jest.fn().mockReturnValue(accessTokenJwt);
+      (tokenService as any).setRefreshToken = jest.fn().mockReturnValue(refreshToken);
+      tokenService.setClientId = jest.fn();
+      tokenService.setClientSecret = jest.fn();
+
+      // Act
+      const result = await tokenService.setTokens(
+        accessTokenJwt,
+        vaultTimeoutAction,
+        vaultTimeout,
+        refreshToken,
+      );
 
       // Assert
       expect((tokenService as any)._setAccessToken).toHaveBeenCalledWith(
@@ -1951,9 +2490,11 @@ describe("TokenService", () => {
 
       expect(tokenService.setClientId).not.toHaveBeenCalled();
       expect(tokenService.setClientSecret).not.toHaveBeenCalled();
+
+      expect(result).toStrictEqual(new SetTokensResult(accessTokenJwt, refreshToken));
     });
 
-    it("should throw an error if the access token is invalid", async () => {
+    it("throws an error when the access token is invalid", async () => {
       // Arrange
       const accessToken = "invalidToken";
       const refreshToken = "refreshToken";
@@ -1972,7 +2513,7 @@ describe("TokenService", () => {
       await expect(result).rejects.toThrow("JWT must have 3 parts");
     });
 
-    it("should throw an error if the access token is missing", async () => {
+    it("throws an error when the access token is missing", async () => {
       // Arrange
       const accessToken: string = null;
       const refreshToken = "refreshToken";
@@ -1991,7 +2532,43 @@ describe("TokenService", () => {
       await expect(result).rejects.toThrow("Access token is required.");
     });
 
-    it("should not throw an error if the refresh token is missing and it should just not set it", async () => {
+    it("should throw an error if the vault timeout is missing", async () => {
+      // Arrange
+      const refreshToken = "refreshToken";
+      const vaultTimeoutAction = VaultTimeoutAction.Lock;
+      const vaultTimeout: VaultTimeout = null;
+
+      // Act
+      const result = tokenService.setTokens(
+        accessTokenJwt,
+        vaultTimeoutAction,
+        vaultTimeout,
+        refreshToken,
+      );
+
+      // Assert
+      await expect(result).rejects.toThrow("Vault Timeout is required.");
+    });
+
+    it("should throw an error if the vault timeout action is missing", async () => {
+      // Arrange
+      const refreshToken = "refreshToken";
+      const vaultTimeoutAction: VaultTimeoutAction = null;
+      const vaultTimeout: VaultTimeout = VaultTimeoutStringType.Never;
+
+      // Act
+      const result = tokenService.setTokens(
+        accessTokenJwt,
+        vaultTimeoutAction,
+        vaultTimeout,
+        refreshToken,
+      );
+
+      // Assert
+      await expect(result).rejects.toThrow("Vault Timeout Action is required.");
+    });
+
+    it("does not throw an error or set the refresh token when the refresh token is missing", async () => {
       // Arrange
       const refreshToken: string = null;
       const vaultTimeoutAction = VaultTimeoutAction.Lock;
@@ -1999,15 +2576,21 @@ describe("TokenService", () => {
       (tokenService as any).setRefreshToken = jest.fn();
 
       // Act
-      await tokenService.setTokens(accessTokenJwt, vaultTimeoutAction, vaultTimeout, refreshToken);
+      const result = await tokenService.setTokens(
+        accessTokenJwt,
+        vaultTimeoutAction,
+        vaultTimeout,
+        refreshToken,
+      );
 
       // Assert
       expect((tokenService as any).setRefreshToken).not.toHaveBeenCalled();
+      expect(result).toStrictEqual(new SetTokensResult(accessTokenJwt));
     });
   });
 
   describe("clearTokens", () => {
-    it("should call to clear all tokens for the specified user id", async () => {
+    it("calls to clear all tokens when given a specified user id", async () => {
       // Arrange
       const userId = "userId" as UserId;
 
@@ -2028,11 +2611,11 @@ describe("TokenService", () => {
       expect((tokenService as any).clearClientSecret).toHaveBeenCalledWith(userId);
     });
 
-    it("should call to clear all tokens for the active user id", async () => {
+    it("calls to clear all tokens when there is an active user", async () => {
       // Arrange
       const userId = "userId" as UserId;
 
-      globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).stateSubject.next(userId);
+      globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userId);
 
       tokenService.clearAccessToken = jest.fn();
       (tokenService as any).clearRefreshToken = jest.fn();
@@ -2051,7 +2634,7 @@ describe("TokenService", () => {
       expect((tokenService as any).clearClientSecret).toHaveBeenCalledWith(userId);
     });
 
-    it("should not call to clear all tokens if no user id is provided and there is no active user in global state", async () => {
+    it("does not call to clear all tokens when no user id is provided and there is no active user in global state", async () => {
       // Arrange
       tokenService.clearAccessToken = jest.fn();
       (tokenService as any).clearRefreshToken = jest.fn();
@@ -2069,7 +2652,7 @@ describe("TokenService", () => {
 
   describe("Two Factor Token methods", () => {
     describe("setTwoFactorToken", () => {
-      it("should set the email and two factor token when there hasn't been a previous record (initializing the record)", async () => {
+      it("sets the email and two factor token when there hasn't been a previous record (initializing the record)", async () => {
         // Arrange
         const email = "testUser@email.com";
         const twoFactorToken = "twoFactorTokenForTestUser";
@@ -2081,7 +2664,7 @@ describe("TokenService", () => {
         ).toHaveBeenCalledWith({ [email]: twoFactorToken });
       });
 
-      it("should set the email and two factor token when there is an initialized value already (updating the existing record)", async () => {
+      it("sets the email and two factor token when there is an initialized value already (updating the existing record)", async () => {
         // Arrange
         const email = "testUser@email.com";
         const twoFactorToken = "twoFactorTokenForTestUser";
@@ -2091,7 +2674,7 @@ describe("TokenService", () => {
 
         globalStateProvider
           .getFake(EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL)
-          .stateSubject.next(initialTwoFactorTokenRecord);
+          .nextState(initialTwoFactorTokenRecord);
 
         // Act
         await tokenService.setTwoFactorToken(email, twoFactorToken);
@@ -2104,7 +2687,7 @@ describe("TokenService", () => {
     });
 
     describe("getTwoFactorToken", () => {
-      it("should return the two factor token for the given email", async () => {
+      it("returns the two factor token when given an email", async () => {
         // Arrange
         const email = "testUser";
         const twoFactorToken = "twoFactorTokenForTestUser";
@@ -2114,7 +2697,7 @@ describe("TokenService", () => {
 
         globalStateProvider
           .getFake(EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL)
-          .stateSubject.next(initialTwoFactorTokenRecord);
+          .nextState(initialTwoFactorTokenRecord);
 
         // Act
         const result = await tokenService.getTwoFactorToken(email);
@@ -2123,7 +2706,7 @@ describe("TokenService", () => {
         expect(result).toEqual(twoFactorToken);
       });
 
-      it("should not return the two factor token for an email that doesn't exist", async () => {
+      it("does not return the two factor token when given an email that doesn't exist", async () => {
         // Arrange
         const email = "testUser";
         const initialTwoFactorTokenRecord: Record<string, string> = {
@@ -2132,7 +2715,7 @@ describe("TokenService", () => {
 
         globalStateProvider
           .getFake(EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL)
-          .stateSubject.next(initialTwoFactorTokenRecord);
+          .nextState(initialTwoFactorTokenRecord);
 
         // Act
         const result = await tokenService.getTwoFactorToken(email);
@@ -2141,11 +2724,9 @@ describe("TokenService", () => {
         expect(result).toEqual(undefined);
       });
 
-      it("should return null if there is no two factor token record", async () => {
+      it("returns null when there is no two factor token record", async () => {
         // Arrange
-        globalStateProvider
-          .getFake(EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL)
-          .stateSubject.next(null);
+        globalStateProvider.getFake(EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL).nextState(null);
 
         // Act
         const result = await tokenService.getTwoFactorToken("testUser");
@@ -2156,7 +2737,7 @@ describe("TokenService", () => {
     });
 
     describe("clearTwoFactorToken", () => {
-      it("should clear the two factor token for the given email when a record exists", async () => {
+      it("clears the two factor token for the given email when a record exists", async () => {
         // Arrange
         const email = "testUser";
         const twoFactorToken = "twoFactorTokenForTestUser";
@@ -2166,7 +2747,7 @@ describe("TokenService", () => {
 
         globalStateProvider
           .getFake(EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL)
-          .stateSubject.next(initialTwoFactorTokenRecord);
+          .nextState(initialTwoFactorTokenRecord);
 
         // Act
         await tokenService.clearTwoFactorToken(email);
@@ -2177,7 +2758,7 @@ describe("TokenService", () => {
         ).toHaveBeenCalledWith({});
       });
 
-      it("should initialize the record if it doesn't exist and delete the value", async () => {
+      it("initializes the record and deletes the value when the record doesn't exist", async () => {
         // Arrange
         const email = "testUser";
 
@@ -2196,7 +2777,7 @@ describe("TokenService", () => {
     const mockSecurityStamp = "securityStamp";
 
     describe("setSecurityStamp", () => {
-      it("should throw an error if no user id is provided and there is no active user in global state", async () => {
+      it("throws an error deletes the value no user id is provided and there is no active user in global state", async () => {
         // Act
         // note: don't await here because we want to test the error
         const result = tokenService.setSecurityStamp(mockSecurityStamp);
@@ -2204,11 +2785,9 @@ describe("TokenService", () => {
         await expect(result).rejects.toThrow("User id not found. Cannot set security stamp.");
       });
 
-      it("should set the security stamp in memory when there is an active user in global state", async () => {
+      it("sets the security stamp in memory when there is an active user in global state", async () => {
         // Arrange
-        globalStateProvider
-          .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-          .stateSubject.next(userIdFromAccessToken);
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
         // Act
         await tokenService.setSecurityStamp(mockSecurityStamp);
@@ -2219,7 +2798,7 @@ describe("TokenService", () => {
         ).toHaveBeenCalledWith(mockSecurityStamp);
       });
 
-      it("should set the security stamp in memory for the specified user id", async () => {
+      it("sets the security stamp in memory when a user id is specified", async () => {
         // Act
         await tokenService.setSecurityStamp(mockSecurityStamp, userIdFromAccessToken);
 
@@ -2231,7 +2810,7 @@ describe("TokenService", () => {
     });
 
     describe("getSecurityStamp", () => {
-      it("should throw an error if no user id is provided and there is no active user in global state", async () => {
+      it("throws an error when no user id is provided and there is no active user in global state", async () => {
         // Act
         // note: don't await here because we want to test the error
         const result = tokenService.getSecurityStamp();
@@ -2239,15 +2818,13 @@ describe("TokenService", () => {
         await expect(result).rejects.toThrow("User id not found. Cannot get security stamp.");
       });
 
-      it("should return the security stamp from memory with no user id specified (uses global active user)", async () => {
+      it("returns the security stamp from memory when no user id is specified (uses global active user)", async () => {
         // Arrange
-        globalStateProvider
-          .getFake(ACCOUNT_ACTIVE_ACCOUNT_ID)
-          .stateSubject.next(userIdFromAccessToken);
+        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
 
         singleUserStateProvider
           .getFake(userIdFromAccessToken, SECURITY_STAMP_MEMORY)
-          .stateSubject.next([userIdFromAccessToken, mockSecurityStamp]);
+          .nextState(mockSecurityStamp);
 
         // Act
         const result = await tokenService.getSecurityStamp();
@@ -2256,16 +2833,178 @@ describe("TokenService", () => {
         expect(result).toEqual(mockSecurityStamp);
       });
 
-      it("should return the security stamp from memory for the specified user id", async () => {
+      it("returns the security stamp from memory when a user id is specified", async () => {
         // Arrange
         singleUserStateProvider
           .getFake(userIdFromAccessToken, SECURITY_STAMP_MEMORY)
-          .stateSubject.next([userIdFromAccessToken, mockSecurityStamp]);
+          .nextState(mockSecurityStamp);
 
         // Act
         const result = await tokenService.getSecurityStamp(userIdFromAccessToken);
         // Assert
         expect(result).toEqual(mockSecurityStamp);
+      });
+    });
+  });
+
+  describe("determineStorageLocation", () => {
+    it("should throw an error if the vault timeout is null", async () => {
+      // Arrange
+      const vaultTimeoutAction: VaultTimeoutAction = VaultTimeoutAction.Lock;
+      const vaultTimeout: VaultTimeout = null;
+      // Act
+      const result = (tokenService as any).determineStorageLocation(
+        vaultTimeoutAction,
+        vaultTimeout,
+        false,
+      );
+      // Assert
+      await expect(result).rejects.toThrow(
+        "TokenService - determineStorageLocation: We expect the vault timeout to always exist at this point.",
+      );
+    });
+
+    it("should throw an error if the vault timeout action is null", async () => {
+      // Arrange
+      const vaultTimeoutAction: VaultTimeoutAction = null;
+      const vaultTimeout: VaultTimeout = 0;
+      // Act
+      const result = (tokenService as any).determineStorageLocation(
+        vaultTimeoutAction,
+        vaultTimeout,
+        false,
+      );
+      // Assert
+      await expect(result).rejects.toThrow(
+        "TokenService - determineStorageLocation: We expect the vault timeout action to always exist at this point.",
+      );
+    });
+
+    describe("Secure storage disabled", () => {
+      beforeEach(() => {
+        const supportsSecureStorage = false;
+        tokenService = createTokenService(supportsSecureStorage);
+      });
+
+      it.each([
+        [VaultTimeoutStringType.OnRestart],
+        [VaultTimeoutStringType.OnLocked],
+        [VaultTimeoutStringType.OnSleep],
+        [VaultTimeoutStringType.OnIdle],
+        [0],
+        [30],
+        [60],
+        [90],
+        [120],
+      ])(
+        "returns memory when the vault timeout action is logout and the vault timeout is defined %s (not Never)",
+        async (vaultTimeout: VaultTimeout) => {
+          // Arrange
+          const vaultTimeoutAction = VaultTimeoutAction.LogOut;
+          const useSecureStorage = false;
+          // Act
+          const result = await (tokenService as any).determineStorageLocation(
+            vaultTimeoutAction,
+            vaultTimeout,
+            useSecureStorage,
+          );
+          // Assert
+          expect(result).toEqual(TokenStorageLocation.Memory);
+        },
+      );
+
+      it("returns disk when the vault timeout action is logout and the vault timeout is never", async () => {
+        // Arrange
+        const vaultTimeoutAction = VaultTimeoutAction.LogOut;
+        const vaultTimeout: VaultTimeout = VaultTimeoutStringType.Never;
+        const useSecureStorage = false;
+        // Act
+        const result = await (tokenService as any).determineStorageLocation(
+          vaultTimeoutAction,
+          vaultTimeout,
+          useSecureStorage,
+        );
+        // Assert
+        expect(result).toEqual(TokenStorageLocation.Disk);
+      });
+
+      it("returns disk when the vault timeout action is lock and the vault timeout is never", async () => {
+        // Arrange
+        const vaultTimeoutAction = VaultTimeoutAction.Lock;
+        const vaultTimeout: VaultTimeout = VaultTimeoutStringType.Never;
+        const useSecureStorage = false;
+        // Act
+        const result = await (tokenService as any).determineStorageLocation(
+          vaultTimeoutAction,
+          vaultTimeout,
+          useSecureStorage,
+        );
+        // Assert
+        expect(result).toEqual(TokenStorageLocation.Disk);
+      });
+    });
+
+    describe("Secure storage enabled", () => {
+      beforeEach(() => {
+        const supportsSecureStorage = true;
+        tokenService = createTokenService(supportsSecureStorage);
+      });
+
+      it.each([
+        [VaultTimeoutStringType.OnRestart],
+        [VaultTimeoutStringType.OnLocked],
+        [VaultTimeoutStringType.OnSleep],
+        [VaultTimeoutStringType.OnIdle],
+        [0],
+        [30],
+        [60],
+        [90],
+        [120],
+      ])(
+        "returns memory when the vault timeout action is logout and the vault timeout is defined %s (not Never)",
+        async (vaultTimeout: VaultTimeout) => {
+          // Arrange
+          const vaultTimeoutAction = VaultTimeoutAction.LogOut;
+          const useSecureStorage = true;
+          // Act
+          const result = await (tokenService as any).determineStorageLocation(
+            vaultTimeoutAction,
+            vaultTimeout,
+            useSecureStorage,
+          );
+          // Assert
+          expect(result).toEqual(TokenStorageLocation.Memory);
+        },
+      );
+
+      it("returns secure storage when the vault timeout action is logout and the vault timeout is never", async () => {
+        // Arrange
+        const vaultTimeoutAction = VaultTimeoutAction.LogOut;
+        const vaultTimeout: VaultTimeout = VaultTimeoutStringType.Never;
+        const useSecureStorage = true;
+        // Act
+        const result = await (tokenService as any).determineStorageLocation(
+          vaultTimeoutAction,
+          vaultTimeout,
+          useSecureStorage,
+        );
+        // Assert
+        expect(result).toEqual(TokenStorageLocation.SecureStorage);
+      });
+
+      it("returns secure storage when the vault timeout action is lock and the vault timeout is never", async () => {
+        // Arrange
+        const vaultTimeoutAction = VaultTimeoutAction.Lock;
+        const vaultTimeout: VaultTimeout = VaultTimeoutStringType.Never;
+        const useSecureStorage = true;
+        // Act
+        const result = await (tokenService as any).determineStorageLocation(
+          vaultTimeoutAction,
+          vaultTimeout,
+          useSecureStorage,
+        );
+        // Assert
+        expect(result).toEqual(TokenStorageLocation.SecureStorage);
       });
     });
   });
@@ -2280,6 +3019,7 @@ describe("TokenService", () => {
       keyGenerationService,
       encryptService,
       logService,
+      logoutCallback,
     );
   }
 });

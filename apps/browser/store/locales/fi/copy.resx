@@ -121,55 +121,55 @@
     <value>Bitwarden Salasanahallinta</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Kotona, töissä tai reissussa, Bitwarden suojaa helposti salasanasi, suojausavaimesi ja arkaluonteiset tietosi.</value>
+    <value>Kotona, töissä tai reissussa, Bitwarden suojaa salasanasi, pääsyavaimesi ja arkaluonteiset tietosi helposti.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Muun muassa PCMag, WIRED, The Verge, CNET sekä G2 ovat nimenneet Bitwardenin parhaaksi salasanahallinnaksi!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+SUOJAA DIGITAALINEN ELÄMÄSI
+Varjele digielämääsi varautumalla tietovuotoihin luomalla kaikille tileillesi yksilölliset, vahvat salasanat ja säilyttämällä ne turvallisesti. Hallitse kaikkea päästä päähän salatussa salasanaholvissa, johon vain sinulla on käyttöoikeus.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+TAVOITA TIETOSI MISTÄ, MILLOIN JA MILLÄ LAITTEELLA TAHANSA
+Hallitse, säilytä, suojaa ja jaa salasanoja niin paljon kuin haluat, niin monella laitteella kuin haluat.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+KAIKILLA TULISI OLLA TYÖKALUT VERKOSSA SUOJAUTUMISEEN
+Hyödynnä Bitwardenia ilmaiseksi ilman mainoksia tai käyttäjätietojen myyntiä. Bitwardenin mielestä kaikkien tulee voida suojautua verkossa. Premium-tilaukset tarjoavat lisäominaisuuksia.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+TEHOSTA TIIMIESI TYÖSKENTELYÄ BITWARDENILLA
+Teams- ja Enterprise-tilaukset tarjoavat esimerkiksi SSO- ja hakemistointegraatioiden, SCIM-hallinnan, oman palvelinympäristön, laajan käytäntöhallinnan, rajapinnan sekä käyttölokien kaltaisia ammattitason yritysominaisuuksia.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Suojaa henkilökuntasi Bitwardenilla ja jaa arkaluonteisia tietoja kollegoidesi kanssa.
 
 
-More reasons to choose Bitwarden:
+Lisää syitä valita Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Maailmanluoka salaus:
+Salasanat on suojattu edistyneellä päästä päähän salauksella (AES-256 bit, suolattu hajautus sekä PBKDF2 SHA-256), joten tietosi pysyvät turvassa ja yksityisinä.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Riippumattomat auditoinnit
+Bitwarden teetättää säännöllisesti kattavia riippumattomia tietoturva-arviointeja tunnettuilla tietoturvayrityksillä. Näissä vuotuisissa auditoinneissa arvioidaan lähdekoodia ja suoritetaan murtotestausta Bitwardenin IP-osoitteille, palvelimille ja verkkosovelluksille.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Edistynyt kaksivaiheinen tunnistautuminen
+Suojaa kirjautumistietosi riippumattomalla todennussovelluksella, sähköpostikoodeilla, tai FIDO2 WEBAuthn -standardin mukaisilla tunnistustavoilla kuten fyysisillä suojausavaimilla tai pääsyavaimilla.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Välitä tietoja muille suoraan, päästä päähän salausta menettämättä ja rajoitaen niiden näkyvyyttä.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Sisäänrakennettu generaattori
+Luo pitkät, monimutkaiset ja yksilölliset salasanat sekä ainutlaatuiset käyttäjätunnukset kaikille käyttämillesi verkkosivustoille. Sähköpostialiaksia toimittavien palveluiden liitäntämahdollisuus tehostaa yksityisyyttä.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Maailmanlaajuinen kielituki
+Bitwarden on maailmanlaajuisen Crowdin-yhteisön toimesta yli 60 kielelle.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Sovellukset eri alustoille
+Suojaa ja jaa Bitwarden-holvisi arkaluonteisia tietoja mm. mistä tahansa selaimesta, mobiililaitteesta tai pöytätietokoneesta.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden suojaa muutakin kuin salasanoja
+Bitwardenin päästä päähän salatut käyttäjätietojen hallintaratkaisut tarjoavat organisaatiolle mahdollisuuden suojata paljon muutakin, kuten kehityssalaisuuksia ja suojausavaintoteutuksia. Vieraile osoitteessa Bitwaren.com ja tutustu Bitwarden Salaisuushallinta ja Bitwarden Passwordless.dev -palveluihin!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Kotona, töissä tai reissussa, Bitwarden suojaa helposti salasanasi, suojausavaimesi ja arkaluonteiset tietosi.</value>
+    <value>Kotona, töissä tai reissussa, Bitwarden suojaa salasanasi, pääsyavaimesi ja arkaluonteiset tietosi helposti.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synkronoi ja hallitse holviasi useilla laitteilla</value>

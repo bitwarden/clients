@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
 
-import { postWindowMessage, sendExtensionRuntimeMessage } from "../spec/testing-utils";
+import { postWindowMessage, sendMockExtensionMessage } from "../spec/testing-utils";
 
 describe("ContentMessageHandler", () => {
   const sendMessageSpy = jest.spyOn(chrome.runtime, "sendMessage");
@@ -92,13 +92,13 @@ describe("ContentMessageHandler", () => {
 
   describe("handled extension messages", () => {
     it("ignores the message to the extension background if it is not present in the forwardCommands list", () => {
-      sendExtensionRuntimeMessage({ command: "someOtherCommand" });
+      sendMockExtensionMessage({ command: "someOtherCommand" });
 
       expect(sendMessageSpy).not.toHaveBeenCalled();
     });
 
     it("forwards the message to the extension background if it is present in the forwardCommands list", () => {
-      sendExtensionRuntimeMessage({ command: "bgUnlockPopoutOpened" });
+      sendMockExtensionMessage({ command: "bgUnlockPopoutOpened" });
 
       expect(sendMessageSpy).toHaveBeenCalledTimes(1);
       expect(sendMessageSpy).toHaveBeenCalledWith({ command: "bgUnlockPopoutOpened" });

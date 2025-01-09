@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Turvaline märkus"
   },
+  "typeSshKey": {
+    "message": "SSH võti"
+  },
   "folders": {
     "message": "Kaustad"
   },
@@ -59,6 +62,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "Tere tulemast tagasi"
   },
   "moveToOrgDesc": {
     "message": "Vali organisatsioon, kuhu soovid seda kirjet teisaldada. Teisaldamisega saab kirje omanikuks organisatsioon. Pärast kirje teisaldamist ei ole sa enam selle otsene omanik."
@@ -174,6 +180,63 @@
   "address": {
     "message": "Aadress"
   },
+  "sshPrivateKey": {
+    "message": "Privaatvõti"
+  },
+  "sshPublicKey": {
+    "message": "Avalik võti"
+  },
+  "sshFingerprint": {
+    "message": "Sõrmejälg"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Võtme tüüp"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-bitine"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-bitine"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-bitine"
+  },
+  "sshKeyGenerated": {
+    "message": "Uus SSh võti on loodud"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Sinu sisestatud salasõna pole õige."
+  },
+  "importSshKey": {
+    "message": "Impordi"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Kinnita salasõna"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Sisesta selle SSH võtme salasõna."
+  },
+  "enterSshKeyPassword": {
+    "message": "Sisesta salasõna"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Please unlock your vault to approve the SSH key request."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "SSH key request timed out."
+  },
+  "enableSshAgent": {
+    "message": "Enable SSH agent"
+  },
+  "enableSshAgentDesc": {
+    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+  },
+  "enableSshAgentHelp": {
+    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+  },
   "premiumRequired": {
     "message": "Vajalik on Preemium versioon"
   },
@@ -258,6 +321,9 @@
   },
   "generatePassword": {
     "message": "Loo parool"
+  },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
   },
   "type": {
     "message": "Tüüp"
@@ -394,6 +460,16 @@
   "copyPassword": {
     "message": "Kopeeri parool"
   },
+  "regenerateSshKey": {
+    "message": "Regenerate SSH key"
+  },
+  "copySshPrivateKey": {
+    "message": "Copy SSH private key"
+  },
+  "copyPassphrase": {
+    "message": "Copy passphrase",
+    "description": "Copy passphrase to clipboard"
+  },
   "copyUri": {
     "message": "Kopeeri URI"
   },
@@ -404,19 +480,58 @@
     "message": "Pikkus"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Parooli miinimumpikkus"
   },
   "uppercase": {
-    "message": "Suurtäht (A-Z)"
+    "message": "Suurtäht (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Väiketäht (a-z)"
+    "message": "Väiketäht (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Numbrid (0-9)"
+    "message": "Numbrid (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
     "message": "Erimärgid (!@#$%^&*)"
+  },
+  "include": {
+    "message": "Include",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Include uppercase characters",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Include lowercase characters",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Include numbers",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Include special characters",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Sõnade arv"
@@ -442,7 +557,16 @@
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "Väldi ebamääraseid kirjamärke"
+    "message": "Väldi ebamääraseid kirjamärke",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Avoid ambiguous characters",
+    "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
     "message": "Otsi kogumikku"
@@ -479,7 +603,7 @@
     "message": "Maksimaalne faili suurus on 500 MB."
   },
   "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+    "message": "Krüpteerimisvõtme ühendamine nõutud. Palun logi sisse läbi veebibrauseri, et uuendada enda krüpteerimisvõtit."
   },
   "editedFolder": {
     "message": "Kaust on muudetud"
@@ -499,8 +623,29 @@
   "createAccount": {
     "message": "Konto loomine"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
+  "setAStrongPassword": {
+    "message": "Määra tugev parool"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "Lõpeta konto loomine määrates parooli"
+  },
   "logIn": {
     "message": "Logi sisse"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "loginWithDevice": {
+    "message": "Log in with device"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
   },
   "submit": {
     "message": "Kinnita"
@@ -520,8 +665,60 @@
   "masterPassHint": {
     "message": "Ülemparooli vihje (ei ole kohustuslik)"
   },
+  "masterPassHintText": {
+    "message": "Kui sa unustad oma parooli, saad saata parooli vihje e-mailile.\n$CURRENT$/$MAXIMUM$ tähepiirang.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "masterPassword": {
+    "message": "Ülemparool"
+  },
+  "masterPassImportant": {
+    "message": "Ülemparooli ei saa taastada, kui sa selle unustama peaksid!"
+  },
+  "confirmMasterPassword": {
+    "message": "Kinnita ülemparool"
+  },
+  "masterPassHintLabel": {
+    "message": "Ülemparooli vihje"
+  },
+  "joinOrganization": {
+    "message": "Liitu organisatsiooniga"
+  },
+  "joinOrganizationName": {
+    "message": "Join $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Lõpeta organisatsiooniga liitumine määrates ülemparool."
+  },
   "settings": {
     "message": "Seaded"
+  },
+  "accountEmail": {
+    "message": "Konto e-maili aadress"
+  },
+  "requestHint": {
+    "message": "Küsi vihjet"
+  },
+  "requestPasswordHint": {
+    "message": "Küsi ülemparooli vihjet"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Sisesta oma e-maili aadress ja sulle saadetakse sinna parooli vihje"
   },
   "passwordHint": {
     "message": "Parooli vihje"
@@ -554,17 +751,23 @@
       }
     }
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Sisselogimine õnnestus"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Võid selle akna sulgeda"
+  },
   "masterPassDoesntMatch": {
     "message": "Ülemparoolid ei ühti."
   },
   "newAccountCreated": {
     "message": "Sinu konto on loodud! Võid nüüd sisse logida."
   },
-  "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+  "newAccountCreated2": {
+    "message": "Uus konto loodud!"
   },
-  "youMayCloseThisWindow": {
-    "message": "You may close this window"
+  "youHaveBeenLoggedIn": {
+    "message": "Olete sisse logitud!"
   },
   "masterPassSent": {
     "message": "Ülemparooli vihje saadeti Sinu e-postile."
@@ -595,6 +798,9 @@
   },
   "verificationCodeRequired": {
     "message": "Nõutav on kinnituskood."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "Autentimine tühistati või kestis liiga kaua aega. Palun proovi uuesti."
   },
   "invalidVerificationCode": {
     "message": "Vale kinnituskood"
@@ -647,18 +853,18 @@
   "authenticatorAppTitle": {
     "message": "Autentimise rakendus"
   },
-  "authenticatorAppDesc": {
-    "message": "Kausta autentimise rakendust (näiteks Authy või Google Authenticator), et luua ajal baseeruvaid kinnituskoode.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Sisesta oma autentikaatori (näiteks Bitwarden Authenticator) genereeritud kood.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "YubiKey OTP Turvaline võti"
+  "yubiKeyTitleV2": {
+    "message": "Yubico OTP turvavõti"
   },
   "yubiKeyDesc": {
     "message": "Kasuta kontole ligipääsemiseks YubiKey-d. See töötab YubiKey 4, 4 Nano, 4C ja NEO seadmetega."
   },
-  "duoDesc": {
-    "message": "Kinnita Duo Security abil, kasutades selleks Duo Mobile rakendust, SMS-i, telefonikõnet või U2F turvavõtit.",
+  "duoDescV2": {
+    "message": "Sisesta Duo Security genereeritud kood.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -674,8 +880,8 @@
   "emailTitle": {
     "message": "E-post"
   },
-  "emailDesc": {
-    "message": "Kinnituskoodid saadetakse e-postiga."
+  "emailDescV2": {
+    "message": "Sisesta oma emailile saadetud kood."
   },
   "loginUnavailable": {
     "message": "Sisselogimine ei ole saadaval"
@@ -695,6 +901,15 @@
   "selfHostedEnvironmentFooter": {
     "message": "Specify the base URL of your on-premise hosted bitwarden installation."
   },
+  "selfHostedBaseUrlHint": {
+    "message": "Sisesta enda ise-majutatud Bitwardeni serveri nimi (base URL). Näiteks: https://bitwarden.company.com"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "Täpsemaks seadistamiseks võid määrata serveri nime (base URL) igale teenusele eraldi."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "Sa pead lisama serveri nime (base URL) või vähemalt ühe iseseadistatud keskkonna."
+  },
   "customEnvironment": {
     "message": "Kohandatud keskkond"
   },
@@ -703,6 +918,16 @@
   },
   "baseUrl": {
     "message": "Serveri URL"
+  },
+  "authenticationTimeout": {
+    "message": "Authentication timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "The authentication session timed out. Please restart the login process."
+  },
+  "selfHostBaseUrl": {
+    "message": "Self-host server URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API serveri URL"
@@ -743,8 +968,23 @@
   "loggedOut": {
     "message": "Välja logitud"
   },
+  "loggedOutDesc": {
+    "message": "Kontolt edukalt välja logitud."
+  },
   "loginExpired": {
     "message": "Sessioon on aegunud."
+  },
+  "restartRegistration": {
+    "message": "Alusta registreerimist uuesti"
+  },
+  "expiredLink": {
+    "message": "Aegunud link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Palun alusta registreerimist uuesti või proovi sisse logida."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Sul on juba võib-olla konto"
   },
   "logOutConfirmation": {
     "message": "Oled kindel, et soovid välja logida?"
@@ -801,17 +1041,17 @@
     "message": "Muuda ülemparooli"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Jätka veebibrauseris?"
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
+    "message": "Ülemparooli saab muuta Bitwardeni veebirakenduses."
   },
   "fingerprintPhrase": {
-    "message": "Sõrmejälje fraas",
+    "message": "Unikaalne sõnajada",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "yourAccountsFingerprint": {
-    "message": "Konto sõrmejälje fraas",
+    "message": "Sinu konto unikaalne sõnajada",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
@@ -831,6 +1071,18 @@
   },
   "yourVaultIsLocked": {
     "message": "Hoidla on lukus. Jätkamiseks sisesta ülemparool."
+  },
+  "yourAccountIsLocked": {
+    "message": "Your account is locked"
+  },
+  "or": {
+    "message": "or"
+  },
+  "unlockWithBiometrics": {
+    "message": "Unlock with biometrics"
+  },
+  "unlockWithMasterPassword": {
+    "message": "Unlock with master password"
   },
   "unlock": {
     "message": "Lukusta lahti"
@@ -859,6 +1111,9 @@
   },
   "vaultTimeout": {
     "message": "Hoidla ajalõpp"
+  },
+  "vaultTimeout1": {
+    "message": "Aegumine"
   },
   "vaultTimeoutDesc": {
     "message": "Vali millal saabub hoidla ajalõpp ning sooritatakse valitud tegevus."
@@ -1064,6 +1319,9 @@
     "message": "Kopeeri number",
     "description": "Copy credit card number"
   },
+  "copyEmail": {
+    "message": "Kopeeri e-posti aadress"
+  },
   "copySecurityCode": {
     "message": "Kopeeri turvakood",
     "description": "Copy credit card security code (CVV)"
@@ -1090,7 +1348,7 @@
     "message": "1 GB ulatuses krüpteeritud salvestusruum."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Eraomanduses kaheastmelise logimise valikud, nagu näiteks YubiKey ja Duo."
   },
   "premiumSignUpReports": {
     "message": "Parooli hügieen, konto seisukord ja andmelekete raportid aitavad hoidlat turvalisena hoida."
@@ -1109,6 +1367,9 @@
   },
   "premiumPurchaseAlert": {
     "message": "Saad Preemium versiooni osta bitwarden.com veebihoidlas. Soovid seda kohe teha?"
+  },
+  "premiumPurchaseAlertV2": {
+    "message": "Sa saad hankida Preemiumi oma konto seadetes veebibrauseris."
   },
   "premiumCurrentMember": {
     "message": "Oled preemium kasutaja!"
@@ -1131,12 +1392,30 @@
   "passwordHistory": {
     "message": "Paroolide ajalugu"
   },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+  },
   "clear": {
     "message": "Tühjenda",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Puuduvad paroolid, mida kuvada."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "nothingToShow": {
+    "message": "Nothing to show"
+  },
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "undo": {
     "message": "Võta tagasi"
@@ -1211,6 +1490,15 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Kopeerimine Õnnestus"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "Juurdepääsukoodi Värskendamine Ebaõnnestus"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "Ei leidnud värskendamise koodi või API võtit. Palun proovi logida välja ja uuesti sisse."
   },
   "help": {
     "message": "Abi"
@@ -1299,11 +1587,41 @@
     "message": "Parool on uuendatud",
     "description": "ex. Date this password was updated"
   },
+  "exportFrom": {
+    "message": "Ekspordi asukohast"
+  },
   "exportVault": {
     "message": "Ekspordi hoidla"
   },
   "fileFormat": {
     "message": "Failivorming"
+  },
+  "fileEncryptedExportWarningDesc": {
+    "message": "See eksporditav fail on parooliga kaitstud ja nõuab dekrüpteerimiseks parooli."
+  },
+  "filePassword": {
+    "message": "Faili parool"
+  },
+  "exportPasswordDescription": {
+    "message": "Seda parooli kasutatakse selle faili eksportimiseks ja importimiseks"
+  },
+  "accountRestrictedOptionDescription": {
+    "message": "Kasuta oma konto krüpteerimise võtit, mis koosneb sinu kasutajanimest ja ülemparoolist, et krüpteerida fail ja takistada selle importimine teistesse kontodesse."
+  },
+  "passwordProtected": {
+    "message": "Parooliga kaitstud"
+  },
+  "passwordProtectedOptionDescription": {
+    "message": "Määra faili parool, et see krüpteerida ja importida teise Bitwardeni kontosse kasutates seda parooli dekrüpteerimiseks."
+  },
+  "exportTypeHeading": {
+    "message": "Ekspordi tüüp"
+  },
+  "accountRestricted": {
+    "message": "Kontosisene"
+  },
+  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+    "message": "\"Faili parool\" ja \"Faili parooli kinnitus\" ei kattu."
   },
   "hCaptchaUrl": {
     "message": "hCaptcha Url",
@@ -1402,13 +1720,16 @@
     "message": "Vale PIN kood."
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "Too many invalid PIN entry attempts. Logging out."
+    "message": "Liiga palju ebaõnnestunud katseid. Login välja."
   },
   "unlockWithWindowsHello": {
     "message": "Lukusta lahti Windows Helloga"
   },
   "additionalWindowsHelloSettings": {
-    "message": "Additional Windows Hello settings"
+    "message": "Windows Hello lisaseaded"
+  },
+  "unlockWithPolkit": {
+    "message": "Ava arvuti autentimissüsteemiga"
   },
   "windowsHelloConsentMessage": {
     "message": "Kinnita Bitwardenisse sisselogimine."
@@ -1417,7 +1738,7 @@
     "message": "Lukusta lahti Touch ID-ga"
   },
   "additionalTouchIdSettings": {
-    "message": "Additional Touch ID settings"
+    "message": "Muud Touch ID seaded"
   },
   "touchIdConsentMessage": {
     "message": "Kinnita Bitwardenisse sisselogimine."
@@ -1425,17 +1746,20 @@
   "autoPromptWindowsHello": {
     "message": "Küsi avamisel Windows Hello tuvastust"
   },
+  "autoPromptPolkit": {
+    "message": "Kasuta käivitamisel arvuti autentimissüsteemi"
+  },
   "autoPromptTouchId": {
     "message": "Küsi avamisel Touch ID tuvastust"
   },
   "requirePasswordOnStart": {
-    "message": "Require password or PIN on app start"
+    "message": "Nõua parooli või PINi rakenduse kävitumisel"
   },
   "recommendedForSecurity": {
-    "message": "Recommended for security."
+    "message": "Soovitatud turvalisuse huvides."
   },
-  "lockWithMasterPassOnRestart": {
-    "message": "Lukusta ülemparooliga, kui rakendus taaskäivitatakse"
+  "lockWithMasterPassOnRestart1": {
+    "message": "Lock with master password on restart"
   },
   "deleteAccount": {
     "message": "Kustuta konto"
@@ -1445,6 +1769,12 @@
   },
   "deleteAccountWarning": {
     "message": "Konto kustutamine on ühekordne tegevus. Seda ei saa tagasi võtta."
+  },
+  "cannotDeleteAccount": {
+    "message": "Cannot delete account"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
   },
   "accountDeleted": {
     "message": "Konto on kustutatud"
@@ -1508,11 +1838,11 @@
     "message": "Hoidlast väljalogimine nõuab taaskordseks ligipääsuks uut autentimist."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
+    "message": "Hoidla ajalõpu muutmiseks vali esmalt lahtilukustamise meetod."
   },
   "lock": {
     "message": "Lukusta",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Prügikast",
@@ -1549,15 +1879,24 @@
     "message": "Määra ülemparool"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "message": "Teie organisatsiooni seadeid värskendati, mistõttu peate määrama ülemparooli.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
-    "message": "Your organization requires you to set a master password.",
+    "message": "Sinu organisatsioon nõuab sult ülemparooli seadistamist.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "cardMetrics": {
+    "message": "out of $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "Tuvastamine vajalik",
     "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
@@ -1611,6 +1950,21 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Uus ülemparool ei vasta eeskirjades väljatoodud tingimustele."
   },
+  "receiveMarketingEmailsV2": {
+    "message": "Soovin saada nõuandeid, uudiseid ja pakkumisi Bitwardenilt oma postkasti."
+  },
+  "unsubscribe": {
+    "message": "Lõpeta tellimus"
+  },
+  "atAnyTime": {
+    "message": "iga hetk."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "Jätkates nõustud sa"
+  },
+  "and": {
+    "message": "ja"
+  },
   "acceptPolicies": {
     "message": "Märkeruudu markeerimisel nõustud järgnevaga:"
   },
@@ -1620,8 +1974,8 @@
   "enableBrowserIntegration": {
     "message": "Lülita sisse brauseri integratsioon"
   },
-  "enableBrowserIntegrationDesc": {
-    "message": "Brauseri integratsioon on vajalik biomeetria kasutamiseks brauseris."
+  "enableBrowserIntegrationDesc1": {
+    "message": "Used to allow biometric unlock in browsers that are not Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Lubage DuckDuckGo brauseri integreerimine"
@@ -1633,10 +1987,10 @@
     "message": "Brauseri integratsioon ei ole toetatud"
   },
   "browserIntegrationErrorTitle": {
-    "message": "Error enabling browser integration"
+    "message": "Brauseriga ühendamine ebaõnnestus"
   },
   "browserIntegrationErrorDesc": {
-    "message": "An error has occurred while enabling browser integration."
+    "message": "Midagi läks valesti brauseriga ühendamisel."
   },
   "browserIntegrationMasOnlyDesc": {
     "message": "Paraku on brauseri integratsioon hetkel toetatud ainult Mac App Store'i versioonis."
@@ -1648,16 +2002,16 @@
     "message": "Paraku ei ole brauseri integratsioon hetkel Linuxi versioonis toetatud."
   },
   "enableBrowserIntegrationFingerprint": {
-    "message": "Nõua brauseri integratsiooni ülekinnitamist"
+    "message": "Nõua brauseri ühendamiseks kinnitust"
   },
   "enableBrowserIntegrationFingerprintDesc": {
-    "message": "See seadistus võimaldab täiendavat kaitset, küsides brauseriga liidestamisel sõrmejälje fraasi. Sisselülitamisel nõuab see seadistus igakordset kasutaja sekkumist, kui luuakse ühendus brauseri ja töölaua rakenduse vahel."
+    "message": "See seadistus võimaldab täiendavat kaitset, küsides brauseriga ühendamisel teie unikaalset sõnajada. Sisselülitamisel nõuab see seadistus iga kord kasutaja kinnitust, kui luuakse ühendus brauseri ja töölaua rakenduse vahel."
   },
   "enableHardwareAcceleration": {
-    "message": "Use hardware acceleration"
+    "message": "Kasuta riistvaralist kiirendamist"
   },
   "enableHardwareAccelerationDesc": {
-    "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. Restart is required."
+    "message": "See seade on vaikimisi SEES. Lülita see VÄLJA kui sul tekib probleeme graafikaga. Arvuti tuleb pärast seda taaskäivitada."
   },
   "approve": {
     "message": "Kinnita"
@@ -1666,7 +2020,7 @@
     "message": "Brauseri ühendamise kinnitamine"
   },
   "verifyBrowserDesc": {
-    "message": "Veendu, et kuvatav sõrmejälje fraas on identne sellega, mida kuvatakse brauseri lisas."
+    "message": "Veendu, et kuvatav unikaalne sõnajada on identne sellega, mida kuvatakse brauseris."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ soovib Bitwardeniga ühendust luua",
@@ -1689,6 +2043,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Selleks, et kasutada biomeetriat brauseris, peab selle esmalt Bitwardeni töölaua rakenduse seadetes sisse lülitama."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Automaatne seadistamine ei ole saadaval"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Tänu sinu installimise meetodile ei õnnestunud automaatselt biomeetria sisse lülitada. Kas soovid avada juhise kuidas seda käsitsi teha?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Ettevõtte poliitika tõttu ei saa sa andmeid oma personaalsesse Hoidlasse salvestada. Vali Omanikuks organisatsioon ja vali mõni saadavaolevatest Kogumikest."
   },
@@ -1699,7 +2059,7 @@
     "message": "Organisatsiooni poliitika on seadnud omaniku valikutele piirangu."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "An organization policy has blocked importing items into your individual vault."
+    "message": "Kirjete importimine isiklikku hoidlasse on organisatsiooni poolt keelatud."
   },
   "allSends": {
     "message": "Kõik Sendid",
@@ -1873,6 +2233,9 @@
   "emailVerificationRequired": {
     "message": "Vajalik on e-posti kinnitamine"
   },
+  "emailVerifiedV2": {
+    "message": "Email kinnitatud"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Enne selle funktsiooni kasutamist pead oma e-posti kinnitama."
   },
@@ -1897,41 +2260,44 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Sinu ülemparool ei vasta ühele või rohkemale organisatsiooni poolt seatud poliitikale. Hoidlale ligipääsemiseks pead oma ülemaprooli uuendama. Jätkamisel logitakse sind praegusest sessioonist välja, mistõttu pead uuesti sisse logima. Teistes seadmetes olevad aktiivsed sessioonid aeguvad umbes ühe tunni jooksul."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Sinu organisatsioon on keelanud ära krüpteerimisvõtmete hoiustamise arvutites. Palun määra ülemparool oma hoidlale ligi pääsemiseks."
+  },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Proovi uuesti"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verification required for this action. Set a PIN to continue."
+    "message": "Selle muudatuse jõustamiseks on vaja teid kinnitada. Jätkamiseks sisestage PIN."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "Määra PIN"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "Kinnita biomeetriaga"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "Ootan kinnitust"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "Biomeetria kasutamine ebaõnnestus."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "Soovid kasutada teist võimalust?"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "Kasuta ülemparooli"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "Kasuta PIN-koodi"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "Kasuta biomeetriat"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "Sisesta oma e-posti aadressile saadetud kinnituskood."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Saada kood uuesti"
   },
   "hours": {
     "message": "Tundi"
@@ -1939,8 +2305,8 @@
   "minutes": {
     "message": "Minutit"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Organisatsiooni poliitikad mõjutavad sinu hoidla ajalõppu. Maksimaalne lubatud hoidla ajalõpp on $HOURS$ tund(i) ja $MINUTES$ minut(it)",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -1980,6 +2346,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Valitud hoidla ajalõpp ei ole organisatsiooni poolt määratud reeglitega kooskõlas."
+  },
+  "inviteAccepted": {
+    "message": "Kutse vastu võetud"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automaatne liitumine"
@@ -2050,6 +2419,9 @@
   "switchAccount": {
     "message": "Vaheta kontot"
   },
+  "alreadyHaveAccount": {
+    "message": "On juba konto?"
+  },
   "options": {
     "message": "Valikud"
   },
@@ -2068,14 +2440,30 @@
       }
     }
   },
+  "exportingOrganizationVaultTitle": {
+    "message": "Ekspordin organisatsiooni hoidlat"
+  },
+  "exportingOrganizationVaultDesc": {
+    "message": "Ainult organisatsiooniga $ORGANIZATION$ seotud kirjed eksportidakse. Personaalsete hoidlate ja teiste organisatsioonide kirjeid ei ekspordita.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "ACME Moving Co."
+      }
+    }
+  },
   "locked": {
     "message": "Lukustatud"
+  },
+  "yourVaultIsLockedV2": {
+    "message": "Your vault is locked"
   },
   "unlocked": {
     "message": "Lukustamata"
   },
   "generator": {
-    "message": "Genereerija"
+    "message": "Genereerija",
+    "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
     "message": "Mida sa soovid genereerida?"
@@ -2088,6 +2476,43 @@
   },
   "generateUsername": {
     "message": "Genereeri kasutajanimi"
+  },
+  "generateEmail": {
+    "message": "Generate email"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Value must be between $MIN$ and $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Kasutajanime tüüp"
@@ -2131,6 +2556,116 @@
   },
   "forwardedEmailDesc": {
     "message": "Genereeri e-posti alias, kasutades selleks välist teenuspakkujat."
+  },
+  "forwarderDomainName": {
+    "message": "Email domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Choose a domain that is supported by the selected service",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
+  },
+  "forwarderError": {
+    "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
+    "description": "Reports an error returned by a forwarding service to the user.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Invalid characters in domain name."
+      }
+    }
+  },
+  "forwarderGeneratedBy": {
+    "message": "Genereeritud Bitwardeni poolt.",
+    "description": "Displayed with the address on the forwarding service's configuration screen."
+  },
+  "forwarderGeneratedByWithWebsite": {
+    "message": "Veebisait: $WEBSITE$. Genereeritud Bitwardeni poolt.",
+    "description": "Displayed with the address on the forwarding service's configuration screen.",
+    "placeholders": {
+      "WEBSITE": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
+  "forwaderInvalidToken": {
+    "message": "Vigane $SERVICENAME$ API võti",
+    "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidTokenWithMessage": {
+    "message": "Vigane $SERVICENAME$ API võti: $ERRORMESSAGE$",
+    "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwarderNoAccountId": {
+    "message": "Ei õnnestunud hankida pakkuja $SERVICENAME$ maskeeritud emaili konto ID-d.",
+    "description": "Displayed when the forwarding service fails to return an account ID.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoDomain": {
+    "message": "Vigane $SERVICENAME$ domeen.",
+    "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoUrl": {
+    "message": "Vigane $SERVICENAME$ URL.",
+    "description": "Displayed when the url of the forwarding service wasn't supplied.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownError": {
+    "message": "Tundmatu error pakkujaga $SERVICENAME$.",
+    "description": "Displayed when the forwarding service failed due to an unknown error.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownForwarder": {
+    "message": "Tundmatu edastaja: '$SERVICENAME$'.",
+    "description": "Displayed when the forwarding service is not supported.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "JustTrust.us"
+      }
+    }
   },
   "hostname": {
     "message": "Hosti nimi",
@@ -2185,19 +2720,34 @@
     "message": "Logi sisse läbi teise seadme"
   },
   "loginInitiated": {
-    "message": "Login initiated"
+    "message": "Alustan sisselogimist"
   },
   "notificationSentDevice": {
     "message": "Sinu seadmesse saadeti teavitus."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
+  },
   "fingerprintMatchInfo": {
-    "message": "Veendu, et hoidla on lahti lukustatud ja sõrmejälje fraasid seadmete vahel ühtivad."
+    "message": "Veendu, et sinu hoidla on avatud ja unikaalne sõnajada ühtib teise seadmega."
   },
   "fingerprintPhraseHeader": {
-    "message": "Sõrmejälje fraas"
+    "message": "Unikaalne sõnajada"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
   },
   "needAnotherOption": {
     "message": "Bitwardeni rakenduse seadistuses peab olema konfigureeritud sisselogimine läbi seadme. Vajad teist valikut?"
+  },
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
   },
   "viewAllLoginOptions": {
     "message": "Vaata kõiki valikuid"
@@ -2236,9 +2786,6 @@
   "denyLogIn": {
     "message": "Tühista sisselogimine"
   },
-  "approveLoginRequests": {
-    "message": "Sisselogimise päringute kinnitamine"
-  },
   "logInConfirmedForEmailOnDevice": {
     "message": "$EMAIL$ sisselogimine seadmes $DEVICE$ on kinnitatud",
     "placeholders": {
@@ -2273,9 +2820,6 @@
   "thisRequestIsNoLongerValid": {
     "message": "See päring ei ole enam kehtiv."
   },
-  "approveLoginRequestDesc": {
-    "message": "Kasuta seda seadet, et kinnitada teistes seadmetes tehtavad sisselogimised."
-  },
   "confirmLoginAtemptForMail": {
     "message": "Kinnita sisselogimise katse $EMAIL$-le",
     "placeholders": {
@@ -2287,6 +2831,27 @@
   },
   "logInRequested": {
     "message": "Sisselogimise päring on saadetud"
+  },
+  "creatingAccountOn": {
+    "message": "Loon kontot asukohas"
+  },
+  "checkYourEmail": {
+    "message": "Kontrollige oma postkasti"
+  },
+  "followTheLinkInTheEmailSentTo": {
+    "message": "Ava sulle emailiga saadetud link"
+  },
+  "andContinueCreatingYourAccount": {
+    "message": "ja jätka konto loomist."
+  },
+  "noEmail": {
+    "message": "Pole emaili?"
+  },
+  "goBack": {
+    "message": "Tagasi"
+  },
+  "toEditYourEmailAddress": {
+    "message": "et muuta oma meiliaadressi."
   },
   "exposedMasterPassword": {
     "message": "Ülemparool on haavatav"
@@ -2303,8 +2868,20 @@
   "checkForBreaches": {
     "message": "Otsi seda parooli teadaolevatest andmeleketest"
   },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
   "important": {
     "message": "Tähtis:"
+  },
+  "accessing": {
+    "message": "Accessing"
+  },
+  "accessTokenUnableToBeDecrypted": {
+    "message": "Sind logiti välja, sest sinu juurdepääsuvõtit (access token) ei õnnestunud dekrüpteerida. Probleemi lahendamiseks palun logige uuesti sisse."
+  },
+  "refreshTokenSecureStorageRetrievalFailure": {
+    "message": "Sind logiti välja, sest sinu uuendamisvõtit (refresh token) ei õnnestunud saada. Probleemi lahendamiseks palun logige uuesti sisse."
   },
   "masterPasswordHint": {
     "message": "Ülemparooli ei saa taastada, kui sa selle unustama peaksid!"
@@ -2319,83 +2896,92 @@
     }
   },
   "windowsBiometricUpdateWarning": {
-    "message": "Bitwarden recommends updating your biometric settings to require your master password (or PIN) on the first unlock. Would you like to update your settings now?"
+    "message": "Bitwarden soovitab muuta oma biomeetria seadeid, et nõuda esimesel sisselogimisel ülemparooli (või PINi). Kas soovid uuendada oma seadeid kohe?"
   },
   "windowsBiometricUpdateWarningTitle": {
-    "message": "Recommended Settings Update"
+    "message": "Soovitatud Muudatus Seadetes"
+  },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
   },
   "deviceApprovalRequired": {
-    "message": "Device approval required. Select an approval option below:"
+    "message": "Seadme kinnitamine on nõutud. Palun vali kuidas soovid seda teha:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
-    "message": "Remember this device"
+    "message": "Hoia see seade meeles"
   },
   "uncheckIfPublicDevice": {
-    "message": "Uncheck if using a public device"
+    "message": "Lülita see välja, kui oled avalikus seadmes"
   },
   "approveFromYourOtherDevice": {
-    "message": "Approve from your other device"
+    "message": "Kinnita teises seadmes"
   },
   "requestAdminApproval": {
-    "message": "Request admin approval"
+    "message": "Küsi administraatori nõusolekut"
   },
   "approveWithMasterPassword": {
-    "message": "Approve with master password"
+    "message": "Kinnita ülemparooliga"
   },
   "region": {
-    "message": "Region"
+    "message": "Piirkond"
   },
   "ssoIdentifierRequired": {
-    "message": "Organization SSO identifier is required."
+    "message": "Organisatsiooni SSO identifikaator on nõutud."
   },
   "eu": {
-    "message": "EU",
+    "message": "EL",
     "description": "European Union"
   },
-  "loggingInOn": {
-    "message": "Logging in on"
-  },
   "selfHostedServer": {
-    "message": "self-hosted"
+    "message": "ise majutatud"
   },
   "accessDenied": {
-    "message": "Access denied. You do not have permission to view this page."
+    "message": "Ligipääs keelatud. Sul pole lubatud seda lehekülge vaadata."
   },
   "accountSuccessfullyCreated": {
-    "message": "Account successfully created!"
+    "message": "Konto edukalt loodud!"
   },
   "adminApprovalRequested": {
-    "message": "Admin approval requested"
+    "message": "Taotlus administraatorile saadetud"
   },
   "adminApprovalRequestSentToAdmins": {
-    "message": "Your request has been sent to your admin."
+    "message": "Sinu taotlus saadeti administraatorile."
   },
   "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
+    "message": "Kinnitamise järel saad selle kohta teavituse."
   },
   "troubleLoggingIn": {
-    "message": "Trouble logging in?"
+    "message": "Ei õnnestu sisse logida?"
   },
   "loginApproved": {
-    "message": "Login approved"
+    "message": "Sisselogimine kinnitatud"
   },
   "userEmailMissing": {
-    "message": "User email missing"
+    "message": "Kasutaja email puudub"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
-    "message": "Device trusted"
+    "message": "Usaldusväärne seade"
   },
   "inputRequired": {
-    "message": "Input is required."
+    "message": "Sisend on nõutud."
   },
   "required": {
-    "message": "required"
+    "message": "nõutud"
   },
   "search": {
-    "message": "Search"
+    "message": "Otsi"
   },
   "inputMinLength": {
-    "message": "Input must be at least $COUNT$ characters long.",
+    "message": "Sisend peab olema vähemalt $COUNT$ tähemärki pikk.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2404,7 +2990,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "Input must not exceed $COUNT$ characters in length.",
+    "message": "Sisend ei tohi olla üle $COUNT$ tähemärgi pikkune.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2413,7 +2999,7 @@
     }
   },
   "inputForbiddenCharacters": {
-    "message": "The following characters are not allowed: $CHARACTERS$",
+    "message": "Järgnevad märgid pole lubatud: $CHARACTERS$",
     "placeholders": {
       "characters": {
         "content": "$1",
@@ -2422,7 +3008,7 @@
     }
   },
   "inputMinValue": {
-    "message": "Input value must be at least $MIN$.",
+    "message": "Selle väärtus peab olema vähemalt $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -2431,7 +3017,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "Input value must not exceed $MAX$.",
+    "message": "Selle väärtus ei tohi ületada $MAX$.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -2440,17 +3026,17 @@
     }
   },
   "multipleInputEmails": {
-    "message": "1 or more emails are invalid"
+    "message": "Üks või rohkem emaili on vigased"
   },
   "inputTrimValidator": {
-    "message": "Input must not contain only whitespace.",
+    "message": "Sisend ei tohi koosneda ainult tühikutest.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
   },
   "inputEmail": {
-    "message": "Input is not an email address."
+    "message": "See pole e-posti aadress."
   },
   "fieldsNeedAttention": {
-    "message": "$COUNT$ field(s) above need your attention.",
+    "message": "$COUNT$ välja nõuab tähelepanu.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2459,22 +3045,22 @@
     }
   },
   "selectPlaceholder": {
-    "message": "-- Select --"
+    "message": "-- Vali --"
   },
   "multiSelectPlaceholder": {
-    "message": "-- Type to filter --"
+    "message": "-- Filtreerimiseks trüki siia --"
   },
   "multiSelectLoading": {
-    "message": "Retrieving options..."
+    "message": "Valikute hankimine..."
   },
   "multiSelectNotFound": {
-    "message": "No items found"
+    "message": "Ühtki kirjet ei leitud"
   },
   "multiSelectClearAll": {
-    "message": "Clear all"
+    "message": "Tühjenda kõik"
   },
   "plusNMore": {
-    "message": "+ $QUANTITY$ more",
+    "message": "+ $QUANTITY$ veel",
     "placeholders": {
       "quantity": {
         "content": "$1",
@@ -2483,44 +3069,47 @@
     }
   },
   "submenu": {
-    "message": "Submenu"
+    "message": "Alammenüü"
+  },
+  "toggleSideNavigation": {
+    "message": "Lülita sisse külgpaneel"
   },
   "skipToContent": {
-    "message": "Skip to content"
+    "message": "Sisu juurde"
   },
   "typePasskey": {
-    "message": "Passkey"
+    "message": "Pääsuvõti"
   },
   "passkeyNotCopied": {
-    "message": "Passkey will not be copied"
+    "message": "Pääsuvõtit ei kopeerita"
   },
   "passkeyNotCopiedAlert": {
-    "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+    "message": "Pääsukoodi ei kopeerita kloonitud kirjele. Oled kindel, et soovid jätkata?"
   },
   "aliasDomain": {
-    "message": "Alias domain"
+    "message": "Varidomeen"
   },
   "importData": {
-    "message": "Import data",
+    "message": "Impordi andmed",
     "description": "Used for the desktop menu item and the header of the import dialog"
   },
   "importError": {
-    "message": "Import error"
+    "message": "Tõrge importimisel"
   },
   "importErrorDesc": {
-    "message": "There was a problem with the data you tried to import. Please resolve the errors listed below in your source file and try again."
+    "message": "Andmete importimisel ilmnes tõrge. Paranda originaalfailis olevad vead (kuvatud all) ning proovi uuesti."
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "Resolve the errors below and try again."
+    "message": "Lahenda allolevad probleemid ja proovi uuesti."
   },
   "description": {
-    "message": "Description"
+    "message": "Kirjeldus"
   },
   "importSuccess": {
-    "message": "Data successfully imported"
+    "message": "Andmed edukalt imporditud"
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "Kokku imporditi $AMOUNT$ kirjet.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -2529,10 +3118,10 @@
     }
   },
   "total": {
-    "message": "Total"
+    "message": "Kokku"
   },
   "importWarning": {
-    "message": "You are importing data to $ORGANIZATION$. Your data may be shared with members of this organization. Do you want to proceed?",
+    "message": "Impordid andmeid organisatsiooni $ORGANIZATION$. Neid andmeid võidakse jagada teiste organisatsiooni liikmetega. Soovid jätkata?",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2540,41 +3129,44 @@
       }
     }
   },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Duo teenustega ühendamine ebaõnnestus. Kasuta teist kahe-astmelise sisselogimise meetodit või kontakteeru Duoga."
+  },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
+    "message": "Käivita Duo ja järgi juhiseid, et lõpetada sisselogimine."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "Duo two-step login is required for your account."
+    "message": "Duo kahe-astmeline sisselogimine on sinu kontol nõutud."
   },
   "launchDuo": {
-    "message": "Launch Duo in Browser"
+    "message": "Käivita Duo brauseris"
   },
   "importFormatError": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Andmed ei ole korrektsed. Palun kontrollige imporditavat faili ja proovige uuesti."
   },
   "importNothingError": {
-    "message": "Nothing was imported."
+    "message": "Ei imporditud midagi."
   },
   "importEncKeyError": {
-    "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
+    "message": "Eksporditud faili dekrüpteerimine nurjus. Sinu krüpteerimisvõti ei ühti selle võtmega, mida kasutati andmete eksportimisel."
   },
   "invalidFilePassword": {
-    "message": "Invalid file password, please use the password you entered when you created the export file."
+    "message": "Vale parool, palun kasuta seda parooli mille sisestasid eksportfaili loomisel."
   },
-  "importDestination": {
-    "message": "Import destination"
+  "destination": {
+    "message": "Sihtkoht"
   },
   "learnAboutImportOptions": {
-    "message": "Learn about your import options"
+    "message": "Lisainfo importimise valikute kohta"
   },
   "selectImportFolder": {
-    "message": "Select a folder"
+    "message": "Vali kaust"
   },
   "selectImportCollection": {
-    "message": "Select a collection"
+    "message": "Vali kogumik"
   },
   "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
+    "message": "Tee siin valik, kui soovid, et imporditud faili sisu liigutatakse asukohta $DESTINATION$",
     "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
     "placeholders": {
       "destination": {
@@ -2584,25 +3176,25 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "File contains unassigned items."
+    "message": "Fail sisaldab määramata kirjeid."
   },
   "selectFormat": {
-    "message": "Select the format of the import file"
+    "message": "Vali imporditava faili formaat"
   },
   "selectImportFile": {
-    "message": "Select the import file"
+    "message": "Vali imporditav fail"
   },
   "chooseFile": {
-    "message": "Choose File"
+    "message": "Vali fail"
   },
   "noFileChosen": {
-    "message": "No file chosen"
+    "message": "Ühtegi faili pole valitud"
   },
   "orCopyPasteFileContents": {
-    "message": "or copy/paste the import file contents"
+    "message": "või kopeeri/kleebi imporditava faili sisu"
   },
   "instructionsFor": {
-    "message": "$NAME$ Instructions",
+    "message": "$NAME$ Kasutusjuhend",
     "description": "The title for the import tool instructions.",
     "placeholders": {
       "name": {
@@ -2612,113 +3204,231 @@
     }
   },
   "confirmVaultImport": {
-    "message": "Confirm vault import"
+    "message": "Kinnita hoidla importimine"
   },
   "confirmVaultImportDesc": {
-    "message": "This file is password-protected. Please enter the file password to import data."
+    "message": "Fail on parooliga kaitstud. Palun sisesta faili importimiseks selle parool."
   },
   "confirmFilePassword": {
-    "message": "Confirm file password"
+    "message": "Kinnita faili parool"
+  },
+  "exportSuccess": {
+    "message": "Hoidla sisu edukalt eksporditud"
   },
   "multifactorAuthenticationCancelled": {
-    "message": "Multifactor authentication cancelled"
+    "message": "Mitmeastmeline autentiteerimine tühistatud"
   },
   "noLastPassDataFound": {
-    "message": "No LastPass data found"
+    "message": "Ei leidnud LastPassi andmeid"
   },
   "incorrectUsernameOrPassword": {
-    "message": "Incorrect username or password"
+    "message": "Vale kasutajanimi või parool"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "Vale parool"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "Vale kood"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "Vale PIN-kood"
   },
   "multifactorAuthenticationFailed": {
-    "message": "Multifactor authentication failed"
+    "message": "Mitmeastmeline autentiteerimine ebaõnnestus"
   },
   "includeSharedFolders": {
-    "message": "Include shared folders"
+    "message": "Lisa ka jagatud kaustad"
   },
   "lastPassEmail": {
-    "message": "LastPass Email"
+    "message": "LastPassi Email"
   },
   "importingYourAccount": {
-    "message": "Importing your account..."
+    "message": "Impordin sinu kontot..."
   },
   "lastPassMFARequired": {
-    "message": "LastPass multifactor authentication required"
+    "message": "LastPassi mitmeastmeline autentiteerimine nõutud"
   },
   "lastPassMFADesc": {
-    "message": "Enter your one-time passcode from your authentication app"
+    "message": "Sisesta oma ühekordne kood autentiteerimise rakendusest"
   },
   "lastPassOOBDesc": {
-    "message": "Approve the login request in your authentication app or enter a one-time passcode."
+    "message": "Kinnita sisselogimistaotlus oma autentiteerimisrakenduses või sisesta ühekordne kood."
   },
   "passcode": {
-    "message": "Passcode"
+    "message": "Pääsukood"
   },
   "lastPassMasterPassword": {
-    "message": "LastPass master password"
+    "message": "LastPassi ülemparool"
   },
   "lastPassAuthRequired": {
-    "message": "LastPass authentication required"
+    "message": "LastPassi autentiteerimine nõutud"
   },
   "awaitingSSO": {
-    "message": "Awaiting SSO authentication"
+    "message": "Ootan SSO autentiteerimise kinnitamist"
   },
   "awaitingSSODesc": {
-    "message": "Please continue to log in using your company credentials."
+    "message": "Sisselogimiseks palun jätka kasutades oma firma andmeid."
   },
   "seeDetailedInstructions": {
-    "message": "See detailed instructions on our help site at",
+    "message": "Vaata täpsemaid juhiseid meie veebilehel",
     "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
-    "message": "Import directly from LastPass"
+    "message": "Impordi otse LastPassist"
   },
   "importFromCSV": {
-    "message": "Import from CSV"
+    "message": "Impordi CSV-st"
   },
   "lastPassTryAgainCheckEmail": {
-    "message": "Try again or look for an email from LastPass to verify it's you."
+    "message": "Proovi uuesti või kinnita sulle LastPassilt saadetud kirjas, et see oled sina."
   },
   "collection": {
-    "message": "Collection"
+    "message": "Kogumik"
   },
   "lastPassYubikeyDesc": {
-    "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
+    "message": "Sisesta sinu LastPassi kontoga seotud YubiKey oma arvuti USB porti ja vajuta nuppu selle peal."
   },
   "commonImportFormats": {
-    "message": "Common formats",
+    "message": "Tüüpilised meetodid",
     "description": "Label indicating the most common import formats"
   },
   "success": {
-    "message": "Success"
+    "message": "Tehtud"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Tõrkeotsing"
   },
   "disableHardwareAccelerationRestart": {
-    "message": "Disable hardware acceleration and restart"
+    "message": "Lülita riistavara kiirendus välja ja tee taaskäivitus"
   },
   "enableHardwareAccelerationRestart": {
-    "message": "Enable hardware acceleration and restart"
+    "message": "Lülita riistavara kiirendus sisse ja tee taaskäivitus"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "Eemalda pääsuvõti"
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "Pääsuvõti eemaldatud"
   },
   "errorAssigningTargetCollection": {
-    "message": "Error assigning target collection."
+    "message": "Sihtkogumikku määramine ebaõnnestus."
   },
   "errorAssigningTargetFolder": {
-    "message": "Error assigning target folder."
+    "message": "Sihtkausta määramine ebaõnnestus."
+  },
+  "viewItemsIn": {
+    "message": "Vaata kirjeid asukohas $NAME$",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "Tagasi asukohta $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "back": {
+    "message": "Tagasi",
+    "description": "Button text to navigate back"
+  },
+  "removeItem": {
+    "message": "Eemalda $NAME$",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "data": {
+    "message": "Andmed"
+  },
+  "fileSends": {
+    "message": "Kõik Send Failid"
+  },
+  "textSends": {
+    "message": "Kõik Tekst-Sendid"
+  },
+  "ssoError": {
+    "message": "SSO-ga sisselogimiseks ei leitud ühtegi vaba porti."
+  },
+  "authorize": {
+    "message": "Authorize"
+  },
+  "deny": {
+    "message": "Deny"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Confirm SSH key usage"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "is requesting access to"
+  },
+  "unknownApplication": {
+    "message": "An application"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "Importing password protected SSH keys is not yet supported"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyPasted": {
+    "message": "SSH key imported successfully"
+  },
+  "fileSavedToDevice": {
+    "message": "Fail salvestatud. Halda oma seadmesse allalaaditud faile."
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
   }
 }

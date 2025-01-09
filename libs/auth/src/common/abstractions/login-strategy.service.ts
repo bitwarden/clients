@@ -1,9 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { MasterKey } from "@bitwarden/common/types/key";
 
 import {
@@ -73,11 +74,7 @@ export abstract class LoginStrategyServiceAbstraction {
    */
   makePreloginKey: (masterPassword: string, email: string) => Promise<MasterKey>;
   /**
-   * Sends a response to an auth request.
+   * Emits true if the two factor session has expired.
    */
-  passwordlessLogin: (
-    id: string,
-    key: string,
-    requestApproved: boolean,
-  ) => Promise<AuthRequestResponse>;
+  twoFactorTimeout$: Observable<boolean>;
 }

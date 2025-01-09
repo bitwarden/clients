@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -6,6 +8,7 @@ import { combineLatest, Subject, switchMap, takeUntil } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { ToastService } from "@bitwarden/components";
 
 import { ProjectServiceAccountsAccessPoliciesView } from "../../models/view/access-policies/project-service-accounts-access-policies.view";
 import {
@@ -64,6 +67,7 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
     private accessPolicyService: AccessPolicyService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -104,11 +108,11 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
       this.items = this.getItems(this.potentialGrantees, updatedView);
       this.setSelected(updatedView);
 
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("projectAccessUpdated"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("projectAccessUpdated"),
+      });
     } catch (e) {
       this.validationService.showError(e);
       this.setSelected(this.currentAccessPolicies);
@@ -144,7 +148,7 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
     projectId: string,
     selectedPolicies: ApItemValueType[],
   ): Promise<ProjectServiceAccountsAccessPoliciesView> {
-    const view = convertToProjectServiceAccountsAccessPoliciesView(projectId, selectedPolicies);
+    const view = convertToProjectServiceAccountsAccessPoliciesView(selectedPolicies);
     return await this.accessPolicyService.putProjectServiceAccountsAccessPolicies(
       organizationId,
       projectId,

@@ -1,7 +1,7 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ProductType } from "@bitwarden/common/enums";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 
 /**
  * If the organization doesn't allow additional seat options, this checks if the seat limit has been reached when adding
@@ -37,9 +37,9 @@ export function orgSeatLimitReachedValidator(
     );
 
     const productHasAdditionalSeatsOption =
-      organization.planProductType !== ProductType.Free &&
-      organization.planProductType !== ProductType.Families &&
-      organization.planProductType !== ProductType.TeamsStarter;
+      organization.productTierType !== ProductTierType.Free &&
+      organization.productTierType !== ProductTierType.Families &&
+      organization.productTierType !== ProductTierType.TeamsStarter;
 
     return !productHasAdditionalSeatsOption &&
       allOrganizationUserEmails.length + newEmailsToAdd.length > organization.seats

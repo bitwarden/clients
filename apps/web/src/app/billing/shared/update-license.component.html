@@ -1,20 +1,40 @@
-<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
-  <div class="form-group">
-    <label for="file" class="sr-only">{{ "licenseFile" | i18n }}</label>
-    <input type="file" id="file" class="form-control-file" name="file" required />
-    <small class="form-text text-muted">{{
+<form [formGroup]="updateLicenseForm" [bitSubmit]="submit">
+  <bit-form-field>
+    <bit-label *ngIf="showAutomaticSyncAndManualUpload">{{ "licenseFile" | i18n }}</bit-label>
+    <div class="tw-pb-1 tw-pt-2">
+      <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+        {{ "chooseFile" | i18n }}
+      </button>
+      {{ this.licenseFile ? this.licenseFile.name : ("noFileChosen" | i18n) }}
+    </div>
+    <input
+      bitInput
+      #fileSelector
+      type="file"
+      formControlName="file"
+      (change)="setSelectedFile($event)"
+      hidden
+      class="tw-hidden"
+    />
+    <bit-hint>{{
       "licenseFileDesc"
         | i18n
           : (!organizationId
               ? "bitwarden_premium_license.json"
               : "bitwarden_organization_license.json")
-    }}</small>
-  </div>
-  <button type="submit" class="btn btn-primary btn-submit" [disabled]="form.loading">
-    <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-    <span>{{ "submit" | i18n }}</span>
+    }}</bit-hint>
+  </bit-form-field>
+  <button type="submit" buttonType="primary" bitButton bitFormButton>
+    {{ "submit" | i18n }}
   </button>
-  <button *ngIf="showCancel" type="button" class="btn btn-outline-secondary" (click)="cancel()">
+  <button
+    bitButton
+    *ngIf="showCancel"
+    bitFormButton
+    buttonType="secondary"
+    type="button"
+    [bitAction]="cancel"
+  >
     {{ "cancel" | i18n }}
   </button>
 </form>

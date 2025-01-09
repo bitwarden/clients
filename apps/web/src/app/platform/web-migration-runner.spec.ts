@@ -1,13 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
+import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { MigrationBuilder } from "@bitwarden/common/state-migrations/migration-builder";
 import { MigrationHelper } from "@bitwarden/common/state-migrations/migration-helper";
 
 import { WebMigrationRunner } from "./web-migration-runner";
-import { WindowStorageService } from "./window-storage.service";
 
 describe("WebMigrationRunner", () => {
   let logService: MockProxy<LogService>;

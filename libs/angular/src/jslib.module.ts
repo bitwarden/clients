@@ -2,9 +2,33 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
-import { AutofocusDirective, ToastModule } from "@bitwarden/components";
+import {
+  AddAccountCreditDialogComponent,
+  InvoicesComponent,
+  NoInvoicesComponent,
+  ManageTaxInformationComponent,
+} from "@bitwarden/angular/billing/components";
+import {
+  AsyncActionsModule,
+  AutofocusDirective,
+  ButtonModule,
+  CalloutModule,
+  CheckboxModule,
+  DialogModule,
+  FormFieldModule,
+  IconButtonModule,
+  IconModule,
+  LinkModule,
+  MenuModule,
+  RadioButtonModule,
+  SelectModule,
+  TableModule,
+  ToastModule,
+  TypographyModule,
+} from "@bitwarden/components";
 
-import { CalloutComponent } from "./components/callout.component";
+import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
+import { DeprecatedCalloutComponent } from "./components/callout.component";
 import { A11yInvalidDirective } from "./directives/a11y-invalid.directive";
 import { A11yTitleDirective } from "./directives/a11y-title.directive";
 import { ApiActionDirective } from "./directives/api-action.directive";
@@ -19,8 +43,10 @@ import { LaunchClickDirective } from "./directives/launch-click.directive";
 import { NotPremiumDirective } from "./directives/not-premium.directive";
 import { StopClickDirective } from "./directives/stop-click.directive";
 import { StopPropDirective } from "./directives/stop-prop.directive";
+import { TextDragDirective } from "./directives/text-drag.directive";
 import { TrueFalseValueDirective } from "./directives/true-false-value.directive";
 import { CreditCardNumberPipe } from "./pipes/credit-card-number.pipe";
+import { PluralizePipe } from "./pipes/pluralize.pipe";
 import { SearchCiphersPipe } from "./pipes/search-ciphers.pipe";
 import { SearchPipe } from "./pipes/search.pipe";
 import { UserNamePipe } from "./pipes/user-name.pipe";
@@ -41,6 +67,22 @@ import { IconComponent } from "./vault/components/icon.component";
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    AsyncActionsModule,
+    RadioButtonModule,
+    FormFieldModule,
+    SelectModule,
+    ButtonModule,
+    CalloutModule,
+    CheckboxModule,
+    DialogModule,
+    TypographyModule,
+    TableModule,
+    MenuModule,
+    IconButtonModule,
+    IconModule,
+    LinkModule,
+    IconModule,
+    TextDragDirective,
   ],
   declarations: [
     A11yInvalidDirective,
@@ -48,7 +90,7 @@ import { IconComponent } from "./vault/components/icon.component";
     ApiActionDirective,
     AutofocusDirective,
     BoxRowDirective,
-    CalloutComponent,
+    DeprecatedCalloutComponent,
     CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
@@ -70,6 +112,11 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
+    AddAccountCreditDialogComponent,
+    InvoicesComponent,
+    NoInvoicesComponent,
+    ManageTaxInformationComponent,
+    TwoFactorIconComponent,
   ],
   exports: [
     A11yInvalidDirective,
@@ -78,7 +125,7 @@ import { IconComponent } from "./vault/components/icon.component";
     AutofocusDirective,
     ToastModule,
     BoxRowDirective,
-    CalloutComponent,
+    DeprecatedCalloutComponent,
     CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
@@ -100,6 +147,12 @@ import { IconComponent } from "./vault/components/icon.component";
     UserTypePipe,
     IfFeatureDirective,
     FingerprintPipe,
+    AddAccountCreditDialogComponent,
+    InvoicesComponent,
+    NoInvoicesComponent,
+    ManageTaxInformationComponent,
+    TwoFactorIconComponent,
+    TextDragDirective,
   ],
   providers: [
     CreditCardNumberPipe,
@@ -109,6 +162,7 @@ import { IconComponent } from "./vault/components/icon.component";
     UserNamePipe,
     UserTypePipe,
     FingerprintPipe,
+    PluralizePipe,
   ],
 })
 export class JslibModule {}

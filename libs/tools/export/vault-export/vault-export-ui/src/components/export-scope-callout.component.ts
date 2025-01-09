@@ -1,9 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CalloutModule } from "@bitwarden/components";
 
 @Component({
@@ -35,7 +38,7 @@ export class ExportScopeCalloutComponent implements OnInit {
 
   constructor(
     protected organizationService: OrganizationService,
-    protected stateService: StateService,
+    protected accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -58,7 +61,9 @@ export class ExportScopeCalloutComponent implements OnInit {
         : {
             title: "exportingPersonalVaultTitle",
             description: "exportingIndividualVaultDescription",
-            scopeIdentifier: await this.stateService.getEmail(),
+            scopeIdentifier: await firstValueFrom(
+              this.accountService.activeAccount$.pipe(map((a) => a?.email)),
+            ),
           };
   }
 }

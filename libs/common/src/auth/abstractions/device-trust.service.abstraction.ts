@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { EncString } from "../../platform/models/domain/enc-string";
@@ -32,4 +34,9 @@ export abstract class DeviceTrustServiceAbstraction {
     newUserKey: UserKey,
     masterPasswordHash: string,
   ) => Promise<void>;
+  /**
+   * Notifies the server that the device has a device key, but didn't receive any associated decryption keys.
+   * Note: For debugging purposes only.
+   */
+  recordDeviceTrustLoss: () => Promise<void>;
 }

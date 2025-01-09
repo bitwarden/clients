@@ -1,0 +1,40 @@
+<td bitCell>
+  {{ sponsoringOrg.familySponsorshipFriendlyName }}
+</td>
+<td bitCell>{{ sponsoringOrg.name }}</td>
+<td bitCell>
+  <span [ngClass]="statusClass">{{ statusMessage }}</span>
+</td>
+<td bitCell>
+  <button
+    *ngIf="!sponsoringOrg.familySponsorshipToDelete"
+    type="button"
+    bitIconButton="bwi-ellipsis-v"
+    buttonType="main"
+    [bitMenuTriggerFor]="appListDropdown"
+    appA11yTitle="{{ 'options' | i18n }}"
+  ></button>
+  <bit-menu #appListDropdown>
+    <button
+      type="button"
+      bitMenuItem
+      *ngIf="
+        !isSelfHosted &&
+        !sponsoringOrg.familySponsorshipValidUntil &&
+        !(isFreeFamilyPolicyEnabled$ | async)
+      "
+      (click)="resendEmail()"
+      [attr.aria-label]="'resendEmailLabel' | i18n: sponsoringOrg.familySponsorshipFriendlyName"
+    >
+      {{ "resendEmail" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitMenuItem
+      (click)="revokeSponsorship()"
+      [attr.aria-label]="'revokeAccount' | i18n: sponsoringOrg.familySponsorshipFriendlyName"
+    >
+      <span class="tw-text-danger">{{ "remove" | i18n }}</span>
+    </button>
+  </bit-menu>
+</td>

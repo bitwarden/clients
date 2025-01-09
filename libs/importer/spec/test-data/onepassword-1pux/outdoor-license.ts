@@ -26,7 +26,7 @@ export const OutdoorLicenseData: ExportData = {
               favIndex: 0,
               createdAt: 1619467374,
               updatedAt: 1619467492,
-              trashed: false,
+              state: "active",
               categoryUuid: "104",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const OutdoorLicenseData: ExportData = {
                         value: {
                           string: "Cash Bandit",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const OutdoorLicenseData: ExportData = {
                         value: {
                           date: 1617278460,
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const OutdoorLicenseData: ExportData = {
                         value: {
                           date: 2343124860,
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -89,7 +86,6 @@ export const OutdoorLicenseData: ExportData = {
                         value: {
                           string: "Bananas,blueberries,corn",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -105,7 +101,6 @@ export const OutdoorLicenseData: ExportData = {
                         value: {
                           string: "100/each",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -121,7 +116,6 @@ export const OutdoorLicenseData: ExportData = {
                         value: {
                           string: "Washington",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -137,7 +131,6 @@ export const OutdoorLicenseData: ExportData = {
                         value: {
                           string: "United States of America",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

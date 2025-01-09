@@ -1,3 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, map } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { Response } from "../../models/response";
@@ -5,7 +10,10 @@ import { CliUtils } from "../../utils";
 import { CipherResponse } from "../../vault/models/cipher.response";
 
 export class ShareCommand {
-  constructor(private cipherService: CipherService) {}
+  constructor(
+    private cipherService: CipherService,
+    private accountService: AccountService,
+  ) {}
 
   async run(id: string, organizationId: string, requestJson: string): Promise<Response> {
     if (process.env.BW_SERVE !== "true" && (requestJson == null || requestJson === "")) {
@@ -45,14 +53,18 @@ export class ShareCommand {
     if (cipher.organizationId != null) {
       return Response.badRequest("This item already belongs to an organization.");
     }
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     const cipherView = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher),
+      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
     );
     try {
-      await this.cipherService.shareWithServer(cipherView, organizationId, req);
+      await this.cipherService.shareWithServer(cipherView, organizationId, req, activeUserId);
       const updatedCipher = await this.cipherService.get(cipher.id);
       const decCipher = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher),
+        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
       );
       const res = new CipherResponse(decCipher);
       return Response.success(res);

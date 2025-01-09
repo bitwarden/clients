@@ -1,38 +1,19 @@
-<div class="modal fade" role="dialog" aria-modal="true" aria-labelledby="purgeVaultTitle">
-  <div class="modal-dialog modal-dialog-scrollable" role="document">
-    <form
-      class="modal-content"
-      #form
-      (ngSubmit)="submit()"
-      [appApiAction]="formPromise"
-      ngNativeValidate
-    >
-      <div class="modal-header">
-        <h1 class="modal-title" id="purgeVaultTitle">{{ "purgeVault" | i18n }}</h1>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          appA11yTitle="{{ 'close' | i18n }}"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>{{ (organizationId ? "purgeOrgVaultDesc" : "purgeVaultDesc") | i18n }}</p>
-        <app-callout type="warning">{{ "purgeVaultWarning" | i18n }}</app-callout>
-        <app-user-verification [(ngModel)]="masterPassword" ngDefaultControl name="secret">
-        </app-user-verification>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-danger btn-submit" [disabled]="form.loading">
-          <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-          <span>{{ "purgeVault" | i18n }}</span>
-        </button>
-        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-          {{ "close" | i18n }}
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="default" [title]="'purgeVault' | i18n">
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">
+        {{ (organizationId ? "purgeOrgVaultDesc" : "purgeVaultDesc") | i18n }}
+      </p>
+      <bit-callout type="warning">{{ "purgeVaultWarning" | i18n }}</bit-callout>
+      <app-user-verification formControlName="masterPassword"></app-user-verification>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton type="submit" buttonType="danger">
+        {{ "purgeVault" | i18n }}
+      </button>
+      <button bitButton bitFormButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   Observable,
   ReplaySubject,
@@ -7,16 +9,19 @@ import {
   merge,
   share,
   switchMap,
+  tap,
   timeout,
   timer,
 } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { StorageKey } from "../../../types/state";
+import { LogService } from "../../abstractions/log.service";
 import {
   AbstractStorageService,
   ObservableStorageService,
 } from "../../abstractions/storage.service";
+import { DebugOptions } from "../key-definition";
 import { StateUpdateOptions, populateOptionsWithDefault } from "../state-update-options";
 
 import { getStoredValue } from "./util";
@@ -25,6 +30,7 @@ import { getStoredValue } from "./util";
 type KeyDefinitionRequirements<T> = {
   deserializer: (jsonState: Jsonify<T>) => T;
   cleanupDelayMs: number;
+  debug: Required<DebugOptions>;
 };
 
 export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> {
@@ -36,6 +42,7 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
     protected readonly key: StorageKey,
     protected readonly storageService: AbstractStorageService & ObservableStorageService,
     protected readonly keyDefinition: KeyDef,
+    protected readonly logService: LogService,
   ) {
     const storageUpdate$ = storageService.updates$.pipe(
       filter((storageUpdate) => storageUpdate.key === key),
@@ -48,15 +55,34 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
       }),
     );
 
-    this.state$ = merge(
+    let state$ = merge(
       defer(() => getStoredValue(key, storageService, keyDefinition.deserializer)),
       storageUpdate$,
-    ).pipe(
-      share({
-        connector: () => new ReplaySubject(1),
-        resetOnRefCountZero: () => timer(keyDefinition.cleanupDelayMs),
-      }),
     );
+
+    if (keyDefinition.debug.enableRetrievalLogging) {
+      state$ = state$.pipe(
+        tap({
+          next: (v) => {
+            this.logService.info(
+              `Retrieving '${key}' from storage, value is ${v == null ? "null" : "non-null"}`,
+            );
+          },
+        }),
+      );
+    }
+
+    // If 0 cleanup is chosen, treat this as absolutely no cache
+    if (keyDefinition.cleanupDelayMs !== 0) {
+      state$ = state$.pipe(
+        share({
+          connector: () => new ReplaySubject(1),
+          resetOnRefCountZero: () => timer(keyDefinition.cleanupDelayMs),
+        }),
+      );
+    }
+
+    this.state$ = state$;
   }
 
   async update<TCombine>(
@@ -97,6 +123,11 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
   }
 
   protected async doStorageSave(newState: T, oldState: T) {
+    if (this.keyDefinition.debug.enableUpdateLogging) {
+      this.logService.info(
+        `Updating '${this.key}' from ${oldState == null ? "null" : "non-null"} to ${newState == null ? "null" : "non-null"}`,
+      );
+    }
     await this.storageService.save(this.key, newState);
   }
 

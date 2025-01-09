@@ -4,6 +4,10 @@ import * as stories from "./button.stories";
 
 <Meta of={stories} />
 
+```ts
+import { ButtonModule } from "@bitwarden/components";
+```
+
 # Button
 
 Buttons are interactive elements that can be triggered using a mouse, keyboard, or touch. They are
@@ -59,9 +63,6 @@ other; however, generally there should only be 1 or 2 calls to action per page.
 Use the danger styling only in settings when the user may preform a permanent action.
 
 ## Disabled UI
-
-Both the disabled and loading states use the default state’s color with a 60% opacity or
-`tw-opacity-60`.
 
 <Story of={stories.Disabled} />
 

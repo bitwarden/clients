@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { Subject, takeUntil, concatMap, map } from "rxjs";
+import { Subject, takeUntil, concatMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { DialogService } from "@bitwarden/components";
@@ -36,16 +38,12 @@ export class NewMenuComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.params
       .pipe(
-        concatMap((params) =>
-          this.organizationService
-            .get$(params.organizationId)
-            .pipe(map((organization) => ({ params, organization }))),
-        ),
+        concatMap(async (params) => await this.organizationService.get(params.organizationId)),
         takeUntil(this.destroy$),
       )
-      .subscribe((mapResult) => {
-        this.organizationId = mapResult?.params?.organizationId;
-        this.organizationEnabled = mapResult?.organization?.enabled;
+      .subscribe((org) => {
+        this.organizationId = org.id;
+        this.organizationEnabled = org.enabled;
       });
   }
 

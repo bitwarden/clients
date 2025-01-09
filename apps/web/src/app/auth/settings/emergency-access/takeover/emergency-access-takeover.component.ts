@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, OnDestroy, OnInit, Inject, Input } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
@@ -5,17 +7,16 @@ import { takeUntil } from "rxjs";
 
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/components/change-password.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KdfType } from "@bitwarden/common/platform/enums";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { KdfType, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { EmergencyAccessService } from "../../../emergency-access";
 
@@ -50,7 +51,7 @@ export class EmergencyAccessTakeoverComponent
     @Inject(DIALOG_DATA) protected params: EmergencyAccessTakeoverDialogData,
     private formBuilder: FormBuilder,
     i18nService: I18nService,
-    cryptoService: CryptoService,
+    keyService: KeyService,
     messagingService: MessagingService,
     stateService: StateService,
     passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -62,10 +63,12 @@ export class EmergencyAccessTakeoverComponent
     private dialogRef: DialogRef<EmergencyAccessTakeoverResultType>,
     kdfConfigService: KdfConfigService,
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    accountService: AccountService,
+    protected toastService: ToastService,
   ) {
     super(
       i18nService,
-      cryptoService,
+      keyService,
       messagingService,
       passwordGenerationService,
       platformUtilsService,
@@ -74,6 +77,8 @@ export class EmergencyAccessTakeoverComponent
       dialogService,
       kdfConfigService,
       masterPasswordService,
+      accountService,
+      toastService,
     );
   }
 
@@ -111,11 +116,11 @@ export class EmergencyAccessTakeoverComponent
       );
     } catch (e) {
       this.logService.error(e);
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("unexpectedError"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("unexpectedError"),
+      });
     }
     this.dialogRef.close(EmergencyAccessTakeoverResultType.Done);
   };

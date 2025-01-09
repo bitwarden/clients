@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { SecretListView } from "../../models/view/secret-list.view";
 import {
@@ -28,6 +30,7 @@ export class SecretDeleteDialogComponent {
     private platformUtilsService: PlatformUtilsService,
     @Inject(DIALOG_DATA) private data: SecretDeleteOperation,
     private dialogService: DialogService,
+    private toastService: ToastService,
   ) {}
 
   showSoftDeleteSecretWarning = this.data.secrets.length === 1;
@@ -51,7 +54,11 @@ export class SecretDeleteDialogComponent {
 
     const message =
       this.data.secrets.length === 1 ? "softDeleteSuccessToast" : "softDeletesSuccessToast";
-    this.platformUtilsService.showToast("success", null, this.i18nService.t(message));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(message),
+    });
 
     this.dialogRef.close(true);
   };

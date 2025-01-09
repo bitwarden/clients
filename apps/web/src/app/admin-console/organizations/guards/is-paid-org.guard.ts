@@ -1,44 +1,62 @@
-import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from "@angular/router";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { inject } from "@angular/core";
+import {
+  ActivatedRouteSnapshot,
+  CanActivateFn,
+  Router,
+  RouterStateSnapshot,
+} from "@angular/router";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService } from "@bitwarden/components";
 
-@Injectable({
-  providedIn: "root",
-})
-export class IsPaidOrgGuard implements CanActivate {
-  constructor(
-    private router: Router,
-    private organizationService: OrganizationService,
-    private messagingService: MessagingService,
-    private dialogService: DialogService,
-  ) {}
+/**
+ * `CanActivateFn` that checks if the organization matching the id in the URL
+ * parameters is paid or free. If the organization is free instructions are
+ * provided on how to upgrade a free organization, and the user is redirected
+ * if they have access to upgrade the organization. If the organization is
+ * paid routing proceeds."
+ */
+export function isPaidOrgGuard(): CanActivateFn {
+  return async (route: ActivatedRouteSnapshot, _state: RouterStateSnapshot) => {
+    const router = inject(Router);
+    const organizationService = inject(OrganizationService);
+    const dialogService = inject(DialogService);
 
-  async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    const org = await this.organizationService.get(route.params.organizationId);
+    const org = await organizationService.get(route.params.organizationId);
 
     if (org == null) {
-      return this.router.createUrlTree(["/"]);
+      return router.createUrlTree(["/"]);
     }
 
     if (org.isFreeOrg) {
       // Users without billing permission can't access billing
       if (!org.canEditSubscription) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "upgradeOrganization" },
-          content: { key: "notAvailableForFreeOrganization" },
+        await dialogService.openSimpleDialog({
+          title: { key: "upgradeOrganizationCloseSecurityGaps" },
+          content: { key: "upgradeOrganizationCloseSecurityGapsDesc" },
           acceptButtonText: { key: "ok" },
           cancelButtonText: null,
           type: "info",
         });
         return false;
       } else {
-        this.messagingService.send("upgradeOrganization", { organizationId: org.id });
+        const upgradeConfirmed = await dialogService.openSimpleDialog({
+          title: { key: "upgradeOrganizationCloseSecurityGaps" },
+          content: { key: "upgradeOrganizationCloseSecurityGapsDesc" },
+          acceptButtonText: { key: "upgradeOrganization" },
+          type: "info",
+          icon: "bwi-arrow-circle-up",
+        });
+        if (upgradeConfirmed) {
+          await router.navigate(["organizations", org.id, "billing", "subscription"], {
+            queryParams: { upgrade: true },
+          });
+        }
       }
     }
 
     return !org.isFreeOrg;
-  }
+  };
 }

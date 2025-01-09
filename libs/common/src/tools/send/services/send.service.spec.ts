@@ -1,6 +1,10 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
+
+import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import {
   FakeAccountService,
   FakeActiveUserState,
@@ -8,7 +12,6 @@ import {
   awaitAsync,
   mockAccountServiceWith,
 } from "../../../../spec";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
@@ -37,10 +40,11 @@ import {
 } from "./test-data/send-tests.data";
 
 describe("SendService", () => {
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const i18nService = mock<I18nService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
+  const environmentService = mock<EnvironmentService>();
 
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
@@ -56,8 +60,12 @@ describe("SendService", () => {
     accountService = mockAccountServiceWith(mockUserId);
     stateProvider = new FakeStateProvider(accountService);
     sendStateProvider = new SendStateProvider(stateProvider);
+    Object.defineProperty(environmentService, "environment$", {
+      configurable: true,
+      get: () => of(new SelfHostedEnvironment({ webVault: "https://example.com" })),
+    });
 
-    (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 
     accountService.activeAccountSubject.next({
       id: mockUserId,
@@ -76,7 +84,7 @@ describe("SendService", () => {
     decryptedState.nextState([testSendViewData("1", "Test Send")]);
 
     sendService = new SendService(
-      cryptoService,
+      keyService,
       i18nService,
       keyGenerationService,
       sendStateProvider,
@@ -102,9 +110,12 @@ describe("SendService", () => {
       const result = await firstValueFrom(singleSendObservable);
       expect(result).toEqual(testSend("1", "Test Send"));
 
-      await sendService.replace({
-        "1": testSendData("1", "Test Send Updated"),
-      });
+      await sendService.replace(
+        {
+          "1": testSendData("1", "Test Send Updated"),
+        },
+        mockUserId,
+      );
 
       const result2 = await firstValueFrom(singleSendObservable);
       expect(result2).toEqual(testSend("1", "Test Send Updated"));
@@ -119,10 +130,13 @@ describe("SendService", () => {
 
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(true);
     });
@@ -130,10 +144,13 @@ describe("SendService", () => {
     it("reports a change when notes changes on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       let changed = false;
       sendService.get$("1").subscribe(() => {
@@ -144,10 +161,13 @@ describe("SendService", () => {
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(true);
     });
@@ -155,10 +175,13 @@ describe("SendService", () => {
     it("reports a change when Text changes on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       let changed = false;
       sendService.get$("1").subscribe(() => {
@@ -169,10 +192,13 @@ describe("SendService", () => {
       changed = false;
 
       sendDataObject.text.text = "new text";
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(true);
     });
@@ -180,10 +206,13 @@ describe("SendService", () => {
     it("reports a change when Text is set as null on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       let changed = false;
       sendService.get$("1").subscribe(() => {
@@ -194,10 +223,13 @@ describe("SendService", () => {
       changed = false;
 
       sendDataObject.text = null;
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(true);
     });
@@ -207,10 +239,13 @@ describe("SendService", () => {
         type: SendType.File,
         file: new SendFileData(new SendFileApi({ FileName: "name of file" })),
       }) as SendData;
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       sendDataObject.file = new SendFileData(new SendFileApi({ FileName: "updated name of file" }));
       let changed = false;
@@ -221,10 +256,13 @@ describe("SendService", () => {
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(false);
     });
@@ -232,10 +270,13 @@ describe("SendService", () => {
     it("reports a change when key changes on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       let changed = false;
       sendService.get$("1").subscribe(() => {
@@ -246,10 +287,13 @@ describe("SendService", () => {
       changed = false;
 
       sendDataObject.key = "newKey";
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(true);
     });
@@ -257,10 +301,13 @@ describe("SendService", () => {
     it("reports a change when revisionDate changes on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       let changed = false;
       sendService.get$("1").subscribe(() => {
@@ -271,10 +318,13 @@ describe("SendService", () => {
       changed = false;
 
       sendDataObject.revisionDate = "2025-04-05";
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(true);
     });
@@ -282,10 +332,13 @@ describe("SendService", () => {
     it("reports a change when a property is set as null on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       let changed = false;
       sendService.get$("1").subscribe(() => {
@@ -296,10 +349,13 @@ describe("SendService", () => {
       changed = false;
 
       sendDataObject.name = null;
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(true);
     });
@@ -309,10 +365,13 @@ describe("SendService", () => {
         text: new SendTextData(new SendTextApi({ Text: null })),
       }) as SendData;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       let changed = false;
       sendService.get$("1").subscribe(() => {
@@ -322,23 +381,29 @@ describe("SendService", () => {
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(false);
 
       sendDataObject.text.text = "Asdf";
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(true);
     });
 
-    it("do not reports a change when nothing changes on the observed send", async () => {
+    it("do not report a change when nothing changes on the observed send", async () => {
       let changed = false;
       sendService.get$("1").subscribe(() => {
         changed = true;
@@ -349,10 +414,13 @@ describe("SendService", () => {
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
 
-      await sendService.replace({
-        "1": sendDataObject,
-        "2": testSendData("3", "Test Send 3"),
-      });
+      await sendService.replace(
+        {
+          "1": sendDataObject,
+          "2": testSendData("3", "Test Send 3"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(false);
     });
@@ -365,9 +433,12 @@ describe("SendService", () => {
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
 
-      await sendService.replace({
-        "2": testSendData("2", "Test Send 2"),
-      });
+      await sendService.replace(
+        {
+          "2": testSendData("2", "Test Send 2"),
+        },
+        mockUserId,
+      );
 
       expect(changed).toEqual(true);
     });
@@ -400,8 +471,11 @@ describe("SendService", () => {
     expect(sends[0]).toMatchObject(testSendViewData("1", "Test Send"));
   });
 
-  describe("getRotatedKeys", () => {
+  describe("getRotatedData", () => {
+    const originalUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
+    const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
     let encryptedKey: EncString;
+
     beforeEach(() => {
       encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
       encryptedKey = new EncString("Re-encrypted Send Key");
@@ -409,27 +483,30 @@ describe("SendService", () => {
     });
 
     it("returns re-encrypted user sends", async () => {
-      const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-      const result = await sendService.getRotatedKeys(newUserKey);
+      const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 
       expect(result).toMatchObject([{ id: "1", key: "Re-encrypted Send Key" }]);
     });
 
-    it("returns null if there are no sends", async () => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      sendService.replace(null);
+    it("returns empty array if there are no sends", async () => {
+      await sendService.replace(null, mockUserId);
 
       await awaitAsync();
 
       const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-      const result = await sendService.getRotatedKeys(newUserKey);
+      const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 
       expect(result).toEqual([]);
     });
 
+    it("throws if the original user key is null", async () => {
+      await expect(sendService.getRotatedData(null, newUserKey, mockUserId)).rejects.toThrow(
+        "Original user key is required for rotation.",
+      );
+    });
+
     it("throws if the new user key is null", async () => {
-      await expect(sendService.getRotatedKeys(null)).rejects.toThrowError(
+      await expect(sendService.getRotatedData(originalUserKey, null, mockUserId)).rejects.toThrow(
         "New user key is required for rotation.",
       );
     });
@@ -447,16 +524,11 @@ describe("SendService", () => {
   });
 
   it("replace", async () => {
-    await sendService.replace({ "2": testSendData("2", "test 2") });
+    await sendService.replace({ "2": testSendData("2", "test 2") }, mockUserId);
 
     expect(await firstValueFrom(sendService.sends$)).toEqual([testSend("2", "test 2")]);
   });
 
-  it("clear", async () => {
-    await sendService.clear();
-    await awaitAsync();
-    expect(await firstValueFrom(sendService.sends$)).toEqual([]);
-  });
   describe("Delete", () => {
     it("Sends count should decrease after delete", async () => {
       const sendsBeforeDelete = await firstValueFrom(sendService.sends$);
@@ -474,7 +546,7 @@ describe("SendService", () => {
     });
 
     it("Deleting on an empty sends array should not throw", async () => {
-      sendStateProvider.getEncryptedSends = jest.fn().mockResolvedValue(null);
+      stateProvider.activeUser.getFake(SEND_USER_ENCRYPTED).nextState(null);
       await expect(sendService.delete("2")).resolves.not.toThrow();
     });
 

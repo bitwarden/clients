@@ -1,0 +1,20 @@
+<div *ngIf="sideNavService.open" class="tw-sticky tw-top-0 tw-z-50">
+  <a
+    [routerLink]="route"
+    class="tw-px-5 tw-pb-5 tw-pt-7 tw-block tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2"
+    [attr.aria-label]="label"
+    [title]="label"
+    routerLinkActive
+    [ariaCurrentWhenActive]="'page'"
+  >
+    <bit-icon [icon]="openIcon"></bit-icon>
+  </a>
+</div>
+<bit-nav-item
+  class="tw-block tw-pt-7"
+  [hideActiveStyles]="true"
+  [route]="route"
+  [icon]="closedIcon"
+  *ngIf="!sideNavService.open"
+  [text]="label"
+></bit-nav-item>

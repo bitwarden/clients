@@ -1,0 +1,113 @@
+import { Meta, Story, Primary, Controls, Canvas } from "@storybook/addon-docs";
+
+import * as stories from "./chip-select.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ChipSelectComponent } from "@bitwarden/components";
+```
+
+# Chip Select
+
+`<bit-chip-select>` is a select element that is commonly used to filter items in lists or tables.
+
+<Canvas>
+  <Story of={stories.Default} />
+</Canvas>
+
+## Options
+
+Options are passed to the select via an `options` input.
+
+```ts
+@Component({
+  selector: `
+    <bit-chip-select options=[options]></bit-chip-select>
+  `,
+})
+class MyComponent {
+  protected options = [
+    {
+      label: "Foo",
+      value: "foo",
+      icon: "bwi-folder",
+    },
+    {
+      label: "Bar",
+      value: "bar",
+      icon: "bwi-exclamation-triangle tw-text-danger",
+    },
+    {
+      label: "Baz",
+      value: "baz",
+      disabled: true,
+    },
+  ];
+}
+```
+
+### Option Trees
+
+Nested trees of options are also supported by passing an array of options to `children`.
+
+```ts
+const options = [
+  {
+    label: "Foo0",
+    value: "foo0",
+    icon: "bwi-folder",
+    children: [
+      {
+        label: "Foo1",
+        value: "foo1",
+        icon: "bwi-folder",
+        children: [
+          {
+            label: "Foo2",
+            value: "foo2",
+            icon: "bwi-folder",
+            children: [
+              {
+                label: "Foo3",
+                value: "foo3",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Bar",
+    value: "bar",
+    icon: "bwi-folder",
+  },
+  {
+    label: "Baz",
+    value: "baz",
+    icon: "bwi-folder",
+  },
+];
+```
+
+<Canvas>
+  <Story of={stories.NestedOptions} />
+</Canvas>
+
+## Placeholder Content
+
+Placeholder content is shown when no item is selected.
+
+```html
+<bit-chip-select placeholderText="Foo" placeholderIcon="bwi-key"> </bit-chip-select>
+```
+
+## Reading the current value
+
+The component implements `ControlValueAccessor`, so the current selected value can be read via
+`ngModel` or `[formControlName]`.
+
+```html
+<bit-chip-select [(ngModel)]="..."></bit-chip-select>
+```

@@ -1,13 +1,16 @@
-import { ActivatedRouteSnapshot, Router } from "@angular/router";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { TestBed } from "@angular/core/testing";
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
-import { ProviderPermissionsGuard } from "./provider-permissions.guard";
+import { providerPermissionsGuard } from "./provider-permissions.guard";
 
 const providerFactory = (props: Partial<Provider> = {}) =>
   Object.assign(
@@ -21,14 +24,11 @@ const providerFactory = (props: Partial<Provider> = {}) =>
   );
 
 describe("Provider Permissions Guard", () => {
-  let router: MockProxy<Router>;
   let providerService: MockProxy<ProviderService>;
   let route: MockProxy<ActivatedRouteSnapshot>;
-
-  let providerPermissionsGuard: ProviderPermissionsGuard;
+  let state: MockProxy<RouterStateSnapshot>;
 
   beforeEach(() => {
-    router = mock<Router>();
     providerService = mock<ProviderService>();
     route = mock<ActivatedRouteSnapshot>({
       params: {
@@ -38,19 +38,22 @@ describe("Provider Permissions Guard", () => {
         providerPermissions: null,
       },
     });
-
-    providerPermissionsGuard = new ProviderPermissionsGuard(
-      providerService,
-      router,
-      mock<PlatformUtilsService>(),
-      mock<I18nService>(),
-    );
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ProviderService, useValue: providerService },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: Router, useValue: mock<Router>() },
+      ],
+    });
   });
 
   it("blocks navigation if provider does not exist", async () => {
     providerService.get.mockResolvedValue(null);
 
-    const actual = await providerPermissionsGuard.canActivate(route);
+    const actual = await TestBed.runInInjectionContext(
+      async () => await providerPermissionsGuard()(route, state),
+    );
 
     expect(actual).not.toBe(true);
   });
@@ -59,22 +62,23 @@ describe("Provider Permissions Guard", () => {
     const provider = providerFactory();
     providerService.get.calledWith(provider.id).mockResolvedValue(provider);
 
-    const actual = await providerPermissionsGuard.canActivate(route);
+    const actual = await TestBed.runInInjectionContext(
+      async () => await providerPermissionsGuard()(route, state),
+    );
 
     expect(actual).toBe(true);
   });
 
   it("permits navigation if the user has permissions", async () => {
     const permissionsCallback = jest.fn();
-    permissionsCallback.mockImplementation((provider) => true);
-    route.data = {
-      providerPermissions: permissionsCallback,
-    };
+    permissionsCallback.mockImplementation((_provider) => true);
 
     const provider = providerFactory();
     providerService.get.calledWith(provider.id).mockResolvedValue(provider);
 
-    const actual = await providerPermissionsGuard.canActivate(route);
+    const actual = await TestBed.runInInjectionContext(
+      async () => await providerPermissionsGuard(permissionsCallback)(route, state),
+    );
 
     expect(permissionsCallback).toHaveBeenCalled();
     expect(actual).toBe(true);
@@ -82,15 +86,13 @@ describe("Provider Permissions Guard", () => {
 
   it("blocks navigation if the user does not have permissions", async () => {
     const permissionsCallback = jest.fn();
-    permissionsCallback.mockImplementation((org) => false);
-    route.data = {
-      providerPermissions: permissionsCallback,
-    };
-
+    permissionsCallback.mockImplementation((_org) => false);
     const provider = providerFactory();
     providerService.get.calledWith(provider.id).mockResolvedValue(provider);
 
-    const actual = await providerPermissionsGuard.canActivate(route);
+    const actual = await TestBed.runInInjectionContext(
+      async () => await providerPermissionsGuard(permissionsCallback)(route, state),
+    );
 
     expect(permissionsCallback).toHaveBeenCalled();
     expect(actual).not.toBe(true);
@@ -104,7 +106,9 @@ describe("Provider Permissions Guard", () => {
       });
       providerService.get.calledWith(org.id).mockResolvedValue(org);
 
-      const actual = await providerPermissionsGuard.canActivate(route);
+      const actual = await TestBed.runInInjectionContext(
+        async () => await providerPermissionsGuard()(route, state),
+      );
 
       expect(actual).not.toBe(true);
     });
@@ -116,7 +120,9 @@ describe("Provider Permissions Guard", () => {
       });
       providerService.get.calledWith(org.id).mockResolvedValue(org);
 
-      const actual = await providerPermissionsGuard.canActivate(route);
+      const actual = await TestBed.runInInjectionContext(
+        async () => await providerPermissionsGuard()(route, state),
+      );
 
       expect(actual).toBe(true);
     });

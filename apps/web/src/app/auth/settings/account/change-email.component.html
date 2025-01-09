@@ -1,7 +1,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <app-callout type="warning" *ngIf="showTwoFactorEmailWarning">
+  <bit-callout type="warning" *ngIf="showTwoFactorEmailWarning">
     {{ "changeEmailTwoFactorWarning" | i18n }}
-  </app-callout>
+  </bit-callout>
 
   <div class="tw-w-1/2 tw-pr-2" formGroupName="step1">
     <bit-form-field>
@@ -29,7 +29,7 @@
   <ng-container *ngIf="tokenSent">
     <hr />
     <p>{{ "changeEmailDesc" | i18n: formGroup.controls.step1.value.newEmail }}</p>
-    <app-callout type="warning">{{ "loggedOutWarning" | i18n }}</app-callout>
+    <bit-callout type="warning">{{ "loggedOutWarning" | i18n }}</bit-callout>
 
     <div class="tw-w-1/2 tw-pr-2">
       <bit-form-field>

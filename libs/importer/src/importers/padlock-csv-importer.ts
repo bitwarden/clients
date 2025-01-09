@@ -1,4 +1,6 @@
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CollectionView } from "@bitwarden/admin-console/common";
 
 import { ImportResult } from "../models/import-result";
 

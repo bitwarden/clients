@@ -1,13 +1,11 @@
-<bit-layout variant="secondary">
-  <nav slot="sidebar" *ngIf="provider$ | async as provider">
-    <a routerLink="." class="tw-m-5 tw-mt-7 tw-block" [appA11yTitle]="'providerPortal' | i18n">
-      <bit-icon [icon]="logo"></bit-icon>
-    </a>
+<app-layout>
+  <app-side-nav variant="secondary" *ngIf="provider$ | async as provider">
+    <bit-nav-logo [openIcon]="logo" route="." [label]="'providerPortal' | i18n"></bit-nav-logo>
 
     <bit-nav-item
       icon="bwi-bank"
       [text]="'clients' | i18n"
-      [route]="(canAccessBilling$ | async) ? 'manage-client-organizations' : 'clients'"
+      [route]="(isBillable | async) ? 'manage-client-organizations' : 'clients'"
     ></bit-nav-item>
     <bit-nav-group
       icon="bwi-sliders"
@@ -15,11 +13,7 @@
       route="manage"
       *ngIf="showManageTab(provider)"
     >
-      <bit-nav-item
-        [text]="'people' | i18n"
-        route="manage/people"
-        *ngIf="provider.canManageUsers"
-      ></bit-nav-item>
+      <bit-nav-item [text]="'members' | i18n" route="manage/members"></bit-nav-item>
       <bit-nav-item
         [text]="'eventLogs' | i18n"
         route="manage/events"
@@ -33,6 +27,7 @@
       *ngIf="canAccessBilling$ | async"
     >
       <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
+      <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
     </bit-nav-group>
     <bit-nav-item
       icon="bwi-cogs"
@@ -40,10 +35,27 @@
       route="settings"
       *ngIf="showSettingsTab(provider)"
     ></bit-nav-item>
-    <app-toggle-width></app-toggle-width>
-  </nav>
-  <app-payment-method-warnings
-    *ngIf="showPaymentMethodWarningBanners$ | async"
-  ></app-payment-method-warnings>
+  </app-side-nav>
+
+  <bit-banner
+    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+    (onClose)="(true)"
+    *ngIf="
+      (showProviderClientVaultPrivacyWarningBanner$ | async) &&
+      (providerClientVaultPrivacyBannerService.showBanner$ | async) != false
+    "
+    (onClose)="providerClientVaultPrivacyBannerService.hideBanner()"
+  >
+    {{ "providerClientVaultPrivacyNotification" | i18n }}
+    <a
+      href="https://bitwarden.com/contact/"
+      bitLink
+      linkType="secondary"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {{ "contactBitwardenSupport" | i18n }} </a
+    >.
+  </bit-banner>
   <router-outlet></router-outlet>
-</bit-layout>
+</app-layout>

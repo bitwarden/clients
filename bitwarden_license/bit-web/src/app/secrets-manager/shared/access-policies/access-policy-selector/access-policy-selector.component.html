@@ -78,9 +78,11 @@
 </bit-table>
 
 <ng-template #empty>
-  <div class="tw-mt-4 tw-text-center">
-    {{ emptyMessage }}
-  </div>
+  <tr bitRow>
+    <td bitCell colspan="3" class="tw-text-center">
+      {{ emptyMessage }}
+    </td>
+  </tr>
 </ng-template>
 
 <ng-template #buttonMode>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -9,13 +11,14 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingSyncConfigApi } from "@bitwarden/common/billing/models/api/billing-sync-config.api";
 import { SelfHostedOrganizationSubscriptionView } from "@bitwarden/common/billing/models/view/self-hosted-organization-subscription.view";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BillingSyncKeyComponent } from "./billing-sync-key.component";
 
@@ -32,6 +35,7 @@ export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDest
   organizationId: string;
   userOrg: Organization;
   cloudWebVaultUrl: string;
+  showAutomaticSyncAndManualUpload: boolean;
 
   licenseOptions = LicenseOptions;
   form = new FormGroup({
@@ -82,6 +86,7 @@ export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDest
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
     private dialogService: DialogService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -111,6 +116,8 @@ export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDest
     }
     this.loading = true;
     this.userOrg = await this.organizationService.get(this.organizationId);
+    this.showAutomaticSyncAndManualUpload =
+      this.userOrg.productTierType == ProductTierType.Families ? false : true;
     if (this.userOrg.canViewSubscription) {
       const subscriptionResponse = await this.organizationApiService.getSubscription(
         this.organizationId,
@@ -165,7 +172,11 @@ export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDest
     this.load();
     await this.loadOrganizationConnection();
     this.messagingService.send("updatedOrgLicense");
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("licenseSyncSuccess"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("licenseSyncSuccess"),
+    });
   };
 
   get billingSyncSetUp() {

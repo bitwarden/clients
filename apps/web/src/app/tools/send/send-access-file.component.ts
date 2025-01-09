@@ -1,15 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../shared";
 
@@ -25,8 +27,8 @@ export class SendAccessFileComponent {
   @Input() accessRequest: SendAccessRequest;
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private cryptoService: CryptoService,
+    private toastService: ToastService,
+    private encryptService: EncryptService,
     private fileDownloadService: FileDownloadService,
     private sendApiService: SendApiService,
   ) {}
@@ -42,26 +44,38 @@ export class SendAccessFileComponent {
     );
 
     if (Utils.isNullOrWhitespace(downloadData.url)) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("missingSendFile"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("missingSendFile"),
+      });
       return;
     }
 
     const response = await fetch(new Request(downloadData.url, { cache: "no-store" }));
     if (response.status !== 200) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
       return;
     }
 
     try {
       const encBuf = await EncArrayBuffer.fromResponse(response);
-      const decBuf = await this.cryptoService.decryptFromBytes(encBuf, this.decKey);
+      const decBuf = await this.encryptService.decryptToBytes(encBuf, this.decKey);
       this.fileDownloadService.download({
         fileName: this.send.file.fileName,
         blobData: decBuf,
         downloadMethod: "save",
       });
     } catch (e) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
     }
   };
 }

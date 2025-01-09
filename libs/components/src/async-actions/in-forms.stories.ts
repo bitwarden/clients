@@ -33,6 +33,7 @@ const template = `
     <button class="tw-mr-2" type="submit" buttonType="primary" bitButton bitFormButton>Submit</button>
     <button class="tw-mr-2" type="button" buttonType="secondary" bitButton bitFormButton>Cancel</button>
     <button class="tw-mr-2" type="button" buttonType="danger" bitButton bitFormButton [bitAction]="delete">Delete</button>
+    <button class="tw-mr-2" type="button" buttonType="secondary" bitButton bitFormButton [disabled]="true">Disabled</button>
     <button class="tw-mr-2" type="button" buttonType="secondary" bitIconButton="bwi-star" bitFormButton [bitAction]="delete">Delete</button>
   </form>`;
 
@@ -108,20 +109,17 @@ export default {
   title: "Component Library/Async Actions/In Forms",
   decorators: [
     moduleMetadata({
-      declarations: [
+      declarations: [PromiseExampleComponent, ObservableExampleComponent],
+      imports: [
         BitSubmitDirective,
         BitFormButtonDirective,
-        PromiseExampleComponent,
-        ObservableExampleComponent,
-        BitActionDirective,
-      ],
-      imports: [
         FormsModule,
         ReactiveFormsModule,
         FormFieldModule,
         InputModule,
         ButtonModule,
         IconButtonModule,
+        BitActionDirective,
       ],
       providers: [
         {

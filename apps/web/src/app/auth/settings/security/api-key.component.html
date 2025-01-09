@@ -1,72 +1,42 @@
-<div class="modal fade" role="dialog" aria-modal="true" aria-labelledby="apiKeyTitle">
-  <div class="modal-dialog modal-dialog-scrollable" role="document">
-    <form
-      class="modal-content"
-      #form
-      (ngSubmit)="submit()"
-      [appApiAction]="formPromise"
-      ngNativeValidate
-    >
-      <div class="modal-header">
-        <h1 class="modal-title" id="apiKeyTitle">{{ apiKeyTitle | i18n }}</h1>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          appA11yTitle="{{ 'close' | i18n }}"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>{{ apiKeyDescription | i18n }}</p>
-        <app-user-verification
-          [(ngModel)]="masterPassword"
-          ngDefaultControl
-          name="secret"
-          *ngIf="!clientSecret"
-        >
-        </app-user-verification>
-
-        <app-callout type="warning" *ngIf="clientSecret">{{ apiKeyWarning | i18n }}</app-callout>
-        <app-callout
-          type="info"
-          title="{{ 'oauth2ClientCredentials' | i18n }}"
-          icon="bwi bwi-key"
-          *ngIf="clientSecret"
-        >
-          <p class="mb-1">
-            <strong>client_id:</strong><br />
-            <code>{{ clientId }}</code>
-          </p>
-          <p class="mb-1">
-            <strong>client_secret:</strong><br />
-            <code>{{ clientSecret }}</code>
-          </p>
-          <p class="mb-1">
-            <strong>scope:</strong><br />
-            <code>{{ scope }}</code>
-          </p>
-          <p class="mb-0">
-            <strong>grant_type:</strong><br />
-            <code>{{ grantType }}</code>
-          </p>
-        </app-callout>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="submit"
-          class="btn btn-primary btn-submit"
-          [disabled]="form.loading"
-          *ngIf="!clientSecret"
-        >
-          <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-          <span>{{ (isRotation ? "rotateApiKey" : "viewApiKey") | i18n }}</span>
-        </button>
-        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
-          {{ "close" | i18n }}
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>{{ data.apiKeyTitle | i18n }}</span>
+    <div bitDialogContent>
+      <p bitTypography="body1">{{ data.apiKeyDescription | i18n }}</p>
+      <app-user-verification-form-input formControlName="masterPassword" *ngIf="!clientSecret">
+      </app-user-verification-form-input>
+      <bit-callout type="warning" *ngIf="clientSecret">{{ data.apiKeyWarning | i18n }}</bit-callout>
+      <bit-callout
+        type="info"
+        title="{{ 'oauth2ClientCredentials' | i18n }}"
+        icon="bwi-key"
+        *ngIf="clientSecret"
+      >
+        <p bitTypography="body1" class="tw-mb-1">
+          <strong>client_id:</strong><br />
+          <code>{{ clientId }}</code>
+        </p>
+        <p bitTypography="body1" class="tw-mb-1">
+          <strong>client_secret:</strong><br />
+          <code>{{ clientSecret }}</code>
+        </p>
+        <p bitTypography="body1" class="tw-mb-1">
+          <strong>scope:</strong><br />
+          <code>{{ data.scope }}</code>
+        </p>
+        <p bitTypography="body1" class="tw-mb-0">
+          <strong>grant_type:</strong><br />
+          <code>{{ data.grantType }}</code>
+        </p>
+      </bit-callout>
+    </div>
+    <div bitDialogFooter>
+      <button type="submit" buttonType="primary" *ngIf="!clientSecret" bitButton bitFormButton>
+        <span>{{ (data.isRotation ? "rotateApiKey" : "viewApiKey") | i18n }}</span>
+      </button>
+      <button type="button" bitButton bitFormButton bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </div>
+  </bit-dialog>
+</form>

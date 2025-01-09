@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 
@@ -7,7 +9,7 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { WebProviderService } from "../services/web-provider.service";
 
@@ -32,6 +34,7 @@ export class AddOrganizationComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private validationService: ValidationService,
     private dialogService: DialogService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -73,11 +76,11 @@ export class AddOrganizationComponent implements OnInit {
         return;
       }
 
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("organizationJoinedProvider"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("organizationJoinedProvider"),
+      });
 
       this.dialogRef.close(true);
     };

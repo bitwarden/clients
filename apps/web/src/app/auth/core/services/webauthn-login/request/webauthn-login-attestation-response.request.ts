@@ -20,8 +20,8 @@ export class WebauthnLoginAttestationResponseRequest extends WebauthnLoginAuthen
     }
 
     this.response = {
-      attestationObject: Utils.fromBufferToB64(credential.response.attestationObject),
-      clientDataJson: Utils.fromBufferToB64(credential.response.clientDataJSON),
+      attestationObject: Utils.fromBufferToUrlB64(credential.response.attestationObject),
+      clientDataJson: Utils.fromBufferToUrlB64(credential.response.clientDataJSON),
     };
   }
 }

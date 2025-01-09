@@ -13,7 +13,7 @@
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
-        <span class="sr-only">{{ "loading" | i18n }}</span>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
       </div>
 
       <bit-tab-group *ngIf="!loading" [(selectedIndex)]="tabIndex">
@@ -33,7 +33,7 @@
         <bit-tab label="{{ 'members' | i18n }}">
           <p>
             {{ "editGroupMembersDesc" | i18n }}
-            <span *ngIf="restrictGroupAccess$ | async">
+            <span *ngIf="cannotAddSelfToGroup$ | async">
               {{ "restrictedGroupAccessDesc" | i18n }}
             </span>
           </p>
@@ -45,35 +45,24 @@
             [columnHeader]="'member' | i18n"
             [selectorLabelText]="'selectMembers' | i18n"
             [emptySelectionText]="'noMembersAdded' | i18n"
-            [flexibleCollectionsEnabled]="flexibleCollectionsEnabled$ | async"
           ></bit-access-selector>
         </bit-tab>
 
         <bit-tab label="{{ 'collections' | i18n }}">
           <p>
             {{ "editGroupCollectionsDesc" | i18n }}
-            <span *ngIf="!(allowAdminAccessToAllCollectionItems$ | async)">
-              {{ "editGroupCollectionsRestrictionsDesc" | i18n }}
+            <span *ngIf="!(canAssignAccessToAnyCollection$ | async)">
+              {{ "restrictedCollectionAssignmentDesc" | i18n }}
             </span>
           </p>
-          <div *ngIf="!(flexibleCollectionsEnabled$ | async)" class="tw-my-3">
-            <input type="checkbox" formControlName="accessAll" id="accessAll" />
-            <label class="tw-mb-0 tw-text-lg" for="accessAll">{{
-              "accessAllCollectionsDesc" | i18n
-            }}</label>
-            <p class="tw-my-0 tw-text-muted">{{ "accessAllCollectionsHelp" | i18n }}</p>
-          </div>
-          <ng-container *ngIf="!groupForm.value.accessAll">
-            <bit-access-selector
-              formControlName="collections"
-              [items]="collections"
-              [permissionMode]="PermissionMode.Edit"
-              [columnHeader]="'collection' | i18n"
-              [selectorLabelText]="'selectCollections' | i18n"
-              [emptySelectionText]="'noCollectionsAdded' | i18n"
-              [flexibleCollectionsEnabled]="flexibleCollectionsEnabled$ | async"
-            ></bit-access-selector>
-          </ng-container>
+          <bit-access-selector
+            formControlName="collections"
+            [items]="collections"
+            [permissionMode]="PermissionMode.Edit"
+            [columnHeader]="'collection' | i18n"
+            [selectorLabelText]="'selectCollections' | i18n"
+            [emptySelectionText]="'noCollectionsAdded' | i18n"
+          ></bit-access-selector>
         </bit-tab>
       </bit-tab-group>
     </div>

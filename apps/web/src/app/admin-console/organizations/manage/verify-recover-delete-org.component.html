@@ -1,0 +1,39 @@
+<div class="tw-flex tw-flex-row tw-justify-center tw-mt-5">
+  <div class="tw-w-1/4">
+    <p class="tw-text-xl tw-text-center tw-mb-4">{{ "deleteOrganization" | i18n }}</p>
+    <div class="tw-rounded-md tw-border tw-border-solid tw-border-secondary-300 tw-bg-background">
+      <div class="tw-p-5">
+        <bit-callout type="warning">
+          {{ "deletingOrganizationIsPermanentWarning" | i18n: name }}
+        </bit-callout>
+        <p class="tw-text-center">
+          <strong>{{ name }}</strong>
+        </p>
+        <p>{{ "deleteRecoverOrgConfirmDesc" | i18n }}</p>
+        <p>{{ "deletingOrganizationActiveUserAccountsWarning" | i18n }}</p>
+        <hr />
+        <div class="tw-flex">
+          <button
+            type="button"
+            bitButton
+            buttonType="danger"
+            [bitAction]="submit"
+            [disabled]="loading"
+            [block]="true"
+          >
+            {{ "deleteOrganization" | i18n }}
+          </button>
+          <a
+            routerLink="/login"
+            bitButton
+            buttonType="secondary"
+            [block]="true"
+            class="tw-ml-2 tw-mt-0"
+          >
+            {{ "cancel" | i18n }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

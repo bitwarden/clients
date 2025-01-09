@@ -1,7 +1,12 @@
 import { RouterTestingModule } from "@angular/router/testing";
 import { StoryObj, Meta, moduleMetadata } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { IconButtonModule } from "../icon-button";
+import { LayoutComponent } from "../layout";
+import { I18nMockService } from "../utils/i18n-mock.service";
+import { positionFixedWrapperDecorator } from "../utils/position-fixed-wrapper-decorator";
 
 import { NavItemComponent } from "./nav-item.component";
 import { NavigationModule } from "./navigation.module";
@@ -10,9 +15,25 @@ export default {
   title: "Component Library/Nav/Nav Item",
   component: NavItemComponent,
   decorators: [
+    positionFixedWrapperDecorator(
+      (story) => `<bit-layout><bit-side-nav>${story}</bit-side-nav></bit-layout>`,
+    ),
     moduleMetadata({
       declarations: [],
-      imports: [RouterTestingModule, IconButtonModule, NavigationModule],
+      imports: [RouterTestingModule, IconButtonModule, NavigationModule, LayoutComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              submenu: "submenu",
+              toggleCollapse: "toggle collapse",
+              toggleSideNavigation: "Toggle side navigation",
+              skipToContent: "Skip to content",
+            });
+          },
+        },
+      ],
     }),
   ],
   parameters: {
@@ -20,6 +41,7 @@ export default {
       type: "figma",
       url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=4687%3A86642",
     },
+    chromatic: { viewports: [640, 1280] },
   },
 } as Meta;
 
@@ -47,8 +69,7 @@ export const WithoutIcon: Story = {
 };
 
 export const WithoutRoute: Story = {
-  render: (args: NavItemComponent) => ({
-    props: args,
+  render: () => ({
     template: `
         <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
       `,
@@ -56,18 +77,10 @@ export const WithoutRoute: Story = {
 };
 
 export const WithChildButtons: Story = {
-  render: (args: NavItemComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-nav-item text="Hello World" [route]="['']" icon="bwi-collection">
-        <button
-          slot="start"
-          class="tw-ml-auto"
-          [bitIconButton]="'bwi-clone'"
-          [buttonType]="'light'"
-          size="small"
-          aria-label="option 1"
-        ></button>
         <button
           slot="end"
           class="tw-ml-auto"
@@ -90,7 +103,7 @@ export const WithChildButtons: Story = {
 };
 
 export const MultipleItemsWithDivider: Story = {
-  render: (args: NavItemComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
@@ -98,6 +111,17 @@ export const MultipleItemsWithDivider: Story = {
       <bit-nav-divider></bit-nav-divider>
       <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
       <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
+    `,
+  }),
+};
+
+export const ForceActiveStyles: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-nav-item text="First Nav" icon="bwi-collection"></bit-nav-item>
+      <bit-nav-item text="Active Nav" icon="bwi-collection" [forceActiveStyles]="true"></bit-nav-item>
+      <bit-nav-item text="Third Nav" icon="bwi-collection"></bit-nav-item>
     `,
   }),
 };

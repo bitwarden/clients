@@ -1,104 +1,97 @@
 <app-header></app-header>
 
-<div class="ml-auto d-flex">
-  <div class="form-inline">
-    <label class="sr-only" for="start">{{ "startDate" | i18n }}</label>
-    <input
-      type="datetime-local"
-      class="form-control form-control-sm"
-      id="start"
-      placeholder="{{ 'startDate' | i18n }}"
-      [(ngModel)]="start"
-      placeholder="YYYY-MM-DDTHH:MM"
-      (change)="dirtyDates = true"
-    />
-    <span class="mx-2">-</span>
-    <label class="sr-only" for="end">{{ "endDate" | i18n }}</label>
-    <input
-      type="datetime-local"
-      class="form-control form-control-sm"
-      id="end"
-      placeholder="{{ 'endDate' | i18n }}"
-      [(ngModel)]="end"
-      placeholder="YYYY-MM-DDTHH:MM"
-      (change)="dirtyDates = true"
-    />
+<div class="tw-mb-4" [formGroup]="eventsForm">
+  <div class="tw-mt-4 tw-flex tw-items-center">
+    <bit-form-field>
+      <bit-label>{{ "startDate" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="datetime-local"
+        placeholder="{{ 'startDate' | i18n }}"
+        formControlName="start"
+        (change)="dirtyDates = true"
+      />
+    </bit-form-field>
+    <span class="tw-mx-2">-</span>
+    <bit-form-field>
+      <bit-label>{{ "endDate" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="datetime-local"
+        placeholder="{{ 'endDate' | i18n }}"
+        formControlName="end"
+        (change)="dirtyDates = true"
+      />
+    </bit-form-field>
+    <form>
+      <button
+        class="tw-mx-3 tw-mt-1"
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [bitAction]="refreshEvents"
+      >
+        {{ "refresh" | i18n }}
+      </button>
+    </form>
+    <form>
+      <button
+        type="button"
+        class="tw-mt-1"
+        bitButton
+        bitFormButton
+        [bitAction]="exportEvents"
+        [disabled]="dirtyDates"
+      >
+        <span>{{ "export" | i18n }}</span>
+        <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
+      </button>
+    </form>
   </div>
-  <form #refreshForm [appApiAction]="refreshPromise" class="d-inline">
-    <button
-      type="button"
-      class="btn btn-sm btn-outline-primary ml-3"
-      (click)="loadEvents(true)"
-      [disabled]="loaded && refreshForm.loading"
-    >
-      <i
-        class="bwi bwi-refresh bwi-fw"
-        aria-hidden="true"
-        [ngClass]="{ 'bwi-spin': loaded && refreshForm.loading }"
-      ></i>
-      {{ "refresh" | i18n }}
-    </button>
-  </form>
-  <form #exportForm [appApiAction]="exportPromise" class="d-inline">
-    <button
-      type="button"
-      class="btn btn-sm btn-outline-primary btn-submit manual ml-3"
-      [ngClass]="{ loading: exportForm.loading }"
-      (click)="exportEvents()"
-      [disabled]="(loaded && exportForm.loading) || dirtyDates"
-    >
-      <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i>
-      <span>{{ "export" | i18n }}</span>
-    </button>
-  </form>
 </div>
-
 <ng-container *ngIf="!loaded">
   <i
-    class="bwi bwi-spinner bwi-spin text-muted"
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
     aria-hidden="true"
   ></i>
-  <span class="sr-only">{{ "loading" | i18n }}</span>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 <ng-container *ngIf="loaded">
   <p *ngIf="!events || !events.length">{{ "noEventsInList" | i18n }}</p>
-  <table class="table table-hover" *ngIf="events && events.length">
-    <thead>
+  <bit-table *ngIf="events && events.length">
+    <ng-container header>
       <tr>
-        <th class="border-top-0" width="210">{{ "timestamp" | i18n }}</th>
-        <th class="border-top-0" width="40">
-          <span class="sr-only">{{ "device" | i18n }}</span>
-        </th>
-        <th class="border-top-0" width="150">{{ "user" | i18n }}</th>
-        <th class="border-top-0">{{ "event" | i18n }}</th>
+        <th bitCell>{{ "timestamp" | i18n }}</th>
+        <th bitCell>{{ "device" | i18n }}</th>
+        <th bitCell>{{ "user" | i18n }}</th>
+        <th bitCell>{{ "event" | i18n }}</th>
       </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let e of events">
-        <td>{{ e.date | date: "medium" }}</td>
-        <td>
+    </ng-container>
+    <ng-template body>
+      <tr bitRow *ngFor="let e of events" alignContent="top">
+        <td bitCell class="tw-whitespace-nowrap">{{ e.date | date: "medium" }}</td>
+        <td bitCell>
           <i
-            class="text-muted bwi bwi-lg {{ e.appIcon }}"
+            class="tw-text-muted bwi bwi-lg {{ e.appIcon }}"
             title="{{ e.appName }}, {{ e.ip }}"
             aria-hidden="true"
           ></i>
-          <span class="sr-only">{{ e.appName }}, {{ e.ip }}</span>
+          <span class="tw-sr-only">{{ e.appName }}, {{ e.ip }}</span>
         </td>
-        <td>
+        <td bitCell>
           <span title="{{ e.userEmail }}">{{ e.userName }}</span>
         </td>
-        <td [innerHTML]="e.message"></td>
+        <td bitCell [innerHTML]="e.message"></td>
       </tr>
-    </tbody>
-  </table>
+    </ng-template>
+  </bit-table>
   <button
-    #moreBtn
-    [appApiAction]="morePromise"
+    bitButton
     type="button"
-    class="btn btn-block btn-link btn-submit"
-    (click)="loadEvents(false)"
-    [disabled]="loaded && $any(moreBtn).loading"
+    buttonType="primary"
+    [bitAction]="loadMoreEvents"
     *ngIf="continuationToken"
   >
     <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>

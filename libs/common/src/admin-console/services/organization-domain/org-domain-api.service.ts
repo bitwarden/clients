@@ -4,6 +4,7 @@ import { OrgDomainApiServiceAbstraction } from "../../abstractions/organization-
 import { OrgDomainInternalServiceAbstraction } from "../../abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainSsoDetailsResponse } from "../../abstractions/organization-domain/responses/organization-domain-sso-details.response";
 import { OrganizationDomainResponse } from "../../abstractions/organization-domain/responses/organization-domain.response";
+import { VerifiedOrganizationDomainSsoDetailsResponse } from "../../abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
 
 import { OrganizationDomainSsoDetailsRequest } from "./requests/organization-domain-sso-details.request";
 import { OrganizationDomainRequest } from "./requests/organization-domain.request";
@@ -108,5 +109,19 @@ export class OrgDomainApiService implements OrgDomainApiServiceAbstraction {
     const response = new OrganizationDomainSsoDetailsResponse(result);
 
     return response;
+  }
+
+  async getVerifiedOrgDomainsByEmail(
+    email: string,
+  ): Promise<ListResponse<VerifiedOrganizationDomainSsoDetailsResponse>> {
+    const result = await this.apiService.send(
+      "POST",
+      `/organizations/domain/sso/verified`,
+      new OrganizationDomainSsoDetailsRequest(email),
+      false, // anonymous
+      true,
+    );
+
+    return new ListResponse(result, VerifiedOrganizationDomainSsoDetailsResponse);
   }
 }

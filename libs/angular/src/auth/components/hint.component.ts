@@ -1,5 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -7,6 +10,7 @@ import { PasswordHintRequest } from "@bitwarden/common/auth/models/request/passw
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 @Directive()
 export class HintComponent implements OnInit {
@@ -23,34 +27,39 @@ export class HintComponent implements OnInit {
     protected platformUtilsService: PlatformUtilsService,
     private logService: LogService,
     private loginEmailService: LoginEmailServiceAbstraction,
+    protected toastService: ToastService,
   ) {}
 
-  ngOnInit(): void {
-    this.email = this.loginEmailService.getEmail() ?? "";
+  async ngOnInit(): Promise<void> {
+    this.email = (await firstValueFrom(this.loginEmailService.loginEmail$)) ?? "";
   }
 
   async submit() {
     if (this.email == null || this.email === "") {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("emailRequired"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("emailRequired"),
+      });
       return;
     }
     if (this.email.indexOf("@") === -1) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("invalidEmail"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidEmail"),
+      });
       return;
     }
 
     try {
       this.formPromise = this.apiService.postPasswordHint(new PasswordHintRequest(this.email));
       await this.formPromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("masterPassSent"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("masterPassSent"),
+      });
       if (this.onSuccessfulSubmit != null) {
         this.onSuccessfulSubmit();
       } else if (this.router != null) {

@@ -1,16 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { firstValueFrom, map } from "rxjs";
 
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Checkable, isChecked } from "@bitwarden/common/types/checkable";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { DialogService } from "@bitwarden/components";
 
 export interface BulkShareDialogParams {
@@ -41,7 +44,7 @@ export const openBulkShareDialog = (
 @Component({
   templateUrl: "bulk-share-dialog.component.html",
 })
-export class BulkShareDialogComponent implements OnInit {
+export class BulkShareDialogComponent implements OnInit, OnDestroy {
   ciphers: CipherView[] = [];
   organizationId: string;
 
@@ -61,6 +64,7 @@ export class BulkShareDialogComponent implements OnInit {
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
     private logService: LogService,
+    private accountService: AccountService,
   ) {
     this.ciphers = params.ciphers ?? [];
     this.organizationId = params.organizationId;
@@ -98,10 +102,14 @@ export class BulkShareDialogComponent implements OnInit {
   submit = async () => {
     const checkedCollectionIds = this.collections.filter(isChecked).map((c) => c.id);
     try {
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
       await this.cipherService.shareManyWithServer(
         this.shareableCiphers,
         this.organizationId,
         checkedCollectionIds,
+        activeUserId,
       );
       const orgName =
         this.organizations.find((o) => o.id === this.organizationId)?.name ??

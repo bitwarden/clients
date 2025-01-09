@@ -51,7 +51,7 @@
                         title="{{ 'attachmentFixDescription' | i18n }}"
                         aria-hidden="true"
                       ></i>
-                      <span class="sr-only">{{ "attachmentFixDescription" | i18n }}</span></a
+                      <span class="tw-sr-only">{{ "attachmentFixDescription" | i18n }}</span></a
                     >
                     <button
                       type="button"
@@ -96,7 +96,7 @@
         </table>
         <div *ngIf="!viewOnly">
           <h3>{{ "newAttachment" | i18n }}</h3>
-          <label for="file" class="sr-only">{{ "file" | i18n }}</label>
+          <label for="file" class="tw-sr-only">{{ "file" | i18n }}</label>
           <input type="file" id="file" class="form-control-file" name="file" required />
           <small class="form-text text-muted">{{ "maxFileSize" | i18n }}</small>
         </div>

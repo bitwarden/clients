@@ -1,13 +1,20 @@
-<bit-layout variant="secondary">
-  <nav slot="sidebar" *ngIf="organization$ | async as organization">
-    <a routerLink="." class="tw-m-5 tw-mt-7 tw-block" [appA11yTitle]="'adminConsole' | i18n">
-      <bit-icon [icon]="logo"></bit-icon>
-    </a>
+<app-layout>
+  <app-side-nav variant="secondary" *ngIf="organization$ | async as organization">
+    <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
-
+    <bit-nav-group
+      icon="bwi-filter"
+      *ngIf="organization.useRiskInsights"
+      [text]="'accessIntelligence' | i18n"
+    >
+      <bit-nav-item
+        [text]="'riskInsights' | i18n"
+        route="access-intelligence/risk-insights"
+      ></bit-nav-item>
+    </bit-nav-group>
     <bit-nav-item
       icon="bwi-collection"
-      [text]="(organization.flexibleCollections ? 'collections' : 'vault') | i18n"
+      [text]="'collections' | i18n"
       route="vault"
       *ngIf="canShowVaultTab(organization)"
     >
@@ -48,11 +55,17 @@
       *ngIf="canShowBillingTab(organization)"
     >
       <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
-      <ng-container *ngIf="showPaymentAndHistory$ | async">
+      <ng-container *ngIf="(showPaymentAndHistory$ | async) && (organizationIsUnmanaged$ | async)">
         <bit-nav-item [text]="'paymentMethod' | i18n" route="billing/payment-method"></bit-nav-item>
         <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
       </ng-container>
     </bit-nav-group>
+    <bit-nav-item
+      icon="bwi-providers"
+      [text]="'integrations' | i18n"
+      route="integrations"
+      *ngIf="integrationPageEnabled$ | async"
+    ></bit-nav-item>
     <bit-nav-group
       icon="bwi-cog"
       [text]="'settings' | i18n"
@@ -77,15 +90,15 @@
       <bit-nav-item
         [text]="'importData' | i18n"
         route="settings/tools/import"
-        *ngIf="organization.canAccessImportExport"
+        *ngIf="organization.canAccessImport"
       ></bit-nav-item>
       <bit-nav-item
         [text]="'exportVault' | i18n"
         route="settings/tools/export"
-        *ngIf="organization.canAccessImportExport"
+        *ngIf="canAccessExport$ | async"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="'domainVerification' | i18n"
+        [text]="domainVerificationNavigationTextKey | i18n"
         route="settings/domain-verification"
         *ngIf="organization?.canManageDomainVerification"
       ></bit-nav-item>
@@ -105,9 +118,7 @@
         *ngIf="organization.canManageScim"
       ></bit-nav-item>
     </bit-nav-group>
-
-    <app-toggle-width></app-toggle-width>
-  </nav>
+  </app-side-nav>
 
   <ng-container *ngIf="organization$ | async as organization">
     <bit-banner
@@ -117,10 +128,7 @@
     >
       {{ "accessingUsingProvider" | i18n: organization.providerName }}
     </bit-banner>
-    <app-payment-method-warnings
-      *ngIf="showPaymentMethodWarningBanners$ | async"
-    ></app-payment-method-warnings>
   </ng-container>
 
   <router-outlet></router-outlet>
-</bit-layout>
+</app-layout>

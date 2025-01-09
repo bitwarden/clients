@@ -14,6 +14,7 @@ export class BrowserStorageServiceProvider extends StorageServiceProvider {
     diskStorageService: AbstractStorageService & ObservableStorageService,
     limitedMemoryStorageService: AbstractStorageService & ObservableStorageService,
     private largeObjectMemoryStorageService: AbstractStorageService & ObservableStorageService,
+    private readonly diskBackupLocalStorage: AbstractStorageService & ObservableStorageService,
   ) {
     super(diskStorageService, limitedMemoryStorageService);
   }
@@ -26,6 +27,8 @@ export class BrowserStorageServiceProvider extends StorageServiceProvider {
     switch (location) {
       case "memory-large-object":
         return ["memory-large-object", this.largeObjectMemoryStorageService];
+      case "disk-backup-local-storage":
+        return ["disk-backup-local-storage", this.diskBackupLocalStorage];
       default:
         // Pass in computed location to super because they could have
         // override default "disk" with web "memory".

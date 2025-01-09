@@ -1,10 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { BitValidators } from "@bitwarden/components";
+import { BitValidators, ToastService } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import { ServiceAccountService } from "../service-account.service";
@@ -24,7 +26,7 @@ export interface ServiceAccountOperation {
 @Component({
   templateUrl: "./service-account-dialog.component.html",
 })
-export class ServiceAccountDialogComponent {
+export class ServiceAccountDialogComponent implements OnInit {
   protected formGroup = new FormGroup(
     {
       name: new FormControl("", {
@@ -43,13 +45,12 @@ export class ServiceAccountDialogComponent {
     private serviceAccountService: ServiceAccountService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
     if (this.data.operation == OperationType.Edit) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.loadData();
+      await this.loadData();
     }
   }
 
@@ -66,11 +67,11 @@ export class ServiceAccountDialogComponent {
 
   submit = async () => {
     if (!this.data.organizationEnabled) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("machineAccountsCannotCreate"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("machineAccountsCannotCreate"),
+      });
       return;
     }
 
@@ -95,7 +96,11 @@ export class ServiceAccountDialogComponent {
       serviceAccountMessage = this.i18nService.t("machineAccountUpdated");
     }
 
-    this.platformUtilsService.showToast("success", null, serviceAccountMessage);
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: serviceAccountMessage,
+    });
     this.dialogRef.close();
   };
 

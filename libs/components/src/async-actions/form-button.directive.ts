@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, Input, OnDestroy, Optional } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 
@@ -23,6 +25,7 @@ import { BitSubmitDirective } from "./bit-submit.directive";
  */
 @Directive({
   selector: "button[bitFormButton]",
+  standalone: true,
 })
 export class BitFormButtonDirective implements OnDestroy {
   private destroy$ = new Subject<void>();
@@ -40,13 +43,13 @@ export class BitFormButtonDirective implements OnDestroy {
         if (this.type === "submit") {
           buttonComponent.loading = loading;
         } else {
-          buttonComponent.disabled = loading;
+          buttonComponent.disabled = this.disabled || loading;
         }
       });
 
       submitDirective.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
         if (this.disabled !== false) {
-          buttonComponent.disabled = disabled;
+          buttonComponent.disabled = this.disabled || disabled;
         }
       });
     }

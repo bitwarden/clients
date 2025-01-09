@@ -1,11 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { AvatarModule } from "@bitwarden/components";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { AvatarModule, ItemModule } from "@bitwarden/components";
+import { BiometricsService } from "@bitwarden/key-management";
 
 import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
 
@@ -13,7 +16,7 @@ import { AccountSwitcherService, AvailableAccount } from "./services/account-swi
   standalone: true,
   selector: "auth-account",
   templateUrl: "account.component.html",
-  imports: [CommonModule, JslibModule, AvatarModule],
+  imports: [CommonModule, JslibModule, AvatarModule, ItemModule],
 })
 export class AccountComponent {
   @Input() account: AvailableAccount;
@@ -21,9 +24,10 @@ export class AccountComponent {
 
   constructor(
     private accountSwitcherService: AccountSwitcherService,
-    private router: Router,
     private location: Location,
     private i18nService: I18nService,
+    private logService: LogService,
+    private biometricsService: BiometricsService,
   ) {}
 
   get specialAccountAddId() {
@@ -32,15 +36,22 @@ export class AccountComponent {
 
   async selectAccount(id: string) {
     this.loading.emit(true);
-    await this.accountSwitcherService.selectAccount(id);
-
-    if (id === this.specialAccountAddId) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["home"]);
-    } else {
-      this.location.back();
+    let result;
+    try {
+      result = await this.accountSwitcherService.selectAccount(id);
+    } catch (e) {
+      this.logService.error("Error selecting account", e);
     }
+
+    // Navigate out of account switching for unlocked accounts
+    // locked or logged out account statuses are handled by background and app.component
+    if (result?.status === AuthenticationStatus.Unlocked) {
+      this.location.back();
+      await this.biometricsService.setShouldAutopromptNow(false);
+    } else {
+      await this.biometricsService.setShouldAutopromptNow(true);
+    }
+    this.loading.emit(false);
   }
 
   get status() {

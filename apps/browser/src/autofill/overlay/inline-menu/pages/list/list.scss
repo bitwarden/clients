@@ -1,0 +1,603 @@
+@import "../../../../shared/styles/webfonts";
+@import "../../../../shared/styles/variables";
+@import "../../../../../../../../libs/angular/src/scss/icons";
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+html {
+  font-size: 10px;
+}
+
+body {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: $font-family-sans-serif;
+  font-weight: 400;
+
+  @include themify($themes) {
+    color: themed("textColor");
+    background-color: themed("backgroundColor");
+  }
+}
+
+body * {
+  pointer-events: auto;
+}
+
+.inline-menu-list-message {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  width: 100%;
+  padding: 0.8rem;
+
+  @include themify($themes) {
+    color: themed("textColor");
+  }
+
+  &.no-items,
+  &.save-login {
+    font-size: 1.6rem;
+  }
+}
+
+.inline-menu-list-button-container {
+  width: 100%;
+  padding: 0.2rem;
+  transition: background-color 0.2s ease-in-out;
+  border-top-width: 0.1rem;
+  border-top-style: solid;
+
+  @include themify($themes) {
+    background: themed("backgroundColor");
+    border-top-color: themed("borderColor");
+  }
+
+  &:hover {
+    @include themify($themes) {
+      background: themed("backgroundOffsetColor");
+    }
+  }
+}
+
+.inline-menu-list-button {
+  display: flex;
+  align-content: center;
+  justify-content: flex-start;
+  width: 100%;
+  font-family: $font-family-sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.7rem;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 0.4rem;
+
+  @include themify($themes) {
+    color: themed("primaryColor");
+  }
+
+  &:focus:focus-visible {
+    outline-width: 0.2rem;
+    outline-style: solid;
+
+    @include themify($themes) {
+      outline-color: themed("focusOutlineColor");
+    }
+  }
+
+  svg {
+    position: relative;
+    margin-left: 0.4rem;
+    margin-right: 0.8rem;
+
+    path {
+      @include themify($themes) {
+        fill: themed("primaryColor") !important;
+      }
+    }
+  }
+}
+
+.unlock-button {
+  svg {
+    top: 0.2rem;
+    width: 1.6rem;
+    height: 1.7rem;
+  }
+}
+
+.add-new-item-button {
+  svg {
+    top: 0.25rem;
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+}
+
+.inline-menu-list-actions {
+  padding: 0;
+  margin: 0;
+  max-height: 18rem;
+  -ms-overflow-style: none;
+  scrollbar-width: thin;
+
+  &--scrollbar {
+    overflow-y: scroll;
+  }
+
+  @include themify($themes) {
+    scrollbar-color: themed("inputBorderColor") darken(themed("backgroundColor"), 1%);
+    border-right-color: themed("borderColor");
+  }
+}
+
+.inline-menu-list-actions::-webkit-scrollbar {
+  width: 0.5rem;
+  background-color: transparent;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-button {
+  display: none;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-track {
+  background-color: transparent;
+  border: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-radius: 1rem;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-track-piece {
+  background-color: transparent;
+  border: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.inline-menu-list-actions::-webkit-scrollbar-thumb {
+  border-radius: 1rem;
+
+  @include themify($themes) {
+    background-color: themed("borderColor");
+  }
+}
+
+.inline-menu-list-heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-family: $font-family-sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.3;
+  letter-spacing: 0.025rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  will-change: transform;
+  border-bottom: 0.1rem solid;
+
+  @include themify($themes) {
+    color: themed("textColor");
+    background-color: themed("backgroundColor");
+    border-bottom-color: themed("backgroundColor");
+  }
+
+  &--bordered {
+    transition: border-bottom-color 0.15s ease;
+
+    @include themify($themes) {
+      border-bottom-color: themed("borderColor");
+    }
+  }
+}
+
+.inline-menu-list-container--with-new-item-button {
+  .inline-menu-list-actions {
+    max-height: 13.8rem;
+  }
+}
+
+.inline-menu-list-actions-item {
+  transition: background-color 0.2s ease-in-out;
+  list-style: none;
+  padding: 0.2rem;
+
+  &:not(:last-child) {
+    border-bottom-width: 0.1rem;
+    border-bottom-style: solid;
+
+    @include themify($themes) {
+      border-bottom-color: themed("borderColor");
+    }
+  }
+
+  &:hover {
+    @include themify($themes) {
+      background: themed("backgroundOffsetColor");
+    }
+  }
+
+  .cipher-container {
+    display: flex;
+    align-content: flex-start;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.7rem 0.3rem 0.7rem 0.7rem;
+    border-radius: 0.4rem;
+
+    &:has(:focus-visible):not(.remove-outline) {
+      outline-width: 0.2rem;
+      outline-style: solid;
+
+      @include themify($themes) {
+        outline-color: themed("focusOutlineColor");
+      }
+    }
+  }
+
+  .fill-cipher-button,
+  .view-cipher-button {
+    padding: 0;
+    margin: 0;
+    line-height: 0;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .fill-cipher-button {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: flex-start;
+    width: calc(100% - 4rem);
+    outline: none;
+  }
+
+  .view-cipher-button {
+    flex-shrink: 0;
+    width: 4rem;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.4rem;
+
+    &:focus:focus-visible {
+      outline-width: 0.2rem;
+      outline-style: solid;
+
+      @include themify($themes) {
+        outline-color: themed("focusOutlineColor");
+      }
+    }
+
+    svg {
+      path {
+        @include themify($themes) {
+          fill: themed("primaryColor") !important;
+        }
+      }
+    }
+  }
+
+  .cipher-icon {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 3.2rem;
+    height: 3.2rem;
+    margin: 0 1rem 0 0;
+    line-height: 0;
+    background-size: 2.6rem;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    @include themify($themes) {
+      color: themed("buttonPrimaryColor");
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      flex-shrink: 0;
+
+      path {
+        @include themify($themes) {
+          fill: themed("primaryColor") !important;
+        }
+      }
+    }
+
+    &.bwi {
+      font-size: 2.6rem;
+
+      &:not(.cipher-icon) {
+        @include themify($themes) {
+          color: themed("primaryColor");
+        }
+
+        svg {
+          path {
+            @include themify($themes) {
+              fill: themed("primaryColor") !important;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .cipher-details {
+    display: block;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: left;
+  }
+
+  .totp-sec-span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    @include themify($themes) {
+      color: themed("textColor");
+    }
+  }
+
+  .totp-sec-span-danger {
+    @include themify($themes) {
+      color: themed("passwordSpecialColor");
+    }
+  }
+  .circle-color {
+    @include themify($themes) {
+      stroke: themed("primaryColor");
+    }
+  }
+  .circle-danger-color {
+    @include themify($themes) {
+      stroke: themed("passwordSpecialColor");
+    }
+  }
+
+  .cipher-name,
+  .cipher-subtitle {
+    display: block;
+    width: 100%;
+    line-height: 1.5;
+    font-family: $font-family-sans-serif;
+    font-weight: 400;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .cipher-name {
+    font-size: 1.6rem;
+
+    @include themify($themes) {
+      color: themed("textColor");
+    }
+  }
+
+  .cipher-subtitle {
+    font-size: 1.4rem;
+
+    @include themify($themes) {
+      color: themed("mutedTextColor");
+    }
+
+    &.masked-totp {
+      font-size: 0.875rem;
+      letter-spacing: 0.2rem;
+    }
+
+    &--passkey {
+      display: flex;
+      align-content: center;
+      align-items: center;
+      justify-content: flex-start;
+
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin-right: 0.2rem;
+
+        @include themify($themes) {
+          fill: themed("mutedTextColor") !important;
+        }
+
+        path {
+          @include themify($themes) {
+            fill: themed("mutedTextColor") !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes bwi-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
+.passkey-authenticating-loader {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem 0.8rem;
+  font-size: 1.4rem;
+  font-weight: 400;
+
+  @include themify($themes) {
+    color: themed("passkeysAuthenticating");
+  }
+
+  svg {
+    animation: bwi-spin 2s infinite linear;
+    margin-left: 1rem;
+
+    path {
+      @include themify($themes) {
+        fill: themed("passkeysAuthenticating") !important;
+      }
+    }
+  }
+}
+
+// Password generator styles
+.password-generator-container {
+  padding: 0.2rem;
+}
+
+.password-generator-actions {
+  display: flex;
+  align-content: flex-start;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.8rem 0.4rem 1.1rem 0.65rem;
+  border-radius: 0.4rem;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    @include themify($themes) {
+      background: themed("backgroundOffsetColor");
+    }
+  }
+
+  &:has(:focus-visible):not(.remove-outline) {
+    outline-width: 0.2rem;
+    outline-style: solid;
+
+    @include themify($themes) {
+      outline-color: themed("focusOutlineColor");
+    }
+  }
+
+  .inline-menu-list-action {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+
+    @include themify($themes) {
+      color: themed("textColor");
+    }
+
+    svg {
+      path {
+        @include themify($themes) {
+          fill: themed("primaryColor") !important;
+        }
+      }
+    }
+  }
+
+  .fill-generated-password-button {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: flex-start;
+    width: calc(100% - 4rem);
+    outline: none;
+    padding-right: 0.2rem;
+
+    svg {
+      flex-shrink: 0;
+      width: 3.2rem;
+      margin-top: 0.2rem;
+      margin-right: 0.65rem;
+    }
+  }
+
+  .refresh-generated-password-button {
+    flex-shrink: 0;
+    width: 4rem;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.4rem;
+
+    &:focus:focus-visible {
+      outline-width: 0.2rem;
+      outline-style: solid;
+
+      @include themify($themes) {
+        outline-color: themed("focusOutlineColor");
+      }
+    }
+
+    svg {
+      margin-top: 0.2rem;
+
+      path {
+        @include themify($themes) {
+          fill: themed("primaryColor") !important;
+        }
+      }
+    }
+  }
+
+  .password-generator-content {
+    text-align: left;
+  }
+
+  .password-generator-heading {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    margin-bottom: 0.1rem;
+    font-family: $font-family-sans-serif;
+  }
+
+  .colorized-password {
+    font-size: 1.2rem;
+    line-height: 1.3;
+    font-family: $font-family-source-code-pro;
+    letter-spacing: 0.05rem;
+    font-weight: 400;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+
+    .password-special {
+      @include themify($themes) {
+        color: themed("passwordSpecialColor") !important;
+      }
+    }
+
+    .password-number {
+      @include themify($themes) {
+        color: themed("passwordNumberColor") !important;
+      }
+    }
+  }
+}

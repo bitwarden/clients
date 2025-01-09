@@ -1,0 +1,225 @@
+<app-header>
+  <bit-search class="tw-grow" [formControl]="searchControl" [placeholder]="'searchMembers' | i18n">
+  </bit-search>
+  <button type="button" bitButton buttonType="primary" (click)="invite()">
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+    {{ "inviteMember" | i18n }}
+  </button>
+</app-header>
+
+<div class="tw-mb-4 tw-flex tw-flex-col tw-space-y-4">
+  <bit-toggle-group
+    [selected]="status"
+    (selectedChange)="statusToggle.next($event)"
+    [attr.aria-label]="'memberStatusFilter' | i18n"
+  >
+    <bit-toggle [value]="null">
+      {{ "all" | i18n }}
+      <span bitBadge variant="info" *ngIf="dataSource.activeUserCount as allCount">
+        {{ allCount }}
+      </span>
+    </bit-toggle>
+    <bit-toggle [value]="userStatusType.Invited">
+      {{ "invited" | i18n }}
+      <span bitBadge variant="info" *ngIf="dataSource.invitedUserCount as invitedCount">
+        {{ invitedCount }}
+      </span>
+    </bit-toggle>
+    <bit-toggle [value]="userStatusType.Accepted">
+      {{ "needsConfirmation" | i18n }}
+      <span bitBadge variant="info" *ngIf="dataSource.acceptedUserCount as acceptedCount">
+        {{ acceptedCount }}
+      </span>
+    </bit-toggle>
+  </bit-toggle-group>
+</div>
+
+<ng-container *ngIf="!firstLoaded">
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  >
+  </i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</ng-container>
+
+<ng-container *ngIf="firstLoaded">
+  <p *ngIf="!dataSource.filteredData.length">{{ "noMembersInList" | i18n }}</p>
+  <ng-container *ngIf="dataSource.filteredData.length">
+    <bit-callout
+      type="info"
+      title="{{ 'confirmUsers' | i18n }}"
+      icon="bwi-check-circle"
+      *ngIf="showConfirmUsers"
+    >
+      {{ "providerUsersNeedConfirmed" | i18n }}
+    </bit-callout>
+    <cdk-virtual-scroll-viewport scrollWindow [itemSize]="rowHeight" class="tw-pb-8">
+      <bit-table [dataSource]="dataSource">
+        <ng-container header>
+          <tr>
+            <th bitCell class="tw-w-20">
+              <input
+                type="checkbox"
+                bitCheckbox
+                class="tw-mr-1"
+                (change)="dataSource.checkAllFilteredUsers($any($event.target).checked)"
+                id="selectAll"
+              />
+              <label class="tw-mb-0 !tw-font-bold !tw-text-muted" for="selectAll">
+                {{ "all" | i18n }}
+              </label>
+            </th>
+            <th bitCell bitSortable="email" default>{{ "name" | i18n }}</th>
+            <th bitCell bitSortable="type">{{ "role" | i18n }}</th>
+            <th bitCell class="tw-w-10">
+              <button
+                [bitMenuTriggerFor]="headerMenu"
+                type="button"
+                bitIconButton="bwi-ellipsis-v"
+                size="small"
+                appA11yTitle="{{ 'options' | i18n }}"
+              ></button>
+              <bit-menu #headerMenu>
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="bulkReinvite()"
+                  *ngIf="showBulkReinviteUsers"
+                >
+                  <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
+                  {{ "reinviteSelected" | i18n }}
+                </button>
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="bulkConfirm()"
+                  *ngIf="showBulkConfirmUsers"
+                >
+                  <span class="tw-text-success">
+                    <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                    {{ "confirmSelected" | i18n }}
+                  </span>
+                </button>
+                <button type="button" bitMenuItem (click)="bulkRemove()">
+                  <span class="tw-text-danger">
+                    <i aria-hidden="true" class="bwi bwi-close"></i>
+                    {{ "remove" | i18n }}
+                  </span>
+                </button>
+              </bit-menu>
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <tr
+            bitRow
+            *cdkVirtualFor="let user of rows$"
+            alignContent="middle"
+            [ngClass]="rowHeightClass"
+          >
+            <td bitCell (click)="dataSource.checkUser(user)">
+              <input type="checkbox" bitCheckbox [(ngModel)]="$any(user).checked" />
+            </td>
+            <td bitCell (click)="edit(user)" class="tw-cursor-pointer">
+              <div class="tw-flex tw-items-center">
+                <bit-avatar
+                  size="small"
+                  [text]="user | userName"
+                  [id]="user.userId"
+                  [color]="user.avatarColor"
+                  class="tw-mr-3"
+                ></bit-avatar>
+                <div class="tw-flex tw-flex-col">
+                  <div>
+                    <button type="button" bitLink>
+                      {{ user.name ?? user.email }}
+                    </button>
+                    <span
+                      bitBadge
+                      class="tw-text-xs"
+                      variant="secondary"
+                      *ngIf="user.status === userStatusType.Invited"
+                    >
+                      {{ "invited" | i18n }}
+                    </span>
+                    <span
+                      bitBadge
+                      class="tw-text-xs"
+                      variant="warning"
+                      *ngIf="user.status === userStatusType.Accepted"
+                    >
+                      {{ "needsConfirmation" | i18n }}
+                    </span>
+                    <span
+                      bitBadge
+                      class="tw-text-xs"
+                      variant="secondary"
+                      *ngIf="user.status === userStatusType.Revoked"
+                    >
+                      {{ "revoked" | i18n }}
+                    </span>
+                  </div>
+                  <div class="tw-text-sm tw-text-muted" *ngIf="user.name">
+                    {{ user.email }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td bitCell class="tw-text-muted">
+              <span *ngIf="user.type === userType.ProviderAdmin">{{ "providerAdmin" | i18n }}</span>
+              <span *ngIf="user.type === userType.ServiceUser">{{ "serviceUser" | i18n }}</span>
+            </td>
+            <td bitCell>
+              <button
+                [bitMenuTriggerFor]="rowMenu"
+                type="button"
+                bitIconButton="bwi-ellipsis-v"
+                size="small"
+                appA11yTitle="{{ 'options' | i18n }}"
+              ></button>
+              <bit-menu #rowMenu>
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="reinvite(user)"
+                  *ngIf="user.status === userStatusType.Invited"
+                >
+                  <i aria-hidden="true" class="bwi bwi-envelope"></i>
+                  {{ "resendInvitation" | i18n }}
+                </button>
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="confirm(user)"
+                  *ngIf="user.status === userStatusType.Accepted"
+                >
+                  <span class="tw-text-success">
+                    <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                    {{ "confirm" | i18n }}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="openEventsDialog(user)"
+                  *ngIf="user.status === userStatusType.Confirmed"
+                >
+                  <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
+                  {{ "eventLogs" | i18n }}
+                </button>
+                <button type="button" bitMenuItem (click)="remove(user)">
+                  <span class="tw-text-danger">
+                    <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                    {{ "remove" | i18n }}
+                  </span>
+                </button>
+              </bit-menu>
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    </cdk-virtual-scroll-viewport>
+  </ng-container>
+</ng-container>

@@ -1,9 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 // required to avoid linting errors when there are no flags
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SharedFlags = {
-  multithreadDecryption: boolean;
-  showPasswordless?: boolean;
-  enableCipherKeyEncryption?: boolean;
+  sdk?: boolean;
+  prereleaseBuild?: boolean;
 };
 
 // required to avoid linting errors when there are no flags
@@ -11,6 +12,8 @@ export type SharedFlags = {
 export type SharedDevFlags = {
   noopNotifications: boolean;
   skipWelcomeOnInstall: boolean;
+  configRetrievalIntervalMs: number;
+  showRiskInsightsDebug: boolean;
 };
 
 function getFlags<T>(envFlags: string | T): T {
@@ -29,7 +32,7 @@ function getFlags<T>(envFlags: string | T): T {
  * @returns The value of the flag
  */
 export function flagEnabled<Flags extends SharedFlags>(flag: keyof Flags): boolean {
-  const flags = getFlags<Flags>(process.env.FLAGS);
+  const flags = getFlags<Flags>(process.env.FLAGS) ?? ({} as Flags);
   return flags[flag] == null || !!flags[flag];
 }
 

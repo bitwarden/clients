@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -22,7 +24,7 @@ export class Parser {
   /*
   May return null when the chunk does not represent an account.
   All secure notes are ACCTs but not all of them store account information.
-  
+
   TODO: Add a test for the folder case!
   TODO: Add a test case that covers secure note account!
   */
@@ -32,213 +34,244 @@ export class Parser {
     folder: SharedFolder,
     options: ParserOptions,
   ): Promise<Account> {
-    const placeholder = "decryption failed";
-    const reader = new BinaryReader(chunk.payload);
+    let id: string;
+    let step = 0;
+    try {
+      const placeholder = "decryption failed";
+      const reader = new BinaryReader(chunk.payload);
 
-    // Read all items
-    // 0: id
-    const id = Utils.fromBufferToUtf8(this.readItem(reader));
+      // Read all items
+      // 0: id
+      id = Utils.fromBufferToUtf8(this.readItem(reader));
 
-    // 1: name
-    const name = await this.cryptoUtils.decryptAes256PlainWithDefault(
-      this.readItem(reader),
-      encryptionKey,
-      placeholder,
-    );
+      // 1: name
+      step = 1;
+      const name = await this.cryptoUtils.decryptAes256PlainWithDefault(
+        this.readItem(reader),
+        encryptionKey,
+        placeholder,
+      );
 
-    // 2: group
-    const group = await this.cryptoUtils.decryptAes256PlainWithDefault(
-      this.readItem(reader),
-      encryptionKey,
-      placeholder,
-    );
+      // 2: group
+      step = 2;
+      const group = await this.cryptoUtils.decryptAes256PlainWithDefault(
+        this.readItem(reader),
+        encryptionKey,
+        placeholder,
+      );
 
-    // 3: url
-    let url = Utils.fromBufferToUtf8(
-      this.decodeHexLoose(Utils.fromBufferToUtf8(this.readItem(reader))),
-    );
+      // 3: url
+      step = 3;
+      const urlEncoded = this.readItem(reader);
+      let url =
+        urlEncoded.length > 0 && urlEncoded[0] === 33 // 33 = '!'
+          ? // URL is encrypted
+            await this.cryptoUtils.decryptAes256PlainWithDefault(
+              urlEncoded,
+              encryptionKey,
+              placeholder,
+            )
+          : // URL is not encrypted
+            Utils.fromBufferToUtf8(this.decodeHexLoose(Utils.fromBufferToUtf8(urlEncoded)));
 
-    // Ignore "group" accounts. They have no credentials.
-    if (url == "http://group") {
-      return null;
-    }
-
-    // 4: extra (notes)
-    const notes = await this.cryptoUtils.decryptAes256PlainWithDefault(
-      this.readItem(reader),
-      encryptionKey,
-      placeholder,
-    );
-
-    // 5: fav (is favorite)
-    const isFavorite = Utils.fromBufferToUtf8(this.readItem(reader)) === "1";
-
-    // 6: sharedfromaid (?)
-    this.skipItem(reader);
-
-    // 7: username
-    let username = await this.cryptoUtils.decryptAes256PlainWithDefault(
-      this.readItem(reader),
-      encryptionKey,
-      placeholder,
-    );
-
-    // 8: password
-    let password = await this.cryptoUtils.decryptAes256PlainWithDefault(
-      this.readItem(reader),
-      encryptionKey,
-      placeholder,
-    );
-
-    // 9: pwprotect (?)
-    this.skipItem(reader);
-
-    // 10: genpw (?)
-    this.skipItem(reader);
-
-    // 11: sn (is secure note)
-    const isSecureNote = Utils.fromBufferToUtf8(this.readItem(reader)) === "1";
-
-    // Parse secure note
-    if (options.parseSecureNotesToAccount && isSecureNote) {
-      let type = "";
-      // ParseSecureNoteServer
-      for (const i of notes.split("\n")) {
-        const keyValue = i.split(":", 2);
-        if (keyValue.length < 2) {
-          continue;
-        }
-        switch (keyValue[0]) {
-          case "NoteType":
-            type = keyValue[1];
-            break;
-          case "Hostname":
-            url = keyValue[1];
-            break;
-          case "Username":
-            username = keyValue[1];
-            break;
-          case "Password":
-            password = keyValue[1];
-            break;
-        }
-      }
-
-      // Only the some secure notes contain account-like information
-      if (!AllowedSecureNoteTypes.has(type)) {
+      // Ignore "group" accounts. They have no credentials.
+      if (url == "http://group") {
         return null;
       }
+
+      // 4: extra (notes)
+      step = 4;
+      const notes = await this.cryptoUtils.decryptAes256PlainWithDefault(
+        this.readItem(reader),
+        encryptionKey,
+        placeholder,
+      );
+
+      // 5: fav (is favorite)
+      step = 5;
+      const isFavorite = Utils.fromBufferToUtf8(this.readItem(reader)) === "1";
+
+      // 6: sharedfromaid (?)
+      this.skipItem(reader);
+
+      // 7: username
+      step = 7;
+      let username = await this.cryptoUtils.decryptAes256PlainWithDefault(
+        this.readItem(reader),
+        encryptionKey,
+        placeholder,
+      );
+
+      // 8: password
+      step = 8;
+      let password = await this.cryptoUtils.decryptAes256PlainWithDefault(
+        this.readItem(reader),
+        encryptionKey,
+        placeholder,
+      );
+
+      // 9: pwprotect (?)
+      this.skipItem(reader);
+
+      // 10: genpw (?)
+      this.skipItem(reader);
+
+      // 11: sn (is secure note)
+      step = 11;
+      const isSecureNote = Utils.fromBufferToUtf8(this.readItem(reader)) === "1";
+
+      // Parse secure note
+      if (options.parseSecureNotesToAccount && isSecureNote) {
+        let type = "";
+        // ParseSecureNoteServer
+        for (const i of notes.split("\n")) {
+          const keyValue = i.split(":", 2);
+          if (keyValue.length < 2) {
+            continue;
+          }
+          switch (keyValue[0]) {
+            case "NoteType":
+              type = keyValue[1];
+              break;
+            case "Hostname":
+              url = keyValue[1];
+              break;
+            case "Username":
+              username = keyValue[1];
+              break;
+            case "Password":
+              password = keyValue[1];
+              break;
+          }
+        }
+
+        // Only the some secure notes contain account-like information
+        if (!AllowedSecureNoteTypes.has(type)) {
+          return null;
+        }
+      }
+
+      // 12: last_touch_gmt (?)
+      this.skipItem(reader);
+
+      // 13: autologin (?)
+      this.skipItem(reader);
+
+      // 14: never_autofill (?)
+      this.skipItem(reader);
+
+      // 15: realm (?)
+      this.skipItem(reader);
+
+      // 16: id_again (?)
+      this.skipItem(reader);
+
+      // 17: custom_js (?)
+      this.skipItem(reader);
+
+      // 18: submit_id (?)
+      this.skipItem(reader);
+
+      // 19: captcha_id (?)
+      this.skipItem(reader);
+
+      // 20: urid (?)
+      this.skipItem(reader);
+
+      // 21: basic_auth (?)
+      this.skipItem(reader);
+
+      // 22: method (?)
+      this.skipItem(reader);
+
+      // 23: action (?)
+      this.skipItem(reader);
+
+      // 24: groupid (?)
+      this.skipItem(reader);
+
+      // 25: deleted (?)
+      this.skipItem(reader);
+
+      // 26: attachkey (?)
+      this.skipItem(reader);
+
+      // 27: attachpresent (?)
+      this.skipItem(reader);
+
+      // 28: individualshare (?)
+      this.skipItem(reader);
+
+      // 29: notetype (?)
+      this.skipItem(reader);
+
+      // 30: noalert (?)
+      this.skipItem(reader);
+
+      // 31: last_modified_gmt (?)
+      this.skipItem(reader);
+
+      // 32: hasbeenshared (?)
+      this.skipItem(reader);
+
+      // 33: last_pwchange_gmt (?)
+      this.skipItem(reader);
+
+      // 34: created_gmt (?)
+      this.skipItem(reader);
+
+      // 35: vulnerable (?)
+      this.skipItem(reader);
+
+      // 36: pwch (?)
+      this.skipItem(reader);
+
+      // 37: breached (?)
+      this.skipItem(reader);
+
+      // 38: template (?)
+      this.skipItem(reader);
+
+      // 39: totp (?)
+      step = 39;
+      const totp = await this.cryptoUtils.decryptAes256PlainWithDefault(
+        this.readItem(reader),
+        encryptionKey,
+        placeholder,
+      );
+
+      // 3 more left. Don't even bother skipping them.
+
+      // 40: trustedHostnames (?)
+      // 41: last_credential_monitoring_gmt (?)
+      // 42: last_credential_monitoring_stat (?)
+
+      // Adjust the path to include the group and the shared folder, if any.
+      step = 42;
+      const path = this.makeAccountPath(group, folder);
+
+      const account = new Account();
+      account.id = id;
+      account.name = name;
+      account.username = username;
+      account.password = password;
+      account.url = url;
+      account.path = path;
+      account.notes = notes;
+      account.totp = totp;
+      account.isFavorite = isFavorite;
+      account.isShared = folder != null;
+      return account;
+    } catch (err) {
+      throw new Error(
+        "Error parsing accounts on item with ID:" +
+          id +
+          " step #" +
+          step +
+          " errorMessage: " +
+          err.message,
+      );
     }
-
-    // 12: last_touch_gmt (?)
-    this.skipItem(reader);
-
-    // 13: autologin (?)
-    this.skipItem(reader);
-
-    // 14: never_autofill (?)
-    this.skipItem(reader);
-
-    // 15: realm (?)
-    this.skipItem(reader);
-
-    // 16: id_again (?)
-    this.skipItem(reader);
-
-    // 17: custom_js (?)
-    this.skipItem(reader);
-
-    // 18: submit_id (?)
-    this.skipItem(reader);
-
-    // 19: captcha_id (?)
-    this.skipItem(reader);
-
-    // 20: urid (?)
-    this.skipItem(reader);
-
-    // 21: basic_auth (?)
-    this.skipItem(reader);
-
-    // 22: method (?)
-    this.skipItem(reader);
-
-    // 23: action (?)
-    this.skipItem(reader);
-
-    // 24: groupid (?)
-    this.skipItem(reader);
-
-    // 25: deleted (?)
-    this.skipItem(reader);
-
-    // 26: attachkey (?)
-    this.skipItem(reader);
-
-    // 27: attachpresent (?)
-    this.skipItem(reader);
-
-    // 28: individualshare (?)
-    this.skipItem(reader);
-
-    // 29: notetype (?)
-    this.skipItem(reader);
-
-    // 30: noalert (?)
-    this.skipItem(reader);
-
-    // 31: last_modified_gmt (?)
-    this.skipItem(reader);
-
-    // 32: hasbeenshared (?)
-    this.skipItem(reader);
-
-    // 33: last_pwchange_gmt (?)
-    this.skipItem(reader);
-
-    // 34: created_gmt (?)
-    this.skipItem(reader);
-
-    // 35: vulnerable (?)
-    this.skipItem(reader);
-
-    // 36: pwch (?)
-    this.skipItem(reader);
-
-    // 37: breached (?)
-    this.skipItem(reader);
-
-    // 38: template (?)
-    this.skipItem(reader);
-
-    // 39: totp (?)
-    const totp = await this.cryptoUtils.decryptAes256PlainWithDefault(
-      this.readItem(reader),
-      encryptionKey,
-      placeholder,
-    );
-
-    // 3 more left. Don't even bother skipping them.
-
-    // 40: trustedHostnames (?)
-    // 41: last_credential_monitoring_gmt (?)
-    // 42: last_credential_monitoring_stat (?)
-
-    // Adjust the path to include the group and the shared folder, if any.
-    const path = this.makeAccountPath(group, folder);
-
-    const account = new Account();
-    account.id = id;
-    account.name = name;
-    account.username = username;
-    account.password = password;
-    account.url = url;
-    account.path = path;
-    account.notes = notes;
-    account.totp = totp;
-    account.isFavorite = isFavorite;
-    account.isShared = folder != null;
-    return account;
   }
 
   async parseShar(
@@ -246,30 +279,37 @@ export class Parser {
     encryptionKey: Uint8Array,
     rsaKey: Uint8Array,
   ): Promise<SharedFolder> {
-    const reader = new BinaryReader(chunk.payload);
+    let id: string;
+    try {
+      const reader = new BinaryReader(chunk.payload);
 
-    // Id
-    const id = Utils.fromBufferToUtf8(this.readItem(reader));
+      // Id
+      id = Utils.fromBufferToUtf8(this.readItem(reader));
 
-    // Key
-    const folderKey = this.readItem(reader);
-    const rsaEncryptedFolderKey = Utils.fromHexToArray(Utils.fromBufferToUtf8(folderKey));
-    const decFolderKey = await this.cryptoFunctionService.rsaDecrypt(
-      rsaEncryptedFolderKey,
-      rsaKey,
-      "sha1",
-    );
-    const key = Utils.fromHexToArray(Utils.fromBufferToUtf8(decFolderKey));
+      // Key
+      const folderKey = this.readItem(reader);
+      const rsaEncryptedFolderKey = Utils.fromHexToArray(Utils.fromBufferToUtf8(folderKey));
+      const decFolderKey = await this.cryptoFunctionService.rsaDecrypt(
+        rsaEncryptedFolderKey,
+        rsaKey,
+        "sha1",
+      );
+      const key = Utils.fromHexToArray(Utils.fromBufferToUtf8(decFolderKey));
 
-    // Name
-    const encryptedName = this.readItem(reader);
-    const name = await this.cryptoUtils.decryptAes256Base64(encryptedName, key);
+      // Name
+      const encryptedName = this.readItem(reader);
+      const name = await this.cryptoUtils.decryptAes256Base64(encryptedName, key);
 
-    const folder = new SharedFolder();
-    folder.id = id;
-    folder.name = name;
-    folder.encryptionKey = key;
-    return folder;
+      const folder = new SharedFolder();
+      folder.id = id;
+      folder.name = name;
+      folder.encryptionKey = key;
+      return folder;
+    } catch (err) {
+      throw new Error(
+        "Error parsing shared folder with ID:" + id + " errorMessage: " + err.message,
+      );
+    }
   }
 
   async parseEncryptedPrivateKey(encryptedPrivateKey: string, encryptionKey: Uint8Array) {

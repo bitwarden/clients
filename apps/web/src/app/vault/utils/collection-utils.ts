@@ -1,11 +1,12 @@
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
+  CollectionAdminView,
   CollectionView,
   NestingDelimiter,
-} from "@bitwarden/common/vault/models/view/collection.view";
+} from "@bitwarden/admin-console/common";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-
-import { CollectionAdminView } from "../../vault/core/views/collection-admin.view";
 
 export function getNestedCollectionTree(
   collections: CollectionAdminView[],
@@ -14,6 +15,10 @@ export function getNestedCollectionTree(collections: CollectionView[]): TreeNode
 export function getNestedCollectionTree(
   collections: (CollectionView | CollectionAdminView)[],
 ): TreeNode<CollectionView | CollectionAdminView>[] {
+  if (!collections) {
+    return [];
+  }
+
   // Collections need to be cloned because ServiceUtils.nestedTraverse actively
   // modifies the names of collections.
   // These changes risk affecting collections store in StateService.
@@ -44,6 +49,7 @@ function cloneCollection(
     cloned.groups = [...collection.groups];
     cloned.users = [...collection.users];
     cloned.assigned = collection.assigned;
+    cloned.unmanaged = collection.unmanaged;
   } else {
     cloned = new CollectionView();
   }

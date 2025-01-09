@@ -1,27 +1,31 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component } from "@angular/core";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { DialogService } from "@bitwarden/components";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { AddEditComponent as BaseAddEditComponent } from "../individual-vault/add-edit.component";
@@ -40,7 +44,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     auditService: AuditService,
-    stateService: StateService,
+    accountService: AccountService,
     collectionService: CollectionService,
     totpService: TotpService,
     passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -51,11 +55,13 @@ export class AddEditComponent extends BaseAddEditComponent {
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     organizationService: OrganizationService,
-    sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    cipherAuthorizationService: CipherAuthorizationService,
+    toastService: ToastService,
+    sdkService: SdkService,
   ) {
     super(
       cipherService,
@@ -63,7 +69,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       i18nService,
       platformUtilsService,
       auditService,
-      stateService,
+      accountService,
       collectionService,
       totpService,
       passwordGenerationService,
@@ -73,37 +79,29 @@ export class AddEditComponent extends BaseAddEditComponent {
       organizationService,
       logService,
       passwordRepromptService,
-      sendApiService,
       dialogService,
       datePipe,
       configService,
       billingAccountProfileStateService,
+      cipherAuthorizationService,
+      toastService,
+      sdkService,
     );
   }
 
   protected loadCollections() {
-    if (
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      )
-    ) {
+    if (!this.organization.canEditAllCiphers) {
       return super.loadCollections();
     }
     return Promise.resolve(this.collections);
   }
 
   protected async loadCipher() {
+    this.isAdminConsoleAction = true;
     // Calling loadCipher first to assess if the cipher is unassigned. If null use apiService getCipherAdmin
     const firstCipherCheck = await super.loadCipher();
 
-    if (
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      ) &&
-      firstCipherCheck != null
-    ) {
+    if (!this.organization.canEditAllCiphers && firstCipherCheck != null) {
       return firstCipherCheck;
     }
     const response = await this.apiService.getCipherAdmin(this.cipherId);
@@ -115,25 +113,16 @@ export class AddEditComponent extends BaseAddEditComponent {
     return cipher;
   }
 
-  protected encryptCipher() {
-    if (
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      )
-    ) {
-      return super.encryptCipher();
+  protected encryptCipher(userId: UserId) {
+    if (!this.organization.canEditAllCiphers) {
+      return super.encryptCipher(userId);
     }
-    return this.cipherService.encrypt(this.cipher, null, null, this.originalCipher);
+
+    return this.cipherService.encrypt(this.cipher, userId, null, null, this.originalCipher);
   }
 
   protected async deleteCipher() {
-    if (
-      !this.organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      )
-    ) {
+    if (!this.organization.canEditAllCiphers) {
       return super.deleteCipher();
     }
     return this.cipher.isDeleted

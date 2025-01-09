@@ -5,11 +5,6 @@ export class GroupResponse extends BaseResponse {
   id: string;
   organizationId: string;
   name: string;
-  /**
-   * @deprecated
-   * To be removed after Flexible Collections.
-   **/
-  accessAll: boolean;
   externalId: string;
 
   constructor(response: any) {
@@ -17,7 +12,6 @@ export class GroupResponse extends BaseResponse {
     this.id = this.getResponseProperty("Id");
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.name = this.getResponseProperty("Name");
-    this.accessAll = this.getResponseProperty("AccessAll");
     this.externalId = this.getResponseProperty("ExternalId");
   }
 }
