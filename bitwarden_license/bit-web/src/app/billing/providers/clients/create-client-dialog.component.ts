@@ -55,7 +55,7 @@ export class PlanCard {
   }
 
   getTimePerMemberLabel(): string {
-    return "monthPerMember";
+    return this.plan.isAnnual ? "monthPerMemberBilledAnnually" : "monthPerMember";
   }
 
   getContainerClasses() {
