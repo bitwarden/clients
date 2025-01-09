@@ -361,20 +361,17 @@ describe("VaultPopupItemsService", () => {
   });
 
   describe("deletedCiphers$", () => {
-    it("should return deleted ciphers", (done) => {
-      const ciphers = [
-        { id: "1", type: CipherType.Login, name: "Login 1", isDeleted: true },
-        { id: "2", type: CipherType.Login, name: "Login 2", isDeleted: true },
-        { id: "3", type: CipherType.Login, name: "Login 3", isDeleted: true },
-        { id: "4", type: CipherType.Login, name: "Login 4", isDeleted: false },
-      ] as CipherView[];
+    it("should return deleted ciphers", async () => {
+      const deletedCipher = new CipherView();
+      deletedCipher.deletedDate = new Date();
+      const ciphers = [new CipherView(), new CipherView(), new CipherView(), deletedCipher];
 
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
 
-      service.deletedCiphers$.subscribe((deletedCiphers) => {
-        expect(deletedCiphers.length).toBe(3);
-        done();
-      });
+      (cipherServiceMock.ciphers$ as BehaviorSubject<any>).next(null);
+
+      const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
+      expect(deletedCiphers.length).toBe(1);
     });
   });
 
