@@ -3,7 +3,6 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ButtonModule,
   DialogModule,
@@ -15,6 +14,7 @@ import {
   CredentialGeneratorHistoryDialogComponent,
   GeneratorModule,
 } from "@bitwarden/generator-components";
+import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 type CredentialGeneratorParams = {
@@ -39,16 +39,14 @@ type CredentialGeneratorParams = {
 })
 export class CredentialGeneratorDialogComponent {
   credentialValue?: string;
+  buttonLabel: string;
 
   constructor(
     @Inject(DIALOG_DATA) protected data: CredentialGeneratorParams,
     private dialogService: DialogService,
-    private i18Service: I18nService,
-  ) {}
-
-  get buttonLabel() {
-    const string = this.data.type === "password" ? "useThisPassword" : "useThisUsername";
-    return this.i18Service.t(string);
+    private generatorService: CredentialGeneratorService,
+  ) {
+    this.buttonLabel = this.generatorService.algorithm(this.data.type).dialog;
   }
 
   applyCredentials = () => {
