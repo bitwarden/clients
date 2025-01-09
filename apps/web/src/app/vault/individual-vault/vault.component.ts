@@ -29,6 +29,7 @@ import {
   map,
   shareReplay,
   switchMap,
+  take,
   takeUntil,
   tap,
 } from "rxjs/operators";
@@ -77,6 +78,7 @@ import {
   AddEditFolderDialogResult,
   CipherFormConfig,
   CollectionAssignmentResult,
+  DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
@@ -145,6 +147,7 @@ const SearchTextDebounceInterval = 200;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
+    DecryptionFailureDialogComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -360,13 +363,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
+        const failedCiphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$);
         const filterFunction = createFilterFunction(filter);
+        // Append any failed to decrypt ciphers to the top of the cipher list
+        const allCiphers = [...failedCiphers, ...ciphers];
 
         if (await this.searchService.isSearchable(searchText)) {
-          return await this.searchService.searchCiphers(searchText, [filterFunction], ciphers);
+          return await this.searchService.searchCiphers(searchText, [filterFunction], allCiphers);
         }
 
-        return ciphers.filter(filterFunction);
+        return allCiphers.filter(filterFunction);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -437,6 +443,18 @@ export class VaultComponent implements OnInit, OnDestroy {
                 action = "view";
               }
 
+              if (action == "showFailedToDecrypt") {
+                DecryptionFailureDialogComponent.open(this.dialogService, {
+                  cipherIds: [cipherId as CipherId],
+                });
+                await this.router.navigate([], {
+                  queryParams: { itemId: null, cipherId: null, action: null },
+                  queryParamsHandling: "merge",
+                  replaceUrl: true,
+                });
+                return;
+              }
+
               if (action === "view") {
                 await this.viewCipherById(cipherId);
               } else {
@@ -459,6 +477,20 @@ export class VaultComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
+    firstSetup$
+      .pipe(
+        switchMap(() => this.cipherService.failedToDecryptCiphers$),
+        map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
+        filter((ciphers) => ciphers.length > 0),
+        take(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((ciphers) => {
+        DecryptionFailureDialogComponent.open(this.dialogService, {
+          cipherIds: ciphers.map((c) => c.id as CipherId),
+        });
+      });
+
     this.unpaidSubscriptionDialog$.pipe(takeUntil(this.destroy$)).subscribe();
 
     firstSetup$
@@ -468,7 +500,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         switchMap(() =>
           combineLatest([
             filter$,
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(this.activeUserId),
             allCollections$,
             this.organizationService.organizations$,
             ciphers$,
@@ -746,16 +778,26 @@ export class VaultComponent implements OnInit, OnDestroy {
       null,
       cipherType,
     );
+    const collectionId =
+      this.activeFilter.collectionId !== "AllCollections" && this.activeFilter.collectionId != null
+        ? this.activeFilter.collectionId
+        : null;
+    let organizationId =
+      this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
+        ? this.activeFilter.organizationId
+        : null;
+    // Attempt to get the organization ID from the collection if present
+    if (collectionId) {
+      const organizationIdFromCollection = (
+        await firstValueFrom(this.vaultFilterService.filteredCollections$)
+      ).find((c) => c.id === this.activeFilter.collectionId)?.organizationId;
+      if (organizationIdFromCollection) {
+        organizationId = organizationIdFromCollection;
+      }
+    }
     cipherFormConfig.initialValues = {
-      organizationId:
-        this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
-          ? (this.activeFilter.organizationId as OrganizationId)
-          : null,
-      collectionIds:
-        this.activeFilter.collectionId !== "AllCollections" &&
-        this.activeFilter.collectionId != null
-          ? [this.activeFilter.collectionId as CollectionId]
-          : [],
+      organizationId: organizationId as OrganizationId,
+      collectionIds: [collectionId as CollectionId],
       folderId: this.activeFilter.folderId,
     };
 
