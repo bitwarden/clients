@@ -24,7 +24,6 @@ import {
   RegistrationLinkExpiredComponent,
   LoginComponent,
   LoginSecondaryContentComponent,
-  LockComponent,
   LockIcon,
   TwoFactorTimeoutIcon,
   UserLockIcon,
@@ -38,6 +37,7 @@ import {
   VaultIcon,
   LoginDecryptionOptionsComponent,
 } from "@bitwarden/auth/angular";
+import { LockComponent } from "@bitwarden/key-management/angular";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,

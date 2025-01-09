@@ -12,6 +12,7 @@ import {
   TrustedDeviceUserDecryptionOption,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
+  LoginSuccessHandlerService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -35,7 +36,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -117,7 +117,7 @@ export class SsoComponent implements OnInit {
     private accountService: AccountService,
     private toastService: ToastService,
     private ssoComponentService: SsoComponentService,
-    private syncService: SyncService,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {
     environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.redirectUri = env.getWebVaultUrl() + "/sso-connector.html";
@@ -378,8 +378,7 @@ export class SsoComponent implements OnInit {
 
       // Everything after the 2FA check is considered a successful login
       // Just have to figure out where to send the user
-
-      await this.syncService.fullSync(true);
+      await this.loginSuccessHandlerService.run(authResult.userId);
 
       // Save off the OrgSsoIdentifier for use in the TDE flows (or elsewhere)
       // - TDE login decryption options component

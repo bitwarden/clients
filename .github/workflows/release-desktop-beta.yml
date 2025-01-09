@@ -16,9 +16,9 @@ jobs:
     name: Setup
     runs-on: ubuntu-22.04
     outputs:
-      release-version: ${{ steps.version.outputs.version }}
-      release-channel: ${{ steps.release-channel.outputs.channel }}
-      branch-name: ${{ steps.branch.outputs.branch-name }}
+      release_version: ${{ steps.version.outputs.version }}
+      release_channel: ${{ steps.release_channel.outputs.channel }}
+      branch_name: ${{ steps.branch.outputs.branch_name }}
       build_number: ${{ steps.increment-version.outputs.build_number }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
     steps:
@@ -47,7 +47,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release-version-check@main
+        uses: bitwarden/gh-actions/release_version-check@main
         with:
           release-type: 'Initial Release'
           project-type: ts
@@ -63,7 +63,7 @@ jobs:
           echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
 
       - name: Get Version Channel
-        id: release-channel
+        id: release_channel
         run: |
           case "${{ steps.version.outputs.version }}" in
             *"alpha"*)
@@ -102,7 +102,7 @@ jobs:
 
           git push -u origin $branch_name
 
-          echo "branch-name=$branch_name" >> $GITHUB_OUTPUT
+          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
 
       - name: Get Node Version
         id: retrieve-node-version
@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: setup
     env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.release-version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
     defaults:
@@ -126,7 +126,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ needs.setup.outputs.branch-name }}
+          ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
@@ -195,8 +195,8 @@ jobs:
       - name: Upload auto-update artifact
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
-          name: ${{ needs.setup.outputs.release-channel }}-linux.yml
-          path: apps/desktop/dist/${{ needs.setup.outputs.release-channel }}-linux.yml
+          name: ${{ needs.setup.outputs.release_channel }}-linux.yml
+          path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-linux.yml
           if-no-files-found: error
 
 
@@ -209,14 +209,14 @@ jobs:
         shell: pwsh
         working-directory: apps/desktop
     env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.release-version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ needs.setup.outputs.branch-name }}
+          ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
@@ -385,8 +385,8 @@ jobs:
       - name: Upload auto-update artifact
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
-          name: ${{ needs.setup.outputs.release-channel }}.yml
-          path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release-channel }}.yml
+          name: ${{ needs.setup.outputs.release_channel }}.yml
+          path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
           if-no-files-found: error
 
 
@@ -395,7 +395,7 @@ jobs:
     runs-on: macos-13
     needs: setup
     env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.release-version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
     defaults:
@@ -405,7 +405,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ needs.setup.outputs.branch-name }}
+          ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
@@ -529,7 +529,7 @@ jobs:
       - setup
       - macos-build
     env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.release-version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
     defaults:
@@ -539,7 +539,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ needs.setup.outputs.branch-name }}
+          ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
@@ -730,8 +730,8 @@ jobs:
       - name: Upload auto-update artifact
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
-          name: ${{ needs.setup.outputs.release-channel }}-mac.yml
-          path: apps/desktop/dist/${{ needs.setup.outputs.release-channel }}-mac.yml
+          name: ${{ needs.setup.outputs.release_channel }}-mac.yml
+          path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-mac.yml
           if-no-files-found: error
 
 
@@ -742,7 +742,7 @@ jobs:
       - setup
       - macos-build
     env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.release-version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
     defaults:
@@ -752,7 +752,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ needs.setup.outputs.branch-name }}
+          ref: ${{ needs.setup.outputs.branch_name }}
 
       - name: Set up Node
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
@@ -939,7 +939,7 @@ jobs:
           token: '${{ secrets.GITHUB_TOKEN }}'
           initial-status: 'in_progress'
           environment: 'Desktop - Beta'
-          description: 'Deployment ${{ needs.setup.outputs.release-version }} to channel ${{ needs.setup.outputs.release-channel }} from branch ${{ needs.setup.outputs.branch-name }}'
+          description: 'Deployment ${{ needs.setup.outputs.release_version }} to channel ${{ needs.setup.outputs.release_channel }} from branch ${{ needs.setup.outputs.branch_name }}'
           task: release
 
       - name: Login to Azure
@@ -963,7 +963,7 @@ jobs:
 
       - name: Rename .pkg to .pkg.archive
         env:
-          PKG_VERSION: ${{ needs.setup.outputs.release-version }}
+          PKG_VERSION: ${{ needs.setup.outputs.release_version }}
         working-directory: apps/desktop/artifacts
         run: mv Bitwarden-${{ env.PKG_VERSION }}-universal.pkg Bitwarden-${{ env.PKG_VERSION }}-universal.pkg.archive
 
@@ -1020,5 +1020,5 @@ jobs:
           git config --global url."https://".insteadOf ssh://
       - name: Remove branch
         env:
-          BRANCH: ${{ needs.setup.outputs.branch-name }}
+          BRANCH: ${{ needs.setup.outputs.branch_name }}
         run: git push origin --delete $BRANCH
