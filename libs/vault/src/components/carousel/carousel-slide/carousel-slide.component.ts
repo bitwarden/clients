@@ -29,9 +29,9 @@ export class VaultCarouselSlideComponent implements OnInit {
     return this._contentPortal;
   }
 
-  constructor(private _viewContainerRef: ViewContainerRef) {}
+  constructor(private viewContainerRef: ViewContainerRef) {}
 
   ngOnInit(): void {
-    this._contentPortal = new TemplatePortal(this.implicitContent, this._viewContainerRef);
+    this._contentPortal = new TemplatePortal(this.implicitContent, this.viewContainerRef);
   }
 }
