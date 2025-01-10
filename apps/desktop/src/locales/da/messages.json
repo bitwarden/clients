@@ -249,6 +249,20 @@
   "error": {
     "message": "Fejl"
   },
+  "decryptionError": {
+    "message": "Dekrypteringsfejl"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kunne ikke dekryptere boks-emne(r) anført nedenfor."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontakt kundeservice",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "for at undgå yderligere tab af data.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "Januar"
   },
@@ -3361,6 +3375,30 @@
   },
   "ssoError": {
     "message": "Ingen ledige porte fundet til SSO-login."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisk oplåsning er utilgængelig, da PIN- eller adgangskode kræves først."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisk oplåsning er p.t. utilgængelig."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisk oplåsning er utilgængelig grundet fejlopsatte systemfiler."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisk oplåsning er utilgængelig grundet fejlopsatte systemfiler."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometrisk oplåsning er utilgængelig, da det ikke er aktiveret for $EMAIL$ i Bitwarden computer-appen.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisk oplåsning er p.t. utilgængelig grundet en ukendt årsag."
   },
   "authorize": {
     "message": "Godkend"
