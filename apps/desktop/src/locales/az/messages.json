@@ -249,6 +249,20 @@
   "error": {
     "message": "Xəta"
   },
+  "decryptionError": {
+    "message": "Şifrə açma xətası"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden, aşağıda sadalanan seyf element(lər)inin şifrəsini aça bilmədi."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Əlavə data itkisini önləmək üçün",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "müştəri dəstəyi ilə əlaqə saxlayın.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "Yanvar"
   },
@@ -3361,6 +3375,30 @@
   },
   "ssoError": {
     "message": "SSO giriş üçün açıq port tapıla bilmədi."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Əvvəlcə PIN və ya parol ilə kilid açma tələb olunduğu üçün biometrik ilə kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrik kilid açma indi əlçatmazdır."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Yanlış konfiqurasiya edilmiş sistem fayllarına görə biometrik kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Yanlış konfiqurasiya edilmiş sistem fayllarına görə biometrik kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Bitwarden masaüstü tətbiqində $EMAIL$ üçün fəal olmadığına görə biometrik kilid açma əlçatmazdır.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Bilinməyən bilinməyən bir səbəbə görə biometrik kilid açma əlçatmazdır."
   },
   "authorize": {
     "message": "Səlahiyyət ver"

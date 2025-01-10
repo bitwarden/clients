@@ -2,6 +2,8 @@ import { NgModule } from "@angular/core";
 
 import { BannerModule } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { OnboardingModule } from "../../../../../../apps/web/src/app/shared/components/onboarding/onboarding.module";
 import { SecretsManagerSharedModule } from "../shared/sm-shared.module";
 
