@@ -258,7 +258,7 @@ export class CredentialGeneratorService {
       generate: this.i18nService.t(generator.generateKey),
       generatedValue: this.i18nService.t(generator.generatedValueKey),
       copy: this.i18nService.t(generator.copyKey),
-      useGeneratedValue: generator.useGeneratedValue,
+      useGeneratedValue: this.i18nService.t(generator.useGeneratedValueKey),
       onlyOnRequest: generator.onlyOnRequest,
       request: generator.request,
     };
