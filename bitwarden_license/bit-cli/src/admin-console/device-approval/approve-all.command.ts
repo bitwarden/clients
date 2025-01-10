@@ -29,6 +29,7 @@ export class ApproveAllCommand {
     }
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     const organization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)

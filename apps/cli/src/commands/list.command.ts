@@ -217,6 +217,7 @@ export class ListCommand {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     if (!userId) {
       return Response.badRequest("No user found.");
     }
@@ -251,6 +252,7 @@ export class ListCommand {
 
   private async listOrganizations(options: Options) {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     if (!userId) {
       return Response.badRequest("No user found.");
     }

@@ -125,6 +125,7 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
     const cipher$ = from(this.cipherService.get(cipherId));
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     const orgIds$ = this.organizationService
       .organizations$(userId)
       .pipe(map((orgs) => this.getOrgIds(orgs)));
