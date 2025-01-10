@@ -125,7 +125,7 @@ export class EncryptServiceImplementation implements EncryptService {
       }
     }
 
-    return await this.cryptoFunctionService.aesDecryptFast(fastParams, "cbc");
+    return await this.cryptoFunctionService.aesDecryptFast({ mode: "cbc", parameters: fastParams });
   }
 
   async decryptToBytes(
