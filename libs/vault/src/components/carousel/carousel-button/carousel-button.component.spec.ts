@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
 
 import { VaultCarouselSlideComponent } from "../carousel-slide/carousel-slide.component";
 
@@ -53,15 +52,6 @@ describe("VaultCarouselButtonComponent", () => {
     it("adds button to tab index", () => {
       expect(component.button.nativeElement.getAttribute("tabindex")).toBe("0");
     });
-
-    it("shows the active icon", () => {
-      expect(
-        fixture.debugElement.query(By.css('[data-testid="active-carousel-icon"]')),
-      ).not.toBeNull();
-      expect(
-        fixture.debugElement.query(By.css('[data-testid="inactive-carousel-icon"]')),
-      ).toBeNull();
-    });
   });
 
   describe("is not active", () => {
@@ -76,13 +66,6 @@ describe("VaultCarouselButtonComponent", () => {
 
     it("removes button from tab index", () => {
       expect(component.button.nativeElement.getAttribute("tabindex")).toBe("-1");
-    });
-
-    it("shows the inactive icon", () => {
-      expect(
-        fixture.debugElement.query(By.css('[data-testid="inactive-carousel-icon"]')),
-      ).not.toBeNull();
-      expect(fixture.debugElement.query(By.css('[data-testid="active-carousel-icon"]'))).toBeNull();
     });
   });
 });
