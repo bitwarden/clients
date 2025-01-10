@@ -13,8 +13,6 @@ import {
 
 import { ButtonModule } from "@bitwarden/components";
 
-import { IconModule } from "../../../../components/src/icon/icon.module";
-
 import { VaultCarouselButtonComponent } from "./carousel-button/carousel-button.component";
 import { VaultCarouselContentComponent } from "./carousel-content/carousel-content.component";
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
@@ -26,7 +24,6 @@ import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.com
   imports: [
     CommonModule,
     ButtonModule,
-    IconModule,
     VaultCarouselContentComponent,
     VaultCarouselButtonComponent,
   ],
