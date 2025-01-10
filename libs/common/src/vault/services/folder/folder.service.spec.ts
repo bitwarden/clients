@@ -76,7 +76,7 @@ describe("Folder Service", () => {
 
       expect(result.length).toBe(2);
       expect(result).toContainPartialObjects([
-        { id: "1", name: makeEncString("ENC_STRING_2") },
+        { id: "1", name: makeEncString("ENC_STRING_1") },
         { id: "2", name: makeEncString("ENC_STRING_2") },
       ]);
     });
