@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { BehaviorSubject, filter, firstValueFrom, timeout, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -63,7 +61,8 @@ export abstract class LoginStrategyData {
     | UserApiTokenRequest
     | PasswordTokenRequest
     | SsoTokenRequest
-    | WebAuthnLoginTokenRequest;
+    | WebAuthnLoginTokenRequest
+    | undefined;
   captchaBypassToken?: string;
 
   /** User's entered email obtained pre-login. */
@@ -107,9 +106,12 @@ export abstract class LoginStrategy {
 
   async logInTwoFactor(
     twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string = null,
+    captchaResponse: string | null = null,
   ): Promise<AuthResult> {
     const data = this.cache.value;
+    if (!data.tokenRequest) {
+      throw new Error("Token request is undefined");
+    }
     data.tokenRequest.setTwoFactor(twoFactor);
     this.cache.next(data);
     const [authResult] = await this.startLogIn();
@@ -183,6 +185,15 @@ export abstract class LoginStrategy {
     const accountInformation = await this.tokenService.decodeAccessToken(tokenResponse.accessToken);
     const userId = accountInformation.sub as UserId;
 
+    if (
+      !userId ||
+      !accountInformation.name ||
+      !accountInformation.email ||
+      !accountInformation.email_verified
+    ) {
+      throw new Error("Invalid account information");
+    }
+
     await this.accountService.addAccount(userId, {
       name: accountInformation.name,
       email: accountInformation.email,
@@ -239,7 +250,7 @@ export abstract class LoginStrategy {
     );
 
     await this.billingAccountProfileStateService.setHasPremium(
-      accountInformation.premium,
+      accountInformation.premium ?? false,
       false,
       userId,
     );
@@ -325,6 +336,10 @@ export abstract class LoginStrategy {
     await this.twoFactorService.setProviders(response);
     this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     result.ssoEmail2FaSessionToken = response.ssoEmail2faSessionToken;
+
+    if (!response.email) {
+      throw new Error("Email is required");
+    }
     result.email = response.email;
     return result;
   }
@@ -365,6 +380,13 @@ export abstract class LoginStrategy {
     );
   }
 
+  /**
+   * Handles the response from the server when a device verification is required.
+   * It sets the requiresDeviceVerification flag to true and caches the captcha token if it came back.
+   *
+   * @param {IdentityDeviceVerificationResponse} response - The response from the server indicating that device verification is required.
+   * @returns {Promise<AuthResult>} - A promise that resolves to an AuthResult object
+   */
   protected async processDeviceVerificationResponse(
     response: IdentityDeviceVerificationResponse,
   ): Promise<AuthResult> {
@@ -374,13 +396,6 @@ export abstract class LoginStrategy {
     // Extend cached data with captcha bypass token if it came back.
     this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
 
-    // TODO: remove
-    // console.log("processDeviceVerificationResponse");
-    // console.log(response);
     return result;
-  }
-
-  protected onSessionTimeout() {
-    this.sessionTimeoutSubject.next(true);
   }
 }
