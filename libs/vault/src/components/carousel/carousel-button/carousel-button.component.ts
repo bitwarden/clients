@@ -31,10 +31,14 @@ export class VaultCarouselButtonComponent implements FocusableOption {
     this.button.nativeElement.focus();
   }
 
-  protected get dynamicClasses() {
-    const activeClasses = ["[&_rect]:tw-fill-primary-600", "[&_rect]:tw-stroke-primary-600"];
+  protected get dynamicClasses(): string[] {
+    const activeClasses = ["[&_rect]:tw-fill-primary-600", "tw-text-primary-600"];
 
-    const inactiveClasses = ["[&_rect]:tw-stroke-text-muted", "[&_rect]:hover:tw-fill-text-muted"];
+    const inactiveClasses = [
+      "tw-text-muted",
+      "[&_rect]:hover:tw-fill-text-muted",
+      "focus-visible:tw-text-info-700",
+    ];
 
     return this.isActive ? activeClasses : inactiveClasses;
   }
