@@ -10,6 +10,8 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { HashPurpose } from "../../../platform/enums";
