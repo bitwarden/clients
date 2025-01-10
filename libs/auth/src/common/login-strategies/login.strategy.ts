@@ -122,6 +122,9 @@ export abstract class LoginStrategy {
     await this.twoFactorService.clearSelectedProvider();
 
     const tokenRequest = this.cache.value.tokenRequest;
+    if (!tokenRequest) {
+      throw new Error("Token request is undefined");
+    }
     const response = await this.apiService.postIdentityToken(tokenRequest);
 
     if (response instanceof IdentityTwoFactorResponse) {
@@ -185,19 +188,10 @@ export abstract class LoginStrategy {
     const accountInformation = await this.tokenService.decodeAccessToken(tokenResponse.accessToken);
     const userId = accountInformation.sub as UserId;
 
-    if (
-      !userId ||
-      !accountInformation.name ||
-      !accountInformation.email ||
-      !accountInformation.email_verified
-    ) {
-      throw new Error("Invalid account information");
-    }
-
     await this.accountService.addAccount(userId, {
       name: accountInformation.name,
-      email: accountInformation.email,
-      emailVerified: accountInformation.email_verified,
+      email: accountInformation.email ?? "",
+      emailVerified: accountInformation.email_verified ?? false,
     });
 
     await this.accountService.switchAccount(userId);
