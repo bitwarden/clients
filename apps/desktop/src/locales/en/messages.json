@@ -3468,5 +3468,8 @@
   },
   "changeAcctEmail": {
     "message": "Change account email"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Organization upgrade required"
   }
 }
