@@ -3,7 +3,8 @@
 import { map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CollectionId } from "@bitwarden/common/types/guid";
 
 import { Cipher } from "../models/domain/cipher";
@@ -50,9 +51,15 @@ export abstract class CipherAuthorizationService {
 export class DefaultCipherAuthorizationService implements CipherAuthorizationService {
   constructor(
     private collectionService: CollectionService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
+    private accountService: AccountService,
   ) {}
 
+  private organization$ = (cipher: CipherLike) =>
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) => this.organizationService.organizations$(account?.id)),
+      map((orgs) => orgs.find((org) => org.id === cipher.organizationId)),
+    );
   /**
    *
    * {@link CipherAuthorizationService.canDeleteCipher$}
@@ -66,7 +73,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
       return of(true);
     }
 
-    return this.organizationService.get$(cipher.organizationId).pipe(
+    return this.organization$(cipher).pipe(
       switchMap((organization) => {
         if (isAdminConsoleAction) {
           // If the user is an admin, they can delete an unassigned cipher
@@ -104,7 +111,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
       return of(true);
     }
 
-    return this.organizationService.get$(cipher.organizationId).pipe(
+    return this.organization$(cipher).pipe(
       switchMap((organization) => {
         // Admins and custom users can always clone when in the Admin Console
         if (

@@ -3,7 +3,7 @@
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { VaultFilterService as BaseVaultFilterService } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -18,13 +18,13 @@ export class VaultFilterService extends BaseVaultFilterService {
   myVault = "myVault";
 
   constructor(
-    organizationService: OrganizationService,
+    organizationService: vNextOrganizationService,
     folderService: FolderService,
     cipherService: CipherService,
     collectionService: CollectionService,
     policyService: PolicyService,
     stateProvider: StateProvider,
-    private accountService: AccountService,
+    accountService: AccountService,
   ) {
     super(
       organizationService,
@@ -33,11 +33,12 @@ export class VaultFilterService extends BaseVaultFilterService {
       collectionService,
       policyService,
       stateProvider,
+      accountService,
     );
     this.vaultFilter.myVaultOnly = false;
     this.vaultFilter.selectedOrganizationId = null;
 
-    this.accountService.activeAccount$.subscribe((account) => {
+    accountService.activeAccount$.subscribe((account) => {
       this.setVaultFilter(this.allVaults);
     });
   }

@@ -76,6 +76,7 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationUserApiService,
       this.serviceContainer.apiService,
       this.serviceContainer.eventCollectionService,
+      this.serviceContainer.accountService,
     );
     this.createCommand = new CreateCommand(
       this.serviceContainer.cipherService,

@@ -7,7 +7,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -61,7 +61,7 @@ export class GetCommand extends DownloadCommand {
     encryptService: EncryptService,
     private searchService: SearchService,
     protected apiService: ApiService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private eventCollectionService: EventCollectionService,
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
@@ -478,10 +478,18 @@ export class GetCommand extends DownloadCommand {
 
   private async getOrganization(id: string) {
     let org: Organization = null;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      return Response.badRequest("No user found.");
+    }
     if (Utils.isGuid(id)) {
-      org = await this.organizationService.getFromState(id);
+      org = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(map((organizations) => organizations.find((o) => o.id === id))),
+      );
     } else if (id.trim() !== "") {
-      let orgs = await firstValueFrom(this.organizationService.organizations$);
+      let orgs = await firstValueFrom(this.organizationService.organizations$(userId));
       orgs = CliUtils.searchOrganizations(orgs, id);
       if (orgs.length > 1) {
         return Response.multipleResults(orgs.map((c) => c.id));

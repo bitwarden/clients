@@ -1,7 +1,8 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { Response } from "@bitwarden/cli/models/response";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { OrganizationAuthRequestService } from "../../../../bit-common/src/admin-console/auth-requests";
@@ -9,8 +10,9 @@ import { ServiceContainer } from "../../service-container";
 
 export class DenyCommand {
   constructor(
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private organizationAuthRequestService: OrganizationAuthRequestService,
+    private accountServcie: AccountService,
   ) {}
 
   async run(organizationId: string, id: string): Promise<Response> {
@@ -30,7 +32,17 @@ export class DenyCommand {
       return Response.badRequest("`" + id + "` is not a GUID.");
     }
 
-    const organization = await firstValueFrom(this.organizationService.get$(organizationId));
+    const userId = await firstValueFrom(this.accountServcie.activeAccount$.pipe(map((a) => a?.id)));
+
+    if (!userId) {
+      return Response.badRequest("No user found.");
+    }
+
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((organizations) => organizations.find((o) => o.id === organizationId))),
+    );
     if (!organization?.canManageUsersPassword) {
       return Response.error(
         "You do not have permission to approve pending device authorization requests.",
@@ -57,6 +69,7 @@ export class DenyCommand {
     return new DenyCommand(
       serviceContainer.organizationService,
       serviceContainer.organizationAuthRequestService,
+      serviceContainer.accountService,
     );
   }
 }
