@@ -1,9 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationId } from "@bitwarden/common/src/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { MemberAccessReportApiService } from "./member-access-report-api.service";
 import { memberAccessReportsMock } from "./member-access-report.mock";
