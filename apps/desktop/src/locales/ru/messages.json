@@ -249,6 +249,20 @@
   "error": {
     "message": "Ошибка"
   },
+  "decryptionError": {
+    "message": "Ошибка расшифровки"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden не удалось расшифровать элемент(ы) хранилища, перечисленные ниже."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Обратитесь в службу поддержки,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "чтобы избежать дополнительной потери данных.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "Январь"
   },
@@ -3361,6 +3375,30 @@
   },
   "ssoError": {
     "message": "Не удалось найти свободные порты для авторизации SSO."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Биометрическая разблокировка недоступна, поскольку сначала требуется разблокировка с помощью PIN-кода или пароля."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Биометрическая разблокировка в настоящее время недоступна."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Биометрическая разблокировка недоступна из-за неправильно настроенных системных файлов."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Биометрическая разблокировка недоступна из-за неправильно настроенных системных файлов."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Биометрическая разблокировка недоступна, потому что она не включена для $EMAIL$ в приложении Bitwarden для компьютера.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Биометрическая разблокировка в настоящее время недоступна по неизвестной причине."
   },
   "authorize": {
     "message": "Разрешить"

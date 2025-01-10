@@ -9995,6 +9995,9 @@
   "deviceListDescription": {
     "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
   },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
+  },
   "claimedDomains": {
     "message": "Claimed domains"
   },
