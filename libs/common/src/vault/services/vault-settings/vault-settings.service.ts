@@ -28,7 +28,7 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
    * {@link VaultSettingsServiceAbstraction.showCardsCurrentTab$}
    */
   readonly showCardsCurrentTab$: Observable<boolean> = this.showCardsCurrentTabState.state$.pipe(
-    map((x) => x ?? true),
+    map((x) => x ?? false),
   );
 
   private showIdentitiesCurrentTabState: ActiveUserState<boolean> = this.stateProvider.getActive(
@@ -38,7 +38,7 @@ export class VaultSettingsService implements VaultSettingsServiceAbstraction {
    * {@link VaultSettingsServiceAbstraction.showIdentitiesCurrentTab$}
    */
   readonly showIdentitiesCurrentTab$: Observable<boolean> =
-    this.showIdentitiesCurrentTabState.state$.pipe(map((x) => x ?? true));
+    this.showIdentitiesCurrentTabState.state$.pipe(map((x) => x ?? false));
 
   private clickItemsToAutofillVaultViewState: ActiveUserState<boolean> =
     this.stateProvider.getActive(CLICK_ITEMS_AUTOFILL_VAULT_VIEW);
