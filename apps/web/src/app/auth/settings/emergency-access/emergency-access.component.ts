@@ -4,8 +4,10 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { lastValueFrom, Observable, firstValueFrom } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -64,7 +66,8 @@ export class EmergencyAccessComponent implements OnInit {
     private userNamePipe: UserNamePipe,
     private logService: LogService,
     private stateService: StateService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
+    private accountService: AccountService,
     protected dialogService: DialogService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
@@ -74,7 +77,8 @@ export class EmergencyAccessComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const orgs = await this.organizationService.getAll();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
     this.isOrganizationOwner = orgs.some((o) => o.isOwner);
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

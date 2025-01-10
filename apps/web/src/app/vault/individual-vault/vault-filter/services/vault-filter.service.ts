@@ -17,10 +17,11 @@ import {
   CollectionService,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -45,8 +46,12 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements VaultFilterServiceAbstraction {
+  memberOrganizations$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => this.organizationService.memberOrganizations$(account?.id)),
+  );
+
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
-    this.organizationService.memberOrganizations$,
+    this.memberOrganizations$,
     this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
     this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
   ]).pipe(
@@ -88,13 +93,14 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
 
   constructor(
-    protected organizationService: OrganizationService,
+    protected organizationService: vNextOrganizationService,
     protected folderService: FolderService,
     protected cipherService: CipherService,
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
+    protected accountService: AccountService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
