@@ -23,8 +23,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { IntegrationId } from "@bitwarden/common/tools/integration";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
-import { Option } from "@bitwarden/components/src/select/option";
+import { ToastService, Option } from "@bitwarden/components";
 import {
   AlgorithmInfo,
   CredentialAlgorithm,
