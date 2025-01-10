@@ -141,7 +141,12 @@
               }
             ]
           }
-        ],
+        ]
+      }
+    },
+    {
+      "files": ["**/src/**/*.ts"],
+      "rules": {
         "no-restricted-imports": ["error", { "patterns": ["**/src/**/*"] }]
       }
     },
@@ -343,8 +348,7 @@
             "patterns": [
               "**/platform/**/internal", // General internal pattern
               // All features that have been converted to barrel files
-              "**/platform/messaging/**",
-              "**/src/**/*"
+              "**/platform/messaging/**"
             ]
           }
         ]
