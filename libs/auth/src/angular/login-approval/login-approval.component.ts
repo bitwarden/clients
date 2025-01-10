@@ -40,6 +40,8 @@ export interface LoginApprovalDialogParams {
   imports: [CommonModule, AsyncActionsModule, ButtonModule, DialogModule, JslibModule],
 })
 export class LoginApprovalComponent implements OnInit, OnDestroy {
+  loading = true;
+
   notificationId: string;
 
   private destroy$ = new Subject<void>();
@@ -68,12 +70,6 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
 
   async ngOnDestroy(): Promise<void> {
     clearInterval(this.interval);
-    const closedWithButton = await firstValueFrom(this.dialogRef.closed);
-    if (!closedWithButton) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.retrieveAuthRequestAndRespond(false);
-    }
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -96,6 +92,8 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
       }, RequestTimeUpdate);
 
       this.loginApprovalComponentService.showLoginRequestedAlertIfWindowNotVisible(this.email);
+
+      this.loading = false;
     }
   }
 
@@ -131,6 +129,8 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
       );
       this.showResultToast(loginResponse);
     }
+
+    this.dialogRef.close(approve);
   }
 
   showResultToast(loginResponse: AuthRequestResponse) {
