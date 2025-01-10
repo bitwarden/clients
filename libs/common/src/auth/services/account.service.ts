@@ -20,9 +20,11 @@ import { MessagingService } from "../../platform/abstractions/messaging.service"
 import { Utils } from "../../platform/misc/utils";
 import {
   ACCOUNT_DISK,
+  ActiveUserStateProvider,
   GlobalState,
   GlobalStateProvider,
   KeyDefinition,
+  UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 
@@ -41,6 +43,15 @@ export const ACCOUNT_ACTIVE_ACCOUNT_ID = new KeyDefinition(ACCOUNT_DISK, "active
 export const ACCOUNT_ACTIVITY = KeyDefinition.record<Date, UserId>(ACCOUNT_DISK, "activity", {
   deserializer: (activity) => new Date(activity),
 });
+
+export const ACCOUNT_VERIFY_NEW_DEVICE_LOGIN = new UserKeyDefinition<boolean>(
+  ACCOUNT_DISK,
+  "verifyNewDeviceLogin",
+  {
+    deserializer: (verifyDevices) => verifyDevices,
+    clearOn: ["logout"],
+  },
+);
 
 const LOGGED_OUT_INFO: AccountInfo = {
   email: "",
@@ -73,6 +84,7 @@ export class AccountServiceImplementation implements InternalAccountService {
   accounts$: Observable<Record<UserId, AccountInfo>>;
   activeAccount$: Observable<Account | null>;
   accountActivity$: Observable<Record<UserId, Date>>;
+  accountVerifyDevices$: Observable<boolean>;
   sortedUserIds$: Observable<UserId[]>;
   nextUpAccount$: Observable<Account>;
 
@@ -80,6 +92,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     private messagingService: MessagingService,
     private logService: LogService,
     private globalStateProvider: GlobalStateProvider,
+    private activeUserStateProvider: ActiveUserStateProvider,
   ) {
     this.accountsState = this.globalStateProvider.get(ACCOUNT_ACCOUNTS);
     this.activeAccountIdState = this.globalStateProvider.get(ACCOUNT_ACTIVE_ACCOUNT_ID);
@@ -114,6 +127,10 @@ export class AccountServiceImplementation implements InternalAccountService {
         return nextId ? { id: nextId, ...accounts[nextId] } : null;
       }),
     );
+
+    this.accountVerifyDevices$ = this.activeUserStateProvider
+      .get(ACCOUNT_VERIFY_NEW_DEVICE_LOGIN)
+      .state$.pipe(map((verifyDevices) => verifyDevices ?? true));
   }
 
   async addAccount(userId: UserId, accountData: AccountInfo): Promise<void> {
@@ -189,6 +206,23 @@ export class AccountServiceImplementation implements InternalAccountService {
       },
       {
         shouldUpdate: (oldActivity) => oldActivity?.[userId]?.getTime() !== lastActivity?.getTime(),
+      },
+    );
+  }
+
+  async setAccountVerifyDevices(userId: UserId, setVerifyNewDeviceLogin: boolean): Promise<void> {
+    if (!Utils.isGuid(userId)) {
+      // only store for valid userIds
+      return;
+    }
+
+    await this.activeUserStateProvider.get(ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).update(
+      () => {
+        return setVerifyNewDeviceLogin;
+      },
+      {
+        shouldUpdate: (oldNewDeviceVerification) =>
+          oldNewDeviceVerification !== setVerifyNewDeviceLogin,
       },
     );
   }

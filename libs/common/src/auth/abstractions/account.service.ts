@@ -43,6 +43,8 @@ export abstract class AccountService {
    * Observable of the last activity time for each account.
    */
   accountActivity$: Observable<Record<UserId, Date>>;
+  /** Observable of the new device login property for each account. */
+  accountVerifyDevices$: Observable<boolean>;
   /** Account list in order of descending recency */
   sortedUserIds$: Observable<UserId[]>;
   /** Next account that is not the current active account */
@@ -77,6 +79,12 @@ export abstract class AccountService {
    * Updates the `activeAccount$` observable with the new active account.
    * @param userId
    */
+  /**
+   * updates the `accounts$` observable with the new VerifyNewDeviceLogin property for the account.
+   * @param userId
+   * @param VerifyNewDeviceLogin
+   */
+  abstract setAccountVerifyDevices(userId: UserId, verifyNewDeviceLogin: boolean): Promise<void>;
   abstract switchAccount(userId: UserId | null): Promise<void>;
   /**
    * Cleans personal information for the given account from the `accounts$` observable. Does not remove the userId from the observable.
