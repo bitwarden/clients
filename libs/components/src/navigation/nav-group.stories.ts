@@ -7,7 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared/shared.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
-import { positionFixedWrapperDecorator } from "../utils/position-fixed-wrapper-decorator";
+import { positionFixedWrapperDecorator } from "../utils/storybook-decorators";
 
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
