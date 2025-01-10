@@ -3,13 +3,17 @@ import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, skipWhile } from "rxjs";
 
 import { CollectionService, Collection, CollectionView } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -20,7 +24,9 @@ import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-fi
 
 describe("VaultPopupListFiltersService", () => {
   let service: VaultPopupListFiltersService;
-  const memberOrganizations$ = new BehaviorSubject<Organization[]>([]);
+  const _memberOrganizations$ = new BehaviorSubject<Organization[]>([]);
+  const memberOrganizations$ = (userId: UserId) => _memberOrganizations$;
+  const organizations$ = new BehaviorSubject<Organization[]>([]);
   const folderViews$ = new BehaviorSubject([]);
   const cipherViews$ = new BehaviorSubject({});
   const decryptedCollections$ = new BehaviorSubject<CollectionView[]>([]);
@@ -41,7 +47,8 @@ describe("VaultPopupListFiltersService", () => {
 
   const organizationService = {
     memberOrganizations$,
-  } as unknown as OrganizationService;
+    organizations$,
+  } as unknown as vNextOrganizationService;
 
   const i18nService = {
     t: (key: string) => key,
@@ -51,11 +58,14 @@ describe("VaultPopupListFiltersService", () => {
     policyAppliesToActiveUser$: jest.fn(() => policyAppliesToActiveUser$),
   };
 
+  const userId = Utils.newGuid() as UserId;
+  const accountService = mockAccountServiceWith(userId);
+
   const state$ = new BehaviorSubject<boolean>(false);
   const update = jest.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
-    memberOrganizations$.next([]);
+    _memberOrganizations$.next([]);
     decryptedCollections$.next([]);
     policyAppliesToActiveUser$.next(false);
     policyService.policyAppliesToActiveUser$.mockClear();
@@ -72,7 +82,7 @@ describe("VaultPopupListFiltersService", () => {
           useValue: cipherService,
         },
         {
-          provide: OrganizationService,
+          provide: vNextOrganizationService,
           useValue: organizationService,
         },
         {
@@ -92,6 +102,10 @@ describe("VaultPopupListFiltersService", () => {
           useValue: { getGlobal: () => ({ state$, update }) },
         },
         { provide: FormBuilder, useClass: FormBuilder },
+        {
+          provide: AccountService,
+          useValue: accountService,
+        },
       ],
     });
 
@@ -126,7 +140,7 @@ describe("VaultPopupListFiltersService", () => {
 
   describe("organizations$", () => {
     it('does not add "myVault" to the list of organizations when there are no organizations', (done) => {
-      memberOrganizations$.next([]);
+      _memberOrganizations$.next([]);
 
       service.organizations$.subscribe((organizations) => {
         expect(organizations.map((o) => o.label)).toEqual([]);
@@ -136,7 +150,7 @@ describe("VaultPopupListFiltersService", () => {
 
     it('adds "myVault" to the list of organizations when there are other organizations', (done) => {
       const orgs = [{ name: "bobby's org", id: "1234-3323-23223" }] as Organization[];
-      memberOrganizations$.next(orgs);
+      _memberOrganizations$.next(orgs);
 
       service.organizations$.subscribe((organizations) => {
         expect(organizations.map((o) => o.label)).toEqual(["myVault", "bobby's org"]);
@@ -149,7 +163,7 @@ describe("VaultPopupListFiltersService", () => {
         { name: "bobby's org", id: "1234-3323-23223" },
         { name: "alice's org", id: "2223-4343-99888" },
       ] as Organization[];
-      memberOrganizations$.next(orgs);
+      _memberOrganizations$.next(orgs);
 
       service.organizations$.subscribe((organizations) => {
         expect(organizations.map((o) => o.label)).toEqual([
@@ -170,7 +184,7 @@ describe("VaultPopupListFiltersService", () => {
 
       it("returns an empty array when the policy applies and there is a single organization", (done) => {
         policyAppliesToActiveUser$.next(true);
-        memberOrganizations$.next([
+        _memberOrganizations$.next([
           { name: "bobby's org", id: "1234-3323-23223" },
         ] as Organization[]);
 
@@ -187,7 +201,7 @@ describe("VaultPopupListFiltersService", () => {
           { name: "alice's org", id: "2223-4343-99888" },
         ] as Organization[];
 
-        memberOrganizations$.next(orgs);
+        _memberOrganizations$.next(orgs);
 
         service.organizations$.subscribe((organizations) => {
           expect(organizations.map((o) => o.label)).toEqual([
@@ -207,7 +221,7 @@ describe("VaultPopupListFiltersService", () => {
           { name: "catherine's org", id: "77733-4343-99888" },
         ] as Organization[];
 
-        memberOrganizations$.next(orgs);
+        _memberOrganizations$.next(orgs);
 
         service.organizations$.subscribe((organizations) => {
           expect(organizations.map((o) => o.label)).toEqual([
@@ -231,7 +245,7 @@ describe("VaultPopupListFiltersService", () => {
           },
         ] as Organization[];
 
-        memberOrganizations$.next(orgs);
+        _memberOrganizations$.next(orgs);
 
         service.organizations$.subscribe((organizations) => {
           expect(organizations.map((o) => o.icon)).toEqual(["bwi-user", "bwi-family"]);
@@ -249,7 +263,7 @@ describe("VaultPopupListFiltersService", () => {
           },
         ] as Organization[];
 
-        memberOrganizations$.next(orgs);
+        _memberOrganizations$.next(orgs);
 
         service.organizations$.subscribe((organizations) => {
           expect(organizations.map((o) => o.icon)).toEqual(["bwi-user", "bwi-family"]);
@@ -267,7 +281,7 @@ describe("VaultPopupListFiltersService", () => {
           },
         ] as Organization[];
 
-        memberOrganizations$.next(orgs);
+        _memberOrganizations$.next(orgs);
 
         service.organizations$.subscribe((organizations) => {
           expect(organizations.map((o) => o.icon)).toEqual([

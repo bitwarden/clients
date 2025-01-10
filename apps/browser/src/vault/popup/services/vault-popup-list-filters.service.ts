@@ -16,10 +16,11 @@ import {
 
 import { CollectionService, Collection, CollectionView } from "@bitwarden/admin-console/common";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -105,12 +106,13 @@ export class VaultPopupListFiltersService {
   constructor(
     private folderService: FolderService,
     private cipherService: CipherService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private i18nService: I18nService,
     private collectionService: CollectionService,
     private formBuilder: FormBuilder,
     private policyService: PolicyService,
     private stateProvider: StateProvider,
+    private accountServcie: AccountService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -204,7 +206,9 @@ export class VaultPopupListFiltersService {
    * Organization array structured to be directly passed to `ChipSelectComponent`
    */
   organizations$: Observable<ChipSelectOption<Organization>[]> = combineLatest([
-    this.organizationService.memberOrganizations$,
+    this.accountServcie.activeAccount$.pipe(
+      switchMap((account) => this.organizationService.memberOrganizations$(account?.id)),
+    ),
     this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
   ]).pipe(
     map(([orgs, personalOwnershipApplies]): [Organization[], boolean] => [
