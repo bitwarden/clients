@@ -7,9 +7,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CalloutModule } from "../callout";
 import { NavigationModule } from "../navigation";
 import { I18nMockService } from "../utils/i18n-mock.service";
-import { positionFixedWrapperDecorator } from "../utils/position-fixed-wrapper-decorator";
+import { positionFixedWrapperDecorator } from "../utils/storybook-decorators";
 
 import { LayoutComponent } from "./layout.component";
+import { mockLayoutI18n } from "./mocks";
 
 export default {
   title: "Component Library/Layout",
@@ -22,12 +23,7 @@ export default {
         {
           provide: I18nService,
           useFactory: () => {
-            return new I18nMockService({
-              toggleSideNavigation: "Toggle side navigation",
-              skipToContent: "Skip to content",
-              submenu: "submenu",
-              toggleCollapse: "toggle collapse",
-            });
+            return new I18nMockService(mockLayoutI18n);
           },
         },
       ],
