@@ -147,6 +147,10 @@
               "./tsconfig.json",
               "-e",
               "json",
+              "--disableInternal",
+              "--disableLifeCycleHooks",
+              "--disablePrivate",
+              "--disableProtected",
               "-d",
               ".",
               "--disableRoutesGraph"
@@ -165,6 +169,10 @@
               "./tsconfig.json",
               "-e",
               "json",
+              "--disableInternal",
+              "--disableLifeCycleHooks",
+              "--disablePrivate",
+              "--disableProtected",
               "-d",
               ".",
               "--disableRoutesGraph"
