@@ -24,6 +24,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { IntegrationId } from "@bitwarden/common/tools/integration";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { Option } from "@bitwarden/components/src/select/option";
 import {
   AlgorithmInfo,

@@ -3,6 +3,8 @@ import { mock } from "jest-mock-extended";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../../../key-management/src/abstractions/key.service";
 import { makeStaticByteArray, mockEnc } from "../../../../../spec";
 import { EncryptService } from "../../../../platform/abstractions/encrypt.service";

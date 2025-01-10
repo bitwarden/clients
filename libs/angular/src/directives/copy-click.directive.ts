@@ -5,6 +5,8 @@ import { Directive, HostListener, Input } from "@angular/core";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ToastVariant } from "@bitwarden/components/src/toast/toast.component";
 
 @Directive({
