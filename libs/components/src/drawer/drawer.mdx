@@ -1,0 +1,67 @@
+import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./drawer.stories";
+
+import { DrawerOpen as KitchenSink } from "../stories/kitchen-sink/kitchen-sink.stories";
+
+<Meta of={stories} />
+
+```ts
+import { DrawerComponent } from "@bitwarden/components";
+```
+
+# Drawer
+
+A drawer is a panel of supplmentary content that is adjacement to the page's main content.
+
+<Primary />
+
+<Controls />
+
+## Usage
+
+## Multiple Drawers
+
+Only one drawer can be open at a time, and they do not stack. If a drawer is already open, opening
+another will close and replace the one already open.
+
+<Story of={stories.MultipleDrawers} />
+
+## Headless
+
+<Story of={stories.Headless} />
+
+## Accessibility
+
+- The the drawer primarily contains navigation links, the direct descendant of the drawer should be
+  a [nav element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav); otherwise, use an
+  [aside](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside).
+
+```html
+<bit-drawer>
+  <aside>...</aside>
+</bit-drawer>
+
+<!-- or -->
+
+<bit-drawer>
+  <bit-drawer-body>
+    <aside>...</aside>
+  </bit-drawer-body>
+</bit-drawer>
+```
+
+- The drawer should contain an h2 element. If you are using `bit-drawer-header`, this is created for
+  you via the `title` input.
+
+```html
+<bit-drawer>
+  <aside>
+    <h2>Hello world!</h2>
+  </aside>
+</bit-drawer>
+```
+
+## Kitchen Sink
+
+<Story of={KitchenSink} autoplay />
