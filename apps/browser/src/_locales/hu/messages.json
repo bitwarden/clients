@@ -2324,6 +2324,9 @@
     "message": "Tartomány",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Letiltott tartományok"
+  },
   "excludedDomains": {
     "message": "Kizárt domainek"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "A Bitwarden nem kéri a bejelentkezési adatok mentését ezeknél a tartományoknál az összes bejelentkezési fiókra vonatkozva. A változtatások életbe lépéséhez frissíteni kell az oldalt."
+  },
+  "blockedDomainsDesc": {
+    "message": "Az automatikus kitöltés és az egyéb kapcsolódó funkciók ezeken a webhelyeken nincsenek a kínálatban. A változtatások életbe lépéséhez frissíteni kell az oldalt."
+  },
+  "autofillBlockedNotice": {
+    "message": "Az automatikus kitöltés le van tiltva ezen a webhelyen. Tekintsük át vagy módosítsuk ezt a beállításokban."
+  },
+  "autofillBlockedTooltip": {
+    "message": "Az automatikus kitöltés le van tiltva ezen a webhelyen. Tekintsük át ezt a beállításokban."
   },
   "websiteItemLabel": {
     "message": "Webhely $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "A letiltott tartomány módosítások mentésre kerültek."
   },
   "excludedDomainsSavedSuccess": {
     "message": "A kizárt tartomány módosítások mentésre kerültek."
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Hiba"
+  },
+  "decryptionError": {
+    "message": "Visszafejtési hiba"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "A Bitwarden nem tudta visszafejteni az alább felsorolt ​​széf elemeket."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Ügyfélszolgálat elérése",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "további adatvesztés elkerülése érdekében.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Felhasználónév generálása"
@@ -4640,6 +4669,33 @@
   },
   "noEditPermissions": {
     "message": "Nincs jogosulltság ezen elem szerkesztéséheu."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "A biometrikus feloldás nem érhető el, mert először PIN kóddal vagy jelszóval kell feloldani."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "A biometrikus feloldás jelenleg nem érhető el."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "A biometrikus feloldás nem érhető el a rosszul konfigurált rendszerfájlok miatt."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "A biometrikus feloldás nem érhető el a rosszul konfigurált rendszerfájlok miatt."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "A biometrikus feloldás nem érhető el, mert a Bitwarden asztali alkalmazás be van zárva."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "A biometrikus feloldás nem érhető el, mert nincs engedélyezve $EMAIL$ számára a Bitwarden asztali alkalmazásban.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "A biometrikus feloldás jelenleg ismeretlen okból nem érhető el."
   },
   "authenticating": {
     "message": "Authenticating"

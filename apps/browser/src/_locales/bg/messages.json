@@ -2324,6 +2324,9 @@
     "message": "Домейни",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Блокирани домейни"
+  },
   "excludedDomains": {
     "message": "Изключени домейни"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Битуорден няма да пита дали да запазва данните за вход в тези сайтове за всички регистрации, в които сте вписан(а). За да влезе правилото в сила, презаредете страницата."
+  },
+  "blockedDomainsDesc": {
+    "message": "Автоматичното попълване и други свързани функции няма да бъдат предлагани за тези уеб сайтове. Трябва да презаредите страницата, за да влязат в сила промените."
+  },
+  "autofillBlockedNotice": {
+    "message": "Автоматичното попълване е блокирано за този уеб сайт. Можете да прегледате и промените това в настройките."
+  },
+  "autofillBlockedTooltip": {
+    "message": "Автоматичното попълване е блокирано за този уеб сайт. Можете да прегледате това в настройките."
   },
   "websiteItemLabel": {
     "message": "Уеб сайт $number$ (адрес)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Промените на блокираните домейни са запазени"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Промените на изключените домейни са запазени"
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Грешка"
+  },
+  "decryptionError": {
+    "message": "Грешка при дешифриране"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Свържете се с поддръжката",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "за да избегнете загубата на данни.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Генериране на потр. име"
@@ -4640,6 +4669,33 @@
   },
   "noEditPermissions": {
     "message": "Нямате право за редактиране на този елемент"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Отключването с биометрични данни не е налично, тъй като първо се изисква отключване чрез ПИН или парола."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Отключването с биометрични данни не е налично в момента."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Отключването с биометрични данни не е налично, тъй като приложението на Биуорден за компютър не работи."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Отключването с биометрични данни не е налично, тъй като не е включено за $EMAIL$ в приложението на Битуорден за компютър.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Отключването с биометрични данни не е налично по неизвестна причина."
   },
   "authenticating": {
     "message": "Удостоверяване"
