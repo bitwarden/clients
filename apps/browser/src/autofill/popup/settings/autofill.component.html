@@ -118,7 +118,9 @@
             (change)="updateShowCardsCurrentTab()"
             [(ngModel)]="showCardsCurrentTab"
           />
-          <bit-label for="showCardsSuggestions">{{ "showCardsInVaultView" | i18n }}</bit-label>
+          <bit-label for="showCardsSuggestions">{{
+            "alwaysShowCardsInVaultView" | i18n
+          }}</bit-label>
         </bit-form-control>
         <bit-form-control>
           <input
@@ -129,7 +131,7 @@
             [(ngModel)]="showIdentitiesCurrentTab"
           />
           <bit-label for="showIdentitiesSuggestions" class="tw-whitespace-normal">
-            {{ "showIdentitiesInVaultView" | i18n }}
+            {{ "alwaysShowIdentitiesInVaultView" | i18n }}
           </bit-label>
         </bit-form-control>
         <bit-form-control disableMargin>
