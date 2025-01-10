@@ -340,6 +340,7 @@ export abstract class LoginStrategy {
     if (!response.email) {
       throw new Error("Email is required");
     }
+
     result.email = response.email;
     return result;
   }
@@ -395,7 +396,6 @@ export abstract class LoginStrategy {
 
     // Extend cached data with captcha bypass token if it came back.
     this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
-
     return result;
   }
 }
