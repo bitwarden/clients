@@ -109,16 +109,13 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     }
 
     const codeControl = this.formGroup.get("code");
-    if (!codeControl) {
+    const code = codeControl?.value;
+    if (!codeControl || !code) {
+      this.logService.error("Code is required");
       return;
     }
 
     try {
-      const code = codeControl.value;
-      if (code === null) {
-        return;
-      }
-
       const authResult = await this.loginStrategyService.logInNewDeviceVerification(code);
 
       if (authResult.requiresTwoFactor) {
