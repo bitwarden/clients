@@ -158,8 +158,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     ]);
 
     this.showUpgradeRequiredTotp =
-      this.cipher.type === CipherType.Login &&
       this.cipher.login.totp &&
+      this.canAccessPremium &&
       this.cipher.organizationId &&
       !this.cipher.organizationUseTotp;
 
