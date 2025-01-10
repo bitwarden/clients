@@ -66,13 +66,14 @@ export class LoginCredentialsViewComponent {
   }
   private _cipher$ = new BehaviorSubject<CipherView>(null);
 
-  isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+  private _userHasPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     ),
   );
-  allowTotpGeneration: Observable<boolean> = combineLatest([
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+
+  allowTotpGeneration$: Observable<boolean> = combineLatest([
+    this._userHasPremium$,
     this._cipher$.pipe(filter((c) => c != null)),
   ]).pipe(
     map(([userHasPremium, cipher]) => {
