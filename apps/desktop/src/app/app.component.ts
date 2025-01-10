@@ -334,7 +334,7 @@ export class AppComponent implements OnInit, OnDestroy {
             const upgradeConfirmed = await this.dialogService.openSimpleDialog({
               title: { key: "upgradeOrganization" },
               content: { key: "upgradeOrganizationDesc" },
-              acceptButtonText: { key: "upgradeOrganization" },
+              acceptButtonText: { key: "learnMore" },
               type: "info",
             });
             if (upgradeConfirmed) {
