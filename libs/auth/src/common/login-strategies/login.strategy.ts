@@ -331,11 +331,7 @@ export abstract class LoginStrategy {
     this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     result.ssoEmail2FaSessionToken = response.ssoEmail2faSessionToken;
 
-    if (!response.email) {
-      throw new Error("Email is required");
-    }
-
-    result.email = response.email;
+    result.email = response.email ?? "";
     return result;
   }
 
