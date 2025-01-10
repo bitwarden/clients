@@ -1,7 +1,5 @@
+import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { Region } from "@bitwarden/common/platform/abstractions/environment.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { VaultTimeoutAction } from "@bitwarden/common/src/enums/vault-timeout-action.enum";
 import { VaultTimeout } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherType } from "@bitwarden/common/vault/enums";
 

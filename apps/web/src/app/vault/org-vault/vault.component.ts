@@ -32,7 +32,6 @@ import {
   switchMap,
   takeUntil,
   tap,
-  withLatestFrom,
 } from "rxjs/operators";
 
 import {
@@ -194,6 +193,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected currentSearchText$: Observable<string>;
   protected freeTrial$: Observable<FreeTrial>;
   protected resellerWarning$: Observable<ResellerWarning | null>;
+  protected prevCipherId: string | null = null;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -538,24 +538,25 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     firstSetup$
       .pipe(
-        switchMap(() => this.route.queryParams),
-        // Only process the queryParams if the dialog is not open (only when extension refresh is enabled)
+        switchMap(() => combineLatest([this.route.queryParams, allCipherMap$])),
         filter(() => this.vaultItemDialogRef == undefined || !this.extensionRefreshEnabled),
-        withLatestFrom(allCipherMap$, allCollections$, organization$),
         switchMap(async ([qParams, allCiphersMap]) => {
           const cipherId = getCipherIdFromParams(qParams);
+
           if (!cipherId) {
+            this.prevCipherId = null;
             return;
           }
-          const cipher = allCiphersMap[cipherId];
 
+          if (cipherId === this.prevCipherId) {
+            return;
+          }
+
+          this.prevCipherId = cipherId;
+
+          const cipher = allCiphersMap[cipherId];
           if (cipher) {
             let action = qParams.action;
-
-            // Default to "view" if extension refresh is enabled
-            if (action == null && this.extensionRefreshEnabled) {
-              action = "view";
-            }
 
             if (action == "showFailedToDecrypt") {
               DecryptionFailureDialogComponent.open(this.dialogService, {
@@ -567,6 +568,11 @@ export class VaultComponent implements OnInit, OnDestroy {
                 replaceUrl: true,
               });
               return;
+            }
+
+            // Default to "view" if extension refresh is enabled
+            if (action == null && this.extensionRefreshEnabled) {
+              action = "view";
             }
 
             if (action === "view") {
