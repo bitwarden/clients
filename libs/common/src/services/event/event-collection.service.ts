@@ -4,10 +4,11 @@ import { firstValueFrom, map, from, zip } from "rxjs";
 
 import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
 import { EventCollectionService as EventCollectionServiceAbstraction } from "../../abstractions/event/event-collection.service";
 import { EventUploadService } from "../../abstractions/event/event-upload.service";
-import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { EventType } from "../../enums";
@@ -42,7 +43,7 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
     ciphers: CipherView[],
     uploadImmediately = false,
   ): Promise<any> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const eventStore = this.stateProvider.getUser(userId, EVENT_COLLECTION);
 
     if (!(await this.shouldUpdate(null, eventType, ciphers))) {
@@ -87,7 +88,7 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
     uploadImmediately = false,
     organizationId: string = null,
   ): Promise<any> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const eventStore = this.stateProvider.getUser(userId, EVENT_COLLECTION);
 
     if (!(await this.shouldUpdate(organizationId, eventType, undefined, cipherId))) {
@@ -123,7 +124,7 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
   ): Promise<boolean> {
     const cipher$ = from(this.cipherService.get(cipherId));
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const orgIds$ = this.organizationService
       .organizations$(userId)
       .pipe(map((orgs) => this.getOrgIds(orgs)));

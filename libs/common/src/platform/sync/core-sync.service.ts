@@ -8,6 +8,7 @@ import { ApiService } from "../../abstractions/api.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { getUserId } from "../../auth/services/account.service";
 import {
   SyncCipherNotification,
   SyncFolderNotification,
@@ -58,7 +59,7 @@ export abstract class CoreSyncService implements SyncService {
   abstract fullSync(forceSync: boolean, allowThrowOnError?: boolean): Promise<boolean>;
 
   async getLastSync(): Promise<Date> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (userId == null) {
       return null;
     }
