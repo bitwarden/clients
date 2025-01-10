@@ -13,7 +13,7 @@ import {
   signal,
 } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, Observable, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -127,13 +127,37 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   /**
    * Flag indicating that the current tab location is blocked
    */
-  currentURIIsBlocked: boolean = false;
+  currentURIIsBlocked$: Observable<boolean> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$;
+
+  /**
+   * Resolved i18n key to use for suggested cipher items
+   */
+  cipherItemTitleKey = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) =>
+      this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle",
+    ),
+  );
 
   /**
    * Option to show the autofill button for each item.
    */
   @Input({ transform: booleanAttribute })
   showAutofillButton: boolean;
+
+  /**
+   * Flag indicating whether the suggested cipher item autofill button should be shown or not
+   */
+  hideAutofillButton$ = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) => !this.showAutofillButton || uriIsBlocked || this.primaryActionAutofill),
+  );
+
+  /**
+   * Flag indicating whether the cipher item autofill options should be shown or not
+   */
+  hideAutofillOptions$: Observable<boolean> = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) => uriIsBlocked || this.showAutofillButton),
+  );
 
   /**
    * Option to perform autofill operation as the primary action for autofill suggestions.
@@ -182,10 +206,14 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
+  }
 
-    this.currentURIIsBlocked = await firstValueFrom(
-      this.vaultPopupAutofillService.currentTabIsOnBlocklist$,
-    );
+  async primaryActionOnSelect(cipher: CipherView) {
+    const isBlocked = await firstValueFrom(this.currentURIIsBlocked$);
+
+    return this.primaryActionAutofill && !isBlocked
+      ? this.doAutofill(cipher)
+      : this.onViewCipher(cipher);
   }
 
   /**
