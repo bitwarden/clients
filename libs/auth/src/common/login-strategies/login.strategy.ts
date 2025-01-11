@@ -305,6 +305,9 @@ export abstract class LoginStrategy {
     try {
       const userKey = await this.keyService.getUserKeyWithLegacySupport(userId);
       const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
+      if (!privateKey.encryptedString) {
+        throw new Error("Failed to create encrypted private key");
+      }
       await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
       return privateKey.encryptedString;
     } catch (e) {
