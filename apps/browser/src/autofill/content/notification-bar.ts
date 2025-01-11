@@ -1,8 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { ServerConfig } from "../../../../../libs/common/src/platform/abstractions/config/server-config";
+import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
+
 import {
   AddLoginMessageData,
   ChangePasswordMessageData,
