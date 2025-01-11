@@ -1,12 +1,7 @@
 import { Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
-
-export enum BiometricsDisableReason {
-  NotSupportedOnOperatingSystem = "NotSupportedOnOperatingSystem",
-  EncryptedKeysUnavailable = "BiometricsEncryptedKeysUnavailable",
-  SystemBiometricsUnavailable = "SystemBiometricsUnavailable",
-}
+import { BiometricsStatus } from "@bitwarden/key-management";
 
 // ex: type UnlockOptionValue = "masterPassword" | "pin" | "biometrics"
 export type UnlockOptionValue = (typeof UnlockOption)[keyof typeof UnlockOption];
@@ -26,7 +21,7 @@ export type UnlockOptions = {
   };
   biometrics: {
     enabled: boolean;
-    disableReason: BiometricsDisableReason | null;
+    biometricsStatus: BiometricsStatus;
   };
 };
 

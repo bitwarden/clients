@@ -2324,6 +2324,9 @@
     "message": "Domínios",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Domínios bloqueados"
+  },
   "excludedDomains": {
     "message": "Domínios excluídos"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "O Bitwarden não pedirá para guardar os detalhes de início de sessão destes domínios para todas as contas com sessão iniciada. É necessário atualizar a página para que as alterações tenham efeito."
+  },
+  "blockedDomainsDesc": {
+    "message": "O preenchimento automático e outras funcionalidades relacionadas não serão disponibilizados para estes sites. É necessário atualizar a página para que as alterações tenham efeito."
+  },
+  "autofillBlockedNotice": {
+    "message": "O preenchimento automático está bloqueado para este site. Reveja ou altere esta opção nas definições."
+  },
+  "autofillBlockedTooltip": {
+    "message": "O preenchimento automático está bloqueado neste site. Reveja nas definições."
   },
   "websiteItemLabel": {
     "message": "Site $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Alterações do domínio bloqueado guardadas"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Alterações do domínio excluído guardadas"
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Erro"
+  },
+  "decryptionError": {
+    "message": "Erro de desencriptação"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "O Bitwarden não conseguiu desencriptar o(s) item(ns) do cofre listado(s) abaixo."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contacte o serviço de apoio ao cliente",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "para evitar perdas adicionais de dados.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Gerar nome de utilizador"
@@ -4640,6 +4669,33 @@
   },
   "noEditPermissions": {
     "message": "Não tem permissão para editar este item"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "O desbloqueio biométrico não está disponível porque o desbloqueio por PIN ou palavra-passe é necessário primeiro."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "O desbloqueio biométrico está atualmente indisponível."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "O desbloqueio biométrico não está disponível devido a ficheiros de sistema mal configurados."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "O desbloqueio biométrico não está disponível devido a ficheiros de sistema mal configurados."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "O desbloqueio biométrico não está disponível porque a app para computador Bitwarden está fechada."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "O desbloqueio biométrico não está disponível porque não está ativado para $EMAIL$ na app Bitwarden para computador.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "O desbloqueio biométrico está atualmente indisponível por um motivo desconhecido."
   },
   "authenticating": {
     "message": "A autenticar"

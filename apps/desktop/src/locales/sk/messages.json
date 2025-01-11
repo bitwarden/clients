@@ -249,6 +249,20 @@
   "error": {
     "message": "Chyba"
   },
+  "decryptionError": {
+    "message": "Chyba dešifrovania"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky trezoru."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktujte zákaznícku podporu,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "aby ste predišli ďalším stratám údajov.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "Január"
   },
@@ -3361,6 +3375,30 @@
   },
   "ssoError": {
     "message": "Pre prihlásenie SSO sa nepodarilo nájsť žiadne voľné porty."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Odomykanie biometrickými údajmi je nedostupné pretože je najskôr potrebné odomykanie pomocou PIN alebo hesla."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Odomykanie biometrickými údajmi je momentálne nedostupné."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Odomykanie biometrickými údajmi je nedostupné v dôsledku zle nastavených systémových súborov."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Odomykanie biometrickými údajmi je nedostupné v dôsledku zle nastavených systémových súborov."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Odomykanie biometrickými údajmi je nedostupné pretože nie je povolené pre $EMAIL$ v aplikácii Bitwarden pre desktop.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Odomykanie biometrickými údajmi je z neznámych dôvodov nedostupné."
   },
   "authorize": {
     "message": "Autorizovať"

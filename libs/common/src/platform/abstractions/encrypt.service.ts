@@ -8,12 +8,32 @@ import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 export abstract class EncryptService {
   abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
   abstract encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer>;
+  /**
+   * Decrypts an EncString to a string
+   * @param encString - The EncString to decrypt
+   * @param key - The key to decrypt the EncString with
+   * @param decryptTrace - A string to identify the context of the object being decrypted. This can include: field name, encryption type, cipher id, key type, but should not include
+   * sensitive information like encryption keys or data. This is used for logging when decryption errors occur in order to identify what failed to decrypt
+   * @returns The decrypted string
+   */
   abstract decryptToUtf8(
     encString: EncString,
     key: SymmetricCryptoKey,
-    decryptContext?: string,
+    decryptTrace?: string,
   ): Promise<string>;
-  abstract decryptToBytes(encThing: Encrypted, key: SymmetricCryptoKey): Promise<Uint8Array>;
+  /**
+   * Decrypts an Encrypted object to a Uint8Array
+   * @param encThing - The Encrypted object to decrypt
+   * @param key - The key to decrypt the Encrypted object with
+   * @param decryptTrace - A string to identify the context of the object being decrypted. This can include: field name, encryption type, cipher id, key type, but should not include
+   * sensitive information like encryption keys or data. This is used for logging when decryption errors occur in order to identify what failed to decrypt
+   * @returns The decrypted Uint8Array
+   */
+  abstract decryptToBytes(
+    encThing: Encrypted,
+    key: SymmetricCryptoKey,
+    decryptTrace?: string,
+  ): Promise<Uint8Array>;
   abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
   abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;
   abstract resolveLegacyKey(key: SymmetricCryptoKey, encThing: Encrypted): SymmetricCryptoKey;

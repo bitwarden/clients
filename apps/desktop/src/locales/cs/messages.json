@@ -249,6 +249,20 @@
   "error": {
     "message": "Chyba"
   },
+  "decryptionError": {
+    "message": "Chyba dešifrování"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nemohl dešifrovat níže uvedené položky v trezoru."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktujte zákaznickou podporu,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "abyste zabránili ztrátě dat.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "Leden"
   },
@@ -3361,6 +3375,30 @@
   },
   "ssoError": {
     "message": "Pro přihlášení SSO nebyly nalezeny žádné volné porty."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrické odemknutí je nedostupné, protože je potřeba nejprve odemknout pomocí PIN nebo hesla."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrické odemknutí je momentálně nedostupné."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrické odemknutí není dostupné kvůli chybnému nastavení systémových souborů."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrické odemknutí není dostupné kvůli chybnému nastavení systémových souborů."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometrické odemknutí není k dispozici, protože není povoleno pro $EMAIL$ v desktopové aplikaci Bitwarden.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrické odemknutí je momentálně z neznámého důvodu nedostupné."
   },
   "authorize": {
     "message": "Autorizovat"

@@ -9,7 +9,7 @@ import { biometrics, passwords } from "@bitwarden/desktop-napi";
 import { WindowMain } from "../../main/window.main";
 import { isFlatpak, isLinux, isSnapStore } from "../../utils";
 
-import { OsBiometricService } from "./desktop.biometrics.service";
+import { OsBiometricService } from "./os-biometrics.service";
 
 const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE policyconfig PUBLIC
@@ -30,7 +30,7 @@ const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>
 const policyFileName = "com.bitwarden.Bitwarden.policy";
 const policyPath = "/usr/share/polkit-1/actions/";
 
-export default class BiometricUnixMain implements OsBiometricService {
+export default class OsBiometricsServiceLinux implements OsBiometricService {
   constructor(
     private i18nservice: I18nService,
     private windowMain: WindowMain,

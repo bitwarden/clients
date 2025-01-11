@@ -3,8 +3,12 @@ import {
   FakeStateProvider,
   mockAccountServiceWith,
 } from "@bitwarden/common/spec";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { UserId } from "@bitwarden/common/src/types/guid";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { Utils } from "../../common/src/platform/misc/utils";
 
 import { DefaultKdfConfigService } from "./kdf-config.service";
