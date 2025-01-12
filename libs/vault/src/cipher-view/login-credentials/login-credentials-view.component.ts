@@ -2,10 +2,11 @@
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
 import { Component, inject, Input } from "@angular/core";
-import { Observable, shareReplay } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -20,6 +21,8 @@ import {
   ColorPasswordModule,
 } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { PremiumUpgradePromptService } from "../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
@@ -50,10 +53,11 @@ type TotpCodeValues = {
 export class LoginCredentialsViewComponent {
   @Input() cipher: CipherView;
 
-  isPremium$: Observable<boolean> =
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$.pipe(
-      shareReplay({ refCount: true, bufferSize: 1 }),
-    );
+  isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
   totpCodeCopyObj: TotpCodeValues;
@@ -64,6 +68,7 @@ export class LoginCredentialsViewComponent {
     private i18nService: I18nService,
     private premiumUpgradeService: PremiumUpgradePromptService,
     private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
   ) {}
 
   get fido2CredentialCreationDateValue(): string {

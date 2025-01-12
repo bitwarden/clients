@@ -10,6 +10,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
@@ -37,6 +38,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
     super(
       dialogService,
@@ -45,6 +47,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
       messagingService,
       policyService,
       billingAccountProfileStateService,
+      accountService,
     );
   }
 

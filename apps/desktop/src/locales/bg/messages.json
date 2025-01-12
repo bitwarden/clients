@@ -249,6 +249,20 @@
   "error": {
     "message": "Грешка"
   },
+  "decryptionError": {
+    "message": "Грешка при дешифриране"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Свържете се с поддръжката",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "за да избегнете загубата на данни.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "януари"
   },
@@ -3361,6 +3375,30 @@
   },
   "ssoError": {
     "message": "Не могат да бъдат открити свободни портове за еднократната идентификация."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Отключването с биометрични данни не е налично, тъй като първо се изисква отключване чрез ПИН или парола."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Отключването с биометрични данни не е налично в момента."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Отключването с биометрични данни не е налично, тъй като не е включено за $EMAIL$ в приложението на Битуорден за компютър.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Отключването с биометрични данни не е налично по неизвестна причина."
   },
   "authorize": {
     "message": "Упълномощаване"

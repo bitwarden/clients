@@ -249,6 +249,20 @@
   "error": {
     "message": "Fout"
   },
+  "decryptionError": {
+    "message": "Ontsleutelingsfout"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kon de onderstaande kluisitem(s) niet ontsleutelen."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Neem contact op met de klantenservice",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "om extra dataverlies te voorkomen.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "januari"
   },
@@ -3361,6 +3375,30 @@
   },
   "ssoError": {
     "message": "Er zijn geen vrije poorten gevonden voor de sso-login."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat pincode of wachtwoordontgrendeling eerst vereist is."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar vanwege verkeerd geconfigureerde systeembestanden."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar vanwege verkeerd geconfigureerde systeembestanden."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat het niet is ingeschakeld voor $EMAIL$ in de Bitwarden-desktopapp.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar om een onbekende reden."
   },
   "authorize": {
     "message": "Autoriseren"

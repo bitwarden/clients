@@ -2324,6 +2324,9 @@
     "message": "Domenlər",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Əngəllənmiş domenlər"
+  },
   "excludedDomains": {
     "message": "İstisna edilən domenlər"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden, giriş etmiş bütün hesablar üçün bu domenlərin giriş detallarını saxlamağı soruşmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
+  },
+  "blockedDomainsDesc": {
+    "message": "Bu veb saytlar üçün avto-doldurma və digər əlaqəli özəlliklər təklif olunmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
+  },
+  "autofillBlockedNotice": {
+    "message": "Bu veb sayt üçün avto-doldurma əngəllənib. Bunu ayarlarda incələyin və ya dəyişdirin."
+  },
+  "autofillBlockedTooltip": {
+    "message": "Bu veb saytda avto-doldurma əngəllənib. Ayarlarda incələyin."
   },
   "websiteItemLabel": {
     "message": "Veb sayt $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Əngəllənmiş domen dəyişiklikləri saxlanıldı"
   },
   "excludedDomainsSavedSuccess": {
     "message": "İstisna domen dəyişikliyi saxlanıldı"
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Xəta"
+  },
+  "decryptionError": {
+    "message": "Şifrə açma xətası"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden, aşağıda sadalanan seyf element(lər)inin şifrəsini aça bilmədi."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Əlavə data itkisini önləmək üçün",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "müştəri dəstəyi ilə əlaqə saxlayın.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "İstifadəçi adı yarat"
@@ -4640,6 +4669,33 @@
   },
   "noEditPermissions": {
     "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Əvvəlcə PIN və ya parol ilə kilid açma tələb olunduğu üçün biometrik ilə kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrik kilid açma indi əlçatmazdır."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Yanlış konfiqurasiya edilmiş sistem fayllarına görə biometrik kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Yanlış konfiqurasiya edilmiş sistem fayllarına görə biometrik kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Bitwarden masaüstü tətbiqi bağlı olduğu üçün biometrik kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Bitwarden masaüstü tətbiqində $EMAIL$ üçün fəal olmadığına görə biometrik kilid açma əlçatmazdır.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Bilinməyən bilinməyən bir səbəbə görə biometrik kilid açma əlçatmazdır."
   },
   "authenticating": {
     "message": "Kimlik doğrulama"

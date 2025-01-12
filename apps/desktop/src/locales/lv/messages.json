@@ -249,6 +249,20 @@
   "error": {
     "message": "Kļūda"
   },
+  "decryptionError": {
+    "message": "Atšifrēšanas kļūda"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nevarēja atšifrēt zemāk uzskaitītos glabātavas vienumus."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "lai izvairītos no papildu datu zaudējumiem.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "Janvāris"
   },
@@ -3361,6 +3375,30 @@
   },
   "ssoError": {
     "message": "Netika atrasti brīvi vienotās (SSO) pieteikšanās porti."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Atslēgšana ar biometriju nav pieejama, jo vispirms ir nepieciešama atslēgšana ar PIN vai paroli."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Atslēgšana ar biometriju pašlaik nav pieejama."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Atslēgšana ar biometriju nav pieejama nepareizi konfigurētu sistēmas datņu dēļ."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Atslēgšana ar biometriju nav pieejama nepareizi konfigurētu sistēmas datņu dēļ."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Atslēgšana ar biometriju nav pieejama, jo tā nav iespējota $EMAIL$ Bitwarden darbvirsmas lietotnē.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Atslēgšana ar biometriju pašlaik nav pieejama nezināma iemesla dēļ."
   },
   "authorize": {
     "message": "Pilnvarot"
