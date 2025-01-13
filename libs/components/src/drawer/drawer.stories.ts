@@ -9,11 +9,11 @@ import { ButtonModule } from "../button";
 import { CalloutModule } from "../callout";
 import { LayoutComponent } from "../layout";
 import { mockLayoutI18n } from "../layout/mocks";
-import { I18nMockService } from "../utils";
 import {
   disableBothThemeDecorator,
   positionFixedWrapperDecorator,
-} from "../utils/storybook-decorators";
+} from "../stories/storybook-decorators";
+import { I18nMockService } from "../utils";
 
 import { DrawerBodyComponent } from "./drawer-body.component";
 import { DrawerHeaderComponent } from "./drawer-header.component";

@@ -6,8 +6,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { CalloutModule } from "../callout";
 import { NavigationModule } from "../navigation";
+import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
-import { positionFixedWrapperDecorator } from "../utils/storybook-decorators";
 
 import { LayoutComponent } from "./layout.component";
 import { mockLayoutI18n } from "./mocks";

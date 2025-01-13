@@ -5,6 +5,7 @@ import {
   Component,
   effect,
   inject,
+  input,
   model,
   viewChild,
 } from "@angular/core";
@@ -28,13 +29,26 @@ export class DrawerComponent {
   private portal = viewChild(CdkPortal);
 
   /**
-   * Controls the visibility of the drawer
+   * Whether or not the drawer is open.
    *
    * Note: Does not support implicit boolean transform due to Angular limitation. Must be bound explicitly `[open]="true"` instead of just `open`.
    **/
   open = model<boolean>(false);
 
+  /**
+   * The ARIA role of the drawer.
+   *
+   * - [complimentary](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/complementary_role)
+   *    - For drawers that contain content that is complimentary to the page's main content. (default)
+   * - [navigation](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/navigation_role)
+   *    - For drawers that primary contain links to other content.
+   */
+  role = input<"complimentary" | "navigation">("complimentary");
+
   constructor() {
+    /**
+     * When a drawer opens, attach it and close all other drawers
+     */
     effect(
       () => {
         const portal = this.portal();
