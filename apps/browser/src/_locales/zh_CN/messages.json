@@ -290,7 +290,7 @@
     "message": "前往帮助中心吗？"
   },
   "continueToHelpCenterDesc": {
-    "message": "访问帮助中心了解更多如何使用 Bitwarden 的信息。"
+    "message": "在帮助中心进一步了解如何使用 Bitwarden。"
   },
   "continueToBrowserExtensionStore": {
     "message": "前往浏览器扩展商店吗？"
@@ -834,7 +834,7 @@
     "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来截取此网站的验证器二维码，或者手动复制并粘贴密钥到此字段。"
   },
   "learnMoreAboutAuthenticators": {
-    "message": "了解更多关于验证器的信息"
+    "message": "进一步了解验证器"
   },
   "copyTOTP": {
     "message": "复制验证器密钥 (TOTP)"
@@ -1514,10 +1514,10 @@
     "message": "不完整或不信任的网站可以利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "了解更多关于风险的信息"
+    "message": "进一步了解风险"
   },
   "learnMoreAboutAutofill": {
-    "message": "了解更多关于自动填充的信息"
+    "message": "进一步了解自动填充"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "登录项目的默认自动填充设置"
@@ -2318,14 +2318,14 @@
     "message": "一个组织策略正影响您的所有权选项。"
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "组织策略已阻止将项目导入您的个人密码库。"
+    "message": "某个组织策略已阻止将项目导入您的个人密码库。"
   },
   "domainsTitle": {
     "message": "域名",
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "已屏蔽的域名"
+    "message": "屏蔽域名"
   },
   "excludedDomains": {
     "message": "排除域名"
@@ -2364,7 +2364,7 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "已屏蔽的域名更改已保存"
+    "message": "屏蔽域名更改已保存"
   },
   "excludedDomainsSavedSuccess": {
     "message": "排除域名更改已保存"
@@ -4875,7 +4875,7 @@
     "message": "稍后提醒我"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能可正常访问您的电子邮箱 $EMAIL$ 吗？",
+    "message": "您可以正常访问您的电子邮箱 $EMAIL$ 吗？",
     "placeholders": {
       "email": {
         "content": "$1",
