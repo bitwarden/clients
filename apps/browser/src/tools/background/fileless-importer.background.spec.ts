@@ -39,7 +39,7 @@ describe("FilelessImporterBackground ", () => {
   let tabMock: chrome.tabs.Tab;
 
   beforeEach(() => {
-    domainSettingsService.blockedInteractionsUris$ = of(null);
+    domainSettingsService.blockedInteractionsUris$ = of({});
     policyService.policyAppliesToActiveUser$.mockImplementation(() => of(true));
     scriptInjectorService = new BrowserScriptInjectorService(
       domainSettingsService,

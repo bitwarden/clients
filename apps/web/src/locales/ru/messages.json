@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Подтвердите вашу личность"
   },
+  "whatIsADevice": {
+    "message": "Что такое устройство?"
+  },
+  "aDeviceIs": {
+    "message": "Устройство - это уникальная установка приложения Bitwarden, в которой вы авторизовались. Переустановка, очистка данных приложения или очистка файлов cookie может привести к тому, что устройство будет отображаться несколько раз."
+  },
   "logInInitiated": {
     "message": "Вход инициирован"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Пожалуйста, войдите снова."
+  },
+  "currentSession": {
+    "message": "Текущая сессия"
+  },
+  "requestPending": {
+    "message": "Запрос в ожидании"
   },
   "logBackInOthersToo": {
     "message": "Пожалуйста, войдите снова. Если вы используете другие приложения Bitwarden, выполните на них выход и повторный вход."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "У вас осталось 1 приглашение."
+  },
   "userUsingTwoStep": {
     "message": "Этот пользователь использует двухэтапную аутентификацию для защиты своего аккаунта."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Устройство"
+  },
+  "loginStatus": {
+    "message": "Статус входа"
+  },
+  "firstLogin": {
+    "message": "Первый вход"
+  },
+  "trusted": {
+    "message": "Доверенный"
   },
   "creatingAccountOn": {
     "message": "Создание аккаунта"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Ошибка"
+  },
+  "decryptionError": {
+    "message": "Ошибка расшифровки"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden не удалось расшифровать элемент(ы) хранилища, перечисленные ниже."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Обратитесь в службу поддержки,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "чтобы избежать дополнительной потери данных.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Для управления пользователями также необходимо предоставить разрешение на управление восстановлением аккаунта"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Одобрить запрос"
   },
+  "deviceApproved": {
+    "message": "Устройство одобрено"
+  },
+  "deviceRemoved": {
+    "message": "Устройство удалено"
+  },
+  "removeDevice": {
+    "message": "Удалить устройство"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Вы уверены, что хотите удалить это устройство?"
+  },
   "noDeviceRequests": {
     "message": "Нет запросов устройств"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Удалить участников"
   },
+  "devices": {
+    "message": "Устройства"
+  },
+  "deviceListDescription": {
+    "message": "Ваш аккаунт был авторизован на каждом из перечисленных ниже устройств. Если устройство вам не знакомо, удалите его сейчас."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Ваш аккаунт авторизован на перечисленных ниже устройствах."
+  },
   "claimedDomains": {
     "message": "Зарегистрированные домены"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Подписка организации перезапущена"
+  },
+  "restartSubscription": {
+    "message": "Перезапустить подписку"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Обратитесь за помощью к $PROVIDER$.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

@@ -8,8 +8,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
+import { RouterService } from "@bitwarden/web-vault/app/core";
 
-import { RouterService } from "../../../../../../../apps/web/src/app/core/router.service";
 import { ProjectView } from "../../models/view/project.view";
 import { ProjectService } from "../project.service";
 

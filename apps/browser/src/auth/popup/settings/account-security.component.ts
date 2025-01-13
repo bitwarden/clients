@@ -206,6 +206,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         switchMap(async () => {
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           const biometricSettingAvailable =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) ||
             (status !== BiometricsStatus.DesktopDisconnected &&
               status !== BiometricsStatus.NotEnabledInConnectedDesktopApp) ||
             (await this.vaultTimeoutSettingsService.isBiometricLockSet());

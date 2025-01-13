@@ -1,14 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { inject } from "@angular/core";
-import { combineLatest, defer, map, Observable } from "rxjs";
+import { combineLatest, defer, firstValueFrom, map, Observable } from "rxjs";
 
 import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
+import {
+  BiometricsService,
+  BiometricsStatus,
+  BiometricStateService,
+} from "@bitwarden/key-management";
 import { LockComponentService, UnlockOptions } from "@bitwarden/key-management/angular";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
@@ -19,6 +23,7 @@ export class ExtensionLockComponentService implements LockComponentService {
   private readonly biometricsService = inject(BiometricsService);
   private readonly pinService = inject(PinServiceAbstraction);
   private readonly routerService = inject(BrowserRouterService);
+  private readonly biometricStateService = inject(BiometricStateService);
 
   getPreviousUrl(): string | null {
     return this.routerService.getPreviousUrl();
@@ -45,7 +50,13 @@ export class ExtensionLockComponentService implements LockComponentService {
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
       // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
-      defer(async () => await this.biometricsService.getBiometricsStatusForUser(userId)),
+      defer(async () => {
+        if (!(await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$))) {
+          return BiometricsStatus.NotEnabledLocally;
+        } else {
+          return await this.biometricsService.getBiometricsStatusForUser(userId);
+        }
+      }),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
       defer(() => this.pinService.isPinDecryptionAvailable(userId)),
     ]).pipe(
