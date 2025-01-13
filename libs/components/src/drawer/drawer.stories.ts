@@ -59,7 +59,9 @@ export const Default: Story = {
             
             <!-- Note: bit-drawer does *not* need to be a direct descendant of bit-layout. -->
             <bit-drawer [(open)]="open" #drawer>
-              <bit-drawer-header title="Hello Bitwaaaaaaaaaaaaaaaaaaaaaaaaarden!"></bit-drawer-header>
+              <bit-drawer-header title="Hello Bitwaaaaaaaaaaaaaaaaaaaaaaaaarden!">
+                <i slot="start" class="bwi bwi-key" aria-hidden="true"></i>
+              </bit-drawer-header>
               <bit-drawer-body>
                 <p bitTypography="body1">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
