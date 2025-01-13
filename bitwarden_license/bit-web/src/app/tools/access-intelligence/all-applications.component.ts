@@ -192,7 +192,7 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     return item.applicationName;
   }
 
-showAppAtRiskMembers = async (applicationName: string) => {
+  showAppAtRiskMembers = async (applicationName: string) => {
     openAppAtRiskMembersDialog(this.dialogService, {
       members:
         this.dataSource.data.find((app) => app.applicationName === applicationName)
