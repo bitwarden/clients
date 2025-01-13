@@ -39,6 +39,7 @@
       [title]="'atRiskApplications' | i18n"
       [value]="applicationSummary.totalAtRiskApplicationCount"
       [maxValue]="applicationSummary.totalApplicationCount"
+      (click)="showOrgAtRiskApps()"
     >
     </tools-card>
   </div>

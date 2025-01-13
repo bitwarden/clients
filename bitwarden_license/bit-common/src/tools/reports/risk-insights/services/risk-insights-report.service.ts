@@ -12,6 +12,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   ApplicationHealthReportDetail,
   ApplicationHealthReportSummary,
+  AtRiskApplicationDetail,
   AtRiskMemberDetail,
   CipherHealthReportDetail,
   CipherHealthReportUriDetail,
@@ -110,6 +111,30 @@ export class RiskInsightsReportService {
 
     return Array.from(memberRiskMap.entries()).map(([email, atRiskPasswordCount]) => ({
       email,
+      atRiskPasswordCount,
+    }));
+  }
+
+  generateAtRiskApplicationList(
+    cipherHealthReportDetails: ApplicationHealthReportDetail[],
+  ): AtRiskApplicationDetail[] {
+    const appsRiskMap = new Map<string, number>();
+
+    cipherHealthReportDetails
+      .filter((app) => app.atRiskPasswordCount > 0)
+      .forEach((app) => {
+        if (appsRiskMap.has(app.applicationName)) {
+          appsRiskMap.set(
+            app.applicationName,
+            appsRiskMap.get(app.applicationName) + app.atRiskPasswordCount,
+          );
+        } else {
+          appsRiskMap.set(app.applicationName, app.atRiskPasswordCount);
+        }
+      });
+
+    return Array.from(appsRiskMap.entries()).map(([applicationName, atRiskPasswordCount]) => ({
+      applicationName,
       atRiskPasswordCount,
     }));
   }

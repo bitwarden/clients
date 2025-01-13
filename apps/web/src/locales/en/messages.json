@@ -122,8 +122,20 @@
       }
     }
   },
+  "atRiskApplicationsWithCount": {
+    "message": "At-risk Applications ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "atRiskMembersDescription": {
     "message": "These members are logging into applications with weak, exposed, or reused passwords."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "These applications have weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
