@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   AUTOFILL_CARD_ID,
   AUTOFILL_ID,
@@ -149,6 +150,7 @@ export class MainContextMenuHandler {
     private i18nService: I18nService,
     private logService: LogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -168,11 +170,13 @@ export class MainContextMenuHandler {
     this.initRunning = true;
 
     try {
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      const hasPremium = await firstValueFrom(
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      );
+
       for (const options of this.initContextMenuItems) {
-        if (
-          options.checkPremiumAccess &&
-          !(await firstValueFrom(this.billingAccountProfileStateService.hasPremiumFromAnySource$))
-        ) {
+        if (options.checkPremiumAccess && !hasPremium) {
           continue;
         }
 
@@ -267,8 +271,9 @@ export class MainContextMenuHandler {
         await createChildItem(COPY_USERNAME_ID);
       }
 
+      const account = await firstValueFrom(this.accountService.activeAccount$);
       const canAccessPremium = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       );
       if (canAccessPremium && (!cipher || !Utils.isNullOrEmpty(cipher.login?.totp))) {
         await createChildItem(COPY_VERIFICATION_CODE_ID);

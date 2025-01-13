@@ -117,14 +117,7 @@ describe("EmergencyAccessService", () => {
         const granteeId = "grantee-id";
         const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
-        const mockPublicKeyB64 = "some-public-key-in-base64";
-
-        // const publicKey = Utils.fromB64ToArray(publicKeyB64);
-
-        const mockUserPublicKeyResponse = new UserKeyResponse({
-          UserId: granteeId,
-          PublicKey: mockPublicKeyB64,
-        });
+        const publicKey = new Uint8Array(64);
 
         const mockUserPublicKeyEncryptedUserKey = new EncString(
           EncryptionType.AesCbc256_HmacSha256_B64,
@@ -132,14 +125,13 @@ describe("EmergencyAccessService", () => {
         );
 
         keyService.getUserKey.mockResolvedValueOnce(mockUserKey);
-        apiService.getUserPublicKey.mockResolvedValueOnce(mockUserPublicKeyResponse);
 
         encryptService.rsaEncrypt.mockResolvedValueOnce(mockUserPublicKeyEncryptedUserKey);
 
         emergencyAccessApiService.postEmergencyAccessConfirm.mockResolvedValueOnce();
 
         // Act
-        await emergencyAccessService.confirm(id, granteeId);
+        await emergencyAccessService.confirm(id, granteeId, publicKey);
 
         // Assert
         expect(emergencyAccessApiService.postEmergencyAccessConfirm).toHaveBeenCalledWith(id, {

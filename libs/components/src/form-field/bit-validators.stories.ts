@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { FormsModule, ReactiveFormsModule, FormBuilder } from "@angular/forms";
 import { StoryObj, Meta, moduleMetadata } from "@storybook/angular";
 
@@ -51,7 +49,7 @@ const template = `
   </form>`;
 
 export const ForbiddenCharacters: StoryObj<BitFormFieldComponent> = {
-  render: (args: BitFormFieldComponent) => ({
+  render: (args) => ({
     props: {
       formObj: new FormBuilder().group({
         name: ["", forbiddenCharacters(["\\", "/", "@", "#", "$", "%", "^", "&", "*", "(", ")"])],
@@ -62,7 +60,7 @@ export const ForbiddenCharacters: StoryObj<BitFormFieldComponent> = {
 };
 
 export const TrimValidator: StoryObj<BitFormFieldComponent> = {
-  render: (args: BitFormFieldComponent) => ({
+  render: (args) => ({
     props: {
       formObj: new FormBuilder().group({
         name: [
