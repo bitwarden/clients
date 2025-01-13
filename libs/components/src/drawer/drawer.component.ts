@@ -15,7 +15,7 @@ import { DrawerHostDirective } from "./drawer-host.directive";
 /**
  * A drawer is a panel of supplmentary content that is adjacement to the page's main content.
  *
- * Drawers render in `bit-layout`.
+ * Drawers render in `bit-layout`. Drawers must be a descendant of `bit-layout`, but they do not need to be a direct descendant.
  */
 @Component({
   selector: "bit-drawer",
@@ -32,6 +32,7 @@ export class DrawerComponent {
    * Whether or not the drawer is open.
    *
    * Note: Does not support implicit boolean transform due to Angular limitation. Must be bound explicitly `[open]="true"` instead of just `open`.
+   * https://github.com/angular/angular/issues/55166#issuecomment-2032150999
    **/
   open = model<boolean>(false);
 

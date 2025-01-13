@@ -13,6 +13,7 @@ import {
   disableBothThemeDecorator,
   positionFixedWrapperDecorator,
 } from "../stories/storybook-decorators";
+import { TypographyModule } from "../typography";
 import { I18nMockService } from "../utils";
 
 import { DrawerBodyComponent } from "./drawer-body.component";
@@ -31,7 +32,14 @@ export default {
     positionFixedWrapperDecorator(),
     disableBothThemeDecorator,
     moduleMetadata({
-      imports: [RouterTestingModule, LayoutComponent, DrawerModule, ButtonModule, CalloutModule],
+      imports: [
+        RouterTestingModule,
+        LayoutComponent,
+        DrawerModule,
+        ButtonModule,
+        CalloutModule,
+        TypographyModule,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -84,6 +92,7 @@ export const Headless: Story = {
             <p>The drawer is {{ open ? "open" : "closed" }}.<p>
             <button type="button" bitButton (click)="drawer.toggle()">Toggle</button>
             <bit-drawer [(open)]="open" #drawer>
+              <h2 bitTypography="h2"></h2>
               Hello world!
             </bit-drawer>
         </bit-layout>

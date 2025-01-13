@@ -8,7 +8,9 @@ import { DrawerComponent } from "./drawer.component";
  * @example
  *
  * ```html
- * <button type="button" bitButton bitDrawerClose>Close</button>
+ * <bit-drawer>
+ *  <button type="button" bitButton bitDrawerClose>Close</button>
+ * </bit-drawer>
  * ```
  **/
 @Directive({
