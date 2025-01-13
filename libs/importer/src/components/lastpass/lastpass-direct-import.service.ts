@@ -12,9 +12,9 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { DialogService } from "../../../../components/src/dialog";
 import { ClientInfo, Vault } from "../../importers/lastpass/access";
 import { FederatedUserContext } from "../../importers/lastpass/access/models";
 

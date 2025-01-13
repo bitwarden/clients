@@ -567,7 +567,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SdkClientFactory,
-    useFactory: (logService) =>
+    useFactory: (logService: LogService) =>
       flagEnabled("sdk") ? new BrowserSdkClientFactory(logService) : new NoopSdkClientFactory(),
     deps: [LogService],
   }),

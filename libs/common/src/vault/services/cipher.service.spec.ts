@@ -3,6 +3,8 @@ import { BehaviorSubject, map, of } from "rxjs";
 
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import {
   CipherDecryptionKeys,
   KeyService,
@@ -359,6 +361,7 @@ describe("Cipher Service", () => {
     const originalUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
     const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
     let decryptedCiphers: BehaviorSubject<Record<CipherId, CipherView>>;
+    let failedCiphers: BehaviorSubject<CipherView[]>;
     let encryptedKey: EncString;
 
     beforeEach(() => {
@@ -385,6 +388,7 @@ describe("Cipher Service", () => {
         Cipher2: cipher2,
       });
       cipherService.cipherViews$ = decryptedCiphers.pipe(map((ciphers) => Object.values(ciphers)));
+      cipherService.failedToDecryptCiphers$ = failedCiphers = new BehaviorSubject<CipherView[]>([]);
 
       encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
       encryptedKey = new EncString("Re-encrypted Cipher Key");
@@ -412,6 +416,17 @@ describe("Cipher Service", () => {
       await expect(cipherService.getRotatedData(originalUserKey, null, mockUserId)).rejects.toThrow(
         "New user key is required to rotate ciphers",
       );
+    });
+
+    it("throws if the user has any failed to decrypt ciphers", async () => {
+      const badCipher = new CipherView(cipherObj);
+      badCipher.id = "Cipher 3";
+      badCipher.organizationId = null;
+      badCipher.decryptionFailure = true;
+      failedCiphers.next([badCipher]);
+      await expect(
+        cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId),
+      ).rejects.toThrow("Cannot rotate ciphers when decryption failures are present");
     });
   });
 });

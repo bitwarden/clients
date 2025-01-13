@@ -257,7 +257,7 @@ export class NativeMessagingBackground {
       message.command == BiometricsCommands.Unlock ||
       message.command == BiometricsCommands.IsAvailable
     ) {
-      // TODO remove after 2025.01
+      // TODO remove after 2025.3
       // wait until there is no other callbacks, or timeout
       const call = await firstValueFrom(
         race(

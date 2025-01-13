@@ -2324,6 +2324,9 @@
     "message": "Domény",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Blokované domény"
+  },
   "excludedDomains": {
     "message": "Vyloučené domény"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden nebude žádat o uložení přihlašovacích údajů pro tyto domény pro všechny přihlášené účty. Aby se změny projevily, musíte stránku obnovit."
+  },
+  "blockedDomainsDesc": {
+    "message": "Automatické vyplňování a další související funkce nebudou pro tyto webové stránky nabízeny. Aby se změny projevily, musíte stránku aktualizovat."
+  },
+  "autofillBlockedNotice": {
+    "message": "Automatické vyplňování je pro tento web zablokováno. Zkontrolujte to nebo to změňte v nastavení."
+  },
+  "autofillBlockedTooltip": {
+    "message": "Automatické vyplňování je pro tento web zablokováno. Zkontrolujte to v nastavení."
   },
   "websiteItemLabel": {
     "message": "Webová stránka $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Změny v zablokovaných doménách byly uloženy"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Vyloučené změny domény byly uloženy"
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Chyba"
+  },
+  "decryptionError": {
+    "message": "Chyba dešifrování"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nemohl dešifrovat níže uvedené položky v trezoru."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktujte zákaznickou podporu,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "abyste zabránili ztrátě dat.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Vygenerovat uživatelské jméno"
@@ -4640,6 +4669,33 @@
   },
   "noEditPermissions": {
     "message": "Nemáte oprávnění upravit tuto položku"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrické odemknutí je nedostupné, protože je potřeba nejprve odemknout pomocí PIN nebo hesla."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrické odemknutí je momentálně nedostupné."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrické odemknutí není dostupné kvůli chybnému nastavení systémových souborů."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrické odemknutí není dostupné kvůli chybnému nastavení systémových souborů."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometrické odemknutí není dostupné, protože je aplikace Bitwarden zavřena."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometrické odemknutí není dostupné, protože není povoleno pro $EMAIL$ v desktopové aplikaci Bitwarden.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrické odemknutí je momentálně z neznámého důvodu nedostupné."
   },
   "authenticating": {
     "message": "Ověřování"

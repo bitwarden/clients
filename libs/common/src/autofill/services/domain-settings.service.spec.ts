@@ -29,7 +29,7 @@ describe("DefaultDomainSettingsService", () => {
 
     jest.spyOn(domainSettingsService, "getUrlEquivalentDomains");
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
-    domainSettingsService.blockedInteractionsUris$ = of(null);
+    domainSettingsService.blockedInteractionsUris$ = of({});
   });
 
   describe("getUrlEquivalentDomains", () => {

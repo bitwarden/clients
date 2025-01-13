@@ -4,8 +4,7 @@ import { Directive, HostListener, Input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
-import { ToastVariant } from "@bitwarden/components/src/toast/toast.component";
+import { ToastService, ToastVariant } from "@bitwarden/components";
 
 @Directive({
   selector: "[appCopyClick]",

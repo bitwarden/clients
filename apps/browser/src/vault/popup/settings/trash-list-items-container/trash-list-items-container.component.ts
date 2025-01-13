@@ -7,6 +7,7 @@ import { Router } from "@angular/router";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -19,7 +20,14 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { CanDeleteCipherDirective, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CanDeleteCipherDirective,
+  DecryptionFailureDialogComponent,
+  OrgIconDirective,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
+
+import { PopupCipherView } from "../../views/popup-cipher.view";
 
 @Component({
   selector: "app-trash-list-items-container",
@@ -34,7 +42,9 @@ import { CanDeleteCipherDirective, PasswordRepromptService } from "@bitwarden/va
     CanDeleteCipherDirective,
     MenuModule,
     IconButtonModule,
+    OrgIconDirective,
     TypographyModule,
+    DecryptionFailureDialogComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -43,7 +53,7 @@ export class TrashListItemsContainerComponent {
    * The list of trashed items to display.
    */
   @Input()
-  ciphers: CipherView[] = [];
+  ciphers: PopupCipherView[] = [];
 
   @Input()
   headerText: string;
@@ -57,6 +67,17 @@ export class TrashListItemsContainerComponent {
     private passwordRepromptService: PasswordRepromptService,
     private router: Router,
   ) {}
+
+  /**
+   * The tooltip text for the organization icon for ciphers that belong to an organization.
+   */
+  orgIconTooltip(cipher: PopupCipherView) {
+    if (cipher.collectionIds.length > 1) {
+      return this.i18nService.t("nCollections", cipher.collectionIds.length);
+    }
+
+    return cipher.collections[0]?.name;
+  }
 
   async restore(cipher: CipherView) {
     try {
@@ -105,6 +126,13 @@ export class TrashListItemsContainerComponent {
   }
 
   async onViewCipher(cipher: CipherView) {
+    if (cipher.decryptionFailure) {
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: [cipher.id as CipherId],
+      });
+      return;
+    }
+
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
     if (!repromptPassed) {
       return;

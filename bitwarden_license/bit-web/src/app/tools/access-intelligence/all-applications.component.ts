@@ -19,6 +19,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
+  DialogService,
   Icons,
   NoItemsModule,
   SearchModule,
@@ -30,6 +31,8 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
+import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
+import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
@@ -99,6 +102,7 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     protected dataService: RiskInsightsDataService,
     protected organizationService: OrganizationService,
     protected reportService: RiskInsightsReportService,
+    protected dialogService: DialogService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -134,6 +138,21 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
   trackByFunction(_: number, item: ApplicationHealthReportDetail) {
     return item.applicationName;
   }
+
+  showAppAtRiskMembers = async (applicationName: string) => {
+    openAppAtRiskMembersDialog(this.dialogService, {
+      members:
+        this.dataSource.data.find((app) => app.applicationName === applicationName)
+          ?.atRiskMemberDetails ?? [],
+      applicationName,
+    });
+  };
+
+  showOrgAtRiskMembers = async () => {
+    this.dialogService.open(OrgAtRiskMembersDialogComponent, {
+      data: this.reportService.generateAtRiskMemberList(this.dataSource.data),
+    });
+  };
 
   onCheckboxChange(id: number, event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;

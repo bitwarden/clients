@@ -32,15 +32,14 @@ import {
   switchMap,
   takeUntil,
   tap,
-  withLatestFrom,
 } from "rxjs/operators";
 
 import {
   CollectionAdminService,
   CollectionAdminView,
-  Unassigned,
   CollectionService,
   CollectionView,
+  Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
@@ -71,16 +70,17 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import {
+  BannerModule,
   DialogService,
   Icons,
   NoItemsModule,
   ToastService,
-  BannerModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,
   CollectionAssignmentResult,
+  DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
@@ -134,6 +134,7 @@ import {
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
 import { AdminConsoleCipherFormConfigService } from "./services/admin-console-cipher-form-config.service";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
 
@@ -192,6 +193,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected currentSearchText$: Observable<string>;
   protected freeTrial$: Observable<FreeTrial>;
   protected resellerWarning$: Observable<ResellerWarning | null>;
+  protected prevCipherId: string | null = null;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -536,19 +538,38 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     firstSetup$
       .pipe(
-        switchMap(() => this.route.queryParams),
-        // Only process the queryParams if the dialog is not open (only when extension refresh is enabled)
+        switchMap(() => combineLatest([this.route.queryParams, allCipherMap$])),
         filter(() => this.vaultItemDialogRef == undefined || !this.extensionRefreshEnabled),
-        withLatestFrom(allCipherMap$, allCollections$, organization$),
         switchMap(async ([qParams, allCiphersMap]) => {
           const cipherId = getCipherIdFromParams(qParams);
+
           if (!cipherId) {
+            this.prevCipherId = null;
             return;
           }
-          const cipher = allCiphersMap[cipherId];
 
+          if (cipherId === this.prevCipherId) {
+            return;
+          }
+
+          this.prevCipherId = cipherId;
+
+          const cipher = allCiphersMap[cipherId];
           if (cipher) {
             let action = qParams.action;
+
+            if (action == "showFailedToDecrypt") {
+              DecryptionFailureDialogComponent.open(this.dialogService, {
+                cipherIds: [cipherId as CipherId],
+              });
+              await this.router.navigate([], {
+                queryParams: { itemId: null, cipherId: null, action: null },
+                queryParamsHandling: "merge",
+                replaceUrl: true,
+              });
+              return;
+            }
+
             // Default to "view" if extension refresh is enabled
             if (action == null && this.extensionRefreshEnabled) {
               action = "view";
@@ -1160,6 +1181,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
       // Navigate away if we deleted the collection we were viewing
       if (this.selectedCollection?.node.id === collection.id) {
+        // Clear the cipher cache to clear the deleted collection from the cipher state
+        await this.cipherService.clear();
         void this.router.navigate([], {
           queryParams: { collectionId: this.selectedCollection.parent?.node.id ?? null },
           queryParamsHandling: "merge",
