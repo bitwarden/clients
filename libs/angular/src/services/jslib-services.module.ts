@@ -301,6 +301,8 @@ import {
   IndividualVaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { NewDeviceVerificationNoticeService } from "../../../vault/src/services/new-device-verification-notice.service";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { ViewCacheService } from "../platform/abstractions/view-cache.service";

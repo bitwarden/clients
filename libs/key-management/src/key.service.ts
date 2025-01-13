@@ -12,37 +12,93 @@ import {
   switchMap,
 } from "rxjs";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "../../auth/src/common/abstractions";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { EncryptedOrganizationKeyData } from "../../common/src/admin-console/models/data/encrypted-organization-key.data";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { BaseEncryptedOrganizationKey } from "../../common/src/admin-console/models/domain/encrypted-organization-key";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ProfileOrganizationResponse } from "../../common/src/admin-console/models/response/profile-organization.response";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ProfileProviderOrganizationResponse } from "../../common/src/admin-console/models/response/profile-provider-organization.response";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ProfileProviderResponse } from "../../common/src/admin-console/models/response/profile-provider.response";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { AccountService } from "../../common/src/auth/abstractions/account.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { InternalMasterPasswordServiceAbstraction } from "../../common/src/auth/abstractions/master-password.service.abstraction";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "../../common/src/platform/abstractions/encrypt.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeyGenerationService } from "../../common/src/platform/abstractions/key-generation.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { LogService } from "../../common/src/platform/abstractions/log.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { PlatformUtilsService } from "../../common/src/platform/abstractions/platform-utils.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { StateService } from "../../common/src/platform/abstractions/state.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeySuffixOptions, HashPurpose } from "../../common/src/platform/enums";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { convertValues } from "../../common/src/platform/misc/convert-values";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { Utils } from "../../common/src/platform/misc/utils";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { EFFLongWordList } from "../../common/src/platform/misc/wordlist";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { EncString, EncryptedString } from "../../common/src/platform/models/domain/enc-string";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "../../common/src/platform/models/domain/symmetric-crypto-key";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "../../common/src/platform/services/key-state/org-keys.state";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "../../common/src/platform/services/key-state/provider-keys.state";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import {
   USER_ENCRYPTED_PRIVATE_KEY,
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
 } from "../../common/src/platform/services/key-state/user-key.state";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ActiveUserState, StateProvider } from "../../common/src/platform/state";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { VAULT_TIMEOUT } from "../../common/src/services/vault-timeout/vault-timeout-settings.state";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { CsprngArray } from "../../common/src/types/csprng";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { OrganizationId, ProviderId, UserId } from "../../common/src/types/guid";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import {
   OrgKey,
   UserKey,
@@ -52,6 +108,8 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "../../common/src/types/key";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { VaultTimeoutStringType } from "../../common/src/types/vault-timeout.type";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";

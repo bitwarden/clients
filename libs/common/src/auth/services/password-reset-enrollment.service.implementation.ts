@@ -8,6 +8,8 @@ import {
 } from "@bitwarden/admin-console/common";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { I18nService } from "../../platform/abstractions/i18n.service";

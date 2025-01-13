@@ -2324,6 +2324,9 @@
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Blocked domains"
+  },
   "excludedDomains": {
     "message": "Ausgeschlossene Domains"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden wird für alle angemeldeten Konten nicht danach fragen Zugangsdaten für diese Domains speichern. Du musst die Seite neu laden, damit die Änderungen wirksam werden."
+  },
+  "blockedDomainsDesc": {
+    "message": "Autofill und andere zugehörige Funktionen werden für diese Websites nicht angeboten. Sie müssen die Seite aktualisieren, damit die Änderungen wirksam werden."
+  },
+  "autofillBlockedNotice": {
+    "message": "Das automatische Ausfüllen ist für diese Website gesperrt. Dieses Verhalten kann in den Einstellungen überprüft oder geändert werden."
+  },
+  "autofillBlockedTooltip": {
+    "message": "Autofill is blocked on this website. Review in settings."
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Blocked domain changes saved"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Änderungen der ausgeschlossenen Domain gespeichert"
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Fehler"
+  },
+  "decryptionError": {
+    "message": "Entschlüsselungsfehler"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden konnte den unten aufgelisteten Tresoreintrag bzw. die Tresoreinträge nicht entschlüsseln."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Benutzername generieren"
@@ -4640,6 +4669,33 @@
   },
   "noEditPermissions": {
     "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "authenticating": {
     "message": "Authentifizierung"
