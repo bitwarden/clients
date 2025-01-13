@@ -124,6 +124,12 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
   protected async doSearch(indexedCiphers?: CipherView[]) {
     indexedCiphers = indexedCiphers ?? (await firstValueFrom(this.cipherService.cipherViews$));
+
+    const failedCiphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$);
+    if (failedCiphers != null && failedCiphers.length > 0) {
+      indexedCiphers = [...failedCiphers, ...indexedCiphers];
+    }
+
     this.ciphers = await this.searchService.searchCiphers(
       this.searchText,
       [this.filter, this.deletedFilter],

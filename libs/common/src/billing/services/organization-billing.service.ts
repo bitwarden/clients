@@ -223,4 +223,17 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
       request.additionalStorageGb = information.storage;
     }
   }
+
+  async restartSubscription(
+    organizationId: string,
+    subscription: SubscriptionInformation,
+  ): Promise<void> {
+    const request = new OrganizationCreateRequest();
+    const organizationKeys = await this.makeOrganizationKeys();
+    this.setOrganizationKeys(request, organizationKeys);
+    this.setOrganizationInformation(request, subscription.organization);
+    this.setPlanInformation(request, subscription.plan);
+    this.setPaymentInformation(request, subscription.payment);
+    await this.billingApiService.restartSubscription(organizationId, request);
+  }
 }

@@ -2324,6 +2324,9 @@
     "message": "Domēna vārdi",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Liegtie domēna vārdi"
+  },
   "excludedDomains": {
     "message": "Izņēmuma domēni"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden nevaicās saglabāt pieteikšanās datus visiem šī domēna kontiem, kuri ir pieteikušies. Ir jāpārlādē lapa, lai iedarbotos izmaiņas."
+  },
+  "blockedDomainsDesc": {
+    "message": "Automātiskā aizpilde un citas saistītās iespējas šajās tīmekļvietnēs netiks piedāvātas. Ir jāatsvaidzina lapa, lai izmaiņas iedarbotos."
+  },
+  "autofillBlockedNotice": {
+    "message": "Automātiskā aizpilde šajā tīmekļvietnē ir liegta. Šo pārskatīt vai mainīt var iestatījumos."
+  },
+  "autofillBlockedTooltip": {
+    "message": "Automātiskā aizpilde šajā tīmekļvietnē ir liegta. Šo var pārskatīt iestatījumos."
   },
   "websiteItemLabel": {
     "message": "Tīmekļvietne $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Liegtā domēna vārda izmaiņas sglabātas"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Saglabātas vērā neņemto domēna vārdu izmaiņas"
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Kļūda"
+  },
+  "decryptionError": {
+    "message": "Atšifrēšanas kļūda"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nevarēja atšifrēt zemāk uzskaitītos glabātavas vienumus."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Jāsazinās ar klientu atbalstu,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "lai izvairītos no papildu datu zaudējumiem.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Izveidot lietotājvārdu"
@@ -4640,6 +4669,33 @@
   },
   "noEditPermissions": {
     "message": "Nav nepieciešamo atļauju, lai labotu šo vienumu"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Atslēgšana ar biometriju nav pieejama, jo vispirms ir nepieciešama atslēgšana ar PIN vai paroli."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Atslēgšana ar biometriju pašlaik nav pieejama."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Atslēgšana ar biometriju nav pieejama nepareizi konfigurētu sistēmas datņu dēļ."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Atslēgšana ar biometriju nav pieejama nepareizi konfigurētu sistēmas datņu dēļ."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Atslēgšana ar biometriju nav pieejama, jo Bitwarden darbvirsmas lietotne ir aizvērta."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Atslēgšana ar biometriju nav pieejama, jo tā nav iespējota $EMAIL$ Bitwarden darbvirsmas lietotnē.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Atslēgšana ar biometriju pašlaik nav pieejama nezināma iemesla dēļ."
   },
   "authenticating": {
     "message": "Autentificē"
