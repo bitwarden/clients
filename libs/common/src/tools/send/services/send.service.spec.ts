@@ -3,8 +3,8 @@ import { firstValueFrom, of } from "rxjs";
 
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
+import { KeyService } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import {
   FakeAccountService,
   FakeActiveUserState,
