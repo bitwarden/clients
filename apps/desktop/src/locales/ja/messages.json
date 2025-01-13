@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "入力されたパスワードは脆弱かつすでに流出済みです。アカウントを守るためより強力で一意なパスワードを使用してください。本当にこの脆弱なパスワードを使用しますか？"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "このパスワードの既知のデータ流出を確認"
   },

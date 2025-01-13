@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Słabe hasło ujawnione w wyniku naruszenia ochrony danych. Użyj silnego i unikalnego hasła, aby chronić swoje konto. Czy na pewno chcesz użyć tego hasła?"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "Sprawdź znane naruszenia ochrony danych tego hasła"
   },

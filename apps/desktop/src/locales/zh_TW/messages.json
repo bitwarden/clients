@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "密碼強度不足，且該密碼已洩露。請使用一個強度足夠和獨特的密碼來保護您的帳戶。您確定要使用這個密碼嗎？"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "檢查外洩的密碼資料庫中是否包含此密碼"
   },
