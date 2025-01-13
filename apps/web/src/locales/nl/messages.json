@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Controleer je identiteit"
   },
+  "whatIsADevice": {
+    "message": "Wat is een apparaat?"
+  },
+  "aDeviceIs": {
+    "message": "Een apparaat is een unieke installatie van de Bitwarden-app waar je bent ingelogd. Het opnieuw installeren, verwijderen van app-gegevens of het wissen van uw cookies kan zorgen voor het meerdere keren weergeven van dat apparaat."
+  },
   "logInInitiated": {
     "message": "Inloggen gestart"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Log opnieuw in."
+  },
+  "currentSession": {
+    "message": "Huidige sessie"
+  },
+  "requestPending": {
+    "message": "Verzoek in behandeling"
   },
   "logBackInOthersToo": {
     "message": "Svp opnieuw inloggen. Als je andere Bitwarden-applicaties gebruikt, dan moet je daar ook uit- en inloggen."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Je hebt 1 uitnodiging over."
+  },
   "userUsingTwoStep": {
     "message": "Het account van deze gebruiker is beschermd met tweestapsaanmelding."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Apparaat"
+  },
+  "loginStatus": {
+    "message": "Loginstatus"
+  },
+  "firstLogin": {
+    "message": "Eerst inloggen"
+  },
+  "trusted": {
+    "message": "Vertrouwd"
   },
   "creatingAccountOn": {
     "message": "Account maken bij"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Fout"
+  },
+  "decryptionError": {
+    "message": "Ontsleutelingsfout"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kon de onderstaande kluisitem(s) niet ontsleutelen."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Neem contact op met de klantenservice",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "om extra dataverlies te voorkomen.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Gebruikers beheren moet je ook accountherstel beheren toekennen"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Aanvraag goedkeuren"
   },
+  "deviceApproved": {
+    "message": "Apparaat goedgekeurd"
+  },
+  "deviceRemoved": {
+    "message": "Apparaat verwijderd"
+  },
+  "removeDevice": {
+    "message": "Apparaat verwijderen"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Weet je zeker dat je dit apparaat wilt verwijderen?"
+  },
   "noDeviceRequests": {
     "message": "Geen apparaatverzoeken"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Leden verwijderen"
   },
+  "devices": {
+    "message": "Apparaten"
+  },
+  "deviceListDescription": {
+    "message": "Je account is op elk van de onderstaande apparaten aangemeld. Als je een apparaat niet herkent, verwijder het nu."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Je account is op elk van de onderstaande apparaten aangemeld."
+  },
   "claimedDomains": {
     "message": "Geverifieerde domeinen"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organisatieabonnement hervat"
+  },
+  "restartSubscription": {
+    "message": "Abonnement hervatten"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Neem contact op met $PROVIDER$ voor hulp.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

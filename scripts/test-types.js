@@ -16,10 +16,15 @@ function getFiles(dir) {
   return results;
 }
 
-const files = getFiles(path.join(__dirname, "..", "libs")).filter((file) => {
-  const name = path.basename(file);
-  return name === "tsconfig.spec.json";
-});
+const files = getFiles(path.join(__dirname, "..", "libs"))
+  .filter((file) => {
+    const name = path.basename(file);
+    return name === "tsconfig.spec.json";
+  })
+  .filter((path) => {
+    // Exclude shared since it's not actually a library
+    return !path.includes("libs/shared/");
+  });
 
 concurrently([
   {

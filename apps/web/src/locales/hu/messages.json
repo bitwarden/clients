@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Személyazonosság ellenőrzése"
   },
+  "whatIsADevice": {
+    "message": "Mi az eszköz?"
+  },
+  "aDeviceIs": {
+    "message": "Az eszköz a Bitwarden alkalmazás egyedi telepítése, amelyre bejelentkeztünk. Az alkalmazás adatok újratelepítése, törlése vagy a sütik törlése azt eredményezheti, hogy egy eszköz többször is megjelenhet."
+  },
   "logInInitiated": {
     "message": "A bejelentkezés elindításra került."
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Ismételten be kell jelentkezni."
+  },
+  "currentSession": {
+    "message": "Jelenlegi munkamenet"
+  },
+  "requestPending": {
+    "message": "Függőben lévő kérelem"
   },
   "logBackInOthersToo": {
     "message": "Ismételten be kell jelentkezni. Ha másik Bitwarden alkalmazásokat használunk, ott is jelentkezzünk ki és ismételten be."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "1 meghívó maradt."
+  },
   "userUsingTwoStep": {
     "message": "Ez a felhasználó kétlépcsős bejelentkezést használ fiókja védelmére."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Eszköz"
+  },
+  "loginStatus": {
+    "message": "Bejelentkezési állapot"
+  },
+  "firstLogin": {
+    "message": "Első bejelentkezés"
+  },
+  "trusted": {
+    "message": "Megbízható"
   },
   "creatingAccountOn": {
     "message": "Fiók létrehozása:"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Hiba"
+  },
+  "decryptionError": {
+    "message": "Visszafejtési hiba"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "A Bitwarden nem tudta visszafejteni az alább felsorolt ​​széf elemeket."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Ügyfélszolgálat elérése",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "további adatvesztés elkerülése érdekében.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "A felhasználók kezelését engedélyezni kell a Jelszó visszaállításának kezelése jogosultsággal is."
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Kérés megerősítése"
   },
+  "deviceApproved": {
+    "message": "Az eszköz jóváhagyásra került."
+  },
+  "deviceRemoved": {
+    "message": "Az eszköz eltávolításra került."
+  },
+  "removeDevice": {
+    "message": "Eszköz eltávolítása"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Biztos eltávolításra kerüljön ez az eszköz?"
+  },
   "noDeviceRequests": {
     "message": "Nincs eszköz kérés"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Tagok eltávolítása"
   },
+  "devices": {
+    "message": "Eszközök"
+  },
+  "deviceListDescription": {
+    "message": "A fiók az alábbi eszközök mindegyikére bejelentkezett. Ha nem ismerünk fel egy eszközt, távolítsuk el most."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "A fiók az alábbi eszközök mindegyikére bejelentkezett."
+  },
   "claimedDomains": {
     "message": "Igényelt tartományok"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "A szervezeti feliratkozás újraindult."
+  },
+  "restartSubscription": {
+    "message": "Feliratkozás újra indítása"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Segítséget $PROVIDER$ szolgáltatótól kaphatunk.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }
