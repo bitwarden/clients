@@ -7,11 +7,13 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
 import {
   CipherFormConfig,
@@ -71,6 +73,13 @@ describe("AddEditV2Component", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: CipherService, useValue: cipherServiceMock },
         { provide: EventCollectionService, useValue: { collect } },
+        { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: CipherAuthorizationService,
+          useValue: {
+            canDeleteCipher$: jest.fn().mockReturnValue(true),
+          },
+        },
       ],
     })
       .overrideProvider(CipherFormConfigService, {
@@ -324,6 +333,25 @@ describe("AddEditV2Component", () => {
       await component.handleBackButton();
 
       expect(back).toHaveBeenCalled();
+    });
+  });
+
+  describe("delete", () => {
+    it("dialogService openSimpleDialog called when deleteBtn is hit", async () => {
+      const dialogSpy = jest
+        .spyOn(component["dialogService"], "openSimpleDialog")
+        .mockResolvedValue(true);
+
+      await component.delete();
+      expect(dialogSpy).toHaveBeenCalled();
+    });
+
+    it("should call deleteCipher when user confirms deletion", async () => {
+      const deleteCipherSpy = jest.spyOn(component as any, "deleteCipher");
+      jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
+
+      await component.delete();
+      expect(deleteCipherSpy).toHaveBeenCalled();
     });
   });
 });
