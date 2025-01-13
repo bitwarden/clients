@@ -1,28 +1,18 @@
 import { Injectable } from "@angular/core";
-import {
-  Subject,
-  Observable,
-  combineLatest,
-  firstValueFrom,
-  map,
-  mergeMap,
-  take,
-  switchMap,
-  of,
-} from "rxjs";
+import { Observable, combineLatest, firstValueFrom, map, filter, mergeMap, take } from "rxjs";
 
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   StateProvider,
-  ActiveUserState,
   PREMIUM_BANNER_DISK_LOCAL,
   BANNERS_DISMISSED_DISK,
   UserKeyDefinition,
+  SingleUserState,
 } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PBKDF2KdfConfig, KdfConfigService, KdfType } from "@bitwarden/key-management";
 
@@ -62,47 +52,25 @@ export const BANNERS_DISMISSED_DISK_KEY = new UserKeyDefinition<SessionBanners[]
 
 @Injectable()
 export class VaultBannersService {
-  shouldShowPremiumBanner$: Observable<boolean>;
-
-  private premiumBannerState: ActiveUserState<PremiumBannerReprompt>;
-  private sessionBannerState: ActiveUserState<SessionBanners[]>;
-
-  /**
-   * Emits when the sync service has completed a sync
-   *
-   * This is needed because `hasPremiumFromAnySource$` will emit false until the sync is completed
-   * resulting in the premium banner being shown briefly on startup when the user has access to
-   * premium features.
-   */
-  private syncCompleted$ = new Subject<void>();
-
   constructor(
-    private tokenService: TokenService,
-    private userVerificationService: UserVerificationService,
+    private accountService: AccountService,
     private stateProvider: StateProvider,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private platformUtilsService: PlatformUtilsService,
     private kdfConfigService: KdfConfigService,
     private syncService: SyncService,
-    private accountService: AccountService,
-  ) {
-    this.pollUntilSynced();
-    this.premiumBannerState = this.stateProvider.getActive(PREMIUM_BANNER_REPROMPT_KEY);
-    this.sessionBannerState = this.stateProvider.getActive(BANNERS_DISMISSED_DISK_KEY);
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+  ) {}
 
-    const premiumSources$ = this.accountService.activeAccount$.pipe(
-      take(1),
-      switchMap((account) => {
-        return combineLatest([
-          account
-            ? this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
-            : of(false),
-          this.premiumBannerState.state$,
-        ]);
-      }),
-    );
+  shouldShowPremiumBanner$(userId: UserId): Observable<boolean> {
+    const premiumBannerState = this.premiumBannerState(userId);
+    const premiumSources$ = combineLatest([
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+      premiumBannerState.state$,
+    ]);
 
-    this.shouldShowPremiumBanner$ = this.syncCompleted$.pipe(
+    return this.syncService.lastSync$(userId).pipe(
+      filter((lastSync) => lastSync !== null),
       take(1), // Wait until the first sync is complete before considering the premium status
       mergeMap(() => premiumSources$),
       map(([canAccessPremium, dismissedState]) => {
@@ -122,9 +90,9 @@ export class VaultBannersService {
   }
 
   /** Returns true when the update browser banner should be shown */
-  async shouldShowUpdateBrowserBanner(): Promise<boolean> {
+  async shouldShowUpdateBrowserBanner(userId: UserId): Promise<boolean> {
     const outdatedBrowser = window.navigator.userAgent.indexOf("MSIE") !== -1;
-    const alreadyDismissed = (await this.getBannerDismissedState()).includes(
+    const alreadyDismissed = (await this.getBannerDismissedState(userId)).includes(
       VisibleVaultBanner.OutdatedBrowser,
     );
 
@@ -132,10 +100,12 @@ export class VaultBannersService {
   }
 
   /** Returns true when the verify email banner should be shown */
-  async shouldShowVerifyEmailBanner(): Promise<boolean> {
-    const needsVerification = !(await this.tokenService.getEmailVerified());
+  async shouldShowVerifyEmailBanner(userId: UserId): Promise<boolean> {
+    const needsVerification = !(
+      await firstValueFrom(this.accountService.accounts$.pipe(map((accounts) => accounts[userId])))
+    )?.emailVerified;
 
-    const alreadyDismissed = (await this.getBannerDismissedState()).includes(
+    const alreadyDismissed = (await this.getBannerDismissedState(userId)).includes(
       VisibleVaultBanner.VerifyEmail,
     );
 
@@ -143,12 +113,14 @@ export class VaultBannersService {
   }
 
   /** Returns true when the low KDF iteration banner should be shown */
-  async shouldShowLowKDFBanner(): Promise<boolean> {
-    const hasLowKDF = (await this.userVerificationService.hasMasterPassword())
-      ? await this.isLowKdfIteration()
+  async shouldShowLowKDFBanner(userId: UserId): Promise<boolean> {
+    const hasLowKDF = (
+      await firstValueFrom(this.userDecryptionOptionsService.userDecryptionOptionsById$(userId))
+    )?.hasMasterPassword
+      ? await this.isLowKdfIteration(userId)
       : false;
 
-    const alreadyDismissed = (await this.getBannerDismissedState()).includes(
+    const alreadyDismissed = (await this.getBannerDismissedState(userId)).includes(
       VisibleVaultBanner.KDFSettings,
     );
 
@@ -156,11 +128,11 @@ export class VaultBannersService {
   }
 
   /** Dismiss the given banner and perform any respective side effects */
-  async dismissBanner(banner: SessionBanners): Promise<void> {
+  async dismissBanner(userId: UserId, banner: SessionBanners): Promise<void> {
     if (banner === VisibleVaultBanner.Premium) {
-      await this.dismissPremiumBanner();
+      await this.dismissPremiumBanner(userId);
     } else {
-      await this.sessionBannerState.update((current) => {
+      await this.sessionBannerState(userId).update((current) => {
         const bannersDismissed = current ?? [];
 
         return [...bannersDismissed, banner];
@@ -168,16 +140,32 @@ export class VaultBannersService {
     }
   }
 
+  /**
+   *
+   * @returns a SingleUserState for the premium banner reprompt state
+   */
+  private premiumBannerState(userId: UserId): SingleUserState<PremiumBannerReprompt> {
+    return this.stateProvider.getUser(userId, PREMIUM_BANNER_REPROMPT_KEY);
+  }
+
+  /**
+   *
+   * @returns a SingleUserState for the session banners dismissed state
+   */
+  private sessionBannerState(userId: UserId): SingleUserState<SessionBanners[]> {
+    return this.stateProvider.getUser(userId, BANNERS_DISMISSED_DISK_KEY);
+  }
+
   /** Returns banners that have already been dismissed */
-  private async getBannerDismissedState(): Promise<SessionBanners[]> {
+  private async getBannerDismissedState(userId: UserId): Promise<SessionBanners[]> {
     // `state$` can emit null when a value has not been set yet,
     // use nullish coalescing to default to an empty array
-    return (await firstValueFrom(this.sessionBannerState.state$)) ?? [];
+    return (await firstValueFrom(this.sessionBannerState(userId).state$)) ?? [];
   }
 
   /** Increment dismissal state of the premium banner  */
-  private async dismissPremiumBanner(): Promise<void> {
-    await this.premiumBannerState.update((current) => {
+  private async dismissPremiumBanner(userId: UserId): Promise<void> {
+    await this.premiumBannerState(userId).update((current) => {
       const numberOfDismissals = current?.numberOfDismissals ?? 0;
       const now = new Date();
 
@@ -213,22 +201,11 @@ export class VaultBannersService {
     });
   }
 
-  private async isLowKdfIteration() {
-    const kdfConfig = await this.kdfConfigService.getKdfConfig();
+  private async isLowKdfIteration(userId: UserId) {
+    const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
     return (
       kdfConfig.kdfType === KdfType.PBKDF2_SHA256 &&
       kdfConfig.iterations < PBKDF2KdfConfig.ITERATIONS.defaultValue
     );
-  }
-
-  /** Poll the `syncService` until a sync is completed */
-  private pollUntilSynced() {
-    const interval = setInterval(async () => {
-      const lastSync = await this.syncService.getLastSync();
-      if (lastSync !== null) {
-        clearInterval(interval);
-        this.syncCompleted$.next();
-      }
-    }, 200);
   }
 }

@@ -231,6 +231,20 @@ export class AppComponent implements OnDestroy, OnInit {
             }
             break;
           }
+          case "syncOrganizationCollectionSettingChanged": {
+            const { organizationId, limitCollectionCreation, limitCollectionDeletion } = message;
+            const organizations = await firstValueFrom(this.organizationService.organizations$);
+            const organization = organizations.find((org) => org.id === organizationId);
+
+            if (organization) {
+              await this.organizationService.upsert({
+                ...organization,
+                limitCollectionCreation: limitCollectionCreation,
+                limitCollectionDeletion: limitCollectionDeletion,
+              });
+            }
+            break;
+          }
           default:
             break;
         }

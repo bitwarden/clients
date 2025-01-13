@@ -12,8 +12,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   ApplicationHealthReportDetail,
   ApplicationHealthReportSummary,
-  AtRiskApplicationDetail,
   AtRiskMemberDetail,
+  AtRiskApplicationDetail,
   CipherHealthReportDetail,
   CipherHealthReportUriDetail,
   ExposedPasswordDetail,

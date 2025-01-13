@@ -32,7 +32,11 @@ export class SshKey extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<SshKeyView> {
+  decrypt(
+    orgId: string,
+    context = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<SshKeyView> {
     return this.decryptObj(
       new SshKeyView(),
       {
@@ -42,6 +46,7 @@ export class SshKey extends Domain {
       },
       orgId,
       encKey,
+      "DomainType: SshKey; " + context,
     );
   }
 

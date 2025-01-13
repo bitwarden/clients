@@ -15,8 +15,14 @@ import {
 } from "@bitwarden/components";
 import { VaultIcons } from "@bitwarden/vault";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ItemGroupComponent } from "../../../../../../libs/components/src/item/item-group.component";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ItemModule } from "../../../../../../libs/components/src/item/item.module";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { NoItemsModule } from "../../../../../../libs/components/src/no-items/no-items.module";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";

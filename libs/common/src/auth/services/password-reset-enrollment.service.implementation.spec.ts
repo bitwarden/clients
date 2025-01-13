@@ -4,7 +4,11 @@ import { BehaviorSubject } from "rxjs";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { UserId } from "../../../../common/src/types/guid";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationAutoEnrollStatusResponse } from "../../admin-console/models/response/organization-auto-enroll-status.response";
