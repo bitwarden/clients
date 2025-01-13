@@ -105,6 +105,8 @@ export class OffboardingSurveyComponent {
       feedback: this.formGroup.value.feedback,
     };
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.dialogParams.type === "Organization"
       ? await this.billingApiService.cancelOrganizationSubscription(this.dialogParams.id, request)
       : await this.billingApiService.cancelPremiumUserSubscription(request);

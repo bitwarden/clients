@@ -342,6 +342,8 @@ export class NativeMessagingBackground {
         };
       }
       this.port.postMessage(msg);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.info(
         "[Native Messaging IPC] Disconnected from Bitwarden Desktop app because of the native port disconnecting.",

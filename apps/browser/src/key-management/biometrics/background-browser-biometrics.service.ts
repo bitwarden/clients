@@ -65,6 +65,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         }
       }
       return BiometricsStatus.Available;
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return BiometricsStatus.DesktopDisconnected;
     }
@@ -114,6 +116,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
           userId: id,
         })
       ).response;
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return BiometricsStatus.DesktopDisconnected;
     }

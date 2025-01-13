@@ -337,6 +337,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       );
 
       return new SymmetricCryptoKey(userKey) as UserKey;
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // If either decryption effort fails, we want to remove the device key
       this.logService.error("Failed to decrypt using device key. Removing device key.");

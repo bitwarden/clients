@@ -1408,6 +1408,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         url.origin + pathWithoutTrailingSlashAndSearch,
         url.origin + pathWithoutTrailingSlashSearchAndHash,
       ]);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       return null;
     }

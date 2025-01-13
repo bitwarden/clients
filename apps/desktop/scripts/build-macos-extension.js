@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires, no-console */
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const child = require("child_process");
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { exit } = require("process");
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fse = require("fs-extra");
 
 const paths = {

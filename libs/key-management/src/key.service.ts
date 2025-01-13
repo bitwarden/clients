@@ -683,6 +683,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         // failed to decrypt
         return false;
       }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return false;
     }

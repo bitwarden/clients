@@ -177,6 +177,8 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   setDisabledState?(isDisabled: boolean): void {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     isDisabled ? this.uriForm.disable() : this.uriForm.enable();
   }
 }

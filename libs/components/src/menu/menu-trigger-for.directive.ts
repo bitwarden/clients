@@ -69,6 +69,8 @@ export class MenuTriggerForDirective implements OnDestroy {
   ) {}
 
   @HostListener("click") toggleMenu() {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.isOpen ? this.destroyMenu() : this.openMenu();
   }
 

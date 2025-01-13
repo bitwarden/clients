@@ -19,6 +19,8 @@ export class PopupCompactModeService implements CompactModeService {
 
   init() {
     this.enabled$.subscribe((enabled) => {
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       enabled
         ? document.body.classList.add("tw-bit-compact")
         : document.body.classList.remove("tw-bit-compact");

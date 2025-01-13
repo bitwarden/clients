@@ -105,6 +105,8 @@ export class ExpirationOptionsComponent
   }
 
   setDisabledState?(isDisabled: boolean): void {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     isDisabled ? this.form.disable() : this.form.enable();
   }
 

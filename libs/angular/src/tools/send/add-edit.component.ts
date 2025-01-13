@@ -189,6 +189,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.formGroup.controls.selectedDeletionDatePreset.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((datePreset) => {
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         datePreset === DatePreset.Custom
           ? this.formGroup.controls.defaultDeletionDateTime.enable()
           : this.formGroup.controls.defaultDeletionDateTime.disable();
@@ -418,6 +420,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.messagingService.send("emailVerificationRequired");
       }
     }
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.type === SendType.Text || this.editMode
       ? this.formGroup.controls.file.disable()
       : this.formGroup.controls.file.enable();

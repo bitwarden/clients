@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const concurrently = require("concurrently");
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const rimraf = require("rimraf");
 
 const args = process.argv.splice(2);
