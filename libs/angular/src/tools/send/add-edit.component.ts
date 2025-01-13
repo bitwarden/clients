@@ -3,7 +3,15 @@
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil, map, BehaviorSubject, concatMap } from "rxjs";
+import {
+  Subject,
+  firstValueFrom,
+  takeUntil,
+  map,
+  BehaviorSubject,
+  concatMap,
+  switchMap,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -197,8 +205,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     const env = await firstValueFrom(this.environmentService.environment$);
     this.sendLinkBaseUrl = env.getSendUrl();
 
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((hasPremiumFromAnySource) => {
         this.canAccessPremium = hasPremiumFromAnySource;
       });

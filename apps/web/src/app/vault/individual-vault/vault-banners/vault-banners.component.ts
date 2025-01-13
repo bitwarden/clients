@@ -2,8 +2,9 @@
 // @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { Observable } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BannerModule } from "@bitwarden/components";
 
@@ -26,12 +27,17 @@ export class VaultBannersComponent implements OnInit {
   VisibleVaultBanner = VisibleVaultBanner;
   @Input() organizationsPaymentStatus: FreeTrial[] = [];
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   constructor(
     private vaultBannerService: VaultBannersService,
     private router: Router,
     private i18nService: I18nService,
+    private accountService: AccountService,
   ) {
-    this.premiumBannerVisible$ = this.vaultBannerService.shouldShowPremiumBanner$;
+    this.premiumBannerVisible$ = this.activeUserId$.pipe(
+      switchMap((userId) => this.vaultBannerService.shouldShowPremiumBanner$(userId)),
+    );
   }
 
   async ngOnInit(): Promise<void> {
@@ -39,7 +45,8 @@ export class VaultBannersComponent implements OnInit {
   }
 
   async dismissBanner(banner: VisibleVaultBanner): Promise<void> {
-    await this.vaultBannerService.dismissBanner(banner);
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    await this.vaultBannerService.dismissBanner(activeUserId, banner);
 
     await this.determineVisibleBanners();
   }
@@ -57,9 +64,12 @@ export class VaultBannersComponent implements OnInit {
 
   /** Determine which banners should be present */
   private async determineVisibleBanners(): Promise<void> {
-    const showBrowserOutdated = await this.vaultBannerService.shouldShowUpdateBrowserBanner();
-    const showVerifyEmail = await this.vaultBannerService.shouldShowVerifyEmailBanner();
-    const showLowKdf = await this.vaultBannerService.shouldShowLowKDFBanner();
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+
+    const showBrowserOutdated =
+      await this.vaultBannerService.shouldShowUpdateBrowserBanner(activeUserId);
+    const showVerifyEmail = await this.vaultBannerService.shouldShowVerifyEmailBanner(activeUserId);
+    const showLowKdf = await this.vaultBannerService.shouldShowLowKDFBanner(activeUserId);
 
     this.visibleBanners = [
       showBrowserOutdated ? VisibleVaultBanner.OutdatedBrowser : null,

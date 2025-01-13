@@ -180,10 +180,18 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     let decUserKey: Uint8Array;
 
     if (userKey.encryptionType === EncryptionType.AesCbc256_B64) {
-      decUserKey = await this.encryptService.decryptToBytes(userKey, masterKey);
+      decUserKey = await this.encryptService.decryptToBytes(
+        userKey,
+        masterKey,
+        "Content: User Key; Encrypting Key: Master Key",
+      );
     } else if (userKey.encryptionType === EncryptionType.AesCbc256_HmacSha256_B64) {
       const newKey = await this.keyGenerationService.stretchKey(masterKey);
-      decUserKey = await this.encryptService.decryptToBytes(userKey, newKey);
+      decUserKey = await this.encryptService.decryptToBytes(
+        userKey,
+        newKey,
+        "Content: User Key; Encrypting Key: Stretched Master Key",
+      );
     } else {
       throw new Error("Unsupported encryption type.");
     }
