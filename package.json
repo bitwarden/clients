@@ -26,6 +26,7 @@
     "lint:dep-ownership": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/dep-ownership.js",
     "docs:json": "compodoc -p ./tsconfig.json -e json -d . --disableRoutesGraph",
     "storybook": "ng run components:storybook",
+    "storybook:lit": "storybook dev -p 6006 -c apps/browser/src/autofill/content/components/.storybook",
     "build-storybook": "ng run components:build-storybook",
     "build-storybook:ci": "ng run components:build-storybook --webpack-stats-json",
     "postinstall": "patch-package"
@@ -46,6 +47,7 @@
     "@angular/elements": "18.2.13",
     "@babel/core": "7.24.9",
     "@babel/preset-env": "7.24.8",
+    "@babel/preset-typescript": "7.26.0",
     "@compodoc/compodoc": "1.1.26",
     "@electron/notarize": "2.5.0",
     "@electron/rebuild": "3.7.1",
@@ -59,6 +61,7 @@
     "@storybook/angular": "8.4.7",
     "@storybook/manager-api": "8.4.7",
     "@storybook/theming": "8.4.7",
+    "@storybook/web-components-webpack5": "8.4.7",
     "@types/argon2-browser": "1.18.4",
     "@types/chrome": "0.0.280",
     "@types/firefox-webext-browser": "120.0.4",
