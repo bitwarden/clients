@@ -65,7 +65,12 @@ state that is bound to `open`:
 <button (click)="myDrawer.toggle()"></button> <bit-drawer #myDrawer>...</bit-drawer>
 ```
 
-For convenience, close buttons can be created _inside_ the drawer with the `bitDrawerClose` directive:
+Note: Model inputs do not support implicit boolean transformation (see Angular reasoning
+[here](https://github.com/angular/angular/issues/55166#issuecomment-2032150999)). `open` must be
+bound explicitly `<bit-drawer [open]="true">` instead of just `<bit-drawer open>`.
+
+For convenience, close buttons can be created _inside_ the drawer with the `bitDrawerClose`
+directive:
 
 ```html
 <bit-drawer>
