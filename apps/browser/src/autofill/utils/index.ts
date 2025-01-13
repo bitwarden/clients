@@ -549,10 +549,12 @@ export const specialCharacterToKeyMap: Record<string, string> = {
 /**
  * Determines if the current rect values are not all 0.
  */
-export function rectNotZero(rect: FieldRect): boolean {
-  if (rect.right !== 0 && rect.left !== 0 && rect.top !== 0 && rect.bottom !== 0) {
+export function rectHasSize(rect: FieldRect): boolean {
+  if (rect.right > 0 && rect.left > 0 && rect.top > 0 && rect.bottom > 0) {
     return true;
   }
+
+  return false;
 }
 
 /**
