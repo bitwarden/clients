@@ -14,7 +14,7 @@ export const toContainPartialObjects: jest.CustomMatcher = function (
   if (matched) {
     return {
       message: () =>
-        "Expected the received array to NOT include partial matches for all expected objects." +
+        "Expected the received array NOT to include partial matches for all expected objects." +
         EOL +
         diff(expected, received),
       pass: true,
