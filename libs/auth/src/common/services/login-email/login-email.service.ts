@@ -6,6 +6,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import {
   GlobalState,
   KeyDefinition,

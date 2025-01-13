@@ -3,6 +3,8 @@ import { BehaviorSubject, map, of } from "rxjs";
 
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import {
   CipherDecryptionKeys,
   KeyService,

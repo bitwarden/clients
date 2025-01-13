@@ -1,5 +1,8 @@
 {
-  "extends": "../shared/tsconfig.libs",
+  "extends": "../shared/tsconfig",
+  "compilerOptions": {
+    "paths": {}
+  },
   "include": ["src", "spec"],
   "exclude": ["node_modules", "dist"]
 }

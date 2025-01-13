@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { RotateableKeySet } from "../../../../../auth/src/common/models";
 
 export class WebauthnRotateCredentialRequest {
