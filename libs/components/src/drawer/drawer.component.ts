@@ -13,7 +13,7 @@ import {
 import { DrawerHostDirective } from "./drawer-host.directive";
 
 /**
- * A drawer is a panel of supplmentary content that is adjacement to the page's main content.
+ * A drawer is a panel of supplementary content that is adjacent to the page's main content.
  *
  * Drawers render in `bit-layout`. Drawers must be a descendant of `bit-layout`, but they do not need to be a direct descendant.
  */
@@ -39,12 +39,12 @@ export class DrawerComponent {
   /**
    * The ARIA role of the drawer.
    *
-   * - [complimentary](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/complementary_role)
-   *    - For drawers that contain content that is complimentary to the page's main content. (default)
+   * - [complementary](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/complementary_role)
+   *    - For drawers that contain content that is complementary to the page's main content. (default)
    * - [navigation](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/navigation_role)
    *    - For drawers that primary contain links to other content.
    */
-  role = input<"complimentary" | "navigation">("complimentary");
+  role = input<"complementary" | "navigation">("complementary");
 
   constructor() {
     effect(

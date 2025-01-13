@@ -12,7 +12,7 @@ import { DrawerComponent } from "@bitwarden/components";
 
 # Drawer
 
-A drawer is a panel of supplmentary content that is adjacement to the page's main content.
+A drawer is a panel of supplementary content that is adjacent to the page's main content.
 
 <Primary />
 
@@ -42,7 +42,7 @@ components, respectively.
 A title can be passed to the header by input:
 `<bit-drawer-header title="Foobar"></bit-drawer-header>`
 
-Custom content can be rederend before the title with the header's `start` slot:
+Custom content can be rendered before the title with the header's `start` slot:
 
 ```html
 <bit-drawer-header title="Foobar">
@@ -65,7 +65,7 @@ state that is bound to `open`:
 <button (click)="myDrawer.toggle()"></button> <bit-drawer #myDrawer>...</bit-drawer>
 ```
 
-For convience, close buttons can be created _inside_ the drawer with the `bitDrawerClose` directive:
+For convenience, close buttons can be created _inside_ the drawer with the `bitDrawerClose` directive:
 
 ```html
 <bit-drawer>
@@ -104,9 +104,9 @@ Omitting `bit-drawer-header` and `bit-drawer-body` allows for fully customizable
 ```
 
 - The ARIA role of the drawer can be set with the `role` attribute:
-  - [complimentary](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/complementary_role)
+  - [complementary](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/complementary_role)
     (default)
-    - For drawers that contain content that is complimentary to the page's main content.
+    - For drawers that contain content that is complementary to the page's main content.
   - [navigation](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/navigation_role)
     - For drawers that primary contain links to other content.
 
