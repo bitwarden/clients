@@ -11,7 +11,7 @@ class FooFactory {
 }
 
 abstract class FooService {
-  createFoo: (str: string) => string;
+  abstract createFoo(str: string): string;
 }
 
 class DefaultFooService implements FooService {
@@ -29,7 +29,7 @@ class BarFactory {
 }
 
 abstract class BarService {
-  createBar: (num: number) => number;
+  abstract createBar(num: number): number;
 }
 
 class DefaultBarService implements BarService {

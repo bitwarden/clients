@@ -12,8 +12,9 @@ import {
   SkipSelf,
 } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { IconButtonModule } from "../icon-button";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { NavGroupAbstraction, NavItemComponent } from "./nav-item.component";
