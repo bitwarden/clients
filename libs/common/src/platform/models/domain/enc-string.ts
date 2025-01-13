@@ -156,21 +156,21 @@ export class EncString implements Encrypted {
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
 
-  async decrypt(orgId: string, key: SymmetricCryptoKey = null): Promise<string> {
+  async decrypt(orgId: string, key: SymmetricCryptoKey = null, context?: string): Promise<string> {
     if (this.decryptedValue != null) {
       return this.decryptedValue;
     }
 
-    let keyContext = "provided-key";
+    let decryptTrace = "provided-key";
     try {
       if (key == null) {
         key = await this.getKeyForDecryption(orgId);
-        keyContext = orgId == null ? `domain-orgkey-${orgId}` : "domain-userkey|masterkey";
+        decryptTrace = orgId == null ? `domain-orgkey-${orgId}` : "domain-userkey|masterkey";
         if (orgId != null) {
-          keyContext = `domain-orgkey-${orgId}`;
+          decryptTrace = `domain-orgkey-${orgId}`;
         } else {
           const cryptoService = Utils.getContainerService().getKeyService();
-          keyContext =
+          decryptTrace =
             (await cryptoService.getUserKey()) == null
               ? "domain-withlegacysupport-masterkey"
               : "domain-withlegacysupport-userkey";
@@ -181,20 +181,28 @@ export class EncString implements Encrypted {
       }
 
       const encryptService = Utils.getContainerService().getEncryptService();
-      this.decryptedValue = await encryptService.decryptToUtf8(this, key, keyContext);
+      this.decryptedValue = await encryptService.decryptToUtf8(
+        this,
+        key,
+        decryptTrace == null ? context : `${decryptTrace}${context || ""}`,
+      );
     } catch (e) {
       this.decryptedValue = DECRYPT_ERROR;
     }
     return this.decryptedValue;
   }
 
-  async decryptWithKey(key: SymmetricCryptoKey, encryptService: EncryptService) {
+  async decryptWithKey(
+    key: SymmetricCryptoKey,
+    encryptService: EncryptService,
+    decryptTrace: string = "domain-withkey",
+  ): Promise<string> {
     try {
       if (key == null) {
         throw new Error("No key to decrypt EncString");
       }
 
-      this.decryptedValue = await encryptService.decryptToUtf8(this, key, "domain-withkey");
+      this.decryptedValue = await encryptService.decryptToUtf8(this, key, decryptTrace);
     } catch (e) {
       this.decryptedValue = DECRYPT_ERROR;
     }
