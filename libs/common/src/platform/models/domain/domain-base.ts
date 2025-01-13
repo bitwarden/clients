@@ -63,6 +63,7 @@ export default class Domain {
     map: any,
     orgId: string,
     key: SymmetricCryptoKey = null,
+    objectContext: string = "No Domain Context",
   ): Promise<T> {
     const promises = [];
     const self: any = this;
@@ -78,7 +79,11 @@ export default class Domain {
           .then(() => {
             const mapProp = map[theProp] || theProp;
             if (self[mapProp]) {
-              return self[mapProp].decrypt(orgId, key);
+              return self[mapProp].decrypt(
+                orgId,
+                key,
+                `Property: ${prop}; ObjectContext: ${objectContext}`,
+              );
             }
             return null;
           })
@@ -114,12 +119,21 @@ export default class Domain {
     key: SymmetricCryptoKey,
     encryptService: EncryptService,
     _: Constructor<TThis> = this.constructor as Constructor<TThis>,
+    objectContext: string = "No Domain Context",
   ): Promise<DecryptedObject<TThis, TEncryptedKeys>> {
     const promises = [];
 
     for (const prop of encryptedProperties) {
       const value = (this as any)[prop] as EncString;
-      promises.push(this.decryptProperty(prop, value, key, encryptService));
+      promises.push(
+        this.decryptProperty(
+          prop,
+          value,
+          key,
+          encryptService,
+          `Property: ${prop.toString()}; ObjectContext: ${objectContext}`,
+        ),
+      );
     }
 
     const decryptedObjects = await Promise.all(promises);
@@ -137,10 +151,11 @@ export default class Domain {
     value: EncString,
     key: SymmetricCryptoKey,
     encryptService: EncryptService,
+    decryptTrace: string,
   ) {
     let decrypted: string = null;
     if (value) {
-      decrypted = await value.decryptWithKey(key, encryptService);
+      decrypted = await value.decryptWithKey(key, encryptService, decryptTrace);
     } else {
       decrypted = null;
     }

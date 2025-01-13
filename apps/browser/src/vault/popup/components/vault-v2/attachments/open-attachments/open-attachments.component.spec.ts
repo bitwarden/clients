@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -10,7 +10,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -55,7 +54,14 @@ describe("OpenAttachmentsComponent", () => {
   const showFilePopoutMessage = jest.fn().mockReturnValue(false);
 
   const mockUserId = Utils.newGuid() as UserId;
-  const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  const accountService = {
+    activeAccount$: of({
+      id: mockUserId,
+      email: "test@email.com",
+      emailVerified: true,
+      name: "Test User",
+    }),
+  };
 
   beforeEach(async () => {
     openCurrentPagePopout.mockClear();
@@ -63,6 +69,7 @@ describe("OpenAttachmentsComponent", () => {
     showToast.mockClear();
     getOrganization.mockClear();
     showFilePopoutMessage.mockClear();
+    hasPremiumFromAnySource$.next(true);
 
     await TestBed.configureTestingModule({
       imports: [OpenAttachmentsComponent, RouterTestingModule],
@@ -96,7 +103,7 @@ describe("OpenAttachmentsComponent", () => {
     }).compileComponents();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fixture = TestBed.createComponent(OpenAttachmentsComponent);
     component = fixture.componentInstance;
     component.cipherId = "5555-444-3333" as CipherId;
@@ -107,7 +114,7 @@ describe("OpenAttachmentsComponent", () => {
 
   it("opens attachments in new popout", async () => {
     showFilePopoutMessage.mockReturnValue(true);
-
+    component.canAccessAttachments = true;
     await component.ngOnInit();
 
     await component.openAttachments();
@@ -120,7 +127,7 @@ describe("OpenAttachmentsComponent", () => {
 
   it("opens attachments in same window", async () => {
     showFilePopoutMessage.mockReturnValue(false);
-
+    component.canAccessAttachments = true;
     await component.ngOnInit();
 
     await component.openAttachments();

@@ -172,7 +172,7 @@
     "message": "登录凭据"
   },
   "personalDetails": {
-    "message": "个人信息"
+    "message": "个人详细信息"
   },
   "identification": {
     "message": "身份"
@@ -181,10 +181,10 @@
     "message": "联系信息"
   },
   "cardDetails": {
-    "message": "支付卡详情"
+    "message": "支付卡详细信息"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ 详情",
+    "message": "$BRAND$ 详细信息",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -684,7 +684,7 @@
     "message": "项目"
   },
   "itemDetails": {
-    "message": "项目详情"
+    "message": "项目详细信息"
   },
   "itemName": {
     "message": "项目名称"
@@ -958,13 +958,13 @@
     "message": "您的登录会话已过期。"
   },
   "restartRegistration": {
-    "message": "重新开始注册"
+    "message": "重启注册"
   },
   "expiredLink": {
     "message": "失效链接"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "请重新注册或尝试登录。"
+    "message": "请重启注册或尝试登录。"
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "您可能已经有一个账户了"
@@ -1127,6 +1127,12 @@
   },
   "verifyIdentity": {
     "message": "验证您的身份"
+  },
+  "whatIsADevice": {
+    "message": "什么是设备？"
+  },
+  "aDeviceIs": {
+    "message": "设备是您登录过的 Bitwarden App 的独立安装。重新安装、清除 App 数据或清除 Cookie，可能会导致设备多次出现。"
   },
   "logInInitiated": {
     "message": "登录已发起"
@@ -1707,13 +1713,19 @@
     }
   },
   "loggedOutWarning": {
-    "message": "接下来将会注销您当前的会话，要求您重新登录。其他设备上的活动会话可能会继续保持最多一小时。"
+    "message": "继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "emailChanged": {
     "message": "电子邮箱已保存"
   },
   "logBackIn": {
     "message": "请重新登录。"
+  },
+  "currentSession": {
+    "message": "当前会话"
+  },
+  "requestPending": {
+    "message": "请求待处理"
   },
   "logBackInOthersToo": {
     "message": "请重新登录。如果您还在使用其他 Bitwarden 应用程序，也请注销并重新登陆。"
@@ -1795,7 +1807,7 @@
     "message": "您是否担心自己的账户在其他设备上登录过？请按照以下步骤取消对之前使用过的所有计算机或设备的授权。如果您以前使用过公共计算机或不小心曾将密码保存在不属于您的设备上，则建议执行此安全步骤。此步骤还将清除所有以前记住的两步登录会话。"
   },
   "deauthorizeSessionsWarning": {
-    "message": "接下来将会注销您当前的会话，并要求您重新登录。如果有设置两步登录，也需要重新认证。其他设备上的活动会话可能会继续保持最多一小时。"
+    "message": "继续操作还将使您退出当前会话，并要求您重新登录。如果有设置两步登录，也需要重新验证。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "sessionsDeauthorized": {
     "message": "已取消所有会话授权"
@@ -2141,7 +2153,7 @@
     "message": "前往 bitwarden.com 吗？"
   },
   "twoStepContinueToBitwardenUrlDesc": {
-    "message": "Bitwarden 验证器允许您存储验证器密钥以及为两步验证流程生成 TOTP 代码。在 bitwarden.com 网站上了解更多信息。"
+    "message": "Bitwarden 验证器允许您存储验证器密钥以及为两步验证流程生成 TOTP 代码。访问 bitwarden.com 网站了解更多信息。"
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "用您的验证器 App 扫描下面的二维码或输入密钥。"
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "您还剩下 1 个邀请。"
+  },
   "userUsingTwoStep": {
     "message": "此用户正在使用两步登录来保护他们的账户。"
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "设备"
+  },
+  "loginStatus": {
+    "message": "登录状态"
+  },
+  "firstLogin": {
+    "message": "首次登录"
+  },
+  "trusted": {
+    "message": "信任"
   },
   "creatingAccountOn": {
     "message": "创建账户至"
@@ -4819,7 +4843,7 @@
     "message": "先决条件"
   },
   "requireSsoPolicyReq": {
-    "message": "激活此策略前，需先开启「单一组织」企业策略。"
+    "message": "必须先开启「单一组织」企业策略，然后才能激活此策略。"
   },
   "requireSsoPolicyReqError": {
     "message": "单一组织策略未启用。"
@@ -5545,7 +5569,7 @@
     "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。对于新的成员，自动注册后将打开账户恢复功能。"
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "激活此策略前，需先开启「单一组织」企业策略。"
+    "message": "必须先开启「单一组织」企业策略，然后才能激活此策略。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "错误"
+  },
+  "decryptionError": {
+    "message": "解密错误"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden 无法解密下列密码库项目。"
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "联系客户成功团队",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "以避免额外的数据丢失。",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "授予「管理账户恢复」权限时，必须同时授予「管理用户」权限"
@@ -5793,10 +5831,10 @@
     "message": "更新主密码"
   },
   "updateMasterPasswordWarning": {
-    "message": "您的主密码最近被您组织的管理员更改过。要访问此密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
+    "message": "您的主密码最近被您组织的管理员更改过。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "masterPasswordInvalidWarning": {
-    "message": "您的主密码不符合此组织的策略要求。要加入此组织，必须立即更新您的主密码。继续操作将使您退出当前会话，要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
+    "message": "您的主密码不符合此组织的策略要求。要加入此组织，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
@@ -6546,7 +6584,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多个字符生成强大的密码。",
+    "message": " 使用 $RECOMMENDED$ 个或更多字符生成强大的密码。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6556,7 +6594,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多个单词生成强大的密码短语。",
+    "message": " 使用 $RECOMMENDED$ 个或更多单词生成强大的密码短语。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "批准请求"
   },
+  "deviceApproved": {
+    "message": "设备已批准"
+  },
+  "deviceRemoved": {
+    "message": "设备已移除"
+  },
+  "removeDevice": {
+    "message": "移除设备"
+  },
+  "removeDeviceConfirmation": {
+    "message": "确定要移除此设备吗？"
+  },
   "noDeviceRequests": {
     "message": "无设备请求"
   },
@@ -8975,7 +9025,7 @@
     }
   },
   "deleteProviderWarningDescription": {
-    "message": "删除 $ID$ 之前，您必须取消链接所有的客户。",
+    "message": "您必须取消链接所有的客户，然后才能删除 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "移除成员"
   },
+  "devices": {
+    "message": "设备"
+  },
+  "deviceListDescription": {
+    "message": "您的账户在以下设备上登录过。如果您无法识别某个设备，请立即将其移除。"
+  },
+  "deviceListDescriptionTemp": {
+    "message": "您的账户在以下设备上登录过。"
+  },
   "claimedDomains": {
     "message": "已声明的域名"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "组织订阅已重启"
+  },
+  "restartSubscription": {
+    "message": "重启您的订阅"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "联系 $PROVIDER$ 获取协助。",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

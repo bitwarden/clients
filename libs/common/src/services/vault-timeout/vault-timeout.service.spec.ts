@@ -5,6 +5,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
+import { BiometricsService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { SearchService } from "../../abstractions/search.service";
@@ -41,6 +42,7 @@ describe("VaultTimeoutService", () => {
   let stateEventRunnerService: MockProxy<StateEventRunnerService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
   let logService: MockProxy<LogService>;
+  let biometricsService: MockProxy<BiometricsService>;
   let lockedCallback: jest.Mock<Promise<void>, [userId: string]>;
   let loggedOutCallback: jest.Mock<Promise<void>, [logoutReason: LogoutReason, userId?: string]>;
 
@@ -66,6 +68,7 @@ describe("VaultTimeoutService", () => {
     stateEventRunnerService = mock();
     taskSchedulerService = mock<TaskSchedulerService>();
     logService = mock<LogService>();
+    biometricsService = mock<BiometricsService>();
 
     lockedCallback = jest.fn();
     loggedOutCallback = jest.fn();
@@ -93,6 +96,7 @@ describe("VaultTimeoutService", () => {
       stateEventRunnerService,
       taskSchedulerService,
       logService,
+      biometricsService,
       lockedCallback,
       loggedOutCallback,
     );

@@ -4,14 +4,19 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricStateService } from "@bitwarden/key-management";
+import {
+  BiometricsService,
+  BiometricsStatus,
+  BiometricStateService,
+} from "@bitwarden/key-management";
 
 import { WindowMain } from "../../main/window.main";
 
-import BiometricDarwinMain from "./biometric.darwin.main";
-import BiometricWindowsMain from "./biometric.windows.main";
-import { BiometricsService } from "./biometrics.service";
-import { OsBiometricService } from "./desktop.biometrics.service";
+import { MainBiometricsService } from "./main-biometrics.service";
+import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
+import OsBiometricsServiceMac from "./os-biometrics-mac.service";
+import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
+import { OsBiometricService } from "./os-biometrics.service";
 
 jest.mock("@bitwarden/desktop-napi", () => {
   return {
@@ -28,8 +33,7 @@ describe("biometrics tests", function () {
   const biometricStateService = mock<BiometricStateService>();
 
   it("Should call the platformspecific methods", async () => {
-    const userId = "userId-1" as UserId;
-    const sut = new BiometricsService(
+    const sut = new MainBiometricsService(
       i18nService,
       windowMain,
       logService,
@@ -39,21 +43,15 @@ describe("biometrics tests", function () {
     );
 
     const mockService = mock<OsBiometricService>();
-    (sut as any).platformSpecificService = mockService;
-    await sut.setEncryptionKeyHalf({ service: "test", key: "test", value: "test" });
+    (sut as any).osBiometricsService = mockService;
 
-    await sut.canAuthBiometric({ service: "test", key: "test", userId });
-    expect(mockService.osSupportsBiometric).toBeCalled();
-
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    sut.authenticateBiometric();
+    await sut.authenticateBiometric();
     expect(mockService.authenticateBiometric).toBeCalled();
   });
 
   describe("Should create a platform specific service", function () {
     it("Should create a biometrics service specific for Windows", () => {
-      const sut = new BiometricsService(
+      const sut = new MainBiometricsService(
         i18nService,
         windowMain,
         logService,
@@ -62,13 +60,13 @@ describe("biometrics tests", function () {
         biometricStateService,
       );
 
-      const internalService = (sut as any).platformSpecificService;
+      const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(BiometricWindowsMain);
+      expect(internalService).toBeInstanceOf(OsBiometricsServiceWindows);
     });
 
     it("Should create a biometrics service specific for MacOs", () => {
-      const sut = new BiometricsService(
+      const sut = new MainBiometricsService(
         i18nService,
         windowMain,
         logService,
@@ -76,19 +74,33 @@ describe("biometrics tests", function () {
         "darwin",
         biometricStateService,
       );
-      const internalService = (sut as any).platformSpecificService;
+      const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(BiometricDarwinMain);
+      expect(internalService).toBeInstanceOf(OsBiometricsServiceMac);
+    });
+
+    it("Should create a biometrics service specific for Linux", () => {
+      const sut = new MainBiometricsService(
+        i18nService,
+        windowMain,
+        logService,
+        messagingService,
+        "linux",
+        biometricStateService,
+      );
+
+      const internalService = (sut as any).osBiometricsService;
+      expect(internalService).not.toBeNull();
+      expect(internalService).toBeInstanceOf(OsBiometricsServiceLinux);
     });
   });
 
   describe("can auth biometric", () => {
     let sut: BiometricsService;
     let innerService: MockProxy<OsBiometricService>;
-    const userId = "userId-1" as UserId;
 
     beforeEach(() => {
-      sut = new BiometricsService(
+      sut = new MainBiometricsService(
         i18nService,
         windowMain,
         logService,
@@ -98,34 +110,78 @@ describe("biometrics tests", function () {
       );
 
       innerService = mock();
-      (sut as any).platformSpecificService = innerService;
+      (sut as any).osBiometricsService = innerService;
     });
 
-    it("should return false if client key half is required and not provided", async () => {
-      biometricStateService.getRequirePasswordOnStart.mockResolvedValue(true);
+    it("should return the correct biometric status for system status", async () => {
+      const testCases = [
+        // happy path
+        [true, false, false, BiometricsStatus.Available],
+        [false, true, true, BiometricsStatus.AutoSetupNeeded],
+        [false, true, false, BiometricsStatus.ManualSetupNeeded],
+        [false, false, false, BiometricsStatus.HardwareUnavailable],
 
-      const result = await sut.canAuthBiometric({ service: "test", key: "test", userId });
+        // should not happen
+        [false, false, true, BiometricsStatus.HardwareUnavailable],
+        [true, true, true, BiometricsStatus.Available],
+        [true, true, false, BiometricsStatus.Available],
+        [true, false, true, BiometricsStatus.Available],
+      ];
 
-      expect(result).toBe(false);
+      for (const [supportsBiometric, needsSetup, canAutoSetup, expected] of testCases) {
+        innerService.osSupportsBiometric.mockResolvedValue(supportsBiometric as boolean);
+        innerService.osBiometricsNeedsSetup.mockResolvedValue(needsSetup as boolean);
+        innerService.osBiometricsCanAutoSetup.mockResolvedValue(canAutoSetup as boolean);
+
+        const actual = await sut.getBiometricsStatus();
+        expect(actual).toBe(expected);
+      }
     });
 
-    it("should call osSupportsBiometric if client key half is provided", async () => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      sut.setEncryptionKeyHalf({ service: "test", key: "test", value: "test" });
+    it("should return the correct biometric status for user status", async () => {
+      const testCases = [
+        // system status, biometric unlock enabled, require password on start, has key half, result
+        [BiometricsStatus.Available, false, false, false, BiometricsStatus.NotEnabledLocally],
+        [BiometricsStatus.Available, false, true, false, BiometricsStatus.NotEnabledLocally],
+        [BiometricsStatus.Available, false, false, true, BiometricsStatus.NotEnabledLocally],
+        [BiometricsStatus.Available, false, true, true, BiometricsStatus.NotEnabledLocally],
 
-      await sut.canAuthBiometric({ service: "test", key: "test", userId });
-      expect(innerService.osSupportsBiometric).toBeCalled();
-    });
+        [
+          BiometricsStatus.PlatformUnsupported,
+          true,
+          true,
+          true,
+          BiometricsStatus.PlatformUnsupported,
+        ],
+        [BiometricsStatus.ManualSetupNeeded, true, true, true, BiometricsStatus.ManualSetupNeeded],
+        [BiometricsStatus.AutoSetupNeeded, true, true, true, BiometricsStatus.AutoSetupNeeded],
 
-    it("should call osSupportBiometric if client key half is not required", async () => {
-      biometricStateService.getRequirePasswordOnStart.mockResolvedValue(false);
-      innerService.osSupportsBiometric.mockResolvedValue(true);
+        [BiometricsStatus.Available, true, false, true, BiometricsStatus.Available],
+        [BiometricsStatus.Available, true, true, false, BiometricsStatus.UnlockNeeded],
+        [BiometricsStatus.Available, true, false, true, BiometricsStatus.Available],
+      ];
 
-      const result = await sut.canAuthBiometric({ service: "test", key: "test", userId });
+      for (const [
+        systemStatus,
+        unlockEnabled,
+        requirePasswordOnStart,
+        hasKeyHalf,
+        expected,
+      ] of testCases) {
+        sut.getBiometricsStatus = jest.fn().mockResolvedValue(systemStatus as BiometricsStatus);
+        biometricStateService.getBiometricUnlockEnabled.mockResolvedValue(unlockEnabled as boolean);
+        biometricStateService.getRequirePasswordOnStart.mockResolvedValue(
+          requirePasswordOnStart as boolean,
+        );
+        (sut as any).clientKeyHalves = new Map();
+        const userId = "test" as UserId;
+        if (hasKeyHalf) {
+          (sut as any).clientKeyHalves.set(userId, "test");
+        }
 
-      expect(result).toBe(true);
-      expect(innerService.osSupportsBiometric).toHaveBeenCalled();
+        const actual = await sut.getBiometricsStatusForUser(userId);
+        expect(actual).toBe(expected);
+      }
     });
   });
 });
