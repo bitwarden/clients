@@ -89,7 +89,6 @@ import { MemoryStorageService } from "@bitwarden/common/platform/services/memory
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
-import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/default-sdk-load.service";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
@@ -170,6 +169,7 @@ import {
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
+import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { ConsoleLogService } from "../platform/services/console-log.service";
 import { I18nService } from "../platform/services/i18n.service";
 import { LowdbStorageService } from "../platform/services/lowdb-storage.service";
@@ -569,7 +569,7 @@ export class ServiceContainer {
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
-    this.sdkLoadService = new DefaultSdkLoadService();
+    this.sdkLoadService = new CliSdkLoadService();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
