@@ -21,6 +21,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TwoFactorAuthDuoComponent as TwoFactorAuthDuoBaseComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-duo.component";
 
 const BroadcasterSubscriptionId = "TwoFactorComponent";

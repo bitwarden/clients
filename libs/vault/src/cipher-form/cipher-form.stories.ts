@@ -31,7 +31,8 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 // FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";

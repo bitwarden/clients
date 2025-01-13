@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Verify your Identity"
   },
+  "whatIsADevice": {
+    "message": "What is a device?"
+  },
+  "aDeviceIs": {
+    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+  },
   "logInInitiated": {
     "message": "ورود به سیستم آغاز شد"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "لطفاً دوباره وارد شوید."
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "requestPending": {
+    "message": "Request pending"
   },
   "logBackInOthersToo": {
     "message": "لطفاً دوباره وارد شوید. اگر از سایر برنامه‌های Bitwarden استفاده می‌کنید، از سیستم خارج شوید و دوباره به آن‌ها وارد شوید."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "You have 1 invite remaining."
+  },
   "userUsingTwoStep": {
     "message": "این کاربر از ورود دو مرحله ای برای محافظت از حساب خود استفاده می‌کند."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "دستگاه"
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
   },
   "creatingAccountOn": {
     "message": "Creating account on"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "خطا"
+  },
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "مدیر کاربران همچنین باید مجوز مدیریت بازیابی حساب کاربری را داشته باشد"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "درخواست تأیید"
   },
+  "deviceApproved": {
+    "message": "Device approved"
+  },
+  "deviceRemoved": {
+    "message": "Device removed"
+  },
+  "removeDevice": {
+    "message": "Remove device"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Are you sure you want to remove this device?"
+  },
   "noDeviceRequests": {
     "message": "بدون درخواست دستگاه"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Remove members"
   },
+  "devices": {
+    "message": "Devices"
+  },
+  "deviceListDescription": {
+    "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
+  },
   "claimedDomains": {
     "message": "Claimed domains"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organization subscription restarted"
+  },
+  "restartSubscription": {
+    "message": "Restart your subscription"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Contact $PROVIDER$ for assistance.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }
