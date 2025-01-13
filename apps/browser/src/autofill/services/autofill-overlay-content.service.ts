@@ -971,7 +971,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     });
   }
 
-  /**his.formFieldElements
+  /**
    * Gets the bounding client rects for the most recently focused field. This method will
    * attempt to use an intersection observer to get the most recently focused field's
    * bounding client rects. If the intersection observer is not supported, or the

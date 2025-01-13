@@ -70,7 +70,7 @@ import {
   generateDomainMatchPatterns,
   generateRandomChars,
   isInvalidResponseStatusCode,
-  rectNotZero,
+  rectHasSize,
   specialCharacterToKeyMap,
 } from "../utils";
 
@@ -1402,10 +1402,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
     // Calculate the smallest left and largest right values to determine width
     const left = Math.min(
-      ...filteredObjects.filter((obj) => rectNotZero(obj.rect)).map((obj) => obj.rect.left),
+      ...filteredObjects.filter((obj) => rectHasSize(obj.rect)).map((obj) => obj.rect.left),
     );
     const largestRight = Math.max(
-      ...filteredObjects.filter((obj) => rectNotZero(obj.rect)).map((obj) => obj.rect.right),
+      ...filteredObjects.filter((obj) => rectHasSize(obj.rect)).map((obj) => obj.rect.right),
     );
 
     const width = largestRight - left;
