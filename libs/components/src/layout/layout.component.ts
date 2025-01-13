@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { DrawerService } from "../drawer/drawer.service";
+import { DrawerHostDirective } from "../drawer/drawer-host.directive";
 import { LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
 import { SharedModule } from "../shared";
@@ -13,12 +13,13 @@ import { SharedModule } from "../shared";
   templateUrl: "layout.component.html",
   standalone: true,
   imports: [CommonModule, SharedModule, LinkModule, RouterModule, PortalModule],
+  hostDirectives: [DrawerHostDirective],
 })
 export class LayoutComponent {
   protected mainContentId = "main-content";
 
   protected sideNavService = inject(SideNavService);
-  protected drawerPortal = inject(DrawerService).portal;
+  protected drawerPortal = inject(DrawerHostDirective).portal;
 
   focusMainContent() {
     document.getElementById(this.mainContentId)?.focus();

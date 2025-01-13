@@ -10,7 +10,7 @@ import {
   viewChild,
 } from "@angular/core";
 
-import { DrawerService } from "./drawer.service";
+import { DrawerHostDirective } from "./drawer-host.directive";
 
 /**
  * A drawer is a panel of supplmentary content that is adjacement to the page's main content.
@@ -25,7 +25,7 @@ import { DrawerService } from "./drawer.service";
   templateUrl: "drawer.component.html",
 })
 export class DrawerComponent {
-  private drawerService = inject(DrawerService);
+  private drawerHost = inject(DrawerHostDirective);
   private portal = viewChild(CdkPortal);
 
   /**
@@ -57,9 +57,9 @@ export class DrawerComponent {
         }
 
         if (this.open()) {
-          this.drawerService.open(portal);
+          this.drawerHost.open(portal);
         } else {
-          this.drawerService.close(portal);
+          this.drawerHost.close(portal);
         }
       },
       {
@@ -69,7 +69,7 @@ export class DrawerComponent {
 
     effect(
       () => {
-        this.open.set(this.drawerService.portal() === this.portal());
+        this.open.set(this.drawerHost.portal() === this.portal());
       },
       {
         allowSignalWrites: true,

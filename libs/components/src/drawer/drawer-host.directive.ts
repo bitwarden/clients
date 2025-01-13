@@ -1,15 +1,16 @@
 import { Portal } from "@angular/cdk/portal";
-import { Injectable, signal } from "@angular/core";
+import { Directive, signal } from "@angular/core";
 
 /**
- * Controls the visibility of drawers. Consumed by the drawer itself and its container (`bit-layout`).
+ * Host that renders a drawer
  *
  * @internal
  */
-@Injectable({
-  providedIn: "root",
+@Directive({
+  selector: "[bitDrawerHost]",
+  standalone: true,
 })
-export class DrawerService {
+export class DrawerHostDirective {
   /** The portal to display */
   portal = signal<Portal<unknown> | undefined>(undefined);
 
