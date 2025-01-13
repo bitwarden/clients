@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -51,7 +51,7 @@ describe("OpenAttachmentsComponent", () => {
   } as Organization;
 
   const getCipher = jest.fn().mockResolvedValue(cipherDomain);
-  const getOrganization = jest.fn().mockResolvedValue(org);
+  const organizations$ = jest.fn().mockReturnValue(of([org]));
   const showFilePopoutMessage = jest.fn().mockReturnValue(false);
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -61,7 +61,7 @@ describe("OpenAttachmentsComponent", () => {
     openCurrentPagePopout.mockClear();
     getCipher.mockClear();
     showToast.mockClear();
-    getOrganization.mockClear();
+    organizations$.mockClear();
     showFilePopoutMessage.mockClear();
 
     await TestBed.configureTestingModule({
@@ -81,8 +81,8 @@ describe("OpenAttachmentsComponent", () => {
           useValue: { showToast },
         },
         {
-          provide: OrganizationService,
-          useValue: { get: getOrganization },
+          provide: vNextOrganizationService,
+          useValue: { organizations$ },
         },
         {
           provide: FilePopoutUtilsService,
@@ -141,11 +141,11 @@ describe("OpenAttachmentsComponent", () => {
 
   describe("Free Orgs", () => {
     beforeEach(() => {
-      component.cipherIsAPartOfFreeOrg = undefined;
+      component.cipherIsAPartOfFreeOrg = false;
     });
 
     it("sets `cipherIsAPartOfFreeOrg` to false when the cipher is not a part of an organization", async () => {
-      cipherView.organizationId = null;
+      cipherView.organizationId = "";
 
       await component.ngOnInit();
 
@@ -155,6 +155,7 @@ describe("OpenAttachmentsComponent", () => {
     it("sets `cipherIsAPartOfFreeOrg` to true when the cipher is a part of a free organization", async () => {
       cipherView.organizationId = "888-333-333";
       org.productTierType = ProductTierType.Free;
+      org.id = cipherView.organizationId;
 
       await component.ngOnInit();
 
@@ -164,6 +165,7 @@ describe("OpenAttachmentsComponent", () => {
     it("sets `cipherIsAPartOfFreeOrg` to false when the organization is not free", async () => {
       cipherView.organizationId = "888-333-333";
       org.productTierType = ProductTierType.Families;
+      org.id = cipherView.organizationId;
 
       await component.ngOnInit();
 

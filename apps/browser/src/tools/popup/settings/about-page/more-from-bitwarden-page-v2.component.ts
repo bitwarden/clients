@@ -1,10 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { Observable, firstValueFrom } from "rxjs";
+import { Observable, firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DialogService, ItemModule } from "@bitwarden/components";
@@ -38,11 +40,14 @@ export class MoreFromBitwardenPageV2Component {
     private dialogService: DialogService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     private environmentService: EnvironmentService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
+    private accountService: AccountService,
     private familiesPolicyService: FamiliesPolicyService,
   ) {
     this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
-    this.familySponsorshipAvailable$ = this.organizationService.familySponsorshipAvailable$;
+    this.familySponsorshipAvailable$ = getUserId(this.accountService.activeAccount$).pipe(
+      switchMap((userId) => this.organizationService.familySponsorshipAvailable$(userId)),
+    );
     this.hasSingleEnterpriseOrg$ = this.familiesPolicyService.hasSingleEnterpriseOrg$();
     this.isFreeFamilyPolicyEnabled$ = this.familiesPolicyService.isFreeFamilyPolicyEnabled$();
   }

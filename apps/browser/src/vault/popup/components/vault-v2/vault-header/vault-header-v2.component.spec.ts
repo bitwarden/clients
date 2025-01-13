@@ -8,7 +8,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -63,7 +63,7 @@ describe("VaultHeaderV2Component", () => {
         },
         { provide: VaultSettingsService, useValue: mock<VaultSettingsService>() },
         { provide: FolderService, useValue: mock<FolderService>() },
-        { provide: OrganizationService, useValue: mock<OrganizationService>() },
+        { provide: vNextOrganizationService, useValue: mock<vNextOrganizationService>() },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: PolicyService, useValue: mock<PolicyService>() },
         { provide: SearchService, useValue: mock<SearchService>() },

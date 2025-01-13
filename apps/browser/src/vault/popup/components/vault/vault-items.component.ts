@@ -3,13 +3,16 @@
 import { Location } from "@angular/common";
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -53,7 +56,8 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
 
   constructor(
     searchService: SearchService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
+    private accountService: AccountService,
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
@@ -75,7 +79,10 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
 
   async ngOnInit() {
     this.searchTypeSearch = !this.platformUtilsService.isSafari();
-    this.showOrganizations = await this.organizationService.hasOrganizations();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.showOrganizations = await firstValueFrom(
+      this.organizationService.hasOrganizations(userId),
+    );
     this.vaultFilter = this.vaultFilterService.getVaultFilter();
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (params) => {
