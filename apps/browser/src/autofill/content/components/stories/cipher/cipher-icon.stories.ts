@@ -1,9 +1,16 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 
-import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { CipherIcon } from "../../cipher/cipher-icon";
+
+type Args = {
+  color: string;
+  size: string;
+  theme: Theme;
+  uri?: string;
+};
 
 export default {
   title: "Components/Cipher/Cipher Icon",
@@ -18,11 +25,9 @@ export default {
     theme: ThemeTypes.Light,
     uri: "",
   },
-} as Meta;
+} as Meta<Args>;
 
-type Story = StoryObj;
-
-const Template = (args: any) => {
+const Template = (args: Args) => {
   return html`
     <div style="width: ${args.size}; height: ${args.size}; overflow: hidden;">
       ${CipherIcon({ ...args })}
@@ -30,6 +35,6 @@ const Template = (args: any) => {
   `;
 };
 
-export const Default: Story = {
+export const Default: StoryObj<Args> = {
   render: Template,
 };

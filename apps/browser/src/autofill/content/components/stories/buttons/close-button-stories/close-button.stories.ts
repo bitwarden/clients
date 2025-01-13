@@ -1,9 +1,13 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { CloseButton } from "../../../buttons/close-button";
 
+type Args = {
+  handleCloseNotification: (e: Event) => void;
+  theme: Theme;
+};
 export default {
   title: "Components/Buttons/Close Button",
   argTypes: {
@@ -16,12 +20,10 @@ export default {
       alert("Close button clicked!");
     },
   },
-} as Meta;
+} as Meta<Args>;
 
-type Story = StoryObj;
+const Template = (args: Args) => CloseButton({ ...args });
 
-const Template = (args: any) => CloseButton({ ...args });
-
-export const Default: Story = {
+export const Default: StoryObj<Args> = {
   render: Template,
 };

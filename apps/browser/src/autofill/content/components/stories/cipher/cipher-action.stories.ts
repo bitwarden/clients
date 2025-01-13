@@ -1,10 +1,15 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
 import { CipherAction } from "../../../components/cipher/cipher-action";
 
+type Args = {
+  handleAction?: (e: Event) => void;
+  notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
+  theme: Theme;
+};
 export default {
   title: "Components/Cipher/Cipher Action",
   argTypes: {
@@ -22,12 +27,10 @@ export default {
       alert("Action triggered!");
     },
   },
-} as Meta;
+} as Meta<Args>;
 
-type Story = StoryObj;
+const Template = (args: Args) => CipherAction({ ...args });
 
-const Template = (args: any) => CipherAction({ ...args });
-
-export const Default: Story = {
+export const Default: StoryObj<Args> = {
   render: Template,
 };

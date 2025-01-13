@@ -1,8 +1,15 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { BadgeButton } from "../../../buttons/badge-button";
+
+type Args = {
+  buttonAction: (e: Event) => void;
+  buttonText: string;
+  disabled?: boolean;
+  theme: Theme;
+};
 
 export default {
   title: "Components/Buttons/Badge Button",
@@ -18,12 +25,10 @@ export default {
     theme: ThemeTypes.Light,
     buttonAction: () => alert("Clicked"),
   },
-} as Meta;
+} as Meta<Args>;
 
-type Story = StoryObj;
+const Template = (args: Args) => BadgeButton({ ...args });
 
-const Template = (args: any) => BadgeButton({ ...args });
-
-export const Default: Story = {
+export const Default: StoryObj<Args> = {
   render: Template,
 };

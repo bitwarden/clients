@@ -1,8 +1,15 @@
 import { Meta, StoryObj } from "@storybook/web-components";
 
-import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { ActionButton } from "../../../buttons/action-button";
+
+type Args = {
+  buttonText: string;
+  disabled: boolean;
+  theme: Theme;
+  buttonAction: (e: Event) => void;
+};
 
 export default {
   title: "Components/Buttons/Action Button",
@@ -18,12 +25,10 @@ export default {
     theme: ThemeTypes.Light,
     buttonAction: () => alert("Clicked"),
   },
-} as Meta;
+} as Meta<Args>;
 
-type Story = StoryObj;
+const Template = (args: Args) => ActionButton({ ...args });
 
-const Template = (args: any) => ActionButton({ ...args });
-
-export const Default: Story = {
+export const Default: StoryObj<Args> = {
   render: Template,
 };

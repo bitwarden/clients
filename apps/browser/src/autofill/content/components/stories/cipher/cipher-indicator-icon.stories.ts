@@ -1,8 +1,15 @@
 import { Meta, StoryObj } from "@storybook/web-components";
+import { html } from "lit";
 
-import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { CipherInfoIndicatorIcons } from "../../cipher/cipher-indicator-icons";
+
+type Args = {
+  isBusinessOrg?: boolean;
+  isFamilyOrg?: boolean;
+  theme: Theme;
+};
 
 export default {
   title: "Components/Cipher/Cipher Indicator Icon",
@@ -16,20 +23,11 @@ export default {
     isBusinessOrg: true,
     isFamilyOrg: false,
   },
-  parameters: {
-    controls: {
-      exclude: ["isFamilyOrg"],
-    },
-  },
-} as Meta;
+} as Meta<Args>;
 
-type Story = StoryObj;
+const Template: StoryObj<Args>["render"] = (args) =>
+  html`<div>${CipherInfoIndicatorIcons({ ...args })}</div>`;
 
-const Template = (args: any) => {
-  args.isFamilyOrg = !args.isBusinessOrg;
-  return CipherInfoIndicatorIcons({ ...args });
-};
-
-export const Default: Story = {
+export const Default: StoryObj<Args> = {
   render: Template,
 };
