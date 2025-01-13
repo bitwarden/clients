@@ -9,6 +9,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { RouterService } from "../../../../../../../apps/web/src/app/core/router.service";
 import { ProjectView } from "../../models/view/project.view";
 import { ProjectService } from "../project.service";

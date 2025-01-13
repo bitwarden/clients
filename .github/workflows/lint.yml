@@ -54,21 +54,25 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
 
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Lint unowned dependencies
+        run: npm run lint:dep-ownership
+
       - name: Run linter
-        run: |
-          npm ci
-          npm run lint
+        run: npm run lint
 
   rust:
     name: Run Rust lint on ${{ matrix.os }}
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
 
     strategy:
       matrix:
         os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
+          - ubuntu-24.04
+          - macos-14
+          - windows-2022
 
     steps:
       - name: Checkout repo

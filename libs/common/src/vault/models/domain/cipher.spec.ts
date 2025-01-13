@@ -3,6 +3,8 @@ import { Jsonify } from "type-fest";
 
 import { UserId } from "@bitwarden/common/types/guid";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
