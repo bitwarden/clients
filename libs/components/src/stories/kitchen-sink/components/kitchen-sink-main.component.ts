@@ -69,7 +69,7 @@ class KitchenSinkDialog {
           <bit-kitchen-sink-table></bit-kitchen-sink-table>
 
           <button bitButton (click)="openDialog()">Open Dialog</button>
-          <button bitButton (click)="drawerOpen.set(true)">Open Drawer</button>
+          <button bitButton (click)="openDrawer()">Open Drawer</button>
         </bit-section>
         <bit-section>
           <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
@@ -95,7 +95,7 @@ class KitchenSinkDialog {
       </bit-tab>
     </bit-tab-group>
 
-    <bit-drawer [open]="drawerOpen()">
+    <bit-drawer [(open)]="drawerOpen">
       <bit-drawer-header title="Foo ipsum"></bit-drawer-header>
       <bit-drawer-body>
         <p bitTypography="body1">
@@ -165,6 +165,10 @@ export class KitchenSinkMainComponent {
 
   openDialog() {
     this.dialogService.open(KitchenSinkDialog);
+  }
+
+  openDrawer() {
+    this.drawerOpen.set(true);
   }
 
   navItems = [

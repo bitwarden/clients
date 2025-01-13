@@ -11,16 +11,18 @@ import { Directive, signal } from "@angular/core";
   standalone: true,
 })
 export class DrawerHostDirective {
+  private _portal = signal<Portal<unknown> | undefined>(undefined);
+
   /** The portal to display */
-  portal = signal<Portal<unknown> | undefined>(undefined);
+  portal = this._portal.asReadonly();
 
   open(portal: Portal<unknown>) {
-    this.portal.set(portal);
+    this._portal.set(portal);
   }
 
   close(portal: Portal<unknown>) {
-    if (this.portal() === portal) {
-      this.portal.set(undefined);
+    if (portal === this.portal()) {
+      this._portal.set(undefined);
     }
   }
 }

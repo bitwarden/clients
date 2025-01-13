@@ -26,7 +26,7 @@ import { DrawerHostDirective } from "./drawer-host.directive";
 })
 export class DrawerComponent {
   private drawerHost = inject(DrawerHostDirective);
-  private portal = viewChild(CdkPortal);
+  private portal = viewChild.required(CdkPortal);
 
   /**
    * Whether or not the drawer is open.
@@ -46,30 +46,21 @@ export class DrawerComponent {
   role = input<"complimentary" | "navigation">("complimentary");
 
   constructor() {
-    /**
-     * When a drawer opens, attach it and close all other drawers
-     */
     effect(
       () => {
-        const portal = this.portal();
-        if (!portal) {
-          return;
-        }
-
-        if (this.open()) {
-          this.drawerHost.open(portal);
-        } else {
-          this.drawerHost.close(portal);
-        }
+        this.open() ? this.drawerHost.open(this.portal()) : this.drawerHost.close(this.portal());
       },
       {
         allowSignalWrites: true,
       },
     );
 
+    // Set `open` to `false` when another drawer is opened.
     effect(
       () => {
-        this.open.set(this.drawerHost.portal() === this.portal());
+        if (this.drawerHost.portal() !== this.portal()) {
+          this.open.set(false);
+        }
       },
       {
         allowSignalWrites: true,
@@ -77,6 +68,7 @@ export class DrawerComponent {
     );
   }
 
+  /** Toggle the drawer between open & closed */
   toggle() {
     this.open.update((prev) => !prev);
   }
