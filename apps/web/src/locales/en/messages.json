@@ -10084,7 +10084,7 @@
     "message": "Organization name cannot exceed 50 characters."
   },
   "resellerRenewalWarning": {
-    "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10097,7 +10097,7 @@
     }
   },
   "resellerOpenInvoiceWarning": {
-    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10114,7 +10114,7 @@
     }
   },
   "resellerPastDueWarning": {
-    "message": "The invoice for your subscription has not been paid. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
