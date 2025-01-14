@@ -123,7 +123,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk Applications ($COUNT$)",
+    "message": "At-risk applications ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
