@@ -90,6 +90,10 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     return totalSeats > 1 ? totalSeats.toString() : "";
   }
 
+  protected getFormattedPlanNameCadence(cadence: string) {
+    return cadence === "Annual" ? "annually" : "monthly";
+  }
+
   private sumCost(plans: ProviderPlanResponse[]): number {
     return plans.reduce((acc, plan) => acc + plan.cost, 0);
   }

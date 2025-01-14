@@ -25,7 +25,7 @@
               <tr bitRow *ngFor="let i of activePlans">
                 <td bitCell class="tw-pl-0 tw-py-3">
                   {{ getFormattedPlanName(i.planName) }} {{ "orgSeats" | i18n }} ({{
-                    i.cadence.toLowerCase()
+                    getFormattedPlanNameCadence(i.cadence) | i18n
                   }}) {{ "&times;" }}{{ getFormattedSeatCount(i.seatMinimum, i.purchasedSeats) }}
                   &#64;
                   {{
