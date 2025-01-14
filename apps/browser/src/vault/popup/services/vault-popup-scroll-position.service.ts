@@ -32,11 +32,14 @@ export class VaultPopupScrollPositionService {
 
   /** Scrolls the user to the stored scroll position and starts tracking scroll of the page. */
   start(virtualScrollElement: CdkVirtualScrollableElement) {
-    if (this.scrollPosition) {
+    if (this.hasScrollPosition()) {
       // Use `setTimeout` to scroll after rendering is complete
-      setTimeout(async () => {
+      setTimeout(() => {
         virtualScrollElement.scrollTo({ top: this.scrollPosition!, behavior: "instant" });
+        this.showVirtualScrollElement(virtualScrollElement);
       });
+    } else {
+      this.showVirtualScrollElement(virtualScrollElement);
     }
 
     this.scrollSubscription?.unsubscribe();
@@ -59,6 +62,21 @@ export class VaultPopupScrollPositionService {
     if (reset) {
       this.scrollPosition = null;
     }
+  }
+
+  /** Returns true when a scroll position has been stored. */
+  hasScrollPosition() {
+    return this.scrollPosition !== null;
+  }
+
+  /** Hides the virtual scroll element */
+  hideVirtualScrollElement(virtualScrollElement: CdkVirtualScrollableElement) {
+    virtualScrollElement.getElementRef().nativeElement.style.visibility = "hidden";
+  }
+
+  /** Shows the virtual scroll element */
+  showVirtualScrollElement(virtualScrollElement: CdkVirtualScrollableElement) {
+    virtualScrollElement.getElementRef().nativeElement.style.visibility = "visible";
   }
 
   /** Conditionally resets the scroll listeners based on the ending path of the navigation */
