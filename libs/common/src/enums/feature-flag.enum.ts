@@ -13,6 +13,7 @@ export enum FeatureFlag {
   InlineMenuPositioningImprovements = "inline-menu-positioning-improvements",
   InlineMenuTotp = "inline-menu-totp",
   NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
+  NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
 
   BrowserFilelessImport = "browser-fileless-import",
@@ -47,7 +48,6 @@ export enum FeatureFlag {
   PM12443RemovePagingLogic = "pm-12443-remove-paging-logic",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
-  NotificationRefresh = "notification-refresh",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -71,6 +71,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
   [FeatureFlag.InlineMenuTotp]: FALSE,
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
+  [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
 
   [FeatureFlag.BrowserFilelessImport]: FALSE,
@@ -105,7 +106,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM12443RemovePagingLogic]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
-  [FeatureFlag.NotificationRefresh]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
