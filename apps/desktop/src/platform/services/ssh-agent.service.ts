@@ -83,7 +83,6 @@ export class SshAgentService implements OnDestroy {
     this.messageListener
       .messages$(new CommandDefinition("sshagent.signrequest"))
       .pipe(
-        // cancel if disabled
         concatMap(async (message) => {
           const enabled = await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$);
           if (!enabled) {
