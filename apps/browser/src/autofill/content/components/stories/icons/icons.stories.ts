@@ -14,7 +14,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Icons",
+  title: "Components/Icons/Icons",
   argTypes: {
     iconLink: { control: "text" },
     color: { control: "color" },
