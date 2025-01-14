@@ -68,6 +68,7 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
   }
 
   async register() {
+    // We have to override the base component route as we don't need users to
     // complete email verification if they are coming directly an emailed invite.
     await this.router.navigate(["/finish-signup"], {
       queryParams: {

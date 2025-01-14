@@ -81,7 +81,8 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       return;
     }
 
-    // complete email verification if they are coming directly an emailed invite.
+    // We have to override the base component route as we don't need users to complete email verification
+    // if they are coming directly from an emailed org invite.
     await this.router.navigate(["/finish-signup"], {
       queryParams: {
         email: invite.email,
