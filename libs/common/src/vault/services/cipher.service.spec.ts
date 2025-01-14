@@ -1,8 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, map, of } from "rxjs";
 
-import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
-
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -17,6 +15,7 @@ import { SearchService } from "../../abstractions/search.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
+import { BulkEncryptService } from "../../platform/abstractions/bulk-encrypt.service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";

@@ -466,6 +466,8 @@ export class ViewComponent implements OnDestroy, OnInit {
         fileName: attachment.fileName,
         blobData: decBuf,
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
     }

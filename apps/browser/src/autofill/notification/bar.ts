@@ -15,6 +15,8 @@ import {
   NotificationBarIframeInitData,
 } from "./abstractions/notification-bar";
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("./bar.scss");
 
 const logService = new ConsoleLogService(false);

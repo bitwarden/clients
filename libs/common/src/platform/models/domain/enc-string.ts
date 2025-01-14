@@ -125,6 +125,8 @@ export class EncString implements Encrypted {
       try {
         encType = parseInt(headerPieces[0], null);
         encPieces = headerPieces[1].split("|");
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return { encType: NaN, encPieces: [] };
       }
@@ -186,6 +188,8 @@ export class EncString implements Encrypted {
         key,
         decryptTrace == null ? context : `${decryptTrace}${context || ""}`,
       );
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.decryptedValue = DECRYPT_ERROR;
     }
@@ -203,6 +207,8 @@ export class EncString implements Encrypted {
       }
 
       this.decryptedValue = await encryptService.decryptToUtf8(this, key, decryptTrace);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.decryptedValue = DECRYPT_ERROR;
     }

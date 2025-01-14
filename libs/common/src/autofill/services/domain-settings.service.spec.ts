@@ -1,9 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-
 import { FakeStateProvider, FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
 

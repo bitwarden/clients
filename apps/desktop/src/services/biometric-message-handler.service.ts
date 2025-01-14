@@ -265,6 +265,8 @@ export class BiometricMessageHandlerService {
           } else {
             await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
           }
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
         }
@@ -342,6 +344,8 @@ export class BiometricMessageHandlerService {
           appId,
         );
       }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       await this.send(
         { command: BiometricsCommands.UnlockWithBiometricsForUser, messageId, response: false },

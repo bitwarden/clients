@@ -2,8 +2,7 @@
 // @ts-strict-ignore
 import { map, Observable, switchMap, of } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import {
   NeverDomains,
   EquivalentDomains,
