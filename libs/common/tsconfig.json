@@ -5,9 +5,12 @@
       "@bitwarden/admin-console/common": ["../admin-console/src/common"],
       "@bitwarden/auth/common": ["../auth/src/common"],
       "@bitwarden/common/*": ["../common/src/*"],
+      // TODO: Remove once billing stops depending on components
       "@bitwarden/components": ["../components/src"],
       "@bitwarden/key-management": ["../key-management/src"],
-      "@bitwarden/platform": ["../platform/src"]
+      "@bitwarden/platform": ["../platform/src"],
+      // TODO: Remove once billing stops depending on components
+      "@bitwarden/ui-common": ["../ui/common/src"]
     }
   },
   "include": ["src", "spec", "./custom-matchers.d.ts", "../key-management/src/index.ts"],
