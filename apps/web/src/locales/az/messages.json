@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Kimliyinizi doğrulayın"
   },
+  "whatIsADevice": {
+    "message": "Cihaz nədir?"
+  },
+  "aDeviceIs": {
+    "message": "Cihaz, giriş etdiyiniz Bitwarden tətbiqinin unikal quraşdırmasıdır. Yenidən quraşdırılması, tətbiq datasının təmizlənməsi və ya çərəzlərin təmizlənməsi, cihazın bir neçə dəfə görünməsinə səbəb ola bilər."
+  },
   "logInInitiated": {
     "message": "Giriş etmə başladıldı"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Lütfən yenidən giriş edin."
+  },
+  "currentSession": {
+    "message": "Hazırkı seans"
+  },
+  "requestPending": {
+    "message": "Tələb gözlənir"
   },
   "logBackInOthersToo": {
     "message": "Lütfən yenidən giriş edin. Digər Bitwarden tətbiqlərini istifadə edirsinizsə, onlardan da çıxış edib təkrar giriş etməlisiniz."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "1 dəvət haqqınız var."
+  },
   "userUsingTwoStep": {
     "message": "Bu istifadəçinin hesabını qorumaq üçün iki addımlı giriş istifadə edilir."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Cihaz"
+  },
+  "loginStatus": {
+    "message": "Giriş statusu"
+  },
+  "firstLogin": {
+    "message": "İlk giriş"
+  },
+  "trusted": {
+    "message": "Güvənli"
   },
   "creatingAccountOn": {
     "message": "Hesab yaradılır"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Xəta"
+  },
+  "decryptionError": {
+    "message": "Şifrə açma xətası"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden, aşağıda sadalanan seyf element(lər)inin şifrəsini aça bilmədi."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Əlavə data itkisini önləmək üçün",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "müştəri dəstəyi ilə əlaqə saxlayın.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "İdarə edilən istifadəçilərə həm də \"Hesab geri qaytarılmasını idarə et\" icazəsi verilməlidir"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Tələbi təsdiqlə"
   },
+  "deviceApproved": {
+    "message": "Cihaz təsdiqləndi"
+  },
+  "deviceRemoved": {
+    "message": "Cihaz silindi"
+  },
+  "removeDevice": {
+    "message": "Cihazı sil"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Bu cihazı silmək istədiyinizə əminsiniz?"
+  },
   "noDeviceRequests": {
     "message": "Heç bir cihaz tələbi yoxdur"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Üzvləri çıxart"
   },
+  "devices": {
+    "message": "Cihazlar"
+  },
+  "deviceListDescription": {
+    "message": "Aşağıdakı cihazların hər birində hesabınıza giriş edilib. Tanımadığınız cihaz varsa, onu silin."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Aşağıdakı cihazların hər birində hesabınıza giriş edilib."
+  },
   "claimedDomains": {
     "message": "Götürülmüş domenlər"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Təşkilat abunəliyi yenidən başladıldı"
+  },
+  "restartSubscription": {
+    "message": "Abunəliyinizi yenidən başladın"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Kömək üçün $PROVIDER$ ilə əlaqə saxlayın.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

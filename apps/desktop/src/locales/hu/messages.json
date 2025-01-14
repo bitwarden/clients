@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Gyenge jelszó lett azonosítva és megtalálva egy adatvédelmi incidens során. A fók védelme érdekében használjunk erős és egyedi jelszót. Biztosan használni szeretnénk ezt a jelszót?"
   },
+  "useThisPassword": {
+    "message": "Jelszó használata"
+  },
+  "useThisUsername": {
+    "message": "Felhasználónév használata"
+  },
   "checkForBreaches": {
     "message": "Az ehhez a jelszóhoz tartozó ismert adatvédelmi incidensek ellenőrzése"
   },
