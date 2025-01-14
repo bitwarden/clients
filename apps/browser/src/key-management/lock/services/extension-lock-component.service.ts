@@ -54,7 +54,15 @@ export class ExtensionLockComponentService implements LockComponentService {
         if (!(await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$))) {
           return BiometricsStatus.NotEnabledLocally;
         } else {
-          return await this.biometricsService.getBiometricsStatusForUser(userId);
+          // TODO remove after 2025.3
+          // remove after backward compatibility code for old biometrics ipc protocol is removed
+          const result: BiometricsStatus = (await Promise.race([
+            this.biometricsService.getBiometricsStatusForUser(userId),
+            new Promise((resolve) =>
+              setTimeout(() => resolve(BiometricsStatus.DesktopDisconnected), 1000),
+            ),
+          ])) as BiometricsStatus;
+          return result;
         }
       }),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
