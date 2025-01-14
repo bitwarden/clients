@@ -130,7 +130,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (this.virtualScrollElement) {
       // Hide the virtual scroll element briefly before the `vaultScrollPositionService` starts.
-      // This avoids having the scrolling element "jump" visually for the user and
+      // This avoids having the scrolling element "jump" visually for the user when they have larger vaults.
       this.vaultScrollPositionService.hideVirtualScrollElement(this.virtualScrollElement);
 
       // The filters component can cause the size of the virtual scroll element to change,

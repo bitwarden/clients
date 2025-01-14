@@ -69,7 +69,12 @@ export class VaultPopupScrollPositionService {
     return this.scrollPosition !== null;
   }
 
-  /** Hides the virtual scroll element */
+  /**
+   * Hides the virtual scroll element.
+   * This is useful when the user has a large amount of ciphers, restoring
+   * the scroll position can take a little longer and result in the user seeing a
+   * "jump" when navigating back to the vault.
+   */
   hideVirtualScrollElement(virtualScrollElement: CdkVirtualScrollableElement) {
     virtualScrollElement.getElementRef().nativeElement.style.visibility = "hidden";
   }
