@@ -5,6 +5,8 @@ import { Observable, Subject, firstValueFrom, map, shareReplay, switchMap, merge
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";

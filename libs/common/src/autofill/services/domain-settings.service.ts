@@ -36,7 +36,7 @@ const BLOCKED_INTERACTIONS_URIS = new KeyDefinition(
   DOMAIN_SETTINGS_DISK,
   "blockedInteractionsUris",
   {
-    deserializer: (value: NeverDomains) => value ?? null,
+    deserializer: (value: NeverDomains) => value ?? {},
   },
 );
 
@@ -131,7 +131,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
         switchMap((featureIsEnabled) =>
           featureIsEnabled ? this.blockedInteractionsUrisState.state$ : of({} as NeverDomains),
         ),
-        map((disabledUris) => (Object.keys(disabledUris).length ? disabledUris : null)),
+        map((disabledUris) => (Object.keys(disabledUris).length ? disabledUris : {})),
       );
 
     this.equivalentDomainsState = this.stateProvider.getActive(EQUIVALENT_DOMAINS);

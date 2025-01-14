@@ -1,5 +1,15 @@
 {
-  "extends": "../shared/tsconfig.libs",
+  "extends": "../shared/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@bitwarden/admin-console/common": ["../admin-console/src/common"],
+      "@bitwarden/auth/common": ["../auth/src/common"],
+      "@bitwarden/common/*": ["../common/src/*"],
+      "@bitwarden/components": ["../components/src"],
+      "@bitwarden/key-management": ["../key-management/src"],
+      "@bitwarden/platform": ["../platform/src"]
+    }
+  },
   "include": ["src", "spec", "./custom-matchers.d.ts", "../key-management/src/index.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -2324,6 +2324,9 @@
     "message": "Domeinen",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Geblokkeerde domeinen"
+  },
   "excludedDomains": {
     "message": "Uitgesloten domeinen"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden zal voor deze domeinen niet vragen om de wachtwoorden op te slaan voor alle ingelogde accounts. Je moet de pagina verversen om de wijzigingen op te slaan."
+  },
+  "blockedDomainsDesc": {
+    "message": "Autofill en andere gerelateerde functies worden niet aangeboden voor deze websites. Vernieuw de pagina om de wijzigingen toe te passen."
+  },
+  "autofillBlockedNotice": {
+    "message": "Automatisch invullen is geblokkeerd voor deze website. Bekijk of verander dit in de instellingen."
+  },
+  "autofillBlockedTooltip": {
+    "message": "Automatisch invullen is geblokkeerd voor deze website. Bekijk in de instellingen."
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Wijzigingen in geblokkeerde domeinen opgeslagen"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Uitgesloten domeinwijzigingen opgeslagen"
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Fout"
+  },
+  "decryptionError": {
+    "message": "Ontsleutelingsfout"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kon de onderstaande kluisitem(s) niet ontsleutelen."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Neem contact op met de klantenservice",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "om extra dataverlies te voorkomen.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Gebruikersnamen genereren"
@@ -4640,6 +4669,33 @@
   },
   "noEditPermissions": {
     "message": "Je hebt geen toestemming om dit item te bewerken"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat pincode of wachtwoordontgrendeling eerst vereist is."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar vanwege verkeerd geconfigureerde systeembestanden."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar vanwege verkeerd geconfigureerde systeembestanden."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat de Bitwarden-desktopapp is afgesloten."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat het niet is ingeschakeld voor $EMAIL$ in de Bitwarden-desktopapp.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar om een onbekende reden."
   },
   "authenticating": {
     "message": "Aan het inloggen"
