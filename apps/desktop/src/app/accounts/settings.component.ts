@@ -650,7 +650,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const skipSupportedPlatformCheck =
       ipc.platform.allowBrowserintegrationOverride || ipc.platform.isDev;
 
-    if (skipSupportedPlatformCheck) {
+    if (!skipSupportedPlatformCheck) {
       if (
         ipc.platform.deviceType === DeviceType.MacOsDesktop &&
         !this.platformUtilsService.isMacAppStore()

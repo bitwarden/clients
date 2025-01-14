@@ -32,6 +32,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
+import { OrgAtRiskAppsDialogComponent } from "./org-at-risk-apps-dialog.component";
 import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
@@ -151,6 +152,12 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
   showOrgAtRiskMembers = async () => {
     this.dialogService.open(OrgAtRiskMembersDialogComponent, {
       data: this.reportService.generateAtRiskMemberList(this.dataSource.data),
+    });
+  };
+
+  showOrgAtRiskApps = async () => {
+    this.dialogService.open(OrgAtRiskAppsDialogComponent, {
+      data: this.reportService.generateAtRiskApplicationList(this.dataSource.data),
     });
   };
 
