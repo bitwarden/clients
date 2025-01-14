@@ -1,9 +1,17 @@
 import { Injectable } from "@angular/core";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricsService, BiometricsCommands, BiometricsStatus } from "@bitwarden/key-management";
+import {
+  BiometricsService,
+  BiometricsCommands,
+  BiometricsStatus,
+  KeyService,
+  BiometricStateService,
+} from "@bitwarden/key-management";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -13,6 +21,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
     private logService: LogService,
+    private keyService: KeyService,
+    private biometricStateService: BiometricStateService,
   ) {
     super();
   }
@@ -74,12 +84,20 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     try {
       await this.ensureConnected();
 
+      // todo remove after 2025.3
       if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
         const response = await this.nativeMessagingBackground().callCommand({
           command: BiometricsCommands.Unlock,
         });
         if (response.response == "unlocked") {
-          return response.userKeyB64;
+          const decodedUserkey = Utils.fromB64ToArray(response.userKeyB64);
+          const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
+          if (await this.keyService.validateUserKey(userKey, userId)) {
+            await this.biometricStateService.setBiometricUnlockEnabled(true);
+            await this.biometricStateService.setFingerprintValidated(true);
+            this.keyService.setUserKey(userKey, userId);
+            return userKey;
+          }
         } else {
           return null;
         }
@@ -89,7 +107,15 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
           userId: userId,
         });
         if (response.response) {
-          return response.userKeyB64;
+          // In case the requesting foreground context dies (popup), the userkey should still be set, so the user is unlocked / the setting should be enabled
+          const decodedUserkey = Utils.fromB64ToArray(response.userKeyB64);
+          const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
+          if (await this.keyService.validateUserKey(userKey, userId)) {
+            await this.biometricStateService.setBiometricUnlockEnabled(true);
+            await this.biometricStateService.setFingerprintValidated(true);
+            this.keyService.setUserKey(userKey, userId);
+            return userKey;
+          }
         } else {
           return null;
         }
@@ -98,6 +124,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       this.logService.info("Biometric unlock for user failed", e);
       throw new Error("Biometric unlock failed");
     }
+
+    return null;
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
