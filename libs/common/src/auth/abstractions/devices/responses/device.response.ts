@@ -1,6 +1,11 @@
 import { DeviceType } from "../../../../enums";
 import { BaseResponse } from "../../../../models/response/base.response";
 
+export interface DevicePendingAuthRequest {
+  id: string;
+  creationDate: string;
+}
+
 export class DeviceResponse extends BaseResponse {
   id: string;
   userId: string;
@@ -10,7 +15,7 @@ export class DeviceResponse extends BaseResponse {
   creationDate: string;
   revisionDate: string;
   isTrusted: boolean;
-  devicePendingAuthRequest: { id: string; creationDate: string } | null;
+  devicePendingAuthRequest: DevicePendingAuthRequest | null;
 
   constructor(response: any) {
     super(response);

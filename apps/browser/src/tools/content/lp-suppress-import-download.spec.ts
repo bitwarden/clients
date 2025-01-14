@@ -10,6 +10,8 @@ describe("LP Suppress Import Download", () => {
     jest.spyOn(Element.prototype, "appendChild");
     jest.spyOn(window, "addEventListener");
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./lp-suppress-import-download");
 
     anchor = document.createElement("a");
