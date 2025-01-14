@@ -8,6 +8,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -17,6 +18,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { LoginEmailServiceAbstraction } from "../../common/abstractions/login-email.service";
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
 import { PasswordLoginStrategy } from "../../common/login-strategies/password-login.strategy";
 
@@ -55,6 +57,8 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private toastService: ToastService,
     private i18nService: I18nService,
+    private syncService: SyncService,
+    private loginEmailService: LoginEmailServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -136,6 +140,10 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         await this.router.navigate(["/update-temp-password"]);
         return;
       }
+
+      this.loginEmailService.clearValues();
+
+      await this.syncService.fullSync(true);
 
       // If verification succeeds, navigate to vault
       await this.router.navigate(["/vault"]);
