@@ -83,6 +83,16 @@ export class SshAgentService implements OnDestroy {
     this.messageListener
       .messages$(new CommandDefinition("sshagent.signrequest"))
       .pipe(
+        // cancel if disabled
+        concatMap(async (message) => {
+          const enabled = await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$);
+          if (!enabled) {
+            await ipc.platform.sshAgent.signRequestResponse(message.requestId as number, false);
+          }
+          return { message, enabled };
+        }),
+        filter(({ enabled }) => enabled),
+        map(({ message }) => message),
         withLatestFrom(this.authService.activeAccountStatus$),
         // This switchMap handles unlocking the vault if it is locked:
         //   - If the vault is locked, we will wait for it to be unlocked.
