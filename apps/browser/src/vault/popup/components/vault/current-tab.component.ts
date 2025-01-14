@@ -6,7 +6,9 @@ import { Subject, firstValueFrom, from, Subscription } from "rxjs";
 import { debounceTime, switchMap, takeUntil } from "rxjs/operators";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -70,7 +72,8 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     private searchService: SearchService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private passwordRepromptService: PasswordRepromptService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
+    private accountService: AccountService,
     private vaultFilterService: VaultFilterService,
     private vaultSettingsService: VaultSettingsService,
   ) {}
@@ -272,7 +275,10 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     const dontShowIdentities = !(await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
     ));
-    this.showOrganizations = await this.organizationService.hasOrganizations();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.showOrganizations = await firstValueFrom(
+      this.organizationService.hasOrganizations(userId),
+    );
     if (!dontShowCards) {
       otherTypes.push(CipherType.Card);
     }

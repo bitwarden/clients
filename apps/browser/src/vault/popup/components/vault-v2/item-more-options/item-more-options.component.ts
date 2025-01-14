@@ -7,8 +7,9 @@ import { BehaviorSubject, firstValueFrom, map, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -83,12 +84,13 @@ export class ItemMoreOptionsComponent implements OnInit {
     private i18nService: I18nService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private accountService: AccountService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.hasOrganizations = await this.organizationService.hasOrganizations();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.hasOrganizations = await firstValueFrom(this.organizationService.hasOrganizations(userId));
   }
 
   get canEdit() {
