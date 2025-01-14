@@ -48,17 +48,31 @@
           <i [class]="getDeviceIcon(row.type)" class="bwi-lg" aria-hidden="true"></i>
         </div>
         <div>
-          {{ row.displayName }}
-          <span *ngIf="row.trusted" class="tw-text-sm tw-text-muted tw-block">
-            {{ "trusted" | i18n }}
-          </span>
+          <ng-container *ngIf="row.hasPendingAuthRequest">
+            <a bitLink href="#" appStopClick (click)="managePendingAuthRequest(row)">
+              {{ row.displayName }}
+            </a>
+
+            <span class="tw-text-sm tw-text-muted tw-block">
+              {{ "needsApproval" | i18n }}
+            </span>
+          </ng-container>
+          <ng-container *ngIf="!row.hasPendingAuthRequest">
+            {{ row.displayName }}
+            <span
+              *ngIf="row.trusted && !row.hasPendingAuthRequest"
+              class="tw-text-sm tw-text-muted tw-block"
+            >
+              {{ "trusted" | i18n }}
+            </span>
+          </ng-container>
         </div>
       </td>
       <td bitCell>
         <span *ngIf="isCurrentDevice(row)" bitBadge variant="primary">{{
           "currentSession" | i18n
         }}</span>
-        <span *ngIf="hasPendingAuthRequest(row)" bitBadge variant="warning">{{
+        <span *ngIf="row.hasPendingAuthRequest" bitBadge variant="warning">{{
           "requestPending" | i18n
         }}</span>
       </td>

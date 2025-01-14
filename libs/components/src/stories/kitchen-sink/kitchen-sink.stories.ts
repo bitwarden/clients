@@ -196,4 +196,10 @@ export const VirtualScrollBlockingDialog: Story = {
 
     await userEvent.click(dialogButton);
   },
+  parameters: {
+    chromatic: {
+      // TODO CL-524 fix flaky story (number of virtual scroll rows is inconsistent)
+      disableSnapshot: true,
+    },
+  },
 };

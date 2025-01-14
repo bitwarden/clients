@@ -1,3 +1,5 @@
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CipherTypes = {
   Login: 1,
   SecureNote: 2,
@@ -7,6 +9,8 @@ const CipherTypes = {
 
 type CipherType = (typeof CipherTypes)[keyof typeof CipherTypes];
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CipherRepromptTypes = {
   None: 0,
   Password: 1,
