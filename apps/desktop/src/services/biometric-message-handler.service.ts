@@ -188,7 +188,7 @@ export class BiometricMessageHandlerService {
           appId,
         );
       }
-      // TODO: legacy, remove after 2025.01
+      // TODO: legacy, remove after 2025.3
       case BiometricsCommands.IsAvailable: {
         const available =
           (await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available;
@@ -200,7 +200,7 @@ export class BiometricMessageHandlerService {
           appId,
         );
       }
-      // TODO: legacy, remove after 2025.01
+      // TODO: legacy, remove after 2025.3
       case BiometricsCommands.Unlock: {
         const isTemporarilyDisabled =
           (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
