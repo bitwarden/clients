@@ -127,6 +127,8 @@ export class VaultPopupAutofillService {
           [currentTabHostname as string]: { bannerIsDismissed: true },
         });
       }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw new Error(
         "There was a problem dismissing the blocked interaction URI notification banner",
