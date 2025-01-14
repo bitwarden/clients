@@ -43,7 +43,6 @@
     "@angular-eslint/template-parser": "18.4.3",
     "@angular/cli": "18.2.12",
     "@angular/compiler-cli": "18.2.13",
-    "@angular/elements": "18.2.13",
     "@babel/core": "7.24.9",
     "@babel/preset-env": "7.24.8",
     "@compodoc/compodoc": "1.1.26",
