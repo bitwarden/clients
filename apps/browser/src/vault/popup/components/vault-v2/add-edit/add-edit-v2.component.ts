@@ -377,7 +377,7 @@ export class AddEditV2Component implements OnInit {
       return false;
     }
 
-    await this.popupRouterCacheService.back();
+    await this.router.navigate([""]);
 
     this.toastService.showToast({
       variant: "success",
