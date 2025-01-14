@@ -72,7 +72,8 @@ const SomeAlgorithm = "passphrase";
 const SomeCategory = "password";
 const SomeNameKey = "passphraseKey";
 const SomeGenerateKey = "generateKey";
-const SomeGeneratedValueKey = "generatedValueKey";
+const SomeCredentialTypeKey = "credentialTypeKey";
+const SomeOnGeneratedMessageKey = "onGeneratedMessageKey";
 const SomeCopyKey = "copyKey";
 const SomeUseGeneratedValueKey = "useGeneratedValueKey";
 
@@ -82,7 +83,8 @@ const SomeConfiguration: CredentialGeneratorConfiguration<SomeSettings, SomePoli
   category: SomeCategory,
   nameKey: SomeNameKey,
   generateKey: SomeGenerateKey,
-  generatedValueKey: SomeGeneratedValueKey,
+  onGeneratedMessageKey: SomeOnGeneratedMessageKey,
+  credentialTypeKey: SomeCredentialTypeKey,
   copyKey: SomeCopyKey,
   useGeneratedValueKey: SomeUseGeneratedValueKey,
   onlyOnRequest: false,

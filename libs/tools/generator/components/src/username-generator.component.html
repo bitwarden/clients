@@ -26,6 +26,7 @@
       {{ credentialTypeCopyLabel$ | async }}
     </button>
   </div>
+  <div class="tw-sr-only" aria-live="assertive">{{ credentialGeneratedMessage$ | async }}</div>
 </bit-card>
 <bit-section [disableMargin]="disableMargin">
   <bit-section-header>

@@ -8,9 +8,11 @@ import {
   catchError,
   combineLatest,
   combineLatestWith,
+  concatMap,
   distinctUntilChanged,
   filter,
   map,
+  of,
   ReplaySubject,
   Subject,
   switchMap,
@@ -375,6 +377,18 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
   /** tracks the currently selected credential type */
   protected algorithm$ = new ReplaySubject<AlgorithmInfo>(1);
 
+  /** Emits hint key for the currently selected credential type */
+  protected credentialTypeHint$ = new ReplaySubject<string>(1);
+
+  /** Emits the last generated value. */
+  protected readonly value$ = new BehaviorSubject<string>("");
+
+  /** Emits when the userId changes */
+  protected readonly userId$ = new BehaviorSubject<UserId>(null);
+
+  /** Emits when a new credential is requested */
+  private readonly generate$ = new Subject<string>();
+
   protected showAlgorithm$ = this.algorithm$.pipe(
     combineLatestWith(this.showForwarder$),
     map(([algorithm, showForwarder]) => (showForwarder ? null : algorithm)),
@@ -401,20 +415,16 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
    */
   protected credentialTypeLabel$ = this.algorithm$.pipe(
     filter((algorithm) => !!algorithm),
-    map(({ generatedValue }) => generatedValue),
+    map(({ credentialType }) => credentialType),
   );
 
-  /** Emits hint key for the currently selected credential type */
-  protected credentialTypeHint$ = new ReplaySubject<string>(1);
-
-  /** Emits the last generated value. */
-  protected readonly value$ = new BehaviorSubject<string>("");
-
-  /** Emits when the userId changes */
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
-
-  /** Emits when a new credential is requested */
-  private readonly generate$ = new Subject<string>();
+  /**
+   * Emits the credential generated message whenever the generator runs
+   */
+  protected credentialGeneratedMessage$ = this.value$.pipe(
+    withLatestFrom(this.algorithm$),
+    concatMap(([, algorithm]) => of("", algorithm.onGeneratedMessage)),
+  );
 
   /** Request a new value from the generator
    * @param requestor a label used to trace generation request

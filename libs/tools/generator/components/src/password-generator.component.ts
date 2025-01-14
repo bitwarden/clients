@@ -5,9 +5,11 @@ import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } fro
 import {
   BehaviorSubject,
   catchError,
+  concatMap,
   distinctUntilChanged,
   filter,
   map,
+  of,
   ReplaySubject,
   Subject,
   switchMap,
@@ -249,7 +251,15 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
    */
   protected credentialTypeLabel$ = this.algorithm$.pipe(
     filter((algorithm) => !!algorithm),
-    map(({ generatedValue }) => generatedValue),
+    map(({ credentialType }) => credentialType),
+  );
+
+  /**
+   * Emits the credential generated message whenever the generator runs
+   */
+  protected credentialGeneratedMessage$ = this.value$.pipe(
+    withLatestFrom(this.algorithm$),
+    concatMap(([, algorithm]) => of("", algorithm.onGeneratedMessage)),
   );
 
   private toOptions(algorithms: AlgorithmInfo[]) {
