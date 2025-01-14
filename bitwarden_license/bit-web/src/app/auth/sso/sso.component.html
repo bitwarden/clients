@@ -31,7 +31,10 @@
         <input bitInput type="text" formControlName="ssoIdentifier" />
         <bit-hint>
           {{ "ssoIdentifierHintPartOne" | i18n }}
-          <a bitLink routerLink="../domain-verification">{{ "domainVerification" | i18n }}</a>
+          <a bitLink routerLink="../domain-verification">{{
+            ((accountDeprovisioningEnabled$ | async) ? "claimedDomains" : "domainVerification")
+              | i18n
+          }}</a>
         </bit-hint>
       </bit-form-field>
 
@@ -126,7 +129,7 @@
           />
           <button
             bitSuffix
-            bitButton
+            bitLink
             [disabled]="!enableTestKeyConnector"
             type="button"
             (click)="validateKeyConnectorUrl()"
@@ -353,14 +356,12 @@
           <bit-label>{{ "spMetadataUrl" | i18n }}</bit-label>
           <input bitInput disabled [value]="spMetadataUrl" />
           <button
-            bitButton
+            bitIconButton="bwi-external-link"
             bitSuffix
             type="button"
             [appLaunchClick]="spMetadataUrl"
             [appA11yTitle]="'launch' | i18n"
-          >
-            <i class="bwi bwi-lg bwi-external-link" aria-hidden="true"></i>
-          </button>
+          ></button>
           <button
             bitIconButton="bwi-clone"
             bitSuffix

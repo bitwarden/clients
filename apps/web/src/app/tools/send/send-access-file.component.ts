@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -68,6 +70,8 @@ export class SendAccessFileComponent {
         blobData: decBuf,
         downloadMethod: "save",
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SyncService } from "@bitwarden/common/platform/sync";
 
 import { Response } from "../models/response";
@@ -19,7 +21,9 @@ export class SyncCommand {
       const res = new MessageResponse("Syncing complete.", null);
       return Response.success(res);
     } catch (e) {
-      return Response.error("Syncing failed: " + e.toString());
+      const response = Response.error(e);
+      response.message = "Syncing failed: " + response.message;
+      return response;
     }
   }
 

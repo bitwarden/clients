@@ -1,18 +1,21 @@
 <div
-  class="tw-flex tw-items-center tw-gap-2 tw-p-2 tw-pl-4 tw-text-contrast tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
+  class="tw-flex tw-items-center tw-gap-2 tw-p-2 tw-pl-4 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
   [ngClass]="bannerClass"
   [attr.role]="useAlertRole ? 'status' : null"
   [attr.aria-live]="useAlertRole ? 'polite' : null"
 >
   <i class="bwi tw-align-middle tw-text-base" [ngClass]="icon" *ngIf="icon" aria-hidden="true"></i>
-  <span class="tw-grow tw-text-base">
+  <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
+  <span class="tw-grow tw-text-base [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main">
     <ng-content></ng-content>
   </span>
+  <!-- Overriding hover and focus-visible colors for a11y against colored background -->
   <button
     *ngIf="showClose"
+    class="hover:tw-border-text-main focus-visible:before:tw-ring-text-main"
     type="button"
     bitIconButton="bwi-close"
-    buttonType="contrast"
+    buttonType="main"
     size="default"
     (click)="onClose.emit()"
     [attr.title]="'close' | i18n"

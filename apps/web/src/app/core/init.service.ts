@@ -17,6 +17,8 @@ import { EventUploadService } from "@bitwarden/common/services/event/event-uploa
 import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
+import { VersionService } from "../platform/version.service";
+
 @Injectable()
 export class InitService {
   constructor(
@@ -32,6 +34,7 @@ export class InitService {
     private encryptService: EncryptService,
     private userAutoUnlockKeyService: UserAutoUnlockKeyService,
     private accountService: AccountService,
+    private versionService: VersionService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -54,6 +57,8 @@ export class InitService {
       const htmlEl = this.win.document.documentElement;
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
+      this.versionService.applyVersionToWindow();
+
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
     };

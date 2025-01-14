@@ -7,18 +7,18 @@ import { NgModule } from "@angular/core";
 
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
-import { DialogModule, CalloutModule } from "@bitwarden/components";
+import { CalloutModule, DialogModule } from "@bitwarden/components";
+import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { EnvironmentComponent } from "../auth/environment.component";
 import { HintComponent } from "../auth/hint.component";
-import { LockComponent } from "../auth/lock.component";
 import { LoginModule } from "../auth/login/login.module";
 import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
-import { SsoComponent } from "../auth/sso.component";
+import { SsoComponentV1 } from "../auth/sso-v1.component";
 import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
@@ -62,6 +62,7 @@ import { SendComponent } from "./tools/send/send.component";
     CalloutModule,
     DeleteAccountComponent,
     UserVerificationComponent,
+    DecryptionFailureDialogComponent,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -78,7 +79,6 @@ import { SendComponent } from "./tools/send/send.component";
     FolderAddEditComponent,
     HeaderComponent,
     HintComponent,
-    LockComponent,
     NavComponent,
     GeneratorComponent,
     PasswordGeneratorHistoryComponent,
@@ -92,7 +92,7 @@ import { SendComponent } from "./tools/send/send.component";
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,
-    SsoComponent,
+    SsoComponentV1,
     TwoFactorComponent,
     TwoFactorOptionsComponent,
     UpdateTempPasswordComponent,

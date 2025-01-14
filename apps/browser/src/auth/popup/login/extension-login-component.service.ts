@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
@@ -7,7 +9,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { flagEnabled } from "../../../platform/flags";
 import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 @Injectable()
@@ -31,10 +32,6 @@ export class ExtensionLoginComponentService
       ssoLoginService,
     );
     this.clientType = this.platformUtilsService.getClientType();
-  }
-
-  isLoginViaAuthRequestSupported(): boolean {
-    return flagEnabled("showPasswordless");
   }
 
   showBackButton(showBackButton: boolean): void {

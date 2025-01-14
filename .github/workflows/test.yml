@@ -98,14 +98,14 @@ jobs:
 
   rust:
     name: Run Rust tests on ${{ matrix.os }}
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
     permissions:
       contents: read
 
     strategy:
       matrix:
         os:
-          - ubuntu-latest
+          - ubuntu-22.04
           - macos-latest
           - windows-latest
 

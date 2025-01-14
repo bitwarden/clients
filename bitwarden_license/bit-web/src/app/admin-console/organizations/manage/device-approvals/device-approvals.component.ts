@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, Subject, switchMap, takeUntil, tap } from "rxjs";
@@ -96,6 +98,8 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
           title: null,
           message: this.i18nService.t("loginRequestApproved"),
         });
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         this.toastService.showToast({
           variant: "error",

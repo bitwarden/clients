@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import {
@@ -54,6 +56,7 @@ import {
   MSecureCsvImporter,
   MeldiumCsvImporter,
   MykiCsvImporter,
+  NetwrixPasswordSecureCsvImporter,
   NordPassCsvImporter,
   OnePassword1PifImporter,
   OnePassword1PuxImporter,
@@ -83,6 +86,7 @@ import {
   UpmCsvImporter,
   YotiCsvImporter,
   ZohoVaultCsvImporter,
+  PasswordXPCsvImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -335,6 +339,10 @@ export class ImportService implements ImportServiceAbstraction {
         return new PasskyJsonImporter();
       case "protonpass":
         return new ProtonPassJsonImporter(this.i18nService);
+      case "passwordxpcsv":
+        return new PasswordXPCsvImporter();
+      case "netwrixpasswordsecure":
+        return new NetwrixPasswordSecureCsvImporter();
       default:
         return null;
     }

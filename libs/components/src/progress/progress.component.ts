@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
 type SizeTypes = "small" | "default" | "large";
@@ -19,6 +20,8 @@ const BackgroundClasses: Record<BackgroundTypes, string[]> = {
 @Component({
   selector: "bit-progress",
   templateUrl: "./progress.component.html",
+  standalone: true,
+  imports: [CommonModule],
 })
 export class ProgressComponent {
   @Input() barWidth = 0;

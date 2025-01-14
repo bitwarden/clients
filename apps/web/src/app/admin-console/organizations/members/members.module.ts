@@ -8,6 +8,7 @@ import { LooseComponentsModule } from "../../../shared";
 import { SharedOrganizationModule } from "../shared";
 
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
+import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
 import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
@@ -35,6 +36,7 @@ import { MembersComponent } from "./members.component";
     BulkStatusComponent,
     MembersComponent,
     ResetPasswordComponent,
+    BulkDeleteDialogComponent,
   ],
 })
 export class MembersModule {}

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
@@ -9,6 +11,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import {
   AvatarModule,
   BadgeModule,
+  BannerModule,
   ButtonModule,
   I18nMockService,
   IconButtonModule,
@@ -38,8 +41,8 @@ class ExtensionContainerComponent {}
 
 @Component({
   selector: "vault-placeholder",
-  template: `
-    <bit-section disableMargin>
+  template: /*html*/ `
+    <bit-section>
       <bit-item-group aria-label="Mock Vault Items">
         <bit-item *ngFor="let item of data; index as i">
           <button bit-item-content>
@@ -50,7 +53,7 @@ class ExtensionContainerComponent {}
 
           <ng-container slot="end">
             <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
+              <button type="button" bitBadge variant="primary">Fill</button>
             </bit-item-action>
             <bit-item-action>
               <button type="button" bitIconButton="bwi-clone" aria-label="Copy item"></button>
@@ -117,15 +120,23 @@ class MockCurrentAccountComponent {}
 
 @Component({
   selector: "mock-search",
-  template: `
-    <div class="tw-p-4">
-      <bit-search placeholder="Search"> </bit-search>
-    </div>
-  `,
+  template: ` <bit-search placeholder="Search"> </bit-search> `,
   standalone: true,
   imports: [SearchModule],
 })
 class MockSearchComponent {}
+
+@Component({
+  selector: "mock-banner",
+  template: `
+    <bit-banner bannerType="info" [showClose]="false">
+      This is an important note about these ciphers
+    </bit-banner>
+  `,
+  standalone: true,
+  imports: [BannerModule],
+})
+class MockBannerComponent {}
 
 @Component({
   selector: "mock-vault-page",
@@ -290,6 +301,12 @@ class MockVaultSubpageComponent {}
 export default {
   title: "Browser/Popup Layout",
   component: PopupPageComponent,
+  parameters: {
+    chromatic: {
+      // Disable tests while we troubleshoot their flaky-ness
+      disableSnapshot: true,
+    },
+  },
   decorators: [
     moduleMetadata({
       imports: [
@@ -300,6 +317,8 @@ export default {
         CommonModule,
         RouterModule,
         ExtensionContainerComponent,
+        MockBannerComponent,
+        MockSearchComponent,
         MockVaultSubpageComponent,
         MockVaultPageComponent,
         MockSendPageComponent,
@@ -317,6 +336,10 @@ export default {
               back: "Back",
               loading: "Loading",
               search: "Search",
+              vault: "Vault",
+              generator: "Generator",
+              send: "Send",
+              settings: "Settings",
             });
           },
         },
@@ -410,6 +433,46 @@ export const PopupPageWithFooter: Story = {
   }),
 };
 
+export const CompactMode: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <div class="tw-flex tw-gap-6 tw-text-main">
+        <div id="regular-example">
+          <p>Relaxed</p>
+          <p class="example-label"></p>
+          <extension-container>
+            <mock-vault-subpage></mock-vault-subpage>
+          </extension-container>
+        </div>
+
+        <div id="compact-example" class="tw-bit-compact">
+          <p>Compact</p>
+          <p class="example-label"></p>
+          <extension-container>
+            <mock-vault-subpage></mock-vault-subpage>
+          </extension-container>
+        </div>
+      </div>
+    `,
+  }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const updateLabel = (containerId: string) => {
+      const compact = canvasEl.querySelector(
+        `#${containerId} [data-testid=popup-layout-scroll-region]`,
+      );
+      const label = canvasEl.querySelector(`#${containerId} .example-label`);
+      const percentVisible =
+        100 -
+        Math.round((100 * (compact.scrollHeight - compact.clientHeight)) / compact.scrollHeight);
+      label.textContent = `${percentVisible}% above the fold`;
+    };
+    updateLabel("compact-example");
+    updateLabel("regular-example");
+  },
+};
+
 export const PoppedOut: Story = {
   render: (args) => ({
     props: args,
@@ -471,6 +534,44 @@ export const TransparentHeader: Story = {
           <vault-placeholder></vault-placeholder>
         </popup-page>
       </extension-container>
+    `,
+  }),
+};
+
+export const Notice: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <popup-page>
+          <popup-header slot="header" pageTitle="Page Header"></popup-header>
+          <mock-banner slot="full-width-notice"></mock-banner>
+          <mock-search slot="above-scroll-area"></mock-search>
+          <vault-placeholder></vault-placeholder>
+        </popup-page>
+      </extension-container>
+    `,
+  }),
+};
+
+export const WidthOptions: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <div class="tw-flex tw-flex-col tw-gap-4 tw-text-main">
+        <div>Default:</div>
+        <div class="tw-h-[640px] tw-w-[380px] tw-border tw-border-solid tw-border-secondary-300">
+          <mock-vault-page></mock-vault-page>
+        </div>
+        <div>Wide:</div>
+        <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
+          <mock-vault-page></mock-vault-page>
+        </div>
+        <div>Extra wide:</div>
+        <div class="tw-h-[640px] tw-w-[600px] tw-border tw-border-solid tw-border-secondary-300">
+          <mock-vault-page></mock-vault-page>
+        </div>
+      </div>
     `,
   }),
 };

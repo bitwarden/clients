@@ -57,6 +57,7 @@ const config: StorybookConfig = {
     return config;
   },
   docs: {},
+  staticDirs: ["../apps/web/src/images"],
 };
 
 export default config;

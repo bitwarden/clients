@@ -282,4 +282,15 @@ export abstract class OrganizationUserApiService {
    * @param id - Organization user identifier
    */
   abstract deleteOrganizationUser(organizationId: string, id: string): Promise<void>;
+
+  /**
+   * Delete many organization users
+   * @param organizationId - Identifier for the organization the users belongs to
+   * @param ids - List of organization user identifiers to delete
+   * @return List of user ids, including both those that were successfully deleted and those that had an error
+   */
+  abstract deleteManyOrganizationUsers(
+    organizationId: string,
+    ids: string[],
+  ): Promise<ListResponse<OrganizationUserBulkResponse>>;
 }

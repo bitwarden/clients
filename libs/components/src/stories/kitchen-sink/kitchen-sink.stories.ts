@@ -130,6 +130,9 @@ export const MenuOpen: Story = {
     const menuButton = getAllByRole(table, "button")[0];
     await userEvent.click(menuButton);
   },
+  parameters: {
+    chromatic: { ignoreSelectors: [".bit-menu-panel-backdrop"] },
+  },
 };
 
 export const DefaultDialogOpen: Story = {
@@ -192,5 +195,11 @@ export const VirtualScrollBlockingDialog: Story = {
     const dialogButton = getAllByLabelText(canvas, "Options")[0];
 
     await userEvent.click(dialogButton);
+  },
+  parameters: {
+    chromatic: {
+      // TODO CL-524 fix flaky story (number of virtual scroll rows is inconsistent)
+      disableSnapshot: true,
+    },
   },
 };

@@ -1,5 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as chalk from "chalk";
 import { program, Command, OptionValues } from "commander";
+import { firstValueFrom } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
@@ -101,6 +104,14 @@ export class Program extends BaseProgram {
       );
       writeLn("", true);
     });
+
+    program
+      .command("sdk-version")
+      .description("Print the SDK version.")
+      .action(async () => {
+        const sdkVersion = await firstValueFrom(this.serviceContainer.sdkService.version$);
+        writeLn(sdkVersion, true);
+      });
 
     program
       .command("login [email] [password]")
@@ -417,7 +428,10 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async () => {
-        const command = new UpdateCommand(this.serviceContainer.platformUtilsService);
+        const command = new UpdateCommand(
+          this.serviceContainer.platformUtilsService,
+          this.serviceContainer.apiService,
+        );
         const response = await command.run();
         this.processResponse(response);
       });

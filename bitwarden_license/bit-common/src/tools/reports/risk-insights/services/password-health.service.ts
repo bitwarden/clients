@@ -1,9 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Inject, Injectable } from "@angular/core";
 
-// eslint-disable-next-line no-restricted-imports
-import { mockCiphers } from "@bitwarden/bit-common/tools/reports/risk-insights/services/ciphers.mock";
-// eslint-disable-next-line no-restricted-imports
-import { mockMemberCipherDetailsResponse } from "@bitwarden/bit-common/tools/reports/risk-insights/services/member-cipher-details-response.mock";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -11,6 +9,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
+
+import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
 
 @Injectable()
 export class PasswordHealthService {
@@ -30,21 +30,23 @@ export class PasswordHealthService {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private auditService: AuditService,
     private cipherService: CipherService,
+    private memberCipherDetailsApiService: MemberCipherDetailsApiService,
     @Inject("organizationId") private organizationId: string,
   ) {}
 
   async generateReport() {
-    let allCiphers = await this.cipherService.getAllFromApiForOrganization(this.organizationId);
-    // TODO remove when actual user member data is available
-    allCiphers = mockCiphers;
+    const allCiphers = await this.cipherService.getAllFromApiForOrganization(this.organizationId);
     allCiphers.forEach(async (cipher) => {
       this.findWeakPassword(cipher);
       this.findReusedPassword(cipher);
       await this.findExposedPassword(cipher);
     });
 
-    // TODO - fetch actual user member when data is available
-    mockMemberCipherDetailsResponse.data.forEach((user) => {
+    const memberCipherDetails = await this.memberCipherDetailsApiService.getMemberCipherDetails(
+      this.organizationId,
+    );
+
+    memberCipherDetails.forEach((user) => {
       user.cipherIds.forEach((cipherId: string) => {
         if (this.totalMembersMap.has(cipherId)) {
           this.totalMembersMap.set(cipherId, (this.totalMembersMap.get(cipherId) || 0) + 1);

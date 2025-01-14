@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
@@ -14,7 +16,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
 
-import { GroupService, GroupView } from "../../../admin-console/organizations/core";
+import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
 import {
   AccessItemType,
   AccessItemValue,
@@ -61,7 +63,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     private dialogRef: DialogRef<BulkCollectionsDialogResult>,
     private formBuilder: FormBuilder,
     private organizationService: OrganizationService,
-    private groupService: GroupService,
+    private groupService: GroupApiService,
     private organizationUserApiService: OrganizationUserApiService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,

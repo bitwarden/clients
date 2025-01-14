@@ -10,23 +10,30 @@ import { LinkModule } from "@bitwarden/components";
 
 # Link / Text button
 
-Text Links and Buttons use the `primary-600` color and can use either the `<a>` or `<button>` tags.
-Choose which based on the action the button takes:
+Text Links and Buttons can use either the `<a>` or `<button>` tags. Choose which based on the action
+the button takes:
 
 - if navigating to a new page, use a `<a>`
-- if taking an action on the current page use a `<button>`
+- if taking an action on the current page, use a `<button>`
 
 Text buttons or links are most commonly used in paragraphs of text or in forms to customize actions
 or show/hide additional form options.
 
 <Primary />
-<Controls />
+
+## Variants
+
+You can use one of the following variants by providing it as the `linkType` input:
+
+- `primary` - most common, uses brand color
+- `secondary` - matches the main text color
+- `contrast` - for high contrast against a dark background (or a light background in dark mode)
+- `light` - always a light color, even in dark mode
 
 ## Sizes
 
-There are 2 sizes for the component: default and small.
-
-Default uses `text-base` and small uses `text-xs`
+If you want to display a link with a smaller text size, apply the `tw-text-sm` class. This will
+match the `body2` variant of the Typography directive.
 
 ## With icons
 
@@ -40,4 +47,5 @@ show/hide additional content.
 
 ## Accessibility
 
-Make sure to only use the Link on backgrounds that maintain the WCAG color contrast ratios.
+- Make sure to only use the Link on backgrounds that maintain the WCAG color contrast ratios.
+- Be sure to select the correct element type (anchor or button) for the intended action.

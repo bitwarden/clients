@@ -9,7 +9,8 @@ import { Component, Input } from "@angular/core";
   template: `
     <section
       [ngClass]="{
-        'tw-mb-6 md:tw-mb-12': !disableMargin,
+        'tw-mb-5 bit-compact:tw-mb-4 [&:not(bit-dialog_*):not(popup-page_*)]:md:tw-mb-12':
+          !disableMargin,
       }"
     >
       <ng-content></ng-content>

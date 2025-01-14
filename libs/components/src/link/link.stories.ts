@@ -26,10 +26,41 @@ export default {
 
 type Story = StoryObj<ButtonLinkDirective>;
 
+export const Default: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-gap-4 tw-p-2 tw-mb-6">
+        <a bitLink linkType="primary" href="#">Primary</a>
+        <a bitLink linkType="primary" href="#" class="tw-test-hover">Primary</a>
+        <a bitLink linkType="primary" href="#" class="tw-test-focus-visible">Primary</a>
+        <a bitLink linkType="primary" href="#" class="tw-test-hover tw-test-focus-visible">Primary</a>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-p-2 tw-mb-6">
+        <a bitLink linkType="secondary" href="#">Secondary</a>
+        <a bitLink linkType="secondary" href="#" class="tw-test-hover">Secondary</a>
+        <a bitLink linkType="secondary" href="#" class="tw-test-focus-visible">Secondary</a>
+        <a bitLink linkType="secondary" href="#" class="tw-test-hover tw-test-focus-visible">Secondary</a>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-p-2 tw-mb-6 tw-bg-primary-600">
+        <a bitLink linkType="contrast" href="#">Contrast</a>
+        <a bitLink linkType="contrast" href="#" class="tw-test-hover">Contrast</a>
+        <a bitLink linkType="contrast" href="#" class="tw-test-focus-visible">Contrast</a>
+        <a bitLink linkType="contrast" href="#" class="tw-test-hover tw-test-focus-visible">Contrast</a>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-p-2 tw-mb-6 tw-bg-primary-600">
+        <a bitLink linkType="light" href="#">Light</a>
+        <a bitLink linkType="light" href="#" class="tw-test-hover">Light</a>
+        <a bitLink linkType="light" href="#" class="tw-test-focus-visible">Light</a>
+        <a bitLink linkType="light" href="#" class="tw-test-hover tw-test-focus-visible">Light</a>
+      </div>
+    `,
+  }),
+};
+
 export const Buttons: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-primary-600': linkType === 'contrast' }">
       <div class="tw-block tw-p-2">
         <button bitLink [linkType]="linkType">Button</button>
@@ -60,7 +91,7 @@ export const Buttons: Story = {
 export const Anchors: StoryObj<AnchorLinkDirective> = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-primary-600': linkType === 'contrast' }">
       <div class="tw-block tw-p-2">
         <a bitLink [linkType]="linkType" href="#">Anchor</a>
@@ -91,7 +122,7 @@ export const Anchors: StoryObj<AnchorLinkDirective> = {
 export const Inline: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <span class="tw-text-main">
         On the internet paragraphs often contain <a bitLink href="#">inline links</a>, but few know that <button bitLink>buttons</button> can be used for similar purposes.
       </span>
@@ -105,7 +136,7 @@ export const Inline: Story = {
 export const Disabled: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <button bitLink disabled linkType="primary" class="tw-mr-2">Primary</button>
       <button bitLink disabled linkType="secondary" class="tw-mr-2">Secondary</button>
       <div class="tw-bg-primary-600 tw-p-2 tw-inline-block">

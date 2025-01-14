@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { AllowedFeatureFlagTypes } from "../../../enums/feature-flag.enum";
 import { BaseResponse } from "../../../models/response/base.response";
 import { Region } from "../../abstractions/environment.service";

@@ -1,0 +1,25 @@
+<bit-dialog>
+  <ng-container bitDialogTitle>
+    <span bitDialogTitle>{{ "atRiskApplicationsWithCount" | i18n: atRiskApps.length }} </span>
+  </ng-container>
+  <ng-container bitDialogContent>
+    <div class="tw-flex tw-flex-col tw-gap-2">
+      <span bitTypography="body1">{{ "atRiskApplicationsDescription" | i18n }}</span>
+      <div class="tw-flex tw-justify-between tw-mt-2 tw-text-muted">
+        <div bitTypography="body2" class="tw-font-bold">{{ "application" | i18n }}</div>
+        <div bitTypography="body2" class="tw-font-bold">{{ "atRiskPasswords" | i18n }}</div>
+      </div>
+      <ng-container *ngFor="let app of atRiskApps">
+        <div class="tw-flex tw-justify-between tw-mt-2">
+          <div>{{ app.applicationName }}</div>
+          <div>{{ app.atRiskPasswordCount }}</div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose buttonType="secondary" type="button">
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

@@ -82,6 +82,7 @@
   <li
     class="filter-option"
     [ngClass]="{ active: activeFilter.cipherType === cipherTypeEnum.SshKey }"
+    *ngIf="isSshKeysEnabled"
   >
     <span class="filter-buttons">
       <button

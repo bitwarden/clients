@@ -19,8 +19,8 @@
       }
     }
   ],
-  "flags": {
-    "showPasswordless": true
-  },
-  "devFlags": {}
+  "flags": {},
+  "devFlags": {
+    "showRiskInsightsDebug": false
+  }
 }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
@@ -190,6 +192,8 @@ export class AttachmentsComponent implements OnInit {
         title: null,
         message: this.i18nService.t("fileSavedToDevice"),
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
     }
@@ -207,7 +211,7 @@ export class AttachmentsComponent implements OnInit {
     );
 
     const canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
     );
     this.canAccessAttachments = canAccessPremium || this.cipher.organizationId != null;
 
@@ -283,6 +287,8 @@ export class AttachmentsComponent implements OnInit {
             this.i18nService.t("attachmentSaved"),
           );
           this.onReuploadedAttachment.emit();
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
         }

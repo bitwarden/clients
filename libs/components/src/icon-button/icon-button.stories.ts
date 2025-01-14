@@ -133,6 +133,6 @@ export const Disabled: Story = {
   ...Default,
   args: {
     disabled: true,
-    loading: true,
+    loading: false,
   },
 };

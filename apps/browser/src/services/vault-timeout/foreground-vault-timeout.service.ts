@@ -1,6 +1,8 @@
-import { VaultTimeoutService as BaseVaultTimeoutService } from "@bitwarden/common/src/abstractions/vault-timeout/vault-timeout.service";
-import { MessagingService } from "@bitwarden/common/src/platform/abstractions/messaging.service";
-import { UserId } from "@bitwarden/common/src/types/guid";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { VaultTimeoutService as BaseVaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 export class ForegroundVaultTimeoutService implements BaseVaultTimeoutService {
   constructor(protected messagingService: MessagingService) {}

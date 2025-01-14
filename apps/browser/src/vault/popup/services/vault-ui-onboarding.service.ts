@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
@@ -24,8 +26,7 @@ export const GLOBAL_VAULT_UI_ONBOARDING = new KeyDefinition<boolean>(
 
 @Injectable()
 export class VaultUiOnboardingService {
-  // TODO: Update this date to the release date of the new Browser UI
-  private onboardingUiReleaseDate = new Date("2024-07-25");
+  private onboardingUiReleaseDate = new Date("2024-12-10");
 
   private vaultUiOnboardingState: GlobalState<boolean> = this.stateProvider.getGlobal(
     GLOBAL_VAULT_UI_ONBOARDING,

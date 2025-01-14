@@ -1,56 +1,53 @@
 @import "./reset.css";
 
-/**
-  Note that the value of the *-600 colors is currently equivalent to the value
-  of the *-500 variant of that color. This is a temporary change to make BW-42
-  updates easier.
-
-  TODO remove comment when the color palette portion of BW-42 is completed.
-*/
-
 :root {
-  --color-transparent-hover: rgb(0 0 0 / 0.03);
+  --color-transparent-hover: rgb(0 0 0 / 0.02);
+  --color-shadow: 168 179 200;
 
   --color-background: 255 255 255;
-  --color-background-alt: 251 251 251;
+  --color-background-alt: 243 246 249;
   --color-background-alt2: 23 92 219;
-  --color-background-alt3: 18 82 163;
-  --color-background-alt4: 13 60 119;
+  --color-background-alt3: 26 65 172;
+  --color-background-alt4: 2 15 102;
 
-  /* Can only be used behind the extension refresh flag */
-  --color-primary-100: 200 217 249;
-  --color-primary-300: 103 149 232;
-  /* Can only be used behind the extension refresh flag */
-  --color-primary-500: 23 93 220;
+  --color-primary-100: 219 229 246;
+  --color-primary-300: 121 161 233;
   --color-primary-600: 23 93 220;
-  --color-primary-700: 18 82 163;
+  --color-primary-700: 26 65 172;
 
-  --color-secondary-100: 240 240 240;
-  --color-secondary-300: 206 212 220;
-  --color-secondary-600: 137 146 159;
-  --color-secondary-700: 33 37 41;
+  --color-secondary-100: 230 233 239;
+  --color-secondary-300: 168 179 200;
+  --color-secondary-500: 90 109 145;
+  --color-secondary-600: 83 99 131;
+  --color-secondary-700: 63 75 99;
 
-  --color-success-600: 1 126 69;
-  --color-success-700: 0 85 46;
+  --color-info-100: 219 229 246;
+  --color-info-600: 121 161 233;
+  --color-info-700: 26 65 172;
 
-  --color-danger-600: 200 53 34;
-  --color-danger-700: 152 41 27;
+  --color-warning-100: 255 248 228;
+  --color-warning-600: 255 191 0;
+  --color-warning-700: 172 88 0;
 
-  --color-warning-600: 139 102 9;
-  --color-warning-700: 105 77 5;
+  --color-danger-100: 255 236 239;
+  --color-danger-600: 203 38 58;
+  --color-danger-700: 149 27 42;
 
-  --color-info-600: 85 85 85;
-  --color-info-700: 59 58 58;
+  --color-success-100: 191 236 195;
+  --color-success-600: 12 128 24;
+  --color-success-700: 11 111 21;
+
+  --color-notification-100: 255 225 247;
+  --color-notification-600: 192 17 118;
 
   --color-art-primary: 2 15 102;
-  --color-art-accent: 85 85 85;
+  --color-art-accent: 44 221 223;
 
-  --color-text-main: 33 37 41;
-  --color-text-muted: 109 117 126;
+  --color-text-main: 27 32 41;
+  --color-text-muted: 96 109 145;
   --color-text-contrast: 255 255 255;
   --color-text-alt2: 255 255 255;
   --color-text-code: 192 17 118;
-  --color-text-headers: 2 15 102;
 
   --color-marketing-logo: 23 93 220;
 
@@ -62,46 +59,53 @@
 }
 
 .theme_dark {
-  --color-transparent-hover: rgb(255 255 255 / 0.12);
+  --color-transparent-hover: rgb(255 255 255 / 0.02);
+  --color-shadow: 0 0 0;
 
-  --color-background: 31 36 46;
-  --color-background-alt: 22 28 38;
+  --color-background: 32 39 51;
+  --color-background-alt: 18 26 39;
   --color-background-alt2: 47 52 61;
-  --color-background-alt3: 47 52 61;
-  --color-background-alt4: 16 18 21;
+  --color-background-alt3: 48 57 70;
+  --color-background-alt4: 18 26 39;
 
-  --color-primary-100: 8 31 73;
-  --color-primary-300: 23 93 220;
-  --color-primary-500: 54 117 232;
-  --color-primary-600: 106 153 240;
-  --color-primary-700: 180 204 249;
+  --color-primary-100: 26 39 78;
+  --color-primary-300: 26 65 172;
+  --color-primary-600: 101 171 255;
+  --color-primary-700: 170 195 239;
 
-  --color-secondary-100: 47 52 61;
-  --color-secondary-300: 110 118 137;
-  --color-secondary-600: 186 192 206;
-  --color-secondary-700: 255 255 255;
+  --color-secondary-100: 48 57 70;
+  --color-secondary-300: 82 91 106;
+  --color-secondary-500: 121 128 142;
+  --color-secondary-600: 143 152 166;
+  --color-secondary-700: 158 167 181;
 
-  --color-success-600: 82 224 124;
-  --color-success-700: 168 239 190;
+  --color-success-100: 11 111 21;
+  --color-success-600: 107 241 120;
+  --color-success-700: 191 236 195;
 
-  --color-danger-600: 255 141 133;
-  --color-danger-700: 255 191 187;
+  --color-danger-100: 149 27 42;
+  --color-danger-600: 255 78 99;
+  --color-danger-700: 255 236 239;
 
-  --color-warning-600: 255 235 102;
-  --color-warning-700: 255 245 179;
+  --color-warning-100: 172 88 0;
+  --color-warning-600: 255 191 0;
+  --color-warning-700: 255 248 228;
 
-  --color-info-600: 164 176 198;
-  --color-info-700: 209 215 226;
+  --color-info-100: 26 65 172;
+  --color-info-600: 121 161 233;
+  --color-info-700: 219 229 246;
 
-  --color-art-primary: 226 227 228;
-  --color-art-accent: 164 176 198;
+  --color-notification-100: 117 37 83;
+  --color-notification-600: 255 143 208;
 
-  --color-text-main: 255 255 255;
-  --color-text-muted: 186 192 206;
-  --color-text-contrast: 25 30 38;
+  --color-art-primary: 243 246 249;
+  --color-art-accent: 44 221 233;
+
+  --color-text-main: 243 246 249;
+  --color-text-muted: 136 152 181;
+  --color-text-contrast: 18 26 39;
   --color-text-alt2: 255 255 255;
-  --color-text-code: 240 141 199;
-  --color-text-headers: 226 227 228;
+  --color-text-code: 255 143 208;
 
   --color-marketing-logo: 255 255 255;
 

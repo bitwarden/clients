@@ -35,6 +35,7 @@
               [(ngModel)]="cipher.type"
               class="form-control"
               [disabled]="cipher.isDeleted"
+              (change)="typeChange()"
               appAutofocus
             >
               <option *ngFor="let o of typeOptions" [ngValue]="o.value">{{ o.name }}</option>

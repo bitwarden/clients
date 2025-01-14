@@ -5,14 +5,17 @@
   "criticalApplications": {
     "message": "Aplicações críticas"
   },
+  "accessIntelligence": {
+    "message": "Aceder à informação"
+  },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "Perceções do risco"
   },
   "passwordRisk": {
     "message": "Risco da palavra-passe"
   },
-  "discoverAtRiskPasswords": {
-    "message": "Descubra as palavras-passe em risco e notifique os utilizadores para alterarem essas palavras-passe."
+  "reviewAtRiskPasswords": {
+    "message": "Reveja as palavras-passe em risco (fracas, expostas ou reutilizadas) em todas as aplicações. Selecione as suas aplicações mais críticas para dar prioridade a ações de segurança para os seus utilizadores para resolver as palavras-passe em risco."
   },
   "dataLastUpdated": {
     "message": "Última atualização dos dados: $DATE$",
@@ -26,6 +29,15 @@
   "notifiedMembers": {
     "message": "Membros notificados"
   },
+  "revokeMembers": {
+    "message": "Revogar membros"
+  },
+  "restoreMembers": {
+    "message": "Restaurar membros"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Não é possível restaurar o acesso à organização"
+  },
   "allApplicationsWithCount": {
     "message": "Todas as aplicações ($COUNT$)",
     "placeholders": {
@@ -36,7 +48,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Criar novo item de credencial"
+    "message": "Criar nova credencial"
   },
   "criticalApplicationsWithCount": {
     "message": "Aplicações críticas ($COUNT$)",
@@ -75,10 +87,10 @@
     "message": "Selecione as suas aplicações mais críticas para descobrir palavras-passe em risco e notifique os utilizadores para alterarem essas palavras-passe."
   },
   "markCriticalApps": {
-    "message": "Marcar aplicações críticas"
+    "message": "Marcar apps críticas"
   },
   "markAppAsCritical": {
-    "message": "Marcar a aplicação como crítica"
+    "message": "Marcar a app como crítica"
   },
   "appsMarkedAsCritical": {
     "message": "Apps marcadas como críticas"
@@ -490,7 +502,7 @@
     "message": "Eliminar"
   },
   "favorite": {
-    "message": "Favorito"
+    "message": "Adicionar aos favoritos"
   },
   "unfavorite": {
     "message": "Remover dos favoritos"
@@ -558,6 +570,9 @@
   },
   "typeSecureNote": {
     "message": "Nota segura"
+  },
+  "typeSshKey": {
+    "message": "Chave SSH"
   },
   "typeLoginPlural": {
     "message": "Credenciais"
@@ -931,7 +946,7 @@
     "message": "Nível de acesso"
   },
   "accessing": {
-    "message": "A aceder"
+    "message": "A aceder a"
   },
   "loggedOut": {
     "message": "Sessão terminada"
@@ -977,6 +992,9 @@
   },
   "loginWithDeviceEnabledNote": {
     "message": "O início de sessão com o dispositivo deve ser ativado nas definições da aplicação Bitwarden. Precisa de outra opção?"
+  },
+  "needAnotherOptionV1": {
+    "message": "Precisa de outra opção?"
   },
   "loginWithMasterPassword": {
     "message": "Iniciar sessão com a palavra-passe mestra"
@@ -1101,8 +1119,20 @@
   "logInToBitwarden": {
     "message": "Iniciar sessão no Bitwarden"
   },
+  "authenticationTimeout": {
+    "message": "Tempo limite de autenticação"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
+  },
   "verifyIdentity": {
     "message": "Verifique a sua identidade"
+  },
+  "whatIsADevice": {
+    "message": "O que é um dispositivo?"
+  },
+  "aDeviceIs": {
+    "message": "Um dispositivo é uma instalação única da app Bitwarden onde o utilizador iniciou sessão. Reinstalar, limpar os dados da aplicação ou limpar os seus cookies pode fazer com que um dispositivo apareça várias vezes."
   },
   "logInInitiated": {
     "message": "A preparar o início de sessão"
@@ -1295,6 +1325,12 @@
   },
   "notificationSentDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Foi enviada uma notificação para o seu dispositivo"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Certifique-se de que a sua conta está desbloqueada e que a frase de impressão digital corresponde à do outro dispositivo"
   },
   "versionNumber": {
     "message": "Versão $VERSION_NUMBER$",
@@ -1627,8 +1663,26 @@
   "passwordHistory": {
     "message": "Histórico de palavras-passe"
   },
+  "generatorHistory": {
+    "message": "Histórico do gerador"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Limpar o histórico do gerador"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Se continuar, todas as entradas serão permanentemente eliminadas do histórico do gerador. Tem a certeza de que pretende continuar?"
+  },
   "noPasswordsInList": {
     "message": "Não existem palavras-passe para listar."
+  },
+  "clearHistory": {
+    "message": "Limpar histórico"
+  },
+  "nothingToShow": {
+    "message": "Nada a mostrar"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Não gerou nada recentemente"
   },
   "clear": {
     "message": "Limpar",
@@ -1666,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Por favor, inicie sessão novamente."
+  },
+  "currentSession": {
+    "message": "Sessão atual"
+  },
+  "requestPending": {
+    "message": "Pedido pendente"
   },
   "logBackInOthersToo": {
     "message": "Por favor, inicie sessão novamente. Se estiver a utilizar outras aplicações Bitwarden, termine a sessão e volte a iniciar sessão nessas também."
@@ -1752,8 +1812,8 @@
   "sessionsDeauthorized": {
     "message": "Todas as sessões desautorizadas"
   },
-  "accountIsManagedMessage": {
-    "message": "Esta conta é gerida por $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Esta conta é propriedade de $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -3218,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Ainda tem 1 convite."
+  },
   "userUsingTwoStep": {
     "message": "Este utilizador está a utilizar a verificação de dois passos para proteger a sua conta."
   },
@@ -3380,6 +3443,9 @@
         "example": "'Google'"
       }
     }
+  },
+  "viewAllLogInOptions": {
+    "message": "Ver todas as opções de início de sessão"
   },
   "viewAllLoginOptions": {
     "message": "Ver todas as opções de início de sessão"
@@ -3714,6 +3780,15 @@
   "device": {
     "message": "Dispositivo"
   },
+  "loginStatus": {
+    "message": "Estado do início de sessão"
+  },
+  "firstLogin": {
+    "message": "Primeiro início de sessão"
+  },
+  "trusted": {
+    "message": "Confiável"
+  },
   "creatingAccountOn": {
     "message": "A criar conta em"
   },
@@ -3831,8 +3906,60 @@
   "updateBrowser": {
     "message": "Atualizar navegador"
   },
+  "generatingRiskInsights": {
+    "message": "A gerar as suas perceções de riscos..."
+  },
   "updateBrowserDesc": {
     "message": "Está a utilizar um navegador web não suportado. O cofre web pode não funcionar corretamente."
+  },
+  "freeTrialEndPromptCount": {
+    "message": "O seu período experimental gratuito termina dentro de $COUNT$ dias.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, o seu período experimental gratuito termina dentro de $COUNT$ dias.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, o seu período experimental gratuito termina amanhã.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "O seu período experimental gratuito termina amanhã."
+  },
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, o seu período experimental gratuito termina hoje.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "O seu período experimental gratuito termina hoje."
+  },
+  "clickHereToAddPaymentMethod": {
+    "message": "Clique aqui para adicionar um método de pagamento."
   },
   "joinOrganization": {
     "message": "Aderir à organização"
@@ -4388,6 +4515,9 @@
     "message": "Nunca solicitar a verificação de frases de impressões digitais para utilizadores convidados (não recomendado)",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Será notificado quando o pedido for aprovado"
+  },
   "free": {
     "message": "Gratuito",
     "description": "Free, as in 'Free beer'"
@@ -4617,6 +4747,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Inicie sessão utilizando o portal de início de sessão único da sua organização. Por favor, introduza o identificador SSO da sua organização para começar."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Introduza o identificador SSO da sua organização para começar"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "Para iniciar sessão com o seu fornecedor de SSO, introduza o identificador de SSO da sua organização para começar. Poderá ser necessário introduzir este identificador SSO quando iniciar sessão a partir de um novo dispositivo."
   },
   "enterpriseSingleSignOn": {
     "message": "Início de sessão único para empresas"
@@ -5522,6 +5658,12 @@
   "bulkFilteredMessage": {
     "message": "Excluído, não aplicável a esta ação"
   },
+  "nonCompliantMembersTitle": {
+    "message": "Membros não conformes"
+  },
+  "nonCompliantMembersError": {
+    "message": "Os membros que não estejam em conformidade com a política de organização única ou de verificação de dois passos não podem ser restaurados até cumprirem os requisitos da política"
+  },
   "fingerprint": {
     "message": "Impressão digital"
   },
@@ -5536,6 +5678,20 @@
   },
   "error": {
     "message": "Erro"
+  },
+  "decryptionError": {
+    "message": "Erro de desencriptação"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "O Bitwarden não conseguiu desencriptar o(s) item(ns) do cofre listado(s) abaixo."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contacte o serviço de apoio ao cliente",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "para evitar perdas adicionais de dados.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "A permissão para gerir utilizadores deve também ser concedida com a permissão para gerir a recuperação da conta"
@@ -6029,9 +6185,6 @@
   "emailSent": {
     "message": "E-mail enviado"
   },
-  "revokeSponsorshipConfirmation": {
-    "message": "Depois de remover esta conta, o patrocínio do plano Familiar expirará no final do período de faturação. Não será possível resgatar uma nova oferta de patrocínio até que a existente expire. Tem a certeza de que pretende continuar?"
-  },
   "removeSponsorshipSuccess": {
     "message": "Patrocínio removido"
   },
@@ -6321,6 +6474,9 @@
   "idpSingleSignOnServiceUrlRequired": {
     "message": "Necessário se o ID da entidade não for um URL."
   },
+  "offerNoLongerValid": {
+    "message": "Esta oferta já não é válida. Contacte os administradores da sua organização para obter mais informações."
+  },
   "openIdOptionalCustomizations": {
     "message": "Personalizações opcionais"
   },
@@ -6413,8 +6569,8 @@
   "generateEmail": {
     "message": "Gerar e-mail"
   },
-  "generatorBoundariesHint": {
-    "message": "O valor deve estar entre $MIN$ e $MAX$",
+  "spinboxBoundariesHint": {
+    "message": "O valor deve estar entre $MIN$ e $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -6424,6 +6580,26 @@
       "max": {
         "content": "$2",
         "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Utilize $RECOMMENDED$ caracteres ou mais para gerar uma palavra-passe forte.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Utilize $RECOMMENDED$ palavras ou mais para gerar uma frase de acesso forte.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
       }
     }
   },
@@ -6679,6 +6855,10 @@
   },
   "scimDescription": {
     "message": "Aprovisione automaticamente utilizadores e grupos com o seu fornecedor de identidade preferido através do aprovisionamento SCIM",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Aprovisione automaticamente utilizadores e grupos com o seu fornecedor de identidade preferido através do aprovisionamento SCIM. Encontre integrações suportadas",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -7958,8 +8138,17 @@
   "loginInitiated": {
     "message": "A preparar o início de sessão"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Memorizar este dispositivo para facilitar futuros inícios de sessão"
+  },
   "deviceApprovalRequired": {
     "message": "É necessária a aprovação do dispositivo. Selecione uma opção de aprovação abaixo:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Aprovação do dispositivo necessária"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Selecione uma opção de aprovação abaixo"
   },
   "rememberThisDevice": {
     "message": "Lembrar este dispositivo"
@@ -8085,6 +8274,18 @@
   "approveRequest": {
     "message": "Aprovar pedido"
   },
+  "deviceApproved": {
+    "message": "Dispositivo aprovado"
+  },
+  "deviceRemoved": {
+    "message": "Dispositivo removido"
+  },
+  "removeDevice": {
+    "message": "Remover dispositivo"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Tem a certeza de que pretende remover este dispositivo?"
+  },
   "noDeviceRequests": {
     "message": "Sem pedidos de dispositivos"
   },
@@ -8190,6 +8391,9 @@
   "userEmailMissing": {
     "message": "E-mail do utilizador em falta"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "O e-mail do utilizador ativo não foi encontrado. A terminar a sessão."
+  },
   "deviceTrusted": {
     "message": "Dispositivo de confiança"
   },
@@ -8284,9 +8488,6 @@
   },
   "collectionManagementDesc": {
     "message": "Gerir o comportamento da coleção da organização"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Limitar a criação e eliminação de coleções aos proprietários e administradores"
   },
   "limitCollectionCreationDesc": {
     "message": "Limitar a criação de coleções aos proprietários e administradores"
@@ -8441,7 +8642,7 @@
   },
   "addAPaymentMethod": {
     "message": "adicione um método de pagamento",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "Informações sobre a organização"
@@ -8866,44 +9067,99 @@
   "sdksDesc": {
     "message": "Utilize o SDK do Gestor de Segredos do Bitwarden nas seguintes linguagens de programação para criar as suas próprias aplicações."
   },
-  "setUpGithubActions": {
-    "message": "Configurar ações do GitHub"
+  "ssoDescStart": {
+    "message": "Configurar",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Configurar o Kubernetes"
+  "ssoDescEnd": {
+    "message": "para o Bitwarden utilizando o guia de implementação do seu fornecedor de identidade.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Configurar o GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Provisionamento de utilizadores"
   },
-  "setUpAnsible": {
-    "message": "Configurar o Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Ver o repositório Rust"
+  "scimIntegrationDescStart": {
+    "message": "Configure o ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Ver repositório de C#"
+  "scimIntegrationDescEnd": {
+    "message": "(Sistema de Gestão de Identidades entre Domínios) para fornecer automaticamente utilizadores e grupos ao Bitwarden utilizando o guia de implementação do seu fornecedor de identidade.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Ver repositório de C++"
+  "bwdc": {
+    "message": "Conector de diretório do Bitwarden"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Ver repositório de JS WebAssembly"
+  "bwdcDesc": {
+    "message": "Configure o Conector de diretório Bitwarden para aprovisionar automaticamente utilizadores e grupos utilizando o guia de implementação do seu fornecedor de identidade."
   },
-  "javaSDKRepo": {
-    "message": "Ver repositório de Java"
+  "eventManagement": {
+    "message": "Gestão de eventos"
   },
-  "pythonSDKRepo": {
-    "message": "Ver repositório de Python"
+  "eventManagementDesc": {
+    "message": "Integre os registos de eventos Bitwarden com o seu sistema SIEM (Informações do Sistema e Gestão de Eventos) utilizando o guia de implementação da sua plataforma."
   },
-  "phpSDKRepo": {
-    "message": "Ver repositório de php"
+  "deviceManagement": {
+    "message": "Gestão de dispositivos"
   },
-  "rubySDKRepo": {
-    "message": "Ver repositório de Ruby"
+  "deviceManagementDesc": {
+    "message": "Configure a gestão de dispositivos do Bitwarden utilizando o guia de implementação da sua plataforma."
   },
-  "goSDKRepo": {
-    "message": "Ver repositório de Go"
+  "integrationCardTooltip": {
+    "message": "Lançar o guia de implementação da $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Configurar a $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Ver o repositório $SDK$",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "abrir o guia de implementação da $INTEGRATION$ num novo separador.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "ver o repositório $SDK$ num novo separador.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "configurar o guia de implementação da $INTEGRATION$ num novo separador.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Crie uma nova organização de clientes para gerir como Fornecedor. Os lugares adicionais serão refletidos na próxima faturação."
@@ -9014,6 +9270,12 @@
   "providerPlan": {
     "message": "Fornecedor de serviços geridos"
   },
+  "managedServiceProvider": {
+    "message": "Fornecedor de serviços geridos"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "Empresa multiorganizacional"
+  },
   "orgSeats": {
     "message": "Lugares da organização"
   },
@@ -9058,6 +9320,18 @@
   },
   "updatedTaxInformation": {
     "message": "Informações fiscais atualizadas"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Número de identificação fiscal inválido. Se considerar que se trata de um erro, contacte a assistência."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Não foi possível validar o seu número de identificação fiscal. Se considerar que se trata de um erro, contacte a assistência."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Número de identificação fiscal inválido. Se considerar que se trata de um erro, contacte a assistência."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Ocorreu um erro ao pré-visualizar a fatura. Por favor, tente novamente mais tarde."
   },
   "unverified": {
     "message": "Não verificado"
@@ -9416,6 +9690,30 @@
   "additionalStorageGbMessage": {
     "message": "GB de armazenamento adicional"
   },
+  "sshKeyAlgorithm": {
+    "message": "Algoritmo de chaves"
+  },
+  "sshKeyFingerprint": {
+    "message": "Impressão digital"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Chave privada"
+  },
+  "sshKeyPublicKey": {
+    "message": "Chave pública"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
   "premiumAccounts": {
     "message": "6 contas Premium"
   },
@@ -9549,8 +9847,8 @@
   "selfHostingTitleProper": {
     "message": "Auto-hospedagem"
   },
-  "verified-domain-single-org-warning": {
-    "message": "A verificação de um domínio ativará a política de organização única."
+  "claim-domain-single-org-warning": {
+    "message": "A reivindicação de um domínio ativará a política de organização única."
   },
   "single-org-revoked-user-warning": {
     "message": "Os membros não conformes serão revogados. Os administradores podem restaurar os membros quando estes saírem de todas as outras organizações."
@@ -9565,9 +9863,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Quando um membro é eliminado, a sua conta Bitwarden e os dados individuais do cofre serão permanentemente eliminados. Os dados da coleção permanecerão na organização. Para os reintegrar, têm de criar uma conta e ser novamente integrados.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Esta ação eliminará permanentemente todos os itens pertencentes a $NAME$. Os itens da coleção não são afetados.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Esta ação eliminará permanentemente todos os itens pertencentes aos seguintes membros. Os itens da coleção não são afetados.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ eliminado",
@@ -9580,5 +9888,253 @@
   },
   "organizationUserDeletedDesc": {
     "message": "O utilizador foi removido da organização e todos os dados de utilizador associados foram eliminados."
+  },
+  "deletedUserId": {
+    "message": "Utilizador $ID$ eliminado - um proprietário/administrador eliminou a conta de utilizador",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "O utilizador $ID$ saiu da organização",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "A $ORGANIZATION$ está suspensa",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "Contacte o proprietário da sua organização para obter assistência."
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "Para recuperar o acesso à sua organização, adicione um método de pagamento."
+  },
+  "deleteMembers": {
+    "message": "Eliminar membros"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "Esta ação não é aplicável a nenhum dos membros selecionados."
+  },
+  "deletedSuccessfully": {
+    "message": "Eliminados com sucesso"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "Remover o patrocínio do plano Bitwarden Familiar Gratuito"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "Não permitir que os membros resgatem um plano Familiar através desta organização."
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "O pagamento com uma conta bancária só está disponível para clientes nos Estados Unidos. Ser-lhe-á pedido que verifique a sua conta bancária. Efetuaremos um micro-depósito nos próximos 1-2 dias úteis. Introduza o código descritor do extrato deste depósito na página de faturação da organização para verificar a conta bancária. A não verificação da conta bancária resultará na falta de pagamento e na suspensão da sua subscrição."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "Efetuámos um micro-depósito na sua conta bancária (pode demorar 1-2 dias úteis). Introduza o código de seis dígitos que começa por \"SM\" e que se encontra na descrição do depósito. Se a conta bancária não for verificada, o pagamento não será efetuado e a sua subscrição será suspensa."
+  },
+  "descriptorCode": {
+    "message": "Código descritor"
+  },
+  "importantNotice": {
+    "message": "Aviso importante"
+  },
+  "setupTwoStepLogin": {
+    "message": "Definir a verificação de dois passos"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "O Bitwarden enviará um código para o e-mail da sua conta para verificar as credenciais de novos dispositivos a partir de fevereiro de 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Pode configurar a verificação de dois passos como forma alternativa de proteger a sua conta ou alterar o seu e-mail para um a que possa aceder."
+  },
+  "remindMeLater": {
+    "message": "Lembrar-me mais tarde"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Tem um acesso fiável ao seu e-mail, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Não, não tenho"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Sim, consigo aceder de forma fiável ao meu e-mail"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Ativar a verificação de dois passos"
+  },
+  "changeAcctEmail": {
+    "message": "Alterar o e-mail da conta"
+  },
+  "removeMembers": {
+    "message": "Remover membros"
+  },
+  "devices": {
+    "message": "Dispositivos"
+  },
+  "deviceListDescription": {
+    "message": "A sua conta foi iniciada em cada um dos dispositivos abaixo. Se não reconhecer um dispositivo, remova-o agora."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Tem sessão iniciada em cada um dos dispositivos abaixo."
+  },
+  "claimedDomains": {
+    "message": "Domínios reivindicados"
+  },
+  "claimDomain": {
+    "message": "Reivindicar domínio"
+  },
+  "reclaimDomain": {
+    "message": "Recuperar domínio"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Exemplo: omeudominio.com. Os subdomínios requerem campos separados para serem reivindicados."
+  },
+  "automaticClaimedDomains": {
+    "message": "Domínios reivindicados automaticamente"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "O Bitwarden tentará reivindicar o domínio 3 vezes durante as primeiras 72 horas. Se o domínio não puder ser reivindicado, verifique o registo DNS no seu anfitrião e reivindique manualmente. O domínio será removido da sua organização em 7 dias se não for reivindicado."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ não reivindicado. Verifique o seu registo DNS.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Reivindicado"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Sob verificação"
+  },
+  "claimedDomainsDesc": {
+    "message": "Reivindique um domínio para possuir todas as contas de membros cujo endereço de e-mail corresponda ao domínio. Os membros poderão ignorar o identificador SSO quando iniciarem sessão. Os administradores também poderão eliminar contas de membros."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "O campo não é um formato válido. Formato: omeudominio.com. Os subdomínios requerem campos separados para serem reivindicado."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ reivindicado",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ não reivindicado",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Se remover $EMAIL$, o patrocínio deste plano Familiar não pode ser resgatado. Tem a certeza de que pretende continuar?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Se remover $EMAIL$, o patrocínio deste plano Familiar terminará e o método de pagamento guardado será cobrado $40 + imposto aplicável a $DATE$. Não será possível resgatar um novo patrocínio até $DATE$. Tem a certeza de que pretende continuar?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domínio reivindicado"
+  },
+  "organizationNameMaxLength": {
+    "message": "O nome da organização não pode exceder 50 caracteres."
+  },
+  "resellerRenewalWarning": {
+    "message": "A sua subscrição será renovada em breve. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "A fatura da sua subscrição foi emitida a $ISSUED_DATE$. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "A fatura da sua subscrição não foi paga. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Subscrição da organização reiniciada"
+  },
+  "restartSubscription": {
+    "message": "Reinicie a sua subscrição"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Contacte a $PROVIDER$ para obter assistência.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
   }
 }

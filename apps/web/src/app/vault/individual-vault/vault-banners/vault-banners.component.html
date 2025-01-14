@@ -9,12 +9,12 @@
   {{ freeTrialMessage(organization) }}
   <a
     bitLink
-    linkType="contrast"
+    linkType="secondary"
     (click)="navigateToPaymentMethod(organization?.organizationId)"
     rel="noreferrer noopener"
     class="tw-cursor-pointer"
   >
-    {{ "routeToPaymentMethodTrigger" | i18n }}
+    {{ "clickHereToAddPaymentMethod" | i18n }}
   </a>
 </bit-banner>
 
@@ -28,7 +28,7 @@
   {{ "updateBrowserDesc" | i18n }}
   <a
     bitLink
-    linkType="contrast"
+    linkType="secondary"
     target="_blank"
     href="https://browser-update.org/update-browser.html"
     rel="noreferrer noopener"
@@ -45,7 +45,7 @@
   (onClose)="dismissBanner(VisibleVaultBanner.KDFSettings)"
 >
   {{ "lowKDFIterationsBanner" | i18n }}
-  <a bitLink linkType="contrast" routerLink="/settings/security/security-keys">
+  <a bitLink linkType="secondary" routerLink="/settings/security/security-keys">
     {{ "changeKDFSettings" | i18n }}
   </a>
 </bit-banner>
@@ -66,7 +66,7 @@
   (onClose)="dismissBanner(VisibleVaultBanner.Premium)"
 >
   {{ "premiumUpgradeUnlockFeatures" | i18n }}
-  <a bitLink linkType="contrast" routerLink="/settings/subscription/premium">
+  <a bitLink linkType="secondary" routerLink="/settings/subscription/premium">
     {{ "goPremium" | i18n }}
   </a>
 </bit-banner>

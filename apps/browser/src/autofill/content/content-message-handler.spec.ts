@@ -19,6 +19,8 @@ describe("ContentMessageHandler", () => {
   );
 
   beforeEach(() => {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./content-message-handler");
   });
 

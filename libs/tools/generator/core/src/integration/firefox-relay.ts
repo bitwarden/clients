@@ -59,9 +59,10 @@ const forwarder = Object.freeze({
       // e.g. key: "forwarder.Firefox.local.settings",
       key: "firefoxRelayForwarder",
       target: "object",
-      format: "classified",
+      format: "secret-state",
       classifier: new PrivateClassifier<FirefoxRelaySettings>(),
       state: GENERATOR_DISK,
+      initial: defaultSettings,
       options: {
         deserializer: (value) => value,
         clearOn: ["logout"],

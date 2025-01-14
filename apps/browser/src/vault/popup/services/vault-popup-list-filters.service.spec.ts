@@ -7,8 +7,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -31,7 +35,7 @@ describe("VaultPopupListFiltersService", () => {
   } as unknown as CollectionService;
 
   const folderService = {
-    folderViews$,
+    folderViews$: () => folderViews$,
   } as unknown as FolderService;
 
   const cipherService = {
@@ -50,11 +54,16 @@ describe("VaultPopupListFiltersService", () => {
     policyAppliesToActiveUser$: jest.fn(() => policyAppliesToActiveUser$),
   };
 
+  const state$ = new BehaviorSubject<boolean>(false);
+  const update = jest.fn().mockResolvedValue(undefined);
+
   beforeEach(() => {
     memberOrganizations$.next([]);
     decryptedCollections$.next([]);
     policyAppliesToActiveUser$.next(false);
     policyService.policyAppliesToActiveUser$.mockClear();
+
+    const accountService = mockAccountServiceWith("userId" as UserId);
 
     collectionService.getAllNested = () => Promise.resolve([]);
     TestBed.configureTestingModule({
@@ -83,7 +92,15 @@ describe("VaultPopupListFiltersService", () => {
           provide: PolicyService,
           useValue: policyService,
         },
+        {
+          provide: StateProvider,
+          useValue: { getGlobal: () => ({ state$, update }) },
+        },
         { provide: FormBuilder, useClass: FormBuilder },
+        {
+          provide: AccountService,
+          useValue: accountService,
+        },
       ],
     });
 
@@ -99,6 +116,20 @@ describe("VaultPopupListFiltersService", () => {
         CipherType.SecureNote,
         CipherType.SshKey,
       ]);
+    });
+  });
+
+  describe("numberOfAppliedFilters$", () => {
+    it("updates as the form value changes", (done) => {
+      service.numberOfAppliedFilters$.subscribe((number) => {
+        expect(number).toBe(2);
+        done();
+      });
+
+      service.filterForm.patchValue({
+        organization: { id: "1234" } as Organization,
+        folder: { id: "folder11" } as FolderView,
+      });
     });
   });
 
@@ -449,6 +480,26 @@ describe("VaultPopupListFiltersService", () => {
 
         service.filterForm.patchValue({ organization });
       });
+    });
+  });
+
+  describe("filterVisibilityState", () => {
+    it("exposes stored state through filterVisibilityState$", (done) => {
+      state$.next(true);
+
+      service.filterVisibilityState$.subscribe((filterVisibility) => {
+        expect(filterVisibility).toBeTrue();
+        done();
+      });
+    });
+
+    it("updates stored filter state", async () => {
+      await service.updateFilterVisibility(false);
+
+      expect(update).toHaveBeenCalledOnce();
+      // Get callback passed to `update`
+      const updateCallback = update.mock.calls[0][0];
+      expect(updateCallback()).toBe(false);
     });
   });
 });
