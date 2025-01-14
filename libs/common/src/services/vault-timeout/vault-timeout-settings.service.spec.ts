@@ -6,8 +6,6 @@ import {
   FakeUserDecryptionOptions as UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
@@ -20,10 +18,12 @@ import { Policy } from "../../admin-console/models/domain/policy";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { LogService } from "../../platform/abstractions/log.service";
+import { Utils } from "../../platform/misc/utils";
 import {
   VAULT_TIMEOUT,
   VAULT_TIMEOUT_ACTION,
 } from "../../services/vault-timeout/vault-timeout-settings.state";
+import { UserId } from "../../types/guid";
 import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";
 
 import { VaultTimeoutSettingsService } from "./vault-timeout-settings.service";

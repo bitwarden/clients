@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 require("dotenv").config();
 const child_process = require("child_process");
 const path = require("path");

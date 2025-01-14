@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Bekræft din identitet"
   },
+  "whatIsADevice": {
+    "message": "Hvad er en enhed?"
+  },
+  "aDeviceIs": {
+    "message": "En enhed er en unik installation af Bitwarden-appen, hvor man har logget ind. Geninstallation, rydning af app-data eller rydning af cookies kan medføre, at en enhed vises op flere gange."
+  },
   "logInInitiated": {
     "message": "Indlogning påbegyndt"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Log ind igen."
+  },
+  "currentSession": {
+    "message": "Aktuel session"
+  },
+  "requestPending": {
+    "message": "Anmodning afventer"
   },
   "logBackInOthersToo": {
     "message": "Log ind igen. Bruger du andre Bitwarden-applikationer, så log også ud og ind igen på disse."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Der er 1 invitation tilbage."
+  },
   "userUsingTwoStep": {
     "message": "Denne bruger benytter totrins-login for at beskytte kontoen."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Enhed"
+  },
+  "loginStatus": {
+    "message": "Indlogningsstatus"
+  },
+  "firstLogin": {
+    "message": "Første login"
+  },
+  "trusted": {
+    "message": "Betroet"
   },
   "creatingAccountOn": {
     "message": "Opretter konto på"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Fejl"
+  },
+  "decryptionError": {
+    "message": "Dekrypteringsfejl"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kunne ikke dekryptere boks-emne(r) anført nedenfor."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontakt kundeservice",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "for at undgå yderligere tab af data.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Håndtér brugere skal også tildeles med tilladelsen håndtér kontogendannelse"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Godkend anmodning"
   },
+  "deviceApproved": {
+    "message": "Enhed godkendt"
+  },
+  "deviceRemoved": {
+    "message": "Enhed fjernet"
+  },
+  "removeDevice": {
+    "message": "Fjern enhed"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Sikker på, at denne enhed skal fjernes?"
+  },
   "noDeviceRequests": {
     "message": "Ingen enhedsanmodninger"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Fjern medlemmer"
   },
+  "devices": {
+    "message": "Enheder"
+  },
+  "deviceListDescription": {
+    "message": "Der er blevet logget ind på kontoen på hver af enhederne nedenfor. Genkendes en enhed ikke, fjern den nu."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Der er blevet logget ind på kontoen på hver af enhederne nedenfor."
+  },
   "claimedDomains": {
     "message": "Registrerede domæner"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organisationsabonnement genstartet"
+  },
+  "restartSubscription": {
+    "message": "Genstart abonnementet"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Kontakt $PROVIDER$ for assistance.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

@@ -14,6 +14,7 @@
     "declarationDir": "dist/types",
     "outDir": "dist",
     "baseUrl": ".",
+    "allowJs": true,
     "paths": {
       "@bitwarden/admin-console": ["./libs/admin-console/src"],
       "@bitwarden/angular/*": ["./libs/angular/src/*"],

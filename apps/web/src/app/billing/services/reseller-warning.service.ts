@@ -33,7 +33,7 @@ export class ResellerWarningService {
       return {
         type: "warning",
         message: this.i18nService.t(
-          "resellerPastDueWarning",
+          "resellerPastDueWarningMsg",
           organization.providerName,
           this.formatDate(gracePeriodEnd),
         ),
@@ -50,7 +50,7 @@ export class ResellerWarningService {
       return {
         type: "info",
         message: this.i18nService.t(
-          "resellerOpenInvoiceWarning",
+          "resellerOpenInvoiceWarningMgs",
           organization.providerName,
           this.formatDate(organizationBillingMetadata.invoiceCreatedDate),
           this.formatDate(organizationBillingMetadata.invoiceDueDate),
@@ -68,7 +68,7 @@ export class ResellerWarningService {
       return {
         type: "info",
         message: this.i18nService.t(
-          "resellerRenewalWarning",
+          "resellerRenewalWarningMsg",
           organization.providerName,
           this.formatDate(organizationBillingMetadata.subPeriodEndDate),
         ),

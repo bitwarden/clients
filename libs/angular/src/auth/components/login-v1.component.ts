@@ -397,6 +397,8 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
         email,
         deviceIdentifier,
       );
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.showLoginWithDevice = false;
     }

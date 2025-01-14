@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Mahinang password na nakilala at nakita sa data breach. Gamitin ang malakas at natatanging password upang makaproteksyon sa iyong account. Sigurado ka ba na gusto mong gamitin ang password na ito?"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "Tingnan ang kilalang breaches ng data para sa password na ito"
   },
