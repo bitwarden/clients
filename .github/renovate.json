@@ -104,6 +104,7 @@
       "matchPackageNames": [
         "@babel/core",
         "@babel/preset-env",
+        "@babel/preset-typescript",
         "@bitwarden/sdk-internal",
         "@electron/fuses",
         "@electron/notarize",
@@ -134,6 +135,7 @@
         "node-ipc",
         "pkg",
         "rxjs",
+        "@storybook/web-components-webpack5",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
         "typescript",
