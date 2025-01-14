@@ -39,6 +39,9 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
           let status = await firstValueFrom(authService.authStatusFor$(userId as UserId));
           status = await authService.getAuthStatus(userId);
           if (status === AuthenticationStatus.Unlocked) {
+            this.logService.info(
+              "[Process Reload Service] User unlocked, preventing process reload",
+            );
             return;
           }
         }
@@ -55,6 +58,9 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     if (userId != null) {
       const ephemeralPin = await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId);
       if (ephemeralPin != null) {
+        this.logService.info(
+          "[Process Reload Service] Ephemeral pin active, preventing process reload",
+        );
         return;
       }
     }
@@ -97,7 +103,12 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
         await this.reloadCallback();
       }
       return;
+    } else {
+      this.logService.info(
+        "[Process Reload Service] Desktop ipc fingerprint validated, preventing process reload",
+      );
     }
+
     if (this.reloadInterval == null) {
       this.reloadInterval = setInterval(async () => await this.executeProcessReload(), 1000);
     }

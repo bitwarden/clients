@@ -21,7 +21,7 @@ import {
   ToastOptions,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricStateService } from "@bitwarden/key-management";
+import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
 import { PopupViewCacheService } from "../platform/popup/view-cache/popup-view-cache.service";
@@ -66,6 +66,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private animationControlService: AnimationControlService,
     private biometricStateService: BiometricStateService,
+    private biometricsService: BiometricsService,
   ) {}
 
   async ngOnInit() {
@@ -102,7 +103,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.messageListener.allMessages$
       .pipe(
-        tap((msg: any) => {
+        tap(async (msg: any) => {
           if (msg.command === "doneLoggingOut") {
             // TODO: PM-8544 - why do we call logout in the popup after receiving the doneLoggingOut message? Hasn't this already completeted logout?
             this.authService.logOut(async () => {
@@ -119,6 +120,7 @@ export class AppComponent implements OnInit, OnDestroy {
             msg.command === "locked" &&
             (msg.userId == null || msg.userId == this.activeUserId)
           ) {
+            await this.biometricsService.setShouldAutopromptNow(false);
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["lock"]);
