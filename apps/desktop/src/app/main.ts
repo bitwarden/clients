@@ -1,10 +1,8 @@
 import { enableProdMode } from "@angular/core";
 import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
-// FIXME: Remove when updating file. Eslint update
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require("../scss/styles.scss");
-// FIXME: Remove when updating file. Eslint update
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require("../scss/tailwind.css");
 
