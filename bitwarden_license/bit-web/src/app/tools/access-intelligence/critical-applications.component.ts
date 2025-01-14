@@ -29,7 +29,6 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-
 import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
 import { applicationTableMockData } from "./application-table.mock";
 import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
