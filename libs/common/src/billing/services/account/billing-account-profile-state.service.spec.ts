@@ -1,17 +1,16 @@
 import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-
 import {
   FakeAccountService,
   mockAccountServiceWith,
   FakeStateProvider,
   FakeSingleUserState,
 } from "../../../../spec";
+import { ApiService } from "../../../abstractions/api.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { UserId } from "../../../types/guid";
 import { BillingAccountProfile } from "../../abstractions/account/billing-account-profile-state.service";
+import { BillingHistoryResponse } from "../../models/response/billing-history.response";
 
 import {
   BILLING_ACCOUNT_PROFILE_KEY_DEFINITION,
