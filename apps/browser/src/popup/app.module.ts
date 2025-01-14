@@ -29,24 +29,13 @@ import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-req
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
-import { AccountSecurityComponent as AccountSecurityComponentV1 } from "../auth/popup/settings/account-security-v1.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { VaultTimeoutInputComponent } from "../auth/popup/settings/vault-timeout-input.component";
 import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
-import { Fido2CipherRowV1Component } from "../autofill/popup/fido2/fido2-cipher-row-v1.component";
-import { Fido2CipherRowComponent } from "../autofill/popup/fido2/fido2-cipher-row.component";
-import { Fido2UseBrowserLinkV1Component } from "../autofill/popup/fido2/fido2-use-browser-link-v1.component";
-import { Fido2UseBrowserLinkComponent } from "../autofill/popup/fido2/fido2-use-browser-link.component";
-import { Fido2V1Component } from "../autofill/popup/fido2/fido2-v1.component";
-import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
-import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
-import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
-import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
-import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PopOutComponent } from "../platform/popup/components/pop-out.component";
 import { HeaderComponent } from "../platform/popup/header.component";
@@ -55,25 +44,6 @@ import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.comp
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 import { FilePopoutCalloutComponent } from "../tools/popup/components/file-popout-callout.component";
-import { ActionButtonsComponent } from "../vault/popup/components/action-buttons.component";
-import { CipherRowComponent } from "../vault/popup/components/cipher-row.component";
-import { AddEditCustomFieldsComponent } from "../vault/popup/components/vault/add-edit-custom-fields.component";
-import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
-import { AttachmentsComponent } from "../vault/popup/components/vault/attachments.component";
-import { CollectionsComponent } from "../vault/popup/components/vault/collections.component";
-import { CurrentTabComponent } from "../vault/popup/components/vault/current-tab.component";
-import { PasswordHistoryComponent } from "../vault/popup/components/vault/password-history.component";
-import { ShareComponent } from "../vault/popup/components/vault/share.component";
-import { VaultFilterComponent } from "../vault/popup/components/vault/vault-filter.component";
-import { VaultItemsComponent } from "../vault/popup/components/vault/vault-items.component";
-import { VaultSelectComponent } from "../vault/popup/components/vault/vault-select.component";
-import { ViewCustomFieldsComponent } from "../vault/popup/components/vault/view-custom-fields.component";
-import { ViewComponent } from "../vault/popup/components/vault/view.component";
-import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
-import { FolderAddEditComponent } from "../vault/popup/settings/folder-add-edit.component";
-import { FoldersComponent } from "../vault/popup/settings/folders.component";
-import { SyncComponent } from "../vault/popup/settings/sync.component";
-import { VaultSettingsComponent } from "../vault/popup/settings/vault-settings.component";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -107,10 +77,6 @@ import "../platform/popup/locales";
     ScrollingModule,
     ServicesModule,
     DialogModule,
-    ExcludedDomainsComponent,
-    Fido2CipherRowComponent,
-    Fido2Component,
-    Fido2UseBrowserLinkComponent,
     FilePopoutCalloutComponent,
     AvatarModule,
     AccountComponent,
@@ -128,51 +94,25 @@ import "../platform/popup/locales";
     ExtensionAnonLayoutWrapperComponent,
   ],
   declarations: [
-    ActionButtonsComponent,
-    AddEditComponent,
-    AddEditCustomFieldsComponent,
     AppComponent,
-    AttachmentsComponent,
-    CipherRowComponent,
-    VaultItemsComponent,
-    CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
-    CurrentTabComponent,
     EnvironmentComponent,
-    ExcludedDomainsV1Component,
-    Fido2CipherRowV1Component,
-    Fido2UseBrowserLinkV1Component,
-    FolderAddEditComponent,
-    FoldersComponent,
-    VaultFilterComponent,
     HintComponent,
     HomeComponent,
     LoginViaAuthRequestComponentV1,
     LoginComponentV1,
     LoginDecryptionOptionsComponentV1,
-    NotificationsSettingsV1Component,
-    AppearanceComponent,
-    PasswordHistoryComponent,
     RegisterComponent,
     SetPasswordComponent,
-    VaultSettingsComponent,
-    ShareComponent,
     SsoComponentV1,
-    SyncComponent,
     TabsV2Component,
     TwoFactorComponent,
     TwoFactorOptionsComponent,
     UpdateTempPasswordComponent,
     UserVerificationComponent,
-    AccountSecurityComponentV1,
     VaultTimeoutInputComponent,
-    ViewComponent,
-    ViewCustomFieldsComponent,
     RemovePasswordComponent,
-    VaultSelectComponent,
-    Fido2V1Component,
-    AutofillV1Component,
     EnvironmentSelectorComponent,
   ],
   exports: [],

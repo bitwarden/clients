@@ -35,7 +35,8 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 // FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";
@@ -157,6 +158,7 @@ export default {
           provide: TotpCaptureService,
           useValue: {
             captureTotpSecret: () => Promise.resolve("some-value"),
+            canCaptureTotp: () => true,
           },
         },
         {
@@ -256,7 +258,7 @@ export const Edit: Story = {
     config: {
       ...defaultConfig,
       mode: "edit",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -267,7 +269,7 @@ export const PartialEdit: Story = {
     config: {
       ...defaultConfig,
       mode: "partial-edit",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -278,7 +280,7 @@ export const Clone: Story = {
     config: {
       ...defaultConfig,
       mode: "clone",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -291,7 +293,7 @@ export const NoPersonalOwnership: Story = {
       mode: "add",
       allowPersonalOwnership: false,
       originalCipher: defaultConfig.originalCipher,
-      organizations: defaultConfig.organizations,
+      organizations: defaultConfig.organizations!,
     },
   },
 };

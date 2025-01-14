@@ -46,6 +46,8 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
       dialogService,
       formBuilder,
     );
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     params?.folderId ? (this.folderId = params.folderId) : null;
   }
 
@@ -61,7 +63,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
     }
 
     try {
-      await this.folderApiService.delete(this.folder.id);
+      await this.folderApiService.delete(this.folder.id, await firstValueFrom(this.activeUserId$));
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -82,10 +84,10 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
     }
 
     try {
-      const activeAccountId = (await firstValueFrom(this.accountSerivce.activeAccount$)).id;
+      const activeAccountId = await firstValueFrom(this.activeUserId$);
       const userKey = await this.keyService.getUserKeyWithLegacySupport(activeAccountId);
       const folder = await this.folderService.encrypt(this.folder, userKey);
-      this.formPromise = this.folderApiService.save(folder);
+      this.formPromise = this.folderApiService.save(folder, activeAccountId);
       await this.formPromise;
       this.platformUtilsService.showToast(
         "success",

@@ -453,12 +453,16 @@ describe("AutoSubmitLoginBackground", () => {
 
         sendMockExtensionMessage({ command: "triggerAutoSubmitLogin" }, sender);
 
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled;
       });
 
       it("skips acting on messages whose command does not have a registered handler", () => {
         sendMockExtensionMessage({ command: "someInvalidCommand" }, sender);
 
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled;
       });
 

@@ -65,10 +65,14 @@ export class LoginDetailsSectionComponent implements OnInit {
   newPasswordGenerated: boolean;
 
   /**
-   * Whether the TOTP field can be captured from the current tab. Only available in the browser extension.
+   * Whether the TOTP field can be captured from the current tab. Only available in the browser extension and
+   * when not in a popout window.
    */
   get canCaptureTotp() {
-    return this.totpCaptureService != null && this.loginDetailsForm.controls.totp.enabled;
+    return (
+      !!this.totpCaptureService?.canCaptureTotp(window) &&
+      this.loginDetailsForm.controls.totp.enabled
+    );
   }
 
   private datePipe = inject(DatePipe);
