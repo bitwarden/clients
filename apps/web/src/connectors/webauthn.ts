@@ -3,6 +3,8 @@
 import { b64Decode, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("./webauthn.scss");
 
 const mobileCallbackUri = "bitwarden://webauthn-callback";
@@ -88,6 +90,8 @@ function parseParametersV2() {
   } = null;
   try {
     dataObj = JSON.parse(b64Decode(getQsParam("data")));
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     error("Cannot parse data.");
     return;
@@ -116,6 +120,8 @@ function start() {
 
   try {
     obj = parseWebauthnJson(webauthnJson);
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     error("Cannot parse webauthn data.");
     return;

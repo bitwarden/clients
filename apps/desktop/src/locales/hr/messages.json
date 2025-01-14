@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Slaba lozinka je nađena među ukradenima tijekom krađa podataka. Za zaštitu svog računa koristi jaku i jedinstvenu lozinku. Želiš li svejedno korisiti slabu, ukradenu lozinku?"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "Provjeri je li lozinka ukradena prilikom krađe podataka"
   },

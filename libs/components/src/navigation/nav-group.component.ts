@@ -70,6 +70,8 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
   setOpen(isOpen: boolean) {
     this.open = isOpen;
     this.openChange.emit(this.open);
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.open && this.parentNavGroup?.setOpen(this.open);
   }
 

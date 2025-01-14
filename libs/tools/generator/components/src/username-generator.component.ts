@@ -78,6 +78,10 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
 
+  /** emits algorithm info when the selected algorithm changes */
+  @Output()
+  readonly onAlgorithm = new EventEmitter<AlgorithmInfo>();
+
   /** Removes bottom margin from internal elements */
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
@@ -247,6 +251,7 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
         // template bindings refresh immediately
         this.zone.run(() => {
           this.algorithm$.next(algorithm);
+          this.onAlgorithm.next(algorithm);
         });
       });
 

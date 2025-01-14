@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Nájdené slabé heslo v uniknuných údajoch. Na ochranu svojho účtu používajte silné a jedinečné heslo. Naozaj chcete používať toto heslo?"
   },
+  "useThisPassword": {
+    "message": "Použiť toto heslo"
+  },
+  "useThisUsername": {
+    "message": "Použiť toto používateľské meno"
+  },
   "checkForBreaches": {
     "message": "Skontrolovať známe úniky údajov pre toto heslo"
   },

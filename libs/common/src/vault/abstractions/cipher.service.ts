@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { LocalData } from "@bitwarden/common/vault/models/data/local.data";
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
@@ -11,6 +10,7 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { UserKey } from "../../types/key";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
+import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { Field } from "../models/domain/field";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";

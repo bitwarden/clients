@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Havaittiin heikko ja tietovuodosta löytynyt salasana. Sinun tulisi suojata tilisi vahvalla ja ainutlaatuisella salasanalla. Haluatko varmasti käyttää tätä salasanaa?"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "Tarkasta esiintyykö salasanaa tunnetuissa tietovuodoissa"
   },

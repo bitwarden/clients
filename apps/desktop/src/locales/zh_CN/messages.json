@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护你的账户。确定要使用这个密码吗？"
   },
+  "useThisPassword": {
+    "message": "使用此密码"
+  },
+  "useThisUsername": {
+    "message": "使用此用户名"
+  },
   "checkForBreaches": {
     "message": "检查已知的数据泄露是否包含此密码"
   },

@@ -250,17 +250,17 @@
     "message": "Fehler"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Entschlüsselungsfehler"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Kundensupport kontaktieren",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "um zusätzlichen Datenverlust zu vermeiden.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Schwaches Passwort erkannt und in einem Datendiebstahl gefunden. Verwende ein starkes und einzigartiges Passwort, um dein Konto zu schützen. Bist du sicher, dass du dieses Passwort verwenden möchtest?"
   },
+  "useThisPassword": {
+    "message": "Dieses Passwort verwenden"
+  },
+  "useThisUsername": {
+    "message": "Diesen Benutzernamen verwenden"
+  },
   "checkForBreaches": {
     "message": "Bekannte Datendiebstähle auf dieses Passwort überprüfen"
   },
@@ -3377,19 +3383,19 @@
     "message": "Es konnten keine freien Ports für die SSO-Anmeldung gefunden werden."
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da zuerst mit PIN oder Passwort entsperrt werden muss."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "Biometrisches Entsperren ist derzeit nicht verfügbar."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrisches Entsperren ist aufgrund falsch konfigurierter Systemdateien nicht verfügbar."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrisches Entsperren ist aufgrund falsch konfigurierter Systemdateien nicht verfügbar."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da es für $EMAIL$ in der Bitwarden Desktop-App nicht aktiviert ist.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3398,7 +3404,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "Biometrisches Entsperren ist derzeit aus einem unbekannten Grund nicht verfügbar."
   },
   "authorize": {
     "message": "Autorisieren"

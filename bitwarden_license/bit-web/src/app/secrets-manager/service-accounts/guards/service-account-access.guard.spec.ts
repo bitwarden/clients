@@ -8,10 +8,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
+import { RouterService } from "@bitwarden/web-vault/app/core";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { RouterService } from "../../../../../../../../clients/apps/web/src/app/core/router.service";
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import { ServiceAccountService } from "../service-account.service";
 

@@ -30,7 +30,7 @@
             }}</span
           >
           <!-- Plan Interval Toggle -->
-          <div class="tw-inline-block">
+          <div class="tw-inline-block" *ngIf="!isSubscriptionCanceled">
             <bit-toggle-group
               [selected]="selectedInterval"
               (selectedChange)="updateInterval($event)"

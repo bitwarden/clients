@@ -9,7 +9,12 @@ import {
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
+import {
+  KeyService,
+  BiometricsService,
+  BiometricsStatus,
+  BiometricStateService,
+} from "@bitwarden/key-management";
 import { UnlockOptions } from "@bitwarden/key-management/angular";
 
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
@@ -26,6 +31,7 @@ describe("ExtensionLockComponentService", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let keyService: MockProxy<KeyService>;
   let routerService: MockProxy<BrowserRouterService>;
+  let biometricStateService: MockProxy<BiometricStateService>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
@@ -35,6 +41,7 @@ describe("ExtensionLockComponentService", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     keyService = mock<KeyService>();
     routerService = mock<BrowserRouterService>();
+    biometricStateService = mock<BiometricStateService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -66,6 +73,10 @@ describe("ExtensionLockComponentService", () => {
         {
           provide: BrowserRouterService,
           useValue: routerService,
+        },
+        {
+          provide: BiometricStateService,
+          useValue: biometricStateService,
         },
       ],
     });
@@ -306,6 +317,7 @@ describe("ExtensionLockComponentService", () => {
       platformUtilsService.supportsSecureStorage.mockReturnValue(
         mockInputs.platformSupportsSecureStorage,
       );
+      biometricStateService.biometricUnlockEnabled$ = of(true);
 
       //  PIN
       pinService.isPinDecryptionAvailable.mockResolvedValue(mockInputs.pinDecryptionAvailable);

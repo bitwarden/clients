@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Swak wagwoord geidentifiseer en gevind in 'n data lekkasie. Gebruik 'n sterk en unieke wagwoord om jou rekening te beskerm. Is jy seker dat jy hierdie wagwoord wil gebruik?"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "Kontroleer bekende data lekkasies vir hierdie wagwoord"
   },

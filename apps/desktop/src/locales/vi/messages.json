@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Mật khẩu yếu này đã bị rò rỉ trong một vụ tấn công dữ liệu. Dùng mật khẩu mới và an toàn để bảo vệ tài khoản bạn. Bạn có chắc muốn sử dụng mật khẩu đã bị rò rỉ?"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "Kiểm tra mật khẩu có lộ trong các vụ rò rỉ dữ liệu hay không"
   },
