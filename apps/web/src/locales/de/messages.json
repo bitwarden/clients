@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Verifiziere deine Identität"
   },
+  "whatIsADevice": {
+    "message": "Was ist ein \"Gerät\"?"
+  },
+  "aDeviceIs": {
+    "message": "Ein \"Gerät\" ist eine einzigartige Installation der Bitwarden-App, in der du dich angemeldet hast. Eine Neuinstallation, das Löschen von App-Daten oder das Löschen von Cookies könnte dazu führen, dass ein \"Gerät\" mehrfach erscheint."
+  },
   "logInInitiated": {
     "message": "Anmeldung eingeleitet"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Bitte melden Sie sich erneut an."
+  },
+  "currentSession": {
+    "message": "Aktuelle Sitzung"
+  },
+  "requestPending": {
+    "message": "Anfrage ausstehend"
   },
   "logBackInOthersToo": {
     "message": "Bitte melden Sie sich wieder an. Wenn Sie andere Bitwarden-Anwendungen verwenden, melden Sie sich auch dort ab und wieder neu an."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Du hast noch eine Einladung übrig."
+  },
   "userUsingTwoStep": {
     "message": "Dieser Benutzer hat sein Konto mit einer Zwei-Faktor-Authentifizierung geschützt."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Gerät"
+  },
+  "loginStatus": {
+    "message": "Anmeldestatus"
+  },
+  "firstLogin": {
+    "message": "Erste Anmeldung"
+  },
+  "trusted": {
+    "message": "Vertrauenswürdig"
   },
   "creatingAccountOn": {
     "message": "Konto wird erstellt bei"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Fehler"
+  },
+  "decryptionError": {
+    "message": "Entschlüsselungsfehler"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktiere das Kundenerfolgsteam",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "um zusätzlichen Datenverlust zu vermeiden.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "\"Benutzer verwalten\" muss zusammen mit der \"Kontowiederherstellung verwalten\"-Berechtigung erteilt werden"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Anfrage genehmigen"
   },
+  "deviceApproved": {
+    "message": "\"Gerät\" genehmigt"
+  },
+  "deviceRemoved": {
+    "message": "\"Gerät\" entfernt"
+  },
+  "removeDevice": {
+    "message": "\"Gerät\" entfernen"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Möchtest du das \"Gerät\" wirklich entfernen?"
+  },
   "noDeviceRequests": {
     "message": "Keine Geräteanfragen"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Mitglieder entfernen"
   },
+  "devices": {
+    "message": "\"Geräte\""
+  },
+  "deviceListDescription": {
+    "message": "Dein Konto wurde bei jedem der folgenden \"Geräte\" eingeloggt. Wenn du ein \"Gerät\" nicht wiedererkennst, dann entferne es jetzt."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Dein Konto wurde bei jedem der folgenden \"Geräte\" eingeloggt."
+  },
   "claimedDomains": {
     "message": "Beanspruchte Domains"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organisations-Abonnement neu gestartet"
+  },
+  "restartSubscription": {
+    "message": "Abonnement neu starten"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Kontaktiere $PROVIDER$ für Hilfe.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

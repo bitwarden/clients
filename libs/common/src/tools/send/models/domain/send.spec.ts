@@ -2,8 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../../../key-management/src/abstractions/key.service";
 import { makeStaticByteArray, mockEnc } from "../../../../../spec";
 import { EncryptService } from "../../../../platform/abstractions/encrypt.service";
 import { ContainerService } from "../../../../platform/services/container.service";
@@ -123,7 +123,12 @@ describe("Send", () => {
     const view = await send.decrypt();
 
     expect(text.decrypt).toHaveBeenNthCalledWith(1, "cryptoKey");
-    expect(send.name.decrypt).toHaveBeenNthCalledWith(1, null, "cryptoKey");
+    expect(send.name.decrypt).toHaveBeenNthCalledWith(
+      1,
+      null,
+      "cryptoKey",
+      "Property: name; ObjectContext: No Domain Context",
+    );
 
     expect(view).toMatchObject({
       id: "id",

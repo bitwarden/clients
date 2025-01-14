@@ -311,7 +311,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   setInitialPlanSelection() {
     this.focusedIndex = this.selectableProducts.length - 1;
-    this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    if (!this.isSubscriptionCanceled) {
+      this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    }
   }
 
   getPlanByType(productTier: ProductTierType) {

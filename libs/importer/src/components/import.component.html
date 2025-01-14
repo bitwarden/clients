@@ -395,6 +395,11 @@
           Open the FullClient, go to the Main Menu and select Export. Start the export passwords
           wizard and follow the instructions to export a CSV file.
         </ng-container>
+        <ng-container *ngIf="format === 'nordpasscsv'">
+          Log in to NordPass and open Settings &rarr; Scroll down to the Import and Export section
+          and select Export items &rarr; Enter your Master Password and select Continue. &rarr; Save
+          the CSV file on your device.
+        </ng-container>
       </bit-callout>
       <import-lastpass
         *ngIf="showLastPassOptions"
