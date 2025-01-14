@@ -107,6 +107,8 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private validationService: ValidationService,
   ) {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.clientType === this.platformUtilsService.getClientType();
   }
 

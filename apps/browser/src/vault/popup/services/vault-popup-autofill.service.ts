@@ -15,6 +15,7 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -66,6 +67,72 @@ export class VaultPopupAutofillService {
     }),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
+
+  currentTabIsOnBlocklist$: Observable<boolean> = combineLatest([
+    this.domainSettingsService.blockedInteractionsUris$,
+    this.currentAutofillTab$,
+  ]).pipe(
+    map(([blockedInteractionsUris, currentTab]) => {
+      if (blockedInteractionsUris && currentTab?.url?.length) {
+        const tabURL = new URL(currentTab.url);
+        const tabIsBlocked = Object.keys(blockedInteractionsUris).includes(tabURL.hostname);
+
+        if (tabIsBlocked) {
+          return true;
+        }
+      }
+
+      return false;
+    }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  showCurrentTabIsBlockedBanner$: Observable<boolean> = combineLatest([
+    this.domainSettingsService.blockedInteractionsUris$,
+    this.currentAutofillTab$,
+  ]).pipe(
+    map(([blockedInteractionsUris, currentTab]) => {
+      if (blockedInteractionsUris && currentTab?.url?.length) {
+        const tabURL = new URL(currentTab.url);
+        const tabIsBlocked = Object.keys(blockedInteractionsUris).includes(tabURL.hostname);
+
+        const showScriptInjectionIsBlockedBanner =
+          tabIsBlocked && !blockedInteractionsUris[tabURL.hostname]?.bannerIsDismissed;
+
+        return showScriptInjectionIsBlockedBanner;
+      }
+
+      return false;
+    }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  async dismissCurrentTabIsBlockedBanner() {
+    try {
+      const currentTab = await firstValueFrom(this.currentAutofillTab$);
+      const currentTabURL = currentTab?.url.length && new URL(currentTab.url);
+
+      const currentTabHostname = currentTabURL && currentTabURL.hostname;
+
+      if (!currentTabHostname) {
+        return;
+      }
+
+      const blockedURIs = await firstValueFrom(this.domainSettingsService.blockedInteractionsUris$);
+      const tabIsBlocked = Object.keys(blockedURIs).includes(currentTabHostname);
+
+      if (tabIsBlocked) {
+        void this.domainSettingsService.setBlockedInteractionsUris({
+          ...blockedURIs,
+          [currentTabHostname as string]: { bannerIsDismissed: true },
+        });
+      }
+    } catch (e) {
+      throw new Error(
+        "There was a problem dismissing the blocked interaction URI notification banner",
+      );
+    }
+  }
 
   /**
    * Observable that indicates whether autofill is allowed in the current context.
@@ -125,6 +192,7 @@ export class VaultPopupAutofillService {
 
   constructor(
     private autofillService: AutofillService,
+    private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
     private toastService: ToastService,
     private platformUtilService: PlatformUtilsService,

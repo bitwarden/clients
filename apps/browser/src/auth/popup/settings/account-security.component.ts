@@ -507,7 +507,16 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     const biometricsPromise = async () => {
       try {
-        const result = await this.biometricsService.authenticateWithBiometrics();
+        const userId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((a) => a.id)),
+        );
+        let result = false;
+        try {
+          const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
+          result = await this.keyService.validateUserKey(userKey, userId);
+        } catch (e) {
+          result = false;
+        }
 
         // prevent duplicate dialog
         biometricsResponseReceived = true;

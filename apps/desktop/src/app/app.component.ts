@@ -330,6 +330,20 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             break;
           }
+          case "upgradeOrganization": {
+            const upgradeConfirmed = await this.dialogService.openSimpleDialog({
+              title: { key: "upgradeOrganization" },
+              content: { key: "upgradeOrganizationDesc" },
+              acceptButtonText: { key: "learnMore" },
+              type: "info",
+            });
+            if (upgradeConfirmed) {
+              this.platformUtilsService.launchUri(
+                "https://bitwarden.com/help/upgrade-from-individual-to-org/",
+              );
+            }
+            break;
+          }
           case "emailVerificationRequired": {
             const emailVerificationConfirmed = await this.dialogService.openSimpleDialog({
               title: { key: "emailVerificationRequired" },

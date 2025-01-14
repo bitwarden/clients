@@ -2,8 +2,6 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, timeout } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
@@ -14,6 +12,8 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
+import { LogService } from "../../platform/abstractions/log.service";
+import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { UserId } from "../../types/guid";
 import { ProcessReloadServiceAbstraction } from "../abstractions/process-reload.service";
 

@@ -46,6 +46,8 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
       dialogService,
       formBuilder,
     );
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     params?.folderId ? (this.folderId = params.folderId) : null;
   }
 

@@ -1,9 +1,8 @@
 import { BehaviorSubject, of, Subject } from "rxjs";
 
-import { GENERATOR_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
-
 import { awaitAsync, FakeSingleUserState, ObservableTracker } from "../../../spec";
+import { GENERATOR_DISK, UserKeyDefinition } from "../../platform/state";
+import { UserId } from "../../types/guid";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { UserBound } from "../dependencies";
 import { PrivateClassifier } from "../private-classifier";
