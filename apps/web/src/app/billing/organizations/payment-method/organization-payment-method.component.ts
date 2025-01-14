@@ -3,6 +3,7 @@
 import { Location } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { from, lastValueFrom, switchMap } from "rxjs";
 
@@ -17,9 +18,10 @@ import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
 
 import { FreeTrial } from "../../../core/types/free-trial";
+import { BillingNotificationService } from "../../services/billing-notification.service";
 import { TrialFlowService } from "../../services/trial-flow.service";
 import {
   AddCreditDialogResult,
@@ -42,6 +44,7 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   protected freeTrialData: FreeTrial;
   organization: Organization;
   organizationSubscriptionResponse: OrganizationSubscriptionResponse;
+  protected verifyBankForm: FormGroup;
 
   loading = true;
 
@@ -56,11 +59,11 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
-    private toastService: ToastService,
     private location: Location,
     private trialFlowService: TrialFlowService,
     private organizationService: OrganizationService,
     protected syncService: SyncService,
+    private notificationService: BillingNotificationService,
   ) {
     this.activatedRoute.params
       .pipe(
@@ -182,12 +185,12 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   };
 
   protected verifyBankAccount = async (request: VerifyBankAccountRequest): Promise<void> => {
-    await this.billingApiService.verifyOrganizationBankAccount(this.organizationId, request);
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("verifiedBankAccount"),
-    });
+    try {
+      await this.billingApiService.verifyOrganizationBankAccount(this.organizationId, request);
+      this.notificationService.showSuccess("verifiedBankAccount");
+    } catch (error) {
+      this.notificationService.handleError(error);
+    }
   };
 
   protected get accountCreditHeaderText(): string {
@@ -221,4 +224,19 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     const key = this.paymentSource == null ? "addPaymentMethod" : "changePaymentMethod";
     return this.i18nService.t(key);
   }
+
+  verifyBank = async () => {
+    if (this.loading || !this.organization) {
+      return;
+    }
+
+    try {
+      const descriptorCode = `${this.verifyBankForm.value.amount1}${this.verifyBankForm.value.amount2}`;
+      const request = new VerifyBankAccountRequest(descriptorCode);
+      await this.verifyBankAccount(request);
+      await this.load();
+    } catch (error) {
+      this.notificationService.handleError(error);
+    }
+  };
 }

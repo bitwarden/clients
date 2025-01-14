@@ -1,24 +1,22 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ToastService } from "@bitwarden/components";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
+import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
+import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
+import { InvoicesResponse } from "@bitwarden/common/billing/models/response/invoices.response";
+import { PaymentMethodResponse } from "@bitwarden/common/billing/models/response/payment-method.response";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
-import { ProviderOrganizationOrganizationDetailsResponse } from "../../admin-console/models/response/provider/provider-organization.response";
-import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
-import { LogService } from "../../platform/abstractions/log.service";
 import { BillingApiServiceAbstraction } from "../abstractions";
 import { PaymentMethodType } from "../enums";
 import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
 import { ExpandedTaxInfoUpdateRequest } from "../models/request/expanded-tax-info-update.request";
 import { SubscriptionCancellationRequest } from "../models/request/subscription-cancellation.request";
 import { UpdateClientOrganizationRequest } from "../models/request/update-client-organization.request";
-import { UpdatePaymentMethodRequest } from "../models/request/update-payment-method.request";
-import { VerifyBankAccountRequest } from "../models/request/verify-bank-account.request";
-import { InvoicesResponse } from "../models/response/invoices.response";
 import { OrganizationBillingMetadataResponse } from "../models/response/organization-billing-metadata.response";
-import { PaymentMethodResponse } from "../models/response/payment-method.response";
 import { PlanResponse } from "../models/response/plan.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
@@ -26,7 +24,6 @@ export class BillingApiService implements BillingApiServiceAbstraction {
   constructor(
     private apiService: ApiService,
     private logService: LogService,
-    private toastService: ToastService,
   ) {}
 
   cancelOrganizationSubscription(
@@ -233,13 +230,6 @@ export class BillingApiService implements BillingApiServiceAbstraction {
       return await request();
     } catch (error) {
       this.logService.error(error);
-      if (error instanceof ErrorResponse) {
-        this.toastService.showToast({
-          variant: "error",
-          title: null,
-          message: error.getSingleMessage(),
-        });
-      }
       throw error;
     }
   }
