@@ -3,7 +3,8 @@
 import { Component, OnInit } from "@angular/core";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -26,7 +27,8 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
 
   constructor(
     protected cipherService: CipherService,
-    protected organizationService: OrganizationService,
+    protected organizationService: vNextOrganizationService,
+    accountService: AccountService,
     modalService: ModalService,
     private logService: LogService,
     passwordRepromptService: PasswordRepromptService,
@@ -38,6 +40,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       modalService,
       passwordRepromptService,
       organizationService,
+      accountService,
       i18nService,
       syncService,
     );

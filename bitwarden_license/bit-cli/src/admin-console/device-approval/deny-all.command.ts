@@ -6,6 +6,7 @@ import { Response } from "@bitwarden/cli/models/response";
 import { MessageResponse } from "@bitwarden/cli/models/response/message.response";
 import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { OrganizationAuthRequestService } from "../../../../bit-common/src/admin-console/auth-requests";
@@ -27,7 +28,7 @@ export class DenyAllCommand {
       return Response.badRequest("`" + organizationId + "` is not a GUID.");
     }
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (!userId) {
       return Response.badRequest("No user found.");

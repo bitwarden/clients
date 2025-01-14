@@ -7,10 +7,7 @@ import { concatMap, firstValueFrom, map, Observable, Subject, takeUntil } from "
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import {
-  isMember,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -124,7 +121,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected policyService: PolicyService,
     protected logService: LogService,
     protected passwordRepromptService: PasswordRepromptService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     protected dialogService: DialogService,
     protected win: Window,
     protected datePipe: DatePipe,
@@ -229,9 +226,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.ownershipOptions.push({ name: myEmail, value: null });
     }
 
-    const orgs = await this.organizationService.getAll();
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
     orgs
-      .filter(isMember)
+      .filter((org) => org.isMember)
       .sort(Utils.getSortFunction(this.i18nService, "name"))
       .forEach((o) => {
         if (o.enabled && o.status === OrganizationUserStatusType.Confirmed) {
@@ -309,9 +309,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
     // Only Admins can clone a cipher to different owner
     if (this.cloneMode && this.cipher.organizationId != null) {
-      const cipherOrg = (await firstValueFrom(this.organizationService.memberOrganizations$)).find(
-        (o) => o.id === this.cipher.organizationId,
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
+
+      const cipherOrg = (
+        await firstValueFrom(this.organizationService.memberOrganizations$(activeUserId))
+      ).find((o) => o.id === this.cipher.organizationId);
 
       if (cipherOrg != null && !cipherOrg.isAdmin && !cipherOrg.permissions.editAnyCollection) {
         this.ownershipOptions = [{ name: cipherOrg.name, value: cipherOrg.id }];
@@ -637,7 +641,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
       if (this.collections.length === 1) {
         (this.collections[0] as any).checked = true;
       }
-      const org = await this.organizationService.get(this.cipher.organizationId);
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+
+      const org = (
+        await firstValueFrom(this.organizationService.organizations$(activeUserId))
+      ).find((org) => org.id === this.cipher.organizationId);
       if (org != null) {
         this.cipher.organizationUseTotp = org.useTotp;
       }

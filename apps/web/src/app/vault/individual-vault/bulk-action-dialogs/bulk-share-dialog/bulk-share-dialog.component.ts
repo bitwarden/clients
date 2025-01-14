@@ -5,9 +5,10 @@ import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -62,7 +63,7 @@ export class BulkShareDialogComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private collectionService: CollectionService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private logService: LogService,
     private accountService: AccountService,
   ) {
@@ -77,7 +78,8 @@ export class BulkShareDialogComponent implements OnInit, OnDestroy {
     this.nonShareableCount = this.ciphers.length - this.shareableCiphers.length;
     const allCollections = await this.collectionService.getAllDecrypted();
     this.writeableCollections = allCollections.filter((c) => !c.readOnly);
-    this.organizations = await this.organizationService.getAll();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organizations = await firstValueFrom(this.organizationService.organizations$(userId));
     if (this.organizationId == null && this.organizations.length > 0) {
       this.organizationId = this.organizations[0].id;
     }

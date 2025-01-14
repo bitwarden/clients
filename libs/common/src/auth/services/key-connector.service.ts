@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
 import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   Argon2KdfConfig,
   KdfConfig,
@@ -28,7 +29,6 @@ import {
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { MasterKey } from "../../types/key";
-import { AccountService } from "../abstractions/account.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import { TokenService } from "../abstractions/token.service";

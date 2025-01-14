@@ -14,11 +14,12 @@ import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -59,7 +60,7 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private formBuilder: FormBuilder,
     private accountService: AccountService,
     private toastService: ToastService,
@@ -90,11 +91,13 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
       FeatureFlag.DisableFreeFamiliesSponsorship,
     );
 
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     if (this.isFreeFamilyFlagEnabled) {
       await this.preventAccessToFreeFamiliesPage();
 
       this.availableSponsorshipOrgs$ = combineLatest([
-        this.organizationService.organizations$,
+        this.organizationService.organizations$(userId),
         this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy),
       ]).pipe(
         map(([organizations, policies]) =>
@@ -111,9 +114,9 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
         ),
       );
     } else {
-      this.availableSponsorshipOrgs$ = this.organizationService.organizations$.pipe(
-        map((orgs) => orgs.filter((o) => o.familySponsorshipAvailable)),
-      );
+      this.availableSponsorshipOrgs$ = this.organizationService
+        .organizations$(userId)
+        .pipe(map((orgs) => orgs.filter((o) => o.familySponsorshipAvailable)));
     }
 
     this.availableSponsorshipOrgs$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
@@ -126,9 +129,9 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
 
     this.anyOrgsAvailable$ = this.availableSponsorshipOrgs$.pipe(map((orgs) => orgs.length > 0));
 
-    this.activeSponsorshipOrgs$ = this.organizationService.organizations$.pipe(
-      map((orgs) => orgs.filter((o) => o.familySponsorshipFriendlyName !== null)),
-    );
+    this.activeSponsorshipOrgs$ = this.organizationService
+      .organizations$(userId)
+      .pipe(map((orgs) => orgs.filter((o) => o.familySponsorshipFriendlyName !== null)));
 
     this.anyActiveSponsorships$ = this.activeSponsorshipOrgs$.pipe(map((orgs) => orgs.length > 0));
 

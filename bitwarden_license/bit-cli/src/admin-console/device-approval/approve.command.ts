@@ -3,6 +3,7 @@ import { firstValueFrom, map } from "rxjs";
 import { Response } from "@bitwarden/cli/models/response";
 import { DefaultvNextOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-vnext-organization.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { OrganizationAuthRequestService } from "../../../../bit-common/src/admin-console/auth-requests";
@@ -32,7 +33,7 @@ export class ApproveCommand {
       return Response.badRequest("`" + id + "` is not a GUID.");
     }
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (!userId) {
       return Response.badRequest("No user found.");

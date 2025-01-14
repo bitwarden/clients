@@ -8,10 +8,11 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, ReplaySubject } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -26,7 +27,7 @@ import { VaultFilterService } from "./vault-filter.service";
 describe("vault filter service", () => {
   let vaultFilterService: VaultFilterService;
 
-  let organizationService: MockProxy<OrganizationService>;
+  let organizationService: MockProxy<vNextOrganizationService>;
   let folderService: MockProxy<FolderService>;
   let cipherService: MockProxy<CipherService>;
   let policyService: MockProxy<PolicyService>;
@@ -45,7 +46,7 @@ describe("vault filter service", () => {
   let collapsedGroupingsState: FakeActiveUserState<string[]>;
 
   beforeEach(() => {
-    organizationService = mock<OrganizationService>();
+    organizationService = mock<vNextOrganizationService>();
     folderService = mock<FolderService>();
     cipherService = mock<CipherService>();
     policyService = mock<PolicyService>();
@@ -62,7 +63,7 @@ describe("vault filter service", () => {
     personalOwnershipPolicy = new ReplaySubject<boolean>(1);
     singleOrgPolicy = new ReplaySubject<boolean>(1);
 
-    organizationService.memberOrganizations$ = organizations;
+    organizationService.memberOrganizations$.mockReturnValue(organizations);
     folderService.folderViews$ = folderViews;
     collectionService.decryptedCollections$ = collectionViews;
     policyService.policyAppliesToActiveUser$
@@ -81,6 +82,7 @@ describe("vault filter service", () => {
       i18nService,
       stateProvider,
       collectionService,
+      accountService as AccountService,
     );
     collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
   });

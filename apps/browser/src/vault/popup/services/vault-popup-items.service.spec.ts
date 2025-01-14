@@ -4,12 +4,14 @@ import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { ObservableTracker } from "@bitwarden/common/spec";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { ObservableTracker, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -34,13 +36,15 @@ describe("VaultPopupItemsService", () => {
 
   const cipherServiceMock = mock<CipherService>();
   const vaultSettingsServiceMock = mock<VaultSettingsService>();
-  const organizationServiceMock = mock<OrganizationService>();
+  const organizationServiceMock = mock<vNextOrganizationService>();
   const vaultPopupListFiltersServiceMock = mock<VaultPopupListFiltersService>();
   const searchService = mock<SearchService>();
   const collectionService = mock<CollectionService>();
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
   const inlineMenuFieldQualificationServiceMock = mock<InlineMenuFieldQualificationService>();
+  const userId = Utils.newGuid() as UserId;
+  const accountServiceMock = mockAccountServiceWith(userId);
 
   beforeEach(() => {
     allCiphers = cipherFactory(10);
@@ -96,7 +100,7 @@ describe("VaultPopupItemsService", () => {
       { id: "col2", name: "Collection 2" } as CollectionView,
     ];
 
-    organizationServiceMock.organizations$ = new BehaviorSubject([mockOrg]);
+    organizationServiceMock.organizations$.mockReturnValue(new BehaviorSubject([mockOrg]));
     collectionService.decryptedCollections$ = new BehaviorSubject(mockCollections);
 
     activeUserLastSync$ = new BehaviorSubject(new Date());
@@ -107,7 +111,8 @@ describe("VaultPopupItemsService", () => {
         { provide: CipherService, useValue: cipherServiceMock },
         { provide: VaultSettingsService, useValue: vaultSettingsServiceMock },
         { provide: SearchService, useValue: searchService },
-        { provide: OrganizationService, useValue: organizationServiceMock },
+        { provide: vNextOrganizationService, useValue: organizationServiceMock },
+        { provide: AccountService, useValue: accountServiceMock },
         { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
         { provide: CollectionService, useValue: collectionService },
         { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },

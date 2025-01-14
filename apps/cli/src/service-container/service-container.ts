@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import * as jsdom from "jsdom";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -36,7 +36,10 @@ import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/aut
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import {
+  AccountServiceImplementation,
+  getUserId,
+} from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DeviceTrustService } from "@bitwarden/common/auth/services/device-trust.service.implementation";
@@ -826,7 +829,7 @@ export class ServiceContainer {
     this.authService.logOut(() => {
       /* Do nothing */
     });
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await Promise.all([
       this.eventUploadService.uploadEvents(userId as UserId),
       this.keyService.clearKeys(),

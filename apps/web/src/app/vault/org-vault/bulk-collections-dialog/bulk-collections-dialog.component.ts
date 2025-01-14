@@ -10,8 +10,12 @@ import {
   OrganizationUserApiService,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  vNextOrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
@@ -62,7 +66,8 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     @Inject(DIALOG_DATA) private params: BulkCollectionsDialogParams,
     private dialogRef: DialogRef<BulkCollectionsDialogResult>,
     private formBuilder: FormBuilder,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
+    private accountService: AccountService,
     private groupService: GroupApiService,
     private organizationUserApiService: OrganizationUserApiService,
     private platformUtilsService: PlatformUtilsService,
@@ -70,7 +75,13 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     private collectionAdminService: CollectionAdminService,
   ) {
     this.numCollections = this.params.collections.length;
-    const organization$ = this.organizationService.get$(this.params.organizationId);
+    const organization$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        this.organizationService
+          .organizations$(account?.id)
+          .pipe(getOrganizationById(this.params.organizationId)),
+      ),
+    );
     const groups$ = organization$.pipe(
       switchMap((organization) => {
         if (!organization.useGroups) {
