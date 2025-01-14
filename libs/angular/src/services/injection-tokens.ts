@@ -14,6 +14,7 @@ import { StateFactory } from "@bitwarden/common/platform/factories/state-factory
 import { Message } from "@bitwarden/common/platform/messaging";
 import { VaultTimeout } from "@bitwarden/common/types/vault-timeout.type";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
+// Re-export the SafeInjectionToken from ui-common
 export { SafeInjectionToken } from "@bitwarden/ui-common";
 
 export const WINDOW = new SafeInjectionToken<Window>("WINDOW");
