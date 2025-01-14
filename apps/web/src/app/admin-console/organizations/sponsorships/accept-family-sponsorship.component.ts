@@ -38,14 +38,13 @@ export class AcceptFamilySponsorshipComponent extends BaseAcceptComponent {
     if (!qParams.register) {
       await this.router.navigate(["/login"], { queryParams: { email: qParams.email } });
     } else {
-      // We have to override the base component route as we don't need users to
-      // complete email verification if they are coming directly an emailed invite.
+      // We don't need users to complete email verification if they are coming directly from an emailed invite.
+      // Therefore, we skip /signup and navigate directly to /finish-signup.
 
       // TODO: in the future, to allow users to enter a name, consider sending all invite users to
       // start registration page with prefilled email and a named token to be passed directly
       // along to the finish-signup page without requiring email verification as
       // we can treat the existence of the token as a form of email verification.
-
       await this.router.navigate(["/finish-signup"], {
         queryParams: {
           email: qParams.email,

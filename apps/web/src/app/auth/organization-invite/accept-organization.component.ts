@@ -81,10 +81,8 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       return;
     }
 
-    // if SSO is disabled OR if sso is enabled but the SSO login required policy is not enabled
-    // then send user to create account
-
-    await this.router.navigate(["/signup"], {
+    // complete email verification if they are coming directly an emailed invite.
+    await this.router.navigate(["/finish-signup"], {
       queryParams: {
         email: invite.email,
       },

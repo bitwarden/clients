@@ -62,7 +62,7 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
   }
 
   async register() {
-    await this.router.navigate(["/signup"], {
+    await this.router.navigate(["/finish-signup"], {
       queryParams: {
         email: this.email,
         providerUserId: this.providerUserId,

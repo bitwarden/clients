@@ -68,7 +68,8 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
   }
 
   async register() {
-    await this.router.navigate(["/signup"], {
+    // complete email verification if they are coming directly an emailed invite.
+    await this.router.navigate(["/finish-signup"], {
       queryParams: {
         email: this.email,
         acceptEmergencyAccessInviteToken: this.acceptEmergencyAccessInviteToken,
