@@ -42,7 +42,13 @@ import { PasswordLoginStrategy } from "../../common/login-strategies/password-lo
 })
 export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   formGroup = this.formBuilder.group({
-    code: ["", [Validators.required]],
+    code: [
+      "",
+      {
+        validators: [Validators.required],
+        updateOn: "change",
+      },
+    ],
   });
 
   protected disableRequestOTP = false;
@@ -117,19 +123,15 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
    * Submits the OTP for device verification.
    */
   submit = async (): Promise<void> => {
-    if (this.formGroup.invalid) {
-      return;
-    }
-
     const codeControl = this.formGroup.get("code");
-    const code = codeControl?.value;
-    if (!codeControl || !code) {
-      this.logService.error("Code is required");
+    if (!codeControl || !codeControl.value) {
       return;
     }
 
     try {
-      const authResult = await this.loginStrategyService.logInNewDeviceVerification(code);
+      const authResult = await this.loginStrategyService.logInNewDeviceVerification(
+        codeControl.value,
+      );
 
       if (authResult.requiresTwoFactor) {
         await this.router.navigate(["/2fa"]);
@@ -149,7 +151,9 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       await this.router.navigate(["/vault"]);
     } catch (e) {
       this.logService.error(e);
-      codeControl.setErrors({ invalid: true });
+      const errorMessage =
+        (e as any)?.response?.error_description ?? this.i18nService.t("errorOccurred");
+      codeControl.setErrors({ serverError: { message: errorMessage } });
     }
   };
 }
