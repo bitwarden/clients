@@ -33,7 +33,7 @@
   </bit-section-header>
   <div [ngClass]="{ 'tw-mb-4': !disableMargin }">
     <bit-card>
-      <form class="box" [formGroup]="username" class="tw-container">
+      <form [formGroup]="username" class="tw-container">
         <bit-form-field>
           <bit-label>{{ "type" | i18n }}</bit-label>
           <bit-select
@@ -47,7 +47,7 @@
           }}</bit-hint>
         </bit-form-field>
       </form>
-      <form *ngIf="showForwarder$ | async" [formGroup]="forwarder" class="box tw-container">
+      <form *ngIf="showForwarder$ | async" [formGroup]="forwarder" class="tw-container">
         <bit-form-field>
           <bit-label>{{ "service" | i18n }}</bit-label>
           <bit-select
