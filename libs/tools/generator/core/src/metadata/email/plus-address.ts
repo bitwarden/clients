@@ -15,6 +15,7 @@ import { GeneratorMetadata } from "../generator-metadata";
 const plusAddress: GeneratorMetadata<SubaddressGenerationOptions> = deepFreeze({
   id: Algorithm.plusAddress,
   category: Type.email,
+  weight: 200,
   i18nKeys: {
     name: "plusAddressedEmail",
     description: "plusAddressedEmailDesc",
@@ -36,7 +37,6 @@ const plusAddress: GeneratorMetadata<SubaddressGenerationOptions> = deepFreeze({
   profiles: {
     [Profile.account]: {
       type: "core",
-      weight: 200,
       storage: {
         key: "subaddressGeneratorSettings",
         target: "object",
