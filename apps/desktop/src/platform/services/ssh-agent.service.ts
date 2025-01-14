@@ -84,7 +84,7 @@ export class SshAgentService implements OnDestroy {
       .messages$(new CommandDefinition("sshagent.signrequest"))
       .pipe(
         withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
-        switchMap(async ([message, enabled]) => {
+        concatMap(async ([message, enabled]) => {
           if (!enabled) {
             await ipc.platform.sshAgent.signRequestResponse(message.requestId as number, false);
           }
