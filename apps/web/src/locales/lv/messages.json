@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Jāapliecina sava identitāte"
   },
+  "whatIsADevice": {
+    "message": "Kas ir ierīce?"
+  },
+  "aDeviceIs": {
+    "message": "Ierīce ir atsevišķa uzstādīta Bitwarde lietotne, kurā ir veikta pieteikšanās. Atkārtota uzstādīšana, lietotnes datu vai sīkdatņu notīrīšana var beigties ar ierīces vairākkārtīgu parādīšanos."
+  },
   "logInInitiated": {
     "message": "Uzsākta pieteikšanās"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Lūgums pieteikties atkārtoti."
+  },
+  "currentSession": {
+    "message": "Pašreizējā sesija"
+  },
+  "requestPending": {
+    "message": "Pieprasījums ir apstrādē"
   },
   "logBackInOthersToo": {
     "message": "Lūgums pieteikties atkārtoti. Ja tiek izmantotas citas Bitwarden lietotnes, ir nepieciešams atteikties un atkārtoti pieteikties arī tajās."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Tev ir atlicis 1 uzaicinājums."
+  },
   "userUsingTwoStep": {
     "message": "Šis lietotājs izmanto divpakāpju pieteikšanos, lai aizsargātu savu kontu."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Ierīce"
+  },
+  "loginStatus": {
+    "message": "Pieteikšanās stāvoklis"
+  },
+  "firstLogin": {
+    "message": "Pirmā pieteikšanās"
+  },
+  "trusted": {
+    "message": "Uzticama"
   },
   "creatingAccountOn": {
     "message": "Tiek veidots konts"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Kļūda"
+  },
+  "decryptionError": {
+    "message": "Atšifrēšanas kļūda"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nevarēja atšifrēt zemāk uzskaitītos glabātavas vienumus."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Jāsazinās ar klientu atbalstu,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "lai izvairītos no papildu datu zaudējumiem.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Lietotāju pārvaldīšanai ir jābūt iespējotai arī ar konta atkopšanas pārvaldīšanas atļauju"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Apstiprināt pieprasījumu"
   },
+  "deviceApproved": {
+    "message": "Ierīce apstiprināta"
+  },
+  "deviceRemoved": {
+    "message": "Ierīce noņemta"
+  },
+  "removeDevice": {
+    "message": "Noņemt ierīci"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Vai tiešām noņemt šo ierīci?"
+  },
   "noDeviceRequests": {
     "message": "Nav ierīču pieprasījumu"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Noņemt dalībniekus"
   },
+  "devices": {
+    "message": "Ierīces"
+  },
+  "deviceListDescription": {
+    "message": "Kontā ir notikusi pieteikšanās katrā no zemāk uzskaitītajām ierīcēm. Ja kāda no tām nav atpazīstama, tā ir uzreiz jānoņem."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Ar kontu ir veikta pieteikšanās katrā no zemāk uzskaitītajām ierīcēm."
+  },
   "claimedDomains": {
     "message": "Pieteiktie domēni"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Apvienības abonements atsākts"
+  },
+  "restartSubscription": {
+    "message": "Atsākt savu abonementu"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Jāsazinās ar $PROVIDER$, lai iegūtu palīdzību.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

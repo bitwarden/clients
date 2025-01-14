@@ -23,15 +23,19 @@
         <bit-tab [label]="'role' | i18n">
           <ng-container *ngIf="!editMode">
             <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
-            <bit-form-field *ngIf="remainingSeats$ | async as remainingSeats">
+            <bit-form-field *ngIf="{ seats: remainingSeats$ | async } as remaining">
               <bit-label>{{ "email" | i18n }}</bit-label>
               <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
-              <bit-hint *ngIf="remainingSeats > 1; else singleSeat">{{
-                "inviteMultipleEmailDesc" | i18n: remainingSeats
+
+              <bit-hint *ngIf="remaining.seats > 1">{{
+                "inviteMultipleEmailDesc" | i18n: remaining.seats
               }}</bit-hint>
-              <ng-template #singleSeat>
-                <bit-hint>{{ "inviteSingleEmailDesc" | i18n: remainingSeats }}</bit-hint>
-              </ng-template>
+
+              <bit-hint *ngIf="remaining.seats === 1">{{
+                "inviteSingleEmailDesc" | i18n
+              }}</bit-hint>
+
+              <bit-hint *ngIf="remaining.seats === 0">{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
             </bit-form-field>
           </ng-container>
           <bit-radio-group formControlName="type">

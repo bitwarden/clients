@@ -257,7 +257,7 @@ export class NativeMessagingBackground {
       message.command == BiometricsCommands.Unlock ||
       message.command == BiometricsCommands.IsAvailable
     ) {
-      // TODO remove after 2025.01
+      // TODO remove after 2025.3
       // wait until there is no other callbacks, or timeout
       const call = await firstValueFrom(
         race(
@@ -342,6 +342,8 @@ export class NativeMessagingBackground {
         };
       }
       this.port.postMessage(msg);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.info(
         "[Native Messaging IPC] Disconnected from Bitwarden Desktop app because of the native port disconnecting.",

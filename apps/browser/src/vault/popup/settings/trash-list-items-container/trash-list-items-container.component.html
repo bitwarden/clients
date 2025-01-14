@@ -13,8 +13,23 @@
         [appA11yTitle]="'viewItemTitle' | i18n: cipher.name"
         (click)="onViewCipher(cipher)"
       >
-        <app-vault-icon slot="start" [cipher]="cipher"></app-vault-icon>
+        <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
+          <app-vault-icon [cipher]="cipher"></app-vault-icon>
+        </div>
         <span data-testid="item-name">{{ cipher.name }}</span>
+        <i
+          *ngIf="cipher.organizationId"
+          appOrgIcon
+          [tierType]="cipher.organization.productTierType"
+          [size]="'small'"
+          [appA11yTitle]="orgIconTooltip(cipher)"
+        ></i>
+        <i
+          *ngIf="cipher.hasAttachments"
+          class="bwi bwi-paperclip bwi-sm"
+          [appA11yTitle]="'attachments' | i18n"
+        ></i>
+        <span slot="secondary">{{ cipher.subTitle }}</span>
       </button>
       <ng-container slot="end" *ngIf="cipher.edit">
         <bit-item-action>
