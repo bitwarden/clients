@@ -10,6 +10,7 @@ import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { CardExport } from "@bitwarden/common/models/export/card.export";
@@ -478,7 +479,7 @@ export class GetCommand extends DownloadCommand {
 
   private async getOrganization(id: string) {
     let org: Organization = null;
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (!userId) {
       return Response.badRequest("No user found.");
     }

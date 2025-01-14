@@ -13,6 +13,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -174,7 +175,7 @@ export class ListCommand {
     if (!Utils.isGuid(options.organizationId)) {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (!userId) {
       return Response.badRequest("No user found.");
     }
@@ -215,7 +216,8 @@ export class ListCommand {
     if (!Utils.isGuid(options.organizationId)) {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     if (!userId) {
       return Response.badRequest("No user found.");
     }
@@ -249,7 +251,8 @@ export class ListCommand {
   }
 
   private async listOrganizations(options: Options) {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     if (!userId) {
       return Response.badRequest("No user found.");
     }

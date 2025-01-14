@@ -11,12 +11,13 @@ import { EventUploadService } from "@bitwarden/common/abstractions/event/event-u
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
-import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextInternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -86,7 +87,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private dialogService: DialogService,
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
-    private organizationService: InternalOrganizationServiceAbstraction,
+    private organizationService: vNextInternalOrganizationServiceAbstraction,
     private accountService: AccountService,
     private processReloadService: ProcessReloadServiceAbstraction,
   ) {}
@@ -219,7 +220,10 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           case "syncOrganizationStatusChanged": {
             const { organizationId, enabled } = message;
-            const organizations = await firstValueFrom(this.organizationService.organizations$);
+            const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+            const organizations = await firstValueFrom(
+              this.organizationService.organizations$(userId),
+            );
             const organization = organizations.find((org) => org.id === organizationId);
 
             if (organization) {
@@ -227,7 +231,7 @@ export class AppComponent implements OnDestroy, OnInit {
                 ...organization,
                 enabled: enabled,
               };
-              await this.organizationService.upsert(updatedOrganization);
+              await this.organizationService.upsert(updatedOrganization, userId);
             }
             break;
           }
@@ -277,7 +281,7 @@ export class AppComponent implements OnDestroy, OnInit {
     // will prevent any toasts from being displayed long enough to be read
 
     await this.eventUploadService.uploadEvents();
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     const logoutPromise = firstValueFrom(
       this.authService.authStatusFor$(userId).pipe(

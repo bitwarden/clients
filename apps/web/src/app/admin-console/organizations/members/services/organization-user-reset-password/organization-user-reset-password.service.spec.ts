@@ -1,12 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordDetailsResponse,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
@@ -27,7 +28,7 @@ describe("OrganizationUserResetPasswordService", () => {
 
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let organizationService: MockProxy<OrganizationService>;
+  let organizationService: MockProxy<vNextOrganizationService>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationApiService: MockProxy<OrganizationApiService>;
   let i18nService: MockProxy<I18nService>;
@@ -35,7 +36,7 @@ describe("OrganizationUserResetPasswordService", () => {
   beforeAll(() => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    organizationService = mock<OrganizationService>();
+    organizationService = mock<vNextOrganizationService>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     organizationApiService = mock<OrganizationApiService>();
     i18nService = mock<I18nService>();
@@ -164,10 +165,9 @@ describe("OrganizationUserResetPasswordService", () => {
 
   describe("getRotatedData", () => {
     beforeEach(() => {
-      organizationService.getAll.mockResolvedValue([
-        createOrganization("1", "org1"),
-        createOrganization("2", "org2"),
-      ]);
+      organizationService.organizations$.mockReturnValue(
+        of([createOrganization("1", "org1"), createOrganization("2", "org2")]),
+      );
       organizationApiService.getKeys.mockResolvedValue(
         new OrganizationKeysResponse({
           privateKey: "test-private-key",

@@ -4,8 +4,13 @@ import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  vNextOrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -63,9 +68,10 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   cardIsExpired: boolean = false;
 
   constructor(
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private collectionService: CollectionService,
     private folderService: FolderService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnChanges() {
@@ -129,9 +135,12 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
       );
     }
 
-    if (this.cipher.organizationId) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    if (this.cipher.organizationId && userId) {
       this.organization$ = this.organizationService
-        .get$(this.cipher.organizationId)
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.cipher.organizationId))
         .pipe(takeUntil(this.destroyed$));
     }
 

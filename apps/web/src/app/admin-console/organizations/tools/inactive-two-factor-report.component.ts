@@ -2,9 +2,14 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { firstValueFrom, map } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  vNextOrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -30,13 +35,15 @@ export class InactiveTwoFactorReportComponent
     private route: ActivatedRoute,
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
-    organizationService: OrganizationService,
+    organizationService: vNextOrganizationService,
+    accountService: AccountService,
     i18nService: I18nService,
     syncService: SyncService,
   ) {
     super(
       cipherService,
       organizationService,
+      accountService,
       modalService,
       logService,
       passwordRepromptService,
@@ -49,7 +56,14 @@ export class InactiveTwoFactorReportComponent
     this.isAdminConsoleActive = true;
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
-      this.organization = await this.organizationService.get(params.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(params.organizationId)),
+      );
       await super.ngOnInit();
     });
   }

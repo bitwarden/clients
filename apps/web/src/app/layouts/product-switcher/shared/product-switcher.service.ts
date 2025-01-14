@@ -2,15 +2,23 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationStart, ParamMap, Router } from "@angular/router";
-import { combineLatest, concatMap, filter, map, Observable, ReplaySubject, startWith } from "rxjs";
+import {
+  combineLatest,
+  concatMap,
+  filter,
+  map,
+  Observable,
+  ReplaySubject,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
-import {
-  canAccessOrgAdmin,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { canAccessOrgAdmin } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 
 export type ProductSwitcherItem = {
@@ -84,24 +92,26 @@ export class ProductSwitcherService {
   ]).pipe(map(() => null));
 
   constructor(
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private providerService: ProviderService,
     private route: ActivatedRoute,
     private router: Router,
     private i18n: I18nPipe,
     private syncService: SyncService,
+    private accountService: AccountService,
   ) {
     this.pollUntilSynced();
   }
 
+  organizations$ = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    switchMap((id) => this.organizationService.organizations$(id)),
+  );
+
   products$: Observable<{
     bento: ProductSwitcherItem[];
     other: ProductSwitcherItem[];
-  }> = combineLatest([
-    this.organizationService.organizations$,
-    this.route.paramMap,
-    this.triggerProductUpdate$,
-  ]).pipe(
+  }> = combineLatest([this.organizations$, this.route.paramMap, this.triggerProductUpdate$]).pipe(
     map(([orgs, ...rest]): [Organization[], ParamMap, void] => {
       return [
         // Sort orgs by name to match the order within the sidebar

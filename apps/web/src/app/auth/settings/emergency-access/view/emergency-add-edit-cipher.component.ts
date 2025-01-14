@@ -6,7 +6,7 @@ import { Component, OnInit } from "@angular/core";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -49,7 +49,7 @@ export class EmergencyAddEditCipherComponent extends BaseAddEditComponent implem
     eventCollectionService: EventCollectionService,
     policyService: PolicyService,
     passwordRepromptService: PasswordRepromptService,
-    organizationService: OrganizationService,
+    organizationService: vNextOrganizationService,
     logService: LogService,
     dialogService: DialogService,
     datePipe: DatePipe,

@@ -2,13 +2,13 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import {
-  canAccessVaultTab,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { canAccessVaultTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ImportCollectionServiceAbstraction } from "@bitwarden/importer/core";
 import { ImportComponent } from "@bitwarden/importer/ui";
 
@@ -34,8 +34,9 @@ export class OrgImportComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private router: Router,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit(): void {
@@ -46,7 +47,12 @@ export class OrgImportComponent implements OnInit {
    * Callback that is called after a successful import.
    */
   protected async onSuccessfulImport(organizationId: string): Promise<void> {
-    const organization = await firstValueFrom(this.organizationService.get$(organizationId));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((organizations) => organizations.find((o) => o.id === organizationId))),
+    );
     if (organization == null) {
       return;
     }

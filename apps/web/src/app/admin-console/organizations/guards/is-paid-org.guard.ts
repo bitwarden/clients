@@ -7,8 +7,13 @@ import {
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
+import { firstValueFrom, map } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  vNextOrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DialogService } from "@bitwarden/components";
 
 /**
@@ -21,10 +26,16 @@ import { DialogService } from "@bitwarden/components";
 export function isPaidOrgGuard(): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, _state: RouterStateSnapshot) => {
     const router = inject(Router);
-    const organizationService = inject(OrganizationService);
+    const organizationService = inject(vNextOrganizationService);
+    const accountService = inject(AccountService);
     const dialogService = inject(DialogService);
 
-    const org = await organizationService.get(route.params.organizationId);
+    const userId = await firstValueFrom(accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const org = await firstValueFrom(
+      organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(route.params.organizationId)),
+    );
 
     if (org == null) {
       return router.createUrlTree(["/"]);

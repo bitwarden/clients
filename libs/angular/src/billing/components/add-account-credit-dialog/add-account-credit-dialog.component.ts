@@ -10,7 +10,7 @@ import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstra
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService, AccountInfo } from "@bitwarden/common/auth/abstractions/account.service";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BitPayInvoiceRequest } from "@bitwarden/common/billing/models/request/bit-pay-invoice.request";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";

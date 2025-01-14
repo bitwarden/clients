@@ -3,9 +3,12 @@
 import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Guid } from "@bitwarden/common/types/guid";
 import { NoItemsModule, SearchModule, ToastService } from "@bitwarden/components";
@@ -36,13 +39,15 @@ export class RequestSMAccessComponent implements OnInit {
   constructor(
     private router: Router,
     private i18nService: I18nService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private smLandingApiService: SmLandingApiService,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
-    this.organizations = (await this.organizationService.getAll())
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organizations = (await firstValueFrom(this.organizationService.organizations$(userId)))
       .filter((e) => e.enabled)
       .sort((a, b) => a.name.localeCompare(b.name));
 

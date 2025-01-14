@@ -5,8 +5,12 @@ import { of } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -17,13 +21,17 @@ import { ReusedPasswordsReportComponent } from "./reused-passwords-report.compon
 describe("ReusedPasswordsReportComponent", () => {
   let component: ReusedPasswordsReportComponent;
   let fixture: ComponentFixture<ReusedPasswordsReportComponent>;
-  let organizationService: MockProxy<OrganizationService>;
+  let organizationService: MockProxy<vNextOrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
+  let accountService: FakeAccountService;
+  const userId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
-    organizationService = mock<OrganizationService>();
-    organizationService.organizations$ = of([]);
+    organizationService = mock<vNextOrganizationService>();
+    organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
+    accountService = mockAccountServiceWith(userId);
+
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
@@ -34,8 +42,12 @@ describe("ReusedPasswordsReportComponent", () => {
           useValue: mock<CipherService>(),
         },
         {
-          provide: OrganizationService,
+          provide: vNextOrganizationService,
           useValue: organizationService,
+        },
+        {
+          provide: AccountService,
+          useValue: accountService,
         },
         {
           provide: ModalService,
