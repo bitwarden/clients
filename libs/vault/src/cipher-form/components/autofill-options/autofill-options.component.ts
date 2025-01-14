@@ -161,7 +161,11 @@ export class AutofillOptionsComponent implements OnInit {
       autofillOnPageLoad: existingLogin.autofillOnPageLoad,
     });
 
-    if (this.cipherFormContainer.config.initialValues?.loginUri) {
+    // Only add the initial value when the cipher was not initialized from a cached state
+    if (
+      this.cipherFormContainer.config.initialValues?.loginUri &&
+      !this.cipherFormContainer.initializedWithCachedCipher()
+    ) {
       // Avoid adding the same uri again if it already exists
       if (
         existingLogin.uris?.findIndex(
