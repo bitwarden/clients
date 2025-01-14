@@ -36,6 +36,7 @@ import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/plat
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { ToastService } from "@bitwarden/components";
 import {
   KdfType,
   KeyService,
@@ -121,6 +122,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected kdfConfigService: KdfConfigService,
     protected taskSchedulerService: TaskSchedulerService,
+    protected toastService: ToastService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -270,6 +272,11 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
    */
   async logInNewDeviceVerification(deviceVerificationOtp: string): Promise<AuthResult> {
     if (!(await this.isSessionValid())) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("sessionTimeout"),
+        title: "",
+      });
       throw new Error(this.i18nService.t("sessionTimeout"));
     }
 

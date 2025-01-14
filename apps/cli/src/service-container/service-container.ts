@@ -22,6 +22,7 @@ import {
 } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
+import { ToastService } from "@bitwarden/common/abstractions/toast.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
@@ -267,6 +268,7 @@ export class ServiceContainer {
   taskSchedulerService: TaskSchedulerService;
   sdkService: SdkService;
   cipherAuthorizationService: CipherAuthorizationService;
+  toastService: ToastService;
 
   constructor() {
     let p = null;
@@ -647,6 +649,7 @@ export class ServiceContainer {
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
       this.taskSchedulerService,
+      this.toastService,
     );
 
     // FIXME: CLI does not support autofill
@@ -825,6 +828,8 @@ export class ServiceContainer {
       this.collectionService,
       this.organizationService,
     );
+
+    this.toastService = new ToastService();
   }
 
   async logout() {
