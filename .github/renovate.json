@@ -75,7 +75,6 @@
     },
     {
       "matchPackageNames": [
-        "@babel/preset-typescript",
         "@emotion/css",
         "@webcomponents/custom-elements",
         "concurrently",

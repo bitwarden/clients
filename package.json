@@ -47,7 +47,6 @@
     "@angular/elements": "18.2.13",
     "@babel/core": "7.24.9",
     "@babel/preset-env": "7.24.8",
-    "@babel/preset-typescript": "7.26.0",
     "@compodoc/compodoc": "1.1.26",
     "@electron/notarize": "2.5.0",
     "@electron/rebuild": "3.7.1",
