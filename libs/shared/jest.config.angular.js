@@ -1,7 +1,5 @@
 /* eslint-env node */
-/* eslint-disable @typescript-eslint/no-var-requires */
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { defaultTransformerOptions } = require("jest-preset-angular/presets");
 
 /** @type {import('jest').Config} */

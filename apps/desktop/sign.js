@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 
 exports.default = async function (configuration) {
   if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && configuration.path.slice(-4) == ".exe") {
     console.log(`[*] Signing file: ${configuration.path}`);
-    // FIXME: Remove when updating file. Eslint update
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("child_process").execSync(
       `azuresigntool sign -v ` +
         `-kvu ${process.env.SIGNING_VAULT_URL} ` +

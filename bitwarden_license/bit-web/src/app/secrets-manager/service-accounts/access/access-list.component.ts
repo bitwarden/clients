@@ -32,8 +32,6 @@ export class AccessListComponent {
   }
 
   toggleAll() {
-    // FIXME: Remove when updating file. Eslint update
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.isAllSelected()
       ? this.selection.clear()
       : this.selection.select(...this.tokens.map((s) => s.id));

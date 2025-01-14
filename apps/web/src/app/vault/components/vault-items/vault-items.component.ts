@@ -168,8 +168,6 @@ export class VaultItemsComponent {
   }
 
   protected toggleAll() {
-    // FIXME: Remove when updating file. Eslint update
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.isAllSelected
       ? this.selection.clear()
       : this.selection.select(...this.editableItems.slice(0, MaxSelectionCount));

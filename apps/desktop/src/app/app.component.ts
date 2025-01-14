@@ -798,8 +798,7 @@ export class AppComponent implements OnInit, OnDestroy {
       const options = await this.getVaultTimeoutOptions(userId);
       if (options[0] === timeout) {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // FIXME: Remove when updating file. Eslint update
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises, @typescript-eslint/no-unused-expressions
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         options[1] === "logOut"
           ? this.logOut("vaultTimeout", userId as UserId)
           : await this.vaultTimeoutService.lock(userId);

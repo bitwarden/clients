@@ -1,22 +1,10 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 require("dotenv").config();
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const child_process = require("child_process");
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const path = require("path");
 
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { flipFuses, FuseVersion, FuseV1Options } = require("@electron/fuses");
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const builder = require("electron-builder");
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fse = require("fs-extra");
 
 exports.default = run;
