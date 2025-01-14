@@ -1,4 +1,4 @@
-import { PlanType } from "@bitwarden/common/billing/enums";
+import { PlanType } from "../../enums";
 
 export class PreviewOrganizationInvoiceRequest {
   organizationId?: string;

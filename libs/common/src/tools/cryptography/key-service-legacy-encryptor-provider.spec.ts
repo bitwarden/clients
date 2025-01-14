@@ -1,13 +1,13 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
+import { EncryptService } from "../../platform/abstractions/encrypt.service";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "../../types/csprng";
+import { OrganizationId, UserId } from "../../types/guid";
+import { OrgKey, UserKey } from "../../types/key";
 import { OrganizationBound, UserBound } from "../dependencies";
 
 import { KeyServiceLegacyEncryptorProvider } from "./key-service-legacy-encryptor-provider";

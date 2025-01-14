@@ -113,6 +113,8 @@ export class EntityEventsComponent implements OnInit {
         this.filterFormGroup.value.start,
         this.filterFormGroup.value.end,
       );
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

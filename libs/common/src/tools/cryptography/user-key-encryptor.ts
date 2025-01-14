@@ -2,10 +2,9 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { UserId } from "@bitwarden/common/types/guid";
-
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { EncString } from "../../platform/models/domain/enc-string";
+import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 import { DataPacker } from "../state/data-packer.abstraction";
 

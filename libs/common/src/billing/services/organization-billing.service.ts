@@ -1,18 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  BillingApiServiceAbstraction,
-  OrganizationBillingServiceAbstraction,
-  OrganizationInformation,
-  PaymentInformation,
-  PlanInformation,
-  SubscriptionInformation,
-} from "@bitwarden/common/billing/abstractions";
-import { BillingSourceResponse } from "@bitwarden/common/billing/models/response/billing.response";
-import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { KeyService } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -20,12 +7,25 @@ import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { EncString } from "../../platform/models/domain/enc-string";
+import { SyncService } from "../../platform/sync";
 import { OrgKey } from "../../types/key";
+import {
+  BillingApiServiceAbstraction,
+  OrganizationBillingServiceAbstraction,
+  OrganizationInformation,
+  PaymentInformation,
+  PlanInformation,
+  SubscriptionInformation,
+} from "../abstractions";
 import { PlanType } from "../enums";
 import { OrganizationNoPaymentMethodCreateRequest } from "../models/request/organization-no-payment-method-create-request";
+import { BillingSourceResponse } from "../models/response/billing.response";
+import { PaymentSourceResponse } from "../models/response/payment-source.response";
 
 interface OrganizationKeys {
   encryptedKey: EncString;
