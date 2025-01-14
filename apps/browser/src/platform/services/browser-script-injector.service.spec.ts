@@ -63,7 +63,7 @@ describe("ScriptInjectorService", () => {
     configService.getFeatureFlag$.mockImplementation(() => of(false));
     domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider, configService);
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
-    domainSettingsService.blockedInteractionsUris$ = of(null);
+    domainSettingsService.blockedInteractionsUris$ = of({});
     scriptInjectorService = new BrowserScriptInjectorService(
       domainSettingsService,
       platformUtilsService,
