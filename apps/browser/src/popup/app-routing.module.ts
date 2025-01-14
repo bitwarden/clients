@@ -241,7 +241,7 @@ const routes: Routes = [
   ),
   {
     path: "device-verification",
-    component: AnonLayoutWrapperComponent,
+    component: ExtensionAnonLayoutWrapperComponent,
     canActivate: [newDeviceVerificationGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
     data: {
@@ -253,7 +253,7 @@ const routes: Routes = [
         key: "weDontRecognizeThisDevice",
       },
       elevation: 1,
-    } satisfies RouteDataProperties & AnonLayoutWrapperData,
+    } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
   },
   {
     path: "set-password",
