@@ -267,9 +267,7 @@ describe("ImportService", () => {
 function createCipher(options: Partial<CipherView> = {}) {
   const cipher = new CipherView();
 
-  // FIXME: Remove when updating file. Eslint update
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  cipher.name;
+  cipher.name = options.name;
   cipher.type = options.type;
   cipher.folderId = options.folderId;
   cipher.collectionIds = options.collectionIds;
