@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Utils } from "../..//platform/misc/utils";
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { Utils } from "../../platform/misc/utils";
 
 import { IntegrationMetadata } from "./integration-metadata";
 import { ApiSettings, IntegrationRequest } from "./rpc";
