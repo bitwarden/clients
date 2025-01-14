@@ -6,6 +6,7 @@ import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   AsyncActionsModule,
@@ -13,6 +14,7 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
+  ToastService,
 } from "@bitwarden/components";
 
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
@@ -51,6 +53,8 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private logService: LogService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {}
 
   async ngOnInit() {
@@ -60,6 +64,11 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       .subscribe((timedOut) => {
         if (timedOut) {
           this.logService.error("Session timed out.");
+          this.toastService.showToast({
+            title: "",
+            message: this.i18nService.t("sessionTimeout"),
+            variant: "error",
+          });
           void this.router.navigate(["/login"]);
         }
       });
