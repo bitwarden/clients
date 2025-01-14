@@ -65,6 +65,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   showPrivateKey: boolean;
   canAccessPremium: boolean;
   showPremiumRequiredTotp: boolean;
+  showUpgradeRequiredTotp: boolean;
   totpCode: string;
   totpCodeFormatted: string;
   totpDash: number;
@@ -78,6 +79,8 @@ export class ViewComponent implements OnDestroy, OnInit {
   private totpInterval: any;
   private previousCipherId: string;
   private passwordReprompted = false;
+
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -141,32 +144,33 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.cleanUp();
 
     const cipher = await this.cipherService.get(this.cipherId);
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.activeUserId$);
     this.cipher = await cipher.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
     );
     this.canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
     );
     this.showPremiumRequiredTotp =
-      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
+      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationId;
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
       this.collectionId as CollectionId,
     ]);
 
+    this.showUpgradeRequiredTotp =
+      this.cipher.login.totp && this.cipher.organizationId && !this.cipher.organizationUseTotp;
+
     if (this.cipher.folderId) {
       this.folder = await (
-        await firstValueFrom(this.folderService.folderViews$)
+        await firstValueFrom(this.folderService.folderViews$(activeUserId))
       ).find((f) => f.id == this.cipher.folderId);
     }
 
-    if (
-      this.cipher.type === CipherType.Login &&
-      this.cipher.login.totp &&
-      (cipher.organizationUseTotp || this.canAccessPremium)
-    ) {
+    const canGenerateTotp = this.cipher.organizationId
+      ? this.cipher.organizationUseTotp
+      : this.canAccessPremium;
+
+    if (this.cipher.type === CipherType.Login && this.cipher.login.totp && canGenerateTotp) {
       await this.totpUpdateCode();
       const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
       await this.totpTick(interval);
@@ -462,6 +466,8 @@ export class ViewComponent implements OnDestroy, OnInit {
         fileName: attachment.fileName,
         blobData: decBuf,
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
     }

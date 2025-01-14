@@ -23,8 +23,7 @@ import { KeyService } from "@bitwarden/key-management";
   templateUrl: "setup.component.html",
 })
 export class SetupComponent implements OnInit, OnDestroy {
-  @ViewChild(ManageTaxInformationComponent)
-  manageTaxInformationComponent: ManageTaxInformationComponent;
+  @ViewChild(ManageTaxInformationComponent) taxInformationComponent: ManageTaxInformationComponent;
 
   loading = true;
   providerId: string;
@@ -111,9 +110,7 @@ export class SetupComponent implements OnInit, OnDestroy {
     try {
       this.formGroup.markAllAsTouched();
 
-      const formIsValid = this.formGroup.valid && this.manageTaxInformationComponent.touch();
-
-      if (!formIsValid) {
+      if (!this.taxInformationComponent.validate() || !this.formGroup.valid) {
         return;
       }
 
@@ -127,18 +124,15 @@ export class SetupComponent implements OnInit, OnDestroy {
       request.key = key;
 
       request.taxInfo = new ExpandedTaxInfoUpdateRequest();
-      const taxInformation = this.manageTaxInformationComponent.getTaxInformation();
+      const taxInformation = this.taxInformationComponent.getTaxInformation();
 
       request.taxInfo.country = taxInformation.country;
       request.taxInfo.postalCode = taxInformation.postalCode;
-
-      if (taxInformation.includeTaxId) {
-        request.taxInfo.taxId = taxInformation.taxId;
-        request.taxInfo.line1 = taxInformation.line1;
-        request.taxInfo.line2 = taxInformation.line2;
-        request.taxInfo.city = taxInformation.city;
-        request.taxInfo.state = taxInformation.state;
-      }
+      request.taxInfo.taxId = taxInformation.taxId;
+      request.taxInfo.line1 = taxInformation.line1;
+      request.taxInfo.line2 = taxInformation.line2;
+      request.taxInfo.city = taxInformation.city;
+      request.taxInfo.state = taxInformation.state;
 
       const provider = await this.providerApiService.postProviderSetup(this.providerId, request);
 
@@ -152,6 +146,7 @@ export class SetupComponent implements OnInit, OnDestroy {
 
       await this.router.navigate(["/providers", provider.id]);
     } catch (e) {
+      e.message = this.i18nService.translate(e.message) || e.message;
       this.validationService.showError(e);
     }
   };

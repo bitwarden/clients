@@ -12,7 +12,7 @@ import { TableDataSource, TableModule } from "../../../table";
   imports: [DialogModule, IconButtonModule, SectionComponent, TableModule, ScrollingModule],
   template: /*html*/ `<bit-section>
     <cdk-virtual-scroll-viewport scrollWindow itemSize="47">
-      <bit-table [dataSource]="dataSource" data-chromatic="ignore">
+      <bit-table [dataSource]="dataSource">
         <ng-container header>
           <tr>
             <th bitCell bitSortable="id" default>Id</th>

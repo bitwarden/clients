@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { Policy } from "../admin-console/models/domain/policy";
+import { OrganizationId, UserId } from "../types/guid";
 
 import { OrganizationEncryptor } from "./cryptography/organization-encryptor.abstraction";
 import { UserEncryptor } from "./cryptography/user-encryptor.abstraction";

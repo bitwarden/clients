@@ -122,7 +122,7 @@
   <bit-section>
     <h3 bitTypography="h2">{{ "paymentInformation" | i18n }}</h3>
     <app-payment [hideBank]="true"></app-payment>
-    <app-tax-info></app-tax-info>
+    <app-tax-info (taxInformationChanged)="onTaxInformationChanged()" />
     <div id="price" class="tw-my-4">
       <div class="tw-text-muted tw-text-sm">
         {{ "planPrice" | i18n }}: {{ subtotal | currency: "USD $" }}

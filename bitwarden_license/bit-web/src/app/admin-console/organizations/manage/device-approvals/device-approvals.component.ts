@@ -98,6 +98,8 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
           title: null,
           message: this.i18nService.t("loginRequestApproved"),
         });
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         this.toastService.showToast({
           variant: "error",
