@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Потвърдете самоличността си"
   },
+  "whatIsADevice": {
+    "message": "Какво представлява едно устройство?"
+  },
+  "aDeviceIs": {
+    "message": "Едно устройство наричаме инсталацията на приложението Битуорден, където сте се вписали. Ако преинсталирате приложението, изчистите данните му или изтриете бисквитките си, това устройство може да се появи няколко пъти в списъка."
+  },
   "logInInitiated": {
     "message": "Вписването е стартирано"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Впишете се отново."
+  },
+  "currentSession": {
+    "message": "Текуща сесия"
+  },
+  "requestPending": {
+    "message": "Чакаща заявка"
   },
   "logBackInOthersToo": {
     "message": "Впишете се отново. Ако използвате и други приложения на Битуорден, впишете се отново и в тях."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Имате 1 оставаща покана."
+  },
   "userUsingTwoStep": {
     "message": "Този потребител използва двустепенна защита за достъп."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Устройство"
+  },
+  "loginStatus": {
+    "message": "Състояние на вписването"
+  },
+  "firstLogin": {
+    "message": "Първо вписване"
+  },
+  "trusted": {
+    "message": "Доверено"
   },
   "creatingAccountOn": {
     "message": "Създаване на регистрация в"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Грешка"
+  },
+  "decryptionError": {
+    "message": "Грешка при дешифриране"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Свържете се с поддръжката",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "за да избегнете загубата на данни.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Управлението на потребителите трябва да бъде дадено заедно с разрешението за Управление на възстановяването на регистрации"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Одобряване на заявката"
   },
+  "deviceApproved": {
+    "message": "Устройството е одобрено"
+  },
+  "deviceRemoved": {
+    "message": "Устройството е премахнато"
+  },
+  "removeDevice": {
+    "message": "Премахване на устройството"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Наистина ли искате да премахнете това устройство?"
+  },
   "noDeviceRequests": {
     "message": "Няма заявки от устройства"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Премахване на членовете"
   },
+  "devices": {
+    "message": "Устройства"
+  },
+  "deviceListDescription": {
+    "message": "Вие сте се вписали във всяко от устройствата по-долу. Ако не разпознавате някое от тях, премахнете го сега."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Вашият акаунт е вписан във всяко от устройствата по-долу."
+  },
   "claimedDomains": {
     "message": "Присвоени домейни"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Абонаментът на организацията е рестартиран"
+  },
+  "restartSubscription": {
+    "message": "Рестартирайте абонамента си"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Свържете се с $PROVIDER$ за помощ.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

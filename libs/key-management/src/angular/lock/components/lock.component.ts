@@ -70,6 +70,9 @@ const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
   [ClientType.Browser]: "/tabs/current",
 };
 
+/// The minimum amount of time to wait after a process reload for a biometrics auto prompt to be possible
+/// Fixes safari autoprompt behavior
+const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
@@ -304,7 +307,15 @@ export class LockComponent implements OnInit, OnDestroy {
         (await this.biometricService.getShouldAutopromptNow())
       ) {
         await this.biometricService.setShouldAutopromptNow(false);
-        await this.unlockViaBiometrics();
+
+        const lastProcessReload = await this.biometricStateService.getLastProcessReload();
+        if (
+          lastProcessReload == null ||
+          isNaN(lastProcessReload.getTime()) ||
+          Date.now() - lastProcessReload.getTime() > AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY
+        ) {
+          await this.unlockViaBiometrics();
+        }
       }
     }
   }

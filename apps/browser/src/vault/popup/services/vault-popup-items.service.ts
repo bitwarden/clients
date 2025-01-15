@@ -247,8 +247,28 @@ export class VaultPopupItemsService {
   /**
    * Observable that contains the list of ciphers that have been deleted.
    */
-  deletedCiphers$: Observable<CipherView[]> = this._allDecryptedCiphers$.pipe(
-    map((ciphers) => ciphers.filter((c) => c.isDeleted)),
+  deletedCiphers$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
+    switchMap((ciphers) =>
+      combineLatest([
+        this.organizationService.organizations$,
+        this.collectionService.decryptedCollections$,
+      ]).pipe(
+        map(([organizations, collections]) => {
+          const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
+          const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
+          return ciphers
+            .filter((c) => c.isDeleted)
+            .map(
+              (cipher) =>
+                new PopupCipherView(
+                  cipher,
+                  cipher.collectionIds?.map((colId) => collectionMap[colId as CollectionId]),
+                  orgMap[cipher.organizationId as OrganizationId],
+                ),
+            );
+        }),
+      ),
+    ),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 

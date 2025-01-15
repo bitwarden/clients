@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Vérifiez votre Identité"
   },
+  "whatIsADevice": {
+    "message": "Qu'est-ce qu'un appareil ?"
+  },
+  "aDeviceIs": {
+    "message": "Un appareil est une installation unique de l'application Bitwarden où vous vous êtes connecté. Réinstaller, effacer les données de l'application ou effacer vos cookies peut entraîner l'apparition d'un appareil plusieurs fois."
+  },
   "logInInitiated": {
     "message": "Connexion initiée"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Veuillez vous reconnecter."
+  },
+  "currentSession": {
+    "message": "Session en cours"
+  },
+  "requestPending": {
+    "message": "Demande en attente"
   },
   "logBackInOthersToo": {
     "message": "Veuillez vous reconnecter. Si vous utilisez d'autres applications Bitwarden, déconnectez-vous et reconnectez-vous également de celles-ci."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "You have 1 invite remaining."
+  },
   "userUsingTwoStep": {
     "message": "Cet utilisateur utilise l'authentification à deux facteurs pour protéger son compte."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Appareil"
+  },
+  "loginStatus": {
+    "message": "Statut de connexion"
+  },
+  "firstLogin": {
+    "message": "Première connexion"
+  },
+  "trusted": {
+    "message": "Approuvé"
   },
   "creatingAccountOn": {
     "message": "Création du compte sur"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Erreur"
+  },
+  "decryptionError": {
+    "message": "Erreur de déchiffrement"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden n'a pas pu déchiffrer le(s) élément(s) du coffre listé(s) ci-dessous."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contacter Customer Success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "pour éviter des pertes de données supplémentaires.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Gérer les utilisateurs exige également d'avoir l'autorisation de gérer la restauration de compte"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Approuver la demande"
   },
+  "deviceApproved": {
+    "message": "Appareil approuvé"
+  },
+  "deviceRemoved": {
+    "message": "Appareil supprimé"
+  },
+  "removeDevice": {
+    "message": "Supprimer l'appareil"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Êtes-vous sûr de vouloir supprimer cet appareil ?"
+  },
   "noDeviceRequests": {
     "message": "Aucune demande de l'appareil"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Retirer des membres"
   },
+  "devices": {
+    "message": "Appareils"
+  },
+  "deviceListDescription": {
+    "message": "Votre compte a été connecté à chacun des appareils ci-dessous. Si vous ne reconnaissez pas un appareil, supprimez-le maintenant."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Votre compte a été connecté à chacun des appareils ci-dessous."
+  },
   "claimedDomains": {
     "message": "Domaines réclamés"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "L'abonnement à l'organisation a été redémarré"
+  },
+  "restartSubscription": {
+    "message": "Redémarrez votre abonnement"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Contactez $PROVIDER$ pour obtenir de l'aide.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

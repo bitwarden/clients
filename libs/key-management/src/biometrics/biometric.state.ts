@@ -1,9 +1,15 @@
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { EncryptedString } from "../../../common/src/platform/models/domain/enc-string";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import {
   KeyDefinition,
   BIOMETRIC_SETTINGS_DISK,
   UserKeyDefinition,
 } from "../../../common/src/platform/state";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { UserId } from "../../../common/src/types/guid";
 
 /**
@@ -93,5 +99,16 @@ export const FINGERPRINT_VALIDATED = new KeyDefinition<boolean>(
   "fingerprintValidated",
   {
     deserializer: (obj) => obj,
+  },
+);
+
+/**
+ * Last process reload time
+ */
+export const LAST_PROCESS_RELOAD = new KeyDefinition<Date>(
+  BIOMETRIC_SETTINGS_DISK,
+  "lastProcessReload",
+  {
+    deserializer: (obj) => new Date(obj),
   },
 );
