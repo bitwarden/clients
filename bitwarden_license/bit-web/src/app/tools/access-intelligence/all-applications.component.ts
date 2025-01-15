@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe
+// @ts-strict-ignore
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -72,7 +74,8 @@ export class AllApplicationsComponent implements OnInit {
       FeatureFlag.CriticalApps,
     );
 
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+    const organizationId =
+      (this.activatedRoute.snapshot.paramMap.get("organizationId") as string) ?? "";
 
     combineLatest([
       this.dataService.applications$,
@@ -87,15 +90,15 @@ export class AllApplicationsComponent implements OnInit {
             ...app,
             isMarkedAsCritical: criticalUrls.includes(app.applicationName),
           })) as ApplicationHealthReportDetailWithCriticalFlag[];
-
-          return { data, organization };
+          const org = (organization ?? {}) as Organization;
+          return { data, org };
         }),
       )
-      .subscribe(({ data, organization }) => {
+      .subscribe(({ data, org }) => {
         if (data) {
           this.dataSource.data = data ?? [];
           this.applicationSummary = this.reportService.generateApplicationsSummary(data ?? []);
-          this.organization = organization;
+          this.organization = org;
         }
       });
 
