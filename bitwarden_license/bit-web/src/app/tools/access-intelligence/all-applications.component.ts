@@ -94,7 +94,7 @@ export class AllApplicationsComponent implements OnInit {
         if (data) {
           this.dataSource.data = data ?? [];
           this.applicationSummary = this.reportService.generateApplicationsSummary(data ?? []);
-          this.organization = organization as Organization;
+          this.organization = organization;
         }
       });
 
