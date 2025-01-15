@@ -13,6 +13,7 @@ import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -29,6 +30,7 @@ describe("LoginApprovalComponent", () => {
   let i18nService: MockProxy<I18nService>;
   let dialogRef: MockProxy<DialogRef>;
   let toastService: MockProxy<ToastService>;
+  let validationService: MockProxy<ValidationService>;
 
   const testNotificationId = "test-notification-id";
   const testEmail = "test@bitwarden.com";
@@ -41,6 +43,7 @@ describe("LoginApprovalComponent", () => {
     i18nService = mock<I18nService>();
     dialogRef = mock<DialogRef>();
     toastService = mock<ToastService>();
+    validationService = mock<ValidationService>();
 
     accountService.activeAccount$ = of({
       email: testEmail,
@@ -62,6 +65,7 @@ describe("LoginApprovalComponent", () => {
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: DialogRef, useValue: dialogRef },
         { provide: ToastService, useValue: toastService },
+        { provide: ValidationService, useValue: validationService },
         {
           provide: LoginApprovalComponentServiceAbstraction,
           useValue: mock<LoginApprovalComponentServiceAbstraction>(),

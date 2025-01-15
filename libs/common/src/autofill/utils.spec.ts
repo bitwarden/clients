@@ -1,9 +1,6 @@
-import {
-  normalizeExpiryYearFormat,
-  isCardExpired,
-  parseYearMonthExpiry,
-} from "@bitwarden/common/autofill/utils";
-import { CardView } from "@bitwarden/common/vault/models/view/card.view";
+import { CardView } from "../vault/models/view/card.view";
+
+import { normalizeExpiryYearFormat, isCardExpired, parseYearMonthExpiry } from "./utils";
 
 function getExpiryYearValueFormats(currentCentury: string) {
   return [
@@ -93,7 +90,7 @@ function getCardExpiryDateValues() {
     [undefined, undefined, false], // no month, no year, invalid values
     ["", "", false], // no month, no year, invalid values
     ["12", "agdredg42grg35grrr. ea3534@#^145345ag$%^  -_#$rdg ", false], // invalid values
-    ["0", `${currentYear}`, true], // invalid month
+    ["0", `${currentYear}`, false], // invalid month
     ["0", `${currentYear - 1}`, true], // invalid 0 month
     ["00", `${currentYear + 1}`, false], // invalid 0 month
     [`${currentMonth}`, "0000", true], // current month, in the year 2000
