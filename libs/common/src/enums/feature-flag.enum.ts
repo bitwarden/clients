@@ -13,6 +13,7 @@ export enum FeatureFlag {
   InlineMenuPositioningImprovements = "inline-menu-positioning-improvements",
   InlineMenuTotp = "inline-menu-totp",
   NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
+  NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
 
   BrowserFilelessImport = "browser-fileless-import",
@@ -70,6 +71,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
   [FeatureFlag.InlineMenuTotp]: FALSE,
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
+  [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
 
   [FeatureFlag.BrowserFilelessImport]: FALSE,

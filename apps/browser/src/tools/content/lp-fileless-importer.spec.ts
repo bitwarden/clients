@@ -12,6 +12,8 @@ describe("LpFilelessImporter", () => {
   chrome.runtime.connect = jest.fn(() => portSpy);
 
   beforeEach(() => {
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./lp-fileless-importer");
     lpFilelessImporter = (globalThis as any).lpFilelessImporter;
   });

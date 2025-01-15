@@ -100,3 +100,12 @@ export type AtRiskMemberDetail = {
   email: string;
   atRiskPasswordCount: number;
 };
+
+/*
+ * A list of applications and the count of
+ * at risk passwords for each application
+ */
+export type AtRiskApplicationDetail = {
+  applicationName: string;
+  atRiskPasswordCount: number;
+};
