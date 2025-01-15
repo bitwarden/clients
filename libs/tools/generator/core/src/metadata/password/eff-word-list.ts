@@ -19,9 +19,11 @@ const passphrase: GeneratorMetadata<PassphraseGenerationOptions> = {
   weight: 110,
   i18nKeys: {
     name: "passphrase",
+    credentialType: "passphrase",
     generateCredential: "generatePassphrase",
-    credentialGenerated: "passphrase",
+    credentialGenerated: "passphraseGenerated",
     copyCredential: "copyPassphrase",
+    useCredential: "useThisPassphrase",
   },
   capabilities: {
     autogenerate: false,

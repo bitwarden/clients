@@ -19,9 +19,11 @@ const catchall: GeneratorMetadata<CatchallGenerationOptions> = deepFreeze({
   i18nKeys: {
     name: "catchallEmail",
     description: "catchallEmailDesc",
+    credentialType: "email",
     generateCredential: "generateEmail",
-    credentialGenerated: "email",
+    credentialGenerated: "emailGenerated",
     copyCredential: "copyEmail",
+    useCredential: "useThisEmail",
   },
   capabilities: {
     autogenerate: true,

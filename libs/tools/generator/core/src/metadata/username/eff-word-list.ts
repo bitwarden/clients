@@ -18,9 +18,11 @@ const effWordList: GeneratorMetadata<EffUsernameGenerationOptions> = deepFreeze(
   weight: 400,
   i18nKeys: {
     name: "randomWord",
+    credentialType: "username",
     generateCredential: "generateUsername",
-    credentialGenerated: "username",
+    credentialGenerated: "usernameGenerated",
     copyCredential: "copyUsername",
+    useCredential: "useThisUsername",
   },
   capabilities: {
     autogenerate: true,

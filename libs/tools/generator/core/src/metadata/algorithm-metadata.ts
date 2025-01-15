@@ -31,8 +31,14 @@ export type AlgorithmMetadata = {
     /** labels the generate action */
     generateCredential: string;
 
-    /** labels the generated output */
+    /** message informing users when the generator produces a new credential */
     credentialGenerated: string;
+
+    /* labels the action that assigns a generated value to a domain object */
+    useCredential: string;
+
+    /** labels the generated output */
+    credentialType: string;
 
     /** labels the copy output action */
     copyCredential: string;

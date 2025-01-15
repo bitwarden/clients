@@ -20,8 +20,10 @@ const password: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
   i18nKeys: {
     name: "password",
     generateCredential: "generatePassword",
-    credentialGenerated: "password",
+    credentialGenerated: "passwordGenerated",
+    credentialType: "password",
     copyCredential: "copyPassword",
+    useCredential: "useThisPassword",
   },
   capabilities: {
     autogenerate: true,

@@ -19,9 +19,11 @@ const plusAddress: GeneratorMetadata<SubaddressGenerationOptions> = deepFreeze({
   i18nKeys: {
     name: "plusAddressedEmail",
     description: "plusAddressedEmailDesc",
+    credentialType: "email",
     generateCredential: "generateEmail",
-    credentialGenerated: "email",
+    credentialGenerated: "emailGenerated",
     copyCredential: "copyEmail",
+    useCredential: "useThisEmail",
   },
   capabilities: {
     autogenerate: true,
@@ -60,7 +62,7 @@ const plusAddress: GeneratorMetadata<SubaddressGenerationOptions> = deepFreeze({
       constraints: {
         default: {},
         create(_policy, context) {
-          return new SubaddressConstraints(context.email);
+          return new SubaddressConstraints(context.email ?? "");
         },
       },
     },
