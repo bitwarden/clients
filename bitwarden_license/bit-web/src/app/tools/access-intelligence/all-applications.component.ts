@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, map, Observable, of, Subscription } from "rxjs";
+import { combineLatest, debounceTime, map, Observable, of, skipWhile, Subscription } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -74,9 +74,7 @@ export class AllApplicationsComponent implements OnInit {
       FeatureFlag.CriticalApps,
     );
 
-    const organizationId =
-      (this.activatedRoute.snapshot.paramMap.get("organizationId") as string) ?? "";
-
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
     combineLatest([
       this.dataService.applications$,
       this.criticalAppsService.getAppsListForOrg(organizationId),
@@ -84,22 +82,20 @@ export class AllApplicationsComponent implements OnInit {
     ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
+        skipWhile(([_, __, organization]) => !organization),
         map(([applications, criticalApps, organization]) => {
           const criticalUrls = criticalApps.map((ca) => ca.uri);
           const data = applications?.map((app) => ({
             ...app,
             isMarkedAsCritical: criticalUrls.includes(app.applicationName),
           })) as ApplicationHealthReportDetailWithCriticalFlag[];
-          const org = (organization ?? {}) as Organization;
-          return { data, org };
+          return { data, organization };
         }),
       )
-      .subscribe(({ data, org }) => {
-        if (data) {
-          this.dataSource.data = data ?? [];
-          this.applicationSummary = this.reportService.generateApplicationsSummary(data ?? []);
-          this.organization = org;
-        }
+      .subscribe(({ data, organization }) => {
+        this.dataSource.data = data ?? [];
+        this.applicationSummary = this.reportService.generateApplicationsSummary(data ?? []);
+        this.organization = organization;
       });
 
     this.isLoading$ = this.dataService.isLoading$;
