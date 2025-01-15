@@ -13,6 +13,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
+import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
@@ -381,7 +382,9 @@ describe("LoginStrategy", () => {
       expect(tokenService.clearTwoFactorToken).toHaveBeenCalled();
 
       const expected = new AuthResult();
-      expected.twoFactorProviders = { 0: null };
+      expected.twoFactorProviders = { 0: null } as unknown as Partial<
+        Record<TwoFactorProviderType, Record<string, string>>
+      >;
       expected.email = "";
       expected.ssoEmail2FaSessionToken = undefined;
       expect(result).toEqual(expected);
@@ -509,6 +512,56 @@ describe("LoginStrategy", () => {
           } as TokenTwoFactorRequest,
         }),
       );
+    });
+  });
+
+  describe("Device verification", () => {
+    it("processes device verification response", async () => {
+      const captchaToken = "test-captcha-token";
+      const deviceVerificationResponse = new IdentityDeviceVerificationResponse({
+        error: "invalid_grant",
+        error_description: "Device verification required.",
+        email: "test@bitwarden.com",
+        deviceVerificationRequest: true,
+        captchaToken: captchaToken,
+      });
+
+      apiService.postIdentityToken.mockResolvedValue(deviceVerificationResponse);
+
+      cache = new PasswordLoginStrategyData();
+      cache.tokenRequest = new PasswordTokenRequest(
+        email,
+        masterPasswordHash,
+        "",
+        new TokenTwoFactorRequest(),
+      );
+
+      passwordLoginStrategy = new PasswordLoginStrategy(
+        cache,
+        passwordStrengthService,
+        policyService,
+        loginStrategyService,
+        accountService as AccountService,
+        masterPasswordService,
+        keyService,
+        encryptService,
+        apiService,
+        tokenService,
+        appIdService,
+        platformUtilsService,
+        messagingService,
+        logService,
+        stateService,
+        twoFactorService,
+        userDecryptionOptionsService,
+        billingAccountProfileStateService,
+        vaultTimeoutSettingsService,
+        kdfConfigService,
+      );
+
+      const result = await passwordLoginStrategy.logIn(credentials);
+
+      expect(result.requiresDeviceVerification).toBe(true);
     });
   });
 });
