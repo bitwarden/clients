@@ -143,8 +143,8 @@ describe("RuntimeExtensionRegistry", () => {
 
       const result = registry.registerSite(SomeSite).registerSite(barSite).sites();
 
-      expect(result.some(({ site }) => site.id === SomeSiteId)).toBeTrue();
-      expect(result.some(({ site }) => site.id === barSite.id)).toBeTrue();
+      expect(result.some(({ site }) => site.id === SomeSiteId)).toBe(true);
+      expect(result.some(({ site }) => site.id === barSite.id)).toBe(true);
     });
 
     it("includes permissions for a site", () => {
@@ -230,8 +230,8 @@ describe("RuntimeExtensionRegistry", () => {
 
       const result = registry.vendors();
 
-      expect(result.some(({ vendor }) => vendor.id === SomeVendorId)).toBeTrue();
-      expect(result.some(({ vendor }) => vendor.id === JustTrustUs.id)).toBeTrue();
+      expect(result.some(({ vendor }) => vendor.id === SomeVendorId)).toBe(true);
+      expect(result.some(({ vendor }) => vendor.id === JustTrustUs.id)).toBe(true);
     });
 
     it("includes permissions for a vendor", () => {
@@ -411,10 +411,10 @@ describe("RuntimeExtensionRegistry", () => {
 
       expect(
         result.some((p: any) => p.set.site === SomeSiteId && p.permission === Permission.allow),
-      ).toBeTrue();
+      ).toBe(true);
       expect(
         result.some((p: any) => p.set.site === "bar" && p.permission === Permission.deny),
-      ).toBeTrue();
+      ).toBe(true);
     });
 
     it("includes vendor permissions", () => {
@@ -428,12 +428,12 @@ describe("RuntimeExtensionRegistry", () => {
 
       expect(
         result.some((p: any) => p.set.vendor === SomeVendorId && p.permission === Permission.allow),
-      ).toBeTrue();
+      ).toBe(true);
       expect(
         result.some(
           (p: any) => p.set.vendor === JustTrustUs.id && p.permission === Permission.deny,
         ),
-      ).toBeTrue();
+      ).toBe(true);
     });
   });
 
@@ -561,13 +561,13 @@ describe("RuntimeExtensionRegistry", () => {
             ({ extension }) =>
               extension.site.id === SomeSiteId && extension.product.vendor.id === SomeVendorId,
           ),
-        ).toBeTrue();
+        ).toBe(true);
         expect(
           result.some(
             ({ extension }) =>
               extension.site.id === SomeSiteId && extension.product.vendor.id === JustTrustUs.id,
           ),
-        ).toBeTrue();
+        ).toBe(true);
       });
 
       it("includes permissions for extensions", () => {
@@ -587,7 +587,7 @@ describe("RuntimeExtensionRegistry", () => {
               extension.product.vendor.id === SomeVendorId &&
               permissions.includes(Permission.allow),
           ),
-        ).toBeTrue();
+        ).toBe(true);
       });
     });
 
