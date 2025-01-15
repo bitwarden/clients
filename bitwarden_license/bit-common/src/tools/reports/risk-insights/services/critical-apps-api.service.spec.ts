@@ -42,7 +42,7 @@ describe("CriticalAppsApiService", () => {
 
     apiService.send.mockReturnValue(Promise.resolve(response));
 
-    service.SaveCriticalApps(requests).subscribe((result) => {
+    service.saveCriticalApps(requests).subscribe((result) => {
       expect(result).toEqual(response);
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
@@ -64,7 +64,7 @@ describe("CriticalAppsApiService", () => {
 
     apiService.send.mockReturnValue(Promise.resolve(response));
 
-    service.GetCriticalApps(orgId).subscribe((result) => {
+    service.getCriticalApps(orgId).subscribe((result) => {
       expect(result).toEqual(response);
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",

@@ -1,19 +1,9 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import {
-  combineLatest,
-  debounceTime,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  Subscription,
-  switchMap,
-} from "rxjs";
+import { combineLatest, debounceTime, map, Observable, of, Subscription } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports  -- used for dependency injection
 import {
   CriticalAppsService,
   RiskInsightsDataService,
@@ -29,7 +19,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   DialogService,
@@ -78,60 +67,36 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
   isCriticalAppsFeatureEnabled = false;
 
   async ngOnInit() {
-    this.activatedRoute.paramMap
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-
-        map(async (params) => {
-          const organizationId = params.get("organizationId") ?? "";
-          this.organization = (await firstValueFrom(
-            this.organizationService.get$(organizationId),
-          )) as Organization;
-          return params;
-          // TODO: use organizationId to fetch data
-        }),
-        switchMap(async (params) => await params),
-      )
-      .subscribe((params) => {
-        const orgId = params.get("organizationId");
-        this.criticalAppsService.setOrganizationId(orgId as OrganizationId);
-      });
-
     this.isCriticalAppsFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CriticalApps,
     );
 
     const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
 
-    if (organizationId) {
-      this.organization = await this.organizationService.get(organizationId);
+    combineLatest([
+      this.dataService.applications$,
+      this.criticalAppsService.getAppsListForOrg(organizationId),
+      this.organizationService.get$(organizationId),
+    ])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map(([applications, criticalApps, organization]) => {
+          const criticalUrls = criticalApps.map((ca) => ca.uri);
+          const data = applications?.map((app) => ({
+            ...app,
+            isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+          })) as ApplicationHealthReportDetailWithCriticalFlag[];
 
-      this.subscription = combineLatest([
-        this.dataService.applications$,
-        this.criticalAppsService.getAppsListForOrg(organizationId),
-      ])
-        .pipe(
-          map(([applications, criticalApps]) => {
-            const criticalUrls = criticalApps.map((ca) => ca.uri);
-            const data = applications?.map((app) => ({
-              ...app,
-              isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-            })) as ApplicationHealthReportDetailWithCriticalFlag[];
-            return data;
-          }),
-          map((applications: ApplicationHealthReportDetailWithCriticalFlag[]) => {
-            if (applications) {
-              this.dataSource.data = applications ?? [];
-              this.applicationSummary = this.reportService.generateApplicationsSummary(
-                applications ?? [],
-              );
-            }
-          }),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe();
-      this.isLoading$ = this.dataService.isLoading$;
-    }
+          return { data, organization };
+        }),
+      )
+      .subscribe(({ data, organization }) => {
+        if (data) {
+          this.dataSource.data = data ?? [];
+          this.applicationSummary = this.reportService.generateApplicationsSummary(data ?? []);
+          this.organization = organization as Organization;
+        }
+      });
   }
 
   ngOnDestroy(): void {

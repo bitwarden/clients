@@ -11,7 +11,7 @@ import {
 export class CriticalAppsApiService {
   constructor(private apiService: ApiService) {}
 
-  SaveCriticalApps(
+  saveCriticalApps(
     requests: PasswordHealthReportApplicationsRequest[],
   ): Observable<PasswordHealthReportApplicationsResponse[]> {
     const dbResponse = this.apiService.send(
@@ -25,7 +25,7 @@ export class CriticalAppsApiService {
     return from(dbResponse as Promise<PasswordHealthReportApplicationsResponse[]>);
   }
 
-  GetCriticalApps(orgId: OrganizationId): Observable<PasswordHealthReportApplicationsResponse[]> {
+  getCriticalApps(orgId: OrganizationId): Observable<PasswordHealthReportApplicationsResponse[]> {
     const dbResponse = this.apiService.send(
       "GET",
       `/reports/password-health-report-applications/${orgId.toString()}`,
