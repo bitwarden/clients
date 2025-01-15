@@ -14,6 +14,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
@@ -152,8 +153,8 @@ export class EditCommand {
     const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
     const encFolder = await this.folderService.encrypt(folderView, userKey);
     try {
-      await this.folderApiService.save(encFolder, activeUserId);
-      const updatedFolder = await this.folderService.get(folder.id, activeUserId);
+      const folder = await this.folderApiService.save(encFolder, activeUserId);
+      const updatedFolder = new Folder(folder);
       const decFolder = await updatedFolder.decrypt();
       const res = new FolderResponse(decFolder);
       return Response.success(res);
