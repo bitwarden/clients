@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -23,6 +24,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private logService: LogService,
     private keyService: KeyService,
     private biometricStateService: BiometricStateService,
+    private messagingService: MessagingService,
   ) {
     super();
   }
@@ -98,6 +100,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
             await this.biometricStateService.setBiometricUnlockEnabled(true);
             await this.biometricStateService.setFingerprintValidated(true);
             await this.keyService.setUserKey(userKey, userId);
+            // to update badge and other things
+            this.messagingService.send("switchAccount", { userId });
             return userKey;
           }
         } else {
@@ -116,6 +120,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
             await this.biometricStateService.setBiometricUnlockEnabled(true);
             await this.biometricStateService.setFingerprintValidated(true);
             await this.keyService.setUserKey(userKey, userId);
+            // to update badge and other things
+            this.messagingService.send("switchAccount", { userId });
             return userKey;
           }
         } else {
