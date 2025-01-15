@@ -23,11 +23,12 @@ export function mapPolicyToEvaluator<Policy, Evaluator>(
  */
 export function mapPolicyToConstraints<Policy, Evaluator>(
   configuration: PolicyConfiguration<Policy, Evaluator>,
+  email: string,
 ) {
   return pipe(
     reduceCollection(configuration.combine, configuration.disabledValue),
     distinctIfShallowMatch(),
-    map(configuration.toConstraints),
+    map((policy) => configuration.toConstraints(policy, email)),
   );
 }
 

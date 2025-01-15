@@ -16,16 +16,24 @@ if (
     app.dock.hide();
   });
 
-  const proc = spawn(path.join(process.execPath, "..", "desktop_proxy"), process.argv.slice(1), {
-    cwd: process.cwd(),
-    stdio: "inherit",
-    shell: false,
-  });
+  const proc = spawn(
+    path.join(process.execPath, "..", "desktop_proxy.inherit"),
+    process.argv.slice(1),
+    {
+      cwd: process.cwd(),
+      stdio: "inherit",
+      shell: false,
+    },
+  );
 
-  proc.on("exit", () => {
+  proc.on("exit", (...args) => {
+    // eslint-disable-next-line no-console
+    console.error("Proxy process exited", args);
     process.exit(0);
   });
-  proc.on("error", () => {
+  proc.on("error", (...args) => {
+    // eslint-disable-next-line no-console
+    console.error("Proxy process errored", args);
     process.exit(1);
   });
 } else {

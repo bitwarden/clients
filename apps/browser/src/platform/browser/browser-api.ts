@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { DeviceType } from "@bitwarden/common/enums";
@@ -58,11 +60,33 @@ export class BrowserApi {
   }
 
   static async createWindow(options: chrome.windows.CreateData): Promise<chrome.windows.Window> {
-    return new Promise((resolve) =>
-      chrome.windows.create(options, (window) => {
-        resolve(window);
-      }),
-    );
+    return new Promise((resolve) => {
+      chrome.windows.create(options, async (newWindow) => {
+        if (!BrowserApi.isSafariApi) {
+          return resolve(newWindow);
+        }
+        // Safari doesn't close the default extension popup when a new window is created so we need to
+        // manually trigger the close by focusing the main window after the new window is created
+        const allWindows = await new Promise<chrome.windows.Window[]>((resolve) => {
+          chrome.windows.getAll({ windowTypes: ["normal"] }, (windows) => resolve(windows));
+        });
+
+        const mainWindow = allWindows.find((window) => window.id !== newWindow.id);
+
+        // No main window found, resolve the new window
+        if (mainWindow == null || !mainWindow.id) {
+          return resolve(newWindow);
+        }
+
+        // Focus the main window to close the extension popup
+        chrome.windows.update(mainWindow.id, { focused: true }, () => {
+          // Refocus the newly created window
+          chrome.windows.update(newWindow.id, { focused: true }, () => {
+            resolve(newWindow);
+          });
+        });
+      });
+    });
   }
 
   /**
@@ -141,6 +165,21 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Fetch the currently open browser tab
+   */
+  static async getCurrentTab(): Promise<chrome.tabs.Tab> | null {
+    if (BrowserApi.isManifestVersion(3)) {
+      return await chrome.tabs.getCurrent();
+    }
+
+    return new Promise((resolve) =>
+      chrome.tabs.getCurrent((tab) => {
+        resolve(tab);
+      }),
+    );
+  }
+
   static async tabsQuery(options: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> {
     return new Promise((resolve) => {
       chrome.tabs.query(options, (tabs) => {
@@ -178,15 +217,17 @@ export class BrowserApi {
     tab: chrome.tabs.Tab,
     obj: T,
     options: chrome.tabs.MessageSendOptions = null,
+    rejectOnError = false,
   ): Promise<TResponse> {
     if (!tab || !tab.id) {
       return;
     }
 
-    return new Promise<TResponse>((resolve) => {
+    return new Promise<TResponse>((resolve, reject) => {
       chrome.tabs.sendMessage(tab.id, obj, options, (response) => {
-        if (chrome.runtime.lastError) {
+        if (chrome.runtime.lastError && rejectOnError) {
           // Some error happened
+          reject();
         }
         resolve(response);
       });
@@ -413,6 +454,12 @@ export class BrowserApi {
    * Handles reloading the extension using the underlying functionality exposed by the browser API.
    */
   static reloadExtension() {
+    // If we do `chrome.runtime.reload` on safari they will send an onInstalled reason of install
+    // and that prompts us to show a new tab, this apparently doesn't happen on sideloaded
+    // extensions and only shows itself production scenarios. See: https://bitwarden.atlassian.net/browse/PM-12298
+    if (this.isSafariApi) {
+      return self.location.reload();
+    }
     return chrome.runtime.reload();
   }
 

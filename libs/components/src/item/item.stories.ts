@@ -63,20 +63,20 @@ export const Default: Story = {
     template: /*html*/ `
       <bit-item>
         <button bit-item-content>
-          <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+          <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
           Foo
           <span slot="secondary">Bar</span>
         </button>
 
         <ng-container slot="end">
           <bit-item-action>
-            <button type="button" bitBadge variant="primary">Auto-fill</button>
+            <button type="button" bitBadge variant="primary">Fill</button>
           </bit-item-action>
           <bit-item-action>
-            <button type="button" bitIconButton="bwi-clone"></button>
+            <button type="button" bitIconButton="bwi-clone" size="small"></button>
           </bit-item-action>
           <bit-item-action>
-            <button type="button" bitIconButton="bwi-ellipsis-v"></button>
+            <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
           </bit-item-action>
         </ng-container>
       </bit-item>
@@ -94,7 +94,7 @@ export const ContentSlots: Story = {
             slot="start"
             [text]="'Foo'"
           ></bit-avatar>
-          foo@bitwarden.com
+          foo&#64;bitwarden.com
           <ng-container slot="secondary">
             <div>Bitwarden.com</div>
             <div><em>locked</em></div>
@@ -135,16 +135,16 @@ export const TextOverflow: Story = {
     template: /*html*/ `
       <bit-item>
         <bit-item-content>
-          <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+          <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
           Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!
           <ng-container slot="secondary">Worlddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd!</ng-container>
         </bit-item-content>
         <ng-container slot="end">
           <bit-item-action>
-            <button type="button" bitIconButton="bwi-clone"></button>
+            <button type="button" bitIconButton="bwi-clone" size="small"></button>
           </bit-item-action>
           <bit-item-action>
-            <button type="button" bitIconButton="bwi-ellipsis-v"></button>
+            <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
           </bit-item-action>
         </ng-container>
       </bit-item>
@@ -152,127 +152,129 @@ export const TextOverflow: Story = {
   }),
 };
 
+const multipleActionListTemplate = /*html*/ `
+  <bit-item-group aria-label="Multiple Action List">
+    <bit-item>
+      <button bit-item-content>
+        <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+        Foo
+        <span slot="secondary">Bar</span>
+      </button>
+
+      <ng-container slot="end">
+        <bit-item-action>
+          <button type="button" bitBadge variant="primary">Fill</button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-clone" size="small"></button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
+        </bit-item-action>
+      </ng-container>
+    </bit-item>
+    <bit-item>
+      <button bit-item-content>
+        <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+        Foo
+        <span slot="secondary">Bar</span>
+      </button>
+
+      <ng-container slot="end">
+        <bit-item-action>
+          <button type="button" bitBadge variant="primary">Fill</button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-clone" size="small"></button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
+        </bit-item-action>
+      </ng-container>
+    </bit-item>
+    <bit-item>
+      <button bit-item-content>
+        <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+        Foo
+        <span slot="secondary">Bar</span>
+      </button>
+
+      <ng-container slot="end">
+        <bit-item-action>
+          <button type="button" bitBadge variant="primary">Fill</button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-clone" size="small"></button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
+        </bit-item-action>
+      </ng-container>
+    </bit-item>
+    <bit-item>
+      <button bit-item-content>
+        <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+        Foo
+        <span slot="secondary">Bar</span>
+      </button>
+
+      <ng-container slot="end">
+        <bit-item-action>
+          <button type="button" bitBadge variant="primary">Fill</button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-clone" size="small"></button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
+        </bit-item-action>
+      </ng-container>
+    </bit-item>
+    <bit-item>
+      <button bit-item-content>
+        <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+        Foo
+        <span slot="secondary">Bar</span>
+      </button>
+
+      <ng-container slot="end">
+        <bit-item-action>
+          <button type="button" bitBadge variant="primary">Fill</button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-clone" size="small"></button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
+        </bit-item-action>
+      </ng-container>
+    </bit-item>
+    <bit-item>
+      <button bit-item-content>
+        <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+        Foo
+        <span slot="secondary">Bar</span>
+      </button>
+
+      <ng-container slot="end">
+        <bit-item-action>
+          <button type="button" bitBadge variant="primary">Fill</button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-clone" size="small"></button>
+        </bit-item-action>
+        <bit-item-action>
+          <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
+        </bit-item-action>
+      </ng-container>
+    </bit-item>
+  </bit-item-group>
+`;
+
 export const MultipleActionList: Story = {
   render: (args) => ({
     props: args,
-    template: /*html*/ `
-      <bit-item-group aria-label="Multiple Action List">
-        <bit-item>
-          <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
-            Foo
-            <span slot="secondary">Bar</span>
-          </button>
-
-          <ng-container slot="end">
-            <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone"></button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-ellipsis-v"></button>
-            </bit-item-action>
-          </ng-container>
-        </bit-item>
-        <bit-item>
-          <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
-            Foo
-            <span slot="secondary">Bar</span>
-          </button>
-
-          <ng-container slot="end">
-            <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone"></button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-ellipsis-v"></button>
-            </bit-item-action>
-          </ng-container>
-        </bit-item>
-        <bit-item>
-          <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
-            Foo
-            <span slot="secondary">Bar</span>
-          </button>
-
-          <ng-container slot="end">
-            <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone"></button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-ellipsis-v"></button>
-            </bit-item-action>
-          </ng-container>
-        </bit-item>
-        <bit-item>
-          <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
-            Foo
-            <span slot="secondary">Bar</span>
-          </button>
-
-          <ng-container slot="end">
-            <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone"></button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-ellipsis-v"></button>
-            </bit-item-action>
-          </ng-container>
-        </bit-item>
-        <bit-item>
-          <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
-            Foo
-            <span slot="secondary">Bar</span>
-          </button>
-
-          <ng-container slot="end">
-            <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone"></button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-ellipsis-v"></button>
-            </bit-item-action>
-          </ng-container>
-        </bit-item>
-        <bit-item>
-          <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
-            Foo
-            <span slot="secondary">Bar</span>
-          </button>
-
-          <ng-container slot="end">
-            <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-clone"></button>
-            </bit-item-action>
-            <bit-item-action>
-              <button type="button" bitIconButton="bwi-ellipsis-v"></button>
-            </bit-item-action>
-          </ng-container>
-        </bit-item>
-      </bit-item-group>
-    `,
+    template: multipleActionListTemplate,
   }),
 };
 
@@ -285,37 +287,37 @@ export const SingleActionList: Story = {
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
       </bit-item-group>
     `,
@@ -330,18 +332,29 @@ export const SingleActionWithBadge: Story = {
         <bit-item>
           <a bit-item-content href="#">
             Foobar
-            <span bitBadge variant="primary" slot="default-trailing">Auto-fill</span>
+            <span bitBadge variant="primary" slot="default-trailing">Fill</span>
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
         <bit-item>
           <a bit-item-content href="#">
             Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!
-            <span bitBadge variant="primary" slot="default-trailing">Auto-fill</span>
+            <span bitBadge variant="primary" slot="default-trailing">Fill</span>
             <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>          
+          </a>
         </bit-item>
       </bit-item-group>
+    `,
+  }),
+};
+
+export const CompactMode: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <div class="tw-bit-compact">
+      ${multipleActionListTemplate}
+    </div>
     `,
   }),
 };
@@ -352,23 +365,23 @@ export const VirtualScrolling: Story = {
       data: Array.from(Array(100000).keys()),
     },
     template: /*html*/ `
-      <cdk-virtual-scroll-viewport [itemSize]="46" class="tw-h-[500px]">
+      <cdk-virtual-scroll-viewport [itemSize]="59" class="tw-h-[500px]">
         <bit-item-group aria-label="Virtual Scrolling">
           <bit-item *cdkVirtualFor="let item of data">
             <button bit-item-content>
-              <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+              <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
               {{ item }}
             </button>
 
             <ng-container slot="end">
               <bit-item-action>
-                <button type="button" bitBadge variant="primary">Auto-fill</button>
+                <button type="button" bitBadge variant="primary">Fill</button>
               </bit-item-action>
               <bit-item-action>
-                <button type="button" bitIconButton="bwi-clone"></button>
+                <button type="button" bitIconButton="bwi-clone" size="small"></button>
               </bit-item-action>
               <bit-item-action>
-                <button type="button" bitIconButton="bwi-ellipsis-v"></button>
+                <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
               </bit-item-action>
             </ng-container>
           </bit-item>
@@ -392,7 +405,7 @@ export const WithoutBorderRadius: Story = {
 
         <ng-container slot="end">
           <bit-item-action>
-            <button type="button" bitBadge variant="primary">Auto-fill</button>
+            <button type="button" bitBadge variant="primary">Fill</button>
           </bit-item-action>
           <bit-item-action>
             <button type="button" bitIconButton="bwi-clone"></button>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
@@ -36,4 +38,9 @@ export class ItemDetailsV2Component {
   @Input() organization?: Organization;
   @Input() collections?: CollectionView[];
   @Input() folder?: FolderView;
+  @Input() hideOwner?: boolean = false;
+
+  get showOwnership() {
+    return this.cipher.organizationId && this.organization && !this.hideOwner;
+  }
 }

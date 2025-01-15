@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   GENERATOR_DISK,
   GENERATOR_MEMORY,
@@ -123,9 +125,10 @@ const forwarder = Object.freeze({
       // e.g. key: "forwarder.Fastmail.local.settings"
       key: "fastmailForwarder",
       target: "object",
-      format: "classified",
+      format: "secret-state",
       classifier: new PrivateClassifier<FastmailSettings>(),
       state: GENERATOR_DISK,
+      initial: defaultSettings,
       options: {
         deserializer: (value) => value,
         clearOn: ["logout"],

@@ -1703,6 +1703,10 @@ describe("AutofillOverlayContentService", () => {
     const repositionEvents = [EVENTS.SCROLL, EVENTS.RESIZE];
     repositionEvents.forEach((repositionEvent) => {
       it(`sends a message trigger overlay reposition message to the background when a ${repositionEvent} event occurs`, async () => {
+        Object.defineProperty(globalThis, "scrollY", {
+          value: 10,
+          writable: true,
+        });
         sendExtensionMessageSpy.mockResolvedValueOnce(true);
         globalThis.dispatchEvent(new Event(repositionEvent));
         await flushPromises();

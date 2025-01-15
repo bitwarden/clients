@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -69,7 +70,7 @@ class StoryDialogComponent {
           content: this.i18nService.t("dialogContent"),
           type: "primary",
           acceptButtonText: "Ok",
-          cancelButtonText: null,
+          cancelButtonText: undefined,
         },
         {
           title: this.i18nService.t("primaryTypeSimpleDialog"),
@@ -120,7 +121,7 @@ class StoryDialogComponent {
 
   showCallout = false;
   calloutType = "info";
-  dialogCloseResult: boolean;
+  dialogCloseResult?: boolean;
 
   constructor(
     public dialogService: DialogService,
@@ -144,7 +145,7 @@ export default {
   component: StoryDialogComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule, DialogModule, CalloutModule],
+      imports: [ButtonModule, BrowserAnimationsModule, DialogModule, CalloutModule],
     }),
     applicationConfig({
       providers: [

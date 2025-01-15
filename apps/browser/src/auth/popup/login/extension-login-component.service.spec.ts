@@ -8,7 +8,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { flagEnabled } from "../../../platform/flags";
 import { BrowserPlatformUtilsService } from "../../../platform/services/platform-utils/browser-platform-utils.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
@@ -60,18 +59,6 @@ describe("ExtensionLoginComponentService", () => {
 
   it("creates the service", () => {
     expect(service).toBeTruthy();
-  });
-
-  describe("isLoginViaAuthRequestSupported", () => {
-    it("returns true if showPasswordless flag is enabled", () => {
-      (flagEnabled as jest.Mock).mockReturnValue(true);
-      expect(service.isLoginViaAuthRequestSupported()).toBe(true);
-    });
-
-    it("returns false if showPasswordless flag is disabled", () => {
-      (flagEnabled as jest.Mock).mockReturnValue(false);
-      expect(service.isLoginViaAuthRequestSupported()).toBeFalsy();
-    });
   });
 
   describe("showBackButton", () => {

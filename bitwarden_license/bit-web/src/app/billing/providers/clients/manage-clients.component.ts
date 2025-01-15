@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -6,13 +8,11 @@ import { switchMap } from "rxjs/operators";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
+import { ProviderStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { hasConsolidatedBilling } from "@bitwarden/common/billing/abstractions/provider-billing.service.abstraction";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -47,7 +47,6 @@ export class ManageClientsComponent extends BaseClientsComponent {
 
   constructor(
     private billingApiService: BillingApiService,
-    private configService: ConfigService,
     private providerService: ProviderService,
     private router: Router,
     activatedRoute: ActivatedRoute,
@@ -73,9 +72,9 @@ export class ManageClientsComponent extends BaseClientsComponent {
         switchMap((params) => {
           this.providerId = params.providerId;
           return this.providerService.get$(this.providerId).pipe(
-            hasConsolidatedBilling(this.configService),
-            map((hasConsolidatedBilling) => {
-              if (!hasConsolidatedBilling) {
+            map((provider) => provider?.providerStatus === ProviderStatusType.Billable),
+            map((isBillable) => {
+              if (!isBillable) {
                 return from(
                   this.router.navigate(["../clients"], {
                     relativeTo: this.activatedRoute,

@@ -1,3 +1,4 @@
+import { sshagent as ssh } from "desktop_native/napi";
 import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
@@ -10,7 +11,15 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import { isAppImage, isDev, isFlatpak, isMacAppStore, isSnapStore, isWindowsStore } from "../utils";
+import {
+  allowBrowserintegrationOverride,
+  isAppImage,
+  isDev,
+  isFlatpak,
+  isMacAppStore,
+  isSnapStore,
+  isWindowsStore,
+} from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -40,6 +49,33 @@ const clipboard = {
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
 };
 
+const sshAgent = {
+  init: async () => {
+    await ipcRenderer.invoke("sshagent.init");
+  },
+  setKeys: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
+    ipcRenderer.invoke("sshagent.setkeys", keys),
+  signRequestResponse: async (requestId: number, accepted: boolean) => {
+    await ipcRenderer.invoke("sshagent.signrequestresponse", { requestId, accepted });
+  },
+  lock: async () => {
+    return await ipcRenderer.invoke("sshagent.lock");
+  },
+  clearKeys: async () => {
+    return await ipcRenderer.invoke("sshagent.clearkeys");
+  },
+  importKey: async (key: string, password: string): Promise<ssh.SshKeyImportResult> => {
+    const res = await ipcRenderer.invoke("sshagent.importkey", {
+      privateKey: key,
+      password: password,
+    });
+    return res;
+  },
+  isLoaded(): Promise<boolean> {
+    return ipcRenderer.invoke("sshagent.isloaded");
+  },
+};
+
 const powermonitor = {
   isLockMonitorAvailable: (): Promise<boolean> =>
     ipcRenderer.invoke("powermonitor.isLockMonitorAvailable"),
@@ -51,6 +87,7 @@ const nativeMessaging = {
   },
   sendMessage: (message: {
     appId: string;
+    messageId?: number;
     command?: string;
     sharedSecret?: string;
     message?: EncString;
@@ -71,8 +108,8 @@ const nativeMessaging = {
 
 const crypto = {
   argon2: (
-    password: string | Uint8Array,
-    salt: string | Uint8Array,
+    password: Uint8Array,
+    salt: Uint8Array,
     iterations: number,
     memory: number,
     parallelism: number,
@@ -97,6 +134,13 @@ const localhostCallbackService = {
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
+    registerSdkVersionProvider: (provide: (resolve: (version: string) => void) => void) => {
+      const resolve = (version: string) => ipcRenderer.send("sdkVersion", version);
+
+      ipcRenderer.on("sdkVersion", () => {
+        provide(resolve);
+      });
+    },
   },
   deviceType: deviceType(),
   isDev: isDev(),
@@ -105,7 +149,10 @@ export default {
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
+  allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
+  focusWindow: () => ipcRenderer.send("window-focus"),
+  hideWindow: () => ipcRenderer.send("window-hide"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
 
@@ -150,6 +197,7 @@ export default {
   storage,
   passwords,
   clipboard,
+  sshAgent,
   powermonitor,
   nativeMessaging,
   crypto,

@@ -9,6 +9,7 @@
       buttonType="main"
       (click)="generate('user request')"
       [appA11yTitle]="credentialTypeGenerateLabel$ | async"
+      [disabled]="!(algorithm$ | async)"
     >
       {{ credentialTypeGenerateLabel$ | async }}
     </button>
@@ -20,6 +21,7 @@
       [appA11yTitle]="credentialTypeCopyLabel$ | async"
       [appCopyClick]="value$ | async"
       [valueLabel]="credentialTypeLabel$ | async"
+      [disabled]="!(algorithm$ | async)"
     >
       {{ credentialTypeCopyLabel$ | async }}
     </button>

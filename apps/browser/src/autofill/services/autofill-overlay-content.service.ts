@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
@@ -955,8 +957,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
     };
 
+    const allFields = this.formFieldElements;
+    const allFieldsRect = [];
+
+    for (const key of allFields.keys()) {
+      const rect = await this.getMostRecentlyFocusedFieldRects(key);
+      allFieldsRect.push({ ...allFields.get(key), rect }); // Add the combined result to the array
+    }
+
     await this.sendExtensionMessage("updateFocusedFieldData", {
       focusedFieldData: this.focusedFieldData,
+      allFieldsRect,
     });
   }
 
@@ -1406,6 +1417,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         url.origin + pathWithoutTrailingSlashAndSearch,
         url.origin + pathWithoutTrailingSlashSearchAndHash,
       ]);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       return null;
     }
@@ -1568,41 +1581,46 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * the overlay elements on scroll or resize.
    */
   private setOverlayRepositionEventListeners() {
+    let currentScrollY = globalThis.scrollY;
+    let currentScrollX = globalThis.scrollX;
+    let mostRecentTargetScrollY = 0;
     const repositionHandler = this.useEventHandlersMemo(
       throttle(this.handleOverlayRepositionEvent, 250),
       AUTOFILL_OVERLAY_HANDLE_REPOSITION,
     );
 
-    const eventTargetContainsFocusedField = (eventTarget: Element | Document) => {
-      if (!eventTarget || !this.mostRecentlyFocusedField) {
-        return false;
-      }
-
-      const activeElement = (eventTarget as Document).activeElement;
-      if (activeElement) {
-        return (
-          activeElement === this.mostRecentlyFocusedField ||
-          activeElement.contains(this.mostRecentlyFocusedField) ||
-          this.inlineMenuContentService?.isElementInlineMenu(activeElement as HTMLElement)
-        );
-      }
-
+    const eventTargetContainsFocusedField = (eventTarget: Element) => {
       if (typeof eventTarget.contains !== "function") {
         return false;
       }
-      return (
+
+      const targetScrollY = eventTarget.scrollTop;
+      if (targetScrollY === mostRecentTargetScrollY) {
+        return false;
+      }
+
+      if (
         eventTarget === this.mostRecentlyFocusedField ||
         eventTarget.contains(this.mostRecentlyFocusedField)
-      );
+      ) {
+        mostRecentTargetScrollY = targetScrollY;
+        return true;
+      }
+
+      return false;
     };
     const scrollHandler = this.useEventHandlersMemo(
       throttle(async (event) => {
         if (
-          eventTargetContainsFocusedField(event.target) ||
-          (await this.shouldRepositionSubFrameInlineMenuOnScroll())
+          currentScrollY !== globalThis.scrollY ||
+          currentScrollX !== globalThis.scrollX ||
+          eventTargetContainsFocusedField(event.target)
         ) {
           repositionHandler(event);
         }
+
+        currentScrollY = globalThis.scrollY;
+        currentScrollX = globalThis.scrollX;
       }, 50),
       AUTOFILL_OVERLAY_HANDLE_SCROLL,
     );

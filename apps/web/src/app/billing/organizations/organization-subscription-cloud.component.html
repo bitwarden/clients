@@ -48,10 +48,7 @@
           <dt [ngClass]="{ 'tw-text-danger': isExpired }">
             {{ "subscriptionExpiration" | i18n }}
           </dt>
-          <dd [ngClass]="{ 'tw-text-danger': isExpired }" *ngIf="!enableTimeThreshold">
-            {{ nextInvoice ? (nextInvoice.date | date: "mediumDate") : "-" }}
-          </dd>
-          <dd [ngClass]="{ 'tw-text-danger': isExpired }" *ngIf="enableTimeThreshold">
+          <dd [ngClass]="{ 'tw-text-danger': isExpired }">
             {{ nextInvoice ? (sub.subscription.periodEndDate | date: "mediumDate") : "-" }}
           </dd>
         </ng-container>
@@ -264,7 +261,12 @@
 </bit-container>
 <ng-template #hideSubscription>
   <bit-container *ngIf="!loading">
-    <ng-container *ngIf="providerIsOnConsolidatedBilling; else providerIsNotOnConsolidatedBilling">
+    <ng-container
+      *ngIf="
+        organizationIsManagedByConsolidatedBillingMSP;
+        else organizationIsNotManagedByConsolidatedBillingMSP
+      "
+    >
       <h2 bitTypography="h2">{{ "manageSubscription" | i18n }}</h2>
       <p bitTypography="body1" *ngIf="userOrg.isProviderUser; else isOrganizationOwner">
         {{ "manageSubscriptionFromThe" | i18n }}
@@ -281,7 +283,7 @@
       </ng-template>
       <ng-container *ngTemplateOutlet="setupSelfHost"></ng-container>
     </ng-container>
-    <ng-template #providerIsNotOnConsolidatedBilling>
+    <ng-template #organizationIsNotManagedByConsolidatedBillingMSP>
       <div class="tw-flex tw-flex-col tw-items-center tw-text-info">
         <bit-icon [icon]="subscriptionHiddenIcon"></bit-icon>
         <p class="tw-font-bold">{{ "billingManagedByProvider" | i18n: userOrg.providerName }}</p>
@@ -303,7 +305,13 @@
       <button bitButton buttonType="secondary" type="button" (click)="downloadLicense()">
         {{ "downloadLicense" | i18n }}
       </button>
-      <button bitButton buttonType="secondary" type="button" (click)="manageBillingSync()">
+      <button
+        *ngIf="canUseBillingSync"
+        bitButton
+        buttonType="secondary"
+        type="button"
+        (click)="manageBillingSync()"
+      >
         {{ (hasBillingSyncToken ? "viewBillingToken" : "setUpBillingSync") | i18n }}
       </button>
     </div>

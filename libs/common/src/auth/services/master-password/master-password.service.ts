@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map, Observable } from "rxjs";
 
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
+import { LogService } from "../../../platform/abstractions/log.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EncryptionType } from "../../../platform/enums";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
@@ -55,6 +58,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     private stateService: StateService,
     private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
+    private logService: LogService,
   ) {}
 
   masterKey$(userId: UserId): Observable<MasterKey> {
@@ -149,10 +153,9 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
 
   async decryptUserKeyWithMasterKey(
     masterKey: MasterKey,
+    userId: UserId,
     userKey?: EncString,
-    userId?: UserId,
   ): Promise<UserKey> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
     userKey ??= await this.getMasterKeyEncryptedUserKey(userId);
     masterKey ??= await firstValueFrom(this.masterKey$(userId));
 
@@ -176,15 +179,24 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     let decUserKey: Uint8Array;
 
     if (userKey.encryptionType === EncryptionType.AesCbc256_B64) {
-      decUserKey = await this.encryptService.decryptToBytes(userKey, masterKey);
+      decUserKey = await this.encryptService.decryptToBytes(
+        userKey,
+        masterKey,
+        "Content: User Key; Encrypting Key: Master Key",
+      );
     } else if (userKey.encryptionType === EncryptionType.AesCbc256_HmacSha256_B64) {
       const newKey = await this.keyGenerationService.stretchKey(masterKey);
-      decUserKey = await this.encryptService.decryptToBytes(userKey, newKey);
+      decUserKey = await this.encryptService.decryptToBytes(
+        userKey,
+        newKey,
+        "Content: User Key; Encrypting Key: Stretched Master Key",
+      );
     } else {
       throw new Error("Unsupported encryption type.");
     }
 
     if (decUserKey == null) {
+      this.logService.warning("Failed to decrypt user key with master key.");
       return null;
     }
 

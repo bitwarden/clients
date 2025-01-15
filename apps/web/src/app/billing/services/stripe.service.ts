@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { BankAccount } from "@bitwarden/common/billing/models/domain";
@@ -157,9 +159,9 @@ export class StripeService {
         base: {
           color: null,
           fontFamily:
-            '"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
+            '"DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
             '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-          fontSize: "14px",
+          fontSize: "16px",
           fontSmoothing: "antialiased",
           "::placeholder": {
             color: null,

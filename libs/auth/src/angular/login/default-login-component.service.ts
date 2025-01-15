@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import { LoginComponentService, PasswordPolicies } from "@bitwarden/auth/angular";
@@ -23,10 +25,6 @@ export class DefaultLoginComponentService implements LoginComponentService {
 
   async getOrgPolicies(): Promise<PasswordPolicies | null> {
     return null;
-  }
-
-  isLoginViaAuthRequestSupported(): boolean {
-    return false;
   }
 
   isLoginWithPasskeySupported(): boolean {

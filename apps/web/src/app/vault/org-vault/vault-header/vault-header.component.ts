@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
@@ -57,7 +59,7 @@ export class VaultHeaderComponent implements OnInit {
    */
   @Input() loading: boolean;
 
-  /** Current active fitler */
+  /** Current active filter */
   @Input() filter: RoutedVaultFilterModel;
 
   /** The organization currently being viewed */

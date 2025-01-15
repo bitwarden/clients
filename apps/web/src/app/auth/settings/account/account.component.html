@@ -21,7 +21,13 @@
     >
       {{ "purgeVault" | i18n }}
     </button>
-    <button type="button" bitButton buttonType="danger" [bitAction]="deleteAccount">
+    <button
+      *ngIf="showDeleteAccount$ | async"
+      type="button"
+      bitButton
+      buttonType="danger"
+      [bitAction]="deleteAccount"
+    >
       {{ "deleteAccount" | i18n }}
     </button>
   </app-danger-zone>

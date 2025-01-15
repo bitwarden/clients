@@ -10,7 +10,5 @@
     "businessId": "4ZDA7DLUUJGMN",
     "buttonAction": "https://www.paypal.com/cgi-bin/webscr"
   },
-  "flags": {
-    "showPasswordless": true
-  }
+  "flags": {}
 }

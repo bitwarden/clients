@@ -21,3 +21,7 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+.toast-container.toast-top-full-width {
+  top: var(--bit-toast-top);
+}

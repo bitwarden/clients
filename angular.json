@@ -128,10 +128,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "test-storybook:build:production"
+              "buildTarget": "test-storybook:build:production"
             },
             "development": {
-              "browserTarget": "test-storybook:build:development"
+              "buildTarget": "test-storybook:build:development"
             }
           },
           "defaultConfiguration": "development"

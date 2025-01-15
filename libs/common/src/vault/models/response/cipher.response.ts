@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CardApi } from "../api/card.api";
@@ -5,6 +7,7 @@ import { FieldApi } from "../api/field.api";
 import { IdentityApi } from "../api/identity.api";
 import { LoginApi } from "../api/login.api";
 import { SecureNoteApi } from "../api/secure-note.api";
+import { SshKeyApi } from "../api/ssh-key.api";
 
 import { AttachmentResponse } from "./attachment.response";
 import { PasswordHistoryResponse } from "./password-history.response";
@@ -21,6 +24,7 @@ export class CipherResponse extends BaseResponse {
   card: CardApi;
   identity: IdentityApi;
   secureNote: SecureNoteApi;
+  sshKey: SshKeyApi;
   favorite: boolean;
   edit: boolean;
   viewPassword: boolean;
@@ -73,6 +77,11 @@ export class CipherResponse extends BaseResponse {
     const secureNote = this.getResponseProperty("SecureNote");
     if (secureNote != null) {
       this.secureNote = new SecureNoteApi(secureNote);
+    }
+
+    const sshKey = this.getResponseProperty("sshKey");
+    if (sshKey != null) {
+      this.sshKey = new SshKeyApi(sshKey);
     }
 
     const fields = this.getResponseProperty("Fields");

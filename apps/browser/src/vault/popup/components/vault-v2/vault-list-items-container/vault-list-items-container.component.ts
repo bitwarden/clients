@@ -1,28 +1,52 @@
-import { ScrollingModule } from "@angular/cdk/scrolling";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, EventEmitter, Input, Output } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import {
+  AfterViewInit,
+  booleanAttribute,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  Signal,
+  signal,
+  ViewChild,
+} from "@angular/core";
+import { Router } from "@angular/router";
+import { firstValueFrom, Observable, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
-  BitItemHeight,
-  BitItemHeightClass,
   ButtonModule,
+  CompactModeService,
+  DisclosureComponent,
+  DisclosureTriggerForDirective,
+  DialogService,
   IconButtonModule,
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
-import { OrgIconDirective, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  OrgIconDirective,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherView } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
@@ -38,19 +62,47 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     TypographyModule,
     JslibModule,
     SectionHeaderComponent,
-    RouterLink,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
     ScrollingModule,
+    DisclosureComponent,
+    DisclosureTriggerForDirective,
+    DecryptionFailureDialogComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
   standalone: true,
 })
-export class VaultListItemsContainerComponent {
-  protected ItemHeightClass = BitItemHeightClass;
-  protected ItemHeight = BitItemHeight;
+export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
+  private compactModeService = inject(CompactModeService);
+  private vaultPopupSectionService = inject(VaultPopupSectionService);
+
+  @ViewChild(CdkVirtualScrollViewport, { static: false }) viewPort: CdkVirtualScrollViewport;
+  @ViewChild(DisclosureComponent) disclosure: DisclosureComponent;
+
+  /**
+   * Indicates whether the section should be open or closed if collapsibleKey is provided
+   */
+  protected sectionOpenState: Signal<boolean> | undefined;
+
+  /**
+   * The class used to set the height of a bit item's inner content.
+   */
+  protected readonly itemHeightClass = `tw-h-[52px]`;
+
+  /**
+   * The height of a bit item in pixels. Includes any margin, padding, or border. Used by the virtual scroll
+   * to estimate how many items can be displayed at once and how large the virtual container should be.
+   * Needs to be updated if the item height or spacing changes.
+   *
+   * Default: 52px + 1px border + 6px bottom margin = 59px
+   *
+   * Compact mode: 52px + 1px border = 53px
+   */
+  protected readonly itemHeight$ = this.compactModeService.enabled$.pipe(
+    map((enabled) => (enabled ? 53 : 59)),
+  );
 
   /**
    * Timeout used to add a small delay when selecting a cipher to allow for double click to launch
@@ -69,6 +121,15 @@ export class VaultListItemsContainerComponent {
    */
   @Input()
   title: string;
+
+  /**
+   * Optionally allow the items to be collapsed.
+   *
+   * The key must be added to the state definition in `vault-popup-section.service.ts` since the
+   * collapsed state is stored locally.
+   */
+  @Input()
+  collapsibleKey: "favorites" | "allItems" | undefined;
 
   /**
    * Optional description for the vault list item section. Will be shown below the title even when
@@ -90,10 +151,45 @@ export class VaultListItemsContainerComponent {
   onRefresh = new EventEmitter<void>();
 
   /**
+   * Flag indicating that the current tab location is blocked
+   */
+  currentURIIsBlocked$: Observable<boolean> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$;
+
+  /**
+   * Resolved i18n key to use for suggested cipher items
+   */
+  cipherItemTitleKey = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) =>
+      this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle",
+    ),
+  );
+
+  /**
    * Option to show the autofill button for each item.
    */
   @Input({ transform: booleanAttribute })
   showAutofillButton: boolean;
+
+  /**
+   * Flag indicating whether the suggested cipher item autofill button should be shown or not
+   */
+  hideAutofillButton$ = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) => !this.showAutofillButton || uriIsBlocked || this.primaryActionAutofill),
+  );
+
+  /**
+   * Flag indicating whether the cipher item autofill options should be shown or not
+   */
+  hideAutofillOptions$: Observable<boolean> = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) => uriIsBlocked || this.showAutofillButton),
+  );
+
+  /**
+   * Option to perform autofill operation as the primary action for autofill suggestions.
+   */
+  @Input({ transform: booleanAttribute })
+  primaryActionAutofill: boolean;
 
   /**
    * Remove the bottom margin from the bit-section in this component
@@ -114,13 +210,47 @@ export class VaultListItemsContainerComponent {
     return cipher.collections[0]?.name;
   }
 
+  protected autofillShortcutTooltip = signal<string | undefined>(undefined);
+
   constructor(
     private i18nService: I18nService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private passwordRepromptService: PasswordRepromptService,
     private cipherService: CipherService,
     private router: Router,
+    private platformUtilsService: PlatformUtilsService,
+    private dialogService: DialogService,
   ) {}
+
+  ngOnInit(): void {
+    if (!this.collapsibleKey) {
+      return;
+    }
+
+    this.sectionOpenState = this.vaultPopupSectionService.getOpenDisplayStateForSection(
+      this.collapsibleKey,
+    );
+  }
+
+  async ngAfterViewInit() {
+    const autofillShortcut = await this.platformUtilsService.getAutofillKeyboardShortcut();
+
+    if (autofillShortcut === "") {
+      this.autofillShortcutTooltip.set(undefined);
+    } else {
+      const autofillTitle = this.i18nService.t("autoFill");
+
+      this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
+    }
+  }
+
+  async primaryActionOnSelect(cipher: CipherView) {
+    const isBlocked = await firstValueFrom(this.currentURIIsBlocked$);
+
+    return this.primaryActionAutofill && !isBlocked
+      ? this.doAutofill(cipher)
+      : this.onViewCipher(cipher);
+  }
 
   /**
    * Launches the login cipher in a new browser tab.
@@ -159,6 +289,13 @@ export class VaultListItemsContainerComponent {
     this.viewCipherTimeout = window.setTimeout(
       async () => {
         try {
+          if (cipher.decryptionFailure) {
+            DecryptionFailureDialogComponent.open(this.dialogService, {
+              cipherIds: [cipher.id as CipherId],
+            });
+            return;
+          }
+
           const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
           if (!repromptPassed) {
             return;
@@ -173,5 +310,31 @@ export class VaultListItemsContainerComponent {
       },
       cipher.canLaunch ? 200 : 0,
     );
+  }
+
+  /**
+   * Update section open/close state based on user action
+   */
+  async toggleSectionOpen() {
+    if (!this.collapsibleKey) {
+      return;
+    }
+
+    await this.vaultPopupSectionService.updateSectionOpenStoredState(
+      this.collapsibleKey,
+      this.disclosure.open,
+    );
+  }
+
+  /**
+   * Force virtual scroll to update its viewport size to avoid display bugs
+   *
+   * Angular CDK scroll has a bug when used with conditional rendering:
+   * https://github.com/angular/components/issues/24362
+   */
+  protected rerenderViewport() {
+    setTimeout(() => {
+      this.viewPort.checkViewportSize();
+    });
   }
 }

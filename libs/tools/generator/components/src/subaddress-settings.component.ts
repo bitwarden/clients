@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, map, skip, Subject, takeUntil, withLatestFrom } from "rxjs";
@@ -53,28 +55,25 @@ export class SubaddressSettingsComponent implements OnInit, OnDestroy {
     const singleUserId$ = this.singleUserId$();
     const settings = await this.generatorService.settings(Generators.subaddress, { singleUserId$ });
 
-    settings
-      .pipe(
-        withLatestFrom(this.accountService.activeAccount$),
-        map(([settings, activeAccount]) => {
-          // if the subaddress isn't specified, copy it from
-          // the user's settings
-          if ((settings.subaddressEmail ?? "").length < 1) {
-            settings.subaddressEmail = activeAccount.email;
-          }
-
-          return settings;
-        }),
-        takeUntil(this.destroyed$),
-      )
-      .subscribe((s) => {
-        this.settings.patchValue(s, { emitEvent: false });
-      });
+    settings.pipe(takeUntil(this.destroyed$)).subscribe((s) => {
+      this.settings.patchValue(s, { emitEvent: false });
+    });
 
     // the first emission is the current value; subsequent emissions are updates
     settings.pipe(skip(1), takeUntil(this.destroyed$)).subscribe(this.onUpdated);
 
-    this.settings.valueChanges.pipe(takeUntil(this.destroyed$)).subscribe(settings);
+    this.saveSettings
+      .pipe(
+        withLatestFrom(this.settings.valueChanges),
+        map(([, settings]) => settings),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe(settings);
+  }
+
+  private saveSettings = new Subject<string>();
+  save(site: string = "component api call") {
+    this.saveSettings.next(site);
   }
 
   private singleUserId$() {
@@ -92,6 +91,7 @@ export class SubaddressSettingsComponent implements OnInit, OnDestroy {
 
   private readonly destroyed$ = new Subject<void>();
   ngOnDestroy(): void {
+    this.destroyed$.next();
     this.destroyed$.complete();
   }
 }

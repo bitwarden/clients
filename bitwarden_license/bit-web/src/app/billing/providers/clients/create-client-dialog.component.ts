@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { PlanType } from "@bitwarden/common/billing/enums";
+import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ProviderPlanResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,7 +47,7 @@ export class CreateClientDialogComponent implements OnInit {
   protected discountPercentage: number;
   protected formGroup = new FormGroup({
     clientOwnerEmail: new FormControl<string>("", [Validators.required, Validators.email]),
-    organizationName: new FormControl<string>("", [Validators.required]),
+    organizationName: new FormControl<string>("", [Validators.required, Validators.maxLength(50)]),
     seats: new FormControl<number>(null, [Validators.required, Validators.min(1)]),
   });
   protected loading = true;
@@ -67,7 +69,7 @@ export class CreateClientDialogComponent implements OnInit {
     switch (selected) {
       case true: {
         return [
-          "tw-group",
+          "tw-group/plan-card-container",
           "tw-cursor-pointer",
           "tw-block",
           "tw-rounded",
@@ -103,30 +105,35 @@ export class CreateClientDialogComponent implements OnInit {
 
     this.providerPlans = response?.plans ?? [];
 
-    const teamsPlan = this.dialogParams.plans.find((plan) => plan.type === PlanType.TeamsMonthly);
-    const enterprisePlan = this.dialogParams.plans.find(
-      (plan) => plan.type === PlanType.EnterpriseMonthly,
-    );
-
     this.discountPercentage = response.discountPercentage;
     const discountFactor = this.discountPercentage ? (100 - this.discountPercentage) / 100 : 1;
 
-    this.planCards = [
-      {
-        name: this.i18nService.t("planNameTeams"),
-        cost: teamsPlan.PasswordManager.providerPortalSeatPrice * discountFactor,
-        type: teamsPlan.type,
-        plan: teamsPlan,
-        selected: true,
-      },
-      {
-        name: this.i18nService.t("planNameEnterprise"),
-        cost: enterprisePlan.PasswordManager.providerPortalSeatPrice * discountFactor,
-        type: enterprisePlan.type,
-        plan: enterprisePlan,
-        selected: false,
-      },
-    ];
+    this.planCards = [];
+
+    for (let i = 0; i < this.providerPlans.length; i++) {
+      const providerPlan = this.providerPlans[i];
+      const plan = this.dialogParams.plans.find((plan) => plan.type === providerPlan.type);
+
+      let planName: string;
+      switch (plan.productTier) {
+        case ProductTierType.Teams: {
+          planName = this.i18nService.t("planNameTeams");
+          break;
+        }
+        case ProductTierType.Enterprise: {
+          planName = this.i18nService.t("planNameEnterprise");
+          break;
+        }
+      }
+
+      this.planCards.push({
+        name: planName,
+        cost: plan.PasswordManager.providerPortalSeatPrice * discountFactor,
+        type: plan.type,
+        plan: plan,
+        selected: i === 0,
+      });
+    }
 
     this.loading = false;
   }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 // String values affect code flow in autofill.ts and must not be changed
 export type FillScriptActions = "click_on_opid" | "focus_by_opid" | "fill_by_opid";
 

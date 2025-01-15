@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 require("dotenv").config();
 const child_process = require("child_process");
 const path = require("path");
@@ -58,18 +58,46 @@ async function run(context) {
       id = identities[0].id;
     }
 
-    console.log(`Signing proxy binary before the main bundle, using identity '${id}'`);
+    console.log(
+      `Signing proxy binary before the main bundle, using identity '${id}', for build ${context.electronPlatformName}`,
+    );
 
     const appName = context.packager.appInfo.productFilename;
     const appPath = `${context.appOutDir}/${appName}.app`;
     const proxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy");
+    const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
 
     const packageId = "com.bitwarden.desktop";
-    const entitlementsName = "entitlements.desktop_proxy.plist";
-    const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
-    child_process.execSync(
-      `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
-    );
+
+    if (is_mas) {
+      const entitlementsName = "entitlements.desktop_proxy.plist";
+      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+      );
+
+      const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
+      const inheritEntitlementsPath = path.join(
+        __dirname,
+        "..",
+        "resources",
+        inheritEntitlementsName,
+      );
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${inheritEntitlementsPath} ${inheritProxyPath}`,
+      );
+    } else {
+      // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
+      // but we sign and include it anyway for consistency. It should be removed once DDG supports the proxy directly.
+      const entitlementsName = "entitlements.mac.plist";
+      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+      );
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${inheritProxyPath}`,
+      );
+    }
   }
 }
 

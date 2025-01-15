@@ -1,5 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import { combineLatest, map, Observable, Subject, takeUntil } from "rxjs";
+import { combineLatest, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -8,11 +10,14 @@ import {
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -53,6 +58,8 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private resetPasswordService: OrganizationUserResetPasswordService,
     private userVerificationService: UserVerificationService,
     private toastService: ToastService,
+    private configService: ConfigService,
+    private organizationService: OrganizationService,
   ) {}
 
   async ngOnInit() {
@@ -60,23 +67,39 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       map((policies) => policies.filter((policy) => policy.type === PolicyType.ResetPassword)),
     );
 
+    const managingOrg$ = this.configService
+      .getFeatureFlag$(FeatureFlag.AccountDeprovisioning)
+      .pipe(
+        switchMap((isAccountDeprovisioningEnabled) =>
+          isAccountDeprovisioningEnabled
+            ? this.organizationService.organizations$.pipe(
+                map((organizations) =>
+                  organizations.find((o) => o.userIsManagedByOrganization === true),
+                ),
+              )
+            : of(null),
+        ),
+      );
+
     combineLatest([
       this.organization$,
       resetPasswordPolicies$,
       this.userDecryptionOptionsService.userDecryptionOptions$,
+      managingOrg$,
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([organization, resetPasswordPolicies, decryptionOptions]) => {
+      .subscribe(([organization, resetPasswordPolicies, decryptionOptions, managingOrg]) => {
         this.organization = organization;
         this.resetPasswordPolicy = resetPasswordPolicies.find(
           (p) => p.organizationId === organization.id,
         );
 
-        // A user can leave an organization if they are NOT using TDE and Key Connector, or they have a master password.
+        // A user can leave an organization if they are NOT a managed user and they are NOT using TDE and Key Connector, or they have a master password.
         this.showLeaveOrgOption =
-          (decryptionOptions.trustedDeviceOption == undefined &&
+          managingOrg?.id !== organization.id &&
+          ((decryptionOptions.trustedDeviceOption == undefined &&
             decryptionOptions.keyConnectorOption == undefined) ||
-          decryptionOptions.hasMasterPassword;
+            decryptionOptions.hasMasterPassword);
 
         // Hide the 3 dot menu if the user has no available actions
         this.hideMenu =

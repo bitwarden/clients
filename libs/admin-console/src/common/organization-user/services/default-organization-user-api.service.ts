@@ -359,4 +359,28 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
     return new ListResponse(r, OrganizationUserBulkResponse);
   }
+
+  deleteOrganizationUser(organizationId: string, id: string): Promise<void> {
+    return this.apiService.send(
+      "DELETE",
+      "/organizations/" + organizationId + "/users/" + id + "/delete-account",
+      null,
+      true,
+      false,
+    );
+  }
+
+  async deleteManyOrganizationUsers(
+    organizationId: string,
+    ids: string[],
+  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
+    const r = await this.apiService.send(
+      "DELETE",
+      "/organizations/" + organizationId + "/users/delete-account",
+      new OrganizationUserBulkRequest(ids),
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserBulkResponse);
+  }
 }

@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Constraint } from "@bitwarden/common/tools/types";
 
 import { sum } from "../util";
 
+const Zero: Constraint<number> = { min: 0, max: 0 };
 const AtLeastOne: Constraint<number> = { min: 1 };
 const RequiresTrue: Constraint<boolean> = { requiredValue: true };
 
@@ -159,6 +162,7 @@ export {
   enforceConstant,
   readonlyTrueWhen,
   fitLength,
+  Zero,
   AtLeastOne,
   RequiresTrue,
 };

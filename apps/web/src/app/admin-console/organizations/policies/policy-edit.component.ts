@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import {
   AfterViewInit,
@@ -8,13 +10,13 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
+import { Observable, map } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BasePolicy, BasePolicyComponent } from "../policies";
@@ -24,8 +26,6 @@ export type PolicyEditDialogData = {
   policy: BasePolicy;
   /** Returns a unique organization id  */
   organizationId: string;
-  /** A map indicating whether each policy type is enabled or disabled. */
-  policiesEnabledMap: Map<PolicyType, boolean>;
 };
 
 export enum PolicyEditDialogResult {
@@ -42,7 +42,7 @@ export class PolicyEditComponent implements AfterViewInit {
   policyType = PolicyType;
   loading = true;
   enabled = false;
-  saveDisabled = false;
+  saveDisabled$: Observable<boolean>;
   defaultTypes: any[];
   policyComponent: BasePolicyComponent;
 
@@ -54,7 +54,6 @@ export class PolicyEditComponent implements AfterViewInit {
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
     private policyApiService: PolicyApiServiceAbstraction,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private cdr: ChangeDetectorRef,
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef<PolicyEditDialogResult>,
@@ -73,7 +72,9 @@ export class PolicyEditComponent implements AfterViewInit {
     this.policyComponent.policy = this.data.policy;
     this.policyComponent.policyResponse = this.policyResponse;
 
-    this.saveDisabled = !this.policyResponse.canToggleState;
+    this.saveDisabled$ = this.policyComponent.data.statusChanges.pipe(
+      map((status) => status !== "VALID" || !this.policyResponse.canToggleState),
+    );
 
     this.cdr.detectChanges();
   }
@@ -96,7 +97,7 @@ export class PolicyEditComponent implements AfterViewInit {
   submit = async () => {
     let request: PolicyRequest;
     try {
-      request = await this.policyComponent.buildRequest(this.data.policiesEnabledMap);
+      request = await this.policyComponent.buildRequest();
     } catch (e) {
       this.toastService.showToast({ variant: "error", title: null, message: e.message });
       return;

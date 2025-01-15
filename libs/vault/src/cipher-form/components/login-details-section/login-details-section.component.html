@@ -22,7 +22,7 @@
 
     <bit-form-field>
       <bit-label>{{ "password" | i18n }}</bit-label>
-      <input bitInput formControlName="password" type="password" />
+      <input bitInput formControlName="password" type="password" class="tw-font-mono" />
       <bit-hint *ngIf="loginDetailsForm.controls.password.enabled">
         <ng-container *ngIf="newPasswordGenerated">
           {{ "securePasswordGenerated" | i18n }}
@@ -106,7 +106,7 @@
           <p>{{ (canCaptureTotp ? "totpHelperWithCapture" : "totpHelper") | i18n }}</p>
         </bit-popover>
       </bit-label>
-      <input bitInput formControlName="totp" type="password" />
+      <input bitInput formControlName="totp" type="password" class="tw-font-mono" />
       <button
         type="button"
         bitIconButton

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, NgZone, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -25,14 +27,11 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { flagEnabled } from "../../platform/flags";
-
 @Component({
   selector: "app-login",
   templateUrl: "login-v1.component.html",
 })
 export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
-  showPasswordless = false;
   constructor(
     devicesApiService: DevicesApiServiceAbstraction,
     appIdService: AppIdService,
@@ -82,14 +81,11 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
       await syncService.fullSync(true);
     };
     this.successRoute = "/tabs/vault";
-    this.showPasswordless = flagEnabled("showPasswordless");
   }
 
   async ngOnInit(): Promise<void> {
     await super.ngOnInit();
-    if (this.showPasswordless) {
-      await this.validateEmail();
-    }
+    await this.validateEmail();
   }
 
   settings() {

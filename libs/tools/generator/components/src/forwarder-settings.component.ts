@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -17,7 +19,6 @@ import {
   skip,
   Subject,
   switchAll,
-  switchMap,
   takeUntil,
   withLatestFrom,
 } from "rxjs";
@@ -33,7 +34,7 @@ import {
   toCredentialGeneratorConfiguration,
 } from "@bitwarden/generator-core";
 
-import { completeOnAccountSwitch, toValidators } from "./util";
+import { completeOnAccountSwitch } from "./util";
 
 const Controls = Object.freeze({
   domain: "domain",
@@ -117,35 +118,17 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
       this.settings.patchValue(settings as any, { emitEvent: false });
     });
 
-    // bind policy to the reactive form
-    forwarder$
-      .pipe(
-        switchMap((forwarder) => {
-          const constraints$ = this.generatorService
-            .policy$(forwarder, { userId$: singleUserId$ })
-            .pipe(map(({ constraints }) => [constraints, forwarder] as const));
-
-          return constraints$;
-        }),
-        takeUntil(this.destroyed$),
-      )
-      .subscribe(([constraints, forwarder]) => {
-        for (const name in Controls) {
-          const control = this.settings.get(name);
-          if (forwarder.request.includes(name as any)) {
-            control.enable({ emitEvent: false });
-            control.setValidators(
-              // the configuration's type erasure affects `toValidators` as well
-              toValidators(name, forwarder, constraints),
-            );
-          } else {
-            control.disable({ emitEvent: false });
-            control.clearValidators();
-          }
+    // enable requested forwarder inputs
+    forwarder$.pipe(takeUntil(this.destroyed$)).subscribe((forwarder) => {
+      for (const name in Controls) {
+        const control = this.settings.get(name);
+        if (forwarder.request.includes(name as any)) {
+          control.enable({ emitEvent: false });
+        } else {
+          control.disable({ emitEvent: false });
         }
-
-        this.settings.updateValueAndValidity({ emitEvent: false });
-      });
+      }
+    });
 
     // the first emission is the current value; subsequent emissions are updates
     settings$$
@@ -157,11 +140,16 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
       .subscribe(this.onUpdated);
 
     // now that outputs are set up, connect inputs
-    this.settings.valueChanges
-      .pipe(withLatestFrom(settings$$), takeUntil(this.destroyed$))
-      .subscribe(([value, settings]) => {
+    this.saveSettings
+      .pipe(withLatestFrom(this.settings.valueChanges, settings$$), takeUntil(this.destroyed$))
+      .subscribe(([, value, settings]) => {
         settings.next(value);
       });
+  }
+
+  private saveSettings = new Subject<string>();
+  save(site: string = "component api call") {
+    this.saveSettings.next(site);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -192,6 +180,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
 
   private readonly destroyed$ = new Subject<void>();
   ngOnDestroy(): void {
+    this.destroyed$.next();
     this.destroyed$.complete();
   }
 }

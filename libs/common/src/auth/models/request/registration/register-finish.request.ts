@@ -1,5 +1,6 @@
+import { KdfType } from "@bitwarden/key-management";
+
 import { KeysRequest } from "../../../../models/request/keys.request";
-import { KdfType } from "../../../../platform/enums";
 import { EncryptedString } from "../../../../platform/models/domain/enc-string";
 
 export class RegisterFinishRequest {

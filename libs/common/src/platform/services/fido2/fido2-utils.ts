@@ -1,13 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export class Fido2Utils {
   static bufferToString(bufferSource: BufferSource): string {
-    let buffer: Uint8Array;
-    if (bufferSource instanceof ArrayBuffer || bufferSource.buffer === undefined) {
-      buffer = new Uint8Array(bufferSource as ArrayBuffer);
-    } else {
-      buffer = new Uint8Array(bufferSource.buffer);
-    }
-
-    return Fido2Utils.fromBufferToB64(buffer)
+    return Fido2Utils.fromBufferToB64(Fido2Utils.bufferSourceToUint8Array(bufferSource))
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=/g, "");
@@ -18,12 +13,10 @@ export class Fido2Utils {
   }
 
   static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {
-    if (bufferSource instanceof Uint8Array) {
-      return bufferSource;
-    } else if (Fido2Utils.isArrayBuffer(bufferSource)) {
+    if (Fido2Utils.isArrayBuffer(bufferSource)) {
       return new Uint8Array(bufferSource);
     } else {
-      return new Uint8Array(bufferSource.buffer);
+      return new Uint8Array(bufferSource.buffer, bufferSource.byteOffset, bufferSource.byteLength);
     }
   }
 

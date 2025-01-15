@@ -8,7 +8,7 @@ import { Jsonify } from "type-fest";
 
 import { awaitAsync, trackEmissions } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
-import { AccountInfo } from "../../../auth/abstractions/account.service";
+import { Account } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
 import { StorageServiceProvider } from "../../services/storage-service.provider";
@@ -47,7 +47,7 @@ describe("DefaultActiveUserState", () => {
   const storageServiceProvider = mock<StorageServiceProvider>();
   const stateEventRegistrarService = mock<StateEventRegistrarService>();
   const logService = mock<LogService>();
-  let activeAccountSubject: BehaviorSubject<{ id: UserId } & AccountInfo>;
+  let activeAccountSubject: BehaviorSubject<Account | null>;
 
   let singleUserStateProvider: DefaultSingleUserStateProvider;
 
@@ -63,7 +63,7 @@ describe("DefaultActiveUserState", () => {
       logService,
     );
 
-    activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(undefined);
+    activeAccountSubject = new BehaviorSubject<Account | null>(null);
 
     userState = new DefaultActiveUserState(
       testKeyDefinition,
@@ -220,7 +220,8 @@ describe("DefaultActiveUserState", () => {
   it("should not emit a previous users value if that user is no longer active", async () => {
     const user1Data: Jsonify<TestState> = {
       date: "2020-09-21T13:14:17.648Z",
-      array: ["value"],
+      // NOTE: `as any` is here until we migrate to Nx: https://bitwarden.atlassian.net/browse/PM-6493
+      array: ["value"] as any,
     };
     const user2Data: Jsonify<TestState> = {
       date: "2020-09-21T13:14:17.648Z",

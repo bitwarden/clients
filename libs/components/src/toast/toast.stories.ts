@@ -22,7 +22,7 @@ const toastServiceExampleTemplate = `
 })
 export class ToastServiceExampleComponent {
   @Input()
-  toastOptions: ToastOptions;
+  toastOptions?: ToastOptions;
 
   constructor(protected toastService: ToastService) {}
 }
@@ -38,7 +38,7 @@ export default {
     }),
     applicationConfig({
       providers: [
-        ToastModule.forRoot().providers,
+        ToastModule.forRoot().providers!,
         {
           provide: I18nService,
           useFactory: () => {

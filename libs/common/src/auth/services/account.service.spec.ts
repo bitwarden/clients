@@ -88,10 +88,10 @@ describe("accountService", () => {
   });
 
   describe("activeAccount$", () => {
-    it("should emit undefined if no account is active", () => {
+    it("should emit null if no account is active", () => {
       const emissions = trackEmissions(sut.activeAccount$);
 
-      expect(emissions).toEqual([undefined]);
+      expect(emissions).toEqual([null]);
     });
 
     it("should emit the active account", async () => {
@@ -100,7 +100,7 @@ describe("accountService", () => {
       activeAccountIdState.stateSubject.next(userId);
 
       expect(emissions).toEqual([
-        undefined, // initial value
+        null, // initial value
         { id: userId, ...userInfo },
       ]);
     });
@@ -258,10 +258,10 @@ describe("accountService", () => {
       activeAccountIdState.stateSubject.next(userId);
     });
 
-    it("should emit undefined if no account is provided", async () => {
+    it("should emit null if no account is provided", async () => {
       await sut.switchAccount(null);
       const currentState = await firstValueFrom(sut.activeAccount$);
-      expect(currentState).toBeUndefined();
+      expect(currentState).toBeNull();
     });
 
     it("should throw if the account does not exist", () => {

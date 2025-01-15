@@ -1,4 +1,6 @@
-import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { combineLatest, filter, firstValueFrom, map } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -28,9 +30,8 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
     protected stateProvider: StateProvider,
   ) {}
 
-  encryptedCollections$(userId$: Observable<UserId>) {
-    return userId$.pipe(
-      switchMap((userId) => this.encryptedState(userId).state$),
+  encryptedCollections$(userId: UserId) {
+    return this.encryptedState(userId).state$.pipe(
       map((collections) => {
         if (collections == null) {
           return [];
@@ -41,11 +42,8 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
     );
   }
 
-  decryptedCollections$(userId$: Observable<UserId>) {
-    return userId$.pipe(
-      switchMap((userId) => this.decryptedState(userId).state$),
-      map((collections) => collections ?? []),
-    );
+  decryptedCollections$(userId: UserId) {
+    return this.decryptedState(userId).state$.pipe(map((collections) => collections ?? []));
   }
 
   async upsert(toUpdate: CollectionData | CollectionData[], userId: UserId): Promise<void> {
@@ -76,14 +74,14 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
       throw new Error("User ID is required.");
     }
 
-    await this.decryptedState(userId).forceValue(null);
+    await this.decryptedState(userId).forceValue([]);
   }
 
   async clear(userId: UserId): Promise<void> {
     await this.encryptedState(userId).update(() => null);
     // This will propagate from the encrypted state update, but by doing it explicitly
     // the promise doesn't resolve until the update is complete.
-    await this.decryptedState(userId).forceValue(null);
+    await this.decryptedState(userId).forceValue([]);
   }
 
   async delete(id: CollectionId | CollectionId[], userId: UserId): Promise<any> {
@@ -123,7 +121,7 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
   // See https://bitwarden.atlassian.net/browse/PM-12375
   async decryptMany(
     collections: Collection[],
-    orgKeys?: Record<OrganizationId, OrgKey>,
+    orgKeys?: Record<OrganizationId, OrgKey> | null,
   ): Promise<CollectionView[]> {
     if (collections == null || collections.length === 0) {
       return [];
@@ -151,7 +149,7 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
       collectionCopy.id = c.id;
       collectionCopy.organizationId = c.organizationId;
       const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
+      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
     });
     return nodes;
   }
@@ -179,14 +177,14 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
    * @returns a SingleUserState for decrypted collection data.
    */
   private decryptedState(userId: UserId): DerivedState<CollectionView[]> {
-    const encryptedCollectionsWithKeys = this.encryptedState(userId).combinedState$.pipe(
-      switchMap(([userId, collectionData]) =>
-        combineLatest([of(collectionData), this.keyService.orgKeys$(userId)]),
-      ),
-    );
+    const encryptedCollectionsWithKeys$ = combineLatest([
+      this.encryptedCollections$(userId),
+      // orgKeys$ can emit null during brief moments on unlock and lock/logout, we want to ignore those intermediate states
+      this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => orgKeys != null)),
+    ]);
 
     return this.stateProvider.getDerived(
-      encryptedCollectionsWithKeys,
+      encryptedCollectionsWithKeys$,
       DECRYPTED_COLLECTION_DATA_KEY,
       {
         collectionService: this,

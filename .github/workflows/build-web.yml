@@ -1,7 +1,8 @@
 name: Build Web
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
       - 'cf-pages'
@@ -31,20 +32,32 @@ on:
       custom_tag_extension:
         description: "Custom image tag extension"
         required: false
+      sdk_branch:
+        description: "Custom SDK branch"
+        required: false
+        type: string
 
 env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
 
 jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+
   setup:
     name: Setup
     runs-on: ubuntu-22.04
+    needs:
+      - check-run
     outputs:
       version: ${{ steps.version.outputs.value }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Get GitHub sha as version
         id: version
@@ -60,7 +73,8 @@ jobs:
   build-artifacts:
     name: Build artifacts
     runs-on: ubuntu-22.04
-    needs: setup
+    needs:
+      - setup
     env:
       _VERSION: ${{ needs.setup.outputs.version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -89,11 +103,13 @@ jobs:
             git_metadata: true
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -104,13 +120,32 @@ jobs:
           whoami
           node --version
           npm --version
-          gulp --version
           docker --version
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
 
       - name: Add Git metadata to build version
         working-directory: apps/web
@@ -129,7 +164,7 @@ jobs:
         run: zip -r web-${{ env._VERSION }}-${{ matrix.name }}.zip build
 
       - name: Upload ${{ matrix.name }} artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: web-${{ env._VERSION }}-${{ matrix.name }}.zip
           path: apps/web/web-${{ env._VERSION }}-${{ matrix.name }}.zip
@@ -139,6 +174,9 @@ jobs:
   build-containers:
     name: Build Docker images
     runs-on: ubuntu-22.04
+    permissions:
+      security-events: write
+      id-token: write
     needs:
       - setup
       - build-artifacts
@@ -155,8 +193,10 @@ jobs:
     env:
       _VERSION: ${{ needs.setup.outputs.version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Check Branch to Publish
         env:
@@ -202,7 +242,7 @@ jobs:
       - name: Generate Docker image tag
         id: tag
         run: |
-          if [[ $(grep "pull" <<< "${GITHUB_REF}") ]]; then
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request_target" ]]; then
             IMAGE_TAG=$(echo "${GITHUB_HEAD_REF}" | sed "s#/#-#g")
           else
             IMAGE_TAG=$(echo "${GITHUB_REF_NAME}" | sed "s#/#-#g")
@@ -233,7 +273,8 @@ jobs:
         run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        id: build-docker
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # v6.10.0
         with:
           context: apps/web
           file: apps/web/Dockerfile
@@ -242,19 +283,51 @@ jobs:
           tags: ${{ steps.image-name.outputs.name }}
           secrets: |
             "GH_PAT=${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}"
+      
+      - name: Install Cosign
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
+
+      - name: Sign image with Cosign
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        env:
+          DIGEST: ${{ steps.build-docker.outputs.digest }}
+          TAGS: ${{ steps.image-name.outputs.name }}
+        run: |
+          IFS="," read -a tags <<< "${TAGS}"
+          images=""
+          for tag in "${tags[@]}"; do
+            images+="${tag}@${DIGEST} "
+          done
+          cosign sign --yes ${images}
+
+      - name: Scan Docker image
+        id: container-scan
+        uses: anchore/scan-action@869c549e657a088dc0441b08ce4fc0ecdac2bb65 # v5.3.0
+        with:
+          image: ${{ steps.image-name.outputs.name }}
+          fail-build: false
+          output-format: sarif
+
+      - name: Upload Grype results to GitHub
+        uses: github/codeql-action/upload-sarif@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0
+        with:
+          sarif_file: ${{ steps.container-scan.outputs.sarif }}
 
       - name: Log out of Docker
         run: docker logout
 
-
   crowdin-push:
     name: Crowdin Push
-    if: github.ref == 'refs/heads/main'
-    needs: build-artifacts
+    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+    needs:
+      - build-artifacts
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Login to Azure
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
@@ -282,9 +355,10 @@ jobs:
 
   trigger-web-vault-deploy:
     name: Trigger web vault deploy
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
-    needs: build-artifacts
+    needs:
+      - build-artifacts
     steps:
       - name: Login to Azure - CI Subscription
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
@@ -326,7 +400,10 @@ jobs:
       - trigger-web-vault-deploy
     steps:
       - name: Check if any job failed
-        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc') && contains(needs.*.result, 'failure')
+        if: |
+          github.event_name != 'pull_request_target'
+          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-web')
+          && contains(needs.*.result, 'failure')
         run: exit 1
 
       - name: Login to Azure - Prod Subscription

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FocusableOption } from "@angular/cdk/a11y";
 import { Directive, ElementRef, HostBinding, Input } from "@angular/core";
 
@@ -5,7 +7,10 @@ import { Directive, ElementRef, HostBinding, Input } from "@angular/core";
  * Directive used for styling tab header items for both nav links (anchor tags)
  * and content tabs (button tags)
  */
-@Directive({ selector: "[bitTabListItem]" })
+@Directive({
+  selector: "[bitTabListItem]",
+  standalone: true,
+})
 export class TabListItemDirective implements FocusableOption {
   @Input() active: boolean;
   @Input() disabled: boolean;

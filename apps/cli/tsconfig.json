@@ -26,8 +26,14 @@
         "../../libs/tools/export/vault-export/vault-export-core/src"
       ],
       "@bitwarden/key-management": ["../../libs/key-management/src"],
+      "@bitwarden/key-management/angular": ["../../libs/key-management/src/angular"],
       "@bitwarden/node/*": ["../../libs/node/src/*"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ]
   },
   "include": ["src", "src/**/*.spec.ts"]
 }

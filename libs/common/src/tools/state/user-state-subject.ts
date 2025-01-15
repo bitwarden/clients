@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   Observer,
   SubjectLike,
@@ -6,10 +8,8 @@ import {
   filter,
   map,
   takeUntil,
-  pairwise,
   distinctUntilChanged,
   BehaviorSubject,
-  startWith,
   Observable,
   Subscription,
   last,
@@ -26,22 +26,38 @@ import {
   skip,
 } from "rxjs";
 
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SingleUserState, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
-
+import { EncString } from "../../platform/models/domain/enc-string";
+import { SingleUserState, UserKeyDefinition } from "../../platform/state";
+import { UserId } from "../../types/guid";
+import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { UserBound } from "../dependencies";
-import { anyComplete, ready, withLatestReady } from "../rx";
+import { anyComplete, errorOnChange, ready, withLatestReady } from "../rx";
 import { Constraints, SubjectConstraints, WithConstraints } from "../types";
 
 import { ClassifiedFormat, isClassifiedFormat } from "./classified-format";
 import { unconstrained$ } from "./identity-state-constraint";
 import { isObjectKey, ObjectKey, toUserKeyDefinition } from "./object-key";
 import { isDynamic } from "./state-constraints-dependency";
-import { UserEncryptor } from "./user-encryptor.abstraction";
 import { UserStateSubjectDependencies } from "./user-state-subject-dependencies";
 
 type Constrained<State> = { constraints: Readonly<Constraints<State>>; state: State };
+
+// FIXME: The subject should always repeat the value when it's own `next` method is called.
+//
+// Chrome StateService only calls `next` when the underlying values changes. When enforcing,
+// say, a minimum constraint, any value beneath the minimum becomes the minimum. This prevents
+// invalid data received in sequence from calling `next` because the state provider doesn't
+// emit.
+//
+// The hack is pretty simple. Insert arbitrary data into the saved data to ensure
+// that it *always* changes.
+//
+// Any real fix will be fairly complex because it needs to recognize *fast* when it
+// is waiting. Alternatively, the kludge could become a format properly fed by random noise.
+//
+// NOTE: this only matters for plaintext objects; encrypted fields change with every
+//   update b/c their IVs change.
+const ALWAYS_UPDATE_KLUDGE = "$^$ALWAYS_UPDATE_KLUDGE_PROPERTY$^$";
 
 /**
  * Adapt a state provider to an rxjs subject.
@@ -178,24 +194,13 @@ export class UserStateSubject<
         }
       }),
       // fail the stream if the state desyncs from the bound userId
-      startWith({ userId: this.state.userId, encryptor: null } as UserBound<
-        "encryptor",
-        UserEncryptor
-      >),
-      pairwise(),
-      map(([expected, actual]) => {
-        if (expected.userId === actual.userId) {
-          return actual;
-        } else {
-          throw {
-            expectedUserId: expected.userId,
-            actualUserId: actual.userId,
-          };
-        }
-      }),
+      errorOnChange(
+        ({ userId }) => userId,
+        (expectedUserId, actualUserId) => ({ expectedUserId, actualUserId }),
+      ),
       // reduce emissions to when encryptor changes
-      distinctUntilChanged(),
       map(({ encryptor }) => encryptor),
+      distinctUntilChanged(),
     );
   }
 
@@ -254,17 +259,18 @@ export class UserStateSubject<
       withConstraints,
       map(([loadedState, constraints]) => {
         // bypass nulls
-        if (!loadedState) {
+        if (!loadedState && !this.objectKey?.initial) {
           return {
             constraints: {} as Constraints<State>,
             state: null,
           } satisfies Constrained<State>;
         }
 
+        const unconstrained = loadedState ?? structuredClone(this.objectKey.initial);
         const calibration = isDynamic(constraints)
-          ? constraints.calibrate(loadedState)
+          ? constraints.calibrate(unconstrained)
           : constraints;
-        const adjusted = calibration.adjust(loadedState);
+        const adjusted = calibration.adjust(unconstrained);
 
         return {
           constraints: calibration.constraints,
@@ -299,36 +305,63 @@ export class UserStateSubject<
       return (input$) => input$ as Observable<State>;
     }
 
-    // if the key supports encryption, enable encryptor support
+    // all other keys support encryption; enable encryptor support
+    return pipe(
+      this.mapToClassifiedFormat(),
+      combineLatestWith(encryptor$),
+      concatMap(async ([input, encryptor]) => {
+        // pass through null values
+        if (input === null || input === undefined) {
+          return null;
+        }
+
+        // decrypt classified data
+        const { secret, disclosed } = input;
+        const encrypted = EncString.fromJSON(secret);
+        const decryptedSecret = await encryptor.decrypt<Secret>(encrypted);
+
+        // assemble into proper state
+        const declassified = this.objectKey.classifier.declassify(disclosed, decryptedSecret);
+        const state = this.objectKey.options.deserializer(declassified);
+
+        return state;
+      }),
+    );
+  }
+
+  private mapToClassifiedFormat(): OperatorFunction<unknown, ClassifiedFormat<unknown, unknown>> {
+    // FIXME: warn when data is dropped in the console and/or report an error
+    //   through the observable; consider redirecting dropped data to a recovery
+    //   location
+
+    // user-state subject's default format is object-aware
     if (this.objectKey && this.objectKey.format === "classified") {
-      return pipe(
-        combineLatestWith(encryptor$),
-        concatMap(async ([input, encryptor]) => {
-          // pass through null values
-          if (input === null || input === undefined) {
-            return null;
-          }
+      return map((input) => {
+        if (!isClassifiedFormat(input)) {
+          return null;
+        }
 
-          // fail fast if the format is incorrect
-          if (!isClassifiedFormat(input)) {
-            throw new Error(`Cannot declassify ${this.key.key}; unknown format.`);
-          }
-
-          // decrypt classified data
-          const { secret, disclosed } = input;
-          const encrypted = EncString.fromJSON(secret);
-          const decryptedSecret = await encryptor.decrypt<Secret>(encrypted);
-
-          // assemble into proper state
-          const declassified = this.objectKey.classifier.declassify(disclosed, decryptedSecret);
-          const state = this.objectKey.options.deserializer(declassified);
-
-          return state;
-        }),
-      );
+        return input;
+      });
     }
 
-    throw new Error(`unknown serialization format: ${this.objectKey.format}`);
+    // secret state's format wraps objects in an array
+    if (this.objectKey && this.objectKey.format === "secret-state") {
+      return map((input) => {
+        if (!Array.isArray(input)) {
+          return null;
+        }
+
+        const [unwrapped] = input;
+        if (!isClassifiedFormat(unwrapped)) {
+          return null;
+        }
+
+        return unwrapped;
+      });
+    }
+
+    throw new Error(`unsupported serialization format: ${this.objectKey.format}`);
   }
 
   private classify(encryptor$: Observable<UserEncryptor>): OperatorFunction<State, unknown> {
@@ -341,41 +374,49 @@ export class UserStateSubject<
       );
     }
 
-    // if the key supports encryption, enable encryptor support
+    // all other keys support encryption; enable encryptor support
+    return pipe(
+      withLatestReady(encryptor$),
+      concatMap(async ([input, encryptor]) => {
+        // fail fast if there's no value
+        if (input === null || input === undefined) {
+          return null;
+        }
+
+        // split data by classification level
+        const serialized = JSON.parse(JSON.stringify(input));
+        const classified = this.objectKey.classifier.classify(serialized);
+
+        // protect data
+        const encrypted = await encryptor.encrypt(classified.secret);
+        const secret = JSON.parse(JSON.stringify(encrypted));
+
+        // wrap result in classified format envelope for storage
+        const envelope = {
+          id: null as void,
+          secret,
+          disclosed: classified.disclosed,
+        } satisfies ClassifiedFormat<void, Disclosed>;
+
+        // deliberate type erasure; the type is restored during `declassify`
+        return envelope as ClassifiedFormat<unknown, unknown>;
+      }),
+      this.mapToStorageFormat(),
+    );
+  }
+
+  private mapToStorageFormat(): OperatorFunction<ClassifiedFormat<unknown, unknown>, unknown> {
+    // user-state subject's default format is object-aware
     if (this.objectKey && this.objectKey.format === "classified") {
-      return pipe(
-        withLatestReady(encryptor$),
-        concatMap(async ([input, encryptor]) => {
-          // fail fast if there's no value
-          if (input === null || input === undefined) {
-            return null;
-          }
-
-          // split data by classification level
-          const serialized = JSON.parse(JSON.stringify(input));
-          const classified = this.objectKey.classifier.classify(serialized);
-
-          // protect data
-          const encrypted = await encryptor.encrypt(classified.secret);
-          const secret = JSON.parse(JSON.stringify(encrypted));
-
-          // wrap result in classified format envelope for storage
-          const envelope = {
-            id: null as void,
-            secret,
-            disclosed: classified.disclosed,
-          } satisfies ClassifiedFormat<void, Disclosed>;
-
-          // deliberate type erasure; the type is restored during `declassify`
-          return envelope as unknown;
-        }),
-      );
+      return map((input) => input as unknown);
     }
 
-    // FIXME: add "encrypted" format --> key contains encryption logic
-    // CONSIDER: should "classified format" algorithm be embedded in subject keys...?
+    // secret state's format wraps objects in an array
+    if (this.objectKey && this.objectKey.format === "secret-state") {
+      return map((input) => [input] as unknown);
+    }
 
-    throw new Error(`unknown serialization format: ${this.objectKey.format}`);
+    throw new Error(`unsupported serialization format: ${this.objectKey.format}`);
   }
 
   /** The userId to which the subject is bound.
@@ -419,8 +460,25 @@ export class UserStateSubject<
   private inputSubscription: Unsubscribable;
   private outputSubscription: Unsubscribable;
 
+  private counter = 0;
+
   private onNext(value: unknown) {
-    this.state.update(() => value).catch((e: any) => this.onError(e));
+    this.state
+      .update(() => {
+        if (typeof value === "object") {
+          // related: ALWAYS_UPDATE_KLUDGE FIXME
+          const counter = this.counter++;
+          if (counter > Number.MAX_SAFE_INTEGER) {
+            this.counter = 0;
+          }
+
+          const kludge = value as any;
+          kludge[ALWAYS_UPDATE_KLUDGE] = counter;
+        }
+
+        return value;
+      })
+      .catch((e: any) => this.onError(e));
   }
 
   private onError(value: any) {

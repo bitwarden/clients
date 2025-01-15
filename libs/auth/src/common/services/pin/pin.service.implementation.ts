@@ -1,9 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -19,6 +19,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, PinKey, UserKey } from "@bitwarden/common/types/key";
+import { KdfConfig, KdfConfigService } from "@bitwarden/key-management";
 
 import { PinServiceAbstraction } from "../../abstractions/pin.service.abstraction";
 
@@ -418,6 +419,7 @@ export class PinService implements PinServiceAbstraction {
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
       masterKey,
+      userId,
       encUserKey ? new EncString(encUserKey) : undefined,
     );
 

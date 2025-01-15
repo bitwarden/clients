@@ -5,13 +5,12 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GENERATOR_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
+import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
+import { UserEncryptor } from "@bitwarden/common/tools/cryptography/user-encryptor.abstraction";
 import { StateConstraints } from "@bitwarden/common/tools/types";
 import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
-import { UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
 
 import {
   FakeStateProvider,
@@ -75,6 +74,7 @@ const SomeNameKey = "passphraseKey";
 const SomeGenerateKey = "generateKey";
 const SomeGeneratedValueKey = "generatedValueKey";
 const SomeCopyKey = "copyKey";
+const SomeUseGeneratedValueKey = "useGeneratedValueKey";
 
 // fake the configuration
 const SomeConfiguration: CredentialGeneratorConfiguration<SomeSettings, SomePolicy> = {
@@ -84,6 +84,7 @@ const SomeConfiguration: CredentialGeneratorConfiguration<SomeSettings, SomePoli
   generateKey: SomeGenerateKey,
   generatedValueKey: SomeGeneratedValueKey,
   copyKey: SomeCopyKey,
+  useGeneratedValueKey: SomeUseGeneratedValueKey,
   onlyOnRequest: false,
   request: [],
   engine: {
@@ -175,9 +176,8 @@ const i18nService = mock<I18nService>();
 
 const apiService = mock<ApiService>();
 
-const encryptService = mock<EncryptService>();
-
-const keyService = mock<KeyService>();
+const encryptor = mock<UserEncryptor>();
+const encryptorProvider = mock<LegacyEncryptorProvider>();
 
 describe("CredentialGeneratorService", () => {
   beforeEach(async () => {
@@ -185,8 +185,8 @@ describe("CredentialGeneratorService", () => {
     policyService.getAll$.mockImplementation(() => new BehaviorSubject([]).asObservable());
     i18nService.t.mockImplementation((key) => key);
     apiService.fetch.mockImplementation(() => Promise.resolve(mock<Response>()));
-    const keyAvailable = new BehaviorSubject({} as UserKey);
-    keyService.userKey$.mockReturnValue(keyAvailable);
+    const encryptor$ = new BehaviorSubject({ userId: SomeUser, encryptor });
+    encryptorProvider.userEncryptor$.mockReturnValue(encryptor$);
     jest.clearAllMocks();
   });
 
@@ -200,8 +200,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration));
 
@@ -221,8 +221,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration));
 
@@ -246,8 +246,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration));
 
@@ -274,8 +274,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const website$ = new BehaviorSubject("some website");
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { website$ }));
@@ -295,8 +295,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const website$ = new BehaviorSubject("some website");
       let error = null;
@@ -320,8 +320,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const website$ = new BehaviorSubject("some website");
       let completed = false;
@@ -346,8 +346,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId$ = new BehaviorSubject(AnotherUser).asObservable();
       const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { userId$ }));
@@ -366,8 +366,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.pipe(filter((u) => !!u));
@@ -390,8 +390,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId$ = new BehaviorSubject(SomeUser);
       let error = null;
@@ -415,8 +415,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId$ = new BehaviorSubject(SomeUser);
       let completed = false;
@@ -441,8 +441,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const on$ = new Subject<void>();
       const results: any[] = [];
@@ -483,8 +483,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const on$ = new Subject<void>();
       let error: any = null;
@@ -509,8 +509,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const on$ = new Subject<void>();
       let complete = false;
@@ -540,8 +540,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = generator.algorithms("password");
@@ -561,8 +561,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = generator.algorithms("username");
@@ -581,8 +581,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = generator.algorithms("email");
@@ -602,8 +602,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = generator.algorithms(["username", "email"]);
@@ -627,8 +627,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = await firstValueFrom(generator.algorithms$("password"));
@@ -644,8 +644,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = await firstValueFrom(generator.algorithms$("username"));
@@ -660,8 +660,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = await firstValueFrom(generator.algorithms$("email"));
@@ -677,8 +677,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = await firstValueFrom(generator.algorithms$(["username", "email"]));
@@ -699,8 +699,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = await firstValueFrom(generator.algorithms$(["password"]));
@@ -724,8 +724,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const results: any = [];
       const sub = generator.algorithms$("password").subscribe((r) => results.push(r));
@@ -761,8 +761,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId$ = new BehaviorSubject(AnotherUser).asObservable();
 
@@ -782,8 +782,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -812,8 +812,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -838,8 +838,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -864,8 +864,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -896,8 +896,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = await firstValueFrom(generator.settings$(SomeConfiguration));
@@ -914,8 +914,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = await firstValueFrom(generator.settings$(SomeConfiguration));
@@ -934,8 +934,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       const result = await firstValueFrom(generator.settings$(SomeConfiguration));
@@ -959,8 +959,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const results: any = [];
       const sub = generator.settings$(SomeConfiguration).subscribe((r) => results.push(r));
@@ -984,8 +984,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId$ = new BehaviorSubject(AnotherUser).asObservable();
 
@@ -1005,8 +1005,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -1032,8 +1032,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -1058,8 +1058,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -1084,8 +1084,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -1116,8 +1116,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const subject = await generator.settings(SomeConfiguration, { singleUserId$ });
 
@@ -1125,7 +1125,11 @@ describe("CredentialGeneratorService", () => {
       await awaitAsync();
       const result = await firstValueFrom(stateProvider.getUserState$(SettingsKey, SomeUser));
 
-      expect(result).toEqual({ foo: "next value" });
+      expect(result).toEqual({
+        foo: "next value",
+        // FIXME: don't leak this detail into the test
+        "$^$ALWAYS_UPDATE_KLUDGE_PROPERTY$^$": 0,
+      });
     });
 
     it("waits for the user to become available", async () => {
@@ -1137,8 +1141,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
 
       let completed = false;
@@ -1163,8 +1167,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId$ = new BehaviorSubject(SomeUser).asObservable();
 
@@ -1180,8 +1184,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId$ = new BehaviorSubject(SomeUser).asObservable();
       const policy$ = new BehaviorSubject([somePolicy]);
@@ -1199,8 +1203,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -1228,8 +1232,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -1258,8 +1262,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();
@@ -1284,8 +1288,8 @@ describe("CredentialGeneratorService", () => {
         policyService,
         apiService,
         i18nService,
-        encryptService,
-        keyService,
+        encryptorProvider,
+        accountService,
       );
       const userId = new BehaviorSubject(SomeUser);
       const userId$ = userId.asObservable();

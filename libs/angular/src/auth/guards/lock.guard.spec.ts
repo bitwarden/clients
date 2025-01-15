@@ -6,7 +6,11 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  Account,
+  AccountInfo,
+  AccountService,
+} from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -56,7 +60,7 @@ describe("lockGuard", () => {
     userVerificationService.hasMasterPassword.mockResolvedValue(setupParams.hasMasterPassword);
 
     const accountService: MockProxy<AccountService> = mock<AccountService>();
-    const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(null);
+    const activeAccountSubject = new BehaviorSubject<Account | null>(null);
     accountService.activeAccount$ = activeAccountSubject;
     activeAccountSubject.next(
       Object.assign(

@@ -1,6 +1,11 @@
 <form class="box" [formGroup]="settings" class="tw-container">
   <bit-form-field>
     <bit-label>{{ "email" | i18n }}</bit-label>
-    <input bitInput formControlName="subaddressEmail" type="text" />
+    <input
+      bitInput
+      formControlName="subaddressEmail"
+      type="text"
+      (change)="save('subaddressEmail')"
+    />
   </bit-form-field>
 </form>

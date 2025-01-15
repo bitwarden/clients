@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { NgFor, NgIf } from "@angular/common";
 import { Component, HostBinding, Input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -21,6 +24,8 @@ enum CharacterType {
     }}</span>
   </span>`,
   preserveWhitespaces: false,
+  standalone: true,
+  imports: [NgFor, NgIf],
 })
 export class ColorPasswordComponent {
   @Input() password: string = null;

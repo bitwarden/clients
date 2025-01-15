@@ -20,7 +20,10 @@ import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/va
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
+import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import { SshAgentService } from "../../platform/services/ssh-agent.service";
+import { VersionService } from "../../platform/services/version.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
 @Injectable()
@@ -41,11 +44,15 @@ export class InitService {
     private encryptService: EncryptService,
     private userAutoUnlockKeyService: UserAutoUnlockKeyService,
     private accountService: AccountService,
+    private versionService: VersionService,
+    private sshAgentService: SshAgentService,
+    private autofillService: DesktopAutofillService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
+      await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.stateService.init({ runMigrations: false }); // Desktop will run them in main process
 
@@ -73,8 +80,12 @@ export class InitService {
       htmlEl.classList.add("os_" + this.platformUtilsService.getDeviceString());
       this.themingService.applyThemeChangesTo(this.document);
 
+      this.versionService.init();
+
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
+
+      await this.autofillService.init();
     };
   }
 }

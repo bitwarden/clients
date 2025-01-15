@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
@@ -63,6 +65,8 @@ export class DesktopLoginComponentService
 
     try {
       await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       this.toastService.showToast({
         variant: "error",
@@ -70,9 +74,5 @@ export class DesktopLoginComponentService
         message: this.i18nService.t("ssoError"),
       });
     }
-  }
-
-  isLoginViaAuthRequestSupported(): boolean {
-    return true;
   }
 }

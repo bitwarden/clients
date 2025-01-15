@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -24,9 +26,9 @@ import {
   SendFormConfig,
   SendFormConfigService,
   SendFormMode,
+  SendFormModule,
 } from "@bitwarden/send-ui";
 
-import { SendFormModule } from "../../../../../../../libs/tools/send/send-ui/src/send-form/send-form.module";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";

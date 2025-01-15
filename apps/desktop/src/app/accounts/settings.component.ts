@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, Observable, Subject, firstValueFrom } from "rxjs";
@@ -12,13 +14,15 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KeySuffixOptions, ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeType } from "@bitwarden/common/platform/enums/theme-type.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -28,10 +32,11 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService } from "@bitwarden/components";
-import { KeyService, BiometricsService, BiometricStateService } from "@bitwarden/key-management";
+import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
@@ -50,9 +55,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   themeOptions: any[];
   clearClipboardOptions: any[];
   supportsBiometric: boolean;
+  private timerId: any;
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
+  showSshAgentOption = false;
+  showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
 
@@ -107,6 +115,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       disabled: true,
     }),
     enableHardwareAcceleration: true,
+    enableSshAgent: false,
     enableDuckDuckGoBrowserIntegration: false,
     theme: [null as ThemeType | null],
     locale: [null as string | null],
@@ -132,11 +141,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private userVerificationService: UserVerificationServiceAbstraction,
     private desktopSettingsService: DesktopSettingsService,
     private biometricStateService: BiometricStateService,
-    private biometricsService: BiometricsService,
+    private biometricsService: DesktopBiometricsService,
     private desktopAutofillSettingsService: DesktopAutofillSettingsService,
     private pinService: PinServiceAbstraction,
     private logService: LogService,
     private nativeMessagingManifestService: NativeMessagingManifestService,
+    private configService: ConfigService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -158,6 +168,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const startToTrayKey = isMac ? "startToMenuBar" : "startToTray";
     this.startToTrayText = this.i18nService.t(startToTrayKey);
     this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
+
+    this.showOpenAtLoginOption = !ipc.platform.isWindowsStore;
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = isMac;
@@ -200,6 +212,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (activeAccount == null || activeAccount.id == null) {
       return;
     }
+
+    this.showSshAgentOption = await this.configService.getFeatureFlag(FeatureFlag.SSHAgent);
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
@@ -272,6 +286,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableHardwareAcceleration: await firstValueFrom(
         this.desktopSettingsService.hardwareAcceleration$,
       ),
+      enableSshAgent: await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -284,7 +299,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Non-form values
     this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
     this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
-    this.supportsBiometric = await this.biometricsService.supportsBiometric();
     this.previousVaultTimeout = this.form.value.vaultTimeout;
 
     this.refreshTimeoutSettings$
@@ -347,6 +361,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
           this.form.controls.enableBrowserIntegrationFingerprint.disable();
         }
       });
+
+    this.supportsBiometric =
+      (await this.biometricsService.getBiometricsStatus()) === BiometricsStatus.Available;
+    this.timerId = setInterval(async () => {
+      this.supportsBiometric =
+        (await this.biometricsService.getBiometricsStatus()) === BiometricsStatus.Available;
+    }, 1000);
   }
 
   async saveVaultTimeout(newValue: VaultTimeout) {
@@ -463,23 +484,20 @@ export class SettingsComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const needsSetup = await this.biometricsService.biometricsNeedsSetup();
-      const supportsBiometricAutoSetup = await this.biometricsService.biometricsSupportsAutoSetup();
+      const status = await this.biometricsService.getBiometricsStatus();
 
-      if (needsSetup) {
-        if (supportsBiometricAutoSetup) {
-          await this.biometricsService.biometricsSetup();
-        } else {
-          const confirmed = await this.dialogService.openSimpleDialog({
-            title: { key: "biometricsManualSetupTitle" },
-            content: { key: "biometricsManualSetupDesc" },
-            type: "warning",
-          });
-          if (confirmed) {
-            this.platformUtilsService.launchUri("https://bitwarden.com/help/biometrics/");
-          }
-          return;
+      if (status === BiometricsStatus.AutoSetupNeeded) {
+        await this.biometricsService.setupBiometrics();
+      } else if (status === BiometricsStatus.ManualSetupNeeded) {
+        const confirmed = await this.dialogService.openSimpleDialog({
+          title: { key: "biometricsManualSetupTitle" },
+          content: { key: "biometricsManualSetupDesc" },
+          type: "warning",
+        });
+        if (confirmed) {
+          this.platformUtilsService.launchUri("https://bitwarden.com/help/biometrics/");
         }
+        return;
       }
 
       await this.biometricStateService.setBiometricUnlockEnabled(true);
@@ -500,8 +518,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
       }
       await this.keyService.refreshAdditionalKeys();
 
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
       // Validate the key is stored in case biometrics fail.
-      const biometricSet = await this.keyService.hasUserKeyStored(KeySuffixOptions.Biometric);
+      const biometricSet =
+        (await this.biometricsService.getBiometricsStatusForUser(activeUserId)) ===
+        BiometricsStatus.Available;
       this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
       if (!biometricSet) {
         await this.biometricStateService.setBiometricUnlockEnabled(false);
@@ -624,42 +647,51 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async saveBrowserIntegration() {
-    if (
-      ipc.platform.deviceType === DeviceType.MacOsDesktop &&
-      !this.platformUtilsService.isMacAppStore()
-    ) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "browserIntegrationUnsupportedTitle" },
-        content: { key: "browserIntegrationMasOnlyDesc" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
+    const skipSupportedPlatformCheck =
+      ipc.platform.allowBrowserintegrationOverride || ipc.platform.isDev;
 
-      this.form.controls.enableBrowserIntegration.setValue(false);
-      return;
-    } else if (ipc.platform.isWindowsStore) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "browserIntegrationUnsupportedTitle" },
-        content: { key: "browserIntegrationWindowsStoreDesc" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
+    if (!skipSupportedPlatformCheck) {
+      if (
+        ipc.platform.deviceType === DeviceType.MacOsDesktop &&
+        !this.platformUtilsService.isMacAppStore()
+      ) {
+        await this.dialogService.openSimpleDialog({
+          title: { key: "browserIntegrationUnsupportedTitle" },
+          content: { key: "browserIntegrationMasOnlyDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "warning",
+        });
 
-      this.form.controls.enableBrowserIntegration.setValue(false);
-      return;
-    } else if (ipc.platform.isSnapStore || ipc.platform.isFlatpak) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "browserIntegrationUnsupportedTitle" },
-        content: { key: "browserIntegrationLinuxDesc" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
+        this.form.controls.enableBrowserIntegration.setValue(false);
+        return;
+      }
 
-      this.form.controls.enableBrowserIntegration.setValue(false);
-      return;
+      if (ipc.platform.isWindowsStore) {
+        await this.dialogService.openSimpleDialog({
+          title: { key: "browserIntegrationUnsupportedTitle" },
+          content: { key: "browserIntegrationWindowsStoreDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "warning",
+        });
+
+        this.form.controls.enableBrowserIntegration.setValue(false);
+        return;
+      }
+
+      if (ipc.platform.isSnapStore || ipc.platform.isFlatpak) {
+        await this.dialogService.openSimpleDialog({
+          title: { key: "browserIntegrationUnsupportedTitle" },
+          content: { key: "browserIntegrationLinuxDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "warning",
+        });
+
+        this.form.controls.enableBrowserIntegration.setValue(false);
+        return;
+      }
     }
 
     await this.desktopSettingsService.setBrowserIntegrationEnabled(
@@ -722,6 +754,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
   }
 
+  async saveSshAgent() {
+    this.logService.debug("Saving Ssh Agent settings", this.form.value.enableSshAgent);
+    await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+  }
+
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {
     let vaultTimeoutOptions: VaultTimeoutOption[] = [
       { name: this.i18nService.t("oneMinute"), value: 1 },
@@ -752,6 +789,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    clearInterval(this.timerId);
   }
 
   get biometricText() {

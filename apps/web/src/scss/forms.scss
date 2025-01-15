@@ -20,7 +20,7 @@ input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: -cancel-button;
 }
 
-label:not(.form-check-label):not(.btn),
+label:not(.form-check-label):not(.btn):not(:has(bit-label)),
 label.bold {
   font-weight: 600;
   @include themify($themes) {
@@ -136,12 +136,12 @@ input[type="checkbox"] {
   background-color: rgb(var(--color-background));
 
   &:hover {
-    border-color: rgb(var(--color-primary-500));
+    border-color: rgb(var(--color-primary-600));
   }
 
   &.is-focused {
     outline: 0;
-    border-color: rgb(var(--color-primary-500));
+    border-color: rgb(var(--color-primary-600));
   }
 
   &.is-invalid {

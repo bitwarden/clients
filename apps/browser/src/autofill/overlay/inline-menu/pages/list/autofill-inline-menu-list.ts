@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
@@ -411,6 +413,29 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
+   * Filters the ciphers to include only TOTP-related ones if the field is a TOTP field.
+   * If the field is a TOTP field but no TOTP is present, it returns an empty array.
+   *
+   * @param ciphers - The list of ciphers to filter.
+   * @returns The filtered list of ciphers or an empty list if no valid TOTP ciphers are present.
+   */
+  private getFilteredCiphersForTotpField(ciphers: InlineMenuCipherData[]): InlineMenuCipherData[] {
+    if (!ciphers?.length) {
+      return [];
+    }
+
+    const isTotpField =
+      this.inlineMenuFillType === CipherType.Login &&
+      ciphers.some((cipher) => cipher.login?.totpField);
+
+    if (isTotpField) {
+      return ciphers.filter((cipher) => cipher.login?.totp);
+    }
+
+    return ciphers;
+  }
+
+  /**
    * Updates the list items with the passed ciphers.
    * If no ciphers are passed, the no results inline menu is built.
    *
@@ -425,12 +450,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    this.ciphers = ciphers;
+    this.ciphers = this.getFilteredCiphersForTotpField(ciphers);
     this.currentCipherIndex = 0;
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
     this.resetInlineMenuContainer();
 
-    if (!ciphers?.length) {
+    if (!this.ciphers?.length) {
       this.buildNoResultsInlineMenuList();
       return;
     }
@@ -1044,6 +1069,64 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     cipherIcon.classList.add("cipher-icon");
     cipherIcon.setAttribute("aria-hidden", "true");
 
+    if (cipher.login?.totpField && cipher.login?.totp) {
+      const totpContainer = document.createElement("div");
+      totpContainer.style.position = "relative";
+
+      const svgElement = buildSvgDomElement(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29">
+          <circle fill="none" cx="14.5" cy="14.5" r="12.5" 
+                  stroke-width="3" stroke-dasharray="78.5" 
+                  stroke-dashoffset="78.5" transform="rotate(-90 14.5 14.5)"></circle>
+          <circle fill="none" cx="14.5" cy="14.5" r="14" stroke-width="1"></circle>
+      </svg>
+    `);
+
+      const [innerCircleElement, outerCircleElement] = svgElement.querySelectorAll("circle");
+      innerCircleElement.classList.add("circle-color");
+      outerCircleElement.classList.add("circle-color");
+
+      totpContainer.appendChild(svgElement);
+
+      const totpSecondsSpan = document.createElement("span");
+      totpSecondsSpan.classList.add("totp-sec-span");
+      totpSecondsSpan.setAttribute("bitTypography", "helper");
+      totpSecondsSpan.setAttribute("aria-label", this.getTranslation("totpSecondsSpanAria"));
+      totpContainer.appendChild(totpSecondsSpan);
+
+      cipherIcon.appendChild(totpContainer);
+
+      const intervalSeconds = cipher.login.totpCodeTimeInterval;
+
+      const updateCountdown = () => {
+        const epoch = Math.round(Date.now() / 1000);
+        const mod = epoch % intervalSeconds;
+        const totpSeconds = intervalSeconds - mod;
+
+        totpSecondsSpan.textContent = `${totpSeconds}`;
+
+        /**
+         * Design specifies a seven-second time span as the period where expiry is approaching.
+         */
+        const totpExpiryApproaching = totpSeconds <= 7;
+
+        totpSecondsSpan.classList.toggle("totp-sec-span-danger", totpExpiryApproaching);
+        innerCircleElement.classList.toggle("circle-danger-color", totpExpiryApproaching);
+        outerCircleElement.classList.toggle("circle-danger-color", totpExpiryApproaching);
+
+        innerCircleElement.style.strokeDashoffset = `${((intervalSeconds - totpSeconds) / intervalSeconds) * (2 * Math.PI * 12.5)}`;
+
+        if (mod === 0) {
+          this.postMessageToParent({ command: "refreshOverlayCiphers" });
+        }
+      };
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      return cipherIcon;
+    }
+
     if (cipher.icon?.image) {
       try {
         const url = new URL(cipher.icon.image);
@@ -1102,6 +1185,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return this.buildPasskeysCipherDetailsElement(cipher, cipherDetailsElement);
     }
 
+    if (cipher.login?.totpField && cipher.login?.totp) {
+      return this.buildTotpElement(cipher.login?.totp, cipher.login?.username, cipher.reprompt);
+    }
     const subTitleText = this.getSubTitleText(cipher);
     const cipherSubtitleElement = this.buildCipherSubtitleElement(subTitleText);
     if (cipherSubtitleElement) {
@@ -1109,6 +1195,59 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     return cipherDetailsElement;
+  }
+
+  /**
+   * Checks if there is more than one TOTP element being displayed.
+   *
+   * @returns {boolean} - Returns true if more than one TOTP element is displayed, otherwise false.
+   */
+  private multipleTotpElements(): boolean {
+    return (
+      this.ciphers.filter((cipher) => cipher.login?.totpField && cipher.login?.totp).length > 1
+    );
+  }
+
+  /**
+   * Builds a TOTP element for a given TOTP code.
+   *
+   * @param totp - The TOTP code to display.
+   */
+
+  private buildTotpElement(
+    totpCode: string,
+    username: string,
+    reprompt: CipherRepromptType,
+  ): HTMLDivElement | null {
+    if (!totpCode) {
+      return null;
+    }
+
+    const formattedTotpCode = `${totpCode.substring(0, 3)} ${totpCode.substring(3)}`;
+
+    const containerElement = globalThis.document.createElement("div");
+    containerElement.classList.add("cipher-details");
+    const totpHeading = document.createElement("span");
+    totpHeading.classList.add("cipher-name");
+    totpHeading.textContent = this.getTranslation("fillVerificationCode");
+    totpHeading.setAttribute("aria-label", this.getTranslation("fillVerificationCodeAria"));
+
+    containerElement.appendChild(totpHeading);
+
+    if (this.multipleTotpElements() && username) {
+      const usernameSubtitle = this.buildCipherSubtitleElement(username);
+      containerElement.appendChild(usernameSubtitle);
+    }
+
+    const totpCodeSpan = document.createElement("span");
+    totpCodeSpan.classList.toggle("cipher-subtitle");
+    totpCodeSpan.classList.toggle("masked-totp", !!reprompt);
+    totpCodeSpan.textContent = reprompt ? "●●●●●●" : formattedTotpCode;
+    totpCodeSpan.setAttribute("aria-label", this.getTranslation("totpCodeAria"));
+    totpCodeSpan.setAttribute("data-testid", "totp-code");
+    containerElement.appendChild(totpCodeSpan);
+
+    return containerElement;
   }
 
   /**

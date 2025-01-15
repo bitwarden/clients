@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
@@ -31,7 +33,11 @@ export class LoginUri extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<LoginUriView> {
+  decrypt(
+    orgId: string,
+    context: string = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<LoginUriView> {
     return this.decryptObj(
       new LoginUriView(this),
       {
@@ -39,6 +45,7 @@ export class LoginUri extends Domain {
       },
       orgId,
       encKey,
+      context,
     );
   }
 

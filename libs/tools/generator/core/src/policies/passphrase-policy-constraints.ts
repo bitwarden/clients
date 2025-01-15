@@ -1,6 +1,8 @@
-import { PolicyConstraints, StateConstraints } from "@bitwarden/common/tools/types";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Constraints, PolicyConstraints, StateConstraints } from "@bitwarden/common/tools/types";
 
-import { DefaultPassphraseBoundaries, DefaultPassphraseGenerationOptions } from "../data";
+import { DefaultPassphraseGenerationOptions } from "../data";
 import { PassphraseGenerationOptions, PassphraseGeneratorPolicy } from "../types";
 
 import { atLeast, enforceConstant, fitLength, fitToBounds, readonlyTrueWhen } from "./constraints";
@@ -10,13 +12,16 @@ export class PassphrasePolicyConstraints implements StateConstraints<PassphraseG
    *  @param policy the password policy to enforce. This cannot be
    *  `null` or `undefined`.
    */
-  constructor(readonly policy: PassphraseGeneratorPolicy) {
+  constructor(
+    readonly policy: PassphraseGeneratorPolicy,
+    readonly defaults: Constraints<PassphraseGenerationOptions>,
+  ) {
     this.constraints = {
-      policyInEffect: policyInEffect(policy),
+      policyInEffect: policyInEffect(policy, defaults),
       wordSeparator: { minLength: 0, maxLength: 1 },
       capitalize: readonlyTrueWhen(policy.capitalize),
       includeNumber: readonlyTrueWhen(policy.includeNumber),
-      numWords: atLeast(policy.minNumberWords, DefaultPassphraseBoundaries.numWords),
+      numWords: atLeast(policy.minNumberWords, defaults.numWords),
     };
   }
 
@@ -40,11 +45,14 @@ export class PassphrasePolicyConstraints implements StateConstraints<PassphraseG
   }
 }
 
-function policyInEffect(policy: PassphraseGeneratorPolicy): boolean {
+function policyInEffect(
+  policy: PassphraseGeneratorPolicy,
+  defaults: Constraints<PassphraseGenerationOptions>,
+): boolean {
   const policies = [
     policy.capitalize,
     policy.includeNumber,
-    policy.minNumberWords > DefaultPassphraseBoundaries.numWords.min,
+    policy.minNumberWords > defaults.numWords.min,
   ];
 
   return policies.includes(true);

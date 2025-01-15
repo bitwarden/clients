@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Subject } from "rxjs";
@@ -93,7 +95,7 @@ export class PaymentV2Component implements OnInit, OnDestroy {
 
   protected submit = async () => {
     const { type, token } = await this.tokenize();
-    await this.onSubmit({ type, token });
+    await this.onSubmit?.({ type, token });
     this.submitted.emit(type);
   };
 

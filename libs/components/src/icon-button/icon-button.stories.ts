@@ -23,7 +23,7 @@ type Story = StoryObj<BitIconButtonComponent>;
 export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <div class="tw-space-x-4">
       <button bitIconButton="bwi-plus" [disabled]="disabled" [loading]="loading" buttonType="main" [size]="size">Button</button>
       <button bitIconButton="bwi-plus" [disabled]="disabled" [loading]="loading" buttonType="muted" [size]="size">Button</button>
@@ -56,7 +56,7 @@ export const Small: Story = {
 export const Primary: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <button bitIconButton="bwi-plus" [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size">Button</button>
     `,
   }),
@@ -96,7 +96,7 @@ export const Muted: Story = {
 export const Light: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <div class="tw-bg-background-alt2 tw-p-6 tw-w-full tw-inline-block">
       <button bitIconButton="bwi-plus" [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size">Button</button>
     </div>
@@ -110,7 +110,7 @@ export const Light: Story = {
 export const Contrast: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
     <div class="tw-bg-primary-600 tw-p-6 tw-w-full tw-inline-block">
       <button bitIconButton="bwi-plus" [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size">Button</button>
     </div>
@@ -133,6 +133,6 @@ export const Disabled: Story = {
   ...Default,
   args: {
     disabled: true,
-    loading: true,
+    loading: false,
   },
 };

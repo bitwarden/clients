@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
 import {
@@ -17,16 +19,15 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
-import { Option } from "@bitwarden/components/src/select/option";
+import { ToastService, Option } from "@bitwarden/components";
 import {
   CredentialGeneratorService,
   Generators,
-  PasswordAlgorithm,
   GeneratedCredential,
   CredentialAlgorithm,
   isPasswordAlgorithm,
   AlgorithmInfo,
+  isSameAlgorithm,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -57,7 +58,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
   /** tracks the currently selected credential type */
-  protected credentialType$ = new BehaviorSubject<PasswordAlgorithm>(null);
+  protected credentialType$ = new BehaviorSubject<CredentialAlgorithm>(null);
 
   /** Emits the last generated value. */
   protected readonly value$ = new BehaviorSubject<string>("");
@@ -72,14 +73,14 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
    * @param requestor a label used to trace generation request
    *  origin in the debugger.
    */
-  protected generate(requestor: string) {
+  protected async generate(requestor: string) {
     this.generate$.next(requestor);
   }
 
   /** Tracks changes to the selected credential type
    * @param type the new credential type
    */
-  protected onCredentialTypeChanged(type: PasswordAlgorithm) {
+  protected onCredentialTypeChanged(type: CredentialAlgorithm) {
     // break subscription cycle
     if (this.credentialType$.value !== type) {
       this.zone.run(() => {
@@ -91,6 +92,10 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   /** Emits credentials created from a generation request. */
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
+
+  /** emits algorithm info when the selected algorithm changes */
+  @Output()
+  readonly onAlgorithm = new EventEmitter<AlgorithmInfo>();
 
   async ngOnInit() {
     if (this.userId) {
@@ -169,29 +174,35 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
         preferences.next(preference);
       });
 
-    // populate the form with the user's preferences to kick off interactivity
-    preferences.pipe(takeUntil(this.destroyed)).subscribe(({ password }) => {
-      // update navigation
-      this.onCredentialTypeChanged(password.algorithm);
-
-      // load algorithm metadata
-      const algorithm = this.generatorService.algorithm(password.algorithm);
-
-      // update subjects within the angular zone so that the
-      // template bindings refresh immediately
-      this.zone.run(() => {
-        this.algorithm$.next(algorithm);
-      });
-    });
-
-    // generate on load unless the generator prohibits it
-    this.algorithm$
+    // update active algorithm
+    preferences
       .pipe(
-        distinctUntilChanged((prev, next) => prev.id === next.id),
-        filter((a) => !a.onlyOnRequest),
+        map(({ password }) => this.generatorService.algorithm(password.algorithm)),
+        distinctUntilChanged((prev, next) => isSameAlgorithm(prev?.id, next?.id)),
         takeUntil(this.destroyed),
       )
-      .subscribe(() => this.generate("autogenerate"));
+      .subscribe((algorithm) => {
+        // update navigation
+        this.onCredentialTypeChanged(algorithm.id);
+
+        // update subjects within the angular zone so that the
+        // template bindings refresh immediately
+        this.zone.run(() => {
+          this.algorithm$.next(algorithm);
+          this.onAlgorithm.next(algorithm);
+        });
+      });
+
+    // generate on load unless the generator prohibits it
+    this.algorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
+      this.zone.run(() => {
+        if (!a || a.onlyOnRequest) {
+          this.value$.next("-");
+        } else {
+          this.generate("autogenerate").catch((e: unknown) => this.logService.error(e));
+        }
+      });
+    });
   }
 
   private typeToGenerator$(type: CredentialAlgorithm) {
@@ -244,7 +255,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   private toOptions(algorithms: AlgorithmInfo[]) {
     const options: Option<CredentialAlgorithm>[] = algorithms.map((algorithm) => ({
       value: algorithm.id,
-      label: this.i18nService.t(algorithm.name),
+      label: algorithm.name,
     }));
 
     return options;

@@ -13,7 +13,5 @@
       }
     }
   ],
-  "flags": {
-    "showPasswordless": true
-  }
+  "flags": {}
 }

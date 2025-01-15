@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -114,7 +116,10 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
   private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {
-      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
+      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+        masterKey,
+        userId,
+      );
       await this.keyService.setUserKey(userKey, userId);
     }
   }

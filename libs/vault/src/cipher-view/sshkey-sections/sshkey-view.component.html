@@ -1,0 +1,50 @@
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "typeSshKey" | i18n }}</h2>
+  </bit-section-header>
+  <bit-card class="[&_bit-form-field:last-of-type]:tw-mb-0">
+    <bit-form-field>
+      <bit-label>{{ "sshPrivateKey" | i18n }}</bit-label>
+      <input readonly bitInput [value]="sshKey.privateKey" aria-readonly="true" type="password" />
+      <button
+        bitSuffix
+        type="button"
+        bitIconButton
+        bitPasswordInputToggle
+        data-testid="toggle-privateKey"
+      ></button>
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [appCopyClick]="sshKey.privateKey"
+        showToast
+        [appA11yTitle]="'copyValue' | i18n"
+      ></button>
+    </bit-form-field>
+    <bit-form-field>
+      <bit-label>{{ "sshPublicKey" | i18n }}</bit-label>
+      <input readonly bitInput [value]="sshKey.publicKey" aria-readonly="true" />
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [appCopyClick]="sshKey.publicKey"
+        showToast
+        [appA11yTitle]="'copyValue' | i18n"
+      ></button>
+    </bit-form-field>
+    <bit-form-field>
+      <bit-label>{{ "sshFingerprint" | i18n }}</bit-label>
+      <input readonly bitInput [value]="sshKey.keyFingerprint" aria-readonly="true" />
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [appCopyClick]="sshKey.keyFingerprint"
+        showToast
+        [appA11yTitle]="'copyValue' | i18n"
+      ></button>
+    </bit-form-field>
+  </bit-card>
+</bit-section>

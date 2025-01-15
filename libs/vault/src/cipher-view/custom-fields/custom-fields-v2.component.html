@@ -10,7 +10,7 @@
       data-testid="custom-field"
     >
       <bit-form-field *ngIf="field.type === fieldType.Text" [disableReadOnlyBorder]="last">
-        <bit-label>{{ field.name }}</bit-label>
+        <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
         <input readonly bitInput type="text" [value]="field.value" aria-readonly="true" />
         <button
           bitIconButton="bwi-clone"
@@ -24,8 +24,15 @@
         ></button>
       </bit-form-field>
       <bit-form-field *ngIf="field.type === fieldType.Hidden" [disableReadOnlyBorder]="last">
-        <bit-label>{{ field.name }}</bit-label>
-        <input readonly bitInput type="password" [value]="field.value" aria-readonly="true" />
+        <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
+        <input
+          readonly
+          bitInput
+          type="password"
+          [value]="field.value"
+          aria-readonly="true"
+          class="tw-font-mono"
+        />
         <button
           bitSuffix
           type="button"
@@ -52,7 +59,9 @@
           aria-readonly="true"
           disabled
         />
-        <bit-label> {{ field.name }} </bit-label>
+        <bit-label [appTextDrag]="field.value">
+          {{ field.name }}
+        </bit-label>
       </bit-form-control>
       <bit-form-field *ngIf="field.type === fieldType.Linked" [disableReadOnlyBorder]="last">
         <bit-label> {{ "cfTypeLinked" | i18n }}: {{ field.name }} </bit-label>

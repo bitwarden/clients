@@ -50,7 +50,7 @@ describe("SendCreatedComponent", () => {
 
     sendView = {
       id: sendId,
-      deletionDate: new Date(),
+      deletionDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       type: SendType.Text,
       accessId: "abc",
       urlB64Key: "123",
@@ -127,8 +127,8 @@ describe("SendCreatedComponent", () => {
 
   it("should initialize send, daysAvailable, and hoursAvailable", () => {
     expect(component["send"]).toBe(sendView);
-    expect(component["daysAvailable"]).toBe(0);
-    expect(component["hoursAvailable"]).toBe(0);
+    expect(component["daysAvailable"]).toBe(7);
+    expect(component["hoursAvailable"]).toBe(168);
   });
 
   it("should navigate back to the edit send form on close", async () => {
@@ -140,7 +140,6 @@ describe("SendCreatedComponent", () => {
 
   describe("getHoursAvailable", () => {
     it("returns the correct number of hours", () => {
-      sendView.deletionDate.setDate(sendView.deletionDate.getDate() + 7);
       sendViewsSubject.next([sendView]);
       fixture.detectChanges();
 
@@ -150,7 +149,7 @@ describe("SendCreatedComponent", () => {
 
   describe("formatExpirationDate", () => {
     it("returns days plural if expiry is more than 24 hours", () => {
-      sendView.deletionDate.setDate(sendView.deletionDate.getDate() + 7);
+      sendView.deletionDate = new Date(Date.now() + 168 * 60 * 60 * 1000);
       sendViewsSubject.next([sendView]);
       fixture.detectChanges();
 
@@ -158,7 +157,7 @@ describe("SendCreatedComponent", () => {
     });
 
     it("returns days singular if expiry is 24 hours", () => {
-      sendView.deletionDate.setDate(sendView.deletionDate.getDate() + 1);
+      sendView.deletionDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
       sendViewsSubject.next([sendView]);
       fixture.detectChanges();
 
@@ -166,7 +165,7 @@ describe("SendCreatedComponent", () => {
     });
 
     it("returns hours plural if expiry is more than 1 hour but less than 24", () => {
-      sendView.deletionDate.setHours(sendView.deletionDate.getHours() + 2);
+      sendView.deletionDate = new Date(Date.now() + 2 * 60 * 60 * 1000);
       sendViewsSubject.next([sendView]);
       fixture.detectChanges();
 
@@ -174,7 +173,7 @@ describe("SendCreatedComponent", () => {
     });
 
     it("returns hours singular if expiry is in 1 hour", () => {
-      sendView.deletionDate.setHours(sendView.deletionDate.getHours() + 1);
+      sendView.deletionDate = new Date(Date.now() + 1 * 60 * 60 * 1000);
       sendViewsSubject.next([sendView]);
       fixture.detectChanges();
 

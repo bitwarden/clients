@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { NgIf } from "@angular/common";
 import {
   Component,
   ContentChildren,
@@ -7,9 +10,17 @@ import {
   QueryList,
   Self,
   ViewChild,
+  Output,
+  EventEmitter,
 } from "@angular/core";
-import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
-import { NgSelectComponent } from "@ng-select/ng-select";
+import {
+  ControlValueAccessor,
+  NgControl,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from "@angular/forms";
+import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -24,6 +35,8 @@ let nextId = 0;
   selector: "bit-select",
   templateUrl: "select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
+  standalone: true,
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, NgIf],
 })
 export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
@@ -31,6 +44,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   /** Optional: Options can be provided using an array input or using `bit-option` */
   @Input() items: Option<T>[] = [];
   @Input() placeholder = this.i18nService.t("selectPlaceholder");
+  @Output() closed = new EventEmitter();
 
   protected selectedValue: T;
   protected selectedOption: Option<T>;
@@ -57,7 +71,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     this.selectedOption = this.findSelectedOption(this.items, this.selectedValue);
   }
 
-  @HostBinding("class") protected classes = ["tw-block", "tw-w-full"];
+  @HostBinding("class") protected classes = ["tw-block", "tw-w-full", "tw-h-full"];
 
   // Usings a separate getter for the HostBinding to get around an unexplained angular error
   @HostBinding("attr.disabled")
@@ -155,5 +169,10 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
 
   private findSelectedOption(items: Option<T>[], value: T): Option<T> | undefined {
     return items.find((item) => item.value === value);
+  }
+
+  /**Emits the closed event. */
+  protected onClose() {
+    this.closed.emit();
   }
 }

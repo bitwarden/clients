@@ -200,7 +200,7 @@ describe("AuthRequestService", () => {
       );
       expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
         mockDecryptedMasterKey,
-        undefined,
+        mockUserId,
         undefined,
       );
       expect(keyService.setUserKey).toHaveBeenCalledWith(mockDecryptedUserKey, mockUserId);

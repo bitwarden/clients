@@ -15,7 +15,7 @@
   "
   [cdkTrapFocus]="data.isOverlay"
   [attr.role]="data.isOverlay ? 'dialog' : null"
-  [attr.aria-modal]="data.isOverlay"
+  [attr.aria-modal]="data.isOverlay ? 'true' : null"
   (keydown)="handleKeyDown($event)"
 >
   <ng-content></ng-content>

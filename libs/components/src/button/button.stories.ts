@@ -23,9 +23,21 @@ type Story = StoryObj<ButtonComponent>;
 export const Primary: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
+    <div class="tw-flex tw-gap-4 tw-mb-6">
       <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block">Button</button>
-      <a bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" href="#" class="tw-ml-2">Link</a>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-hover">Button:hover</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-active">Button:active</button>
+    </div>
+    <div class="tw-flex tw-gap-4">
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block">Anchor</a>
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-hover">Anchor:hover</a>
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-hover tw-test-focus-visible">Anchor:hover:focus-visible</a>
+      <a href="#" bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [block]="block" class="tw-test-active">Anchor:active</a>
+    </div>
     `,
   }),
   args: {
@@ -93,13 +105,13 @@ export const DisabledWithAttribute: Story = {
 };
 
 export const Block: Story = {
-  render: (args: ButtonComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <span class="tw-flex">
         <button bitButton [buttonType]="buttonType" [block]="block">[block]="true" Button</button>
         <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ml-2">[block]="true" Link</a>
-  
+
         <button bitButton [buttonType]="buttonType" block class="tw-ml-2">block Button</button>
         <a bitButton [buttonType]="buttonType" block href="#" class="tw-ml-2">block Link</a>
       </span>

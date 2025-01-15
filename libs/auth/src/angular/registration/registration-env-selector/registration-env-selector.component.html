@@ -1,7 +1,7 @@
 <form [formGroup]="formGroup" *ngIf="!hideEnvSelector">
   <bit-form-field>
     <bit-label>{{ "creatingAccountOn" | i18n }}</bit-label>
-    <bit-select formControlName="selectedRegion">
+    <bit-select formControlName="selectedRegion" (closed)="onSelectClosed()">
       <bit-option
         *ngFor="let regionConfig of availableRegionConfigs"
         [value]="regionConfig"

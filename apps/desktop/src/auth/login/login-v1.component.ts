@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, NgZone, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil, tap } from "rxjs";
 
 import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login-v1.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
@@ -14,8 +16,10 @@ import {
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -76,6 +80,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     webAuthnLoginService: WebAuthnLoginServiceAbstraction,
     registerRouteService: RegisterRouteService,
     toastService: ToastService,
+    private configService: ConfigService,
   ) {
     super(
       devicesApiService,
@@ -105,6 +110,8 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
   }
 
   async ngOnInit() {
+    this.listenForUnauthUiRefreshFlagChanges();
+
     await super.ngOnInit();
     await this.getLoginWithDevice(this.loggedEmail);
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
@@ -135,6 +142,29 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     this.componentDestroyed$.next();
     this.componentDestroyed$.complete();
+  }
+
+  private listenForUnauthUiRefreshFlagChanges() {
+    this.configService
+      .getFeatureFlag$(FeatureFlag.UnauthenticatedExtensionUIRefresh)
+      .pipe(
+        tap(async (flag) => {
+          // If the flag is turned ON, we must force a reload to ensure the correct UI is shown
+          if (flag) {
+            const uniqueQueryParams = {
+              ...this.route.queryParams,
+              // adding a unique timestamp to the query params to force a reload
+              t: new Date().getTime().toString(),
+            };
+
+            await this.router.navigate(["/"], {
+              queryParams: uniqueQueryParams,
+            });
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   async settings() {
@@ -219,6 +249,8 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
     try {
       await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       this.platformUtilsService.showToast(
         "error",

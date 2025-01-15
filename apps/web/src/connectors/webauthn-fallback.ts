@@ -1,7 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { b64Decode, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
 import { TranslationService } from "./translation.service";
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("./webauthn.scss");
 
 let parsed = false;
@@ -50,6 +54,8 @@ function parseParametersV2() {
   let dataObj: { data: any; btnText: string } = null;
   try {
     dataObj = JSON.parse(b64Decode(getQsParam("data")));
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     error("Cannot parse data.");
     return;
@@ -101,6 +107,8 @@ function start() {
   let json: any;
   try {
     json = parseWebauthnJson(webauthnJson);
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     error("Cannot parse data.");
     return;

@@ -24,9 +24,13 @@ export type PolicyConfiguration<Policy, Settings> = {
   createEvaluator: (policy: Policy) => PolicyEvaluator<Policy, Settings>;
 
   /** Converts policy service data into actionable policy constraints.
+   *
+   *  @param policy - the policy to map into policy constraints.
+   *  @param email - the default email to extend.
+   *
    * @remarks this version includes constraints needed for the reactive forms;
    *  it was introduced so that the constraints can be incrementally introduced
    *  as the new UI is built.
    */
-  toConstraints: (policy: Policy) => GeneratorConstraints<Settings>;
+  toConstraints: (policy: Policy, email: string) => GeneratorConstraints<Settings>;
 };

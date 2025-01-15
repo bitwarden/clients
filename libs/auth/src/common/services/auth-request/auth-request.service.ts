@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, Subject, firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -150,7 +152,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     );
 
     // Decrypt and set user key in state
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
+    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
 
     // Set masterKey + masterKeyHash in state after decryption (in case decryption fails)
     await this.masterPasswordService.setMasterKey(masterKey, userId);

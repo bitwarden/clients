@@ -1,7 +1,7 @@
 use anyhow::Result;
-use libc::{c_int, self};
 #[cfg(target_env = "gnu")]
 use libc::c_uint;
+use libc::{self, c_int};
 
 // RLIMIT_CORE is the maximum size of a core dump file. Setting both to 0 disables core dumps, on crashes
 // https://github.com/torvalds/linux/blob/1613e604df0cd359cf2a7fbd9be7a0bcfacfabd0/include/uapi/asm-generic/resource.h#L20
@@ -22,7 +22,10 @@ pub fn disable_coredumps() -> Result<()> {
     };
     if unsafe { libc::setrlimit(RLIMIT_CORE, &rlimit) } != 0 {
         let e = std::io::Error::last_os_error();
-        return Err(anyhow::anyhow!("failed to disable core dumping, memory might be persisted to disk on crashes {}", e))
+        return Err(anyhow::anyhow!(
+            "failed to disable core dumping, memory might be persisted to disk on crashes {}",
+            e
+        ));
     }
 
     Ok(())
@@ -35,7 +38,7 @@ pub fn is_core_dumping_disabled() -> Result<bool> {
     };
     if unsafe { libc::getrlimit(RLIMIT_CORE, &mut rlimit) } != 0 {
         let e = std::io::Error::last_os_error();
-        return Err(anyhow::anyhow!("failed to get core dump limit {}", e))
+        return Err(anyhow::anyhow!("failed to get core dump limit {}", e));
     }
 
     Ok(rlimit.rlim_cur == 0 && rlimit.rlim_max == 0)
@@ -44,7 +47,10 @@ pub fn is_core_dumping_disabled() -> Result<bool> {
 pub fn disable_memory_access() -> Result<()> {
     if unsafe { libc::prctl(PR_SET_DUMPABLE, 0) } != 0 {
         let e = std::io::Error::last_os_error();
-        return Err(anyhow::anyhow!("failed to disable memory dumping, memory is dumpable by other processes {}", e))
+        return Err(anyhow::anyhow!(
+            "failed to disable memory dumping, memory is dumpable by other processes {}",
+            e
+        ));
     }
 
     Ok(())

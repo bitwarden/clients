@@ -1,8 +1,8 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog>
-    <h1 bitDialogTitle>
+    <span bitDialogTitle>
       {{ (hasBillingToken ? "viewBillingToken" : "generateBillingToken") | i18n }}
-    </h1>
+    </span>
     <div bitDialogContent>
       <app-user-verification formControlName="verification" *ngIf="!clientSecret">
       </app-user-verification>
