@@ -126,7 +126,7 @@ export class AppComponent implements OnInit, OnDestroy {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.showDialog(msg);
-          } else if (msg.command === "showNativeMessagingFinterprintDialog") {
+          } else if (msg.command === "showNativeMessagingFingerprintDialog") {
             // TODO: Should be refactored to live in another service.
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises

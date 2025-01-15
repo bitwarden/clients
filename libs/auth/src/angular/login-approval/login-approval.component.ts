@@ -82,7 +82,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     if (this.notificationId != null) {
       this.authRequestResponse = await this.apiService.getAuthRequest(this.notificationId);
       const publicKey = Utils.fromB64ToArray(this.authRequestResponse.publicKey);
-      this.email = await await firstValueFrom(
+      this.email = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),
       );
       this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(

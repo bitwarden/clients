@@ -431,7 +431,7 @@ export class NativeMessagingBackground {
       this.publicKey,
     );
 
-    this.messagingService.send("showNativeMessagingFinterprintDialog", {
+    this.messagingService.send("showNativeMessagingFingerprintDialog", {
       fingerprint: fingerprint,
     });
   }
