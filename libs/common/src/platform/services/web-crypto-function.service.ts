@@ -1,12 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import * as argon2 from "argon2-browser";
 import * as forge from "node-forge";
 
 import { Utils } from "../../platform/misc/utils";
 import { CsprngArray } from "../../types/csprng";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
-import { DecryptParameters } from "../models/domain/decrypt-parameters";
+import { CbcDecryptParameters, EcbDecryptParameters } from "../models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export class WebCryptoFunctionService implements CryptoFunctionService {
@@ -14,10 +12,14 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
   private subtle: SubtleCrypto;
   private wasmSupported: boolean;
 
-  constructor(globalContext: Window | typeof global) {
-    this.crypto = typeof globalContext.crypto !== "undefined" ? globalContext.crypto : null;
-    this.subtle =
-      !!this.crypto && typeof this.crypto.subtle !== "undefined" ? this.crypto.subtle : null;
+  constructor(globalContext: { crypto: Crypto }) {
+    if (globalContext?.crypto?.subtle == null) {
+      throw new Error(
+        "Could not instantiate WebCryptoFunctionService. Could not locate Subtle crypto.",
+      );
+    }
+    this.crypto = globalContext.crypto;
+    this.subtle = this.crypto.subtle;
     this.wasmSupported = this.checkIfWasmSupported();
   }
 
@@ -220,7 +222,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     hmac.update(a);
     const mac1 = hmac.digest().getBytes();
 
-    hmac.start(null, null);
+    hmac.start("sha256", null);
     hmac.update(b);
     const mac2 = hmac.digest().getBytes();
 
@@ -239,10 +241,10 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
   aesDecryptFastParameters(
     data: string,
     iv: string,
-    mac: string,
+    mac: string | null,
     key: SymmetricCryptoKey,
-  ): DecryptParameters<string> {
-    const p = new DecryptParameters<string>();
+  ): CbcDecryptParameters<string> {
+    const p = {} as CbcDecryptParameters<string>;
     if (key.meta != null) {
       p.encKey = key.meta.encKeyByteString;
       p.macKey = key.meta.macKeyByteString;
@@ -275,7 +277,12 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     return p;
   }
 
-  aesDecryptFast(parameters: DecryptParameters<string>, mode: "cbc" | "ecb"): Promise<string> {
+  aesDecryptFast({
+    mode,
+    parameters,
+  }:
+    | { mode: "cbc"; parameters: CbcDecryptParameters<string> }
+    | { mode: "ecb"; parameters: EcbDecryptParameters<string> }): Promise<string> {
     const decipher = (forge as any).cipher.createDecipher(
       this.toWebCryptoAesMode(mode),
       parameters.encKey,
@@ -294,21 +301,27 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
 
   async aesDecrypt(
     data: Uint8Array,
-    iv: Uint8Array,
+    iv: Uint8Array | null,
     key: Uint8Array,
     mode: "cbc" | "ecb",
   ): Promise<Uint8Array> {
     if (mode === "ecb") {
       // Web crypto does not support AES-ECB mode, so we need to do this in forge.
-      const params = new DecryptParameters<string>();
-      params.data = this.toByteString(data);
-      params.encKey = this.toByteString(key);
-      const result = await this.aesDecryptFast(params, "ecb");
+      const parameters: EcbDecryptParameters<string> = {
+        data: this.toByteString(data),
+        encKey: this.toByteString(key),
+      };
+      const result = await this.aesDecryptFast({ mode: "ecb", parameters });
       return Utils.fromByteStringToArray(result);
     }
     const impKey = await this.subtle.importKey("raw", key, { name: "AES-CBC" } as any, false, [
       "decrypt",
     ]);
+
+    // CBC
+    if (iv == null) {
+      throw new Error("IV is required for CBC mode.");
+    }
     const buffer = await this.subtle.decrypt({ name: "AES-CBC", iv: iv }, impKey, data);
     return new Uint8Array(buffer);
   }

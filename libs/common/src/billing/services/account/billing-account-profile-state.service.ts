@@ -1,8 +1,7 @@
 import { map, Observable, combineLatest, concatMap } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-
+import { ApiService } from "../../../abstractions/api.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { BILLING_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import {
