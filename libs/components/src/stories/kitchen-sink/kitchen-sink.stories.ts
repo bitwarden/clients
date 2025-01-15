@@ -134,14 +134,6 @@ export const DrawerOpen: Story = {
       name: "Open Drawer",
     });
 
-    /**
-     * FIXME: This scrolls the entire MDX page.
-     *
-     * Show that the drawer's scroll is independent of the main content.
-     *
-     * // drawerButton.scrollIntoView();
-     **/
-
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
     await fireEvent.click(drawerButton);
   },

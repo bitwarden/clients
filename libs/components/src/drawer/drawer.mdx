@@ -58,16 +58,16 @@ Custom content can be rendered before the title with the header's `start` slot:
 <bit-drawer [open]="true">...</bit-drawer>
 ```
 
+Note: Model inputs do not support implicit boolean transformation (see Angular reasoning
+[here](https://github.com/angular/angular/issues/55166#issuecomment-2032150999)). `open` must be
+bound explicitly `<bit-drawer [open]="true">` instead of just `<bit-drawer open>`.
+
 Buttons can be made to open/toggle drawers by referencing a template variable, or by manipulating
 state that is bound to `open`:
 
 ```html
 <button (click)="myDrawer.toggle()"></button> <bit-drawer #myDrawer>...</bit-drawer>
 ```
-
-Note: Model inputs do not support implicit boolean transformation (see Angular reasoning
-[here](https://github.com/angular/angular/issues/55166#issuecomment-2032150999)). `open` must be
-bound explicitly `<bit-drawer [open]="true">` instead of just `<bit-drawer open>`.
 
 For convenience, close buttons can be created _inside_ the drawer with the `bitDrawerClose`
 directive:
