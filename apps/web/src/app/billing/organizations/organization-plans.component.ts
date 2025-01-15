@@ -193,7 +193,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
       this.taxInformation = await this.organizationApiService.getTaxInfo(this.organizationId);
-    } else {
+    } else if (!this.selfHosted) {
       this.taxInformation = await this.apiService.getTaxInfo();
     }
 

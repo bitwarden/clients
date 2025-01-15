@@ -4,13 +4,9 @@
   "enabledManagers": ["cargo", "github-actions", "npm"],
   "packageRules": [
     {
-      "groupName": "gh minor",
+      "groupName": "github action dependencies",
       "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "commitMessagePrefix": "[deps] BRE:"
+      "matchUpdateTypes": ["minor"]
     },
     {
       "matchManagers": ["cargo"],
