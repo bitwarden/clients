@@ -12,7 +12,7 @@ const supported = (() => {
         return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
       }
     }
-  } catch (e) {
+  } catch {
     // ignore
   }
   return false;
