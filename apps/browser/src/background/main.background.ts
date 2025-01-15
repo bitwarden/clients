@@ -665,6 +665,7 @@ export default class MainBackground {
       this.logService,
       this.keyService,
       this.biometricStateService,
+      this.messagingService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);

@@ -4,13 +4,9 @@
   "enabledManagers": ["cargo", "github-actions", "npm"],
   "packageRules": [
     {
-      "groupName": "gh minor",
+      "groupName": "github action dependencies",
       "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "commitMessagePrefix": "[deps] BRE:"
+      "matchUpdateTypes": ["minor"]
     },
     {
       "matchManagers": ["cargo"],
@@ -210,10 +206,10 @@
         "eslint-plugin-storybook",
         "eslint-plugin-tailwindcss",
         "husky",
-        "jest-extended",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",
+        "jest-diff",
         "lint-staged",
         "ts-jest"
       ],
