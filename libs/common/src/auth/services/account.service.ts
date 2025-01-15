@@ -7,6 +7,7 @@ import {
   shareReplay,
   combineLatest,
   Observable,
+  switchMap,
 } from "rxjs";
 
 import {
@@ -20,10 +21,10 @@ import { MessagingService } from "../../platform/abstractions/messaging.service"
 import { Utils } from "../../platform/misc/utils";
 import {
   ACCOUNT_DISK,
-  ActiveUserStateProvider,
   GlobalState,
   GlobalStateProvider,
   KeyDefinition,
+  SingleUserStateProvider,
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
@@ -92,7 +93,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     private messagingService: MessagingService,
     private logService: LogService,
     private globalStateProvider: GlobalStateProvider,
-    private activeUserStateProvider: ActiveUserStateProvider,
+    private singleUserStateProvider: SingleUserStateProvider,
   ) {
     this.accountsState = this.globalStateProvider.get(ACCOUNT_ACCOUNTS);
     this.activeAccountIdState = this.globalStateProvider.get(ACCOUNT_ACTIVE_ACCOUNT_ID);
@@ -127,10 +128,12 @@ export class AccountServiceImplementation implements InternalAccountService {
         return nextId ? { id: nextId, ...accounts[nextId] } : null;
       }),
     );
-
-    this.accountVerifyDevices$ = this.activeUserStateProvider
-      .get(ACCOUNT_VERIFY_NEW_DEVICE_LOGIN)
-      .state$.pipe(map((verifyDevices) => verifyDevices ?? true));
+    this.accountVerifyDevices$ = this.activeAccountIdState.state$.pipe(
+      switchMap(
+        (userId) =>
+          this.singleUserStateProvider.get(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).state$,
+      ),
+    );
   }
 
   async addAccount(userId: UserId, accountData: AccountInfo): Promise<void> {
@@ -216,15 +219,9 @@ export class AccountServiceImplementation implements InternalAccountService {
       return;
     }
 
-    await this.activeUserStateProvider.get(ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).update(
-      () => {
-        return setVerifyNewDeviceLogin;
-      },
-      {
-        shouldUpdate: (oldNewDeviceVerification) =>
-          oldNewDeviceVerification !== setVerifyNewDeviceLogin,
-      },
-    );
+    await this.singleUserStateProvider.get(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).update(() => {
+      return setVerifyNewDeviceLogin;
+    });
   }
 
   async removeAccountActivity(userId: UserId): Promise<void> {

@@ -551,7 +551,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalAccountService,
     useClass: AccountServiceImplementation,
-    deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider],
+    deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider, SingleUserStateProvider],
   }),
   safeProvider({
     provide: AccountServiceAbstraction,

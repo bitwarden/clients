@@ -30,6 +30,7 @@ import { DangerZoneComponent } from "../auth/settings/account/danger-zone.compon
 import { DeauthorizeSessionsComponent } from "../auth/settings/account/deauthorize-sessions.component";
 import { DeleteAccountDialogComponent } from "../auth/settings/account/delete-account-dialog.component";
 import { ProfileComponent } from "../auth/settings/account/profile.component";
+import { SetAccountVerifyDevicesDialogComponent } from "../auth/settings/account/set-account-verify-devices-dialog.component";
 import { EmergencyAccessAttachmentsComponent } from "../auth/settings/emergency-access/attachments/emergency-access-attachments.component";
 import { EmergencyAccessConfirmComponent } from "../auth/settings/emergency-access/confirm/emergency-access-confirm.component";
 import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
@@ -155,6 +156,7 @@ import { SharedModule } from "./shared.module";
     SecurityKeysComponent,
     SelectableAvatarComponent,
     SendAddEditComponent,
+    SetAccountVerifyDevicesDialogComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,

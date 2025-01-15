@@ -1,10 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
-import { combineLatest, from, lastValueFrom, map, Observable } from "rxjs";
+import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
+import { combineLatest, from, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -14,21 +13,26 @@ import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.compone
 
 import { DeauthorizeSessionsComponent } from "./deauthorize-sessions.component";
 import { DeleteAccountDialogComponent } from "./delete-account-dialog.component";
+import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-devices-dialog.component";
 
 @Component({
   selector: "app-account",
   templateUrl: "account.component.html",
 })
-export class AccountComponent implements OnInit {
+export class AccountComponent implements OnInit, OnDestroy {
   @ViewChild("deauthorizeSessionsTemplate", { read: ViewContainerRef, static: true })
   deauthModalRef: ViewContainerRef;
+  private destroy$ = new Subject<void>();
 
   showChangeEmail$: Observable<boolean>;
   showPurgeVault$: Observable<boolean>;
   showDeleteAccount$: Observable<boolean>;
+  showSetNewDeviceLoginProtection$: Observable<boolean>;
+  verifyNewDeviceLogin: boolean;
 
   constructor(
     private modalService: ModalService,
+    private accountService: AccountService,
     private dialogService: DialogService,
     private userVerificationService: UserVerificationService,
     private configService: ConfigService,
@@ -36,6 +40,10 @@ export class AccountComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    this.showSetNewDeviceLoginProtection$ = this.configService.getFeatureFlag$(
+      FeatureFlag.NewDeviceVerification,
+    );
+
     const isAccountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.AccountDeprovisioning,
     );
@@ -76,6 +84,11 @@ export class AccountComponent implements OnInit {
           !isAccountDeprovisioningEnabled || !userIsManagedByOrganization,
       ),
     );
+    this.accountService.accountVerifyDevices$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((verifyDevices) => {
+        this.verifyNewDeviceLogin = verifyDevices;
+      });
   }
 
   async deauthorizeSessions() {
@@ -91,4 +104,14 @@ export class AccountComponent implements OnInit {
     const dialogRef = DeleteAccountDialogComponent.open(this.dialogService);
     await lastValueFrom(dialogRef.closed);
   };
+
+  setNewDeviceLoginProtection = async () => {
+    const dialogRef = SetAccountVerifyDevicesDialogComponent.open(this.dialogService);
+    await lastValueFrom(dialogRef.closed);
+  };
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }
