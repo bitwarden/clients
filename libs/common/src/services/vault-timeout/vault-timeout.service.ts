@@ -4,8 +4,6 @@ import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { BiometricsService } from "@bitwarden/key-management";
 
 import { SearchService } from "../../abstractions/search.service";
@@ -16,9 +14,11 @@ import { AuthService } from "../../auth/abstractions/auth.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../auth/abstractions/master-password.service.abstraction";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
+import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { TaskSchedulerService, ScheduledTaskNames } from "../../platform/scheduling";
 import { StateEventRunnerService } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
