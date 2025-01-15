@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core"
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { debounceTime, map, Observable, of, Subscription } from "rxjs";
+import { debounceTime, firstValueFrom, map, Observable, of, Subscription } from "rxjs";
 
 import {
   RiskInsightsDataService,
@@ -12,8 +12,13 @@ import {
   ApplicationHealthReportDetail,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  vNextOrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -67,9 +72,19 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     );
 
     const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (organizationId) {
-      this.organization = await this.organizationService.get(organizationId);
+      const organization = await firstValueFrom(
+        this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+      );
+
+      if (organization) {
+        this.organization = organization;
+      } else {
+        throw new Error("No organization found.");
+      }
+
       this.subscription = this.dataService.applications$
         .pipe(
           map((applications) => {
@@ -97,8 +112,9 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     protected toastService: ToastService,
     protected configService: ConfigService,
     protected dataService: RiskInsightsDataService,
-    protected organizationService: OrganizationService,
+    protected organizationService: vNextOrganizationService,
     protected reportService: RiskInsightsReportService,
+    private accountService: AccountService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())

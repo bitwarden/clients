@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
-import { canAccessBillingTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { canAccessBillingTab } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { organizationPermissionsGuard } from "../../admin-console/organizations/guards/org-permissions.guard";

@@ -4,7 +4,7 @@ import { inject, NgModule } from "@angular/core";
 import { CanMatchFn, RouterModule, Routes } from "@angular/router";
 import { map } from "rxjs";
 
-import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";

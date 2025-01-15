@@ -23,7 +23,7 @@ import { NotificationsService } from "@bitwarden/common/abstractions/notificatio
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -32,6 +32,7 @@ import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstrac
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -154,7 +155,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
     private accountService: AccountService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
   ) {}
 
   ngOnInit() {
@@ -858,9 +859,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async deleteAccount() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.AccountDeprovisioning).pipe(
-        withLatestFrom(this.organizationService.organizations$),
+        withLatestFrom(this.organizationService.organizations$(userId)),
         map(async ([accountDeprovisioningEnabled, organization]) => {
           if (
             accountDeprovisioningEnabled &&

@@ -8,10 +8,12 @@ import { switchMap, takeUntil } from "rxjs/operators";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -44,8 +46,9 @@ export class ClientsComponent extends BaseClientsComponent implements OnInit, On
     private router: Router,
     private providerService: ProviderService,
     private apiService: ApiService,
-    private organizationService: OrganizationService,
+    private organizationService: vNextOrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
+    private accountService: AccountService,
     activatedRoute: ActivatedRoute,
     dialogService: DialogService,
     i18nService: I18nService,
@@ -96,12 +99,13 @@ export class ClientsComponent extends BaseClientsComponent implements OnInit, On
 
   async load() {
     const response = await this.apiService.getProviderClients(this.providerId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.clients = response.data != null && response.data.length > 0 ? response.data : [];
     this.manageOrganizations =
       (await this.providerService.get(this.providerId)).type === ProviderUserType.ProviderAdmin;
-    const candidateOrgs = (await this.organizationService.getAll()).filter(
-      (o) => o.isOwner && o.providerId == null,
-    );
+    const candidateOrgs = (
+      await firstValueFrom(this.organizationService.organizations$(userId))
+    ).filter((o) => o.isOwner && o.providerId == null);
     const allowedOrgsIds = await Promise.all(
       candidateOrgs.map((o) => this.organizationApiService.get(o.id)),
     ).then((orgs) =>

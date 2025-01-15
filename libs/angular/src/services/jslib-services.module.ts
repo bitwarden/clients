@@ -50,10 +50,6 @@ import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction }
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
-  InternalOrganizationServiceAbstraction,
-  OrganizationService as OrganizationServiceAbstraction,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
   vNextInternalOrganizationServiceAbstraction,
   vNextOrganizationService as vNextOrganizationServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
@@ -72,7 +68,6 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultvNextOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-vnext-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/services/organization/organization.service";
 import { OrgDomainApiService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain-api.service";
 import { OrgDomainService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain.service";
 import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/services/organization-management-preferences/default-organization-management-preferences.service";
@@ -986,15 +981,6 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsServiceAbstraction,
       KdfConfigService,
     ],
-  }),
-  safeProvider({
-    provide: InternalOrganizationServiceAbstraction,
-    useClass: OrganizationService,
-    deps: [StateProvider],
-  }),
-  safeProvider({
-    provide: OrganizationServiceAbstraction,
-    useExisting: InternalOrganizationServiceAbstraction,
   }),
   safeProvider({
     provide: vNextInternalOrganizationServiceAbstraction,
