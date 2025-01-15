@@ -1,12 +1,14 @@
 import { Injectable } from "@angular/core";
 
-import { ApiService } from "@bitwarden/common/src/abstractions/api.service";
-import { ListResponse } from "@bitwarden/common/src/models/response/list.response";
-import { OrganizationId } from "@bitwarden/common/src/types/guid";
-import { SecurityTaskStatus } from "@bitwarden/vault/src/tasks/enums";
-import { SecurityTask } from "@bitwarden/vault/src/tasks/models";
-import { SecurityTaskData } from "@bitwarden/vault/src/tasks/models/security-task.data";
-import { SecurityTaskResponse } from "@bitwarden/vault/src/tasks/models/security-task.response";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import {
+  SecurityTask,
+  SecurityTaskData,
+  SecurityTaskResponse,
+  SecurityTaskStatus,
+} from "@bitwarden/vault";
 
 import { AdminTaskService, CreateTasksRequest } from "./abstractions/admin-task.abstraction";
 
@@ -21,7 +23,7 @@ export class DefaultAdminTaskService implements AdminTaskService {
     const queryParams = new URLSearchParams();
 
     queryParams.append("organizationId", organizationId);
-    if (status) {
+    if (status !== undefined) {
       queryParams.append("status", status.toString());
     }
 

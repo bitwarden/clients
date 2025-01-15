@@ -1,6 +1,5 @@
-import { CipherId, OrganizationId } from "@bitwarden/common/src/types/guid";
-import { SecurityTaskStatus } from "@bitwarden/vault/src/tasks/enums";
-import { SecurityTask } from "@bitwarden/vault/src/tasks/models";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { SecurityTask, SecurityTaskStatus } from "@bitwarden/vault";
 
 /**
  * Request type for creating tasks.
