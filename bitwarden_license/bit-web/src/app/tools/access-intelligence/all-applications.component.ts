@@ -1,10 +1,8 @@
-// FIXME: Update this file to be type safe
-// @ts-strict-ignore
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, map, Observable, of, skipWhile, Subscription } from "rxjs";
+import { combineLatest, debounceTime, map, Observable, of, skipWhile } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -63,7 +61,6 @@ export class AllApplicationsComponent implements OnInit {
   noItemsIcon = Icons.Security;
   protected markingAsCritical = false;
   protected applicationSummary = {} as ApplicationHealthReportSummary;
-  private subscription = new Subscription();
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
@@ -95,7 +92,9 @@ export class AllApplicationsComponent implements OnInit {
       .subscribe(({ data, organization }) => {
         this.dataSource.data = data ?? [];
         this.applicationSummary = this.reportService.generateApplicationsSummary(data ?? []);
-        this.organization = organization;
+        if (organization) {
+          this.organization = organization;
+        }
       });
 
     this.isLoading$ = this.dataService.isLoading$;
