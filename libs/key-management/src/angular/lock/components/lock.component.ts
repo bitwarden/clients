@@ -307,10 +307,12 @@ export class LockComponent implements OnInit, OnDestroy {
         (await this.biometricService.getShouldAutopromptNow())
       ) {
         await this.biometricService.setShouldAutopromptNow(false);
+
+        const lastProcessReload = await this.biometricStateService.getLastProcessReload();
         if (
-          (await this.biometricStateService.getLastProcessReload()) == null ||
-          Date.now() - (await this.biometricStateService.getLastProcessReload()).getTime() >
-            AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY
+          lastProcessReload == null ||
+          isNaN(lastProcessReload.getTime()) ||
+          Date.now() - lastProcessReload.getTime() > AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY
         ) {
           await this.unlockViaBiometrics();
         }

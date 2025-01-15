@@ -35,10 +35,11 @@
     >
     </tools-card>
     <tools-card
-      class="tw-flex-1"
+      class="tw-flex-1 tw-cursor-pointer"
       [title]="'atRiskApplications' | i18n"
       [value]="applicationSummary.totalAtRiskApplicationCount"
       [maxValue]="applicationSummary.totalApplicationCount"
+      (click)="showOrgAtRiskApps()"
     >
     </tools-card>
   </div>

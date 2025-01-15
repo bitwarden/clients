@@ -53,6 +53,8 @@ export function buildCipherIcon(iconsServerUrl: string, cipher: CipherView, show
           try {
             image = `${iconsServerUrl}/${Utils.getHostname(hostnameUri)}/icon.png`;
             fallbackImage = "images/bwi-globe.png";
+            // FIXME: Remove when updating file. Eslint update
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (e) {
             // Ignore error since the fallback icon will be shown if image is null.
           }
