@@ -179,7 +179,6 @@ export const PREMIUM_BANNER_DISK_LOCAL = new StateDefinition("premiumBannerRepro
   web: "disk-local",
 });
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
-export const VAULT_BROWSER_UI_ONBOARDING = new StateDefinition("vaultBrowserUiOnboarding", "disk");
 export const NEW_DEVICE_VERIFICATION_NOTICE = new StateDefinition(
   "newDeviceVerificationNotice",
   "disk",
