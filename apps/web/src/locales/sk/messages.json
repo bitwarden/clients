@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Overte svoju totožnosť"
   },
+  "whatIsADevice": {
+    "message": "Čo je zariadenie?"
+  },
+  "aDeviceIs": {
+    "message": "Zariadenie je jednotlivá inštalácia aplikácie Bitwarden, do ktorej ste sa prihlásili. Preinštalovanie, vymazanie údajov aplikácie alebo vymazanie súborov cookie môže mať za následok, že sa zariadenie objaví viackrát."
+  },
   "logInInitiated": {
     "message": "Iniciované prihlásenie"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Prosím, opäť sa prihláste."
+  },
+  "currentSession": {
+    "message": "Aktuálna relácia"
+  },
+  "requestPending": {
+    "message": "Žiadosť čaká na spracovanie"
   },
   "logBackInOthersToo": {
     "message": "Prosím odhláste sa. Ak používate iné Bitwarden aplikácie, odhláste sa a opäť sa prihláste aj v nich."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Ostáva vám 1 pozvánka."
+  },
   "userUsingTwoStep": {
     "message": "Tento používateľ používa dvojstupňové overovanie aby si zabezpečil konto."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Zariadenie"
+  },
+  "loginStatus": {
+    "message": "Stav prihlásenia"
+  },
+  "firstLogin": {
+    "message": "Prvé prihlásenie"
+  },
+  "trusted": {
+    "message": "Dôveryhodné"
   },
   "creatingAccountOn": {
     "message": "Creating account on"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Chyba"
+  },
+  "decryptionError": {
+    "message": "Chyba dešifrovania"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky trezoru."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktujte zákaznícku podporu,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "aby ste predišli ďalším stratám údajov.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Manage users must also be granted with the manage account recovery permission"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Schváliť žiadosť"
   },
+  "deviceApproved": {
+    "message": "Zariadenie schválené"
+  },
+  "deviceRemoved": {
+    "message": "Zariadenie odstránené"
+  },
+  "removeDevice": {
+    "message": "Odstrániť zariadenie"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Ste si istí, že chcete odstrániť toto zariadenie?"
+  },
   "noDeviceRequests": {
     "message": "Žiadne žiadosti pre zariadenia"
   },
@@ -9935,6 +9985,15 @@
   "removeMembers": {
     "message": "Odstrániť členov"
   },
+  "devices": {
+    "message": "Zariadenia"
+  },
+  "deviceListDescription": {
+    "message": "Vaše konto bolo prihlásené do každého z nižšie uvedených zariadení. Ak niektoré zariadenie nepoznáte, teraz ho odstráňte."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
+  },
   "claimedDomains": {
     "message": "Privlastnené domény"
   },
@@ -10060,6 +10119,21 @@
       "grace_period_end": {
         "content": "$2",
         "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organization subscription restarted"
+  },
+  "restartSubscription": {
+    "message": "Restart your subscription"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Contact $PROVIDER$ for assistance.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
       }
     }
   }

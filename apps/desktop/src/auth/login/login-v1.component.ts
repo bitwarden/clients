@@ -249,6 +249,8 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
     try {
       await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       this.platformUtilsService.showToast(
         "error",

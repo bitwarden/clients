@@ -157,4 +157,10 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       this.messagingService.send("premiumRequired");
     }
   }
+
+  upgradeOrganization() {
+    this.messagingService.send("upgradeOrganization", {
+      organizationId: this.cipher.organizationId,
+    });
+  }
 }

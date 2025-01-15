@@ -135,10 +135,11 @@
 每个人都应该拥有的保持在线安全的工具
 使用 Bitwarden 是免费的，没有广告，不会出售数据。Bitwarden 相信每个人都应该拥有保持在线安全的能力。高级计划提供了对高级功能的访问。
 
-使用 BITWARDEN 为您的团队提供支持
+使用 Bitwarden 为您的团队提供支持
 团队计划和企业计划具有专业的商业功能。例如 SSO 集成、自托管、目录集成，以及 SCIM 配置、全局策略、API 访问、事件日志等。
 
 使用 Bitwarden 保护您的劳动成果，并与同事共享敏感信息。
+
 
 选择 Bitwarden 的更多理由：
 
@@ -164,7 +165,7 @@ Bitwarden 的翻译涵盖 60 多种语言，由全球社区使用 Crowdin 翻译
 从任何浏览器、移动设备或桌面操作系统中安全地访问和共享 Bitwarden 密码库中的敏感数据。
 
 Bitwarden 保护的不仅仅是密码
-Bitwarden 的端对端加密凭据管理解决方案使组织能够保护所有内容，包括开发人员机密和通行密钥体验。访问 Bitwarden.com 了解更多关于 Bitwarden Secrets Manager 和 Bitwarden Passwordless.dev 的信息！</value>
+Bitwarden 的端对端加密凭据管理解决方案使组织能够保护所有内容，包括开发人员机密和通行密钥体验。访问 Bitwarden.com 进一步了解 Bitwarden Secrets Manager 和 Bitwarden Passwordless.dev！</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
     <value>无论是在家中、工作中还是在旅途中，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。</value>

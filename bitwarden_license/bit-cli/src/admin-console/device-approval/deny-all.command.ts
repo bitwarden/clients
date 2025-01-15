@@ -2,14 +2,12 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { OrganizationAuthRequestService } from "@bitwarden/bit-common/admin-console/auth-requests";
 import { Response } from "@bitwarden/cli/models/response";
 import { MessageResponse } from "@bitwarden/cli/models/response/message.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationAuthRequestService } from "../../../../bit-common/src/admin-console/auth-requests";
 import { ServiceContainer } from "../../service-container";
 
 export class DenyAllCommand {

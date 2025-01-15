@@ -2337,13 +2337,13 @@
     "message": "Bitwarden non chiederà di salvare le credenziali di accesso per questi domini per tutti gli account sul dispositivo. Ricarica la pagina affinché le modifiche abbiano effetto."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "Per questi siti, l'auto-completamento e funzionalità simili non saranno disponibili. Ricarica la pagina per applicare le modifiche."
   },
   "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+    "message": "L'auto-completamento è bloccato per questo sito. Modifica questa scelta nelle impostazioni."
   },
   "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+    "message": "L'auto-completamento è bloccato per questo sito. Verifica nelle impostazioni."
   },
   "websiteItemLabel": {
     "message": "Sito $number$ (URI)",
@@ -2364,7 +2364,7 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "Blocked domain changes saved"
+    "message": "Modifiche ai domini bloccati salvate"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Modifiche del dominio escluso salvate"

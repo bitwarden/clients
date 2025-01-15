@@ -632,11 +632,6 @@ export default class MainBackground {
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      this.logService,
-    );
-
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
     this.pinService = new PinService(
@@ -663,6 +658,13 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
+    );
+
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);

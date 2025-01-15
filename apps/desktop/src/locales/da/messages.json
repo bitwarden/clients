@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Svag adgangskode identificeret og fundet i datalæk. Brug en unik adgangskode til at beskytte din konto. Sikker på, at at denne adgangskode skal bruges?"
   },
+  "useThisPassword": {
+    "message": "Anvend denne adgangskode"
+  },
+  "useThisUsername": {
+    "message": "Anvend dette brugernavn"
+  },
   "checkForBreaches": {
     "message": "Tjek kendte datalæk for denne adgangskode"
   },
