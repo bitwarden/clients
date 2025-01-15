@@ -36,6 +36,8 @@
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/vault": ["./libs/vault/src"],
+      "@bitwarden/key-management": ["./libs/key-management/src"],
+      "@bitwarden/key-management/angular": ["./libs/key-management/src/angular"],
       "@bitwarden/bit-common/*": ["./bitwarden_license/bit-common/src/*"]
     },
     "plugins": [
