@@ -69,6 +69,8 @@ export class Attachment extends Domain {
       const encryptService = Utils.getContainerService().getEncryptService();
       const decValue = await encryptService.decryptToBytes(this.key, encKey);
       return new SymmetricCryptoKey(decValue);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // TODO: error?
     }

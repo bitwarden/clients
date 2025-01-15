@@ -163,6 +163,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     const request = new VerifyOTPRequest(verification.secret);
     try {
       await this.userVerificationApiService.postAccountVerifyOTP(request);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw new Error(this.i18nService.t("invalidVerificationCode"));
     }
@@ -221,6 +223,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       request.masterPasswordHash = serverKeyHash;
       try {
         policyOptions = await this.userVerificationApiService.postAccountVerifyPassword(request);
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         throw new Error(this.i18nService.t("invalidMasterPassword"));
       }
