@@ -1,8 +1,7 @@
 import { Observable, defer, map } from "rxjs";
 
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-
 import { ListResponse } from "../../../models/response/list.response";
+import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { DevicesServiceAbstraction } from "../../abstractions/devices/devices.service.abstraction";
 import { DeviceResponse } from "../../abstractions/devices/responses/device.response";
 import { DeviceView } from "../../abstractions/devices/views/device.view";

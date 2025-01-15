@@ -14,6 +14,8 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KdfConfigService } from "../../../../../key-management/src/abstractions/kdf-config.service";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { VaultTimeoutSettingsService } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";

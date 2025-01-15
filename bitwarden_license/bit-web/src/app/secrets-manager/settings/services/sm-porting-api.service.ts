@@ -107,6 +107,8 @@ export class SecretsManagerPortingApiService {
           return secret;
         }),
       );
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return null;
     }

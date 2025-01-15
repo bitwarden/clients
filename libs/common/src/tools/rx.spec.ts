@@ -56,7 +56,7 @@ describe("errorOnChange", () => {
 
     source$.complete();
 
-    expect(complete).toBeTrue();
+    expect(complete).toBe(true);
   });
 
   it("errors when the input changes", async () => {

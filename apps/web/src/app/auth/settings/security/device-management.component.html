@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <p>{{ "deviceListDescription" | i18n }}</p>
+  <p>{{ "deviceListDescriptionTemp" | i18n }}</p>
 
   <div *ngIf="loading" class="tw-flex tw-justify-center tw-items-center tw-p-4">
     <i class="bwi bwi-spinner bwi-spin tw-text-2xl" aria-hidden="true"></i>
@@ -48,28 +48,43 @@
           <i [class]="getDeviceIcon(row.type)" class="bwi-lg" aria-hidden="true"></i>
         </div>
         <div>
-          {{ row.displayName }}
-          <span *ngIf="row.trusted" class="tw-text-sm tw-text-muted tw-block">
-            {{ "trusted" | i18n }}
-          </span>
+          <ng-container *ngIf="row.hasPendingAuthRequest">
+            <a bitLink href="#" appStopClick (click)="managePendingAuthRequest(row)">
+              {{ row.displayName }}
+            </a>
+
+            <span class="tw-text-sm tw-text-muted tw-block">
+              {{ "needsApproval" | i18n }}
+            </span>
+          </ng-container>
+          <ng-container *ngIf="!row.hasPendingAuthRequest">
+            {{ row.displayName }}
+            <span
+              *ngIf="row.trusted && !row.hasPendingAuthRequest"
+              class="tw-text-sm tw-text-muted tw-block"
+            >
+              {{ "trusted" | i18n }}
+            </span>
+          </ng-container>
         </div>
       </td>
       <td bitCell>
         <span *ngIf="isCurrentDevice(row)" bitBadge variant="primary">{{
           "currentSession" | i18n
         }}</span>
-        <span *ngIf="hasPendingAuthRequest(row)" bitBadge variant="warning">{{
+        <span *ngIf="row.hasPendingAuthRequest" bitBadge variant="warning">{{
           "requestPending" | i18n
         }}</span>
       </td>
       <td bitCell>{{ row.firstLogin | date: "medium" }}</td>
-      <td bitCell>
+      <!-- <td bitCell>
         <button
           type="button"
           bitIconButton="bwi-ellipsis-v"
           [bitMenuTriggerFor]="optionsMenu"
         ></button>
         <bit-menu #optionsMenu>
+          Remove device button to be re-added later when we have per device session de-authentication. 
           <button
             type="button"
             bitMenuItem
@@ -82,7 +97,7 @@
             </span>
           </button>
         </bit-menu>
-      </td>
+      </td> -->
     </ng-template>
   </bit-table-scroll>
 </bit-container>

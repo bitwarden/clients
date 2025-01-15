@@ -4,6 +4,8 @@ import { firstValueFrom, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
@@ -335,6 +337,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       );
 
       return new SymmetricCryptoKey(userKey) as UserKey;
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // If either decryption effort fails, we want to remove the device key
       this.logService.error("Failed to decrypt using device key. Removing device key.");
