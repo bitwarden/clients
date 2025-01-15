@@ -245,11 +245,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         (this.originalCipherView.collectionIds as CollectionId[]),
     );
 
-    if (
-      organization != null &&
-      !organization.canEditAllCiphers &&
-      !(this.originalCipherView?.edit && this.originalCipherView?.viewPassword)
-    ) {
+    if (!organization?.canEditAllCiphers && !this.originalCipherView.canAssignToCollections) {
       this.itemDetailsForm.controls.collectionIds.disable();
     }
 
