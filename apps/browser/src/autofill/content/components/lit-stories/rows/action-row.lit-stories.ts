@@ -2,7 +2,7 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { ActionRow } from "../../../rows/action-row";
+import { ActionRow } from "../../rows/action-row";
 
 type Args = {
   itemText: string;

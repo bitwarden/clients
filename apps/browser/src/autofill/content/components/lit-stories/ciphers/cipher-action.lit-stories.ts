@@ -2,8 +2,8 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { NotificationTypes } from "../../../../../notification/abstractions/notification-bar";
-import { CipherAction } from "../../../cipher/cipher-action";
+import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
+import { CipherAction } from "../../cipher/cipher-action";
 
 type Args = {
   handleAction?: (e: Event) => void;
@@ -11,7 +11,7 @@ type Args = {
   theme: Theme;
 };
 export default {
-  title: "Components/Cipher/Cipher Action",
+  title: "Components/Ciphers/Cipher Action",
   argTypes: {
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
     notificationType: {

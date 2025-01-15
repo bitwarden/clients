@@ -4,9 +4,9 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.e
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 
-import { NotificationType } from "../../../../../notification/abstractions/notification-bar";
-import { CipherData } from "../../../cipher/types";
-import { NotificationBody } from "../../../notification/body";
+import { NotificationType } from "../../../../notification/abstractions/notification-bar";
+import { CipherData } from "../../cipher/types";
+import { NotificationBody } from "../../notification/body";
 
 type Args = {
   ciphers: CipherData[];
@@ -15,7 +15,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Notification/Notification Body",
+  title: "Components/Notifications/Notification Body",
   argTypes: {
     ciphers: { control: "object" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },

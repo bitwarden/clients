@@ -3,7 +3,7 @@ import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { CipherInfoIndicatorIcons } from "../../../cipher/cipher-indicator-icons";
+import { CipherInfoIndicatorIcons } from "../../cipher/cipher-indicator-icons";
 
 type Args = {
   isBusinessOrg?: boolean;
@@ -12,7 +12,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Cipher/Cipher Indicator Icon",
+  title: "Components/Ciphers/Cipher Indicator Icon",
   argTypes: {
     isBusinessOrg: { control: "boolean" },
     isFamilyOrg: { control: "boolean" },

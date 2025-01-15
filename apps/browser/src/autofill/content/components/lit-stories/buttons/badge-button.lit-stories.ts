@@ -2,7 +2,7 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { BadgeButton } from "../../../buttons/badge-button";
+import { BadgeButton } from "../../buttons/badge-button";
 
 type Args = {
   buttonAction: (e: Event) => void;

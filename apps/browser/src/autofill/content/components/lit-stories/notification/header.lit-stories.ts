@@ -2,7 +2,7 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { NotificationHeader } from "../../../notification/header";
+import { NotificationHeader } from "../../notification/header";
 
 type Args = {
   message: string;
@@ -12,7 +12,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Notification/Notification Header",
+  title: "Components/Notifications/Notification Header",
   argTypes: {
     message: { control: "text" },
     standalone: { control: "boolean" },

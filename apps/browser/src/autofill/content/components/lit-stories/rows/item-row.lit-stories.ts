@@ -3,7 +3,7 @@ import { TemplateResult } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { ItemRow } from "../../../rows/item-row";
+import { ItemRow } from "../../rows/item-row";
 
 type Args = {
   theme: Theme;

@@ -2,8 +2,8 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { NotificationType } from "../../../../../notification/abstractions/notification-bar";
-import { NotificationFooter } from "../../../notification/footer";
+import { NotificationType } from "../../../../notification/abstractions/notification-bar";
+import { NotificationFooter } from "../../notification/footer";
 
 type Args = {
   notificationType: NotificationType;
@@ -11,7 +11,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Notification/Notification Footer",
+  title: "Components/Notifications/Notification Footer",
   argTypes: {
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
     notificationType: {

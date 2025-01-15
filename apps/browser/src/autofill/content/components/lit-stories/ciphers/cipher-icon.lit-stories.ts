@@ -3,7 +3,7 @@ import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { CipherIcon } from "../../../cipher/cipher-icon";
+import { CipherIcon } from "../../cipher/cipher-icon";
 
 type Args = {
   color: string;
@@ -13,7 +13,7 @@ type Args = {
 };
 
 export default {
-  title: "Components/Cipher/Cipher Icon",
+  title: "Components/Ciphers/Cipher Icon",
   argTypes: {
     color: { control: "color" },
     size: { control: "text" },

@@ -2,16 +2,17 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { EditButton } from "../../../buttons/edit-button";
+import { ActionButton } from "../../buttons/action-button";
 
 type Args = {
-  buttonAction: (e: Event) => void;
   buttonText: string;
-  disabled?: boolean;
+  disabled: boolean;
   theme: Theme;
+  buttonAction: (e: Event) => void;
 };
+
 export default {
-  title: "Components/Buttons/Edit Button",
+  title: "Components/Buttons/Action Button",
   argTypes: {
     buttonText: { control: "text" },
     disabled: { control: "boolean" },
@@ -26,7 +27,7 @@ export default {
   },
 } as Meta<Args>;
 
-const Template = (args: Args) => EditButton({ ...args });
+const Template = (args: Args) => ActionButton({ ...args });
 
 export const Default: StoryObj<Args> = {
   render: Template,
