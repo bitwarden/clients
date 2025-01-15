@@ -3,7 +3,7 @@
 import { Component, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -26,7 +26,7 @@ export class SMLandingComponent implements OnInit {
   showGiveMembersAccessInstructions: boolean = false;
 
   constructor(
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
   ) {}
 

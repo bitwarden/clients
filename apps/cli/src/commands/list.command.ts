@@ -11,7 +11,7 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
@@ -35,7 +35,7 @@ export class ListCommand {
     private cipherService: CipherService,
     private folderService: FolderService,
     private collectionService: CollectionService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private searchService: SearchService,
     private organizationUserApiService: OrganizationUserApiService,
     private apiService: ApiService,

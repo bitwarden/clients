@@ -7,8 +7,8 @@ import { firstValueFrom } from "rxjs";
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -48,7 +48,7 @@ export class MasterPasswordPolicyComponent extends BasePolicyComponent implement
   constructor(
     private formBuilder: FormBuilder,
     i18nService: I18nService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
   ) {
     super();

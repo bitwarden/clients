@@ -22,8 +22,8 @@ import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -116,7 +116,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private secretService: SecretService,
     private serviceAccountService: ServiceAccountService,
     private dialogService: DialogService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,

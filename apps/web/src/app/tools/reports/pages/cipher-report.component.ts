@@ -4,7 +4,7 @@ import { Directive, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core
 import { BehaviorSubject, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,7 +45,7 @@ export class CipherReportComponent implements OnDestroy {
     protected cipherService: CipherService,
     private modalService: ModalService,
     protected passwordRepromptService: PasswordRepromptService,
-    protected organizationService: vNextOrganizationService,
+    protected organizationService: OrganizationService,
     protected accountService: AccountService,
     protected i18nService: I18nService,
     private syncService: SyncService,

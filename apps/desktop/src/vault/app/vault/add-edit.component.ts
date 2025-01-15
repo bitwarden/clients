@@ -10,7 +10,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -52,7 +52,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
     logService: LogService,
-    organizationService: vNextOrganizationService,
+    organizationService: OrganizationService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,

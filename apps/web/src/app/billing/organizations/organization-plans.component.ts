@@ -19,8 +19,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -174,7 +174,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private router: Router,
     private syncService: SyncService,
     private policyService: PolicyService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private messagingService: MessagingService,
     private formBuilder: FormBuilder,
     private organizationApiService: OrganizationApiServiceAbstraction,

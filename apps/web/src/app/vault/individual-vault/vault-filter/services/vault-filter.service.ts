@@ -17,7 +17,7 @@ import {
   CollectionService,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -93,7 +93,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
 
   constructor(
-    protected organizationService: vNextOrganizationService,
+    protected organizationService: OrganizationService,
     protected folderService: FolderService,
     protected cipherService: CipherService,
     protected policyService: PolicyService,

@@ -12,7 +12,7 @@ import {
   PasswordHealthService,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -68,7 +68,7 @@ export class PasswordHealthMembersURIComponent implements OnInit {
   constructor(
     protected cipherService: CipherService,
     protected passwordStrengthService: PasswordStrengthServiceAbstraction,
-    protected organizationService: vNextOrganizationService,
+    protected organizationService: OrganizationService,
     protected auditService: AuditService,
     protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,

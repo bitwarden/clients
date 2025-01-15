@@ -3,7 +3,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   Argon2KdfConfig,
@@ -64,7 +64,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private apiService: ApiService,
     private tokenService: TokenService,
     private logService: LogService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private keyGenerationService: KeyGenerationService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
     private stateProvider: StateProvider,

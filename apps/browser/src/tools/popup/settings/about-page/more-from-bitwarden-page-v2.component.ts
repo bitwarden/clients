@@ -4,7 +4,7 @@ import { RouterModule } from "@angular/router";
 import { Observable, firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -40,7 +40,7 @@ export class MoreFromBitwardenPageV2Component {
     private dialogService: DialogService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     private environmentService: EnvironmentService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private familiesPolicyService: FamiliesPolicyService,
   ) {

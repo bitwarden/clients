@@ -9,7 +9,7 @@ import {
   OrganizationUserResetPasswordWithIdRequest,
 } from "@bitwarden/admin-console/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -35,7 +35,7 @@ export class OrganizationUserResetPasswordService
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private organizationUserApiService: OrganizationUserApiService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private i18nService: I18nService,

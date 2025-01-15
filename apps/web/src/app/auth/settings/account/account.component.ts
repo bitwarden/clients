@@ -4,7 +4,7 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { combineLatest, firstValueFrom, from, lastValueFrom, map, Observable } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -34,7 +34,7 @@ export class AccountComponent implements OnInit {
     private dialogService: DialogService,
     private userVerificationService: UserVerificationService,
     private configService: ConfigService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
   ) {}
 

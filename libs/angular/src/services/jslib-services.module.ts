@@ -50,9 +50,9 @@ import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction }
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
-  vNextInternalOrganizationServiceAbstraction,
-  vNextOrganizationService as vNextOrganizationServiceAbstraction,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  InternalOrganizationServiceAbstraction,
+  OrganizationService as OrganizationServiceAbstraction,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import {
   OrgDomainInternalServiceAbstraction,
@@ -66,7 +66,7 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { DefaultvNextOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-vnext-organization.service";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
 import { OrgDomainApiService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain-api.service";
 import { OrgDomainService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain.service";
@@ -725,7 +725,7 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       ProviderServiceAbstraction,
       FolderApiServiceAbstraction,
-      vNextInternalOrganizationServiceAbstraction,
+      InternalOrganizationServiceAbstraction,
       SendApiServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
       AvatarServiceAbstraction,
@@ -914,7 +914,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       CipherServiceAbstraction,
       StateProvider,
-      vNextOrganizationServiceAbstraction,
+      OrganizationServiceAbstraction,
       EventUploadServiceAbstraction,
       AuthServiceAbstraction,
       AccountServiceAbstraction,
@@ -923,7 +923,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalPolicyService,
     useClass: PolicyService,
-    deps: [StateProvider, vNextOrganizationServiceAbstraction],
+    deps: [StateProvider, OrganizationServiceAbstraction],
   }),
   safeProvider({
     provide: PolicyServiceAbstraction,
@@ -959,7 +959,7 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       TokenServiceAbstraction,
       LogService,
-      vNextOrganizationServiceAbstraction,
+      OrganizationServiceAbstraction,
       KeyGenerationServiceAbstraction,
       LOGOUT_CALLBACK,
       StateProvider,
@@ -983,13 +983,13 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: vNextInternalOrganizationServiceAbstraction,
-    useClass: DefaultvNextOrganizationService,
+    provide: InternalOrganizationServiceAbstraction,
+    useClass: DefaultOrganizationService,
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: vNextOrganizationServiceAbstraction,
-    useExisting: vNextInternalOrganizationServiceAbstraction,
+    provide: OrganizationServiceAbstraction,
+    useExisting: InternalOrganizationServiceAbstraction,
   }),
 
   safeProvider({
@@ -1397,7 +1397,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherAuthorizationService,
     useClass: DefaultCipherAuthorizationService,
-    deps: [CollectionService, vNextOrganizationServiceAbstraction, AccountServiceAbstraction],
+    deps: [CollectionService, OrganizationServiceAbstraction, AccountServiceAbstraction],
   }),
   safeProvider({
     provide: AuthRequestApiService,

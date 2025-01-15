@@ -8,7 +8,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, ReplaySubject } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -27,7 +27,7 @@ import { VaultFilterService } from "./vault-filter.service";
 describe("vault filter service", () => {
   let vaultFilterService: VaultFilterService;
 
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let folderService: MockProxy<FolderService>;
   let cipherService: MockProxy<CipherService>;
   let policyService: MockProxy<PolicyService>;
@@ -46,7 +46,7 @@ describe("vault filter service", () => {
   let collapsedGroupingsState: FakeActiveUserState<string[]>;
 
   beforeEach(() => {
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     folderService = mock<FolderService>();
     cipherService = mock<CipherService>();
     policyService = mock<PolicyService>();

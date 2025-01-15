@@ -1,6 +1,6 @@
 import { ProductTierType } from "../../../billing/enums/product-tier-type.enum";
 import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
-import { ORGANIZATIONS } from "../../services/organization/vnext-organization.state";
+import { ORGANIZATIONS } from "../../services/organization/organization.state";
 
 import { OrganizationData } from "./organization.data";
 

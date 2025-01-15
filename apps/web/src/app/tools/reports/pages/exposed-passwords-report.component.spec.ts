@@ -6,7 +6,7 @@ import { of } from "rxjs";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -23,7 +23,7 @@ describe("ExposedPasswordsReportComponent", () => {
   let component: ExposedPasswordsReportComponent;
   let fixture: ComponentFixture<ExposedPasswordsReportComponent>;
   let auditService: MockProxy<AuditService>;
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
   let accountService: FakeAccountService;
   const userId = Utils.newGuid() as UserId;
@@ -31,7 +31,7 @@ describe("ExposedPasswordsReportComponent", () => {
   beforeEach(() => {
     syncServiceMock = mock<SyncService>();
     auditService = mock<AuditService>();
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     accountService = mockAccountServiceWith(userId);
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -48,7 +48,7 @@ describe("ExposedPasswordsReportComponent", () => {
           useValue: auditService,
         },
         {
-          provide: vNextOrganizationService,
+          provide: OrganizationService,
           useValue: organizationService,
         },
         {

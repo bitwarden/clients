@@ -4,7 +4,7 @@ import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -34,7 +34,7 @@ export class CollectionsComponent implements OnInit {
     protected platformUtilsService: PlatformUtilsService,
     protected i18nService: I18nService,
     protected cipherService: CipherService,
-    protected organizationService: vNextOrganizationService,
+    protected organizationService: OrganizationService,
     private logService: LogService,
     private accountService: AccountService,
     private toastService: ToastService,

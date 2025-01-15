@@ -6,7 +6,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
@@ -67,7 +67,7 @@ export class AddAccountCreditDialogComponent implements OnInit {
     private configService: ConfigService,
     @Inject(DIALOG_DATA) private dialogParams: AddAccountCreditDialogParams,
     private dialogRef: DialogRef<AddAccountCreditDialogResultType>,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private platformUtilsService: PlatformUtilsService,
     private providerService: ProviderService,
   ) {

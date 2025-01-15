@@ -3,7 +3,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { CollectionAdminService, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -66,7 +66,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     TestBed.configureTestingModule({
       providers: [
         AdminConsoleCipherFormConfigService,
-        { provide: vNextOrganizationService, useValue: { organizations$: () => orgs$ } },
+        { provide: OrganizationService, useValue: { organizations$: () => orgs$ } },
         {
           provide: CollectionAdminService,
           useValue: { getAll: () => Promise.resolve([collection, collection2]) },

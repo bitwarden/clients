@@ -30,8 +30,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { PolicyApiServiceAbstraction as PolicyApiService } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -125,7 +125,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private policyApiService: PolicyApiService,
     private route: ActivatedRoute,
     private syncService: SyncService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,

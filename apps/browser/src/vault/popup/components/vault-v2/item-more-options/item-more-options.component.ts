@@ -7,7 +7,7 @@ import { BehaviorSubject, firstValueFrom, map, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -84,7 +84,7 @@ export class ItemMoreOptionsComponent implements OnInit {
     private i18nService: I18nService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private accountService: AccountService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
   ) {}
 

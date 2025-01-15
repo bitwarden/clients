@@ -48,7 +48,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
@@ -239,7 +239,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     protected vaultFilterService: VaultFilterService,
     private routedVaultFilterBridgeService: RoutedVaultFilterBridgeService,
     private routedVaultFilterService: RoutedVaultFilterService,

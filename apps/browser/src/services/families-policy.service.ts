@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { map, Observable, of, switchMap } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -11,7 +11,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 export class FamiliesPolicyService {
   constructor(
     private policyService: PolicyService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
   ) {}
 

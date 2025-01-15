@@ -9,8 +9,8 @@ import { firstValueFrom, map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -52,7 +52,7 @@ export class OpenAttachmentsComponent implements OnInit {
     private router: Router,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private cipherService: CipherService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private toastService: ToastService,
     private i18nService: I18nService,
     private filePopoutUtilsService: FilePopoutUtilsService,

@@ -23,7 +23,7 @@ import {
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -260,7 +260,7 @@ export class VaultPopupItemsService {
     private cipherService: CipherService,
     private vaultSettingsService: VaultSettingsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private searchService: SearchService,
     private collectionService: CollectionService,
     private vaultPopupAutofillService: VaultPopupAutofillService,

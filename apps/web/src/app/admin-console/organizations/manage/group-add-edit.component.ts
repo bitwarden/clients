@@ -25,8 +25,8 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -227,7 +227,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef,
     private dialogService: DialogService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private collectionAdminService: CollectionAdminService,
     private toastService: ToastService,

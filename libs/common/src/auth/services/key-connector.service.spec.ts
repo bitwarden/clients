@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
@@ -33,7 +33,7 @@ describe("KeyConnectorService", () => {
   const apiService = mock<ApiService>();
   const tokenService = mock<TokenService>();
   const logService = mock<LogService>();
-  const organizationService = mock<vNextOrganizationService>();
+  const organizationService = mock<OrganizationService>();
   const keyGenerationService = mock<KeyGenerationService>();
 
   let stateProvider: FakeStateProvider;

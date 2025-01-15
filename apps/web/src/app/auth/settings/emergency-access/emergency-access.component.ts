@@ -4,7 +4,7 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { lastValueFrom, Observable, firstValueFrom } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -66,7 +66,7 @@ export class EmergencyAccessComponent implements OnInit {
     private userNamePipe: UserNamePipe,
     private logService: LogService,
     private stateService: StateService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     protected dialogService: DialogService,
     billingAccountProfileStateService: BillingAccountProfileStateService,

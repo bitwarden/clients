@@ -7,8 +7,8 @@ import { firstValueFrom, map } from "rxjs";
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import {
   canAccessVaultTab,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ImportCollectionServiceAbstraction } from "@bitwarden/importer/core";
@@ -36,7 +36,7 @@ export class OrgImportComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private router: Router,
     private accountService: AccountService,
   ) {}

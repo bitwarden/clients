@@ -24,8 +24,8 @@ import {
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -154,7 +154,7 @@ export class MemberDialogComponent implements OnDestroy {
     private organizationUserApiService: OrganizationUserApiService,
     private dialogService: DialogService,
     private accountService: AccountService,
-    organizationService: vNextOrganizationService,
+    organizationService: OrganizationService,
     private toastService: ToastService,
     private configService: ConfigService,
   ) {

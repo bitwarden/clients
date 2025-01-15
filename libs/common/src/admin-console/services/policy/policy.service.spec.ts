@@ -17,12 +17,12 @@ import { Policy } from "../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../admin-console/models/domain/reset-password-policy-options";
 import { POLICIES, PolicyService } from "../../../admin-console/services/policy/policy.service";
 import { PolicyId, UserId } from "../../../types/guid";
-import { vNextOrganizationService } from "../../abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 
 describe("PolicyService", () => {
   const userId = "userId" as UserId;
   let stateProvider: FakeStateProvider;
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let activeUserState: FakeActiveUserState<Record<PolicyId, PolicyData>>;
 
   let policyService: PolicyService;
@@ -30,7 +30,7 @@ describe("PolicyService", () => {
   beforeEach(() => {
     const accountService = mockAccountServiceWith(userId);
     stateProvider = new FakeStateProvider(accountService);
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
 
     activeUserState = stateProvider.activeUser.getFake(POLICIES);
 

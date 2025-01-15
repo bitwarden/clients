@@ -14,8 +14,8 @@ import {
 } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -112,7 +112,7 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     protected toastService: ToastService,
     protected configService: ConfigService,
     protected dataService: RiskInsightsDataService,
-    protected organizationService: vNextOrganizationService,
+    protected organizationService: OrganizationService,
     protected reportService: RiskInsightsReportService,
     private accountService: AccountService,
   ) {

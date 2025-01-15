@@ -12,8 +12,8 @@ import {
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -66,7 +66,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     @Inject(DIALOG_DATA) private params: BulkCollectionsDialogParams,
     private dialogRef: DialogRef<BulkCollectionsDialogResult>,
     private formBuilder: FormBuilder,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private groupService: GroupApiService,
     private organizationUserApiService: OrganizationUserApiService,

@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 
 import { CollectionService, Collection } from "@bitwarden/admin-console/common";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -22,7 +22,7 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
 
   constructor(
     protected cipherService: CipherService,
-    protected organizationService: vNextOrganizationService,
+    protected organizationService: OrganizationService,
     accountService: AccountService,
     modalService: ModalService,
     passwordRepromptService: PasswordRepromptService,

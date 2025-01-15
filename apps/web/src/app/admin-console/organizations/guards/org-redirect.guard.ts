@@ -9,8 +9,8 @@ import { firstValueFrom, map } from "rxjs";
 
 import {
   canAccessOrgAdmin,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 
@@ -26,7 +26,7 @@ export function organizationRedirectGuard(
 ): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const router = inject(Router);
-    const organizationService = inject(vNextOrganizationService);
+    const organizationService = inject(OrganizationService);
     const accountService = inject(AccountService);
 
     const userId = await firstValueFrom(accountService.activeAccount$.pipe(map((a) => a?.id)));

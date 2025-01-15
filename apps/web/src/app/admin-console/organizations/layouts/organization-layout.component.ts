@@ -14,8 +14,8 @@ import {
   canAccessReportingTab,
   canAccessSettingsTab,
   canAccessVaultTab,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/enums";
@@ -63,7 +63,7 @@ export class OrganizationLayoutComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private platformUtilsService: PlatformUtilsService,
     private configService: ConfigService,
     private policyService: PolicyService,

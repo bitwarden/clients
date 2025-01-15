@@ -4,7 +4,7 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -63,7 +63,7 @@ describe("ViewComponent", () => {
         },
         { provide: LogService, useValue: mock<LogService>() },
         {
-          provide: vNextOrganizationService,
+          provide: OrganizationService,
           useValue: { organizations$: jest.fn().mockReturnValue(of([mockOrganization])) },
         },
         { provide: CollectionService, useValue: mock<CollectionService>() },

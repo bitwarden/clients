@@ -27,8 +27,8 @@ import {
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -108,7 +108,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     @Inject(DIALOG_DATA) private params: CollectionDialogParams,
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef<CollectionDialogResult>,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private groupService: GroupApiService,
     private collectionAdminService: CollectionAdminService,
     private i18nService: I18nService,

@@ -6,7 +6,7 @@ import { Subject, firstValueFrom, from, Subscription } from "rxjs";
 import { debounceTime, switchMap, takeUntil } from "rxjs/operators";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
@@ -72,7 +72,7 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     private searchService: SearchService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private passwordRepromptService: PasswordRepromptService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private vaultFilterService: VaultFilterService,
     private vaultSettingsService: VaultSettingsService,

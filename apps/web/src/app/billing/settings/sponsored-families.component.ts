@@ -14,7 +14,7 @@ import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -60,7 +60,7 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private syncService: SyncService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private formBuilder: FormBuilder,
     private accountService: AccountService,
     private toastService: ToastService,

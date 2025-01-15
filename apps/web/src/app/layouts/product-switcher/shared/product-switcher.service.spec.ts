@@ -6,7 +6,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { Observable, firstValueFrom, of } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
@@ -21,7 +21,7 @@ import { ProductSwitcherService } from "./product-switcher.service";
 describe("ProductSwitcherService", () => {
   let service: ProductSwitcherService;
   let router: { url: string; events: Observable<unknown> };
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let providerService: MockProxy<ProviderService>;
   let accountService: FakeAccountService;
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
@@ -40,7 +40,7 @@ describe("ProductSwitcherService", () => {
     jest.useFakeTimers();
     getLastSync.mockResolvedValue(new Date("2024-05-14"));
     router = mock<Router>();
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     providerService = mock<ProviderService>();
     accountService = mockAccountServiceWith(userId);
 
@@ -52,7 +52,7 @@ describe("ProductSwitcherService", () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: router },
-        { provide: vNextOrganizationService, useValue: organizationService },
+        { provide: OrganizationService, useValue: organizationService },
         { provide: ProviderService, useValue: providerService },
         { provide: AccountService, useValue: accountService },
         {

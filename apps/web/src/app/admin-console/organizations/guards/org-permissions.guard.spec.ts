@@ -10,7 +10,7 @@ import {
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -36,7 +36,7 @@ const orgFactory = (props: Partial<Organization> = {}) =>
 
 describe("Organization Permissions Guard", () => {
   let router: MockProxy<Router>;
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let state: MockProxy<RouterStateSnapshot>;
   let route: MockProxy<ActivatedRouteSnapshot>;
   let accountService: FakeAccountService;
@@ -44,7 +44,7 @@ describe("Organization Permissions Guard", () => {
 
   beforeEach(() => {
     router = mock<Router>();
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     accountService = mockAccountServiceWith(userId);
     state = mock<RouterStateSnapshot>();
     route = mock<ActivatedRouteSnapshot>({
@@ -57,7 +57,7 @@ describe("Organization Permissions Guard", () => {
       providers: [
         { provide: Router, useValue: router },
         { provide: AccountService, useValue: accountService },
-        { provide: vNextOrganizationService, useValue: organizationService },
+        { provide: OrganizationService, useValue: organizationService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: SyncService, useValue: mock<SyncService>() },

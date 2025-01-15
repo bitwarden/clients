@@ -7,8 +7,8 @@ import { firstValueFrom, map } from "rxjs";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -35,7 +35,7 @@ export class ReusedPasswordsReportComponent
     cipherService: CipherService,
     modalService: ModalService,
     private route: ActivatedRoute,
-    organizationService: vNextOrganizationService,
+    organizationService: OrganizationService,
     protected accountService: AccountService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,

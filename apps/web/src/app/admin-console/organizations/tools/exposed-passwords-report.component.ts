@@ -8,8 +8,8 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -36,7 +36,7 @@ export class ExposedPasswordsReportComponent
     cipherService: CipherService,
     auditService: AuditService,
     modalService: ModalService,
-    organizationService: vNextOrganizationService,
+    organizationService: OrganizationService,
     protected accountService: AccountService,
     private route: ActivatedRoute,
     passwordRepromptService: PasswordRepromptService,

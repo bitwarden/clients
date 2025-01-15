@@ -5,7 +5,7 @@ import { FormControl, FormGroup } from "@angular/forms";
 import { firstValueFrom, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UpdateProfileRequest } from "@bitwarden/common/auth/models/request/update-profile.request";
@@ -41,7 +41,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private toastService: ToastService,
     private configService: ConfigService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
   ) {}
 
   async ngOnInit() {

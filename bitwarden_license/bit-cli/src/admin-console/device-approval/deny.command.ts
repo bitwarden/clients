@@ -1,7 +1,7 @@
 import { firstValueFrom, map } from "rxjs";
 
 import { Response } from "@bitwarden/cli/models/response";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -10,7 +10,7 @@ import { ServiceContainer } from "../../service-container";
 
 export class DenyCommand {
   constructor(
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private organizationAuthRequestService: OrganizationAuthRequestService,
     private accountServcie: AccountService,
   ) {}

@@ -8,7 +8,7 @@ import { switchMap, takeUntil } from "rxjs/operators";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -46,7 +46,7 @@ export class ClientsComponent extends BaseClientsComponent implements OnInit, On
     private router: Router,
     private providerService: ProviderService,
     private apiService: ApiService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private accountService: AccountService,
     activatedRoute: ActivatedRoute,

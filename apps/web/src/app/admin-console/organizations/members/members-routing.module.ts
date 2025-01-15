@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { canAccessMembersTab } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { canAccessMembersTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 

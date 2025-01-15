@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, from, zip } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -23,7 +23,7 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
   constructor(
     private cipherService: CipherService,
     private stateProvider: StateProvider,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private eventUploadService: EventUploadService,
     private authService: AuthService,
     private accountService: AccountService,

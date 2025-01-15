@@ -9,8 +9,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
@@ -84,7 +84,7 @@ export class OrganizationSubscriptionSelfhostComponent implements OnInit, OnDest
   constructor(
     private messagingService: MessagingService,
     private apiService: ApiService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private route: ActivatedRoute,
     private organizationApiService: OrganizationApiServiceAbstraction,

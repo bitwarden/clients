@@ -16,8 +16,8 @@ import {
 
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
@@ -53,7 +53,7 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private secretService: SecretService,
     private accessPolicyService: AccessPolicyService,
     private dialogService: DialogService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private countService: CountService,
   ) {}

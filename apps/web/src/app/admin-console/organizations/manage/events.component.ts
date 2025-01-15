@@ -9,8 +9,8 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -55,7 +55,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     private router: Router,
     logService: LogService,
     private userNamePipe: UserNamePipe,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private organizationUserApiService: OrganizationUserApiService,
     private providerService: ProviderService,
     fileDownloadService: FileDownloadService,

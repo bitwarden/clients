@@ -4,7 +4,7 @@ import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -36,7 +36,7 @@ describe("VaultPopupItemsService", () => {
 
   const cipherServiceMock = mock<CipherService>();
   const vaultSettingsServiceMock = mock<VaultSettingsService>();
-  const organizationServiceMock = mock<vNextOrganizationService>();
+  const organizationServiceMock = mock<OrganizationService>();
   const vaultPopupListFiltersServiceMock = mock<VaultPopupListFiltersService>();
   const searchService = mock<SearchService>();
   const collectionService = mock<CollectionService>();
@@ -111,7 +111,7 @@ describe("VaultPopupItemsService", () => {
         { provide: CipherService, useValue: cipherServiceMock },
         { provide: VaultSettingsService, useValue: vaultSettingsServiceMock },
         { provide: SearchService, useValue: searchService },
-        { provide: vNextOrganizationService, useValue: organizationServiceMock },
+        { provide: OrganizationService, useValue: organizationServiceMock },
         { provide: AccountService, useValue: accountServiceMock },
         { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
         { provide: CollectionService, useValue: collectionService },

@@ -7,7 +7,7 @@ import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 import { first, map, takeUntil } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationSponsorshipRedeemRequest } from "@bitwarden/common/admin-console/models/request/organization/organization-sponsorship-redeem.request";
@@ -71,7 +71,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private syncService: SyncService,
     private validationService: ValidationService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,

@@ -3,7 +3,7 @@
 import { map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CollectionId } from "@bitwarden/common/types/guid";
 
@@ -51,7 +51,7 @@ export abstract class CipherAuthorizationService {
 export class DefaultCipherAuthorizationService implements CipherAuthorizationService {
   constructor(
     private collectionService: CollectionService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
   ) {}
 

@@ -63,7 +63,7 @@ export function getOrganizationById(id: string) {
  * Risky operations like updates are isolated to the
  * internal extension `InternalOrganizationServiceAbstraction`.
  */
-export abstract class vNextOrganizationService {
+export abstract class OrganizationService {
   /**
    * Publishes state for all organizations under the specified user.
    * @returns An observable list of organizations
@@ -90,7 +90,7 @@ export abstract class vNextOrganizationService {
  * `OrganizationService` for easy access to `get` calls.
  * @internal
  */
-export abstract class vNextInternalOrganizationServiceAbstraction extends vNextOrganizationService {
+export abstract class InternalOrganizationServiceAbstraction extends OrganizationService {
   /**
    * Replaces state for the provided organization, or creates it if not found.
    * @param organization The organization state being saved.

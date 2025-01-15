@@ -4,7 +4,7 @@ import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "r
 
 import { UserKeyDefinition, POLICIES_DISK, StateProvider } from "../../../platform/state";
 import { PolicyId, UserId } from "../../../types/guid";
-import { vNextOrganizationService } from "../../abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "../../abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
@@ -31,7 +31,7 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
 
   constructor(
     private stateProvider: StateProvider,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
   ) {}
 
   get$(policyType: PolicyType): Observable<Policy> {

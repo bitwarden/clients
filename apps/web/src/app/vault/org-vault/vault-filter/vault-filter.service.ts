@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from "@angular/core";
 import { map, Observable, ReplaySubject, Subject } from "rxjs";
 
 import { CollectionAdminView, CollectionService } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,7 +26,7 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
   );
 
   constructor(
-    organizationService: vNextOrganizationService,
+    organizationService: OrganizationService,
     folderService: FolderService,
     cipherService: CipherService,
     policyService: PolicyService,

@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,14 +16,14 @@ import { ApItemEnum } from "./models/enums/ap-item.enum";
 import { ApPermissionEnum } from "./models/enums/ap-permission.enum";
 
 describe("AccessPolicySelectorService", () => {
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let accountService: FakeAccountService;
   const userId = Utils.newGuid() as UserId;
 
   let sut: AccessPolicySelectorService;
 
   beforeEach(() => {
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     accountService = mockAccountServiceWith(userId);
 
     sut = new AccessPolicySelectorService(organizationService, accountService as AccountService);

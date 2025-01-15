@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { combineLatest, filter, from, map, Observable, of, switchMap } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -25,7 +25,7 @@ export class FreeFamiliesPolicyService {
 
   constructor(
     private policyService: PolicyService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private configService: ConfigService,
   ) {}

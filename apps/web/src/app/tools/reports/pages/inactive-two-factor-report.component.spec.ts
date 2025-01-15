@@ -5,7 +5,7 @@ import { of } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -22,13 +22,13 @@ import { cipherData } from "./reports-ciphers.mock";
 describe("InactiveTwoFactorReportComponent", () => {
   let component: InactiveTwoFactorReportComponent;
   let fixture: ComponentFixture<InactiveTwoFactorReportComponent>;
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
   let accountService: FakeAccountService;
   const userId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
     accountService = mockAccountServiceWith(userId);
@@ -42,7 +42,7 @@ describe("InactiveTwoFactorReportComponent", () => {
           useValue: mock<CipherService>(),
         },
         {
-          provide: vNextOrganizationService,
+          provide: OrganizationService,
           useValue: organizationService,
         },
         {

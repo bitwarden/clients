@@ -16,7 +16,7 @@ import {
 
 import { CollectionService, Collection, CollectionView } from "@bitwarden/admin-console/common";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -106,7 +106,7 @@ export class VaultPopupListFiltersService {
   constructor(
     private folderService: FolderService,
     private cipherService: CipherService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private i18nService: I18nService,
     private collectionService: CollectionService,
     private formBuilder: FormBuilder,

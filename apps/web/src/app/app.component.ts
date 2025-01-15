@@ -11,7 +11,7 @@ import { EventUploadService } from "@bitwarden/common/abstractions/event/event-u
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
-import { vNextInternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -87,7 +87,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private dialogService: DialogService,
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
-    private organizationService: vNextInternalOrganizationServiceAbstraction,
+    private organizationService: InternalOrganizationServiceAbstraction,
     private accountService: AccountService,
     private processReloadService: ProcessReloadServiceAbstraction,
   ) {}

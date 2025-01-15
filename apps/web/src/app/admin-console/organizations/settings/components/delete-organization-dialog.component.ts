@@ -8,8 +8,8 @@ import { combineLatest, firstValueFrom, Subject, takeUntil } from "rxjs";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -98,7 +98,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private userVerificationService: UserVerificationService,
     private cipherService: CipherService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private formBuilder: FormBuilder,

@@ -6,7 +6,7 @@ import { ActivatedRoute } from "@angular/router";
 import { combineLatest, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -64,7 +64,7 @@ export class OrgSwitcherComponent {
   constructor(
     private route: ActivatedRoute,
     protected dialogService: DialogService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private trialFlowService: TrialFlowService,
     protected billingApiService: BillingApiServiceAbstraction,
     private accountService: AccountService,

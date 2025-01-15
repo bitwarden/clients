@@ -12,7 +12,7 @@ import {
   canAccessVaultTab,
   canAccessReportingTab,
   canAccessSettingsTab,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 

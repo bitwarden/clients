@@ -7,7 +7,7 @@ import { concatMap, firstValueFrom, map, Observable, Subject, takeUntil } from "
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -121,7 +121,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected policyService: PolicyService,
     protected logService: LogService,
     protected passwordRepromptService: PasswordRepromptService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     protected dialogService: DialogService,
     protected win: Window,
     protected datePipe: DatePipe,

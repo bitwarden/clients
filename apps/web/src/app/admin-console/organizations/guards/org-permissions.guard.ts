@@ -11,8 +11,8 @@ import { firstValueFrom, map } from "rxjs";
 
 import {
   canAccessOrgAdmin,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -44,7 +44,7 @@ export function organizationPermissionsGuard(
 ): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const router = inject(Router);
-    const organizationService = inject(vNextOrganizationService);
+    const organizationService = inject(OrganizationService);
     const toastService = inject(ToastService);
     const i18nService = inject(I18nService);
     const syncService = inject(SyncService);

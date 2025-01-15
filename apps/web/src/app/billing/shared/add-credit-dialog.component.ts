@@ -8,8 +8,8 @@ import { firstValueFrom, map } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BitPayInvoiceRequest } from "@bitwarden/common/billing/models/request/bit-pay-invoice.request";
@@ -64,7 +64,7 @@ export class AddCreditDialogComponent implements OnInit {
     private accountService: AccountService,
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private logService: LogService,
     private configService: ConfigService,
   ) {

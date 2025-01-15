@@ -5,7 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -24,7 +24,7 @@ import { AddEditComponentV2 } from "./add-edit-v2.component";
 describe("AddEditComponentV2", () => {
   let component: AddEditComponentV2;
   let fixture: ComponentFixture<AddEditComponentV2>;
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let policyService: MockProxy<PolicyService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let activatedRoute: MockProxy<ActivatedRoute>;
@@ -46,7 +46,7 @@ describe("AddEditComponentV2", () => {
       name: "Test Organization",
     } as Organization;
 
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([mockOrganization]));
 
     policyService = mock<PolicyService>();
@@ -84,7 +84,7 @@ describe("AddEditComponentV2", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: CipherService, useValue: cipherService },
         { provide: MessagingService, useValue: messagingService },
-        { provide: vNextOrganizationService, useValue: organizationService },
+        { provide: OrganizationService, useValue: organizationService },
         { provide: Router, useValue: mock<Router>() },
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: CollectionService, useValue: collectionService },

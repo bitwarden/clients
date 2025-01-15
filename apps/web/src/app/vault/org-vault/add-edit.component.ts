@@ -7,7 +7,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -53,7 +53,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     policyService: PolicyService,
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
-    organizationService: vNextOrganizationService,
+    organizationService: OrganizationService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,

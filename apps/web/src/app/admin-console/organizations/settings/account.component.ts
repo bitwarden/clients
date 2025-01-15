@@ -18,8 +18,8 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationCollectionManagementUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-collection-management-update.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-update.request";
@@ -92,7 +92,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private keyService: KeyService,
     private router: Router,
     private accountService: AccountService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,

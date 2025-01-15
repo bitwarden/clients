@@ -9,8 +9,8 @@ import { firstValueFrom, from, lastValueFrom, map, switchMap } from "rxjs";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
@@ -63,7 +63,7 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     private toastService: ToastService,
     private location: Location,
     private trialFlowService: TrialFlowService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     protected syncService: SyncService,
   ) {

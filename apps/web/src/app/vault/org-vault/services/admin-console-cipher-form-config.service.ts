@@ -5,7 +5,7 @@ import { combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -27,7 +27,7 @@ import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/se
 @Injectable()
 export class AdminConsoleCipherFormConfigService implements CipherFormConfigService {
   private policyService: PolicyService = inject(PolicyService);
-  private organizationService: vNextOrganizationService = inject(vNextOrganizationService);
+  private organizationService: OrganizationService = inject(OrganizationService);
   private routedVaultFilterService: RoutedVaultFilterService = inject(RoutedVaultFilterService);
   private collectionAdminService: CollectionAdminService = inject(CollectionAdminService);
   private cipherService: CipherService = inject(CipherService);

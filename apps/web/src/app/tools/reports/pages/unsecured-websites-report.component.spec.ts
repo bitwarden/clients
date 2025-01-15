@@ -6,7 +6,7 @@ import { of } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -22,14 +22,14 @@ import { UnsecuredWebsitesReportComponent } from "./unsecured-websites-report.co
 describe("UnsecuredWebsitesReportComponent", () => {
   let component: UnsecuredWebsitesReportComponent;
   let fixture: ComponentFixture<UnsecuredWebsitesReportComponent>;
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
   let collectionService: MockProxy<CollectionService>;
   let accountService: FakeAccountService;
   const userId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
     collectionService = mock<CollectionService>();
@@ -44,7 +44,7 @@ describe("UnsecuredWebsitesReportComponent", () => {
           useValue: mock<CipherService>(),
         },
         {
-          provide: vNextOrganizationService,
+          provide: OrganizationService,
           useValue: organizationService,
         },
         {

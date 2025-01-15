@@ -9,7 +9,7 @@ import {
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -40,7 +40,7 @@ describe("PasswordHealthMembersUriComponent", () => {
         { provide: CipherService, useValue: cipherServiceMock },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: AuditService, useValue: mock<AuditService>() },
-        { provide: vNextOrganizationService, useValue: mock<vNextOrganizationService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
         {
           provide: PasswordStrengthServiceAbstraction,

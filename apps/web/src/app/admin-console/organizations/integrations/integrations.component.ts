@@ -6,8 +6,8 @@ import { Observable, switchMap } from "rxjs";
 
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { IntegrationType } from "@bitwarden/common/enums";
@@ -50,7 +50,7 @@ export class AdminConsoleIntegrationsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
   ) {
     this.integrationsList = [

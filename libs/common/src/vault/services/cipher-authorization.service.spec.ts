@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 import { Observable, firstValueFrom, of } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
@@ -19,7 +19,7 @@ describe("CipherAuthorizationService", () => {
   let cipherAuthorizationService: CipherAuthorizationService;
 
   const mockCollectionService = mock<CollectionService>();
-  const mockOrganizationService = mock<vNextOrganizationService>();
+  const mockOrganizationService = mock<OrganizationService>();
   const mockUserId = Utils.newGuid() as UserId;
   let mockAccountService: FakeAccountService;
 

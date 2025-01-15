@@ -7,8 +7,8 @@ import { Subject, firstValueFrom, takeUntil } from "rxjs";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
-  vNextInternalOrganizationServiceAbstraction,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  InternalOrganizationServiceAbstraction,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -111,7 +111,7 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
-    private internalOrganizationService: vNextInternalOrganizationServiceAbstraction,
+    private internalOrganizationService: InternalOrganizationServiceAbstraction,
     private accountService: AccountService,
   ) {}
 

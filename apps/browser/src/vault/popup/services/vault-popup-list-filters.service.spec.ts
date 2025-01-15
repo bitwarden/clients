@@ -3,7 +3,7 @@ import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, skipWhile } from "rxjs";
 
 import { CollectionService, Collection, CollectionView } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -48,7 +48,7 @@ describe("VaultPopupListFiltersService", () => {
   const organizationService = {
     memberOrganizations$,
     organizations$,
-  } as unknown as vNextOrganizationService;
+  } as unknown as OrganizationService;
 
   const i18nService = {
     t: (key: string) => key,
@@ -82,7 +82,7 @@ describe("VaultPopupListFiltersService", () => {
           useValue: cipherService,
         },
         {
-          provide: vNextOrganizationService,
+          provide: OrganizationService,
           useValue: organizationService,
         },
         {

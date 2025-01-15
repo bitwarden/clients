@@ -16,8 +16,8 @@ import {
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import {
   canAccessOrgAdmin,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -94,7 +94,7 @@ export class ProductSwitcherService {
   ]).pipe(map(() => null));
 
   constructor(
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private providerService: ProviderService,
     private route: ActivatedRoute,
     private router: Router,

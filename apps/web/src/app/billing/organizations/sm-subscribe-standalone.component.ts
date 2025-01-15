@@ -6,7 +6,7 @@ import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { vNextInternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -38,7 +38,7 @@ export class SecretsManagerSubscribeStandaloneComponent {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private organizationService: vNextInternalOrganizationServiceAbstraction,
+    private organizationService: InternalOrganizationServiceAbstraction,
     private toastService: ToastService,
     private accountService: AccountService,
   ) {}

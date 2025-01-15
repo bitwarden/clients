@@ -7,7 +7,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -62,7 +62,7 @@ export class GetCommand extends DownloadCommand {
     encryptService: EncryptService,
     private searchService: SearchService,
     protected apiService: ApiService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private eventCollectionService: EventCollectionService,
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,

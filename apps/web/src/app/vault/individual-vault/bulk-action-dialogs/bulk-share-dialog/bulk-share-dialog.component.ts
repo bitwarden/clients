@@ -5,7 +5,7 @@ import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -63,7 +63,7 @@ export class BulkShareDialogComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private collectionService: CollectionService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private logService: LogService,
     private accountService: AccountService,
   ) {

@@ -3,7 +3,7 @@
 import { Component, OnInit } from "@angular/core";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -32,7 +32,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   constructor(
     protected cipherService: CipherService,
     protected passwordStrengthService: PasswordStrengthServiceAbstraction,
-    protected organizationService: vNextOrganizationService,
+    protected organizationService: OrganizationService,
     protected accountService: AccountService,
     modalService: ModalService,
     passwordRepromptService: PasswordRepromptService,

@@ -4,7 +4,7 @@ import { inject, Injectable } from "@angular/core";
 import { combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,7 +29,7 @@ import {
 @Injectable()
 export class DefaultCipherFormConfigService implements CipherFormConfigService {
   private policyService: PolicyService = inject(PolicyService);
-  private organizationService: vNextOrganizationService = inject(vNextOrganizationService);
+  private organizationService: OrganizationService = inject(OrganizationService);
   private cipherService: CipherService = inject(CipherService);
   private folderService: FolderService = inject(FolderService);
   private collectionService: CollectionService = inject(CollectionService);

@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { BehaviorSubject, of } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -81,7 +81,7 @@ describe("OpenAttachmentsComponent", () => {
           useValue: { showToast },
         },
         {
-          provide: vNextOrganizationService,
+          provide: OrganizationService,
           useValue: { organizations$ },
         },
         {

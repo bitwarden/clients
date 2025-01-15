@@ -2,7 +2,7 @@ import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
-import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { isEnterpriseOrgGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/is-enterprise-org.guard";

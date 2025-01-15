@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -15,20 +15,20 @@ import { FamiliesPolicyService } from "./families-policy.service"; // Adjust the
 
 describe("FamiliesPolicyService", () => {
   let service: FamiliesPolicyService;
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let policyService: MockProxy<PolicyService>;
   let accountService: FakeAccountService;
   const userId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     policyService = mock<PolicyService>();
     accountService = mockAccountServiceWith(userId);
 
     TestBed.configureTestingModule({
       providers: [
         FamiliesPolicyService,
-        { provide: vNextOrganizationService, useValue: organizationService },
+        { provide: OrganizationService, useValue: organizationService },
         { provide: PolicyService, useValue: policyService },
         { provide: AccountService, useValue: accountService },
       ],

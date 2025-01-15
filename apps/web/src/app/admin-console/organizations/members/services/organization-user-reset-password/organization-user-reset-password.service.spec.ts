@@ -7,7 +7,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordDetailsResponse,
 } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
@@ -28,7 +28,7 @@ describe("OrganizationUserResetPasswordService", () => {
 
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationApiService: MockProxy<OrganizationApiService>;
   let i18nService: MockProxy<I18nService>;
@@ -36,7 +36,7 @@ describe("OrganizationUserResetPasswordService", () => {
   beforeAll(() => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     organizationApiService = mock<OrganizationApiService>();
     i18nService = mock<I18nService>();

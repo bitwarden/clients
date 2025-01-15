@@ -31,8 +31,8 @@ import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import {
   getOrganizationById,
-  vNextOrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -188,7 +188,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     private formBuilder: UntypedFormBuilder,
     protected fileDownloadService: FileDownloadService,
     protected dialogService: DialogService,
-    protected organizationService: vNextOrganizationService,
+    protected organizationService: OrganizationService,
     private accountService: AccountService,
     private collectionService: CollectionService,
   ) {}

@@ -7,7 +7,7 @@ import { RouterTestingHarness } from "@angular/router/testing";
 import { MockProxy, any, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -46,20 +46,20 @@ const orgFactory = (props: Partial<Organization> = {}) =>
   );
 
 describe("Is Enterprise Org Guard", () => {
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let dialogService: MockProxy<DialogService>;
   let routerHarness: RouterTestingHarness;
   let accountService: FakeAccountService;
   const userId = Utils.newGuid() as UserId;
 
   beforeEach(async () => {
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     dialogService = mock<DialogService>();
     accountService = mockAccountServiceWith(userId);
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: vNextOrganizationService, useValue: organizationService },
+        { provide: OrganizationService, useValue: organizationService },
         { provide: DialogService, useValue: dialogService },
         { provide: AccountService, useValue: accountService },
         provideRouter([

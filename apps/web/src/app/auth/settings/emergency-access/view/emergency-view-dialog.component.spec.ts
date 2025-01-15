@@ -5,7 +5,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -42,7 +42,7 @@ describe("EmergencyViewDialogComponent", () => {
     await TestBed.configureTestingModule({
       imports: [EmergencyViewDialogComponent, NoopAnimationsModule],
       providers: [
-        { provide: vNextOrganizationService, useValue: mock<vNextOrganizationService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: FolderService, useValue: mock<FolderService>() },

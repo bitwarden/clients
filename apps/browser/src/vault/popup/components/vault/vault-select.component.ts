@@ -27,7 +27,7 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -103,7 +103,7 @@ export class VaultSelectComponent implements OnInit, OnDestroy {
     private overlay: Overlay,
     private viewContainerRef: ViewContainerRef,
     private platformUtilsService: PlatformUtilsService,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private accountService: AccountService,
     private policyService: PolicyService,
   ) {}

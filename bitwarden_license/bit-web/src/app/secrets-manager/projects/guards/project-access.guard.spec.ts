@@ -5,7 +5,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -31,7 +31,7 @@ export class GuardedRouteTestComponent {}
 export class RedirectTestComponent {}
 
 describe("Project Redirect Guard", () => {
-  let organizationService: MockProxy<vNextOrganizationService>;
+  let organizationService: MockProxy<OrganizationService>;
   let routerService: MockProxy<RouterService>;
   let projectServiceMock: MockProxy<ProjectService>;
   let i18nServiceMock: MockProxy<I18nService>;
@@ -52,7 +52,7 @@ describe("Project Redirect Guard", () => {
   } as ProjectView;
 
   beforeEach(async () => {
-    organizationService = mock<vNextOrganizationService>();
+    organizationService = mock<OrganizationService>();
     routerService = mock<RouterService>();
     projectServiceMock = mock<ProjectService>();
     i18nServiceMock = mock<I18nService>();
@@ -78,7 +78,7 @@ describe("Project Redirect Guard", () => {
         ]),
       ],
       providers: [
-        { provide: vNextOrganizationService, useValue: organizationService },
+        { provide: OrganizationService, useValue: organizationService },
         { provide: AccountService, useValue: accountService },
         { provide: RouterService, useValue: routerService },
         { provide: ProjectService, useValue: projectServiceMock },

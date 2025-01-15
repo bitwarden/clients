@@ -4,7 +4,7 @@ import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 import { firstValueFrom, map } from "rxjs";
 
-import { vNextOrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/vnext.organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ImportServiceAbstraction, ImportType } from "@bitwarden/importer/core";
@@ -16,7 +16,7 @@ import { CliUtils } from "../utils";
 export class ImportCommand {
   constructor(
     private importService: ImportServiceAbstraction,
-    private organizationService: vNextOrganizationService,
+    private organizationService: OrganizationService,
     private syncService: SyncService,
     private accountService: AccountService,
   ) {}
