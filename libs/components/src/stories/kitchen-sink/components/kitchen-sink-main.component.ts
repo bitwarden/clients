@@ -106,6 +106,10 @@ class KitchenSinkDialog {
           sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
           est laborum.
         </p>
+        <bit-form-field>
+          <bit-label>What did foo say to bar?</bit-label>
+          <input bitInput value="Baz" />
+        </bit-form-field>
         <p bitTypography="body1">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
