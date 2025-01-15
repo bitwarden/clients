@@ -405,6 +405,8 @@ export class NativeMessagingMain {
             this.logService.info(`Error reading preferences: ${e}`);
           }
         }
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         // Browser is not installed, we can just skip it
       }

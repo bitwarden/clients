@@ -65,6 +65,8 @@ export class DesktopLoginComponentService
 
     try {
       await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       this.toastService.showToast({
         variant: "error",

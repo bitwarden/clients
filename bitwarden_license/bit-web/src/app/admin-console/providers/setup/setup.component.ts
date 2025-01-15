@@ -23,8 +23,7 @@ import { KeyService } from "@bitwarden/key-management";
   templateUrl: "setup.component.html",
 })
 export class SetupComponent implements OnInit, OnDestroy {
-  @ViewChild(ManageTaxInformationComponent)
-  manageTaxInformationComponent: ManageTaxInformationComponent;
+  @ViewChild(ManageTaxInformationComponent) taxInformationComponent: ManageTaxInformationComponent;
 
   loading = true;
   providerId: string;
@@ -111,7 +110,7 @@ export class SetupComponent implements OnInit, OnDestroy {
     try {
       this.formGroup.markAllAsTouched();
 
-      if (!this.manageTaxInformationComponent.validate() || !this.formGroup.valid) {
+      if (!this.taxInformationComponent.validate() || !this.formGroup.valid) {
         return;
       }
 
@@ -125,7 +124,7 @@ export class SetupComponent implements OnInit, OnDestroy {
       request.key = key;
 
       request.taxInfo = new ExpandedTaxInfoUpdateRequest();
-      const taxInformation = this.manageTaxInformationComponent.getTaxInformation();
+      const taxInformation = this.taxInformationComponent.getTaxInformation();
 
       request.taxInfo.country = taxInformation.country;
       request.taxInfo.postalCode = taxInformation.postalCode;
@@ -147,6 +146,7 @@ export class SetupComponent implements OnInit, OnDestroy {
 
       await this.router.navigate(["/providers", provider.id]);
     } catch (e) {
+      e.message = this.i18nService.translate(e.message) || e.message;
       this.validationService.showError(e);
     }
   };

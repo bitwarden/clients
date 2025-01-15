@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Silpnas slaptažodis nustatytas ir rastas per duomenų pažeidimą. Norėdami apsaugoti paskyrą, naudokite stiprų ir unikalų slaptažodį. Ar tikrai norite naudoti šį slaptažodį?"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "Patikrinti žinomus šio slaptažodžio duomenų pažeidimus"
   },

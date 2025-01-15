@@ -311,7 +311,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   setInitialPlanSelection() {
     this.focusedIndex = this.selectableProducts.length - 1;
-    this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    if (!this.isSubscriptionCanceled) {
+      this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    }
   }
 
   getPlanByType(productTier: ProductTierType) {
@@ -1060,7 +1062,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private refreshSalesTax(): void {
-    if (!this.taxInformation.country || !this.taxInformation.postalCode) {
+    if (
+      this.taxInformation === undefined ||
+      !this.taxInformation.country ||
+      !this.taxInformation.postalCode
+    ) {
       return;
     }
 

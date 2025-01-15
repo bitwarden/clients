@@ -67,6 +67,7 @@ import { SendComponent } from "./tools/send/send.component";
 /**
  * Data properties acceptable for use in route objects in the desktop
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RouteDataProperties {
   // For any new route data properties, add them here.
   // then assert that the data object satisfies this interface in the route object.

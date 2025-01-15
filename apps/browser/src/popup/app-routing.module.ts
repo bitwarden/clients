@@ -17,7 +17,6 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { extensionRefreshSwap } from "@bitwarden/angular/utils/extension-refresh-swap";
 import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
@@ -71,14 +70,10 @@ import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component"
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
-import { Fido2V1Component } from "../autofill/popup/fido2/fido2-v1.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
-import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { BlockedDomainsComponent } from "../autofill/popup/settings/blocked-domains.component";
-import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
-import { NotificationsSettingsV1Component } from "../autofill/popup/settings/notifications-v1.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
@@ -148,11 +143,12 @@ const routes: Routes = [
     canActivate: [unauthGuardFn(unauthRouteOverrides), unauthUiRefreshRedirect("/login")],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
-  ...extensionRefreshSwap(Fido2V1Component, Fido2Component, {
+  {
     path: "fido2",
+    component: Fido2Component,
     canActivate: [fido2AuthGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   ...twofactorRefactorSwap(
     TwoFactorComponent,
     AnonLayoutWrapperComponent,
@@ -321,22 +317,24 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
-  ...extensionRefreshSwap(AutofillV1Component, AutofillComponent, {
+  {
     path: "autofill",
+    component: AutofillComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   {
     path: "account-security",
     component: AccountSecurityComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
-  ...extensionRefreshSwap(NotificationsSettingsV1Component, NotificationsSettingsComponent, {
+  {
     path: "notifications",
+    component: NotificationsSettingsComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
-  }),
+  },
   {
     path: "vault-settings",
     component: VaultSettingsV2Component,
@@ -355,11 +353,12 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
   },
-  ...extensionRefreshSwap(ExcludedDomainsV1Component, ExcludedDomainsComponent, {
+  {
     path: "excluded-domains",
+    component: ExcludedDomainsComponent,
     canActivate: [authGuard],
     data: { elevation: 2 } satisfies RouteDataProperties,
-  }),
+  },
   {
     path: "premium",
     component: PremiumV2Component,

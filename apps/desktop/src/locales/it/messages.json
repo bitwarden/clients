@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Password debole e trovata in una violazione dei dati. Usa una password forte e unica per proteggere il tuo account. Sei sicuro di voler usare questa password?"
   },
+  "useThisPassword": {
+    "message": "Usa questa parola d'accesso"
+  },
+  "useThisUsername": {
+    "message": "Usa questo nome utente"
+  },
   "checkForBreaches": {
     "message": "Controlla se la tua password è presente in una violazione dei dati"
   },

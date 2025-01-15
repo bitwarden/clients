@@ -4,13 +4,9 @@
   "enabledManagers": ["cargo", "github-actions", "npm"],
   "packageRules": [
     {
-      "groupName": "gh minor",
+      "groupName": "github-action minor",
       "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "commitMessagePrefix": "[deps] BRE:"
+      "matchUpdateTypes": ["minor"]
     },
     {
       "matchManagers": ["cargo"],
@@ -86,6 +82,7 @@
         "prettier",
         "prettier-plugin-tailwindcss",
         "rimraf",
+        "@storybook/web-components-webpack5",
         "tabbable",
         "tldts",
         "wait-on"
@@ -210,10 +207,10 @@
         "eslint-plugin-storybook",
         "eslint-plugin-tailwindcss",
         "husky",
-        "jest-extended",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",
+        "jest-diff",
         "lint-staged",
         "ts-jest"
       ],

@@ -2879,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "کلمه عبور ضعیف شناسایی و در یک نقض داده پیدا شد. از یک کلمه عبور قوی و منحصر به فرد برای محافظت از حساب خود استفاده کنید. آیا مطمئنید که می‌خواهید از این کلمه عبور استفاده کنید؟"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "نقض اطلاعات شناخته شده برای این کلمه عبور را بررسی کنید"
   },
