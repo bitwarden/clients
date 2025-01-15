@@ -1,5 +1,6 @@
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
+import { deepFreeze } from "@bitwarden/common/tools/util";
 
 import { EmailRandomizer } from "../../engine";
 import { CatchallConstraints } from "../../policies/catchall-constraints";
@@ -8,7 +9,6 @@ import {
   CredentialGenerator,
   GeneratorDependencyProvider,
 } from "../../types";
-import { deepFreeze } from "../../util";
 import { Algorithm, Type, Profile } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 
@@ -58,7 +58,7 @@ const catchall: GeneratorMetadata<CatchallGenerationOptions> = deepFreeze({
       constraints: {
         default: { catchallDomain: { minLength: 1 } },
         create(_policies, context) {
-          return new CatchallConstraints(context.email);
+          return new CatchallConstraints(context.email ?? "");
         },
       },
     },

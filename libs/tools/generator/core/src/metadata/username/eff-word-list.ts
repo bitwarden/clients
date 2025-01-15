@@ -1,6 +1,7 @@
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
+import { deepFreeze } from "@bitwarden/common/tools/util";
 
 import { UsernameRandomizer } from "../../engine";
 import {
@@ -8,7 +9,6 @@ import {
   EffUsernameGenerationOptions,
   GeneratorDependencyProvider,
 } from "../../types";
-import { deepFreeze } from "../../util";
 import { Algorithm, Profile, Type } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 

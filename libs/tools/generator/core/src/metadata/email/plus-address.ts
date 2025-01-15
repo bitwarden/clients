@@ -1,5 +1,6 @@
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
+import { deepFreeze } from "@bitwarden/common/tools/util";
 
 import { EmailRandomizer } from "../../engine";
 import { SubaddressConstraints } from "../../policies/subaddress-constraints";
@@ -8,7 +9,6 @@ import {
   GeneratorDependencyProvider,
   SubaddressGenerationOptions,
 } from "../../types";
-import { deepFreeze } from "../../util";
 import { Algorithm, Profile, Type } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 

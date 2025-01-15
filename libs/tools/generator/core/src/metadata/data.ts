@@ -1,4 +1,4 @@
-import { deepFreeze } from "../util";
+import { deepFreeze } from "@bitwarden/common/tools/util";
 
 /** algorithms for generating credentials */
 export const Algorithm = Object.freeze({
