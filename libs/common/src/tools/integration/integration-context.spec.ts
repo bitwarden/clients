@@ -1,6 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
 
 import { IntegrationContext } from "./integration-context";
 import { IntegrationId } from "./integration-id";

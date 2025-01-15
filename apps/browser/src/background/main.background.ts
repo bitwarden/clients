@@ -204,6 +204,7 @@ import {
   BiometricStateService,
   BiometricsService,
   DefaultBiometricStateService,
+  DefaultKeyService,
   DefaultKdfConfigService,
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
@@ -241,7 +242,6 @@ import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
-import { BrowserKeyService } from "../key-management/browser-key.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
@@ -416,6 +416,7 @@ export default class MainBackground {
       await this.refreshMenu(true);
       if (this.systemService != null) {
         await this.systemService.clearPendingClipboard();
+        await this.biometricsService.setShouldAutopromptNow(false);
         await this.processReloadService.startProcessReload(this.authService);
       }
     };
@@ -631,10 +632,6 @@ export default class MainBackground {
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-    );
-
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
     this.pinService = new PinService(
@@ -649,7 +646,7 @@ export default class MainBackground {
       this.stateService,
     );
 
-    this.keyService = new BrowserKeyService(
+    this.keyService = new DefaultKeyService(
       this.pinService,
       this.masterPasswordService,
       this.keyGenerationService,
@@ -660,9 +657,14 @@ export default class MainBackground {
       this.stateService,
       this.accountService,
       this.stateProvider,
-      this.biometricStateService,
-      this.biometricsService,
       this.kdfConfigService,
+    );
+
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -769,7 +771,10 @@ export default class MainBackground {
       this.configService,
     );
 
-    this.devicesService = new DevicesServiceImplementation(this.devicesApiService);
+    this.devicesService = new DevicesServiceImplementation(
+      this.devicesApiService,
+      this.appIdService,
+    );
 
     this.authRequestService = new AuthRequestService(
       this.appIdService,
@@ -792,6 +797,8 @@ export default class MainBackground {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
+      this.platformUtilsService,
+      this.apiService,
     );
 
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
@@ -852,10 +859,8 @@ export default class MainBackground {
       this.userVerificationApiService,
       this.userDecryptionOptionsService,
       this.pinService,
-      this.logService,
-      this.vaultTimeoutSettingsService,
-      this.platformUtilsService,
       this.kdfConfigService,
+      this.biometricsService,
     );
 
     this.vaultFilterService = new VaultFilterService(
@@ -885,6 +890,7 @@ export default class MainBackground {
       this.stateEventRunnerService,
       this.taskSchedulerService,
       this.logService,
+      this.biometricsService,
       lockedCallback,
       logoutCallback,
     );
@@ -1076,6 +1082,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       this.biometricStateService,
       this.accountService,
+      this.logService,
     );
 
     // Other fields
@@ -1229,6 +1236,7 @@ export default class MainBackground {
       this.i18nService,
       this.logService,
       this.billingAccountProfileStateService,
+      this.accountService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(

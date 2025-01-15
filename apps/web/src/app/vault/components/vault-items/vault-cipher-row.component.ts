@@ -78,6 +78,13 @@ export class VaultCipherRowComponent implements OnInit {
     }
   }
 
+  protected get clickAction() {
+    if (this.cipher.decryptionFailure) {
+      return "showFailedToDecrypt";
+    }
+    return this.extensionRefreshEnabled ? "view" : null;
+  }
+
   protected get showTotpCopyButton() {
     return (
       (this.cipher.login?.hasTotp ?? false) &&

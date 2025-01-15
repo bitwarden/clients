@@ -107,7 +107,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private validationService: ValidationService,
   ) {
-    this.clientType === this.platformUtilsService.getClientType();
+    this.clientType = this.platformUtilsService.getClientType();
   }
 
   async ngOnInit() {
