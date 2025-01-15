@@ -2855,6 +2855,9 @@
   "logInRequested": {
     "message": "Log in requested"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
   "creatingAccountOn": {
     "message": "Creating account on"
   },
