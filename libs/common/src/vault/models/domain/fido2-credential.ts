@@ -54,39 +54,30 @@ export class Fido2Credential extends Domain {
   async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<Fido2CredentialView> {
     const view = await this.decryptObj(
       new Fido2CredentialView(),
-      {
-        credentialId: null,
-        keyType: null,
-        keyAlgorithm: null,
-        keyCurve: null,
-        keyValue: null,
-        rpId: null,
-        userHandle: null,
-        userName: null,
-        rpName: null,
-        userDisplayName: null,
-        discoverable: null,
-      },
+      [
+        "credentialId",
+        "keyType",
+        "keyAlgorithm",
+        "keyCurve",
+        "keyValue",
+        "rpId",
+        "userHandle",
+        "userName",
+        "rpName",
+        "userDisplayName",
+        "discoverable",
+      ],
       orgId,
       encKey,
     );
 
-    const { counter } = await this.decryptObj(
-      { counter: "" },
-      {
-        counter: null,
-      },
-      orgId,
-      encKey,
-    );
+    const { counter } = await this.decryptObj({ counter: "" }, ["counter"], orgId, encKey);
     // Counter will end up as NaN if this fails
     view.counter = parseInt(counter);
 
     const { discoverable } = await this.decryptObj(
       { discoverable: "" },
-      {
-        discoverable: null,
-      },
+      ["discoverable"],
       orgId,
       encKey,
     );

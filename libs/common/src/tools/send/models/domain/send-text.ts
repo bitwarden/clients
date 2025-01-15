@@ -30,14 +30,7 @@ export class SendText extends Domain {
   }
 
   decrypt(key: SymmetricCryptoKey): Promise<SendTextView> {
-    return this.decryptObj(
-      new SendTextView(this),
-      {
-        text: null,
-      },
-      null,
-      key,
-    );
+    return this.decryptObj(new SendTextView(this), ["text"], null, key);
   }
 
   static fromJSON(obj: Jsonify<SendText>) {

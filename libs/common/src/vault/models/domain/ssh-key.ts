@@ -39,11 +39,7 @@ export class SshKey extends Domain {
   ): Promise<SshKeyView> {
     return this.decryptObj(
       new SshKeyView(),
-      {
-        privateKey: null,
-        publicKey: null,
-        keyFingerprint: null,
-      },
+      ["privateKey", "publicKey", "keyFingerprint"],
       orgId,
       encKey,
       "DomainType: SshKey; " + context,

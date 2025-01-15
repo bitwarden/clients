@@ -34,14 +34,7 @@ export class SendFile extends Domain {
   }
 
   async decrypt(key: SymmetricCryptoKey): Promise<SendFileView> {
-    const view = await this.decryptObj(
-      new SendFileView(this),
-      {
-        fileName: null,
-      },
-      null,
-      key,
-    );
+    const view = await this.decryptObj(new SendFileView(this), ["fileName"], null, key);
     return view;
   }
 

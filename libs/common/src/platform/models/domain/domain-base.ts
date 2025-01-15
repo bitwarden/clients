@@ -37,6 +37,7 @@ export default class Domain {
       }
     }
   }
+
   protected buildDataModel<D extends Domain>(
     domain: D,
     dataObj: any,
@@ -60,28 +61,20 @@ export default class Domain {
 
   protected async decryptObj<T extends View>(
     viewModel: T,
-    map: any,
-    orgId: string,
+    props: (keyof T & keyof this)[] & (string | EncString)[],
+    orgId: string | null,
     key: SymmetricCryptoKey = null,
     objectContext: string = "No Domain Context",
   ): Promise<T> {
-    const self: any = this;
-
-    for (const prop in map) {
-      // eslint-disable-next-line
-      if (!map.hasOwnProperty(prop)) {
-        continue;
-      }
-
-      const mapProp = map[prop] || prop;
-      if (self[mapProp]) {
-        (viewModel as any)[prop] = await self[mapProp].decrypt(
+    for (const prop of props) {
+      (viewModel[prop] as string) =
+        (await (this[prop] as EncString)?.decrypt(
           orgId,
           key,
-          `Property: ${prop}; ObjectContext: ${objectContext}`,
-        );
-      }
+          `Property: ${prop as string}; ObjectContext: ${objectContext}`,
+        )) ?? null;
     }
+
     return viewModel;
   }
 
@@ -111,7 +104,7 @@ export default class Domain {
     const decryptedObjects = [];
 
     for (const prop of encryptedProperties) {
-      const value = (this as any)[prop] as EncString;
+      const value = this[prop] as EncString;
       const decrypted = await this.decryptProperty(
         prop,
         value,

@@ -44,14 +44,7 @@ export class Card extends Domain {
   ): Promise<CardView> {
     return this.decryptObj(
       new CardView(),
-      {
-        cardholderName: null,
-        brand: null,
-        number: null,
-        expMonth: null,
-        expYear: null,
-        code: null,
-      },
+      ["cardholderName", "brand", "number", "expMonth", "expYear", "code"],
       orgId,
       encKey,
       "DomainType: Card; " + context,

@@ -45,9 +45,7 @@ export class Attachment extends Domain {
   ): Promise<AttachmentView> {
     const view = await this.decryptObj(
       new AttachmentView(this),
-      {
-        fileName: null,
-      },
+      ["fileName"],
       orgId,
       encKey,
       "DomainType: Attachment; " + context,

@@ -60,11 +60,7 @@ export class Login extends Domain {
   ): Promise<LoginView> {
     const view = await this.decryptObj(
       new LoginView(this),
-      {
-        username: null,
-        password: null,
-        totp: null,
-      },
+      ["username", "password", "totp"],
       orgId,
       encKey,
       `DomainType: Login; ${context}`,

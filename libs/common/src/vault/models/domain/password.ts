@@ -27,9 +27,7 @@ export class Password extends Domain {
   decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<PasswordHistoryView> {
     return this.decryptObj(
       new PasswordHistoryView(this),
-      {
-        password: null,
-      },
+      ["password"],
       orgId,
       encKey,
       "DomainType: PasswordHistory",
