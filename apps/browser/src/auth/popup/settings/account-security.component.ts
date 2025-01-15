@@ -17,6 +17,7 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  timer,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -53,11 +54,15 @@ import {
   TypographyModule,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService, BiometricsService, BiometricStateService } from "@bitwarden/key-management";
+import {
+  KeyService,
+  BiometricsService,
+  BiometricStateService,
+  BiometricsStatus,
+} from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import { enableAccountSwitching } from "../../../platform/flags";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -99,9 +104,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   availableVaultTimeoutActions: VaultTimeoutAction[] = [];
   vaultTimeoutOptions: VaultTimeoutOption[] = [];
   hasVaultTimeoutPolicy = false;
-  supportsBiometric: boolean;
+  biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
-  accountSwitcherEnabled = false;
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -134,9 +138,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
-  ) {
-    this.accountSwitcherEnabled = enableAccountSwitching();
-  }
+  ) {}
 
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
@@ -199,7 +201,41 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
-    this.supportsBiometric = await this.biometricsService.supportsBiometric();
+    timer(0, 1000)
+      .pipe(
+        switchMap(async () => {
+          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
+          const biometricSettingAvailable =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) ||
+            (status !== BiometricsStatus.DesktopDisconnected &&
+              status !== BiometricsStatus.NotEnabledInConnectedDesktopApp) ||
+            (await this.vaultTimeoutSettingsService.isBiometricLockSet());
+          if (!biometricSettingAvailable) {
+            this.form.controls.biometric.disable({ emitEvent: false });
+          } else {
+            this.form.controls.biometric.enable({ emitEvent: false });
+          }
+
+          if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
+            this.biometricUnavailabilityReason = this.i18nService.t(
+              "biometricsStatusHelptextDesktopDisconnected",
+            );
+          } else if (
+            status === BiometricsStatus.NotEnabledInConnectedDesktopApp &&
+            !biometricSettingAvailable
+          ) {
+            this.biometricUnavailabilityReason = this.i18nService.t(
+              "biometricsStatusHelptextNotEnabledInDesktop",
+              activeAccount.email,
+            );
+          } else {
+            this.biometricUnavailabilityReason = "";
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
     this.showChangeMasterPass = await this.userVerificationService.hasMasterPassword();
 
     this.form.controls.vaultTimeout.valueChanges
@@ -399,7 +435,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async updateBiometric(enabled: boolean) {
-    if (enabled && this.supportsBiometric) {
+    if (enabled) {
       let granted;
       try {
         granted = await BrowserApi.requestPermission({ permissions: ["nativeMessaging"] });
@@ -471,7 +507,18 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     const biometricsPromise = async () => {
       try {
-        const result = await this.biometricsService.authenticateBiometric();
+        const userId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((a) => a.id)),
+        );
+        let result = false;
+        try {
+          const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
+          result = await this.keyService.validateUserKey(userKey, userId);
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) {
+          result = false;
+        }
 
         // prevent duplicate dialog
         biometricsResponseReceived = true;

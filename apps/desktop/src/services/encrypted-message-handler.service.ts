@@ -178,6 +178,8 @@ export class EncryptedMessageHandlerService {
       await this.messagingService.send("refreshCiphers");
 
       return { status: "success" };
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return { status: "failure" };
     }
@@ -222,6 +224,8 @@ export class EncryptedMessageHandlerService {
       await this.messagingService.send("refreshCiphers");
 
       return { status: "success" };
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return { status: "failure" };
     }

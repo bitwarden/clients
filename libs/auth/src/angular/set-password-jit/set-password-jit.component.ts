@@ -15,6 +15,8 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ToastService } from "../../../../components/src/toast";
 import { InputPasswordComponent } from "../input-password/input-password.component";
 import { PasswordInputResult } from "../input-password/password-input-result";

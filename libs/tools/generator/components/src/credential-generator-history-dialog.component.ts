@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -34,6 +35,7 @@ export class CredentialGeneratorHistoryDialogComponent {
     private accountService: AccountService,
     private history: GeneratorHistoryService,
     private dialogService: DialogService,
+    private dialogRef: DialogRef,
   ) {
     this.accountService.activeAccount$
       .pipe(
@@ -52,7 +54,13 @@ export class CredentialGeneratorHistoryDialogComponent {
       .subscribe(this.hasHistory$);
   }
 
-  clear = async () => {
+  /** closes the dialog */
+  protected close() {
+    this.dialogRef.close();
+  }
+
+  /** Launches clear history flow */
+  protected async clear() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "clearGeneratorHistoryTitle" },
       content: { key: "cleargGeneratorHistoryDescription" },
@@ -64,5 +72,5 @@ export class CredentialGeneratorHistoryDialogComponent {
     if (confirmed) {
       await this.history.clear(await firstValueFrom(this.userId$));
     }
-  };
+  }
 }

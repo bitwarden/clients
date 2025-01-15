@@ -14,6 +14,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { BitPasswordInputToggleDirective } from "@bitwarden/components/src/form-field/password-input-toggle.directive";
 
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
@@ -434,6 +436,7 @@ describe("LoginDetailsSectionComponent", () => {
     });
 
     it("should call captureTotp when the capture totp button is clicked", fakeAsync(() => {
+      jest.spyOn(component, "canCaptureTotp", "get").mockReturnValue(true);
       component.captureTotp = jest.fn();
       fixture.detectChanges();
 
@@ -445,7 +448,8 @@ describe("LoginDetailsSectionComponent", () => {
     }));
 
     describe("canCaptureTotp", () => {
-      it("should return true when totpCaptureService is present and totp is editable", () => {
+      it("should return true when totpCaptureService is present and totpCaptureService.canCaptureTotp is true and totp is editable", () => {
+        jest.spyOn(component, "canCaptureTotp", "get").mockReturnValue(true);
         component.loginDetailsForm.controls.totp.enable();
         expect(component.canCaptureTotp).toBe(true);
       });

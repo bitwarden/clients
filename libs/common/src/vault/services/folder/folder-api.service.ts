@@ -1,6 +1,5 @@
-import { UserId } from "@bitwarden/common/types/guid";
-
 import { ApiService } from "../../../abstractions/api.service";
+import { UserId } from "../../../types/guid";
 import { FolderApiServiceAbstraction } from "../../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { FolderData } from "../../../vault/models/data/folder.data";

@@ -10,14 +10,15 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
-import { first } from "rxjs/operators";
+import { combineLatest, firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
+import { filter, first, map, take } from "rxjs/operators";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -27,13 +28,15 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { GeneratorComponent } from "../../../app/tools/generator.component";
@@ -111,11 +114,18 @@ export class VaultComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private configService: ConfigService,
+    private accountService: AccountService,
+    private cipherService: CipherService,
   ) {}
 
   async ngOnInit() {
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntil(this.componentIsDestroyed$))
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntil(this.componentIsDestroyed$),
+      )
       .subscribe((canAccessPremium: boolean) => {
         this.userHasPremiumAccess = canAccessPremium;
       });
@@ -231,6 +241,25 @@ export class VaultComponent implements OnInit, OnDestroy {
         notificationId: authRequest.id,
       });
     }
+
+    // Store a reference to the current active account during page init
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+
+    // Combine with the activeAccount$ to ensure we only show the dialog for the current account from ngOnInit.
+    // The account switching process updates the cipherService before Vault is destroyed and would cause duplicate emissions
+    combineLatest([this.accountService.activeAccount$, this.cipherService.failedToDecryptCiphers$])
+      .pipe(
+        filter(([account]) => account.id === activeAccount.id),
+        map(([_, ciphers]) => ciphers.filter((c) => !c.isDeleted)),
+        filter((ciphers) => ciphers.length > 0),
+        take(1),
+        takeUntil(this.componentIsDestroyed$),
+      )
+      .subscribe((ciphers) => {
+        DecryptionFailureDialogComponent.open(this.dialogService, {
+          cipherIds: ciphers.map((c) => c.id as CipherId),
+        });
+      });
   }
 
   ngOnDestroy() {
@@ -295,6 +324,12 @@ export class VaultComponent implements OnInit, OnDestroy {
           }),
       },
     ];
+
+    if (cipher.decryptionFailure) {
+      invokeMenu(menu);
+      return;
+    }
+
     if (!cipher.isDeleted) {
       menu.push({
         label: this.i18nService.t("edit"),

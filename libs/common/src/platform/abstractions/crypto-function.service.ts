@@ -1,5 +1,5 @@
 import { CsprngArray } from "../../types/csprng";
-import { DecryptParameters } from "../models/domain/decrypt-parameters";
+import { CbcDecryptParameters, EcbDecryptParameters } from "../models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export abstract class CryptoFunctionService {
@@ -51,11 +51,13 @@ export abstract class CryptoFunctionService {
     iv: string,
     mac: string,
     key: SymmetricCryptoKey,
-  ): DecryptParameters<Uint8Array | string>;
-  abstract aesDecryptFast(
-    parameters: DecryptParameters<Uint8Array | string>,
-    mode: "cbc" | "ecb",
-  ): Promise<string>;
+  ): CbcDecryptParameters<Uint8Array | string>;
+  abstract aesDecryptFast({
+    mode,
+    parameters,
+  }:
+    | { mode: "cbc"; parameters: CbcDecryptParameters<Uint8Array | string> }
+    | { mode: "ecb"; parameters: EcbDecryptParameters<Uint8Array | string> }): Promise<string>;
   abstract aesDecrypt(
     data: Uint8Array,
     iv: Uint8Array,
