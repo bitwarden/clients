@@ -1,14 +1,19 @@
 import { FocusKeyManager } from "@angular/cdk/a11y";
+import { CdkPortalOutlet } from "@angular/cdk/portal";
 import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ContentChildren,
+  ElementRef,
   EventEmitter,
   Input,
   Output,
   QueryList,
+  ViewChild,
   ViewChildren,
+  inject,
 } from "@angular/core";
 
 import { ButtonModule } from "@bitwarden/components";
@@ -17,11 +22,15 @@ import { VaultCarouselButtonComponent } from "./carousel-button/carousel-button.
 import { VaultCarouselContentComponent } from "./carousel-content/carousel-content.component";
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
 
+/** Root font size of the document, used to calculate REM units */
+const ROOT_PX_FONT_SIZE = 16;
+
 @Component({
   selector: "vault-carousel",
   templateUrl: "./carousel.component.html",
   standalone: true,
   imports: [
+    CdkPortalOutlet,
     CommonModule,
     ButtonModule,
     VaultCarouselContentComponent,
@@ -29,6 +38,7 @@ import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.com
   ],
 })
 export class VaultCarouselComponent implements AfterViewInit {
+  private changeDetectorRef = inject(ChangeDetectorRef);
   /**
    * Accessible Label for the carousel
    *
@@ -36,13 +46,6 @@ export class VaultCarouselComponent implements AfterViewInit {
    * The label should not include the word "carousel", `aria-roledescription="carousel"` is already included.
    */
   @Input({ required: true }) label = "";
-
-  /**
-   * Slides that have differing heights can cause the carousel controls to jump.
-   * Provide a height value of the tallest slide to prevent this.
-   * The value should be in `rem`.
-   */
-  @Input() height?: `${number}rem` | undefined;
 
   /**
    * Emits the index of of the newly selected slide.
@@ -56,8 +59,26 @@ export class VaultCarouselComponent implements AfterViewInit {
   @ViewChildren(VaultCarouselButtonComponent)
   carouselButtons!: QueryList<VaultCarouselButtonComponent>;
 
+  /** Wrapping container for the carousel content and buttons */
+  @ViewChild("container") carouselContainer!: ElementRef<HTMLElement>;
+
+  /** Container for the carousel buttons */
+  @ViewChild("carouselButtonWrapper") carouselButtonWrapper!: ElementRef<HTMLDivElement>;
+
+  /** Temporary container containing `tempSlideOutlet` */
+  @ViewChild("tempSlideContainer") tempSlideContainer!: ElementRef<HTMLDivElement>;
+
+  /** Outlet to temporary render each slide within */
+  @ViewChild(CdkPortalOutlet) tempSlideOutlet!: CdkPortalOutlet;
+
   /** The currently selected index of the carousel. */
   protected selectedIndex = 0;
+
+  /**
+   * Slides that have differing heights can cause the carousel controls to jump.
+   * Set the min height based on the tallest slide.
+   */
+  protected minHeight: `${number}rem` | null = null;
 
   /**
    * Focus key manager for keeping tab controls accessible.
@@ -79,5 +100,49 @@ export class VaultCarouselComponent implements AfterViewInit {
 
     // Set the first carousel button as active, this avoids having to double tab the arrow keys on initial focus.
     this.keyManager.setFirstItemActive();
+
+    this.setMinHeightOfCarousel();
+  }
+
+  /**
+   * Slides of differing height can cause the carousel to jump in height.
+   * Render each slide in a temporary portal outlet to get the height of each slide
+   * and store the tallest slide height.
+   */
+  private setMinHeightOfCarousel() {
+    // Store the height of the carousel button element.
+    const heightOfButtonsPx = this.carouselButtonWrapper.nativeElement.offsetHeight;
+
+    // Get the width of the carousel so we know how much space each slide can render within.
+    const containerWidth = this.carouselContainer.nativeElement.offsetWidth;
+    const containerHeight = this.carouselContainer.nativeElement.offsetHeight;
+
+    // Set the width of the temp container to render each slide inside of.
+    this.tempSlideContainer.nativeElement.style.width = `${containerWidth}px`;
+
+    // The first slide is already rendered at this point, use the height of the container
+    // to determine the height of the first slide.
+    let tallestSlideHeightPx = containerHeight - heightOfButtonsPx;
+
+    this.slides.forEach((slide, index) => {
+      // Skip the first slide, the height is accounted for above.
+      if (index === this.selectedIndex) {
+        return;
+      }
+
+      this.tempSlideOutlet.attach(slide.content);
+
+      // Store the height of the current slide if is larger than the current stored height;
+      if (this.tempSlideContainer.nativeElement.offsetHeight > tallestSlideHeightPx) {
+        tallestSlideHeightPx = this.tempSlideContainer.nativeElement.offsetHeight;
+      }
+
+      // cleanup the outlet
+      this.tempSlideOutlet.detach();
+    });
+
+    // Set the min height of the entire carousel based on the largest slide.
+    this.minHeight = `${(tallestSlideHeightPx + heightOfButtonsPx) / ROOT_PX_FONT_SIZE}rem`;
+    this.changeDetectorRef.detectChanges();
   }
 }

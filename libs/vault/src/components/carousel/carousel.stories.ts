@@ -21,7 +21,7 @@ export const Default: Story = {
   render: (args: any) => ({
     props: args,
     template: `
-      <vault-carousel label="Storybook Demo" height="19rem">
+      <vault-carousel label="Storybook Demo">
         <vault-carousel-slide label="First Slide">
           <div class="tw-flex tw-flex-col tw-items-center tw-gap-4">
             <h2 bitTypography="h2">First Carousel Heading</h2>
