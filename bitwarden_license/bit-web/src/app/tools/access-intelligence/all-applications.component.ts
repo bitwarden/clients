@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -51,7 +51,7 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
     SharedModule,
   ],
 })
-export class AllApplicationsComponent implements OnInit, OnDestroy {
+export class AllApplicationsComponent implements OnInit {
   protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
@@ -97,10 +97,8 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
           this.organization = organization as Organization;
         }
       });
-  }
 
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    this.isLoading$ = this.dataService.isLoading$;
   }
 
   constructor(
