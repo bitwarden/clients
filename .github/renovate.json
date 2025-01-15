@@ -210,10 +210,10 @@
         "eslint-plugin-storybook",
         "eslint-plugin-tailwindcss",
         "husky",
-        "jest-extended",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",
+        "jest-diff",
         "lint-staged",
         "ts-jest"
       ],

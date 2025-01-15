@@ -1,5 +1,9 @@
 import { webcrypto } from "crypto";
+
+import { addCustomMatchers } from "@bitwarden/common/spec";
 import "jest-preset-angular/setup-jest";
+
+addCustomMatchers();
 
 Object.defineProperty(window, "CSS", { value: null });
 Object.defineProperty(window, "getComputedStyle", {

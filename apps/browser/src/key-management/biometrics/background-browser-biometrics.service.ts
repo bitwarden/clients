@@ -99,7 +99,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
           if (await this.keyService.validateUserKey(userKey, userId)) {
             await this.biometricStateService.setBiometricUnlockEnabled(true);
             await this.biometricStateService.setFingerprintValidated(true);
-            this.keyService.setUserKey(userKey, userId);
+            await this.keyService.setUserKey(userKey, userId);
             // to update badge and other things
             this.messagingService.send("switchAccount", { userId });
             return userKey;
@@ -119,7 +119,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
           if (await this.keyService.validateUserKey(userKey, userId)) {
             await this.biometricStateService.setBiometricUnlockEnabled(true);
             await this.biometricStateService.setFingerprintValidated(true);
-            this.keyService.setUserKey(userKey, userId);
+            await this.keyService.setUserKey(userKey, userId);
             // to update badge and other things
             this.messagingService.send("switchAccount", { userId });
             return userKey;

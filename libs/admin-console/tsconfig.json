@@ -8,6 +8,6 @@
       "@bitwarden/key-management": ["../key-management/src"]
     }
   },
-  "include": ["src", "spec"],
+  "include": ["src", "spec", "../../libs/common/custom-matchers.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
