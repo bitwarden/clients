@@ -1,4 +1,4 @@
-<form class="box" [formGroup]="settings" class="tw-container">
+<form [formGroup]="settings" class="tw-container">
   <bit-form-field *ngIf="displayDomain">
     <bit-label>{{ "forwarderDomainName" | i18n }}</bit-label>
     <input

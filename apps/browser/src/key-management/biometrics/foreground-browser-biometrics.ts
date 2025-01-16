@@ -29,13 +29,13 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     const response = await BrowserApi.sendMessageWithResponse<{
-      result: string;
+      result: UserKey;
       error: string;
     }>(BiometricsCommands.UnlockWithBiometricsForUser, { userId });
     if (!response.result) {
       return null;
     }
-    return SymmetricCryptoKey.fromString(response.result) as UserKey;
+    return SymmetricCryptoKey.fromString(response.result.keyB64) as UserKey;
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {

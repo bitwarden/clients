@@ -30,6 +30,10 @@ export type ApplicationHealthReportDetail = {
   atRiskMemberDetails: MemberDetailsFlat[];
 };
 
+export type ApplicationHealthReportDetailWithCriticalFlag = ApplicationHealthReportDetail & {
+  isMarkedAsCritical: boolean;
+};
+
 /**
  * Breaks the cipher health info out by uri and passes
  * along the password health and member info
@@ -98,5 +102,14 @@ export type MemberDetailsFlat = {
  */
 export type AtRiskMemberDetail = {
   email: string;
+  atRiskPasswordCount: number;
+};
+
+/*
+ * A list of applications and the count of
+ * at risk passwords for each application
+ */
+export type AtRiskApplicationDetail = {
+  applicationName: string;
   atRiskPasswordCount: number;
 };
