@@ -137,8 +137,8 @@ export class AppComponent implements OnInit, OnDestroy {
             this.toastService._showToast(msg);
           } else if (msg.command === "reloadProcess") {
             if (this.platformUtilsService.isSafari()) {
-              window.setTimeout(() => {
-                this.biometricStateService.updateLastProcessReload();
+              window.setTimeout(async () => {
+                await this.biometricStateService.updateLastProcessReload();
                 window.location.reload();
               }, 2000);
             }
