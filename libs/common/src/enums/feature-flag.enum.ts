@@ -13,6 +13,7 @@ export enum FeatureFlag {
   InlineMenuPositioningImprovements = "inline-menu-positioning-improvements",
   InlineMenuTotp = "inline-menu-totp",
   NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
+  NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
 
   BrowserFilelessImport = "browser-fileless-import",
@@ -43,7 +44,6 @@ export enum FeatureFlag {
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
   DisableFreeFamiliesSponsorship = "PM-12274-disable-free-families-sponsorship",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
-  PM11360RemoveProviderExportPermission = "pm-11360-remove-provider-export-permission",
   PM12443RemovePagingLogic = "pm-12443-remove-paging-logic",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
@@ -70,6 +70,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
   [FeatureFlag.InlineMenuTotp]: FALSE,
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
+  [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
 
   [FeatureFlag.BrowserFilelessImport]: FALSE,
@@ -100,7 +101,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
   [FeatureFlag.DisableFreeFamiliesSponsorship]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-  [FeatureFlag.PM11360RemoveProviderExportPermission]: FALSE,
   [FeatureFlag.PM12443RemovePagingLogic]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
