@@ -182,11 +182,7 @@ export class Organization {
     );
   }
 
-  canAccessExport(removeProviderExport: boolean) {
-    if (!removeProviderExport && this.isProviderUser) {
-      return true;
-    }
-
+  get canAccessExport() {
     return (
       this.isMember &&
       (this.type === OrganizationUserType.Owner ||
