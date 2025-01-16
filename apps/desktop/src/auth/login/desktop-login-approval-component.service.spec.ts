@@ -57,7 +57,7 @@ describe("DesktopLoginApprovalComponentService", () => {
     const loginApprovalComponent = { email } as LoginApprovalComponent;
     i18nService.t.mockImplementation((key: string) => {
       switch (key) {
-        case "logInRequested":
+        case "accountAccessRequested":
           return title;
         case "accountAccessRequestedConfirmAccessAttempt":
           return message;
