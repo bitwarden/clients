@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import {
@@ -11,8 +13,10 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -29,6 +33,7 @@ import {
   IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 export type AddEditFolderDialogData = {
   /** When provided, dialog will display edit folder variant */
@@ -62,12 +67,15 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     name: ["", Validators.required],
   });
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
   private destroyRef = inject(DestroyRef);
 
   constructor(
     private formBuilder: FormBuilder,
     private folderService: FolderService,
     private folderApiService: FolderApiServiceAbstraction,
+    private accountService: AccountService,
+    private keyService: KeyService,
     private toastService: ToastService,
     private i18nService: I18nService,
     private logService: LogService,
@@ -107,8 +115,10 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     this.folder.name = this.folderForm.controls.name.value;
 
     try {
-      const folder = await this.folderService.encrypt(this.folder);
-      await this.folderApiService.save(folder);
+      const activeUserId = await firstValueFrom(this.activeUserId$);
+      const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
+      const folder = await this.folderService.encrypt(this.folder, userKey);
+      await this.folderApiService.save(folder, activeUserId);
 
       this.toastService.showToast({
         variant: "success",
@@ -135,7 +145,8 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     }
 
     try {
-      await this.folderApiService.delete(this.folder.id);
+      const activeUserId = await firstValueFrom(this.activeUserId$);
+      await this.folderApiService.delete(this.folder.id, activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,

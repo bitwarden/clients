@@ -26,7 +26,7 @@ export const PasswordData: ExportData = {
               favIndex: 0,
               createdAt: 1619465796,
               updatedAt: 1619465869,
-              trashed: false,
+              state: "active",
               categoryUuid: "005",
               details: {
                 loginFields: [],

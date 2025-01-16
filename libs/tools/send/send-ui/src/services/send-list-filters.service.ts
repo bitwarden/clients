@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { map, Observable, startWith } from "rxjs";
@@ -44,11 +46,6 @@ export class SendListFiltersService {
     map(
       (filters) => (sends: SendView[]) =>
         sends.filter((send) => {
-          // do not show disabled sends
-          if (send.disabled) {
-            return false;
-          }
-
           if (filters.sendType !== null && send.type !== filters.sendType) {
             return false;
           }

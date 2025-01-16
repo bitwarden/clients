@@ -1,13 +1,13 @@
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
 
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
 import { SecretsManagerImportRequest } from "../models/requests/sm-import.request";
@@ -21,19 +21,19 @@ describe("SecretsManagerPortingApiService", () => {
 
   const apiService = mock<ApiService>();
   const encryptService = mock<EncryptService>();
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    sut = new SecretsManagerPortingApiService(apiService, encryptService, cryptoService);
+    sut = new SecretsManagerPortingApiService(apiService, encryptService, keyService);
 
     encryptService.encrypt.mockResolvedValue(mockEncryptedString);
     encryptService.decryptToUtf8.mockResolvedValue(mockUnencryptedString);
 
     const mockRandomBytes = new Uint8Array(64) as CsprngArray;
     const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-    cryptoService.getOrgKey.mockResolvedValue(mockOrgKey);
+    keyService.getOrgKey.mockResolvedValue(mockOrgKey);
   });
 
   it("instantiates", () => {

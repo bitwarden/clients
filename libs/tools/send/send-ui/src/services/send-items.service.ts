@@ -5,6 +5,7 @@ import {
   distinctUntilChanged,
   from,
   map,
+  merge,
   Observable,
   shareReplay,
   startWith,
@@ -47,7 +48,9 @@ export class SendItemsService {
     this._searchText$,
     this.sendListFiltersService.filterFunction$,
   ]).pipe(
-    tap(() => this._sendsLoading$.next()),
+    tap(() => {
+      this._sendsLoading$.next();
+    }),
     map(([sends, searchText, filterFunction]): [SendView[], string] => [
       filterFunction(sends),
       searchText,
@@ -60,9 +63,10 @@ export class SendItemsService {
   /**
    * Observable that indicates whether the service is currently loading sends.
    */
-  loading$: Observable<boolean> = this._sendsLoading$
-    .pipe(map(() => true))
-    .pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
+  loading$: Observable<boolean> = merge(
+    this._sendsLoading$.pipe(map(() => true)),
+    this.filteredAndSortedSends$.pipe(map(() => false)),
+  ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
   /**
    * Observable that indicates whether a filter is currently applied to the sends.
@@ -79,7 +83,7 @@ export class SendItemsService {
   );
 
   /**
-   * Observable that indicates whether the user's vault is empty.
+   * Observable that indicates whether the user's send list is empty.
    */
   emptyList$: Observable<boolean> = this._sendList$.pipe(map((sends) => !sends.length));
 

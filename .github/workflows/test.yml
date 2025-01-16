@@ -1,4 +1,3 @@
----
 name: Testing
 
 on:
@@ -41,7 +40,7 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Get Node Version
         id: retrieve-node-version
@@ -51,7 +50,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Node
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -86,27 +85,27 @@ jobs:
           fail-on-error: true
 
       - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
+        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
         if: ${{ needs.check-test-secrets.outputs.available == 'true' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload results to codecov.io
-        uses: codecov/test-results-action@1b5b448b98e58ba90d1a1a1d9fcb72ca2263be46 # v1.0.0
+        uses: codecov/test-results-action@9739113ad922ea0a9abb4b2c0f8bf6a4aa8ef820 # v1.0.1
         if: ${{ needs.check-test-secrets.outputs.available == 'true' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   rust:
     name: Run Rust tests on ${{ matrix.os }}
-    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.os || 'ubuntu-22.04' }}
     permissions:
       contents: read
 
     strategy:
       matrix:
         os:
-          - ubuntu-latest
+          - ubuntu-22.04
           - macos-latest
           - windows-latest
 
@@ -121,7 +120,7 @@ jobs:
           sudo apt-get install -y gnome-keyring dbus-x11
 
       - name: Check out repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Build
         working-directory: ./apps/desktop/desktop_native
@@ -138,7 +137,12 @@ jobs:
           eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
           cargo test -- --test-threads=1
 
-      - name: Test Windows / macOS
-        if: ${{ matrix.os!='ubuntu-latest' }}
+      - name: Test macOS
+        if: ${{ matrix.os=='macos-latest' }}
         working-directory: ./apps/desktop/desktop_native
+        run: cargo test -- --test-threads=1
+
+      - name: Test Windows
+        if: ${{ matrix.os=='windows-latest'}}
+        working-directory: ./apps/desktop/desktop_native/core
         run: cargo test -- --test-threads=1

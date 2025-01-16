@@ -26,7 +26,7 @@ export const EmailAccountData: ExportData = {
               favIndex: 0,
               createdAt: 1619466428,
               updatedAt: 1619466585,
-              trashed: false,
+              state: "active",
               categoryUuid: "111",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           menu: "either",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "someuser@nullvalue.test",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "mailserver.nullvalue.test",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -89,7 +86,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "587",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -105,7 +101,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           concealed: "u1jsf<UI*&YU&^T",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -121,7 +116,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           menu: "TLS",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -137,7 +131,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           menu: "kerberos_v5",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -159,7 +152,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "mailserver.nullvalue.test",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -175,7 +167,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "589",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -191,7 +182,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "someuser@nullvalue.test",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -207,7 +197,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           concealed: "(*1674%^UIUJ*UI(IUI8u98uyy",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -223,7 +212,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           menu: "TLS",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -239,7 +227,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           menu: "password",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -261,7 +248,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "Telum",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -277,7 +263,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "https://telum.nullvalue.test",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -293,7 +278,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "2346666666",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -309,7 +293,6 @@ export const EmailAccountData: ExportData = {
                         value: {
                           string: "18005557777",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

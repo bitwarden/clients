@@ -5,8 +5,10 @@ import { RouterLink } from "@angular/router";
 import { combineLatest } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { ButtonModule, Icons, NoItemsModule } from "@bitwarden/components";
+import { ButtonModule, CalloutModule, Icons, NoItemsModule } from "@bitwarden/components";
 import {
   NoSendsIcon,
   NewSendDropdownComponent,
@@ -31,6 +33,7 @@ export enum SendState {
   templateUrl: "send-v2.component.html",
   standalone: true,
   imports: [
+    CalloutModule,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
@@ -48,22 +51,21 @@ export enum SendState {
 })
 export class SendV2Component implements OnInit, OnDestroy {
   sendType = SendType;
-
   sendState = SendState;
 
   protected listState: SendState | null = null;
-
   protected sends$ = this.sendItemsService.filteredAndSortedSends$;
-
+  protected sendsLoading$ = this.sendItemsService.loading$;
   protected title: string = "allSends";
-
   protected noItemIcon = NoSendsIcon;
-
   protected noResultsIcon = Icons.NoResults;
+
+  protected sendsDisabled = false;
 
   constructor(
     protected sendItemsService: SendItemsService,
     protected sendListFiltersService: SendListFiltersService,
+    private policyService: PolicyService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,
@@ -89,6 +91,13 @@ export class SendV2Component implements OnInit, OnDestroy {
         }
 
         this.listState = null;
+      });
+
+    this.policyService
+      .policyAppliesToActiveUser$(PolicyType.DisableSend)
+      .pipe(takeUntilDestroyed())
+      .subscribe((sendsDisabled) => {
+        this.sendsDisabled = sendsDisabled;
       });
   }
 

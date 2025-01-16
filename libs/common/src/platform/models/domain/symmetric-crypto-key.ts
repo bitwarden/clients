@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Utils } from "../../../platform/misc/utils";
@@ -5,7 +7,7 @@ import { EncryptionType } from "../../enums";
 
 export class SymmetricCryptoKey {
   key: Uint8Array;
-  encKey?: Uint8Array;
+  encKey: Uint8Array;
   macKey?: Uint8Array;
   encType: EncryptionType;
 
@@ -46,12 +48,8 @@ export class SymmetricCryptoKey {
       throw new Error("Unsupported encType/key length.");
     }
 
-    if (this.key != null) {
-      this.keyB64 = Utils.fromBufferToB64(this.key);
-    }
-    if (this.encKey != null) {
-      this.encKeyB64 = Utils.fromBufferToB64(this.encKey);
-    }
+    this.keyB64 = Utils.fromBufferToB64(this.key);
+    this.encKeyB64 = Utils.fromBufferToB64(this.encKey);
     if (this.macKey != null) {
       this.macKeyB64 = Utils.fromBufferToB64(this.macKey);
     }

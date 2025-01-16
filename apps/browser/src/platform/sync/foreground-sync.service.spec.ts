@@ -1,8 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -13,7 +13,6 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 
@@ -30,12 +29,12 @@ describe("ForegroundSyncService", () => {
   const cipherService = mock<CipherService>();
   const collectionService = mock<CollectionService>();
   const apiService = mock<ApiService>();
-  const accountService = mock<AccountService>();
+  const accountService = mockAccountServiceWith(userId);
   const authService = mock<AuthService>();
   const sendService = mock<InternalSendService>();
   const sendApiService = mock<SendApiService>();
   const messageListener = mock<MessageListener>();
-  const stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
+  const stateProvider = new FakeStateProvider(accountService);
 
   const sut = new ForegroundSyncService(
     stateService,

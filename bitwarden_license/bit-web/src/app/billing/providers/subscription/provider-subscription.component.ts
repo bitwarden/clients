@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, concatMap, takeUntil } from "rxjs";
@@ -100,5 +102,15 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  get activePlans(): ProviderPlanResponse[] {
+    return this.subscription.plans.filter((plan) => {
+      if (plan.purchasedSeats === 0) {
+        return plan.seatMinimum > 0;
+      } else {
+        return plan.purchasedSeats > 0;
+      }
+    });
   }
 }

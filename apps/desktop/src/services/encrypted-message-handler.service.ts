@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -176,6 +178,8 @@ export class EncryptedMessageHandlerService {
       await this.messagingService.send("refreshCiphers");
 
       return { status: "success" };
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return { status: "failure" };
     }
@@ -220,6 +224,8 @@ export class EncryptedMessageHandlerService {
       await this.messagingService.send("refreshCiphers");
 
       return { status: "success" };
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return { status: "failure" };
     }

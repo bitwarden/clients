@@ -1,6 +1,6 @@
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from "@angular/router";
 
-import { ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
+import { ProductType } from "@bitwarden/common/billing/enums";
 
 import { freeTrialTextResolver } from "./free-trial-text.resolver";
 
@@ -11,48 +11,27 @@ const route = {
 const routerStateSnapshot = {} as RouterStateSnapshot;
 
 describe("freeTrialTextResolver", () => {
-  [
-    {
-      param: ProductType.PasswordManager,
-      keyBase: "startYour7DayFreeTrialOfBitwardenPasswordManager",
-    },
-    {
-      param: ProductType.SecretsManager,
-      keyBase: "startYour7DayFreeTrialOfBitwardenSecretsManager",
-    },
-    {
-      param: `${ProductType.PasswordManager},${ProductType.SecretsManager}`,
-      keyBase: "startYour7DayFreeTrialOfBitwarden",
-    },
-  ].forEach(({ param, keyBase }) => {
-    describe(`when product is ${param}`, () => {
-      beforeEach(() => {
-        route.queryParams.product = `${param}`;
-      });
+  it("shows password manager text", () => {
+    route.queryParams.product = `${ProductType.PasswordManager}`;
 
-      it("returns teams trial text", () => {
-        route.queryParams.productTier = ProductTierType.Teams;
+    expect(freeTrialTextResolver(route, routerStateSnapshot)).toEqual({
+      key: "continueSettingUpFreeTrialPasswordManager",
+    });
+  });
 
-        expect(freeTrialTextResolver(route, routerStateSnapshot)).toBe(`${keyBase}ForTeams`);
-      });
+  it("shows secret manager text", () => {
+    route.queryParams.product = `${ProductType.SecretsManager}`;
 
-      it("returns enterprise trial text", () => {
-        route.queryParams.productTier = ProductTierType.Enterprise;
+    expect(freeTrialTextResolver(route, routerStateSnapshot)).toEqual({
+      key: "continueSettingUpFreeTrialSecretsManager",
+    });
+  });
 
-        expect(freeTrialTextResolver(route, routerStateSnapshot)).toBe(`${keyBase}ForEnterprise`);
-      });
+  it("shows default text", () => {
+    route.queryParams.product = `${ProductType.PasswordManager},${ProductType.SecretsManager}`;
 
-      it("returns families trial text", () => {
-        route.queryParams.productTier = ProductTierType.Families;
-
-        expect(freeTrialTextResolver(route, routerStateSnapshot)).toBe(`${keyBase}ForFamilies`);
-      });
-
-      it("returns default trial text", () => {
-        route.queryParams.productTier = "";
-
-        expect(freeTrialTextResolver(route, routerStateSnapshot)).toBe(keyBase);
-      });
+    expect(freeTrialTextResolver(route, routerStateSnapshot)).toEqual({
+      key: "continueSettingUpFreeTrial",
     });
   });
 });

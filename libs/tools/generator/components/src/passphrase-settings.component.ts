@@ -1,8 +1,20 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { OnInit, Input, Output, EventEmitter, Component, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, skip, takeUntil, Subject } from "rxjs";
+import {
+  BehaviorSubject,
+  skip,
+  takeUntil,
+  Subject,
+  map,
+  withLatestFrom,
+  ReplaySubject,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   Generators,
@@ -10,8 +22,7 @@ import {
   PassphraseGenerationOptions,
 } from "@bitwarden/generator-core";
 
-import { DependenciesModule } from "./dependencies";
-import { completeOnAccountSwitch, toValidators } from "./util";
+import { completeOnAccountSwitch } from "./util";
 
 const Controls = Object.freeze({
   numWords: "numWords",
@@ -22,24 +33,24 @@ const Controls = Object.freeze({
 
 /** Options group for passphrases */
 @Component({
-  standalone: true,
-  selector: "bit-passphrase-settings",
+  selector: "tools-passphrase-settings",
   templateUrl: "passphrase-settings.component.html",
-  imports: [DependenciesModule],
 })
 export class PassphraseSettingsComponent implements OnInit, OnDestroy {
   /** Instantiates the component
    *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
+   *  @param i18nService localize hints
    *  @param formBuilder reactive form controls
    */
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
+    private i18nService: I18nService,
     private accountService: AccountService,
   ) {}
 
-  /** Binds the passphrase component to a specific user's settings.
+  /** Binds the component to a specific user's settings.
    *  When this input is not provided, the form binds to the active
    *  user
    */
@@ -50,6 +61,9 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
   @Input()
   showHeader: boolean = true;
 
+  /** Removes bottom margin from `bit-section` */
+  @Input({ transform: coerceBooleanProperty }) disableMargin = false;
+
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like
    *   to receive live settings updates including the initial update,
@@ -59,63 +73,82 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
   readonly onUpdated = new EventEmitter<PassphraseGenerationOptions>();
 
   protected settings = this.formBuilder.group({
-    [Controls.numWords]: [Generators.Passphrase.settings.initial.numWords],
-    [Controls.wordSeparator]: [Generators.Passphrase.settings.initial.wordSeparator],
-    [Controls.capitalize]: [Generators.Passphrase.settings.initial.capitalize],
-    [Controls.includeNumber]: [Generators.Passphrase.settings.initial.includeNumber],
+    [Controls.numWords]: [Generators.passphrase.settings.initial.numWords],
+    [Controls.wordSeparator]: [Generators.passphrase.settings.initial.wordSeparator],
+    [Controls.capitalize]: [Generators.passphrase.settings.initial.capitalize],
+    [Controls.includeNumber]: [Generators.passphrase.settings.initial.includeNumber],
   });
 
   async ngOnInit() {
     const singleUserId$ = this.singleUserId$();
-    const settings = await this.generatorService.settings(Generators.Passphrase, { singleUserId$ });
+    const settings = await this.generatorService.settings(Generators.passphrase, { singleUserId$ });
 
     // skips reactive event emissions to break a subscription cycle
-    settings.pipe(takeUntil(this.destroyed$)).subscribe((s) => {
-      this.settings.patchValue(s, { emitEvent: false });
-    });
+    settings.withConstraints$
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(({ state, constraints }) => {
+        this.settings.patchValue(state, { emitEvent: false });
+
+        let boundariesHint = this.i18nService.t(
+          "spinboxBoundariesHint",
+          constraints.numWords.min?.toString(),
+          constraints.numWords.max?.toString(),
+        );
+        if (state.numWords <= (constraints.numWords.recommendation ?? 0)) {
+          boundariesHint += this.i18nService.t(
+            "passphraseNumWordsRecommendationHint",
+            constraints.numWords.recommendation?.toString(),
+          );
+        }
+        this.numWordsBoundariesHint.next(boundariesHint);
+      });
 
     // the first emission is the current value; subsequent emissions are updates
     settings.pipe(skip(1), takeUntil(this.destroyed$)).subscribe(this.onUpdated);
 
-    // dynamic policy enforcement
+    // explain policy & disable policy-overridden fields
     this.generatorService
-      .policy$(Generators.Passphrase, { userId$: singleUserId$ })
+      .policy$(Generators.passphrase, { userId$: singleUserId$ })
       .pipe(takeUntil(this.destroyed$))
-      .subscribe((policy) => {
-        this.settings
-          .get(Controls.numWords)
-          .setValidators(toValidators(Controls.numWords, Generators.Passphrase, policy));
+      .subscribe(({ constraints }) => {
+        this.wordSeparatorMaxLength = constraints.wordSeparator.maxLength;
+        this.policyInEffect = constraints.policyInEffect;
 
-        this.settings
-          .get(Controls.wordSeparator)
-          .setValidators(toValidators(Controls.wordSeparator, Generators.Passphrase, policy));
-
-        // forward word boundaries to the template (can't do it through the rx form)
-        // FIXME: move the boundary logic fully into the policy evaluator
-        this.minNumWords =
-          policy.numWords?.min ?? Generators.Passphrase.settings.constraints.numWords.min;
-        this.maxNumWords =
-          policy.numWords?.max ?? Generators.Passphrase.settings.constraints.numWords.max;
-
-        this.toggleEnabled(Controls.capitalize, !policy.policy.capitalize);
-        this.toggleEnabled(Controls.includeNumber, !policy.policy.includeNumber);
+        this.toggleEnabled(Controls.capitalize, !constraints.capitalize?.readonly);
+        this.toggleEnabled(Controls.includeNumber, !constraints.includeNumber?.readonly);
       });
 
     // now that outputs are set up, connect inputs
-    this.settings.valueChanges.pipe(takeUntil(this.destroyed$)).subscribe(settings);
+    this.saveSettings
+      .pipe(
+        withLatestFrom(this.settings.valueChanges),
+        map(([, settings]) => settings),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe(settings);
   }
 
-  /** attribute binding for numWords[min] */
-  protected minNumWords: number;
+  /** attribute binding for wordSeparator[maxlength] */
+  protected wordSeparatorMaxLength: number;
 
-  /** attribute binding for numWords[max] */
-  protected maxNumWords: number;
+  private saveSettings = new Subject<string>();
+  save(site: string = "component api call") {
+    this.saveSettings.next(site);
+  }
+
+  /** display binding for enterprise policy notice */
+  protected policyInEffect: boolean;
+
+  private numWordsBoundariesHint = new ReplaySubject<string>(1);
+
+  /** display binding for min/max constraints of `numWords` */
+  protected numWordsBoundariesHint$ = this.numWordsBoundariesHint.asObservable();
 
   private toggleEnabled(setting: keyof typeof Controls, enabled: boolean) {
     if (enabled) {
-      this.settings.get(setting).enable();
+      this.settings.get(setting).enable({ emitEvent: false });
     } else {
-      this.settings.get(setting).disable();
+      this.settings.get(setting).disable({ emitEvent: false });
     }
   }
 
@@ -134,6 +167,7 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
 
   private readonly destroyed$ = new Subject<void>();
   ngOnDestroy(): void {
+    this.destroyed$.next();
     this.destroyed$.complete();
   }
 }

@@ -1,10 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -47,9 +48,7 @@ export class BulkMoveDialogComponent implements OnInit {
   });
   folders$: Observable<FolderView[]>;
 
-  protected vaultBulkManagementActionEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.VaultBulkManagementAction,
-  );
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   constructor(
     @Inject(DIALOG_DATA) params: BulkMoveDialogParams,
@@ -59,14 +58,15 @@ export class BulkMoveDialogComponent implements OnInit {
     private i18nService: I18nService,
     private folderService: FolderService,
     private formBuilder: FormBuilder,
-    private configService: ConfigService,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
   }
 
   async ngOnInit() {
-    this.folders$ = this.folderService.folderViews$;
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    this.folders$ = this.folderService.folderViews$(activeUserId);
     this.formGroup.patchValue({
       folderId: (await firstValueFrom(this.folders$))[0].id,
     });

@@ -9,15 +9,19 @@ import {
 } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
 
+import { CollectionView } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ClientType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { AsyncActionsModule, ButtonModule, ToastService } from "@bitwarden/components";
@@ -27,7 +31,8 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 // FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";
@@ -148,6 +153,7 @@ export default {
           provide: TotpCaptureService,
           useValue: {
             captureTotpSecret: () => Promise.resolve("some-value"),
+            canCaptureTotp: () => true,
           },
         },
         {
@@ -166,6 +172,24 @@ export default {
           provide: AutofillSettingsServiceAbstraction,
           useValue: {
             autofillOnPageLoadDefault$: new BehaviorSubject(true),
+          },
+        },
+        {
+          provide: EventCollectionService,
+          useValue: {
+            collect: () => Promise.resolve(),
+          },
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            getClientType: () => ClientType.Browser,
+          },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: new BehaviorSubject({ email: "test@example.com" }),
           },
         },
       ],
@@ -210,7 +234,7 @@ export const Edit: Story = {
     config: {
       ...defaultConfig,
       mode: "edit",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -221,7 +245,7 @@ export const PartialEdit: Story = {
     config: {
       ...defaultConfig,
       mode: "partial-edit",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -232,7 +256,7 @@ export const Clone: Story = {
     config: {
       ...defaultConfig,
       mode: "clone",
-      originalCipher: defaultConfig.originalCipher,
+      originalCipher: defaultConfig.originalCipher!,
     },
   },
 };
@@ -245,7 +269,7 @@ export const NoPersonalOwnership: Story = {
       mode: "add",
       allowPersonalOwnership: false,
       originalCipher: defaultConfig.originalCipher,
-      organizations: defaultConfig.organizations,
+      organizations: defaultConfig.organizations!,
     },
   },
 };

@@ -10,6 +10,7 @@ import {
   setElementStyles,
   setupExtensionDisconnectAction,
   setupAutofillInitDisconnectAction,
+  debounce,
 } from "./index";
 
 describe("buildSvgDomElement", () => {
@@ -209,5 +210,37 @@ describe("setupAutofillInitDisconnectAction", () => {
     expect(port.onDisconnect.addListener).toHaveBeenCalled();
     expect(autofillInitDestroy).toHaveBeenCalled();
     expect(window.bitwardenAutofillInit).toBeUndefined();
+  });
+});
+
+describe("debounce", () => {
+  const debouncedFunction = jest.fn();
+  const debounced = debounce(debouncedFunction, 100);
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
+  it("does not call the method until the delay is complete", () => {
+    debounced();
+    jest.advanceTimersByTime(50);
+    expect(debouncedFunction).not.toHaveBeenCalled();
+  });
+
+  it("calls the method a single time when the debounce is triggered multiple times", () => {
+    debounced();
+    debounced();
+    debounced();
+    jest.advanceTimersByTime(100);
+
+    expect(debouncedFunction).toHaveBeenCalledTimes(1);
   });
 });

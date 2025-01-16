@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { NgClass } from "@angular/common";
 import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
@@ -15,10 +18,10 @@ const focusRing = [
   "before:tw-content-['']",
   "before:tw-block",
   "before:tw-absolute",
-  "before:-tw-inset-[3px]",
-  "before:tw-rounded-md",
+  "before:-tw-inset-[2px]",
+  "before:tw-rounded-lg",
   "before:tw-transition",
-  "before:tw-ring",
+  "before:tw-ring-2",
   "before:tw-ring-transparent",
   "focus-visible:tw-z-10",
 ];
@@ -41,9 +44,9 @@ const styles: Record<IconButtonType, string[]> = {
     "!tw-text-main",
     "tw-border-transparent",
     "hover:tw-bg-transparent-hover",
-    "hover:tw-border-text-main",
-    "focus-visible:before:tw-ring-text-main",
-    "disabled:tw-opacity-60",
+    "hover:tw-border-primary-600",
+    "focus-visible:before:tw-ring-primary-600",
+    "disabled:!tw-text-secondary-300",
     "disabled:hover:tw-border-transparent",
     "disabled:hover:tw-bg-transparent",
     ...focusRing,
@@ -52,10 +55,14 @@ const styles: Record<IconButtonType, string[]> = {
     "tw-bg-transparent",
     "!tw-text-muted",
     "tw-border-transparent",
+    "aria-expanded:tw-bg-text-muted",
+    "aria-expanded:!tw-text-contrast",
     "hover:tw-bg-transparent-hover",
-    "hover:tw-border-primary-700",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
+    "hover:tw-border-primary-600",
+    "focus-visible:before:tw-ring-primary-600",
+    "disabled:!tw-text-secondary-300",
+    "aria-expanded:hover:tw-bg-secondary-700",
+    "aria-expanded:hover:tw-border-secondary-700",
     "disabled:hover:tw-border-transparent",
     "disabled:hover:tw-bg-transparent",
     ...focusRing,
@@ -64,9 +71,9 @@ const styles: Record<IconButtonType, string[]> = {
     "tw-bg-primary-600",
     "!tw-text-contrast",
     "tw-border-primary-600",
-    "hover:tw-bg-primary-700",
-    "hover:tw-border-primary-700",
-    "focus-visible:before:tw-ring-primary-700",
+    "hover:tw-bg-primary-600",
+    "hover:tw-border-primary-600",
+    "focus-visible:before:tw-ring-primary-600",
     "disabled:tw-opacity-60",
     "disabled:hover:tw-border-primary-600",
     "disabled:hover:tw-bg-primary-600",
@@ -78,26 +85,25 @@ const styles: Record<IconButtonType, string[]> = {
     "tw-border-text-muted",
     "hover:!tw-text-contrast",
     "hover:tw-bg-text-muted",
-    "focus-visible:before:tw-ring-primary-700",
+    "focus-visible:before:tw-ring-primary-600",
     "disabled:tw-opacity-60",
     "disabled:hover:tw-border-text-muted",
     "disabled:hover:tw-bg-transparent",
     "disabled:hover:!tw-text-muted",
-    "disabled:hover:tw-border-text-muted",
     ...focusRing,
   ],
   danger: [
     "tw-bg-transparent",
-    "!tw-text-danger",
-    "tw-border-danger-600",
-    "hover:!tw-text-contrast",
-    "hover:tw-bg-danger-600",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-danger-600",
+    "!tw-text-danger-600",
+    "tw-border-transparent",
+    "hover:!tw-text-danger-600",
+    "hover:tw-bg-transparent",
+    "hover:tw-border-primary-600",
+    "focus-visible:before:tw-ring-primary-600",
+    "disabled:!tw-text-secondary-300",
+    "disabled:hover:tw-border-transparent",
     "disabled:hover:tw-bg-transparent",
-    "disabled:hover:!tw-text-danger",
-    "disabled:hover:tw-border-danger-600",
+    "disabled:hover:!tw-text-secondary-300",
     ...focusRing,
   ],
   light: [
@@ -107,6 +113,7 @@ const styles: Record<IconButtonType, string[]> = {
     "hover:tw-bg-transparent-hover",
     "hover:tw-border-text-alt2",
     "focus-visible:before:tw-ring-text-alt2",
+    "disabled:tw-opacity-60",
     "disabled:hover:tw-border-transparent",
     "disabled:hover:tw-bg-transparent",
     ...focusRing,
@@ -128,6 +135,8 @@ const sizes: Record<IconButtonSize, string[]> = {
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
     { provide: FocusableElement, useExisting: BitIconButtonComponent },
   ],
+  standalone: true,
+  imports: [NgClass],
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   @Input("bitIconButton") icon: string;
@@ -141,7 +150,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       "tw-font-semibold",
       "tw-border",
       "tw-border-solid",
-      "tw-rounded",
+      "tw-rounded-lg",
       "tw-transition",
       "hover:tw-no-underline",
       "focus:tw-outline-none",
@@ -162,10 +171,6 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
   @Input() loading = false;
   @Input() disabled = false;
-
-  setButtonType(value: "primary" | "secondary" | "danger" | "unstyled") {
-    this.buttonType = value;
-  }
 
   getFocusTarget() {
     return this.elementRef.nativeElement;

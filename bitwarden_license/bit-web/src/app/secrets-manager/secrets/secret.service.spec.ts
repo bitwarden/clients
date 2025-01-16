@@ -1,9 +1,9 @@
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { KeyService } from "@bitwarden/key-management";
 
 import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
 import { SecretView } from "../models/view/secret.view";
@@ -14,7 +14,7 @@ import { SecretService } from "./secret.service";
 describe("SecretService", () => {
   let sut: SecretService;
 
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const apiService = mock<ApiService>();
   const encryptService = mock<EncryptService>();
   const accessPolicyService = mock<AccessPolicyService>();
@@ -22,7 +22,7 @@ describe("SecretService", () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    sut = new SecretService(cryptoService, apiService, encryptService, accessPolicyService);
+    sut = new SecretService(keyService, apiService, encryptService, accessPolicyService);
 
     encryptService.encrypt.mockResolvedValue({
       encryptedString: "mockEncryptedString",

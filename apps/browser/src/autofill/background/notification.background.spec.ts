@@ -60,10 +60,18 @@ describe("NotificationBackground", () => {
   const configService = mock<ConfigService>();
   const accountService = mock<AccountService>();
 
+  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
+    id: "testId" as UserId,
+    email: "test@example.com",
+    emailVerified: true,
+    name: "Test User",
+  });
+
   beforeEach(() => {
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Locked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
+    accountService.activeAccount$ = activeAccountSubject;
     notificationBackground = new NotificationBackground(
       autofillService,
       cipherService,
@@ -683,13 +691,6 @@ describe("NotificationBackground", () => {
       });
 
       describe("saveOrUpdateCredentials", () => {
-        const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
-          id: "testId" as UserId,
-          email: "test@example.com",
-          emailVerified: true,
-          name: "Test User",
-        });
-
         let getDecryptedCipherByIdSpy: jest.SpyInstance;
         let getAllDecryptedForUrlSpy: jest.SpyInstance;
         let updatePasswordSpy: jest.SpyInstance;
@@ -1114,8 +1115,9 @@ describe("NotificationBackground", () => {
 
       it("skips saving the domain as a never value if the tab url does not match the queue message domain", async () => {
         const tab = createChromeTabMock({ id: 2, url: "https://example.com" });
-        const sender = mock<chrome.runtime.MessageSender>({ tab });
         const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
+        const secondaryTab = createChromeTabMock({ id: 3, url: "https://another.com" });
+        const sender = mock<chrome.runtime.MessageSender>({ tab: secondaryTab });
         notificationBackground["notificationQueue"] = [
           mock<AddLoginQueueMessage>({
             type: NotificationQueueMessageType.AddLogin,

@@ -1,15 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
 import { Component, OnInit, QueryList, ViewChildren } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { Subject, switchMap, take } from "rxjs";
+import { filter, Subject, switchMap, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ClientType } from "@bitwarden/common/enums";
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
@@ -69,7 +73,10 @@ export class AutofillOptionsComponent implements OnInit {
     return this.autofillOptionsForm.controls.uris.controls;
   }
 
-  protected defaultMatchDetection$ = this.domainSettingsService.defaultUriMatchStrategy$;
+  protected defaultMatchDetection$ = this.domainSettingsService.defaultUriMatchStrategy$.pipe(
+    // The default match detection should only be shown when used on the browser
+    filter(() => this.platformUtilsService.getClientType() == ClientType.Browser),
+  );
   protected autofillOnPageLoadEnabled$ = this.autofillSettingsService.autofillOnPageLoad$;
 
   protected autofillOptions: { label: string; value: boolean | null }[] = [
@@ -90,6 +97,7 @@ export class AutofillOptionsComponent implements OnInit {
     private liveAnnouncer: LiveAnnouncer,
     private domainSettingsService: DomainSettingsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.cipherFormContainer.registerChildForm("autoFillOptions", this.autofillOptionsForm);
 

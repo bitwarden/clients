@@ -26,7 +26,7 @@ export const ServerData: ExportData = {
               favIndex: 0,
               createdAt: 1619467769,
               updatedAt: 1619467906,
-              trashed: false,
+              state: "active",
               categoryUuid: "110",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const ServerData: ExportData = {
                         value: {
                           string: "https://coolserver.nullvalue.test",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const ServerData: ExportData = {
                         value: {
                           string: "frankly-notsure",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const ServerData: ExportData = {
                         value: {
                           concealed: "*&YHJI87yjy78u",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -95,7 +92,6 @@ export const ServerData: ExportData = {
                         value: {
                           string: "https://coolserver.nullvalue.test/admin",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -111,7 +107,6 @@ export const ServerData: ExportData = {
                         value: {
                           string: "frankly-idontknowwhatimdoing",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -127,7 +122,6 @@ export const ServerData: ExportData = {
                         value: {
                           concealed: "^%RY&^YUiju8iUYHJI(U",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -149,7 +143,6 @@ export const ServerData: ExportData = {
                         value: {
                           string: "Private Hosting Provider Inc.",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -165,7 +158,6 @@ export const ServerData: ExportData = {
                         value: {
                           string: "https://phpi.nullvalue.test",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -181,7 +173,6 @@ export const ServerData: ExportData = {
                         value: {
                           string: "https://phpi.nullvalue.test/support",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -197,7 +188,6 @@ export const ServerData: ExportData = {
                         value: {
                           string: "8882569382",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

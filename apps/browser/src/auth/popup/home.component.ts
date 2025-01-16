@@ -1,10 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
-import { Subject, firstValueFrom, switchMap, takeUntil } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import { Subject, firstValueFrom, switchMap, takeUntil, tap } from "rxjs";
 
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
 import { LoginEmailServiceAbstraction, RegisterRouteService } from "@bitwarden/auth/common";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
@@ -38,9 +42,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     private accountSwitcherService: AccountSwitcherService,
     private registerRouteService: RegisterRouteService,
     private toastService: ToastService,
+    private configService: ConfigService,
+    private route: ActivatedRoute,
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.listenForUnauthUiRefreshFlagChanges();
+
     const email = await firstValueFrom(this.loginEmailService.loginEmail$);
     const rememberEmail = this.loginEmailService.getRememberEmail();
 
@@ -68,6 +76,29 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
+  }
+
+  private listenForUnauthUiRefreshFlagChanges() {
+    this.configService
+      .getFeatureFlag$(FeatureFlag.UnauthenticatedExtensionUIRefresh)
+      .pipe(
+        tap(async (flag) => {
+          // If the flag is turned ON, we must force a reload to ensure the correct UI is shown
+          if (flag) {
+            const uniqueQueryParams = {
+              ...this.route.queryParams,
+              // adding a unique timestamp to the query params to force a reload
+              t: new Date().getTime().toString(),
+            };
+
+            await this.router.navigate(["/login"], {
+              queryParams: uniqueQueryParams,
+            });
+          }
+        }),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe();
   }
 
   get availableAccounts$() {

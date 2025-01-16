@@ -1,22 +1,23 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import {
+  OrganizationUserApiService,
+  CollectionService,
+  CollectionData,
+  Collection,
+  CollectionDetailsResponse as ApiCollectionDetailsResponse,
+  CollectionResponse as ApiCollectionResponse,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
-import { Collection } from "@bitwarden/common/vault/models/domain/collection";
-import {
-  CollectionDetailsResponse as ApiCollectionDetailsResponse,
-  CollectionResponse as ApiCollectionResponse,
-} from "@bitwarden/common/vault/models/response/collection.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
@@ -38,6 +39,7 @@ export class ListCommand {
     private organizationUserApiService: OrganizationUserApiService,
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -135,7 +137,10 @@ export class ListCommand {
   }
 
   private async listFolders(options: Options) {
-    let folders = await this.folderService.getAllDecryptedFromState();
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
 
     if (options.search != null && options.search.trim() !== "") {
       folders = CliUtils.searchFolders(folders, options.search);

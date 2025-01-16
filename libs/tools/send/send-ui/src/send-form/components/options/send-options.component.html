@@ -1,0 +1,73 @@
+<bit-section [formGroup]="sendOptionsForm">
+  <bit-section-header>
+    <h2 class="tw-mt-4" bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "limitSendViews" | i18n }}</bit-label>
+      <input bitInput type="number" formControlName="maxAccessCount" min="1" />
+      <bit-hint>{{ "limitSendViewsHint" | i18n }}</bit-hint>
+      <bit-hint *ngIf="shouldShowCount"
+        >&nbsp;{{ "limitSendViewsCount" | i18n: viewsLeft }}</bit-hint
+      >
+    </bit-form-field>
+    <bit-form-field>
+      <bit-label>{{ (passwordRemoved ? "newPassword" : "password") | i18n }}</bit-label>
+      <input bitInput type="password" formControlName="password" />
+      <button
+        data-testid="toggle-visibility-for-password"
+        type="button"
+        bitIconButton
+        bitSuffix
+        bitPasswordInputToggle
+        *ngIf="!hasPassword"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-generate"
+        bitSuffix
+        [appA11yTitle]="'generatePassword' | i18n"
+        [disabled]="!config.areSendsAllowed"
+        (click)="generatePassword()"
+        data-testid="generate-password"
+        *ngIf="!hasPassword"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [appA11yTitle]="'copyPassword' | i18n"
+        [disabled]="!config.areSendsAllowed || !sendOptionsForm.get('password').value"
+        [valueLabel]="'password' | i18n"
+        [appCopyClick]="sendOptionsForm.get('password').value"
+        showToast
+        *ngIf="!hasPassword"
+      ></button>
+      <button
+        *ngIf="hasPassword"
+        class="tw-border-l-0 last:tw-rounded-r focus-visible:tw-border-l focus-visible:tw-ml-[-1px]"
+        bitSuffix
+        type="button"
+        buttonType="danger"
+        bitIconButton="bwi-minus-circle"
+        [appA11yTitle]="'removePassword' | i18n"
+        [bitAction]="removePassword"
+        showToast
+      ></button>
+      <bit-hint>{{ "sendPasswordDescV3" | i18n }}</bit-hint>
+    </bit-form-field>
+    <bit-form-control *ngIf="!disableHideEmail || originalSendView?.hideEmail">
+      <input
+        [disabled]="disableHideEmail && !sendOptionsForm.get('hideEmail').value"
+        bitCheckbox
+        type="checkbox"
+        formControlName="hideEmail"
+      />
+      <bit-label>{{ "hideYourEmail" | i18n }}</bit-label>
+    </bit-form-control>
+    <bit-form-field disableMargin>
+      <bit-label>{{ "privateNote" | i18n }}</bit-label>
+      <textarea bitInput rows="3" formControlName="notes"></textarea>
+    </bit-form-field>
+  </bit-card>
+</bit-section>

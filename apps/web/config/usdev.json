@@ -4,7 +4,14 @@
     "notifications": "https://notifications.usdev.bitwarden.pw",
     "scim": "https://scim.usdev.bitwarden.pw"
   },
-  "flags": {
-    "showPasswordless": true
-  }
+  "additionalRegions": [
+    {
+      "key": "USDEV",
+      "domain": "usdev.bitwarden.pw",
+      "urls": {
+        "webVault": "https://vault.usdev.bitwarden.pw"
+      }
+    }
+  ],
+  "flags": {}
 }

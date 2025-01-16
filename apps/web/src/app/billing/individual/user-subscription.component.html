@@ -42,22 +42,13 @@
       <dl>
         <dt>{{ "status" | i18n }}</dt>
         <dd>
-          <span class="tw-capitalize">{{ (subscription && subscription.status) || "-" }}</span>
+          <span class="tw-capitalize">{{ (subscription && subscriptionStatus) || "-" }}</span>
           <span bitBadge variant="warning" *ngIf="subscriptionMarkedForCancel">{{
             "pendingCancellation" | i18n
           }}</span>
         </dd>
         <dt>{{ "nextCharge" | i18n }}</dt>
-        <dd *ngIf="!enableTimeThreshold">
-          {{
-            nextInvoice
-              ? (nextInvoice.date | date: "mediumDate") +
-                ", " +
-                (nextInvoice.amount | currency: "$")
-              : "-"
-          }}
-        </dd>
-        <dd *ngIf="enableTimeThreshold">
+        <dd>
           {{
             nextInvoice
               ? (sub.subscription.periodEndDate | date: "mediumDate") +

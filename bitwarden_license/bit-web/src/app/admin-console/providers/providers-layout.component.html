@@ -5,7 +5,7 @@
     <bit-nav-item
       icon="bwi-bank"
       [text]="'clients' | i18n"
-      [route]="(hasConsolidatedBilling$ | async) ? 'manage-client-organizations' : 'clients'"
+      [route]="(isBillable | async) ? 'manage-client-organizations' : 'clients'"
     ></bit-nav-item>
     <bit-nav-group
       icon="bwi-sliders"
@@ -13,7 +13,7 @@
       route="manage"
       *ngIf="showManageTab(provider)"
     >
-      <bit-nav-item [text]="'people' | i18n" route="manage/people"></bit-nav-item>
+      <bit-nav-item [text]="'members' | i18n" route="manage/members"></bit-nav-item>
       <bit-nav-item
         [text]="'eventLogs' | i18n"
         route="manage/events"
@@ -50,7 +50,7 @@
     <a
       href="https://bitwarden.com/contact/"
       bitLink
-      linkType="contrast"
+      linkType="secondary"
       target="_blank"
       rel="noreferrer"
     >

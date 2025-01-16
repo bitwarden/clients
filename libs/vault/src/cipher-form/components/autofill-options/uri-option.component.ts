@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { NgForOf, NgIf } from "@angular/common";
 import {
   Component,
@@ -83,6 +85,11 @@ export class UriOptionComponent implements ControlValueAccessor {
    */
   @Input({ required: true })
   set defaultMatchDetection(value: UriMatchStrategySetting) {
+    // The default selection has a value of `null` avoid showing "Default (Default)"
+    if (value === null) {
+      return;
+    }
+
     this.uriMatchOptions[0].label = this.i18nService.t(
       "defaultLabel",
       this.uriMatchOptions.find((o) => o.value === value)?.label,
@@ -149,12 +156,12 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   // NG_VALUE_ACCESSOR implementation
-  writeValue(value: any): void {
+  writeValue(value: { uri: string; matchDetection: UriMatchStrategySetting | null }): void {
     if (value) {
       this.uriForm.setValue(
         {
           uri: value.uri ?? "",
-          matchDetection: value.match ?? null,
+          matchDetection: value.matchDetection ?? null,
         },
         { emitEvent: false },
       );

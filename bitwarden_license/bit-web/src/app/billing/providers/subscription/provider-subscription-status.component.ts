@@ -1,6 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
+import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -31,6 +34,15 @@ export class ProviderSubscriptionStatusComponent {
     private datePipe: DatePipe,
     private i18nService: I18nService,
   ) {}
+
+  get plan(): string {
+    switch (this.subscription.providerType) {
+      case ProviderType.Msp:
+        return "managedServiceProvider";
+      case ProviderType.MultiOrganizationEnterprise:
+        return "multiOrganizationEnterprise";
+    }
+  }
 
   get status(): string {
     if (this.subscription.cancelAt && this.subscription.status === "active") {

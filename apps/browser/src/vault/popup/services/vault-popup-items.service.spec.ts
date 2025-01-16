@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
 
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -10,12 +11,13 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { ObservableTracker } from "@bitwarden/common/spec";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
+import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
@@ -40,6 +42,7 @@ describe("VaultPopupItemsService", () => {
   const collectionService = mock<CollectionService>();
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
+  const inlineMenuFieldQualificationServiceMock = mock<InlineMenuFieldQualificationService>();
 
   beforeEach(() => {
     allCiphers = cipherFactory(10);
@@ -57,6 +60,7 @@ describe("VaultPopupItemsService", () => {
     cipherServiceMock.getAllDecrypted.mockResolvedValue(cipherList);
     cipherServiceMock.ciphers$ = new BehaviorSubject(null);
     cipherServiceMock.localData$ = new BehaviorSubject(null);
+    cipherServiceMock.failedToDecryptCiphers$ = new BehaviorSubject([]);
     searchService.searchCiphers.mockImplementation(async (_, __, ciphers) => ciphers);
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(c.id)),
@@ -78,6 +82,11 @@ describe("VaultPopupItemsService", () => {
     vaultAutofillServiceMock.currentAutofillTab$ = new BehaviorSubject({
       url: "https://example.com",
     } as chrome.tabs.Tab);
+
+    vaultAutofillServiceMock.nonLoginCipherTypesOnPage$ = new BehaviorSubject({
+      [CipherType.Card]: true,
+      [CipherType.Identity]: true,
+    });
 
     mockOrg = {
       id: "org1",
@@ -106,6 +115,10 @@ describe("VaultPopupItemsService", () => {
         { provide: CollectionService, useValue: collectionService },
         { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
         { provide: SyncService, useValue: syncServiceMock },
+        {
+          provide: InlineMenuFieldQualificationService,
+          useValue: inlineMenuFieldQualificationServiceMock,
+        },
       ],
     });
 
@@ -203,6 +216,7 @@ describe("VaultPopupItemsService", () => {
         [CipherType.Card]: 2,
         [CipherType.Identity]: 3,
         [CipherType.SecureNote]: 4,
+        [CipherType.SshKey]: 5,
       };
 
       // Assume all ciphers are autofill ciphers to test sorting
@@ -251,13 +265,6 @@ describe("VaultPopupItemsService", () => {
       });
     });
 
-    it("should sort by last used then by name", (done) => {
-      service.favoriteCiphers$.subscribe((ciphers) => {
-        expect(cipherServiceMock.sortCiphersByLastUsedThenName).toHaveBeenCalled();
-        done();
-      });
-    });
-
     it("should filter favoriteCiphers$ down to search term", (done) => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Card 2";
@@ -278,17 +285,14 @@ describe("VaultPopupItemsService", () => {
   });
 
   describe("remainingCiphers$", () => {
+    beforeEach(() => {
+      searchService.isSearchable.mockImplementation(async (text) => text.length > 2);
+    });
+
     it("should exclude autofill and favorite ciphers", (done) => {
       service.remainingCiphers$.subscribe((ciphers) => {
         // 2 autofill ciphers, 2 favorite ciphers = 6 remaining ciphers to show
         expect(ciphers.length).toBe(6);
-        done();
-      });
-    });
-
-    it("should sort by last used then by name", (done) => {
-      service.remainingCiphers$.subscribe((ciphers) => {
-        expect(cipherServiceMock.getLocaleSortingFunction).toHaveBeenCalled();
         done();
       });
     });
@@ -359,20 +363,17 @@ describe("VaultPopupItemsService", () => {
   });
 
   describe("deletedCiphers$", () => {
-    it("should return deleted ciphers", (done) => {
-      const ciphers = [
-        { id: "1", type: CipherType.Login, name: "Login 1", isDeleted: true },
-        { id: "2", type: CipherType.Login, name: "Login 2", isDeleted: true },
-        { id: "3", type: CipherType.Login, name: "Login 3", isDeleted: true },
-        { id: "4", type: CipherType.Login, name: "Login 4", isDeleted: false },
-      ] as CipherView[];
+    it("should return deleted ciphers", async () => {
+      const deletedCipher = new CipherView();
+      deletedCipher.deletedDate = new Date();
+      const ciphers = [new CipherView(), new CipherView(), new CipherView(), deletedCipher];
 
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
 
-      service.deletedCiphers$.subscribe((deletedCiphers) => {
-        expect(deletedCiphers.length).toBe(3);
-        done();
-      });
+      (cipherServiceMock.ciphers$ as BehaviorSubject<any>).next(null);
+
+      const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
+      expect(deletedCiphers.length).toBe(1);
     });
   });
 

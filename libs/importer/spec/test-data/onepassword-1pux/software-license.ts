@@ -26,7 +26,7 @@ export const SoftwareLicenseData: ExportData = {
               favIndex: 1,
               createdAt: 1619467985,
               updatedAt: 1619468230,
-              trashed: false,
+              state: "active",
               categoryUuid: "100",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           string: "5.10.1000",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           string: "265453-13457355-847327",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: true,
                         dontGenerate: false,
@@ -79,7 +77,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           string: "Kay Riddler",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -98,7 +95,6 @@ export const SoftwareLicenseData: ExportData = {
                             provider: null,
                           },
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -114,7 +110,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           string: "Riddles and Jigsaw Puzzles GmbH",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -136,7 +131,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           url: "https://limuxcompany.nullvalue.test/5.10.1000/isos",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -152,7 +146,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           string: "Limux Software and Hardware",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -168,7 +161,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           url: "https://limuxcompany.nullvalue.test/",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -184,7 +176,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           string: "$999",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -203,7 +194,6 @@ export const SoftwareLicenseData: ExportData = {
                             provider: null,
                           },
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -225,7 +215,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           date: 1617278460,
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -241,7 +230,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           string: "594839",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -257,7 +245,6 @@ export const SoftwareLicenseData: ExportData = {
                         value: {
                           string: "$1086.59",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

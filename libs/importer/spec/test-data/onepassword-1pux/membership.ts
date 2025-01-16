@@ -26,7 +26,7 @@ export const MembershipData: ExportData = {
               favIndex: 1,
               createdAt: 1619467269,
               updatedAt: 1619467368,
-              trashed: false,
+              state: "active",
               categoryUuid: "105",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const MembershipData: ExportData = {
                         value: {
                           string: "National Public Library",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const MembershipData: ExportData = {
                         value: {
                           url: "https://npl.nullvalue.gov.test",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const MembershipData: ExportData = {
                         value: {
                           phone: "9995555555",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -89,7 +86,6 @@ export const MembershipData: ExportData = {
                         value: {
                           string: "George Engels",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -105,7 +101,6 @@ export const MembershipData: ExportData = {
                         value: {
                           monthYear: 199901,
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -121,7 +116,6 @@ export const MembershipData: ExportData = {
                         value: {
                           monthYear: 203412,
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -137,7 +131,6 @@ export const MembershipData: ExportData = {
                         value: {
                           string: "64783862",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -153,7 +146,6 @@ export const MembershipData: ExportData = {
                         value: {
                           concealed: "19191",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

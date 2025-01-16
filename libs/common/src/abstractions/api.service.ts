@@ -1,3 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  CollectionRequest,
+  CollectionAccessDetailsResponse,
+  CollectionDetailsResponse,
+  CollectionResponse,
+} from "@bitwarden/admin-console/common";
+
 import { OrganizationConnectionType } from "../admin-console/enums";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
@@ -17,6 +26,7 @@ import {
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
+import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
   ProviderOrganizationOrganizationDetailsResponse,
   ProviderOrganizationResponse,
@@ -28,7 +38,7 @@ import {
   ProviderUserUserDetailsResponse,
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
-import { CreateAuthRequest } from "../auth/models/request/create-auth.request";
+import { AuthRequest } from "../auth/models/request/auth.request";
 import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
@@ -115,15 +125,9 @@ import { CipherCreateRequest } from "../vault/models/request/cipher-create.reque
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
 import { CipherShareRequest } from "../vault/models/request/cipher-share.request";
 import { CipherRequest } from "../vault/models/request/cipher.request";
-import { CollectionRequest } from "../vault/models/request/collection.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
-import {
-  CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
-  CollectionResponse,
-} from "../vault/models/response/collection.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 /**
@@ -184,8 +188,8 @@ export abstract class ApiService {
   putUpdateTdeOffboardingPassword: (request: UpdateTdeOffboardingPasswordRequest) => Promise<any>;
   postConvertToKeyConnector: () => Promise<void>;
   //passwordless
-  postAuthRequest: (request: CreateAuthRequest) => Promise<AuthRequestResponse>;
-  postAdminAuthRequest: (request: CreateAuthRequest) => Promise<AuthRequestResponse>;
+  postAuthRequest: (request: AuthRequest) => Promise<AuthRequestResponse>;
+  postAdminAuthRequest: (request: AuthRequest) => Promise<AuthRequestResponse>;
   getAuthResponse: (id: string, accessCode: string) => Promise<AuthRequestResponse>;
   getAuthRequest: (id: string) => Promise<AuthRequestResponse>;
   putAuthRequest: (id: string, request: PasswordlessAuthRequest) => Promise<AuthRequestResponse>;
@@ -489,7 +493,9 @@ export abstract class ApiService {
   ) => Promise<OrganizationSponsorshipSyncStatusResponse>;
   deleteRevokeSponsorship: (sponsoringOrganizationId: string) => Promise<void>;
   deleteRemoveSponsorship: (sponsoringOrgId: string) => Promise<void>;
-  postPreValidateSponsorshipToken: (sponsorshipToken: string) => Promise<boolean>;
+  postPreValidateSponsorshipToken: (
+    sponsorshipToken: string,
+  ) => Promise<PreValidateSponsorshipResponse>;
   postRedeemSponsorship: (
     sponsorshipToken: string,
     request: OrganizationSponsorshipRedeemRequest,

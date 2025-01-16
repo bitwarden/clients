@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   OrganizationAuthRequestService,
   OrganizationAuthRequestApiService,
@@ -17,7 +19,8 @@ export class ServiceContainer extends OssServiceContainer {
     this.organizationAuthRequestApiService = new OrganizationAuthRequestApiService(this.apiService);
     this.organizationAuthRequestService = new OrganizationAuthRequestService(
       this.organizationAuthRequestApiService,
-      this.cryptoService,
+      this.keyService,
+      this.encryptService,
       this.organizationUserApiService,
     );
   }

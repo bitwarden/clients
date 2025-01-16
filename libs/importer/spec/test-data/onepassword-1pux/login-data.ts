@@ -26,7 +26,7 @@ export const LoginData: ExportData = {
               favIndex: 0,
               createdAt: 1635522833,
               updatedAt: 1635522872,
-              trashed: false,
+              state: "active",
               categoryUuid: "001",
               details: {
                 loginFields: [
@@ -68,7 +68,6 @@ export const LoginData: ExportData = {
                         value: {
                           string: "username123123",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -84,7 +83,6 @@ export const LoginData: ExportData = {
                         value: {
                           totp: "otpseed777",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

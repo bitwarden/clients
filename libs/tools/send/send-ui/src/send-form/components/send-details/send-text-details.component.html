@@ -1,0 +1,10 @@
+<bit-section [formGroup]="sendTextDetailsForm" disableMargin>
+  <bit-form-field>
+    <bit-label>{{ "sendTypeTextToShare" | i18n }}</bit-label>
+    <textarea bitInput id="text" rows="3" formControlName="text"></textarea>
+  </bit-form-field>
+  <bit-form-control>
+    <input bitCheckbox type="checkbox" formControlName="hidden" />
+    <bit-label>{{ "hideTextByDefault" | i18n }}</bit-label>
+  </bit-form-control>
+</bit-section>

@@ -1,14 +1,21 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Router } from "@angular/router";
 import { firstValueFrom, Subject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
+import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
   VaultFilterList,
@@ -41,7 +48,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   isLoaded = false;
 
   protected destroy$: Subject<void> = new Subject<void>();
-
+  private router = inject(Router);
   get filtersList() {
     return this.filters ? Object.values(this.filters) : [];
   }
@@ -65,6 +72,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     if (this.activeFilter.cipherType === CipherType.SecureNote) {
       return "searchSecureNote";
     }
+    if (this.activeFilter.cipherType === CipherType.SshKey) {
+      return "searchSshKey";
+    }
     if (this.activeFilter.selectedFolderNode?.node) {
       return "searchFolder";
     }
@@ -81,12 +91,17 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return "searchVault";
   }
 
+  private trialFlowService = inject(TrialFlowService);
+
   constructor(
     protected vaultFilterService: VaultFilterService,
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
     protected toastService: ToastService,
+    protected billingApiService: BillingApiServiceAbstraction,
+    protected dialogService: DialogService,
+    protected configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -113,7 +128,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         title: null,
         message: this.i18nService.t("disabledOrganizationFilterError"),
       });
-      return;
+      const metadata = await this.billingApiService.getOrganizationBillingMetadata(orgNode.node.id);
+      await this.trialFlowService.handleUnpaidSubscriptionDialog(orgNode.node, metadata);
     }
     const filter = this.activeFilter;
     if (orgNode?.node.id === "AllVaults") {
@@ -219,6 +235,15 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         icon: "bwi-sticky-note",
       },
     ];
+
+    if (await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem)) {
+      allTypeFilters.push({
+        id: "sshKey",
+        name: this.i18nService.t("typeSshKey"),
+        type: CipherType.SshKey,
+        icon: "bwi-key",
+      });
+    }
 
     const typeFilterSection: VaultFilterSection = {
       data$: this.vaultFilterService.buildTypeTree(

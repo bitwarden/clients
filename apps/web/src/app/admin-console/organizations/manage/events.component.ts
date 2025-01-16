@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { concatMap, Subject, takeUntil } from "rxjs";
@@ -83,7 +85,9 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   }
 
   async load() {
-    const response = await this.organizationUserApiService.getAllUsers(this.organizationId);
+    const response = await this.organizationUserApiService.getAllMiniUserDetails(
+      this.organizationId,
+    );
     response.data.forEach((u) => {
       const name = this.userNamePipe.transform(u);
       this.orgUsersUserIdMap.set(u.userId, { name: name, email: u.email });
@@ -127,7 +131,9 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
   protected getUserName(r: EventResponse, userId: string) {
     if (r.installationId != null) {
-      return `Installation: ${r.installationId}`;
+      return {
+        name: `Installation: ${r.installationId}`,
+      };
     }
 
     if (userId != null) {

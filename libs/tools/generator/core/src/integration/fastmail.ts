@@ -1,7 +1,16 @@
-import { GENERATOR_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  GENERATOR_DISK,
+  GENERATOR_MEMORY,
+  UserKeyDefinition,
+} from "@bitwarden/common/platform/state";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import { ApiSettings, IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
+import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
+import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { BufferedKeyDefinition } from "@bitwarden/common/tools/state/buffered-key-definition";
+import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
 
 import {
   ForwarderConfiguration,
@@ -101,6 +110,42 @@ const createForwardingEmail = Object.freeze({
 // forwarder configuration
 const forwarder = Object.freeze({
   defaultSettings,
+  createForwardingEmail,
+  getAccountId,
+  request: ["token"],
+  settingsConstraints: {
+    token: { required: true },
+    domain: { required: true },
+    prefix: {},
+  },
+  local: {
+    settings: {
+      // FIXME: integration should issue keys at runtime
+      // based on integrationId & extension metadata
+      // e.g. key: "forwarder.Fastmail.local.settings"
+      key: "fastmailForwarder",
+      target: "object",
+      format: "secret-state",
+      classifier: new PrivateClassifier<FastmailSettings>(),
+      state: GENERATOR_DISK,
+      initial: defaultSettings,
+      options: {
+        deserializer: (value) => value,
+        clearOn: ["logout"],
+      },
+    } satisfies ObjectKey<FastmailSettings>,
+    import: {
+      key: "forwarder.Fastmail.local.import",
+      target: "object",
+      format: "plain",
+      classifier: new PublicClassifier<FastmailSettings>(["token"]),
+      state: GENERATOR_MEMORY,
+      options: {
+        deserializer: (value) => value,
+        clearOn: ["logout", "lock"],
+      },
+    } satisfies ObjectKey<FastmailSettings, Record<string, never>, FastmailSettings>,
+  },
   settings: new UserKeyDefinition<FastmailSettings>(GENERATOR_DISK, "fastmailForwarder", {
     deserializer: (value) => value,
     clearOn: [],
@@ -109,8 +154,6 @@ const forwarder = Object.freeze({
     deserializer: (value) => value,
     clearOn: ["logout"],
   }),
-  createForwardingEmail,
-  getAccountId,
 } as const);
 
 // integration-wide configuration

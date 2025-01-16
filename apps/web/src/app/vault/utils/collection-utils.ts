@@ -1,11 +1,12 @@
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
+  CollectionAdminView,
   CollectionView,
   NestingDelimiter,
-} from "@bitwarden/common/vault/models/view/collection.view";
+} from "@bitwarden/admin-console/common";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-
-import { CollectionAdminView } from "../../vault/core/views/collection-admin.view";
 
 export function getNestedCollectionTree(
   collections: CollectionAdminView[],

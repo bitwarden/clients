@@ -1,5 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CollectionView } from "@bitwarden/admin-console/common";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 export class ImportResult {

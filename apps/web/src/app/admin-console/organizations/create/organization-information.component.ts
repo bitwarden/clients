@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { UntypedFormGroup } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -19,7 +21,7 @@ export class OrganizationInformationComponent implements OnInit {
   constructor(private accountService: AccountService) {}
 
   async ngOnInit(): Promise<void> {
-    if (this.formGroup.controls.billingEmail.value) {
+    if (this.formGroup?.controls?.billingEmail?.value) {
       return;
     }
 

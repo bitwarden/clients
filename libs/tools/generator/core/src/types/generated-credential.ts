@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { CredentialCategory } from "./credential-category";
+import { CredentialAlgorithm } from "./generator-type";
 
 /** A credential generation result */
 export class GeneratedCredential {
@@ -14,7 +14,7 @@ export class GeneratedCredential {
    */
   constructor(
     readonly credential: string,
-    readonly category: CredentialCategory,
+    readonly category: CredentialAlgorithm,
     generationDate: Date | number,
   ) {
     if (typeof generationDate === "number") {

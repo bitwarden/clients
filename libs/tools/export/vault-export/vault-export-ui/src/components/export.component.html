@@ -87,7 +87,9 @@
             [disabled]="!filePassword"
             appStopClick
             bitSuffix
-            (click)="copyPasswordToClipboard()"
+            [appCopyClick]="filePassword"
+            [valueLabel]="'password' | i18n"
+            showToast
           ></button>
           <bit-hint>{{ "exportPasswordDescription" | i18n }}</bit-hint>
         </bit-form-field>

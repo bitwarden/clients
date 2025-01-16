@@ -1,5 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
-import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
@@ -42,6 +44,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     title: "",
     allowtransparency: "true",
     tabIndex: "-1",
+    scrolling: "no",
   };
   private foreignMutationsCount = 0;
   private mutationObserverIterations = 0;
@@ -55,6 +58,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     updateAutofillInlineMenuColorScheme: () => this.updateAutofillInlineMenuColorScheme(),
     triggerDelayedAutofillInlineMenuClosure: () => this.handleDelayedAutofillInlineMenuClosure(),
     fadeInAutofillInlineMenuIframe: () => this.handleFadeInInlineMenuIframe(),
+    updateAutofillInlineMenuGeneratedPassword: ({ message }) =>
+      this.handleUpdateGeneratedPassword(message),
   };
 
   constructor(
@@ -88,7 +93,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     this.iframe.addEventListener(EVENTS.LOAD, this.setupPortMessageListener);
 
     if (this.ariaAlert) {
-      this.createAriaAlertElement(this.ariaAlert);
+      this.createAriaAlertElement();
     }
 
     this.shadow.appendChild(this.iframe);
@@ -98,13 +103,11 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   /**
    * Creates an aria alert element that is used to announce to screen readers
    * when the iframe is loaded.
-   *
-   * @param ariaAlertText - Text to announce to screen readers when the iframe is loaded
    */
-  private createAriaAlertElement(ariaAlertText: string) {
+  private createAriaAlertElement(assertive = false) {
     this.ariaAlertElement = globalThis.document.createElement("div");
     this.ariaAlertElement.setAttribute("role", "alert");
-    this.ariaAlertElement.setAttribute("aria-live", "polite");
+    this.ariaAlertElement.setAttribute("aria-live", assertive ? "assertive" : "polite");
     this.ariaAlertElement.setAttribute("aria-atomic", "true");
     this.updateElementStyles(this.ariaAlertElement, {
       position: "absolute",
@@ -116,7 +119,6 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       opacity: "0",
       pointerEvents: "none",
     });
-    this.ariaAlertElement.textContent = ariaAlertText;
   }
 
   /**
@@ -129,26 +131,42 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     this.port.onDisconnect.addListener(this.handlePortDisconnect);
     this.port.onMessage.addListener(this.handlePortMessage);
 
-    this.announceAriaAlert();
+    this.announceAriaAlert(this.ariaAlert, 2000);
   };
 
   /**
    * Announces the aria alert element to screen readers when the iframe is loaded.
+   *
+   * @param textContent - The text content to announce
+   * @param delay - The delay before announcing the text content
+   * @param triggeredByUser - Identifies whether we should present the alert regardless of field focus
    */
-  private announceAriaAlert() {
-    if (!this.ariaAlertElement) {
+  private announceAriaAlert(textContent: string, delay: number, triggeredByUser = false) {
+    if (!this.ariaAlertElement || !textContent) {
       return;
     }
 
     this.ariaAlertElement.remove();
+    this.ariaAlertElement.textContent = textContent;
+    this.clearAriaAlert();
+
+    this.ariaAlertTimeout = globalThis.setTimeout(async () => {
+      const isFieldFocused = await this.sendExtensionMessage("checkIsFieldCurrentlyFocused");
+      if (isFieldFocused || triggeredByUser) {
+        this.shadow.appendChild(this.ariaAlertElement);
+      }
+      this.ariaAlertTimeout = null;
+    }, delay);
+  }
+
+  /**
+   * Clears any existing aria alert that could be announced.
+   */
+  clearAriaAlert() {
     if (this.ariaAlertTimeout) {
       clearTimeout(this.ariaAlertTimeout);
+      this.ariaAlertTimeout = null;
     }
-
-    this.ariaAlertTimeout = globalThis.setTimeout(
-      () => this.shadow.appendChild(this.ariaAlertElement),
-      2000,
-    );
   }
 
   /**
@@ -165,6 +183,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
     this.updateElementStyles(this.iframe, { opacity: "0", height: "0px" });
     this.unobserveIframe();
+    this.clearAriaAlert();
     this.port?.onMessage.removeListener(this.handlePortMessage);
     this.port?.onDisconnect.removeListener(this.handlePortDisconnect);
     this.port?.disconnect();
@@ -222,19 +241,19 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     const { theme } = message;
     let borderColor: string;
     let verifiedTheme = theme;
-    if (verifiedTheme === ThemeType.System) {
+    if (verifiedTheme === ThemeTypes.System) {
       verifiedTheme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
-        ? ThemeType.Dark
-        : ThemeType.Light;
+        ? ThemeTypes.Dark
+        : ThemeTypes.Light;
     }
 
-    if (verifiedTheme === ThemeType.Dark) {
+    if (verifiedTheme === ThemeTypes.Dark) {
       borderColor = "#4c525f";
     }
-    if (theme === ThemeType.Nord) {
+    if (theme === ThemeTypes.Nord) {
       borderColor = "#2E3440";
     }
-    if (theme === ThemeType.SolarizedDark) {
+    if (theme === ThemeTypes.SolarizedDark) {
       borderColor = "#073642";
     }
     if (borderColor) {
@@ -267,7 +286,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       this.handleFadeInInlineMenuIframe();
     }
 
-    this.announceAriaAlert();
+    this.announceAriaAlert(this.ariaAlert, 2000);
   }
 
   /**
@@ -355,9 +374,27 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
     this.delayedCloseTimeout = globalThis.setTimeout(() => {
       this.updateElementStyles(this.iframe, { transition: this.fadeInOpacityTransition });
+      this.port?.disconnect();
+      this.port = null;
       this.forceCloseInlineMenu();
     }, 100);
   }
+
+  /**
+   * Handles updating the generated password in the inline menu iframe. Triggers
+   * an aria alert if the user initiated the password regeneration.
+   *
+   * @param message - The message sent from the iframe
+   */
+  private handleUpdateGeneratedPassword = (message: AutofillInlineMenuIframeExtensionMessage) => {
+    this.postMessageToIFrame(message);
+
+    if (message.refreshPassword) {
+      this.clearAriaAlert();
+      this.createAriaAlertElement(true);
+      this.announceAriaAlert(chrome.i18n.getMessage("passwordRegenerated"), 500, true);
+    }
+  };
 
   /**
    * Handles mutations to the iframe element. The ensures that the iframe

@@ -42,7 +42,7 @@ const common = {
         type: "asset/resource",
       },
       {
-        test: /\.wasm$/,
+        test: /argon2(-simd)?\.wasm$/,
         loader: "base64-loader",
         type: "javascript/auto",
       },
@@ -143,11 +143,15 @@ const renderer = {
         parser: { system: true },
       },
       {
-        test: /\.wasm$/,
+        test: /argon2(-simd)?\.wasm$/,
         loader: "base64-loader",
         type: "javascript/auto",
       },
     ],
+    noParse: /argon2(-simd)?\.wasm$/,
+  },
+  experiments: {
+    asyncWebAssembly: true,
   },
   plugins: [
     new AngularWebpackPlugin({

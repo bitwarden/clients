@@ -1,14 +1,28 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params } from "@angular/router";
-import { concatMap, Observable, Subject, take, takeUntil } from "rxjs";
+import {
+  concatMap,
+  firstValueFrom,
+  map,
+  Observable,
+  Subject,
+  take,
+  takeUntil,
+  withLatestFrom,
+} from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -23,22 +37,29 @@ import {
 })
 export class DomainVerificationComponent implements OnInit, OnDestroy {
   private componentDestroyed$ = new Subject<void>();
+  private singleOrgPolicyEnabled = false;
 
   loading = true;
 
   organizationId: string;
   orgDomains$: Observable<OrganizationDomainResponse[]>;
+  accountDeprovisioningEnabled$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private orgDomainApiService: OrgDomainApiServiceAbstraction,
     private orgDomainService: OrgDomainServiceAbstraction,
     private dialogService: DialogService,
     private validationService: ValidationService,
     private toastService: ToastService,
-  ) {}
+    private configService: ConfigService,
+    private policyService: PolicyService,
+  ) {
+    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AccountDeprovisioning,
+    );
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async ngOnInit() {
@@ -61,16 +82,55 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
   async load() {
     await this.orgDomainApiService.getAllByOrgId(this.organizationId);
 
+    if (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning)) {
+      const singleOrgPolicy = await firstValueFrom(
+        this.policyService.policies$.pipe(
+          map((policies) =>
+            policies.find(
+              (p) => p.type === PolicyType.SingleOrg && p.organizationId === this.organizationId,
+            ),
+          ),
+        ),
+      );
+      this.singleOrgPolicyEnabled = singleOrgPolicy?.enabled ?? false;
+    }
+
     this.loading = false;
   }
 
-  addDomain() {
+  async addDomain() {
     const domainAddEditDialogData: DomainAddEditDialogData = {
       organizationId: this.organizationId,
       orgDomain: null,
       existingDomainNames: this.getExistingDomainNames(),
     };
 
+    await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.AccountDeprovisioning).pipe(
+        withLatestFrom(this.orgDomains$),
+        map(async ([accountDeprovisioningEnabled, organizationDomains]) => {
+          if (
+            accountDeprovisioningEnabled &&
+            !this.singleOrgPolicyEnabled &&
+            organizationDomains.every((domain) => domain.verifiedDate === null)
+          ) {
+            await this.dialogService.openSimpleDialog({
+              title: { key: "claim-domain-single-org-warning" },
+              content: { key: "single-org-revoked-user-warning" },
+              cancelButtonText: { key: "cancel" },
+              acceptButtonText: { key: "confirm" },
+              acceptAction: () => this.openAddDomainDialog(domainAddEditDialogData),
+              type: "info",
+            });
+          } else {
+            await this.openAddDomainDialog(domainAddEditDialogData);
+          }
+        }),
+      ),
+    );
+  }
+
+  private async openAddDomainDialog(domainAddEditDialogData: DomainAddEditDialogData) {
     this.dialogService.open(DomainAddEditDialogComponent, {
       data: domainAddEditDialogData,
     });
@@ -101,6 +161,11 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
 
   copyDnsTxt(dnsTxt: string): void {
     this.orgDomainService.copyDnsTxt(dnsTxt);
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
+    });
   }
 
   async verifyDomain(orgDomainId: string, domainName: string): Promise<void> {
@@ -114,13 +179,22 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
         this.toastService.showToast({
           variant: "success",
           title: null,
-          message: this.i18nService.t("domainVerified"),
+          message: this.i18nService.t(
+            (await firstValueFrom(this.accountDeprovisioningEnabled$))
+              ? "domainClaimed"
+              : "domainVerified",
+          ),
         });
       } else {
         this.toastService.showToast({
           variant: "error",
           title: null,
-          message: this.i18nService.t("domainNotVerified", domainName),
+          message: this.i18nService.t(
+            (await firstValueFrom(this.accountDeprovisioningEnabled$))
+              ? "domainNotClaimed"
+              : "domainNotVerified",
+            domainName,
+          ),
         });
         // Update this item so the last checked date gets updated.
         await this.updateOrgDomain(orgDomainId);

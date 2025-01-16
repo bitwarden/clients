@@ -1,4 +1,4 @@
-import { CredentialCategory, GeneratedCredential } from ".";
+import { CredentialAlgorithm, GeneratedCredential } from ".";
 
 describe("GeneratedCredential", () => {
   describe("constructor", () => {
@@ -34,7 +34,7 @@ describe("GeneratedCredential", () => {
 
     expect(result).toEqual({
       credential: "example",
-      category: "password" as CredentialCategory,
+      category: "password" as CredentialAlgorithm,
       generationDate: 100,
     });
   });
@@ -42,7 +42,7 @@ describe("GeneratedCredential", () => {
   it("fromJSON converts Json objects into credentials", () => {
     const jsonValue = {
       credential: "example",
-      category: "password" as CredentialCategory,
+      category: "password" as CredentialAlgorithm,
       generationDate: 100,
     };
 

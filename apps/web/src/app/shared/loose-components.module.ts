@@ -17,8 +17,6 @@ import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent
 import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../admin-console/organizations/tools/reused-passwords-report.component";
 import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../admin-console/organizations/tools/unsecured-websites-report.component";
 import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../admin-console/organizations/tools/weak-passwords-report.component";
-import { ProvidersComponent } from "../admin-console/providers/providers.component";
-import { VerifyRecoverDeleteProviderComponent } from "../admin-console/providers/verify-recover-delete-provider.component";
 import { HintComponent } from "../auth/hint.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
@@ -43,16 +41,16 @@ import { ApiKeyComponent } from "../auth/settings/security/api-key.component";
 import { ChangeKdfModule } from "../auth/settings/security/change-kdf/change-kdf.module";
 import { SecurityKeysComponent } from "../auth/settings/security/security-keys.component";
 import { SecurityComponent } from "../auth/settings/security/security.component";
-import { TwoFactorAuthenticatorComponent } from "../auth/settings/two-factor-authenticator.component";
-import { TwoFactorDuoComponent } from "../auth/settings/two-factor-duo.component";
-import { TwoFactorEmailComponent } from "../auth/settings/two-factor-email.component";
-import { TwoFactorRecoveryComponent } from "../auth/settings/two-factor-recovery.component";
-import { TwoFactorSetupComponent } from "../auth/settings/two-factor-setup.component";
-import { TwoFactorVerifyComponent } from "../auth/settings/two-factor-verify.component";
-import { TwoFactorWebAuthnComponent } from "../auth/settings/two-factor-webauthn.component";
-import { TwoFactorYubiKeyComponent } from "../auth/settings/two-factor-yubikey.component";
+import { TwoFactorRecoveryComponent } from "../auth/settings/two-factor/two-factor-recovery.component";
+import { TwoFactorSetupAuthenticatorComponent } from "../auth/settings/two-factor/two-factor-setup-authenticator.component";
+import { TwoFactorSetupDuoComponent } from "../auth/settings/two-factor/two-factor-setup-duo.component";
+import { TwoFactorSetupEmailComponent } from "../auth/settings/two-factor/two-factor-setup-email.component";
+import { TwoFactorSetupWebAuthnComponent } from "../auth/settings/two-factor/two-factor-setup-webauthn.component";
+import { TwoFactorSetupYubiKeyComponent } from "../auth/settings/two-factor/two-factor-setup-yubikey.component";
+import { TwoFactorSetupComponent } from "../auth/settings/two-factor/two-factor-setup.component";
+import { TwoFactorVerifyComponent } from "../auth/settings/two-factor/two-factor-verify.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
-import { SsoComponent } from "../auth/sso.component";
+import { SsoComponentV1 } from "../auth/sso-v1.component";
 import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/two-factor.component";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
@@ -76,14 +74,11 @@ import { PremiumBadgeComponent } from "../vault/components/premium-badge.compone
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/individual-vault/add-edit.component";
 import { AttachmentsComponent } from "../vault/individual-vault/attachments.component";
-import { CollectionsComponent } from "../vault/individual-vault/collections.component";
 import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
-import { ShareComponent } from "../vault/individual-vault/share.component";
 import { AddEditComponent as OrgAddEditComponent } from "../vault/org-vault/add-edit.component";
 import { AttachmentsComponent as OrgAttachmentsComponent } from "../vault/org-vault/attachments.component";
-import { CollectionsComponent as OrgCollectionsComponent } from "../vault/org-vault/collections.component";
 import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
 import { EnvironmentSelectorModule } from "./../components/environment-selector/environment-selector.module";
@@ -124,7 +119,6 @@ import { SharedModule } from "./shared.module";
     ApiKeyComponent,
     AttachmentsComponent,
     ChangeEmailComponent,
-    CollectionsComponent,
     DeauthorizeSessionsComponent,
     DeleteAccountDialogComponent,
     DomainRulesComponent,
@@ -140,7 +134,6 @@ import { SharedModule } from "./shared.module";
     HintComponent,
     OrgAddEditComponent,
     OrgAttachmentsComponent,
-    OrgCollectionsComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
@@ -154,7 +147,6 @@ import { SharedModule } from "./shared.module";
     PremiumBadgeComponent,
     ProfileComponent,
     ChangeAvatarDialogComponent,
-    ProvidersComponent,
     PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
@@ -164,25 +156,23 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SendAddEditComponent,
     SetPasswordComponent,
-    ShareComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
-    SsoComponent,
-    TwoFactorAuthenticatorComponent,
+    SsoComponentV1,
+    TwoFactorSetupAuthenticatorComponent,
     TwoFactorComponent,
-    TwoFactorDuoComponent,
-    TwoFactorEmailComponent,
+    TwoFactorSetupDuoComponent,
+    TwoFactorSetupEmailComponent,
     TwoFactorOptionsComponent,
     TwoFactorRecoveryComponent,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
-    TwoFactorWebAuthnComponent,
-    TwoFactorYubiKeyComponent,
+    TwoFactorSetupWebAuthnComponent,
+    TwoFactorSetupYubiKeyComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
-    VerifyRecoverDeleteProviderComponent,
   ],
   exports: [
     UserVerificationModule,
@@ -194,7 +184,6 @@ import { SharedModule } from "./shared.module";
     ApiKeyComponent,
     AttachmentsComponent,
     ChangeEmailComponent,
-    CollectionsComponent,
     DeauthorizeSessionsComponent,
     DeleteAccountDialogComponent,
     DomainRulesComponent,
@@ -212,7 +201,6 @@ import { SharedModule } from "./shared.module";
     OrgAddEditComponent,
     OrganizationLayoutComponent,
     OrgAttachmentsComponent,
-    OrgCollectionsComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
@@ -226,7 +214,6 @@ import { SharedModule } from "./shared.module";
     PremiumBadgeComponent,
     ProfileComponent,
     ChangeAvatarDialogComponent,
-    ProvidersComponent,
     PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
@@ -236,26 +223,24 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SendAddEditComponent,
     SetPasswordComponent,
-    ShareComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
-    SsoComponent,
-    TwoFactorAuthenticatorComponent,
+    SsoComponentV1,
+    TwoFactorSetupAuthenticatorComponent,
     TwoFactorComponent,
-    TwoFactorDuoComponent,
-    TwoFactorEmailComponent,
+    TwoFactorSetupDuoComponent,
+    TwoFactorSetupEmailComponent,
     TwoFactorOptionsComponent,
     TwoFactorRecoveryComponent,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
-    TwoFactorWebAuthnComponent,
-    TwoFactorYubiKeyComponent,
+    TwoFactorSetupWebAuthnComponent,
+    TwoFactorSetupYubiKeyComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
     UserLayoutComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
-    VerifyRecoverDeleteProviderComponent,
     HeaderModule,
     DangerZoneComponent,
   ],

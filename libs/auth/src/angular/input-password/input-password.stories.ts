@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { importProvidersFrom } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { action } from "@storybook/addon-actions";
@@ -7,12 +9,13 @@ import { ZXCVBNResult } from "zxcvbn";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `/apps` import from `/libs`
-// eslint-disable-next-line import/no-restricted-paths
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
 import { PreloadedEnglishI18nModule } from "../../../../../apps/web/src/app/core/tests";
 
 import { InputPasswordComponent } from "./input-password.component";
@@ -32,7 +35,7 @@ export default {
           } as Partial<AuditService>,
         },
         {
-          provide: CryptoService,
+          provide: KeyService,
           useValue: {
             makeMasterKey: () => Promise.resolve("example-master-key"),
             hashMasterKey: () => Promise.resolve("example-master-key-hash"),

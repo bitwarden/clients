@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
 import { ReplaySubject, Observable } from "rxjs";
 
@@ -64,9 +66,9 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
 
   decryptUserKeyWithMasterKey(
     masterKey: MasterKey,
+    userId: string,
     userKey?: EncString,
-    userId?: string,
   ): Promise<UserKey> {
-    return this.mock.decryptUserKeyWithMasterKey(masterKey, userKey, userId);
+    return this.mock.decryptUserKeyWithMasterKey(masterKey, userId, userKey);
   }
 }

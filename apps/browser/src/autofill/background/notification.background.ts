@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -80,6 +82,8 @@ export default class NotificationBackground {
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
   };
+
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   constructor(
     private autofillService: AutofillService,
@@ -173,13 +177,8 @@ export default class NotificationBackground {
   }
 
   private async doNotificationQueueCheck(tab: chrome.tabs.Tab): Promise<void> {
-    const tabDomain = Utils.getDomain(tab?.url);
-    if (!tabDomain) {
-      return;
-    }
-
     const queueMessage = this.notificationQueue.find(
-      (message) => message.tab.id === tab.id && message.domain === tabDomain,
+      (message) => message.tab.id === tab.id && this.queueMessageIsFromTabOrigin(message, tab),
     );
     if (queueMessage) {
       await this.sendNotificationQueueMessage(tab, queueMessage);
@@ -537,8 +536,7 @@ export default class NotificationBackground {
         continue;
       }
 
-      const tabDomain = Utils.getDomain(tab.url);
-      if (tabDomain != null && tabDomain !== queueMessage.domain) {
+      if (!this.queueMessageIsFromTabOrigin(queueMessage, tab)) {
         continue;
       }
 
@@ -573,9 +571,7 @@ export default class NotificationBackground {
         return;
       }
 
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(this.activeUserId$);
 
       const cipher = await this.cipherService.encrypt(newCipher, activeUserId);
       try {
@@ -615,10 +611,7 @@ export default class NotificationBackground {
       return;
     }
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
+    const activeUserId = await firstValueFrom(this.activeUserId$);
     const cipher = await this.cipherService.encrypt(cipherView, activeUserId);
     try {
       // We've only updated the password, no need to broadcast editedCipher message
@@ -651,17 +644,15 @@ export default class NotificationBackground {
     if (Utils.isNullOrWhitespace(folderId) || folderId === "null") {
       return false;
     }
-
-    const folders = await firstValueFrom(this.folderService.folderViews$);
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const folders = await firstValueFrom(this.folderService.folderViews$(activeUserId));
     return folders.some((x) => x.id === folderId);
   }
 
   private async getDecryptedCipherById(cipherId: string) {
     const cipher = await this.cipherService.get(cipherId);
     if (cipher != null && cipher.type === CipherType.Login) {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(this.activeUserId$);
 
       return await cipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
@@ -685,8 +676,7 @@ export default class NotificationBackground {
         continue;
       }
 
-      const tabDomain = Utils.getDomain(tab.url);
-      if (tabDomain != null && tabDomain !== queueMessage.domain) {
+      if (!this.queueMessageIsFromTabOrigin(queueMessage, tab)) {
         continue;
       }
 
@@ -702,7 +692,8 @@ export default class NotificationBackground {
    * Returns the first value found from the folder service's folderViews$ observable.
    */
   private async getFolderData() {
-    return await firstValueFrom(this.folderService.folderViews$);
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    return await firstValueFrom(this.folderService.folderViews$(activeUserId));
   }
 
   private async getWebVaultUrl(): Promise<string> {
@@ -829,4 +820,18 @@ export default class NotificationBackground {
       .catch((error) => this.logService.error(error));
     return true;
   };
+
+  /**
+   * Validates whether the queue message is associated with the passed tab.
+   *
+   * @param queueMessage - The queue message to check
+   * @param tab - The tab to check the queue message against
+   */
+  private queueMessageIsFromTabOrigin(
+    queueMessage: NotificationQueueMessageItem,
+    tab: chrome.tabs.Tab,
+  ) {
+    const tabDomain = Utils.getDomain(tab.url);
+    return tabDomain === queueMessage.domain || tabDomain === Utils.getDomain(queueMessage.tab.url);
+  }
 }

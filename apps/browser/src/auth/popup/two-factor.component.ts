@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, Subscription, firstValueFrom } from "rxjs";
@@ -87,23 +89,23 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit
       accountService,
       toastService,
     );
-    super.onSuccessfulLogin = async () => {
+    this.onSuccessfulLogin = async () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       syncService.fullSync(true);
     };
 
-    super.onSuccessfulLoginTde = async () => {
+    this.onSuccessfulLoginTde = async () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       syncService.fullSync(true);
     };
 
-    super.onSuccessfulLoginTdeNavigate = async () => {
+    this.onSuccessfulLoginTdeNavigate = async () => {
       this.win.close();
     };
 
-    super.successRoute = "/tabs/vault";
+    this.successRoute = "/tabs/vault";
     // FIXME: Chromium 110 has broken WebAuthn support in extensions via an iframe
     this.webAuthnNewTab = true;
   }
@@ -113,7 +115,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit
       // WebAuthn fallback response
       this.selectedProviderType = TwoFactorProviderType.WebAuthn;
       this.token = this.route.snapshot.paramMap.get("webAuthnResponse");
-      super.onSuccessfulLogin = async () => {
+      this.onSuccessfulLogin = async () => {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.syncService.fullSync(true);
@@ -155,7 +157,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
       if (qParams.sso === "true") {
-        super.onSuccessfulLogin = async () => {
+        this.onSuccessfulLogin = async () => {
           // This is not awaited so we don't pause the application while the sync is happening.
           // This call is executed by the service that lives in the background script so it will continue
           // the sync even if this tab closes.

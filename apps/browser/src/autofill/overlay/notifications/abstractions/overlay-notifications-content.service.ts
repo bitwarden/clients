@@ -1,6 +1,8 @@
+import { Theme } from "@bitwarden/common/platform/enums";
+
 export type NotificationTypeData = {
   isVaultLocked?: boolean;
-  theme?: string;
+  theme?: Theme;
   removeIndividualVault?: boolean;
   importType?: string;
   launchTimestamp?: number;

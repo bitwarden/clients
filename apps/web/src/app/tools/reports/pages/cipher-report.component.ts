@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
 import { BehaviorSubject, Observable, Subject, takeUntil } from "rxjs";
 
@@ -5,6 +7,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -81,7 +84,7 @@ export class CipherReportComponent implements OnDestroy {
     if (filterId === 0) {
       cipherCount = this.allCiphers.length;
     } else if (filterId === 1) {
-      cipherCount = this.allCiphers.filter((c: any) => c.orgFilterStatus === null).length;
+      cipherCount = this.allCiphers.filter((c) => c.organizationId === null).length;
     } else {
       this.organizations.filter((org: Organization) => {
         if (org.id === filterId) {
@@ -89,22 +92,20 @@ export class CipherReportComponent implements OnDestroy {
           return org;
         }
       });
-      cipherCount = this.allCiphers.filter(
-        (c: any) => c.orgFilterStatus === orgFilterStatus,
-      ).length;
+      cipherCount = this.allCiphers.filter((c) => c.organizationId === orgFilterStatus).length;
     }
     return cipherCount;
   }
 
   async filterOrgToggle(status: any) {
-    this.currentFilterStatus = status;
-    if (status === 0) {
-      this.dataSource.filter = null;
-    } else if (status === 1) {
-      this.dataSource.filter = (c: any) => c.orgFilterStatus == null;
-    } else {
-      this.dataSource.filter = (c: any) => c.orgFilterStatus === status;
+    let filter = null;
+    if (typeof status === "number" && status === 1) {
+      filter = (c: CipherView) => c.organizationId == null;
+    } else if (typeof status === "string") {
+      const orgId = status as OrganizationId;
+      filter = (c: CipherView) => c.organizationId === orgId;
     }
+    this.dataSource.filter = filter;
   }
 
   async load() {
@@ -183,9 +184,7 @@ export class CipherReportComponent implements OnDestroy {
   protected filterCiphersByOrg(ciphersList: CipherView[]) {
     this.allCiphers = [...ciphersList];
 
-    this.ciphers = ciphersList.map((ciph: any) => {
-      ciph.orgFilterStatus = ciph.organizationId;
-
+    this.ciphers = ciphersList.map((ciph) => {
       if (this.filterStatus.indexOf(ciph.organizationId) === -1 && ciph.organizationId != null) {
         this.filterStatus.push(ciph.organizationId);
       } else if (this.filterStatus.indexOf(1) === -1 && ciph.organizationId == null) {
@@ -193,7 +192,6 @@ export class CipherReportComponent implements OnDestroy {
       }
       return ciph;
     });
-
     this.dataSource.data = this.ciphers;
 
     if (this.filterStatus.length > 2) {

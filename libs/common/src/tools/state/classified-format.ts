@@ -17,3 +17,9 @@ export type ClassifiedFormat<Id, Disclosed> = {
    */
   readonly disclosed: Jsonify<Disclosed>;
 };
+
+export function isClassifiedFormat<Id, Disclosed>(
+  value: any,
+): value is ClassifiedFormat<Id, Disclosed> {
+  return "id" in value && "secret" in value && "disclosed" in value;
+}

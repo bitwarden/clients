@@ -334,7 +334,7 @@
                 </div>
                 <small id="startToTrayHelp" class="help-block">{{ startToTrayDescText }}</small>
               </div>
-              <div class="form-group">
+              <div class="form-group" *ngIf="showOpenAtLoginOption">
                 <div class="checkbox">
                   <label for="openAtLogin">
                     <input
@@ -382,7 +382,7 @@
                   </label>
                 </div>
                 <small id="enableBrowserIntegrationHelp" class="help-block">{{
-                  "enableBrowserIntegrationDesc" | i18n
+                  "enableBrowserIntegrationDesc1" | i18n
                 }}</small>
               </div>
               <div class="form-group">
@@ -417,6 +417,23 @@
                 </div>
                 <small id="enableHardwareAccelerationHelp" class="help-block">{{
                   "enableHardwareAccelerationDesc" | i18n
+                }}</small>
+              </div>
+              <div class="form-group" *ngIf="showSshAgentOption">
+                <div class="checkbox">
+                  <label for="enableSshAgent">
+                    <input
+                      id="enableSshAgent"
+                      type="checkbox"
+                      aria-describedby="enableSshAgentHelp"
+                      formControlName="enableSshAgent"
+                      (change)="saveSshAgent()"
+                    />
+                    {{ "enableSshAgent" | i18n }}
+                  </label>
+                </div>
+                <small id="enableSshAgentHelp" class="help-block">{{
+                  "enableSshAgentDesc" | i18n
                 }}</small>
               </div>
               <div class="form-group" *ngIf="showDuckDuckGoIntegrationOption">

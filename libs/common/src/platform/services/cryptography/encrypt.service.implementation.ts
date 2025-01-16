@@ -1,8 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Utils } from "../../../platform/misc/utils";
 import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
 import { EncryptService } from "../../abstractions/encrypt.service";
 import { LogService } from "../../abstractions/log.service";
-import { EncryptionType } from "../../enums";
+import { EncryptionType, encryptionTypeToString as encryptionTypeName } from "../../enums";
 import { Decryptable } from "../../interfaces/decryptable.interface";
 import { Encrypted } from "../../interfaces/encrypted";
 import { InitializerMetadata } from "../../interfaces/initializer-metadata.interface";
@@ -63,20 +65,37 @@ export class EncryptServiceImplementation implements EncryptService {
     return new EncArrayBuffer(encBytes);
   }
 
-  async decryptToUtf8(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
+  async decryptToUtf8(
+    encString: EncString,
+    key: SymmetricCryptoKey,
+    decryptContext: string = "no context",
+  ): Promise<string> {
     if (key == null) {
       throw new Error("No key provided for decryption.");
     }
 
     key = this.resolveLegacyKey(key, encString);
 
+    // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
     if (key.macKey != null && encString?.mac == null) {
-      this.logService.error("MAC required but not provided.");
+      this.logService.error(
+        "[Encrypt service] Key has mac key but payload is missing mac bytes. Key type " +
+          encryptionTypeName(key.encType) +
+          "Payload type " +
+          encryptionTypeName(encString.encryptionType),
+        "Decrypt context: " + decryptContext,
+      );
       return null;
     }
 
     if (key.encType !== encString.encryptionType) {
-      this.logService.error("Key encryption type does not match payload encryption type.");
+      this.logService.error(
+        "[Encrypt service] Key encryption type does not match payload encryption type. Key type " +
+          encryptionTypeName(key.encType) +
+          "Payload type " +
+          encryptionTypeName(encString.encryptionType),
+        "Decrypt context: " + decryptContext,
+      );
       return null;
     }
 
@@ -94,15 +113,26 @@ export class EncryptServiceImplementation implements EncryptService {
       );
       const macsEqual = await this.cryptoFunctionService.compareFast(fastParams.mac, computedMac);
       if (!macsEqual) {
-        this.logMacFailed("MAC comparison failed. Key or payload has changed.");
+        this.logMacFailed(
+          "[Encrypt service] decryptToUtf8 MAC comparison failed. Key or payload has changed. Key type " +
+            encryptionTypeName(key.encType) +
+            "Payload type " +
+            encryptionTypeName(encString.encryptionType) +
+            " Decrypt context: " +
+            decryptContext,
+        );
         return null;
       }
     }
 
-    return await this.cryptoFunctionService.aesDecryptFast(fastParams, "cbc");
+    return await this.cryptoFunctionService.aesDecryptFast({ mode: "cbc", parameters: fastParams });
   }
 
-  async decryptToBytes(encThing: Encrypted, key: SymmetricCryptoKey): Promise<Uint8Array> {
+  async decryptToBytes(
+    encThing: Encrypted,
+    key: SymmetricCryptoKey,
+    decryptContext: string = "no context",
+  ): Promise<Uint8Array> {
     if (key == null) {
       throw new Error("No encryption key provided.");
     }
@@ -113,13 +143,28 @@ export class EncryptServiceImplementation implements EncryptService {
 
     key = this.resolveLegacyKey(key, encThing);
 
+    // DO NOT REMOVE OR MOVE. This prevents downgrade to mac-less CBC, which would compromise integrity and confidentiality.
     if (key.macKey != null && encThing.macBytes == null) {
-      this.logService.error("MAC required but not provided.");
+      this.logService.error(
+        "[Encrypt service] Key has mac key but payload is missing mac bytes. Key type " +
+          encryptionTypeName(key.encType) +
+          " Payload type " +
+          encryptionTypeName(encThing.encryptionType) +
+          " Decrypt context: " +
+          decryptContext,
+      );
       return null;
     }
 
     if (key.encType !== encThing.encryptionType) {
-      this.logService.error("Key encryption type does not match payload encryption type.");
+      this.logService.error(
+        "[Encrypt service] Key encryption type does not match payload encryption type. Key type " +
+          encryptionTypeName(key.encType) +
+          " Payload type " +
+          encryptionTypeName(encThing.encryptionType) +
+          " Decrypt context: " +
+          decryptContext,
+      );
       return null;
     }
 
@@ -129,13 +174,29 @@ export class EncryptServiceImplementation implements EncryptService {
       macData.set(new Uint8Array(encThing.dataBytes), encThing.ivBytes.byteLength);
       const computedMac = await this.cryptoFunctionService.hmac(macData, key.macKey, "sha256");
       if (computedMac === null) {
-        this.logMacFailed("Failed to compute MAC.");
+        this.logMacFailed(
+          "[Encrypt service#decryptToBytes] Failed to compute MAC." +
+            " Key type " +
+            encryptionTypeName(key.encType) +
+            " Payload type " +
+            encryptionTypeName(encThing.encryptionType) +
+            " Decrypt context: " +
+            decryptContext,
+        );
         return null;
       }
 
       const macsMatch = await this.cryptoFunctionService.compare(encThing.macBytes, computedMac);
       if (!macsMatch) {
-        this.logMacFailed("MAC comparison failed. Key or payload has changed.");
+        this.logMacFailed(
+          "[Encrypt service#decryptToBytes]: MAC comparison failed. Key or payload has changed." +
+            " Key type " +
+            encryptionTypeName(key.encType) +
+            " Payload type " +
+            encryptionTypeName(encThing.encryptionType) +
+            " Decrypt context: " +
+            decryptContext,
+        );
         return null;
       }
     }
@@ -164,7 +225,7 @@ export class EncryptServiceImplementation implements EncryptService {
 
   async rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array> {
     if (data == null) {
-      throw new Error("No data provided for decryption.");
+      throw new Error("[Encrypt service] rsaDecrypt: No data provided for decryption.");
     }
 
     let algorithm: "sha1" | "sha256";
@@ -182,7 +243,7 @@ export class EncryptServiceImplementation implements EncryptService {
     }
 
     if (privateKey == null) {
-      throw new Error("No private key provided for decryption.");
+      throw new Error("[Encrypt service] rsaDecrypt: No private key provided for decryption.");
     }
 
     return this.cryptoFunctionService.rsaDecrypt(data.dataBytes, privateKey, algorithm);

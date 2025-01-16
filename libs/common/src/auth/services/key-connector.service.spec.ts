@@ -1,12 +1,14 @@
 import { mock } from "jest-mock-extended";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { Organization } from "../../admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -27,7 +29,7 @@ import { TokenService } from "./token.service";
 describe("KeyConnectorService", () => {
   let keyConnectorService: KeyConnectorService;
 
-  const cryptoService = mock<CryptoService>();
+  const keyService = mock<KeyService>();
   const apiService = mock<ApiService>();
   const tokenService = mock<TokenService>();
   const logService = mock<LogService>();
@@ -56,7 +58,7 @@ describe("KeyConnectorService", () => {
     keyConnectorService = new KeyConnectorService(
       accountService,
       masterPasswordService,
-      cryptoService,
+      keyService,
       apiService,
       tokenService,
       logService,
@@ -340,8 +342,6 @@ describe("KeyConnectorService", () => {
             createNewCollections: false,
             editAnyCollection: false,
             deleteAnyCollection: false,
-            editAssignedCollections: false,
-            deleteAssignedCollections: false,
             manageGroups: false,
             managePolicies: false,
             manageSso: false,
@@ -364,7 +364,8 @@ describe("KeyConnectorService", () => {
           familySponsorshipValidUntil: null,
           familySponsorshipToDelete: null,
           accessSecretsManager: false,
-          limitCollectionCreationDeletion: true,
+          limitCollectionCreation: true,
+          limitCollectionDeletion: true,
           allowAdminAccessToAllCollectionItems: true,
           flexibleCollections: false,
           object: "profileOrganization",

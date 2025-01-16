@@ -23,14 +23,19 @@
         <bit-tab [label]="'role' | i18n">
           <ng-container *ngIf="!editMode">
             <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
-            <bit-form-field>
+            <bit-form-field *ngIf="{ seats: remainingSeats$ | async } as remaining">
               <bit-label>{{ "email" | i18n }}</bit-label>
               <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
-              <bit-hint>{{
-                "inviteMultipleEmailDesc"
-                  | i18n
-                    : (organization.productTierType === ProductTierType.TeamsStarter ? "10" : "20")
+
+              <bit-hint *ngIf="remaining.seats > 1">{{
+                "inviteMultipleEmailDesc" | i18n: remaining.seats
               }}</bit-hint>
+
+              <bit-hint *ngIf="remaining.seats === 1">{{
+                "inviteSingleEmailDesc" | i18n
+              }}</bit-hint>
+
+              <bit-hint *ngIf="remaining.seats === 0">{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
             </bit-form-field>
           </ng-container>
           <bit-radio-group formControlName="type">
@@ -40,7 +45,7 @@
                 bitLink
                 target="_blank"
                 rel="noreferrer"
-                appA11yTitle="{{ 'learnMore' | i18n }}"
+                appA11yTitle="{{ 'learnMoreAboutMemberRoles' | i18n }}"
                 href="https://bitwarden.com/help/user-types-access-control/"
                 slot="end"
               >
@@ -262,7 +267,21 @@
           {{ "revokeAccess" | i18n }}
         </button>
         <button
-          *ngIf="editMode"
+          *ngIf="
+            editMode && (!(accountDeprovisioningEnabled$ | async) || !params.managedByOrganization)
+          "
+          type="button"
+          bitIconButton="bwi-close"
+          buttonType="danger"
+          bitFormButton
+          [appA11yTitle]="'remove' | i18n"
+          [bitAction]="remove"
+          [disabled]="loading"
+        ></button>
+        <button
+          *ngIf="
+            editMode && (accountDeprovisioningEnabled$ | async) && params.managedByOrganization
+          "
           type="button"
           bitIconButton="bwi-trash"
           buttonType="danger"

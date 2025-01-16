@@ -48,10 +48,11 @@
               </td>
               <td bitCell>
                 <a
+                  bitLink
                   href="#"
                   appStopClick
                   (click)="selectCipher(r)"
-                  title="{{ 'editItem' | i18n }}"
+                  title="{{ 'editItemWithName' | i18n: r.name }}"
                   >{{ r.name }}</a
                 >
                 <ng-container *ngIf="!organization && r.organizationId">

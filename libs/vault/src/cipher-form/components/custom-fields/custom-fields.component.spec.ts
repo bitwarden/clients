@@ -4,7 +4,9 @@ import { CdkDragDrop } from "@angular/cdk/drag-drop";
 import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   CardLinkedId,
@@ -17,6 +19,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { DialogService } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { BitPasswordInputToggleDirective } from "../../../../../components/src/form-field/password-input-toggle.directive";
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -50,6 +54,7 @@ describe("CustomFieldsComponent", () => {
     await TestBed.configureTestingModule({
       imports: [CustomFieldsComponent],
       providers: [
+        { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
         {
           provide: I18nService,
           useValue: { t: (...keys: string[]) => keys.filter(Boolean).join(" ") },

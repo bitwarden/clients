@@ -1,6 +1,6 @@
 const { pathsToModuleNameMapper } = require("ts-jest");
 
-const { compilerOptions } = require("../shared/tsconfig.libs");
+const { compilerOptions } = require("../shared/tsconfig.spec");
 
 const sharedConfig = require("../../libs/shared/jest.config.angular");
 
@@ -10,7 +10,11 @@ module.exports = {
   displayName: "libs/admin-console tests",
   preset: "jest-preset-angular",
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
-    prefix: "<rootDir>/",
-  }),
+  moduleNameMapper: pathsToModuleNameMapper(
+    // lets us use @bitwarden/common/spec in tests
+    { "@bitwarden/common/spec": ["../common/spec"], ...(compilerOptions?.paths ?? {}) },
+    {
+      prefix: "<rootDir>/",
+    },
+  ),
 };

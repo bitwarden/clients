@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, NgZone, OnDestroy, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -89,13 +91,13 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
       accountService,
       toastService,
     );
-    super.onSuccessfulLogin = async () => {
+    this.onSuccessfulLogin = async () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       syncService.fullSync(true);
     };
 
-    super.onSuccessfulLoginTde = async () => {
+    this.onSuccessfulLoginTde = async () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       syncService.fullSync(true);

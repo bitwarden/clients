@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { CollectionView } from "@bitwarden/admin-console/common";
 
 @Pipe({
   name: "collectionNameFromId",

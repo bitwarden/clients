@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   EMPTY,
   Observable,
@@ -17,7 +19,11 @@ import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { BiometricStateService } from "@bitwarden/key-management";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
@@ -25,9 +31,7 @@ import { Policy } from "../../admin-console/models/domain/policy";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { LogService } from "../../platform/abstractions/log.service";
-import { BiometricStateService } from "../../platform/biometrics/biometric-state.service";
 import { StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";
@@ -39,7 +43,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     private accountService: AccountService,
     private pinService: PinServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private tokenService: TokenService,
     private policyService: PolicyService,
     private biometricStateService: BiometricStateService,
@@ -87,7 +91,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       clientSecret,
     ]);
 
-    await this.cryptoService.refreshAdditionalKeys();
+    await this.keyService.refreshAdditionalKeys();
   }
 
   availableVaultTimeoutActions$(userId?: string): Observable<VaultTimeoutAction[]> {
@@ -287,7 +291,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
   }
 
   async clear(userId?: string): Promise<void> {
-    await this.cryptoService.clearPinKeys(userId);
+    await this.keyService.clearPinKeys(userId);
   }
 
   private async userHasMasterPassword(userId: string): Promise<boolean> {

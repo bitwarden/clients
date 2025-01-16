@@ -6,7 +6,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { BitIconButtonComponent } from "@bitwarden/components/src/icon-button/icon-button.component";
+import { IconButtonModule, NavigationModule } from "@bitwarden/components";
 import { NavItemComponent } from "@bitwarden/components/src/navigation/nav-item.component";
 
 import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-switcher.service";
@@ -45,13 +45,8 @@ describe("NavigationProductSwitcherComponent", () => {
     mockProducts$.next({ bento: [], other: [] });
 
     await TestBed.configureTestingModule({
-      imports: [RouterModule],
-      declarations: [
-        NavigationProductSwitcherComponent,
-        NavItemComponent,
-        BitIconButtonComponent,
-        I18nPipe,
-      ],
+      imports: [RouterModule, NavigationModule, IconButtonModule],
+      declarations: [NavigationProductSwitcherComponent, I18nPipe],
       providers: [
         { provide: ProductSwitcherService, useValue: productSwitcherService },
         {

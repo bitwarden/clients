@@ -54,7 +54,7 @@
     </p>
     <bit-table *ngIf="!loading && global.length > 0">
       <ng-template body>
-        <tr bitRow *ngFor="let d of global" class="tw-group">
+        <tr bitRow *ngFor="let d of global">
           <td bitCell [ngClass]="{ 'table-list-strike': d.excluded }">{{ d.domains }}</td>
           <td bitCell>
             <button

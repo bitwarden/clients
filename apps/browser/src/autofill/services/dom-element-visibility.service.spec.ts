@@ -37,7 +37,7 @@ describe("DomElementVisibilityService", () => {
     document.body.innerHTML = "";
   });
 
-  describe("isFormFieldViewable", () => {
+  describe("isElementViewable", () => {
     it("returns false if the element is outside viewport bounds", async () => {
       const usernameElement = document.querySelector("input[name='username']") as FormFieldElement;
       jest.spyOn(usernameElement, "getBoundingClientRect");
@@ -47,10 +47,10 @@ describe("DomElementVisibilityService", () => {
       jest.spyOn(domElementVisibilityService, "isElementHiddenByCss");
       jest.spyOn(domElementVisibilityService as any, "formFieldIsNotHiddenBehindAnotherElement");
 
-      const isFormFieldViewable =
-        await domElementVisibilityService.isFormFieldViewable(usernameElement);
+      const isElementViewable =
+        await domElementVisibilityService.isElementViewable(usernameElement);
 
-      expect(isFormFieldViewable).toEqual(false);
+      expect(isElementViewable).toEqual(false);
       expect(usernameElement.getBoundingClientRect).toHaveBeenCalled();
       expect(domElementVisibilityService["isElementOutsideViewportBounds"]).toHaveBeenCalledWith(
         usernameElement,
@@ -71,10 +71,10 @@ describe("DomElementVisibilityService", () => {
       jest.spyOn(domElementVisibilityService, "isElementHiddenByCss").mockReturnValueOnce(true);
       jest.spyOn(domElementVisibilityService as any, "formFieldIsNotHiddenBehindAnotherElement");
 
-      const isFormFieldViewable =
-        await domElementVisibilityService.isFormFieldViewable(usernameElement);
+      const isElementViewable =
+        await domElementVisibilityService.isElementViewable(usernameElement);
 
-      expect(isFormFieldViewable).toEqual(false);
+      expect(isElementViewable).toEqual(false);
       expect(usernameElement.getBoundingClientRect).toHaveBeenCalled();
       expect(domElementVisibilityService["isElementOutsideViewportBounds"]).toHaveBeenCalledWith(
         usernameElement,
@@ -99,10 +99,10 @@ describe("DomElementVisibilityService", () => {
         .spyOn(domElementVisibilityService as any, "formFieldIsNotHiddenBehindAnotherElement")
         .mockReturnValueOnce(false);
 
-      const isFormFieldViewable =
-        await domElementVisibilityService.isFormFieldViewable(usernameElement);
+      const isElementViewable =
+        await domElementVisibilityService.isElementViewable(usernameElement);
 
-      expect(isFormFieldViewable).toEqual(false);
+      expect(isElementViewable).toEqual(false);
       expect(usernameElement.getBoundingClientRect).toHaveBeenCalled();
       expect(domElementVisibilityService["isElementOutsideViewportBounds"]).toHaveBeenCalledWith(
         usernameElement,
@@ -127,10 +127,10 @@ describe("DomElementVisibilityService", () => {
         .spyOn(domElementVisibilityService as any, "formFieldIsNotHiddenBehindAnotherElement")
         .mockReturnValueOnce(true);
 
-      const isFormFieldViewable =
-        await domElementVisibilityService.isFormFieldViewable(usernameElement);
+      const isElementViewable =
+        await domElementVisibilityService.isElementViewable(usernameElement);
 
-      expect(isFormFieldViewable).toEqual(true);
+      expect(isElementViewable).toEqual(true);
       expect(usernameElement.getBoundingClientRect).toHaveBeenCalled();
       expect(domElementVisibilityService["isElementOutsideViewportBounds"]).toHaveBeenCalledWith(
         usernameElement,

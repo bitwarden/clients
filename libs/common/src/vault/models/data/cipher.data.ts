@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
@@ -11,6 +13,7 @@ import { IdentityData } from "./identity.data";
 import { LoginData } from "./login.data";
 import { PasswordHistoryData } from "./password-history.data";
 import { SecureNoteData } from "./secure-note.data";
+import { SshKeyData } from "./ssh-key.data";
 
 export class CipherData {
   id: string;
@@ -28,6 +31,7 @@ export class CipherData {
   secureNote?: SecureNoteData;
   card?: CardData;
   identity?: IdentityData;
+  sshKey?: SshKeyData;
   fields?: FieldData[];
   attachments?: AttachmentData[];
   passwordHistory?: PasswordHistoryData[];
@@ -71,6 +75,9 @@ export class CipherData {
         break;
       case CipherType.Identity:
         this.identity = new IdentityData(response.identity);
+        break;
+      case CipherType.SshKey:
+        this.sshKey = new SshKeyData(response.sshKey);
         break;
       default:
         break;

@@ -26,7 +26,7 @@ export const DriversLicenseData: ExportData = {
               favIndex: 0,
               createdAt: 1619466279,
               updatedAt: 1619466425,
-              trashed: false,
+              state: "active",
               categoryUuid: "103",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           string: "Michael Scarn",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           string: "2120 Mifflin Rd.",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           date: 252504060,
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -89,7 +86,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           gender: "male",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -105,7 +101,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           string: "5'11\"",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -121,7 +116,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           string: "12345678901",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -137,7 +131,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           string: "C",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -153,7 +146,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           string: "B",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -169,7 +161,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           string: "Pennsylvania",
                         },
-                        indexAtSource: 8,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -185,7 +176,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           string: "United States",
                         },
-                        indexAtSource: 9,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -201,7 +191,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           monthYear: 203012,
                         },
-                        indexAtSource: 10,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

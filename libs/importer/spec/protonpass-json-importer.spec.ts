@@ -85,7 +85,7 @@ describe("Protonpass Json Importer", () => {
     // "My Secure Note" is assigned to folder "Personal"
     expect(result.folderRelationships[1]).toEqual([1, 0]);
     // "Other vault login" is assigned to folder "Test"
-    expect(result.folderRelationships[3]).toEqual([3, 1]);
+    expect(result.folderRelationships[4]).toEqual([4, 1]);
   });
 
   it("should create collections if part of an organization", async () => {
@@ -102,7 +102,7 @@ describe("Protonpass Json Importer", () => {
     // "My Secure Note" is assigned to folder "Personal"
     expect(result.collectionRelationships[1]).toEqual([1, 0]);
     // "Other vault login" is assigned to folder "Test"
-    expect(result.collectionRelationships[3]).toEqual([3, 1]);
+    expect(result.collectionRelationships[4]).toEqual([4, 1]);
   });
 
   it("should not add deleted items", async () => {
@@ -114,7 +114,7 @@ describe("Protonpass Json Importer", () => {
       expect(cipher.name).not.toBe("My Deleted Note");
     }
 
-    expect(ciphers.length).toBe(4);
+    expect(ciphers.length).toBe(5);
   });
 
   it("should set favorites", async () => {
@@ -125,5 +125,98 @@ describe("Protonpass Json Importer", () => {
     expect(ciphers[0].favorite).toBe(true);
     expect(ciphers[1].favorite).toBe(false);
     expect(ciphers[2].favorite).toBe(true);
+  });
+
+  it("should skip unsupported items", async () => {
+    const testDataJson = JSON.stringify(testData);
+    const result = await importer.parse(testDataJson);
+    expect(result != null).toBe(true);
+
+    const ciphers = result.ciphers;
+    expect(ciphers.length).toBe(5);
+    expect(ciphers[4].type).toEqual(CipherType.Login);
+  });
+
+  it("should parse identity data", async () => {
+    const testDataJson = JSON.stringify(testData);
+    const result = await importer.parse(testDataJson);
+    expect(result != null).toBe(true);
+
+    result.ciphers.shift();
+    result.ciphers.shift();
+    result.ciphers.shift();
+
+    const cipher = result.ciphers.shift();
+    expect(cipher.type).toEqual(CipherType.Identity);
+    expect(cipher.identity.firstName).toBe("Test");
+    expect(cipher.identity.middleName).toBe("1");
+    expect(cipher.identity.lastName).toBe("1");
+    expect(cipher.identity.email).toBe("test@gmail.com");
+    expect(cipher.identity.phone).toBe("7507951789");
+    expect(cipher.identity.company).toBe("Bitwarden");
+    expect(cipher.identity.ssn).toBe("98378264782");
+    expect(cipher.identity.passportNumber).toBe("7173716378612");
+    expect(cipher.identity.licenseNumber).toBe("21234");
+    expect(cipher.identity.address1).toBe("Bitwarden");
+    expect(cipher.identity.address2).toBe("23 Street");
+    expect(cipher.identity.address3).toBe("12th Foor Test County");
+    expect(cipher.identity.city).toBe("New York");
+    expect(cipher.identity.state).toBe("Test");
+    expect(cipher.identity.postalCode).toBe("4038456");
+    expect(cipher.identity.country).toBe("US");
+
+    expect(cipher.fields.length).toEqual(13);
+
+    expect(cipher.fields.at(0).name).toEqual("gender");
+    expect(cipher.fields.at(0).value).toEqual("Male");
+    expect(cipher.fields.at(0).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(1).name).toEqual("TestPersonal");
+    expect(cipher.fields.at(1).value).toEqual("Personal");
+    expect(cipher.fields.at(1).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(2).name).toEqual("TestAddress");
+    expect(cipher.fields.at(2).value).toEqual("Address");
+    expect(cipher.fields.at(2).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(3).name).toEqual("xHandle");
+    expect(cipher.fields.at(3).value).toEqual("@twiter");
+    expect(cipher.fields.at(3).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(4).name).toEqual("secondPhoneNumber");
+    expect(cipher.fields.at(4).value).toEqual("243538978");
+    expect(cipher.fields.at(4).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(5).name).toEqual("instagram");
+    expect(cipher.fields.at(5).value).toEqual("@insta");
+    expect(cipher.fields.at(5).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(6).name).toEqual("TestContact");
+    expect(cipher.fields.at(6).value).toEqual("Contact");
+    expect(cipher.fields.at(6).type).toEqual(FieldType.Hidden);
+
+    expect(cipher.fields.at(7).name).toEqual("jobTitle");
+    expect(cipher.fields.at(7).value).toEqual("Engineer");
+    expect(cipher.fields.at(7).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(8).name).toEqual("workPhoneNumber");
+    expect(cipher.fields.at(8).value).toEqual("78236476238746");
+    expect(cipher.fields.at(8).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(9).name).toEqual("TestWork");
+    expect(cipher.fields.at(9).value).toEqual("Work");
+    expect(cipher.fields.at(9).type).toEqual(FieldType.Hidden);
+
+    expect(cipher.fields.at(10).name).toEqual("TestSection");
+    expect(cipher.fields.at(10).value).toEqual("Section");
+    expect(cipher.fields.at(10).type).toEqual(FieldType.Text);
+
+    expect(cipher.fields.at(11).name).toEqual("TestSectionHidden");
+    expect(cipher.fields.at(11).value).toEqual("SectionHidden");
+    expect(cipher.fields.at(11).type).toEqual(FieldType.Hidden);
+
+    expect(cipher.fields.at(12).name).toEqual("TestExtra");
+    expect(cipher.fields.at(12).value).toEqual("Extra");
+    expect(cipher.fields.at(12).type).toEqual(FieldType.Text);
   });
 });

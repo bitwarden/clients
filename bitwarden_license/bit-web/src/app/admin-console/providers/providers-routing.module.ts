@@ -6,7 +6,6 @@ import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-f
 import { AnonLayoutWrapperComponent } from "@bitwarden/auth/angular";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ProvidersComponent } from "@bitwarden/web-vault/app/admin-console/providers/providers.component";
 import { FrontendLayoutComponent } from "@bitwarden/web-vault/app/layouts/frontend-layout.component";
 import { UserLayoutComponent } from "@bitwarden/web-vault/app/layouts/user-layout.component";
 
@@ -15,16 +14,18 @@ import {
   ProviderSubscriptionComponent,
   hasConsolidatedBilling,
   ProviderBillingHistoryComponent,
+  vNextManageClientsComponent,
 } from "../../billing/providers";
 
 import { ClientsComponent } from "./clients/clients.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
+import { vNextClientsComponent } from "./clients/vnext-clients.component";
 import { providerPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { EventsComponent } from "./manage/events.component";
 import { MembersComponent } from "./manage/members.component";
-import { PeopleComponent } from "./manage/people.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
+import { ProvidersComponent } from "./providers.component";
 import { AccountComponent } from "./settings/account.component";
 import { SetupProviderComponent } from "./setup/setup-provider.component";
 import { SetupComponent } from "./setup/setup.component";
@@ -62,7 +63,9 @@ const routes: Routes = [
         path: "accept-provider",
         component: AcceptProviderComponent,
         data: {
-          pageTitle: "joinProvider",
+          pageTitle: {
+            key: "joinProvider",
+          },
           titleId: "acceptProvider",
         },
       },
@@ -83,35 +86,43 @@ const routes: Routes = [
         children: [
           { path: "", pathMatch: "full", redirectTo: "clients" },
           { path: "clients/create", component: CreateOrganizationComponent },
-          { path: "clients", component: ClientsComponent, data: { titleId: "clients" } },
-          {
-            path: "manage-client-organizations",
-            canActivate: [hasConsolidatedBilling],
-            component: ManageClientsComponent,
-            data: { titleId: "clients" },
-          },
+          ...featureFlaggedRoute({
+            defaultComponent: ClientsComponent,
+            flaggedComponent: vNextClientsComponent,
+            featureFlag: FeatureFlag.PM12443RemovePagingLogic,
+            routeOptions: {
+              path: "clients",
+              data: { titleId: "clients" },
+            },
+          }),
+          ...featureFlaggedRoute({
+            defaultComponent: ManageClientsComponent,
+            flaggedComponent: vNextManageClientsComponent,
+            featureFlag: FeatureFlag.PM12443RemovePagingLogic,
+            routeOptions: {
+              path: "manage-client-organizations",
+              data: { titleId: "clients" },
+              canActivate: [hasConsolidatedBilling],
+            },
+          }),
           {
             path: "manage",
             children: [
               {
                 path: "",
                 pathMatch: "full",
-                redirectTo: "people",
+                redirectTo: "members",
               },
-              ...featureFlaggedRoute({
-                defaultComponent: PeopleComponent,
-                flaggedComponent: MembersComponent,
-                featureFlag: FeatureFlag.AC2828_ProviderPortalMembersPage,
-                routeOptions: {
-                  path: "people",
-                  canActivate: [
-                    providerPermissionsGuard((provider: Provider) => provider.canManageUsers),
-                  ],
-                  data: {
-                    titleId: "people",
-                  },
+              {
+                path: "members",
+                component: MembersComponent,
+                canActivate: [
+                  providerPermissionsGuard((provider: Provider) => provider.canManageUsers),
+                ],
+                data: {
+                  titleId: "members",
                 },
-              }),
+              },
               {
                 path: "events",
                 component: EventsComponent,

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { LogLevelType } from "@bitwarden/common/platform/enums/log-level-type.enum";
 import { ConsoleLogService as BaseConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 

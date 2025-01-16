@@ -123,18 +123,44 @@
                     {{ "confirmSelected" | i18n }}
                   </span>
                 </button>
-                <button type="button" bitMenuItem (click)="bulkRestore()">
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="bulkRestore()"
+                  *ngIf="showBulkRestoreUsers"
+                >
                   <i class="bwi bwi-fw bwi-plus-circle" aria-hidden="true"></i>
                   {{ "restoreAccess" | i18n }}
                 </button>
-                <button type="button" bitMenuItem (click)="bulkRevoke()">
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="bulkRevoke()"
+                  *ngIf="showBulkRevokeUsers"
+                >
                   <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
                   {{ "revokeAccess" | i18n }}
                 </button>
-                <button type="button" bitMenuItem (click)="bulkRemove()">
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="bulkRemove()"
+                  *ngIf="showBulkRemoveUsers"
+                >
                   <span class="tw-text-danger">
-                    <i aria-hidden="true" class="bwi bwi-close"></i>
+                    <i aria-hidden="true" class="bwi bwi-fw bwi-close"></i>
                     {{ "remove" | i18n }}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="bulkDelete()"
+                  *ngIf="showBulkDeleteUsers"
+                >
+                  <span class="tw-text-danger">
+                    <i aria-hidden="true" class="bwi bwi-fw bwi-trash"></i>
+                    {{ "delete" | i18n }}
                   </span>
                 </button>
               </bit-menu>
@@ -315,9 +341,25 @@
                   <i aria-hidden="true" class="bwi bwi-minus-circle"></i>
                   {{ "revokeAccess" | i18n }}
                 </button>
-                <button type="button" bitMenuItem (click)="remove(u)">
+                <button
+                  *ngIf="!accountDeprovisioningEnabled || !u.managedByOrganization"
+                  type="button"
+                  bitMenuItem
+                  (click)="remove(u)"
+                >
                   <span class="tw-text-danger">
                     <i aria-hidden="true" class="bwi bwi-close"></i> {{ "remove" | i18n }}
+                  </span>
+                </button>
+                <button
+                  *ngIf="accountDeprovisioningEnabled && u.managedByOrganization"
+                  type="button"
+                  bitMenuItem
+                  (click)="deleteUser(u)"
+                >
+                  <span class="tw-text-danger">
+                    <i class="bwi bwi-trash" aria-hidden="true"></i>
+                    {{ "delete" | i18n }}
                   </span>
                 </button>
               </bit-menu>

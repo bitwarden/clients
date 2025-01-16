@@ -79,19 +79,6 @@
 
 <ng-container *ngIf="state === RegistrationStartState.CHECK_EMAIL">
   <div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
-    <bit-icon [icon]="Icons.RegistrationCheckEmailIcon" class="tw-mb-6"></bit-icon>
-
-    <h2
-      bitTypography="h2"
-      id="check_your_email_heading"
-      class="tw-font-bold tw-mb-3 tw-text-main"
-      tabindex="0"
-      aria-describedby="follow_the_link_body"
-      appAutofocus
-    >
-      {{ "checkYourEmail" | i18n }}
-    </h2>
-
     <p bitTypography="body1" class="tw-text-center tw-mb-3 tw-text-main" id="follow_the_link_body">
       {{ "followTheLinkInTheEmailSentTo" | i18n }}
       <span class="tw-font-bold">{{ email.value }}</span>

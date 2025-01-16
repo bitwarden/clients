@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as signalR from "@microsoft/signalr";
 import * as signalRMsgPack from "@microsoft/signalr-protocol-msgpack";
 import { firstValueFrom, Subscription } from "rxjs";
@@ -166,10 +168,14 @@ export class NotificationsService implements NotificationsServiceAbstraction {
         await this.syncService.syncUpsertFolder(
           notification.payload as SyncFolderNotification,
           notification.type === NotificationType.SyncFolderUpdate,
+          payloadUserId,
         );
         break;
       case NotificationType.SyncFolderDelete:
-        await this.syncService.syncDeleteFolder(notification.payload as SyncFolderNotification);
+        await this.syncService.syncDeleteFolder(
+          notification.payload as SyncFolderNotification,
+          payloadUserId,
+        );
         break;
       case NotificationType.SyncVault:
       case NotificationType.SyncCiphers:
@@ -193,6 +199,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
         break;
       case NotificationType.LogOut:
         if (isAuthenticated) {
+          this.logService.info("[Notifications Service] Received logout notification");
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.logoutCallback("logoutNotification");
@@ -213,6 +220,16 @@ export class NotificationsService implements NotificationsServiceAbstraction {
           this.messagingService.send("openLoginApproval", {
             notificationId: notification.payload.id,
           });
+        }
+        break;
+      case NotificationType.SyncOrganizationStatusChanged:
+        if (isAuthenticated) {
+          await this.syncService.fullSync(true);
+        }
+        break;
+      case NotificationType.SyncOrganizationCollectionSettingChanged:
+        if (isAuthenticated) {
+          await this.syncService.fullSync(true);
         }
         break;
       default:

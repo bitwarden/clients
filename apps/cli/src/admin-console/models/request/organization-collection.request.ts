@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 
 import { SelectionReadOnly } from "../selection-read-only";

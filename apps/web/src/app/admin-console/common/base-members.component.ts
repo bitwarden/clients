@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -14,12 +16,12 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserView } from "../organizations/core/views/organization-user.view";
 import { UserConfirmComponent } from "../organizations/manage/user-confirm.component";
@@ -78,7 +80,7 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
   constructor(
     protected apiService: ApiService,
     protected i18nService: I18nService,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected validationService: ValidationService,
     private logService: LogService,
     protected userNamePipe: UserNamePipe,
@@ -213,7 +215,7 @@ export abstract class BaseMembersComponent<UserView extends UserViewTypes> {
       }
 
       try {
-        const fingerprint = await this.cryptoService.getFingerprint(user.userId, publicKey);
+        const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
         this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
       } catch (e) {
         this.logService.error(e);

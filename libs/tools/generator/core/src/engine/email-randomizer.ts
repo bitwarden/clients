@@ -1,10 +1,24 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
+import { GenerationRequest } from "@bitwarden/common/tools/types";
+
+import {
+  CatchallGenerationOptions,
+  CredentialGenerator,
+  GeneratedCredential,
+  SubaddressGenerationOptions,
+} from "../types";
 
 import { Randomizer } from "./abstractions";
 import { SUBADDRESS_PARSER } from "./data";
 
 /** Generation algorithms that produce randomized email addresses */
-export class EmailRandomizer {
+export class EmailRandomizer
+  implements
+    CredentialGenerator<CatchallGenerationOptions>,
+    CredentialGenerator<SubaddressGenerationOptions>
+{
   /** Instantiates the email randomizer
    *  @param random data source for random data
    */
@@ -96,4 +110,37 @@ export class EmailRandomizer {
 
     return result;
   }
+
+  generate(
+    request: GenerationRequest,
+    settings: CatchallGenerationOptions,
+  ): Promise<GeneratedCredential>;
+  generate(
+    request: GenerationRequest,
+    settings: SubaddressGenerationOptions,
+  ): Promise<GeneratedCredential>;
+  async generate(
+    _request: GenerationRequest,
+    settings: CatchallGenerationOptions | SubaddressGenerationOptions,
+  ) {
+    if (isCatchallGenerationOptions(settings)) {
+      const email = await this.randomAsciiCatchall(settings.catchallDomain);
+
+      return new GeneratedCredential(email, "catchall", Date.now());
+    } else if (isSubaddressGenerationOptions(settings)) {
+      const email = await this.randomAsciiSubaddress(settings.subaddressEmail);
+
+      return new GeneratedCredential(email, "subaddress", Date.now());
+    }
+
+    throw new Error("Invalid settings received by generator.");
+  }
+}
+
+function isCatchallGenerationOptions(settings: any): settings is CatchallGenerationOptions {
+  return "catchallDomain" in (settings ?? {});
+}
+
+function isSubaddressGenerationOptions(settings: any): settings is SubaddressGenerationOptions {
+  return "subaddressEmail" in (settings ?? {});
 }

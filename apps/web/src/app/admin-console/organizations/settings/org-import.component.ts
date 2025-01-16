@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import {
   canAccessVaultTab,
   OrganizationService,
@@ -11,7 +14,6 @@ import { ImportComponent } from "@bitwarden/importer/ui";
 
 import { LooseComponentsModule, SharedModule } from "../../../shared";
 import { ImportCollectionAdminService } from "../../../tools/import/import-collection-admin.service";
-import { CollectionAdminService } from "../../../vault/core/collection-admin.service";
 
 @Component({
   templateUrl: "org-import.component.html",

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -23,11 +25,6 @@ export class OrgDomainService implements OrgDomainInternalServiceAbstraction {
 
   copyDnsTxt(dnsTxt: string): void {
     this.platformUtilsService.copyToClipboard(dnsTxt);
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
-    );
   }
 
   upsert(orgDomains: OrganizationDomainResponse[]): void {

@@ -1,3 +1,37 @@
+<ng-container *ngIf="freeTrial$ | async as freeTrial">
+  <bit-banner
+    id="free-trial-banner"
+    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+    icon="bwi-billing"
+    bannerType="premium"
+    [showClose]="false"
+    *ngIf="!refreshing && freeTrial.shownBanner"
+  >
+    {{ freeTrial.message }}
+    <a
+      bitLink
+      linkType="secondary"
+      (click)="navigateToPaymentMethod()"
+      class="tw-cursor-pointer"
+      rel="noreferrer noopener"
+    >
+      {{ "clickHereToAddPaymentMethod" | i18n }}
+    </a>
+  </bit-banner>
+</ng-container>
+<ng-container *ngIf="resellerWarning$ | async as resellerWarning">
+  <bit-banner
+    id="reseller-warning-banner"
+    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+    icon="bwi-billing"
+    bannerType="info"
+    [showClose]="false"
+    *ngIf="!refreshing"
+  >
+    {{ resellerWarning?.message }}
+  </bit-banner>
+</ng-container>
+
 <app-org-vault-header
   [filter]="filter"
   [loading]="refreshing"
@@ -70,7 +104,7 @@
       [viewingOrgVault]="true"
       [addAccessStatus]="addAccessStatus$ | async"
       [addAccessToggle]="showAddAccessToggle"
-      [restrictProviderAccess]="restrictProviderAccessEnabled"
+      [activeCollection]="selectedCollection?.node"
     >
     </app-vault-items>
     <ng-container *ngIf="!performingInitialLoad && isEmpty">
@@ -82,7 +116,11 @@
           (click)="addCipher()"
           buttonType="primary"
           type="button"
-          *ngIf="filter.type !== 'trash' && filter.collectionId !== Unassigned"
+          *ngIf="
+            filter.type !== 'trash' &&
+            filter.collectionId !== Unassigned &&
+            selectedCollection?.node?.canEditItems(organization)
+          "
         >
           <i aria-hidden="true" class="bwi bwi-plus"></i> {{ "newItem" | i18n }}
         </button>

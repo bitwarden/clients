@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, fromEvent, filter, map, takeUntil, defaultIfEmpty, Subject } from "rxjs";
 import { Jsonify } from "type-fest";
 

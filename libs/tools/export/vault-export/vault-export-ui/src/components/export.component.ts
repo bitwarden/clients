@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
@@ -12,6 +14,7 @@ import {
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { combineLatest, map, merge, Observable, startWith, Subject, takeUntil } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
@@ -26,7 +29,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -121,7 +123,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   encryptedExportType = EncryptedExportType;
   protected showFilePassword: boolean;
 
-  filePasswordValue: string = null;
   private _disabledByPolicy = false;
 
   organizations$: Observable<Organization[]>;
@@ -278,18 +279,9 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   generatePassword = async () => {
     const [options] = await this.passwordGenerationService.getOptions();
-    this.filePasswordValue = await this.passwordGenerationService.generatePassword(options);
-    this.exportForm.get("filePassword").setValue(this.filePasswordValue);
-    this.exportForm.get("confirmFilePassword").setValue(this.filePasswordValue);
-  };
-
-  copyPasswordToClipboard = async () => {
-    this.platformUtilsService.copyToClipboard(this.filePasswordValue);
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("valueCopied", this.i18nService.t("password")),
-    });
+    const generatedPassword = await this.passwordGenerationService.generatePassword(options);
+    this.exportForm.get("filePassword").setValue(generatedPassword);
+    this.exportForm.get("confirmFilePassword").setValue(generatedPassword);
   };
 
   submit = async () => {

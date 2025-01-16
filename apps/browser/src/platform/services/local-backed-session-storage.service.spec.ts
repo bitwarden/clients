@@ -48,8 +48,14 @@ describe("LocalBackedSessionStorage", () => {
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
       encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encrypted, sessionKey);
-      expect(result).toEqual("decrypted");
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+        encrypted,
+        sessionKey,
+        "browser-session-key",
+      ),
+        expect(result).toEqual("decrypted");
     });
 
     it("caches the decrypted value when one is stored in local storage", async () => {
@@ -65,8 +71,14 @@ describe("LocalBackedSessionStorage", () => {
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
       encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(encrypted, sessionKey);
-      expect(result).toEqual("decrypted");
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+        encrypted,
+        sessionKey,
+        "browser-session-key",
+      ),
+        expect(result).toEqual("decrypted");
     });
 
     it("caches the decrypted value when one is stored in local storage", async () => {

@@ -1,9 +1,16 @@
-export const Unassigned = "unassigned";
-
 export const All = "all";
 
 // TODO: Remove `All` when moving to vertical navigation.
-const itemTypes = ["favorites", "login", "card", "identity", "note", "trash", All] as const;
+const itemTypes = [
+  "favorites",
+  "login",
+  "card",
+  "identity",
+  "note",
+  "sshKey",
+  "trash",
+  All,
+] as const;
 
 export type RoutedVaultFilterItemType = (typeof itemTypes)[number];
 

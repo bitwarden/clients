@@ -1,4 +1,127 @@
 {
+  "allApplications": {
+    "message": "Všetky aplikácie"
+  },
+  "criticalApplications": {
+    "message": "Kritické aplikácie"
+  },
+  "accessIntelligence": {
+    "message": "Prehľad o prístupe"
+  },
+  "riskInsights": {
+    "message": "Prehľad o rizikách"
+  },
+  "passwordRisk": {
+    "message": "Ohrozenie hesla"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Skontrolujte ohrozené heslá (slabé, odhalené, alebo opätovne použité) naprieč aplikáciami. Vyberte najkritickejšie aplikácie a priorizujte vaším používateľom bezpečnostné opatrenia ohľadom ohrozených hesiel."
+  },
+  "dataLastUpdated": {
+    "message": "Posledná aktualizácia dát: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2021-01-01"
+      }
+    }
+  },
+  "notifiedMembers": {
+    "message": "Notified members"
+  },
+  "revokeMembers": {
+    "message": "Odvolať členov"
+  },
+  "restoreMembers": {
+    "message": "Obnoviť členov"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Nie je možné obnoviť prístup do organizácie"
+  },
+  "allApplicationsWithCount": {
+    "message": "Všetky aplikácie ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "createNewLoginItem": {
+    "message": "Pridať novu položku s prihlásením"
+  },
+  "criticalApplicationsWithCount": {
+    "message": "Kritické aplikácie ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notifiedMembersWithCount": {
+    "message": "Notified members ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "noAppsInOrgTitle": {
+    "message": "Neboli nájdené žiadne aplikácie v $ORG NAME$",
+    "placeholders": {
+      "org name": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "noAppsInOrgDescription": {
+    "message": "Keď používatelia uložia prihlasovacie údaje, tu sa zobrazia aplikácie a ohrozené heslá. Označte kritické aplikácie a upozornite používateľov, aby si aktualizovali heslá."
+  },
+  "noCriticalAppsTitle": {
+    "message": "Neoznačili ste žiadne aplikácie ako kritické"
+  },
+  "noCriticalAppsDescription": {
+    "message": "Pre odhalenie ohrozených hesiel a upozornenie používateľov aby si ich zmenili vyberte vaše najkritickejšie aplikácie."
+  },
+  "markCriticalApps": {
+    "message": "Označiť kritické aplikácie"
+  },
+  "markAppAsCritical": {
+    "message": "Označiť aplikáciu ako kritickú"
+  },
+  "appsMarkedAsCritical": {
+    "message": "Aplikácie označené ako kritické"
+  },
+  "application": {
+    "message": "Aplikácia"
+  },
+  "atRiskPasswords": {
+    "message": "Ohrozených hesiel"
+  },
+  "requestPasswordChange": {
+    "message": "Požiadať o zmenu hesla"
+  },
+  "totalPasswords": {
+    "message": "Celkom hesiel"
+  },
+  "searchApps": {
+    "message": "Vyhľadať aplikácie"
+  },
+  "atRiskMembers": {
+    "message": "Ohrozených členov"
+  },
+  "totalMembers": {
+    "message": "Celkový počet členov"
+  },
+  "atRiskApplications": {
+    "message": "Ohrozených aplikácii"
+  },
+  "totalApplications": {
+    "message": "Všetkých aplikácii"
+  },
   "whatTypeOfItem": {
     "message": "Aký typ položky to je?"
   },
@@ -143,6 +266,9 @@
   "securityCode": {
     "message": "Bezpečnostný kód (CVV)"
   },
+  "securityCodeSlashCVV": {
+    "message": "Bezpečnostný kód / CVV"
+  },
   "identityName": {
     "message": "Názov identity"
   },
@@ -266,9 +392,18 @@
   "cfTypeBoolean": {
     "message": "Áno/Nie"
   },
+  "cfTypeCheckbox": {
+    "message": "Zaškrtávacie pole"
+  },
   "cfTypeLinked": {
     "message": "Prepojené",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "fieldType": {
+    "message": "Typ poľa"
+  },
+  "fieldLabel": {
+    "message": "Názov poľa"
   },
   "remove": {
     "message": "Odstrániť"
@@ -332,6 +467,9 @@
   },
   "generatePassword": {
     "message": "Generovať heslo"
+  },
+  "generatePassphrase": {
+    "message": "Generovať prístupovú frázu"
   },
   "checkPassword": {
     "message": "Overiť či došlo k úniku hesla."
@@ -433,6 +571,9 @@
   "typeSecureNote": {
     "message": "Zabezpečená poznámka"
   },
+  "typeSshKey": {
+    "message": "Kľúč SSH"
+  },
   "typeLoginPlural": {
     "message": "Prihlásenia"
   },
@@ -508,6 +649,24 @@
   "viewItem": {
     "message": "Zobraziť položku"
   },
+  "newItemHeader": {
+    "message": "Nové $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
+  },
+  "editItemHeader": {
+    "message": "Upraviť $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
+  },
   "viewItemType": {
     "message": "Zobraziť $ITEMTYPE$",
     "placeholders": {
@@ -562,6 +721,9 @@
       }
     }
   },
+  "copySuccessful": {
+    "message": "Úspešne skopírované"
+  },
   "copyValue": {
     "message": "Kopírovať hodnotu",
     "description": "Copy value to clipboard"
@@ -569,6 +731,13 @@
   "copyPassword": {
     "message": "Kopírovať heslo",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Kopírovať prístupovú frázu",
+    "description": "Copy passphrase to clipboard"
+  },
+  "passwordCopied": {
+    "message": "Heslo skopírované"
   },
   "copyUsername": {
     "message": "Kopírovať používateľské meno",
@@ -585,6 +754,45 @@
   "copyUri": {
     "message": "Kopírovať URI",
     "description": "Copy URI to clipboard"
+  },
+  "copyCustomField": {
+    "message": "Kopírovať $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
+  "copyWebsite": {
+    "message": "Kopírovať webstránku"
+  },
+  "copyNotes": {
+    "message": "Kopírovať poznámky"
+  },
+  "copyAddress": {
+    "message": "Kopírovať adresu"
+  },
+  "copyPhone": {
+    "message": "Kopírovať telefón"
+  },
+  "copyEmail": {
+    "message": "Kopírovať email"
+  },
+  "copyCompany": {
+    "message": "Kopírovať spoločnosť"
+  },
+  "copySSN": {
+    "message": "Kopírovať číslo poistenca sociálnej poisťovne"
+  },
+  "copyPassportNumber": {
+    "message": "Kopírovať číslo pasu"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopírovať číslo licencie"
+  },
+  "copyName": {
+    "message": "Kopírovať meno"
   },
   "me": {
     "message": "Ja"
@@ -785,6 +993,9 @@
   "loginWithDeviceEnabledNote": {
     "message": "Prihlásenie pomocou zariadenia musí byť nastavené v nastaveniach aplikácie Bitwarden. Potrebujete inú možnosť?"
   },
+  "needAnotherOptionV1": {
+    "message": "Potrebujete inú možnosť?"
+  },
   "loginWithMasterPassword": {
     "message": "Prihlásenie pomocou hlavného hesla"
   },
@@ -797,8 +1008,14 @@
   "useADifferentLogInMethod": {
     "message": "Použiť iný spôsob prihlásenia"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Prihlásiť sa s prístupovým kľúčom"
+  },
+  "useSingleSignOn": {
+    "message": "Použiť jednotné prihlásenie"
+  },
+  "welcomeBack": {
+    "message": "Vitajte späť"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Nesprávne Passkey heslo. Prosím skúste to znovu."
@@ -881,6 +1098,9 @@
   "createAccount": {
     "message": "Vytvoriť účet"
   },
+  "newToBitwarden": {
+    "message": "Ste noví na Bitwardene?"
+  },
   "setAStrongPassword": {
     "message": "Nastavte silné heslo"
   },
@@ -896,8 +1116,23 @@
   "logIn": {
     "message": "Prihlásiť sa"
   },
+  "logInToBitwarden": {
+    "message": "Prihlásenie do Bitwardenu"
+  },
+  "authenticationTimeout": {
+    "message": "Časový limit overenia"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Relácia overovania skončila. Znovu spustite proces prihlásenia."
+  },
   "verifyIdentity": {
     "message": "Overte svoju totožnosť"
+  },
+  "whatIsADevice": {
+    "message": "Čo je zariadenie?"
+  },
+  "aDeviceIs": {
+    "message": "Zariadenie je jednotlivá inštalácia aplikácie Bitwarden, do ktorej ste sa prihlásili. Preinštalovanie, vymazanie údajov aplikácie alebo vymazanie súborov cookie môže mať za následok, že sa zariadenie objaví viackrát."
   },
   "logInInitiated": {
     "message": "Iniciované prihlásenie"
@@ -953,6 +1188,18 @@
   },
   "settings": {
     "message": "Nastavenia"
+  },
+  "accountEmail": {
+    "message": "E-mail účtu"
+  },
+  "requestHint": {
+    "message": "Požiadať o nápoveď"
+  },
+  "requestPasswordHint": {
+    "message": "Požiadať o nápoveď k heslu"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
   },
   "passwordHint": {
     "message": "Nápoveď k heslu"
@@ -1015,6 +1262,9 @@
   "yourVaultIsLockedV2": {
     "message": "Váš trezor je zamknutý."
   },
+  "yourAccountIsLocked": {
+    "message": "Váš účet je zamknutý"
+  },
   "uuid": {
     "message": "UUID"
   },
@@ -1049,6 +1299,9 @@
   "noPermissionToViewAllCollectionItems": {
     "message": "Nemáte povolenie pre zobrazenie všetkých položiek v tejto zbierke."
   },
+  "youDoNotHavePermissions": {
+    "message": "K tejto zbierke nemáte oprávnenia"
+  },
   "noCollectionsInList": {
     "message": "Neexistujú žiadne zbierky na zobrazenie."
   },
@@ -1072,6 +1325,12 @@
   },
   "notificationSentDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Do vášho zariadenia bolo odoslané upozornenie"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Uistite sa, že je váš účet odomknutý a fráza odtlačku prsta sa zhoduje s frázou na druhom zariadení"
   },
   "versionNumber": {
     "message": "Verzia $VERSION_NUMBER$",
@@ -1353,7 +1612,12 @@
     "description": "Minimum special characters"
   },
   "ambiguous": {
-    "message": "Vyhnúť sa zameniteľným znakom"
+    "message": "Vyhnúť sa zameniteľným znakom",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Vyhnúť sa zameniteľným znakom",
+    "description": "Label for the avoid ambiguous characters checkbox."
   },
   "regeneratePassword": {
     "message": "Vygenerovať nové heslo"
@@ -1366,14 +1630,15 @@
   },
   "uppercase": {
     "message": "Veľké písmená (A-Z)",
-    "description": "Include uppercase letters in the password generator."
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
     "message": "Malé písmená (a-z)",
-    "description": "Include lowercase letters in the password generator."
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Čísla (0-9)"
+    "message": "Čísla (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
     "message": "Špeciálne znaky (!@#$%^&*)"
@@ -1391,11 +1656,33 @@
   "includeNumber": {
     "message": "Zahrnúť číslo"
   },
+  "generatorPolicyInEffect": {
+    "message": "Na nastavenie generátora boli uplatnené požiadavky pravidiel spoločnosti.",
+    "description": "Indicates that a policy limits the credential generator screen."
+  },
   "passwordHistory": {
     "message": "História hesla"
   },
+  "generatorHistory": {
+    "message": "História generátora"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Vymazať históriu generátora"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ak budete pokračovať, všetky položky z histórie generátora budu natrvalo vymazané. Naozaj chcete pokračovať?"
+  },
   "noPasswordsInList": {
     "message": "Neboli nájdené žiadne heslá."
+  },
+  "clearHistory": {
+    "message": "Vymazať históriu"
+  },
+  "nothingToShow": {
+    "message": "Nie je čo zobraziť"
+  },
+  "nothingGeneratedRecently": {
+    "message": "V poslednej dobe ste nič negenerovali"
   },
   "clear": {
     "message": "Vyčistiť",
@@ -1433,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Prosím, opäť sa prihláste."
+  },
+  "currentSession": {
+    "message": "Aktuálna relácia"
+  },
+  "requestPending": {
+    "message": "Žiadosť čaká na spracovanie"
   },
   "logBackInOthersToo": {
     "message": "Prosím odhláste sa. Ak používate iné Bitwarden aplikácie, odhláste sa a opäť sa prihláste aj v nich."
@@ -1504,6 +1797,9 @@
   "dangerZoneDesc": {
     "message": "Opatrne, tieto zmeny nemožno vrátiť späť!"
   },
+  "dangerZoneDescSingular": {
+    "message": "Opatrne, túto zmenu nemožno vrátiť späť!"
+  },
   "deauthorizeSessions": {
     "message": "Odhlásiť sedenia"
   },
@@ -1515,6 +1811,15 @@
   },
   "sessionsDeauthorized": {
     "message": "Všetky sedenia odhlásené"
+  },
+  "accountIsOwnedMessage": {
+    "message": "Tento účet vlastní $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "Organization"
+      }
+    }
   },
   "purgeVault": {
     "message": "Vyprázdniť trezor"
@@ -2111,6 +2416,9 @@
   "checkExposedPasswords": {
     "message": "Overiť uniknuté heslá"
   },
+  "timesExposed": {
+    "message": "Počet únikov"
+  },
   "exposedXTimes": {
     "message": "Uniklo $COUNT$ krát",
     "placeholders": {
@@ -2145,6 +2453,9 @@
   "noWeakPasswords": {
     "message": "Žiadne položky vo vašom hesle nepoužívajú slabé heslá."
   },
+  "weakness": {
+    "message": "Oslabenie"
+  },
   "reusedPasswordsReport": {
     "message": "Viacnásobne použité heslá"
   },
@@ -2169,6 +2480,9 @@
   },
   "noReusedPasswords": {
     "message": "Vo vašom trezore nie sú žiadne heslá ktoré sú používané na viacerých stránkach."
+  },
+  "timesReused": {
+    "message": "Počet znovu použití"
   },
   "reusedXTimes": {
     "message": "Použité $COUNT$ krát",
@@ -2467,6 +2781,9 @@
   "downloadLicense": {
     "message": "Stiahnuť licenciu"
   },
+  "viewBillingToken": {
+    "message": "View Billing Token"
+  },
   "updateLicense": {
     "message": "Aktualizovať licenciu"
   },
@@ -2513,8 +2830,11 @@
   "invoices": {
     "message": "Faktúry"
   },
-  "noInvoices": {
-    "message": "Žiadne faktúry."
+  "noUnpaidInvoices": {
+    "message": "Žiadne neuhradené faktúry."
+  },
+  "noPaidInvoices": {
+    "message": "Žiadne uhradené faktúry."
   },
   "paid": {
     "message": "Zaplatené",
@@ -2958,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Ostáva vám 1 pozvánka."
+  },
   "userUsingTwoStep": {
     "message": "Tento používateľ používa dvojstupňové overovanie aby si zabezpečil konto."
   },
@@ -3072,6 +3395,10 @@
   "incorrectPin": {
     "message": "Nesprávny PIN"
   },
+  "pin": {
+    "message": "PIN",
+    "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
+  },
   "exportedVault": {
     "message": "Trezor exportovaný."
   },
@@ -3116,6 +3443,9 @@
         "example": "'Google'"
       }
     }
+  },
+  "viewAllLogInOptions": {
+    "message": "Zobraziť všetky možnosti prihlásenia"
   },
   "viewAllLoginOptions": {
     "message": "Zobraziť všetky možnosti prihlásenia"
@@ -3450,6 +3780,15 @@
   "device": {
     "message": "Zariadenie"
   },
+  "loginStatus": {
+    "message": "Stav prihlásenia"
+  },
+  "firstLogin": {
+    "message": "Prvé prihlásenie"
+  },
+  "trusted": {
+    "message": "Dôveryhodné"
+  },
   "creatingAccountOn": {
     "message": "Creating account on"
   },
@@ -3567,11 +3906,72 @@
   "updateBrowser": {
     "message": "Aktualizovať prehliadač"
   },
+  "generatingRiskInsights": {
+    "message": "Generuje sa váš prehľad o rizikách..."
+  },
   "updateBrowserDesc": {
     "message": "Používate nepodporovaný prehliadač. Webový trezor nemusí úplne fungovať."
   },
+  "freeTrialEndPromptCount": {
+    "message": "Vaše bezplatné skúšobné obdobie vyprší o $COUNT$ dní.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, vaše bezplatné skúšobné obdobie vyprší o $COUNT$ dní.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, zajtra vyprší vaše bezplatné skúšobné obdobie.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Zajtra vyprší vaše bezplatné skúšobné obdobie."
+  },
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, dnes vyprší vaše bezplatné skúšobné obdobie.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Dnes vyprší vaše bezplatné skúšobné obdobie."
+  },
+  "clickHereToAddPaymentMethod": {
+    "message": "Kliknutím tu pridajte platobnú metódu."
+  },
   "joinOrganization": {
     "message": "Pripojte sa k organizácii"
+  },
+  "joinOrganizationName": {
+    "message": "Pripojiť sa k $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "joinOrganizationDesc": {
     "message": "Obdržali ste pozvánku do vyššie menovanej Organizácie. Ak chcete pozvánku prijať, musíte sa prihlásiť alebo si vytvoriť nový Bitwarden účet."
@@ -3894,6 +4294,12 @@
       }
     }
   },
+  "encryptionKeyUpdateCannotProceed": {
+    "message": "Aktualizácia šifrovacieho kľúča nemôže pokračovať"
+  },
+  "keyUpdateFoldersFailed": {
+    "message": "Pri aktualizácii šifrovacieho kľúča nebolo možné dešifrovať vaše priečinky. Ak chcete pokračovať v aktualizácii, vaše priečinky sa musia odstrániť. Ak budete pokračovať, nebudú odstránené žiadne položky trezora."
+  },
   "keyUpdated": {
     "message": "Kľúč aktualizovaný"
   },
@@ -3969,6 +4375,9 @@
   "vaultTimeout": {
     "message": "Časový limit pre trezor"
   },
+  "vaultTimeout1": {
+    "message": "Časový limit"
+  },
   "vaultTimeoutDesc": {
     "message": "Vyberte kedy vyprší časový limit trezora a vykoná sa zvolená akcia."
   },
@@ -4034,6 +4443,9 @@
   },
   "selected": {
     "message": "Vybraté"
+  },
+  "recommended": {
+    "message": "Odporúčané"
   },
   "ownership": {
     "message": "Vlastníctvo"
@@ -4102,6 +4514,9 @@
   "dontAskFingerprintAgain": {
     "message": "Nepýtať sa pozvaných používateľov na overenie frázy odtlačku. (neodporúča sa)",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Po schválení žiadosti budete informovaní"
   },
   "free": {
     "message": "Zadarmo",
@@ -4234,7 +4649,7 @@
   },
   "lock": {
     "message": "Uzamknúť",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Kôš",
@@ -4333,6 +4748,12 @@
   "ssoLogInWithOrgIdentifier": {
     "message": "Prihláste sa prostredníctvom jednotného prihlásenie (SSO) vašej organizácie. Najskôr zadajte identifikátor vašej organizácie."
   },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Ak chcete začať, zadajte identifikátor SSO vašej organizácie"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "Pre prihlásenie prostredníctvom vášho poskytovateľa SSO, zadajte SSO identifikátor vašej organizácie. Pri prihlasovaní na novom zariadení môžete byt požiadaní o zadanie tohto SSO identifikátora."
+  },
   "enterpriseSingleSignOn": {
     "message": "Jednotné prihlásenie pre podniky (SSO)"
   },
@@ -4400,11 +4821,17 @@
   "singleOrgDesc": {
     "message": "Zakázať používateľom stať sa členmi inej organizácie."
   },
+  "singleOrgPolicyDesc": {
+    "message": "Zakázať používateľom stať sa členmi inej organizácie. Toto pravidlo sa vyžaduje od organizácií, ktoré povolili overovanie domény."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "Vaša súčasná organizácia má pravidlo, ktoré vám nedovoľuje pripojiť sa k viac než jednej organizácii. Kontaktujte, prosím, administrátorov vašej organizácie alebo sa prihláste prostredníctvom iného Bitwarden účtu."
   },
   "singleOrgPolicyWarning": {
     "message": "Členovia organizácie, ktorí nie sú vlastníkmi alebo administrátormi a už sú členmi inej organizácie, budú odstránení z vašej organizácie."
+  },
+  "singleOrgPolicyMemberWarning": {
+    "message": "Členovia, ktorí nedodržiavajú pravidlo, budú zaradení do zrušeného stavu, kým neopustia všetky ostatné organizácie. Správcovia majú výnimku a môžu obnoviť členov po splnení požiadaviek pravidiel organizácie."
   },
   "requireSso": {
     "message": "Požadovať overovanie prostredníctvom jednotného prihlasovania (SSO)"
@@ -4831,12 +5258,6 @@
   "deleteAnyCollection": {
     "message": "Odstrániť ľubovoľnú zbierku"
   },
-  "editAssignedCollections": {
-    "message": "Upraviť priradené zbierky"
-  },
-  "deleteAssignedCollections": {
-    "message": "Odstrániť priradené zbierky"
-  },
   "manageGroups": {
     "message": "Spravovať skupiny"
   },
@@ -5237,6 +5658,12 @@
   "bulkFilteredMessage": {
     "message": "Vylúčené, neplatí pre túto akciu."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Členovia nespĺňajúci pravidlá"
+  },
+  "nonCompliantMembersError": {
+    "message": "Členovia ktorí nedodržiavajú pravidlo Jednej Organizácie, alebo pravidlo Dvojstupňového Prihlásenia nemôžu byť obnovení dokiaľ nebudú tieto pravidla dodržiavať"
+  },
   "fingerprint": {
     "message": "Odtlačok prsta"
   },
@@ -5251,6 +5678,20 @@
   },
   "error": {
     "message": "Chyba"
+  },
+  "decryptionError": {
+    "message": "Chyba dešifrovania"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nedokázal dešifrovať nižšie uvedené položky trezoru."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktujte zákaznícku podporu,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "aby ste predišli ďalším stratám údajov.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Manage users must also be granted with the manage account recovery permission"
@@ -5444,6 +5885,19 @@
       }
     }
   },
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "Maximálne $HOURS$ hodín a $MINUTES$ minút.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "vaultTimeoutPolicyWithActionInEffect": {
     "message": "Zásady vašej organizácie ovplyvňujú časový limit trezoru. Maximálny povolený časový limit trezoru je $HOURS$ h a $MINUTES$ m. Nastavenie akcie pri vypršaní časového limitu je $ACTION$.",
     "placeholders": {
@@ -5469,9 +5923,6 @@
         "example": "Lock"
       }
     }
-  },
-  "customVaultTimeout": {
-    "message": "Vlastný časový limit pre trezor"
   },
   "vaultTimeoutToLarge": {
     "message": "Časový limit vášho trezora prekračuje obmedzenia nastavené vašou organizáciou."
@@ -5734,9 +6185,6 @@
   "emailSent": {
     "message": "Email Odoslaný"
   },
-  "revokeSponsorshipConfirmation": {
-    "message": "After removing this account, the Families plan sponsorship will expire at the end of the billing period. You will not be able to redeem a new sponsorship offer until the existing one expires. Are you sure you want to continue?"
-  },
   "removeSponsorshipSuccess": {
     "message": "Sponsorship removed"
   },
@@ -5881,8 +6329,8 @@
   "viewBillingSyncToken": {
     "message": "View billing sync token"
   },
-  "generateBillingSyncToken": {
-    "message": "Generate billing sync token"
+  "generateBillingToken": {
+    "message": "Generate billing token"
   },
   "copyPasteBillingSync": {
     "message": "Copy and paste this token into the billing sync settings of your self-hosted organization."
@@ -5890,8 +6338,8 @@
   "billingSyncCanAccess": {
     "message": "Your billing sync token can access and edit this organization's subscription settings."
   },
-  "manageBillingSync": {
-    "message": "Manage billing sync"
+  "manageBillingTokenSync": {
+    "message": "Manage Billing Token"
   },
   "setUpBillingSync": {
     "message": "Set up billing sync"
@@ -5950,14 +6398,14 @@
   "billingSyncApiKeyRotated": {
     "message": "Token rotated"
   },
-  "billingSyncDesc": {
-    "message": "Billing sync unlocks Families sponsorships and automatic license syncing on your server. After making updates in the Bitwarden cloud server, select Sync License to apply changes."
-  },
   "billingSyncKeyDesc": {
     "message": "A billing sync token from your cloud organization's subscription settings is required to complete this form."
   },
   "billingSyncKey": {
     "message": "Billing sync token"
+  },
+  "automaticBillingSyncDesc": {
+    "message": "Automatic sync unlocks Families sponsorships and allows you to sync your license without uploading a file. After making updates in the Bitwarden cloud server, select Sync License to apply changes."
   },
   "active": {
     "message": "Aktívny"
@@ -6025,6 +6473,9 @@
   },
   "idpSingleSignOnServiceUrlRequired": {
     "message": "Required if Entity ID is not a URL."
+  },
+  "offerNoLongerValid": {
+    "message": "Táto ponuka už nie je platná. Pre viac informácií kontaktujte správcu vašej organizácie."
   },
   "openIdOptionalCustomizations": {
     "message": "Optional customizations"
@@ -6100,7 +6551,8 @@
     "message": "Nastavenia účtu"
   },
   "generator": {
-    "message": "Generátor"
+    "message": "Generátor",
+    "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
     "message": "Čo by ste chceli vygenerovať?"
@@ -6113,6 +6565,43 @@
   },
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
+  },
+  "generateEmail": {
+    "message": "Generovať e-mail"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Hodnota musí byť medzi $MIN$ a $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Na vytvorenie silného hesla použite $RECOMMENDED$ znakov alebo viac.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Na vytvorenie silnej prístupovej frázy použite $RECOMMENDED$ slov alebo viac.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Typ používateľského mena"
@@ -6195,7 +6684,7 @@
   },
   "lastSync": {
     "message": "Posledná synchronizácia",
-    "description": "Used as a prefix to indicate the last time a sync occured. Example \"Last sync 1968-11-16 00:00:00\""
+    "description": "Used as a prefix to indicate the last time a sync occurred. Example \"Last sync 1968-11-16 00:00:00\""
   },
   "sponsorshipsSynced": {
     "message": "Sponzorstvo s vlastným hostingom synchronizované."
@@ -6218,6 +6707,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Vytvoriť e-mailový alias pomocou externej služby preposielania."
+  },
+  "forwarderDomainName": {
+    "message": "E-mailová doména",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Vyberte doménu, ktorá je podporovaná vybranou službou",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
@@ -6353,58 +6850,62 @@
     "message": "Vyžaduje sa predplatné Prémium"
   },
   "scim": {
-    "message": "SCIM provisioning",
-    "description": "The text, 'SCIM', is an acronymn and should not be translated."
+    "message": "SCIM poskytovanie",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
   "scimDescription": {
-    "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "message": "Automaticky vytvárajte používateľov a skupiny prostredníctvom SCIM s preferovaným poskytovateľom identít",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automaticky vytvárajte používateľov a skupiny prostredníctvom SCIM s preferovaným poskytovateľom identít. Zistite podporované integrácie",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
-    "message": "Enable SCIM",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "message": "Povoliť SCIM",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDescHelpText": {
-    "message": "Set up your preferred identity provider by configuring the URL and SCIM API Key",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "message": "Nastavte vášho preferovaného poskytovateľa identít konfiguráciou URL a kľúča API",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimApiKeyHelperText": {
-    "message": "This API key has access to manage users within your organization. It should be kept secret."
+    "message": "Tento kľúč API ma prístup k správe používateľov vo vašej organizácii. Mal by byť bezpečne uchovaný."
   },
   "copyScimKey": {
-    "message": "Copy the SCIM API key to your clipboard",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "message": "Kopírovať SCIM API kľuč do vašej schránky",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
-    "message": "Obnovte SCIM API kľúč",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "message": "Obnoviť SCIM API kľúč",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKeyWarning": {
-    "message": "Are you sure you want to rotate the SCIM API Key? The current key will no longer work for any existing integrations.",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "message": "Naozaj chcete obnoviť kľuč SCIM API? Súčasný kľúč prestane fungovať vo všetkých existujúcich integráciách.",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateKey": {
     "message": "Obnoviť kľúč"
   },
   "scimApiKey": {
     "message": "SCIM API kľúč",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "copyScimUrl": {
-    "message": "Copy the SCIM endpoint URL to your clipboard",
-    "description": "the text, 'SCIM' and 'URL', are acronymns and should not be translated."
+    "message": "Kopírovať URL adresu koncového bodu SCIM do vašej schránky",
+    "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimUrl": {
     "message": "SCIM URL",
-    "description": "the text, 'SCIM' and 'URL', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimApiKeyRotated": {
-    "message": "SCIM API key successfully rotated",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "message": "Kľuč SCIM API úspešne obnovený",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "scimSettingsSaved": {
-    "message": "SCIM settings saved",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "message": "Nastavenia SCIM uložené",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "inputRequired": {
     "message": "Vstup je povinný."
@@ -6475,6 +6976,18 @@
       "count": {
         "content": "$1",
         "example": "4"
+      }
+    }
+  },
+  "singleFieldNeedsAttention": {
+    "message": "Jedno pole vyžaduje vašu pozornosť."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "Niektoré polia ($COUNT$) vyžadujú vašu pozornosť.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
       }
     }
   },
@@ -7326,6 +7839,9 @@
   "fileUpload": {
     "message": "Nahrať súbor"
   },
+  "upload": {
+    "message": "Nahrať"
+  },
   "acceptedFormats": {
     "message": "Akceptované formáty:"
   },
@@ -7334,6 +7850,15 @@
   },
   "or": {
     "message": "alebo"
+  },
+  "unlockWithBiometrics": {
+    "message": "Odomknúť pomocou biometrie"
+  },
+  "unlockWithPin": {
+    "message": "Odomknúť s PIN"
+  },
+  "unlockWithMasterPassword": {
+    "message": "Odomknúť pomocou hlavného hesla"
   },
   "licenseAndBillingManagement": {
     "message": "License and billing management"
@@ -7344,11 +7869,11 @@
   "manualUpload": {
     "message": "Manual upload"
   },
-  "manualUploadDesc": {
-    "message": "If you do not want to opt into billing sync, manually upload your license here."
+  "manualBillingTokenUploadDesc": {
+    "message": "If you do not want to opt into billing sync, manually upload your license here. This will not automatically unlock Families sponsorships."
   },
   "syncLicense": {
-    "message": "Sync license"
+    "message": "Sync License"
   },
   "licenseSyncSuccess": {
     "message": "Successfully synced license"
@@ -7613,8 +8138,17 @@
   "loginInitiated": {
     "message": "Iniciované prihlásenie"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Zapamätať si toto zariadenie, pre budúce bezproblémové prihlásenie"
+  },
   "deviceApprovalRequired": {
     "message": "Vyžaduje sa schválenie zariadenia. Vyberte možnosť schválenia nižšie:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Vyžaduje sa schválenie zariadenia"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Vyberte možnosť schválenia nižšie"
   },
   "rememberThisDevice": {
     "message": "Zapamätať si toto zariadenie"
@@ -7673,6 +8207,15 @@
     "message": "Vaša organizácia vyžaduje, aby ste nastavili hlavné heslo.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "cardMetrics": {
+    "message": "z $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "notFound": {
     "message": "$RESOURCE$ nenájdené",
     "placeholders": {
@@ -7730,6 +8273,18 @@
   },
   "approveRequest": {
     "message": "Schváliť žiadosť"
+  },
+  "deviceApproved": {
+    "message": "Zariadenie schválené"
+  },
+  "deviceRemoved": {
+    "message": "Zariadenie odstránené"
+  },
+  "removeDevice": {
+    "message": "Odstrániť zariadenie"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Ste si istí, že chcete odstrániť toto zariadenie?"
   },
   "noDeviceRequests": {
     "message": "Žiadne žiadosti pre zariadenia"
@@ -7836,6 +8391,9 @@
   "userEmailMissing": {
     "message": "Chýba e-mail používateľa"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "E-mail aktívneho používateľa sa nenašiel. Odhlasuje sa."
+  },
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
   },
@@ -7931,8 +8489,11 @@
   "collectionManagementDesc": {
     "message": "Spravovať správanie zbierky pre organizáciu"
   },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Obmedziť vytváranie a vymazávanie zbierky len pre vlastníkov a administrátorov"
+  "limitCollectionCreationDesc": {
+    "message": "Obmedziť vytváranie zbierky len pre vlastníkov a administrátorov"
+  },
+  "limitCollectionDeletionDesc": {
+    "message": "Obmedziť vymazávanie zbierky len pre vlastníkov a administrátorov"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Vlastníci a správcovia môžu spravovať všetky zbierky a položky"
@@ -7978,6 +8539,10 @@
   },
   "baseUrl": {
     "message": "URL servera"
+  },
+  "selfHostBaseUrl": {
+    "message": "Adresa URL vlastného hostingu",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "aliasDomain": {
     "message": "Alias doména"
@@ -8077,7 +8642,7 @@
   },
   "addAPaymentMethod": {
     "message": "pridajte spôsob platby",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "Informácie o organizácii"
@@ -8186,6 +8751,9 @@
   },
   "addField": {
     "message": "Pridať pole"
+  },
+  "editField": {
+    "message": "Upraviť pole"
   },
   "items": {
     "message": "Položky"
@@ -8499,44 +9067,99 @@
   "sdksDesc": {
     "message": "Použite Bitwarden Secrets Manager SDK v následujúcich programovacích jazykoch pre vytvorenie vašej vlastnej aplikácie."
   },
-  "setUpGithubActions": {
-    "message": "Nastaviť Github Actions"
+  "ssoDescStart": {
+    "message": "Nastaviť",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Nastaviť Kubernetes"
+  "ssoDescEnd": {
+    "message": "for Bitwarden using the implementation guide for your Identity Provider.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Nastaviť GitLab CI/CD"
+  "userProvisioning": {
+    "message": "User provisioning"
   },
-  "setUpAnsible": {
-    "message": "Nastaviť Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Zobraziť Rust repozitár"
+  "scimIntegrationDescStart": {
+    "message": "Nastaviť ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Zobraziť C# repozitár"
+  "scimIntegrationDescEnd": {
+    "message": "(System for Cross-domain Identity Management) pre automatické vytváranie používateľov a skupiny v Bitwardene pomocou implementačnej príručky pre vášho poskytovateľa identít.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Zobraziť C++ repozitár"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Zobraziť JS WebAssembly repozitár"
+  "bwdcDesc": {
+    "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
-  "javaSDKRepo": {
-    "message": "Zobraziť Java repozitár"
+  "eventManagement": {
+    "message": "Event management"
   },
-  "pythonSDKRepo": {
-    "message": "Zobraziť Python repozitár"
+  "eventManagementDesc": {
+    "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
-  "phpSDKRepo": {
-    "message": "Zobraziť php repozitár"
+  "deviceManagement": {
+    "message": "Device management"
   },
-  "rubySDKRepo": {
-    "message": "Zobraziť Ruby repozitár"
+  "deviceManagementDesc": {
+    "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
-  "goSDKRepo": {
-    "message": "Zobraziť Go repozitár"
+  "integrationCardTooltip": {
+    "message": "Launch $INTEGRATION$ implementation guide.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Set up $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "View $SDK$ repository",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "open $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "view $SDK$ repository in a new tab.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "set up $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Vytvoriť novú klientskú organizáciu ktorú môžete spravovať ako Poskytovateľ. Dodatočné sedenia sa prejavia v najbližšom fakturačnom období."
@@ -8577,41 +9200,14 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Spravujte fakturáciu cez portál poskytovateľa"
   },
-  "startYour7DayFreeTrialOfBitwarden": {
-    "message": "Start your 7-Day free trial of Bitwarden"
+  "continueSettingUpFreeTrial": {
+    "message": "Pokračujte v nastavovaní vašej bezplatnej skúšobnej doby Bitwardenu"
   },
-  "startYour7DayFreeTrialOfBitwardenForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden for Teams"
+  "continueSettingUpFreeTrialPasswordManager": {
+    "message": "Pokračujte v nastavovaní vašej bezplatnej skúšobnej doby Bitwarden Správcu Hesiel"
   },
-  "startYour7DayFreeTrialOfBitwardenForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden for Families"
-  },
-  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden for Enterprise"
-  },
-  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager"
-  },
-  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Teams"
-  },
-  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Families"
-  },
-  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Enterprise"
-  },
-  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager"
-  },
-  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Teams"
-  },
-  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Families"
-  },
-  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
-    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Enterprise"
+  "continueSettingUpFreeTrialSecretsManager": {
+    "message": "Pokračujte v nastavovaní vašej bezplatnej skúšobnej doby Bitwarden správcu tajomstiev"
   },
   "enterTeamsOrgInfo": {
     "message": "Enter your Teams organization information"
@@ -8674,6 +9270,12 @@
   "providerPlan": {
     "message": "Managed Service Provider"
   },
+  "managedServiceProvider": {
+    "message": "Spravovaný poskytovateľ služieb"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "Spoločnosť s viacerými organizáciami"
+  },
   "orgSeats": {
     "message": "Organization Seats"
   },
@@ -8719,6 +9321,18 @@
   "updatedTaxInformation": {
     "message": "Aktualizované daňové informácie"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Neplatne číslo pre DPH, ak myslíte že ide o chybu, kontaktujte prosím zákaznícku podporu."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Nepodarilo sa nám overiť vaše číslo pre DPH, ak myslíte že ide o chybu, kontaktujte prosím zákaznícku podporu."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Neplatne číslo pre DPH, ak myslíte že ide o chybu, kontaktujte prosím zákaznícku podporu."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Pri vytváraní náhľadu faktúry nastala chyba. Prosím skúste to neskor."
+  },
   "unverified": {
     "message": "Neoverený"
   },
@@ -8755,6 +9369,27 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Audit prístupu členov organizácie v skupinách, kolekciách a položkách kolekcie. Export CSV poskytuje podrobný rozpis podľa jednotlivých členov vrátane informácií o oprávneniach kolekcií a konfiguráciách účtov."
+  },
+  "memberAccessReportNoCollection": {
+    "message": "(Žiadna Zbierka)"
+  },
+  "memberAccessReportNoCollectionPermission": {
+    "message": "(Žiadne povolenia ku zbierke)"
+  },
+  "memberAccessReportNoGroup": {
+    "message": "(Žiadna Skupina)"
+  },
+  "memberAccessReportTwoFactorEnabledTrue": {
+    "message": "Zapnuté"
+  },
+  "memberAccessReportTwoFactorEnabledFalse": {
+    "message": "Vypnuté"
+  },
+  "memberAccessReportAuthenticationEnabledTrue": {
+    "message": "Zapnuté"
+  },
+  "memberAccessReportAuthenticationEnabledFalse": {
+    "message": "Vypnuté"
   },
   "higherKDFIterations": {
     "message": "Zvýšenie počtu KDF iterácií môže pomôcť chrániť vaše hlavné heslo pri brute force útoku."
@@ -8902,6 +9537,66 @@
   "purchasedSeatsRemoved": {
     "message": "zakúpené sedenia boli odstránené"
   },
+  "environmentVariables": {
+    "message": "Premenné prostredia"
+  },
+  "organizationId": {
+    "message": "ID organizácie"
+  },
+  "projectIds": {
+    "message": "ID projektov"
+  },
+  "projectId": {
+    "message": "ID projektu"
+  },
+  "projectsAccessedByMachineAccount": {
+    "message": "Tento strojový účet môže pristupovať k nasledujúcim projektom."
+  },
+  "config": {
+    "message": "Konfigurácia"
+  },
+  "learnMoreAboutEmergencyAccess": {
+    "message": "Dozvedieť sa viac o núdzovom prístupe"
+  },
+  "learnMoreAboutMatchDetection": {
+    "message": "Dozvedieť sa viac o spôsobe mapovania"
+  },
+  "learnMoreAboutMasterPasswordReprompt": {
+    "message": "Dozvedieť sa viac o opätovnej výzve na zadanie hlavného hesla"
+  },
+  "learnMoreAboutSearchingYourVault": {
+    "message": "Dozvedieť sa viac o vyhľadávaní vo vašom trezore"
+  },
+  "learnMoreAboutYourAccountFingerprintPhrase": {
+    "message": "Dozvedieť sa viac o fráze odtlačku účtu"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Dozvedieť sa viac o obnove vášho šifrovacieho kľúča"
+  },
+  "learnMoreAboutEncryptionAlgorithms": {
+    "message": "Dozvedieť sa viac o šifrovacom algoritme"
+  },
+  "learnMoreAboutKDFIterations": {
+    "message": "Dozvedieť sa viac o KDF iteráciách"
+  },
+  "learnMoreAboutLocalization": {
+    "message": "Dozvedieť sa viac o lokalizácii"
+  },
+  "learnMoreAboutWebsiteIcons": {
+    "message": "Dozvedieť sa viac o ikonách stránok"
+  },
+  "learnMoreAboutUserAccess": {
+    "message": "Dozvedieť sa viac o používateľskom prístupe"
+  },
+  "learnMoreAboutMemberRoles": {
+    "message": "Dozvedieť sa viac o povoleniach a rolách členov"
+  },
+  "whatIsACvvNumber": {
+    "message": "Čo je číslo CVV?"
+  },
+  "learnMoreAboutApi": {
+    "message": "Dozvedieť sa viac o Bitwarden API"
+  },
   "fileSends": {
     "message": "Sendy so súborom"
   },
@@ -8959,8 +9654,8 @@
       }
     }
   },
-  "upgradePlan": {
-    "message": "Upgrade your plan to invite more members and gain access to additional Bitwarden features"
+  "upgradePlans": {
+    "message": "Upgrade your plan to invite members and experience powerful security features."
   },
   "upgradeDiscount": {
     "message": "Save $AMOUNT$%",
@@ -8971,11 +9666,11 @@
       }
     }
   },
-  "upgradeEnterpriseMessage": {
-    "message": "Advanced capabilities for larger businesses"
+  "enterprisePlanUpgradeMessage": {
+    "message": "Advanced capabilities for larger organizations"
   },
-  "upgradeTeamsMessage": {
-    "message": "Businesses looking for powerful security"
+  "teamsPlanUpgradeMessage": {
+    "message": "Resilient protection for growing teams"
   },
   "teamsInviteMessage": {
     "message": "Invite unlimited members"
@@ -8986,14 +9681,38 @@
   "syncGroupsAndUsersFromDirectory": {
     "message": "Sync groups and users from a directory"
   },
-  "upgradeFamilyMessage": {
-    "message": "Share with families and friends"
+  "familyPlanUpgradeMessage": {
+    "message": "Secure your family logins"
   },
   "accessToPremiumFeatures": {
     "message": "Access to Premium features"
   },
   "additionalStorageGbMessage": {
     "message": "GB additional storage"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Algoritmus kľúča"
+  },
+  "sshKeyFingerprint": {
+    "message": "Odtlačok"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Súkromný kľúč"
+  },
+  "sshKeyPublicKey": {
+    "message": "Verejný kľúč"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
   },
   "premiumAccounts": {
     "message": "6 prémiových účtov"
@@ -9037,18 +9756,21 @@
   "current": {
     "message": "Aktuálne"
   },
-  "secretsManagerSubInfo": {
+  "secretsManagerSubscriptionInfo": {
     "message": "Vaše predplatné Secrets Manager sa obnoví na základe vybraného plánu"
   },
   "bitwardenPasswordManager": {
     "message": "Bitwarden Správca Hesiel"
   },
-  "secretsManagerWithFreePasswordManagerInfo": {
+  "secretsManagerComplimentaryPasswordManager": {
     "message": "Vaše bezplatné ročné predplatné programu Password Manager sa zmení na vybraný plán. Poplatok vám bude účtovaný až po skončení bezplatného obdobia."
+  },
+  "fileSavedToDevice": {
+    "message": "Súbor sa uložil do zariadenia. Spravujte stiahnuté súbory zo zariadenia."
   },
   "publicApi": {
     "message": "Verejné API",
-    "description": "The text, 'API', is an acronymn and should not be translated."
+    "description": "The text, 'API', is an acronym and should not be translated."
   },
   "showCharacterCount": {
     "message": "Zobraziť počítadlo znakov"
@@ -9058,5 +9780,361 @@
   },
   "editAccess": {
     "message": "Upraviť prístup"
+  },
+  "textHelpText": {
+    "message": "Textové polia používajte pre také údaje, ako sú bezpečnostné otázky"
+  },
+  "hiddenHelpText": {
+    "message": "Skryté polia požívajte pre citlivé údaje ako je heslo"
+  },
+  "checkBoxHelpText": {
+    "message": "Ak chcete automaticky vyplniť začiarkávacie políčko formulára, napríklad zapamätať e-mail, použite začiarkávacie políčka"
+  },
+  "linkedHelpText": {
+    "message": "Ak máte problémy s automatickým vypĺňaním pre konkrétnu webovú stránku, použite prepojené pole."
+  },
+  "linkedLabelHelpText": {
+    "message": "Zadajte html atribút poľa id, name, aria-label, alebo placeholder."
+  },
+  "uppercaseDescription": {
+    "message": "Zahrnúť veľké písmená",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Zahrnúť malé písmená",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Vrátane čísiel",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Zahrnúť špeciálne znaky",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
+  },
+  "addAttachment": {
+    "message": "Priložiť prílohu"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Maximálna veľkosť súboru je 500 MB"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Naozaj chcete natrvalo odstrániť túto prílohu?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Spravovať predplatné z",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Ak chcete prevádzkovať Bitwarden na vlastnom serveri, musíte nahrať licenčný súbor. Pre podporu Free Families plánu a pokročilé možnosti fakturácie pre vašu organizáciu s vlastným hostingom, budete musieť nastaviť automatickú synchronizáciu v organizácii vo vlastnom hostingu."
+  },
+  "selfHostingTitleProper": {
+    "message": "Vlastný hosting"
+  },
+  "claim-domain-single-org-warning": {
+    "message": "Privlastnenie domény zapne pravidlo jedinej organizácie."
+  },
+  "single-org-revoked-user-warning": {
+    "message": "Členovia, ktorí nedodržiavajú pravidlo, budú odvolaní. Správcovia môžu obnoviť členov po ich odchode zo všetkých ostatných organizácií."
+  },
+  "deleteOrganizationUser": {
+    "message": "Odstrániť $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      },
+      "description": "Title for the delete organization user dialog"
+    }
+  },
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Položky vlastnené $NAME$ budú nenávratne odstránené. Položky v zbierke nie sú ovplyvnené.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Položky vlastnené nasledujúcimi členmi budú nenávratne odstránené. Položky v zbierke nie sú ovplyvnené.",
+    "description": "Warning description for the bulk delete organization users dialog"
+  },
+  "organizationUserDeleted": {
+    "message": "Odstránený $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "organizationUserDeletedDesc": {
+    "message": "Používateľ bol odstránený z organizácie a všetky súvisiace dáta boli vymazané."
+  },
+  "deletedUserId": {
+    "message": "Odstránený používateľ $ID$ - vlastnik / správca vymazal používateľský účet",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "Používateľ $ID$ opustil organizáciu",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "$ORGANIZATION$ je pozastavené",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "Kontaktujte o pomoc vlastníka organizácie."
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "Pre obnovenie prístupu k vašej organizácii pridajte platobnú metódu."
+  },
+  "deleteMembers": {
+    "message": "Vymazať členov"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "Táto akcia sa nevzťahuje na žiadneho z vybraných členov."
+  },
+  "deletedSuccessfully": {
+    "message": "Úspešne odstránené"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "Odstrániť sponzorovaný bezplatný Bitwarden plán pre Rodiny"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "Neumožnite členom používať plán pre rodiny prostredníctvom tejto organizácie."
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "Platba prostredníctvom bankového účtu je dostupná len pre zákazníkov v Spojených Štátoch. Budete musieť overiť svoj bankový účet. V priebehu nasledujúcich 1-2 pracovných dní vykonáme mikro vklad. Na overenie bankového účtu zadajte kód popisu výpisu z tohto vkladu na fakturačnej stránke organizácie. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "Na váš bankový účet sme vykonali mikro vklad (môže to trvať 1-2 pracovné dni). Zadajte šesťmiestny kód začínajúci na „SM“, ktorý nájdete v popise vkladu. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
+  },
+  "descriptorCode": {
+    "message": "Kód výpisu"
+  },
+  "importantNotice": {
+    "message": "Dôležité upozornenie"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastaviť dvojstupňové prihlásenie"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
+  },
+  "remindMeLater": {
+    "message": "Pripomenúť neskôr"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nie, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnúť dvojstupňové prihlásenie"
+  },
+  "changeAcctEmail": {
+    "message": "Zmeniť e-mail účtu"
+  },
+  "removeMembers": {
+    "message": "Odstrániť členov"
+  },
+  "devices": {
+    "message": "Zariadenia"
+  },
+  "deviceListDescription": {
+    "message": "Vaše konto bolo prihlásené do každého z nižšie uvedených zariadení. Ak niektoré zariadenie nepoznáte, teraz ho odstráňte."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
+  },
+  "claimedDomains": {
+    "message": "Privlastnené domény"
+  },
+  "claimDomain": {
+    "message": "Privlastniť doménu"
+  },
+  "reclaimDomain": {
+    "message": "Opätovne privlastniť doménu"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Príklad: mydomain.com. Pre privlastnenie subdomén musia byť tieto každá zadaná individuálne."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automaticky privlastnené domény"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden sa pokúsi privlastniť doménu 3 krát počas prvých 72 hodín. Ak sa doménu nepodarilo privlastniť, skontrolujte DNS záznam u svojho hostiteľa a privlastnite manuálne. Doména bude z organizácie odstránená po 7 dňoch ak nie je privlastnená."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ nie je privlastnená. Overte si DNS záznam.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Privlastnená"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Overuje sa"
+  },
+  "claimedDomainsDesc": {
+    "message": "Privlastnite si doménu, aby ste vlastnili všetky členské účty, ktorých e-mailová adresa sa zhoduje s doménou. Členovia budú môcť pri prihlasovaní preskočiť identifikátor SSO. Správcovia budú môcť tiež vymazávať členské účty."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Zadaný neplatný formát. Formát: mydomain.com. Pre privlastnenie subdomén musia byť tieto každá zadaná individuálne."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ privlastnená",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ nie je privlastnená",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Ak odstránite $EMAIL$, sponzorstvo pre tento Rodinný plán nebude možné využiť. Naozaj chcete pokračovať?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Ak odstránite $EMAIL$, sponzorstvo tohto Rodinného plánu sa ukončí a dňa $DATE$ bude uloženým spôsobom platby vykonaná platba $40 + príslušná daň. Nové sponzorstvo si budete môcť uplatniť až po $DATE$. Naozaj chcete pokračovať?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Doména privlastnená"
+  },
+  "organizationNameMaxLength": {
+    "message": "Meno organizácie nemôže mať viac ako 50 znakov."
+  },
+  "resellerRenewalWarning": {
+    "message": "Vaše predplatné sa čoskoro obnoví. Aby ste si zabezpečili nepretržitú prevádzku, kontaktujte $RESELLER$ a potvrďte obnovenie pred $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "Faktúra za vaše predplatné bola vystavená dňa $ISSUED_DATE$. Aby ste si zabezpečili nepretržitú prevádzku, kontaktujte $RESELLER$ a potvrďte obnovenie predplatného pred $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Faktúra za vaše predplatné nebola uhradená. Aby ste si zabezpečili nepretržitú prevádzku, kontaktujte $RESELLER$ a potvrďte obnovenie pred $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organization subscription restarted"
+  },
+  "restartSubscription": {
+    "message": "Restart your subscription"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Contact $PROVIDER$ for assistance.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
   }
 }

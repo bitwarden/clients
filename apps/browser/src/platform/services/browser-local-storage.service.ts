@@ -1,35 +1,67 @@
-import { defer, filter, firstValueFrom, map, merge, throwError, timeout } from "rxjs";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import AbstractChromeStorageService, {
   SerializedValue,
-  objToStore,
 } from "./abstractions/abstract-chrome-storage-api.service";
 
-export const RESEED_IN_PROGRESS_KEY = "reseedInProgress";
-
 export default class BrowserLocalStorageService extends AbstractChromeStorageService {
-  constructor() {
+  constructor(private readonly logService: LogService) {
     super(chrome.storage.local);
-    this.chromeStorageApi.remove(RESEED_IN_PROGRESS_KEY, () => {
-      return;
-    });
   }
 
-  /**
-   * Reads, clears, and re-saves all data in local storage. This is a hack to remove previously stored sensitive data from
-   * local storage logs.
-   *
-   * @see https://github.com/bitwarden/clients/issues/485
-   */
-  async reseed(): Promise<void> {
-    try {
-      await this.save(RESEED_IN_PROGRESS_KEY, true);
-      const data = await this.getAll();
-      await this.clear();
-      await this.saveAll(data);
-    } finally {
-      await super.remove(RESEED_IN_PROGRESS_KEY);
+  override async get<T>(key: string): Promise<T> {
+    return await this.getWithRetries<T>(key, 0);
+  }
+
+  private async getWithRetries<T>(key: string, retryNum: number): Promise<T> {
+    // See: https://github.com/EFForg/privacybadger/pull/2980
+    const MAX_RETRIES = 5;
+    const WAIT_TIME = 200;
+
+    const store = await this.getStore(key);
+
+    if (store == null) {
+      if (retryNum >= MAX_RETRIES) {
+        throw new Error(`Failed to get a value for key '${key}', see logs for more details.`);
+      }
+
+      retryNum++;
+      this.logService.warning(`Retrying attempt to get value for key '${key}' in ${WAIT_TIME}ms`);
+      await new Promise<void>((resolve) => setTimeout(resolve, WAIT_TIME));
+      return await this.getWithRetries(key, retryNum);
     }
+
+    // We have a store
+    return this.processGetObject<T>(store[key] as T | SerializedValue);
+  }
+
+  private async getStore(key: string) {
+    if (this.chromeStorageApi == null) {
+      this.logService.warning(
+        `chrome.storage.local was not initialized while retrieving key '${key}'.`,
+      );
+      return null;
+    }
+
+    return new Promise<{ [key: string]: unknown }>((resolve) => {
+      this.chromeStorageApi.get(key, (store) => {
+        if (chrome.runtime.lastError) {
+          this.logService.warning(`Failed to get value for key '${key}'`, chrome.runtime.lastError);
+          resolve(null);
+          return;
+        }
+
+        if (store == null) {
+          this.logService.warning(`Store was empty while retrieving value for key '${key}'`);
+          resolve(null);
+          return;
+        }
+
+        resolve(store);
+      });
+    });
   }
 
   async fillBuffer() {
@@ -69,109 +101,6 @@ export default class BrowserLocalStorageService extends AbstractChromeStorageSer
           resolve();
         },
       );
-    });
-  }
-
-  override async get<T>(key: string): Promise<T> {
-    await this.awaitReseed();
-    return super.get(key);
-  }
-
-  override async has(key: string): Promise<boolean> {
-    await this.awaitReseed();
-    return super.has(key);
-  }
-
-  override async save(key: string, obj: any): Promise<void> {
-    await this.awaitReseed();
-    return super.save(key, obj);
-  }
-
-  override async remove(key: string): Promise<void> {
-    await this.awaitReseed();
-    return super.remove(key);
-  }
-
-  private async awaitReseed(): Promise<void> {
-    const notReseeding = async () => {
-      return !(await super.get(RESEED_IN_PROGRESS_KEY));
-    };
-
-    const finishedReseeding = this.updates$.pipe(
-      filter(({ key, updateType }) => key === RESEED_IN_PROGRESS_KEY && updateType === "remove"),
-      map(() => true),
-    );
-
-    await firstValueFrom(
-      merge(defer(notReseeding), finishedReseeding).pipe(
-        filter((v) => v),
-        timeout({
-          // We eventually need to give up and throw an error
-          first: 5_000,
-          with: () =>
-            throwError(
-              () => new Error("Reseeding local storage did not complete in a timely manner."),
-            ),
-        }),
-      ),
-    );
-  }
-
-  /**
-   * Clears local storage
-   */
-  private async clear() {
-    return new Promise<void>((resolve, reject) => {
-      this.chromeStorageApi.clear(() => {
-        if (chrome.runtime.lastError) {
-          return reject(chrome.runtime.lastError);
-        }
-        resolve();
-      });
-    });
-  }
-
-  /**
-   * Retrieves all objects stored in local storage.
-   *
-   * @remarks This method processes values prior to resolving, do not use `chrome.storage.local` directly
-   * @returns Promise resolving to keyed object of all stored data
-   */
-  private async getAll(): Promise<Record<string, unknown>> {
-    return new Promise((resolve, reject) => {
-      this.chromeStorageApi.get(null, (allStorage) => {
-        if (chrome.runtime.lastError) {
-          return reject(chrome.runtime.lastError);
-        }
-
-        const resolved = Object.entries(allStorage).reduce(
-          (agg, [key, value]) => {
-            agg[key] = this.processGetObject(value);
-            return agg;
-          },
-          {} as Record<string, unknown>,
-        );
-        resolve(resolved);
-      });
-    });
-  }
-
-  private async saveAll(data: Record<string, unknown>): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      const keyedData = Object.entries(data).reduce(
-        (agg, [key, value]) => {
-          agg[key] = objToStore(value);
-          return agg;
-        },
-        {} as Record<string, SerializedValue>,
-      );
-      this.chromeStorageApi.set(keyedData, () => {
-        if (chrome.runtime.lastError) {
-          return reject(chrome.runtime.lastError);
-        }
-
-        resolve();
-      });
     });
   }
 }

@@ -1,0 +1,81 @@
+<form #form (ngSubmit)="submit()" [appApiAction]="formPromise" [formGroup]="formGroup">
+  <header>
+    <h1 class="login-center">
+      <span class="title">{{ "logIn" | i18n }}</span>
+    </h1>
+  </header>
+  <main tabindex="-1">
+    <div class="box">
+      <div class="box-content">
+        <div class="box-content-row box-content-row-flex" appBoxRow>
+          <div class="row-main">
+            <input id="email" type="text" formControlName="email" [hidden]="true" />
+            <input
+              id="rememberEmail"
+              type="checkbox"
+              formControlName="rememberEmail"
+              [hidden]="true"
+            />
+            <label for="masterPassword">{{ "masterPass" | i18n }}</label>
+            <input
+              id="masterPassword"
+              type="{{ showPassword ? 'text' : 'password' }}"
+              class="monospaced"
+              formControlName="masterPassword"
+              appInputVerbatim
+              appAutofocus
+            />
+          </div>
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="row-btn"
+              appStopClick
+              appA11yTitle="{{ 'toggleVisibility' | i18n }}"
+              (click)="togglePassword()"
+              [attr.aria-pressed]="showPassword"
+            >
+              <i
+                class="bwi bwi-lg"
+                [ngClass]="{ 'bwi-eye': !showPassword, 'bwi-eye-slash': showPassword }"
+                aria-hidden="true"
+              ></i>
+            </button>
+          </div>
+        </div>
+        <div class="box-content-row" [hidden]="!showCaptcha()">
+          <iframe
+            id="hcaptcha_iframe"
+            height="80"
+            sandbox="allow-scripts allow-same-origin"
+          ></iframe>
+        </div>
+      </div>
+      <div class="box-footer">
+        <button type="button" class="btn link" routerLink="/hint" (click)="saveEmailSettings()">
+          <b>{{ "getMasterPasswordHint" | i18n }}</b>
+        </button>
+      </div>
+    </div>
+    <div class="content login-buttons">
+      <button type="submit" class="btn primary block" [disabled]="form.loading">
+        <span [hidden]="form.loading"
+          ><b>{{ "logInWithMasterPassword" | i18n }}</b></span
+        >
+        <i class="bwi bwi-spinner bwi-lg bwi-spin" [hidden]="!form.loading" aria-hidden="true"></i>
+      </button>
+      <div class="tw-mb-3" *ngIf="showLoginWithDevice">
+        <button type="button" class="btn block" (click)="startAuthRequestLogin()">
+          <span> <i class="bwi bwi-mobile"></i> {{ "loginWithDevice" | i18n }} </span>
+        </button>
+      </div>
+      <button type="button" (click)="launchSsoBrowser()" class="btn block">
+        <i class="bwi bwi-provider" aria-hidden="true"></i> {{ "enterpriseSingleSignOn" | i18n }}
+      </button>
+      <div class="small">
+        <p class="no-margin">{{ "loggingInAs" | i18n }} {{ loggedEmail }}</p>
+        <a routerLink="/home">{{ "notYou" | i18n }}</a>
+      </div>
+    </div>
+  </main>
+</form>

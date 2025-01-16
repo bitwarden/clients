@@ -62,9 +62,15 @@ describe("SendItemsService", () => {
   it("should update loading$ when sends are loading", (done) => {
     const sendsLoading$ = new Subject<void>();
     (service as any)._sendsLoading$ = sendsLoading$;
+    let sendLoadingIndex = 0;
     service.loading$.subscribe((loading) => {
-      expect(loading).toBe(true);
-      done();
+      if (sendLoadingIndex === 0) {
+        expect(loading).toBe(true);
+        sendLoadingIndex++;
+      } else {
+        expect(loading).toBe(false);
+        done();
+      }
     });
 
     sendsLoading$.next();

@@ -12,7 +12,7 @@
         }}</span>
       </div>
       <ng-container>
-        <div class="tw-grid tw-grid-flow-col tw-grid-cols-2 tw-gap-4 tw-mb-4">
+        <div class="tw-grid tw-grid-flow-col tw-auto-cols-[minmax(0,_2fr)] tw-gap-4 tw-mb-4">
           <div
             *ngFor="let planCard of planCards"
             [ngClass]="getPlanCardContainerClasses(planCard.selected)"
@@ -22,7 +22,7 @@
             <div class="tw-relative">
               <div
                 *ngIf="planCard.selected"
-                class="tw-bg-primary-600 tw-text-center !tw-text-contrast tw-text-sm tw-font-bold tw-py-1 group-hover:tw-bg-primary-700"
+                class="tw-bg-primary-600 tw-text-center !tw-text-contrast tw-text-sm tw-font-bold tw-py-1 group-hover/plan-card-container:tw-bg-primary-700"
               >
                 {{ "selected" | i18n }}
               </div>
@@ -43,6 +43,14 @@
             {{ "organizationName" | i18n }}
           </bit-label>
           <input type="text" bitInput formControlName="organizationName" />
+          <bit-error-summary
+            *ngIf="
+              formGroup.get('organizationName').errors?.['maxLength'] &&
+              formGroup.get('organizationName').touched
+            "
+          >
+            {{ "organizationNameMaxLength" | i18n }}
+          </bit-error-summary>
         </bit-form-field>
         <bit-form-field>
           <bit-label>

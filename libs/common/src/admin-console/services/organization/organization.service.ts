@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { map, Observable, firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -86,6 +88,10 @@ export class OrganizationService implements InternalOrganizationServiceAbstracti
   canManageSponsorships$ = this.organizations$.pipe(
     mapToExcludeOrganizationsWithoutFamilySponsorshipSupport(),
     mapToBooleanHasAnyOrganizations(),
+  );
+
+  familySponsorshipAvailable$ = this.organizations$.pipe(
+    map((orgs) => orgs.some((o) => o.familySponsorshipAvailable)),
   );
 
   async hasOrganizations(): Promise<boolean> {

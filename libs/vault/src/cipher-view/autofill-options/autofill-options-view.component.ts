@@ -1,18 +1,20 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import {
   CardComponent,
   FormFieldModule,
+  IconButtonModule,
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
-  IconButtonModule,
 } from "@bitwarden/components";
-
-import { TotpCaptureService } from "../../cipher-form";
 
 @Component({
   selector: "app-autofill-options-view",
@@ -31,10 +33,15 @@ import { TotpCaptureService } from "../../cipher-form";
 })
 export class AutofillOptionsViewComponent {
   @Input() loginUris: LoginUriView[];
+  @Input() cipherId: string;
 
-  constructor(private totpCaptureService: TotpCaptureService) {}
+  constructor(
+    private platformUtilsService: PlatformUtilsService,
+    private cipherService: CipherService,
+  ) {}
 
   async openWebsite(selectedUri: string) {
-    await this.totpCaptureService.openAutofillNewTab(selectedUri);
+    await this.cipherService.updateLastLaunchedDate(this.cipherId);
+    this.platformUtilsService.launchUri(selectedUri);
   }
 }

@@ -1,0 +1,45 @@
+app-id: com.bitwarden.desktop
+runtime: org.freedesktop.Platform
+runtime-version: "24.08"
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: "24.08"
+command: bitwarden.sh
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=x11
+  - --device=dri
+  - --env=XDG_CURRENT_DESKTOP=Unity
+  - --env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.freedesktop.secrets
+  - --talk-name=com.canonical.AppMenu.Registrar
+  - --system-talk-name=org.freedesktop.PolicyKit1
+    # Lock on lockscreen
+  - --talk-name=org.gnome.ScreenSaver
+  - --talk-name=org.freedesktop.ScreenSaver
+  - --system-talk-name=org.freedesktop.login1
+  - --filesystem=xdg-download
+modules:
+  - name: bitwarden-desktop
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/bin
+      - mkdir -p /app/bin/Bitwarden/
+      - cp -r ./* /app/bin/
+      - install bitwarden.sh /app/bin/bitwarden.sh
+    sources:
+      - type: dir
+        only-arches: [x86_64]
+        path: ../dist/linux-unpacked
+      - type: dir
+        only-arches: [aarch64]
+        path: ../dist/linux-arm64-unpacked
+      - type: script
+        dest-filename: bitwarden.sh
+        commands:
+          - ulimit -c 0
+          - export TMPDIR="$XDG_RUNTIME_DIR/app/$FLATPAK_ID"
+          - exec zypak-wrapper /app/bin/bitwarden-app "$@"

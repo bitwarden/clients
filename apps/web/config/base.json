@@ -11,6 +11,7 @@
     "allowedHosts": "auto"
   },
   "flags": {
-    "showPasswordless": false
-  }
+    "sdk": true
+  },
+  "devFlags": {}
 }

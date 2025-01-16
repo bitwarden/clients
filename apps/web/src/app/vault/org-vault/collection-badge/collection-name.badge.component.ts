@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { CollectionView } from "@bitwarden/admin-console/common";
 
 @Component({
   selector: "app-collection-badge",

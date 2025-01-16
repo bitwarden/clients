@@ -1,4 +1,3 @@
----
 name: Automatic issue responses
 on:
   issues:

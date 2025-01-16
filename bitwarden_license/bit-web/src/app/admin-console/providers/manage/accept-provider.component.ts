@@ -1,5 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { RegisterRouteService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -15,6 +18,9 @@ import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept
 })
 export class AcceptProviderComponent extends BaseAcceptComponent {
   providerName: string;
+  providerId: string;
+  providerUserId: string;
+  providerInviteToken: string;
 
   failedMessage = "providerInviteAcceptFailed";
 
@@ -52,5 +58,31 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
 
   async unauthedHandler(qParams: Params) {
     this.providerName = qParams.providerName;
+    this.providerId = qParams.providerId;
+    this.providerUserId = qParams.providerUserId;
+    this.providerInviteToken = qParams.token;
+  }
+
+  async register() {
+    let queryParams: Params;
+    let registerRoute = await firstValueFrom(this.registerRoute$);
+    if (registerRoute === "/register") {
+      queryParams = {
+        email: this.email,
+      };
+    } else if (registerRoute === "/signup") {
+      // We have to override the base component route as we don't need users to
+      // complete email verification if they are coming directly an emailed invite.
+      registerRoute = "/finish-signup";
+      queryParams = {
+        email: this.email,
+        providerUserId: this.providerUserId,
+        providerInviteToken: this.providerInviteToken,
+      };
+    }
+
+    await this.router.navigate([registerRoute], {
+      queryParams: queryParams,
+    });
   }
 }

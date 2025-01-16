@@ -29,6 +29,7 @@ import { Enterprise2ContentComponent } from "./content/enterprise2-content.compo
 import { LogoBadgesComponent } from "./content/logo-badges.component";
 import { LogoCnet5StarsComponent } from "./content/logo-cnet-5-stars.component";
 import { LogoCnetComponent } from "./content/logo-cnet.component";
+import { LogoCompanyTestimonialComponent } from "./content/logo-company-testimonial.component";
 import { LogoForbesComponent } from "./content/logo-forbes.component";
 import { LogoUSNewsComponent } from "./content/logo-us-news.component";
 import { ReviewBlurbComponent } from "./content/review-blurb.component";
@@ -76,6 +77,7 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     AbmTeamsContentComponent,
     LogoBadgesComponent,
     LogoCnet5StarsComponent,
+    LogoCompanyTestimonialComponent,
     LogoCnetComponent,
     LogoForbesComponent,
     LogoUSNewsComponent,

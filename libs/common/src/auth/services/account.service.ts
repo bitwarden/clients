@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   combineLatestWith,
   map,
@@ -8,6 +10,7 @@ import {
 } from "rxjs";
 
 import {
+  Account,
   AccountInfo,
   InternalAccountService,
   accountInfoEqual,
@@ -45,15 +48,33 @@ const LOGGED_OUT_INFO: AccountInfo = {
   name: undefined,
 };
 
+/**
+ * An rxjs map operator that extracts the UserId from an account, or throws if the account or UserId are null.
+ */
+export const getUserId = map<Account | null, UserId>((account) => {
+  if (account == null) {
+    throw new Error("Null or undefined account");
+  }
+
+  return account.id;
+});
+
+/**
+ * An rxjs map operator that extracts the UserId from an account, or returns undefined if the account or UserId are null.
+ */
+export const getOptionalUserId = map<Account | null, UserId | null>(
+  (account) => account?.id ?? null,
+);
+
 export class AccountServiceImplementation implements InternalAccountService {
   private accountsState: GlobalState<Record<UserId, AccountInfo>>;
   private activeAccountIdState: GlobalState<UserId | undefined>;
 
   accounts$: Observable<Record<UserId, AccountInfo>>;
-  activeAccount$: Observable<{ id: UserId | undefined } & AccountInfo>;
+  activeAccount$: Observable<Account | null>;
   accountActivity$: Observable<Record<UserId, Date>>;
   sortedUserIds$: Observable<UserId[]>;
-  nextUpAccount$: Observable<{ id: UserId } & AccountInfo>;
+  nextUpAccount$: Observable<Account>;
 
   constructor(
     private messagingService: MessagingService,
@@ -68,7 +89,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     );
     this.activeAccount$ = this.activeAccountIdState.state$.pipe(
       combineLatestWith(this.accounts$),
-      map(([id, accounts]) => (id ? { id, ...(accounts[id] as AccountInfo) } : undefined)),
+      map(([id, accounts]) => (id ? ({ id, ...(accounts[id] as AccountInfo) } as Account) : null)),
       distinctUntilChanged((a, b) => a?.id === b?.id && accountInfoEqual(a, b)),
       shareReplay({ bufferSize: 1, refCount: false }),
     );

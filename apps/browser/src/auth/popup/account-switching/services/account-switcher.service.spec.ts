@@ -1,7 +1,11 @@
 import { matches, mock } from "jest-mock-extended";
 import { BehaviorSubject, ReplaySubject, firstValueFrom, of, timeout } from "rxjs";
 
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  Account,
+  AccountInfo,
+  AccountService,
+} from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -14,7 +18,7 @@ import { AccountSwitcherService } from "./account-switcher.service";
 
 describe("AccountSwitcherService", () => {
   let accountsSubject: BehaviorSubject<Record<UserId, AccountInfo>>;
-  let activeAccountSubject: BehaviorSubject<{ id: UserId } & AccountInfo>;
+  let activeAccountSubject: BehaviorSubject<Account | null>;
   let authStatusSubject: ReplaySubject<Record<UserId, AuthenticationStatus>>;
 
   const accountService = mock<AccountService>();
@@ -29,7 +33,7 @@ describe("AccountSwitcherService", () => {
   beforeEach(() => {
     jest.resetAllMocks();
     accountsSubject = new BehaviorSubject<Record<UserId, AccountInfo>>(null);
-    activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(null);
+    activeAccountSubject = new BehaviorSubject<Account | null>(null);
     authStatusSubject = new ReplaySubject<Record<UserId, AuthenticationStatus>>(1);
 
     // Use subject to allow for easy updates

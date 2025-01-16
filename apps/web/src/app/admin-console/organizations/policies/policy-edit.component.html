@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit" [appApiAction]="formPromise">
+<form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog [loading]="loading" [title]="'editPolicy' | i18n" [subtitle]="policy.name | i18n">
     <ng-container bitDialogContent>
       <div *ngIf="loading">
@@ -15,7 +15,13 @@
       </div>
     </ng-container>
     <ng-container bitDialogFooter>
-      <button bitButton buttonType="primary" bitFormButton type="submit">
+      <button
+        bitButton
+        buttonType="primary"
+        [disabled]="saveDisabled$ | async"
+        bitFormButton
+        type="submit"
+      >
         {{ "save" | i18n }}
       </button>
       <button bitButton buttonType="secondary" bitDialogClose type="button">

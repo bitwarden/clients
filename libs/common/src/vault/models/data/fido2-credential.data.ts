@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Fido2CredentialApi } from "../api/fido2-credential.api";
 
 export class Fido2CredentialData {

@@ -26,7 +26,7 @@ export const OnePuxExampleFile: ExportData = {
               favIndex: 1,
               createdAt: 1614298956,
               updatedAt: 1635346445,
-              trashed: false,
+              state: "active",
               categoryUuid: "001",
               details: {
                 loginFields: [
@@ -50,7 +50,6 @@ export const OnePuxExampleFile: ExportData = {
                         value: {
                           concealed: "12345",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

@@ -1,15 +1,18 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule, NgClass } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { concatMap, map } from "rxjs";
 
+import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import {
   CardComponent,
   FormFieldModule,
@@ -68,6 +71,9 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   protected showCollectionsControl: boolean;
 
+  /** The email address associated with the active account */
+  protected userEmail$ = this.accountService.activeAccount$.pipe(map((account) => account.email));
+
   @Input({ required: true })
   config: CipherFormConfig;
 
@@ -96,11 +102,23 @@ export class ItemDetailsSectionComponent implements OnInit {
     return this.config.initialValues;
   }
 
+  /**
+   * Show the personal ownership option in the Owner dropdown when:
+   * - Personal ownership is allowed
+   * - The `organizationId` control is disabled. This avoids the scenario
+   * where a the dropdown is empty because the user personally owns the cipher
+   * but cannot edit the ownership.
+   */
+  get showPersonalOwnerOption() {
+    return this.allowPersonalOwnership || !this.itemDetailsForm.controls.organizationId.enabled;
+  }
+
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private destroyRef: DestroyRef,
+    private accountService: AccountService,
   ) {
     this.cipherFormContainer.registerChildForm("itemDetails", this.itemDetailsForm);
     this.itemDetailsForm.valueChanges
@@ -147,9 +165,13 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get showOwnership() {
-    return (
-      this.allowOwnershipChange || (this.organizations.length > 0 && this.config.mode === "edit")
-    );
+    // Show ownership field when editing with available orgs
+    const isEditingWithOrgs = this.organizations.length > 0 && this.config.mode === "edit";
+
+    // When in admin console, ownership should not be shown unless cloning
+    const isAdminConsoleEdit = this.config.isAdminConsole && this.config.mode !== "clone";
+
+    return this.allowOwnershipChange || (isEditingWithOrgs && !isAdminConsoleEdit);
   }
 
   get defaultOwner() {
@@ -220,7 +242,11 @@ export class ItemDetailsSectionComponent implements OnInit {
     } else if (this.config.mode === "edit") {
       this.readOnlyCollections = this.collections
         .filter(
-          (c) => c.readOnly && this.originalCipherView.collectionIds.includes(c.id as CollectionId),
+          // When the configuration is set up for admins, they can alter read only collections
+          (c) =>
+            c.readOnly &&
+            !this.config.admin &&
+            this.originalCipherView.collectionIds.includes(c.id as CollectionId),
         )
         .map((c) => c.name);
     }
@@ -242,12 +268,30 @@ export class ItemDetailsSectionComponent implements OnInit {
       collectionsControl.disable();
       this.showCollectionsControl = false;
       return;
+    } else {
+      collectionsControl.enable();
+      this.showCollectionsControl = true;
     }
 
     this.collectionOptions = this.collections
       .filter((c) => {
-        // If partial edit mode, show all org collections because the control is disabled.
-        return c.organizationId === orgId && (this.partialEdit || !c.readOnly);
+        // The collection belongs to the organization
+        if (c.organizationId !== orgId) {
+          return false;
+        }
+
+        // When in partial edit mode, show all org collections because the control is disabled.
+        if (this.partialEdit) {
+          return true;
+        }
+
+        // When viewing as an admin, all collections should be shown, even readonly. (AC Only)
+        if (this.config.admin) {
+          return true;
+        }
+
+        // Non-admins can only select assigned collections that are not read only. (Non-AC)
+        return c.assigned && !c.readOnly;
       })
       .map((c) => ({
         id: c.id,

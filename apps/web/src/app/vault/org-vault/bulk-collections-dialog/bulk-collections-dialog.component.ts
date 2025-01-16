@@ -1,17 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { combineLatest, of, Subject, switchMap, takeUntil } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminService,
+  OrganizationUserApiService,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { GroupService, GroupView } from "../../../admin-console/organizations/core";
+import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
 import {
   AccessItemType,
   AccessItemValue,
@@ -23,7 +28,6 @@ import {
   PermissionMode,
 } from "../../../admin-console/organizations/shared/components/access-selector";
 import { SharedModule } from "../../../shared";
-import { CollectionAdminService } from "../../core/collection-admin.service";
 
 export interface BulkCollectionsDialogParams {
   organizationId: string;
@@ -59,7 +63,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     private dialogRef: DialogRef<BulkCollectionsDialogResult>,
     private formBuilder: FormBuilder,
     private organizationService: OrganizationService,
-    private groupService: GroupService,
+    private groupService: GroupApiService,
     private organizationUserApiService: OrganizationUserApiService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
@@ -80,7 +84,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     combineLatest([
       organization$,
       groups$,
-      this.organizationUserApiService.getAllUsers(this.params.organizationId),
+      this.organizationUserApiService.getAllMiniUserDetails(this.params.organizationId),
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([organization, groups, users]) => {

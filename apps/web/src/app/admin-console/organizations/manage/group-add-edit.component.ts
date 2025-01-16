@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
@@ -14,7 +16,11 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminService,
+  CollectionAdminView,
+  OrganizationUserApiService,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -26,9 +32,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { CollectionAdminService } from "../../../vault/core/collection-admin.service";
-import { CollectionAdminView } from "../../../vault/core/views/collection-admin.view";
-import { InternalGroupService as GroupService, GroupView } from "../core";
+import { InternalGroupApiService as GroupService } from "../core";
 import {
   AccessItemType,
   AccessItemValue,
@@ -37,6 +41,8 @@ import {
   convertToSelectionView,
   PermissionMode,
 } from "../shared/components/access-selector";
+
+import { AddEditGroupDetail } from "./../core/views/add-edit-group-detail";
 
 /**
  * Indices for the available tabs in the dialog
@@ -103,7 +109,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
   title: string;
   collections: AccessItemView[] = [];
   members: Array<AccessItemView & { userId: UserId }> = [];
-  group: GroupView;
+  group: AddEditGroupDetail;
 
   groupForm = this.formBuilder.group({
     name: ["", [Validators.required, Validators.maxLength(100)]],
@@ -131,7 +137,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
   );
 
   private get orgMembers$(): Observable<Array<AccessItemView & { userId: UserId }>> {
-    return from(this.organizationUserApiService.getAllUsers(this.organizationId)).pipe(
+    return from(this.organizationUserApiService.getAllMiniUserDetails(this.organizationId)).pipe(
       map((response) =>
         response.data.map((m) => ({
           id: m.id,
@@ -147,7 +153,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     );
   }
 
-  private groupDetails$: Observable<GroupView | undefined> = of(this.editMode).pipe(
+  private groupDetails$: Observable<AddEditGroupDetail | undefined> = of(this.editMode).pipe(
     concatMap((editMode) => {
       if (!editMode) {
         return of(undefined);
@@ -157,9 +163,11 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
         this.groupService.get(this.organizationId, this.groupId),
         this.apiService.getGroupUsers(this.organizationId, this.groupId),
       ]).pipe(
-        map(([groupView, users]) => {
-          groupView.members = users;
-          return groupView;
+        map(([groupView, users]): AddEditGroupDetail => {
+          return {
+            ...groupView,
+            members: users,
+          };
         }),
         catchError((e: unknown) => {
           if (e instanceof ErrorResponse) {
@@ -293,14 +301,16 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const groupView = new GroupView();
-    groupView.id = this.groupId;
-    groupView.organizationId = this.organizationId;
-
     const formValue = this.groupForm.value;
-    groupView.name = formValue.name;
-    groupView.members = formValue.members?.map((m) => m.id) ?? [];
-    groupView.collections = formValue.collections.map((c) => convertToSelectionView(c));
+
+    const groupView: AddEditGroupDetail = {
+      id: this.groupId,
+      organizationId: this.organizationId,
+      name: formValue.name,
+      members: formValue.members?.map((m) => m.id) ?? [],
+      collections: formValue.collections.map((c) => convertToSelectionView(c)),
+      externalId: formValue.externalId,
+    };
 
     await this.groupService.save(groupView);
 
@@ -344,7 +354,10 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
 /**
  * Maps the group's current collection access to AccessItemValues to populate the access-selector's FormControl
  */
-function mapToAccessSelections(group: GroupView, items: AccessItemView[]): AccessItemValue[] {
+function mapToAccessSelections(
+  group: AddEditGroupDetail,
+  items: AccessItemView[],
+): AccessItemValue[] {
   return (
     group.collections
       // The FormControl value only represents editable collection access - exclude readonly access selections
@@ -363,7 +376,7 @@ function mapToAccessSelections(group: GroupView, items: AccessItemView[]): Acces
 function mapToAccessItemViews(
   collections: CollectionAdminView[],
   organization: Organization,
-  group?: GroupView,
+  group?: AddEditGroupDetail,
 ): AccessItemView[] {
   return (
     collections

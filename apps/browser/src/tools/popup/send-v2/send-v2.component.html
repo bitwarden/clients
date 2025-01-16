@@ -1,12 +1,20 @@
-<popup-page>
+<popup-page [loading]="sendsLoading$ | async">
   <popup-header slot="header" [pageTitle]="'send' | i18n">
     <ng-container slot="end">
-      <tools-new-send-dropdown></tools-new-send-dropdown>
-
+      <tools-new-send-dropdown *ngIf="!sendsDisabled"></tools-new-send-dropdown>
       <app-pop-out></app-pop-out>
       <app-current-account></app-current-account>
     </ng-container>
   </popup-header>
+  <ng-container slot="above-scroll-area" *ngIf="!(sendsLoading$ | async)">
+    <bit-callout *ngIf="sendsDisabled" [title]="'sendDisabled' | i18n">
+      {{ "sendDisabledWarning" | i18n }}
+    </bit-callout>
+    <ng-container *ngIf="listState !== sendState.Empty">
+      <tools-send-search></tools-send-search>
+      <app-send-list-filters></app-send-list-filters>
+    </ng-container>
+  </ng-container>
 
   <div
     *ngIf="listState === sendState.Empty"
@@ -15,7 +23,11 @@
     <bit-no-items [icon]="noItemIcon" class="tw-text-main">
       <ng-container slot="title">{{ "sendsNoItemsTitle" | i18n }}</ng-container>
       <ng-container slot="description">{{ "sendsNoItemsMessage" | i18n }}</ng-container>
-      <tools-new-send-dropdown slot="button"></tools-new-send-dropdown>
+      <tools-new-send-dropdown
+        [hideIcon]="true"
+        *ngIf="!sendsDisabled"
+        slot="button"
+      ></tools-new-send-dropdown>
     </bit-no-items>
   </div>
 
@@ -31,9 +43,4 @@
     </div>
     <app-send-list-items-container [headerText]="title | i18n" [sends]="sends$ | async" />
   </ng-container>
-
-  <div slot="above-scroll-area" class="tw-p-4" *ngIf="listState !== sendState.Empty">
-    <tools-send-search></tools-send-search>
-    <app-send-list-filters></app-send-list-filters>
-  </div>
 </popup-page>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import MainBackground from "../../background/main.background";
@@ -92,7 +94,7 @@ export default class TabsBackground {
       FeatureFlag.InlineMenuPositioningImprovements,
     );
     const removePageDetailsStatus = new Set(["loading", "unloaded"]);
-    if (!!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {
+    if (!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {
       this.overlayBackground.removePageDetails(tabId);
     }
 

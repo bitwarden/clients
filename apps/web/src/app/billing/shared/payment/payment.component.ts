@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
@@ -5,15 +7,19 @@ import { Subject, takeUntil } from "rxjs";
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { SharedModule } from "../../../shared";
+
+import { PaymentLabelV2 } from "./payment-label-v2.component";
 
 @Component({
   selector: "app-payment",
   templateUrl: "payment.component.html",
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule, PaymentLabelV2],
 })
 export class PaymentComponent implements OnInit, OnDestroy {
   @Input() showMethods = true;
@@ -63,14 +69,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private logService: LogService,
     private themingService: AbstractThemingService,
+    private configService: ConfigService,
   ) {
     this.stripeScript = window.document.createElement("script");
     this.stripeScript.src = "https://js.stripe.com/v3/?advancedFraudSignals=false";
     this.stripeScript.async = true;
-    this.stripeScript.onload = () => {
+    this.stripeScript.onload = async () => {
       this.stripe = (window as any).Stripe(process.env.STRIPE_KEY);
       this.stripeElements = this.stripe.elements();
-      this.setStripeElement();
+      await this.setStripeElement();
     };
     this.btScript = window.document.createElement("script");
     this.btScript.src = `scripts/dropin.js?cache=${process.env.CACHE_TAG}`;
@@ -79,9 +86,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
       base: {
         color: null,
         fontFamily:
-          '"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
+          '"DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
           '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-        fontSize: "14px",
+        fontSize: "16px",
         fontSmoothing: "antialiased",
         "::placeholder": {
           color: null,
@@ -187,7 +194,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
         );
       }, 250);
     } else {
-      this.setStripeElement();
+      void this.setStripeElement();
     }
   }
 
@@ -267,7 +274,17 @@ export class PaymentComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setStripeElement() {
+  private async setStripeElement() {
+    const extensionRefreshFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
+    );
+
+    // Apply unique styles for extension refresh
+    if (extensionRefreshFlag) {
+      this.StripeElementStyle.base.fontWeight = "500";
+      this.StripeElementClasses.base = "v2";
+    }
+
     window.setTimeout(() => {
       if (this.showMethods && this.method === PaymentMethodType.Card) {
         if (this.stripeCardNumberElement == null) {

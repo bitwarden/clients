@@ -26,7 +26,7 @@ export const RewardsProgramData: ExportData = {
               favIndex: 0,
               createdAt: 1619467659,
               updatedAt: 1619467765,
-              trashed: false,
+              state: "active",
               categoryUuid: "107",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const RewardsProgramData: ExportData = {
                         value: {
                           string: "Super Cool Store Co.",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const RewardsProgramData: ExportData = {
                         value: {
                           string: "Chef Coldroom",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const RewardsProgramData: ExportData = {
                         value: {
                           string: "member-29813569",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         clipboardFilter:
                           "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -91,7 +88,6 @@ export const RewardsProgramData: ExportData = {
                         value: {
                           concealed: "99913",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -113,7 +109,6 @@ export const RewardsProgramData: ExportData = {
                         value: {
                           string: "additional member id",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -129,7 +124,6 @@ export const RewardsProgramData: ExportData = {
                         value: {
                           monthYear: 202101,
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -145,7 +139,6 @@ export const RewardsProgramData: ExportData = {
                         value: {
                           phone: "123456",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -161,7 +154,6 @@ export const RewardsProgramData: ExportData = {
                         value: {
                           phone: "123456",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -177,7 +169,6 @@ export const RewardsProgramData: ExportData = {
                         value: {
                           url: "supercoolstore.com",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

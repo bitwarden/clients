@@ -26,7 +26,7 @@ export const BankAccountData: ExportData = {
               favIndex: 0,
               createdAt: 1619466056,
               updatedAt: 1619466187,
-              trashed: false,
+              state: "active",
               categoryUuid: "101",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           string: "Super Credit Union",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           string: "Cool Guy",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           menu: "checking",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -89,7 +86,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           string: "111000999",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -105,7 +101,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           string: "192837465918273645",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -121,7 +116,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           string: "123456",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -137,7 +131,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           string: "DE12 123456",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -153,7 +146,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           concealed: "5555",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: true,
@@ -175,7 +167,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           phone: "9399399933",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -191,7 +182,6 @@ export const BankAccountData: ExportData = {
                         value: {
                           string: "1 Fifth Avenue",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

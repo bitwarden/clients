@@ -26,7 +26,7 @@ export const DatabaseData: ExportData = {
               favIndex: 0,
               createdAt: 1619466193,
               updatedAt: 1619466276,
-              trashed: false,
+              state: "active",
               categoryUuid: "102",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const DatabaseData: ExportData = {
                         value: {
                           menu: "postgresql",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const DatabaseData: ExportData = {
                         value: {
                           string: "my.secret.db.server",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -73,7 +71,6 @@ export const DatabaseData: ExportData = {
                         value: {
                           string: "1337",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -89,7 +86,6 @@ export const DatabaseData: ExportData = {
                         value: {
                           string: "user_database",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -105,7 +101,6 @@ export const DatabaseData: ExportData = {
                         value: {
                           string: "cooldbuser",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -121,7 +116,6 @@ export const DatabaseData: ExportData = {
                         value: {
                           concealed: "^+kTjhLaN7wVPAhGU)*J",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -137,7 +131,6 @@ export const DatabaseData: ExportData = {
                         value: {
                           string: "ASDIUFU-283234",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -153,7 +146,6 @@ export const DatabaseData: ExportData = {
                         value: {
                           string: "cdbu",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -169,7 +161,6 @@ export const DatabaseData: ExportData = {
                         value: {
                           string: "ssh",
                         },
-                        indexAtSource: 8,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

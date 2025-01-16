@@ -1,14 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { FolderAddEditComponent as BaseFolderAddEditComponent } from "@bitwarden/angular/vault/components/folder-add-edit.component";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 @Component({
   selector: "app-folder-add-edit",
@@ -19,6 +24,8 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
   constructor(
     folderService: FolderService,
     folderApiService: FolderApiServiceAbstraction,
+    protected accountSerivce: AccountService,
+    protected keyService: KeyService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
@@ -31,6 +38,8 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
     super(
       folderService,
       folderApiService,
+      accountSerivce,
+      keyService,
       i18nService,
       platformUtilsService,
       logService,
@@ -38,6 +47,8 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
       formBuilder,
       toastService,
     );
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     params?.folderId ? (this.folderId = params.folderId) : null;
   }
 
@@ -53,7 +64,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
     }
 
     try {
-      await this.folderApiService.delete(this.folder.id);
+      await this.folderApiService.delete(this.folder.id, await firstValueFrom(this.activeUserId$));
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -74,8 +85,10 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
     }
 
     try {
-      const folder = await this.folderService.encrypt(this.folder);
-      this.formPromise = this.folderApiService.save(folder);
+      const activeAccountId = await firstValueFrom(this.activeUserId$);
+      const userKey = await this.keyService.getUserKeyWithLegacySupport(activeAccountId);
+      const folder = await this.folderService.encrypt(this.folder, userKey);
+      this.formPromise = this.folderApiService.save(folder, activeAccountId);
       await this.formPromise;
       this.toastService.showToast({
         variant: "success",

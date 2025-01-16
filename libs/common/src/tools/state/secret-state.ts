@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, map, concatMap, share, ReplaySubject, timer, combineLatest, of } from "rxjs";
 
 import { EncString } from "../../platform/models/domain/enc-string";
@@ -8,10 +10,10 @@ import {
   CombinedState,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 
 import { ClassifiedFormat } from "./classified-format";
 import { SecretKeyDefinition } from "./secret-key-definition";
-import { UserEncryptor } from "./user-encryptor.abstraction";
 
 const ONE_MINUTE = 1000 * 60;
 

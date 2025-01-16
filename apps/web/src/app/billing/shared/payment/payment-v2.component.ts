@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Subject } from "rxjs";
@@ -10,6 +12,8 @@ import { TokenizedPaymentSourceRequest } from "@bitwarden/common/billing/models/
 import { SharedModule } from "../../../shared";
 import { BillingServicesModule, BraintreeService, StripeService } from "../../services";
 
+import { PaymentLabelV2 } from "./payment-label-v2.component";
+
 /**
  * Render a form that allows the user to enter their payment method, tokenize it against one of our payment providers and,
  * optionally, submit it using the {@link onSubmit} function if it is provided.
@@ -20,7 +24,7 @@ import { BillingServicesModule, BraintreeService, StripeService } from "../../se
   selector: "app-payment-v2",
   templateUrl: "./payment-v2.component.html",
   standalone: true,
-  imports: [BillingServicesModule, SharedModule],
+  imports: [BillingServicesModule, SharedModule, PaymentLabelV2],
 })
 export class PaymentV2Component implements OnInit, OnDestroy {
   /** Show account credit as a payment option. */
@@ -86,12 +90,12 @@ export class PaymentV2Component implements OnInit, OnDestroy {
 
   /** Programmatically select the provided payment method. */
   select = (paymentMethod: PaymentMethodType) => {
-    this.formGroup.value.paymentMethod = paymentMethod;
+    this.formGroup.get("paymentMethod").patchValue(paymentMethod);
   };
 
   protected submit = async () => {
     const { type, token } = await this.tokenize();
-    await this.onSubmit({ type, token });
+    await this.onSubmit?.({ type, token });
     this.submitted.emit(type);
   };
 

@@ -1,16 +1,16 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { map, Observable, ReplaySubject, Subject } from "rxjs";
 
+import { CollectionAdminView, CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
-import { CollectionAdminView } from "../../../vault/core/views/collection-admin.view";
 import { VaultFilterService as BaseVaultFilterService } from "../../individual-vault/vault-filter/services/vault-filter.service";
 import { CollectionFilter } from "../../individual-vault/vault-filter/shared/models/vault-filter.type";
 
@@ -33,6 +33,7 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
     i18nService: I18nService,
     stateProvider: StateProvider,
     collectionService: CollectionService,
+    accountService: AccountService,
   ) {
     super(
       organizationService,
@@ -42,6 +43,7 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
       i18nService,
       stateProvider,
       collectionService,
+      accountService,
     );
   }
 

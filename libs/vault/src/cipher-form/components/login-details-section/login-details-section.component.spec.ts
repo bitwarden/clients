@@ -1,14 +1,22 @@
 import { DatePipe } from "@angular/common";
 import { Component } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { EventType } from "@bitwarden/common/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
+import { BitPasswordInputToggleDirective } from "@bitwarden/components/src/form-field/password-input-toggle.directive";
 
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
@@ -34,6 +42,9 @@ describe("LoginDetailsSectionComponent", () => {
   let toastService: MockProxy<ToastService>;
   let totpCaptureService: MockProxy<TotpCaptureService>;
   let i18nService: MockProxy<I18nService>;
+  let configService: MockProxy<ConfigService>;
+
+  const collect = jest.fn().mockResolvedValue(null);
 
   beforeEach(async () => {
     cipherFormContainer = mock<CipherFormContainer>();
@@ -43,6 +54,8 @@ describe("LoginDetailsSectionComponent", () => {
     toastService = mock<ToastService>();
     totpCaptureService = mock<TotpCaptureService>();
     i18nService = mock<I18nService>();
+    configService = mock<ConfigService>();
+    collect.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [LoginDetailsSectionComponent],
@@ -53,6 +66,8 @@ describe("LoginDetailsSectionComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: TotpCaptureService, useValue: totpCaptureService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: configService },
+        { provide: EventCollectionService, useValue: { collect } },
       ],
     })
       .overrideComponent(LoginDetailsSectionComponent, {
@@ -255,6 +270,32 @@ describe("LoginDetailsSectionComponent", () => {
       expect(getTogglePasswordVisibilityBtn()).toBeNull();
     });
 
+    it("logs password viewed event when toggledChange is true", async () => {
+      cipherFormContainer.config.mode = "edit";
+      cipherFormContainer.config.originalCipher = {
+        id: "111-222-333",
+        organizationId: "333-444-555",
+      } as Cipher;
+      jest.spyOn(component, "viewHiddenFields", "get").mockReturnValue(true);
+      fixture.detectChanges();
+
+      const passwordToggle = fixture.debugElement.query(
+        By.directive(BitPasswordInputToggleDirective),
+      );
+      await passwordToggle.triggerEventHandler("toggledChange", true);
+
+      expect(collect).toHaveBeenCalledWith(
+        EventType.Cipher_ClientToggledPasswordVisible,
+        "111-222-333",
+        false,
+        "333-444-555",
+      );
+
+      await passwordToggle.triggerEventHandler("toggledChange", false);
+
+      expect(collect).toHaveBeenCalledTimes(1);
+    });
+
     describe("password generation", () => {
       it("should show generate password button when editable", () => {
         expect(getGeneratePasswordBtn()).not.toBeNull();
@@ -395,6 +436,7 @@ describe("LoginDetailsSectionComponent", () => {
     });
 
     it("should call captureTotp when the capture totp button is clicked", fakeAsync(() => {
+      jest.spyOn(component, "canCaptureTotp", "get").mockReturnValue(true);
       component.captureTotp = jest.fn();
       fixture.detectChanges();
 
@@ -406,7 +448,8 @@ describe("LoginDetailsSectionComponent", () => {
     }));
 
     describe("canCaptureTotp", () => {
-      it("should return true when totpCaptureService is present and totp is editable", () => {
+      it("should return true when totpCaptureService is present and totpCaptureService.canCaptureTotp is true and totp is editable", () => {
+        jest.spyOn(component, "canCaptureTotp", "get").mockReturnValue(true);
         component.loginDetailsForm.controls.totp.enable();
         expect(component.canCaptureTotp).toBe(true);
       });

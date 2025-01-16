@@ -1,5 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import { coerceNumberProperty } from "@angular/cdk/coercion";
+import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   AfterContentInit,
@@ -15,8 +18,11 @@ import {
 } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 
+import { TabHeaderComponent } from "../shared/tab-header.component";
+import { TabListContainerDirective } from "../shared/tab-list-container.directive";
 import { TabListItemDirective } from "../shared/tab-list-item.directive";
 
+import { TabBodyComponent } from "./tab-body.component";
 import { TabComponent } from "./tab.component";
 
 /** Used to generate unique ID's for each tab component */
@@ -25,6 +31,14 @@ let nextId = 0;
 @Component({
   selector: "bit-tab-group",
   templateUrl: "./tab-group.component.html",
+  standalone: true,
+  imports: [
+    CommonModule,
+    TabHeaderComponent,
+    TabListContainerDirective,
+    TabListItemDirective,
+    TabBodyComponent,
+  ],
 })
 export class TabGroupComponent
   implements AfterContentChecked, AfterContentInit, AfterViewInit, OnDestroy

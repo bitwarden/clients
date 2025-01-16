@@ -1,10 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { randomBytes } from "crypto";
 
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { RotateableKeySet } from "@bitwarden/auth/common";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { WebAuthnLoginPrfCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-crypto.service.abstraction";
+import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -24,7 +26,7 @@ describe("WebauthnAdminService", () => {
   let apiService!: MockProxy<WebAuthnLoginAdminApiService>;
   let userVerificationService!: MockProxy<UserVerificationService>;
   let rotateableKeySetService!: MockProxy<RotateableKeySetService>;
-  let webAuthnLoginPrfCryptoService!: MockProxy<WebAuthnLoginPrfCryptoServiceAbstraction>;
+  let webAuthnLoginPrfKeyService!: MockProxy<WebAuthnLoginPrfKeyServiceAbstraction>;
   let credentials: MockProxy<CredentialsContainer>;
   let service!: WebauthnLoginAdminService;
 
@@ -38,13 +40,13 @@ describe("WebauthnAdminService", () => {
     apiService = mock<WebAuthnLoginAdminApiService>();
     userVerificationService = mock<UserVerificationService>();
     rotateableKeySetService = mock<RotateableKeySetService>();
-    webAuthnLoginPrfCryptoService = mock<WebAuthnLoginPrfCryptoServiceAbstraction>();
+    webAuthnLoginPrfKeyService = mock<WebAuthnLoginPrfKeyServiceAbstraction>();
     credentials = mock<CredentialsContainer>();
     service = new WebauthnLoginAdminService(
       apiService,
       userVerificationService,
       rotateableKeySetService,
-      webAuthnLoginPrfCryptoService,
+      webAuthnLoginPrfKeyService,
       credentials,
     );
 

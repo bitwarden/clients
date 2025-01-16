@@ -26,8 +26,10 @@
   </div>
   <ng-container *ngIf="showMethods && method === paymentMethodType.Card">
     <div class="tw-grid tw-grid-cols-12 tw-gap-4 tw-mb-4">
-      <div [ngClass]="trialFlow ? 'tw-col-span-5' : 'tw-col-span-4'">
-        <label for="stripe-card-number-element">{{ "number" | i18n }}</label>
+      <div [ngClass]="trialFlow ? 'tw-col-span-12' : 'tw-col-span-6'">
+        <app-payment-label-v2 for="stripe-card-number-element">{{
+          "number" | i18n
+        }}</app-payment-label-v2>
         <div id="stripe-card-number-element" class="form-control stripe-form-control"></div>
       </div>
       <div *ngIf="!trialFlow" class="tw-col-span-8 tw-flex tw-items-end">
@@ -38,26 +40,26 @@
           height="32"
         />
       </div>
-      <div [ngClass]="trialFlow ? 'tw-col-span-3' : 'tw-col-span-4'">
-        <label for="stripe-card-expiry-element">{{ "expiration" | i18n }}</label>
+      <div [ngClass]="trialFlow ? 'tw-col-span-6' : 'tw-col-span-6'">
+        <app-payment-label-v2 for="stripe-card-expiry-element">{{
+          "expiration" | i18n
+        }}</app-payment-label-v2>
         <div id="stripe-card-expiry-element" class="form-control stripe-form-control"></div>
       </div>
-      <div class="tw-col-span-4">
-        <div class="tw-flex">
-          <label for="stripe-card-cvc-element">
-            {{ "securityCode" | i18n }}
-          </label>
+      <div [ngClass]="trialFlow ? 'tw-col-span-6' : 'tw-col-span-6'">
+        <app-payment-label-v2 for="stripe-card-cvc-element">
+          {{ "securityCodeSlashCVV" | i18n }}
           <a
             href="https://www.cvvnumber.com/cvv.html"
             tabindex="-1"
             target="_blank"
             rel="noreferrer"
-            class="ml-auto"
-            appA11yTitle="{{ 'learnMore' | i18n }}"
+            class="hover:tw-no-underline"
+            appA11yTitle="{{ 'whatIsACvvNumber' | i18n }}"
           >
             <i class="bwi bwi-question-circle" aria-hidden="true"></i>
           </a>
-        </div>
+        </app-payment-label-v2>
         <div id="stripe-card-cvc-element" class="form-control stripe-form-control"></div>
       </div>
     </div>

@@ -7,32 +7,38 @@
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 <ng-container *ngIf="createOrganization && selfHosted">
-  <p bitTypography="body1">{{ "uploadLicenseFileOrg" | i18n }}</p>
-  <form [formGroup]="selfHostedForm" [bitSubmit]="submit">
-    <bit-form-field>
-      <bit-label>{{ "licenseFile" | i18n }}</bit-label>
-      <div>
-        <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
-          {{ "chooseFile" | i18n }}
-        </button>
-        {{ selectedFile?.name ?? ("noFileChosen" | i18n) }}
-      </div>
-      <input
-        #fileSelector
-        bitInput
-        type="file"
-        formControlName="file"
-        (change)="setSelectedFile($event)"
-        accept="application/JSON"
-        hidden
-        class="tw-hidden"
-      />
-      <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_organization_license.json" }}</bit-hint>
-    </bit-form-field>
-    <button type="submit" bitButton bitFormButton buttonType="primary">
-      {{ "submit" | i18n }}
-    </button>
-  </form>
+  <ng-container *ngIf="!(useLicenseUploaderComponent$ | async)">
+    <p bitTypography="body1">{{ "uploadLicenseFileOrg" | i18n }}</p>
+    <form [formGroup]="selfHostedForm" [bitSubmit]="submit">
+      <bit-form-field>
+        <bit-label>{{ "licenseFile" | i18n }}</bit-label>
+        <div class="tw-pt-2 tw-pb-1">
+          <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+            {{ "chooseFile" | i18n }}
+          </button>
+          {{ selectedFile?.name ?? ("noFileChosen" | i18n) }}
+        </div>
+        <input
+          #fileSelector
+          bitInput
+          type="file"
+          formControlName="file"
+          (change)="setSelectedFile($event)"
+          accept="application/JSON"
+          hidden
+          class="tw-hidden"
+        />
+        <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_organization_license.json" }}</bit-hint>
+      </bit-form-field>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "submit" | i18n }}
+      </button>
+    </form>
+  </ng-container>
+  <organization-self-hosting-license-uploader
+    *ngIf="useLicenseUploaderComponent$ | async"
+    (onLicenseFileUploaded)="onLicenseFileUploaded($event)"
+  />
 </ng-container>
 <form
   [formGroup]="formGroup"
@@ -40,7 +46,7 @@
   *ngIf="!loading && !selfHosted && this.passwordManagerPlans && this.secretsManagerPlans"
   class="tw-pt-6"
 >
-  <bit-section>
+  <bit-section [ngClass]="{ 'tw-hidden': !createOrganization }">
     <app-org-info
       (changedBusinessOwned)="changedOwnedBusiness()"
       [formGroup]="formGroup"
@@ -329,7 +335,7 @@
                   >{{ "additionalUsers" | i18n }}:</span
                 >
                 <span *ngIf="!selectablePlan.PasswordManager.baseSeats">{{ "users" | i18n }}:</span>
-                {{ formGroup.controls["additionalSeats"].value || 0 }} &times;
+                {{ formGroup.controls.additionalSeats.value || 0 }} &times;
                 {{
                   (selectablePlan.isAnnual
                     ? selectablePlan.PasswordManager.seatPrice / 12
@@ -349,7 +355,7 @@
                 *ngIf="selectablePlan.PasswordManager.hasAdditionalStorageOption"
               >
                 {{ "additionalStorageGb" | i18n }}:
-                {{ formGroup.controls["additionalStorage"].value || 0 }} &times;
+                {{ formGroup.controls.additionalStorage.value || 0 }} &times;
                 {{
                   (selectablePlan.isAnnual
                     ? selectablePlan.PasswordManager.additionalStoragePricePerGb / 12
@@ -382,7 +388,7 @@
                   >{{ "additionalUsers" | i18n }}:</span
                 >
                 <span *ngIf="!selectablePlan.PasswordManager.baseSeats">{{ "users" | i18n }}:</span>
-                {{ formGroup.controls["additionalSeats"].value || 0 }} &times;
+                {{ formGroup.controls.additionalSeats.value || 0 }} &times;
                 {{ selectablePlan.PasswordManager.seatPrice | currency: "$" }}
                 {{ "monthAbbr" | i18n }} =
                 {{
@@ -397,7 +403,7 @@
                 *ngIf="selectablePlan.PasswordManager.hasAdditionalStorageOption"
               >
                 {{ "additionalStorageGb" | i18n }}:
-                {{ formGroup.controls["additionalStorage"].value || 0 }} &times;
+                {{ formGroup.controls.additionalStorage.value || 0 }} &times;
                 {{ selectablePlan.PasswordManager.additionalStoragePricePerGb | currency: "$" }}
                 {{ "monthAbbr" | i18n }} =
                 {{ additionalStorageTotal(selectablePlan) | currency: "$" }} /{{ "month" | i18n }}
@@ -434,7 +440,12 @@
     <app-payment-v2
       *ngIf="deprecateStripeSourcesAPI && (createOrganization || upgradeRequiresPaymentMethod)"
     ></app-payment-v2>
-    <app-tax-info (onCountryChanged)="changedCountry()"></app-tax-info>
+    <app-manage-tax-information
+      class="tw-my-4"
+      [showTaxIdField]="showTaxIdField"
+      [startWith]="taxInformation"
+      (taxInformationChanged)="onTaxInformationChanged($event)"
+    />
     <div id="price" class="tw-my-4">
       <div class="tw-text-muted tw-text-base">
         {{ "passwordManagerPlanPrice" | i18n }}: {{ passwordManagerSubtotal | currency: "USD $" }}
@@ -444,7 +455,7 @@
           <br />
         </span>
         <ng-container>
-          {{ "estimatedTax" | i18n }}: {{ taxCharges | currency: "USD $" }}
+          {{ "estimatedTax" | i18n }}: {{ estimatedTax | currency: "USD $" }}
         </ng-container>
       </div>
       <hr class="tw-my-1 tw-grid tw-grid-cols-3 tw-ml-0" />
@@ -483,5 +494,6 @@
     >
       {{ "cancel" | i18n }}
     </button>
+    <bit-error-summary [formGroup]="formGroup"></bit-error-summary>
   </bit-section>
 </form>

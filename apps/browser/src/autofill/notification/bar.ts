@@ -1,4 +1,6 @@
-import { ThemeType } from "@bitwarden/common/platform/enums";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -13,6 +15,8 @@ import {
   NotificationBarIframeInitData,
 } from "./abstractions/notification-bar";
 
+// FIXME: Remove when updating file. Eslint update
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("./bar.scss");
 
 const logService = new ConsoleLogService(false);
@@ -392,10 +396,10 @@ function setupLogoLink(i18n: Record<string, string>) {
 
 function setNotificationBarTheme() {
   let theme = notificationBarIframeInitData.theme;
-  if (theme === ThemeType.System) {
+  if (theme === ThemeTypes.System) {
     theme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
-      ? ThemeType.Dark
-      : ThemeType.Light;
+      ? ThemeTypes.Dark
+      : ThemeTypes.Light;
   }
 
   document.documentElement.classList.add(`theme_${theme}`);

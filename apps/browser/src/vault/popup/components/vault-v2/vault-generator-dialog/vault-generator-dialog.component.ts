@@ -1,4 +1,5 @@
-import { animate, group, style, transition, trigger } from "@angular/animations";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Overlay } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
@@ -26,16 +27,6 @@ export enum GeneratorDialogAction {
   Canceled = "canceled",
 }
 
-const slideIn = trigger("slideIn", [
-  transition(":enter", [
-    style({ opacity: 0, transform: "translateY(100vh)" }),
-    group([
-      animate("0.15s linear", style({ opacity: 1 })),
-      animate("0.3s ease-out", style({ transform: "none" })),
-    ]),
-  ]),
-]);
-
 @Component({
   selector: "app-vault-generator-dialog",
   templateUrl: "./vault-generator-dialog.component.html",
@@ -48,7 +39,6 @@ const slideIn = trigger("slideIn", [
     CipherFormGeneratorComponent,
     ButtonModule,
   ],
-  animations: [slideIn],
 })
 export class VaultGeneratorDialogComponent {
   protected title = this.i18nService.t(this.isPassword ? "passwordGenerator" : "usernameGenerator");

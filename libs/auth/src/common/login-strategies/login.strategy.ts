@@ -1,16 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BehaviorSubject, filter, firstValueFrom, timeout } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { Argon2KdfConfig, PBKDF2KdfConfig } from "@bitwarden/common/auth/models/domain/kdf-config";
 import { DeviceRequest } from "@bitwarden/common/auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
@@ -25,14 +25,20 @@ import { ClientType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KdfType } from "@bitwarden/common/platform/enums";
 import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
 import { UserId } from "@bitwarden/common/types/guid";
+import {
+  KeyService,
+  Argon2KdfConfig,
+  PBKDF2KdfConfig,
+  KdfConfigService,
+  KdfType,
+} from "@bitwarden/key-management";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import {
@@ -65,7 +71,8 @@ export abstract class LoginStrategy {
   constructor(
     protected accountService: AccountService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
+    protected encryptService: EncryptService,
     protected apiService: ApiService,
     protected tokenService: TokenService,
     protected appIdService: AppIdService,
@@ -282,8 +289,8 @@ export abstract class LoginStrategy {
 
   protected async createKeyPairForOldAccount(userId: UserId) {
     try {
-      const userKey = await this.cryptoService.getUserKeyWithLegacySupport(userId);
-      const [publicKey, privateKey] = await this.cryptoService.makeKeyPair(userKey);
+      const userKey = await this.keyService.getUserKeyWithLegacySupport(userId);
+      const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
       await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
       return privateKey.encryptedString;
     } catch (e) {

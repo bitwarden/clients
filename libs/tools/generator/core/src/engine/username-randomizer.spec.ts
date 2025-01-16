@@ -102,4 +102,27 @@ describe("UsernameRandomizer", () => {
       expect(randomizer.pickWord).toHaveBeenNthCalledWith(2, EFFLongWordList, { titleCase: false });
     });
   });
+
+  describe("generate", () => {
+    it("processes username generation options", async () => {
+      const username = new UsernameRandomizer(randomizer);
+
+      const result = await username.generate(
+        {},
+        {
+          wordIncludeNumber: true,
+        },
+      );
+
+      expect(result.category).toEqual("username");
+    });
+
+    it("throws when it cannot recognize the options type", async () => {
+      const username = new UsernameRandomizer(randomizer);
+
+      const result = username.generate({}, {});
+
+      await expect(result).rejects.toBeInstanceOf(Error);
+    });
+  });
 });

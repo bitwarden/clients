@@ -4,19 +4,14 @@ import {
   OrganizationUserApiService,
   OrganizationUserInviteRequest,
   OrganizationUserUpdateRequest,
-  OrganizationUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { CoreOrganizationModule } from "../core-organization.module";
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
 
 @Injectable({ providedIn: CoreOrganizationModule })
 export class UserAdminService {
-  constructor(
-    private configService: ConfigService,
-    private organizationUserApiService: OrganizationUserApiService,
-  ) {}
+  constructor(private organizationUserApiService: OrganizationUserApiService) {}
 
   async get(
     organizationId: string,
@@ -34,9 +29,7 @@ export class UserAdminService {
       return undefined;
     }
 
-    const [view] = await this.decryptMany(organizationId, [userResponse]);
-
-    return view;
+    return OrganizationUserAdminView.fromResponse(organizationId, userResponse);
   }
 
   async save(user: OrganizationUserAdminView): Promise<void> {
@@ -64,36 +57,5 @@ export class UserAdminService {
     request.accessSecretsManager = user.accessSecretsManager;
 
     await this.organizationUserApiService.postOrganizationUserInvite(user.organizationId, request);
-  }
-
-  private async decryptMany(
-    organizationId: string,
-    users: OrganizationUserDetailsResponse[],
-  ): Promise<OrganizationUserAdminView[]> {
-    const promises = users.map(async (u) => {
-      const view = new OrganizationUserAdminView();
-
-      view.id = u.id;
-      view.organizationId = organizationId;
-      view.userId = u.userId;
-      view.type = u.type;
-      view.status = u.status;
-      view.externalId = u.externalId;
-      view.permissions = u.permissions;
-      view.resetPasswordEnrolled = u.resetPasswordEnrolled;
-      view.collections = u.collections.map((c) => ({
-        id: c.id,
-        hidePasswords: c.hidePasswords,
-        readOnly: c.readOnly,
-        manage: c.manage,
-      }));
-      view.groups = u.groups;
-      view.accessSecretsManager = u.accessSecretsManager;
-      view.hasMasterPassword = u.hasMasterPassword;
-
-      return view;
-    });
-
-    return await Promise.all(promises);
   }
 }

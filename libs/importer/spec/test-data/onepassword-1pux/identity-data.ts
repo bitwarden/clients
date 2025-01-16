@@ -26,7 +26,7 @@ export const IdentityData: ExportData = {
               favIndex: 0,
               createdAt: 1619465450,
               updatedAt: 1619465789,
-              trashed: false,
+              state: "active",
               categoryUuid: "004",
               details: {
                 loginFields: [],
@@ -42,7 +42,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "George",
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -58,7 +57,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "S",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -74,7 +72,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "Engels",
                         },
-                        indexAtSource: 2,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -90,7 +87,6 @@ export const IdentityData: ExportData = {
                         value: {
                           menu: "male",
                         },
-                        indexAtSource: 3,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -106,7 +102,6 @@ export const IdentityData: ExportData = {
                         value: {
                           date: 347198460,
                         },
-                        indexAtSource: 4,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -122,7 +117,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "Steel Worker",
                         },
-                        indexAtSource: 5,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -138,7 +132,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "Acme Inc.",
                         },
-                        indexAtSource: 6,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -154,7 +147,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "QA",
                         },
-                        indexAtSource: 7,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -170,7 +162,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "Quality Assurance Manager",
                         },
-                        indexAtSource: 8,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -198,7 +189,6 @@ export const IdentityData: ExportData = {
                             state: "California",
                           },
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -214,7 +204,6 @@ export const IdentityData: ExportData = {
                         value: {
                           phone: "4565555555",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -230,7 +219,6 @@ export const IdentityData: ExportData = {
                         value: {
                           phone: "4575555555",
                         },
-                        indexAtSource: 2,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -246,7 +234,6 @@ export const IdentityData: ExportData = {
                         value: {
                           phone: "4585555555",
                         },
-                        indexAtSource: 3,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -262,7 +249,6 @@ export const IdentityData: ExportData = {
                         value: {
                           phone: "4595555555",
                         },
-                        indexAtSource: 4,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -284,7 +270,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "gengels",
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -300,7 +285,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "Who's a super cool guy?",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -316,7 +300,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "Me, buddy.",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -332,7 +315,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "gengels@nullvalue.test",
                         },
-                        indexAtSource: 3,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -348,7 +330,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "cv.gengels.nullvalue.test",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -364,7 +345,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "12345678",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -380,7 +360,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "skypeisbad1619",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -396,7 +375,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "aollol@lololol.aol.com",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -412,7 +390,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "sk8rboi13@yah00.com",
                         },
-                        indexAtSource: 8,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -428,7 +405,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "msnothankyou@msn&m&m.com",
                         },
-                        indexAtSource: 9,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -444,7 +420,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "super cool guy",
                         },
-                        indexAtSource: 10,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

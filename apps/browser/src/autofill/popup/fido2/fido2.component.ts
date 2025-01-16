@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -91,7 +93,6 @@ interface ViewData {
 export class Fido2Component implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private message$ = new BehaviorSubject<BrowserFido2Message>(null);
-  private hasSearched = false;
   protected BrowserFido2MessageTypes = BrowserFido2MessageTypes;
   protected cipher: CipherView;
   protected ciphers?: CipherView[] = [];
@@ -104,6 +105,7 @@ export class Fido2Component implements OnInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
   protected passkeyAction: PasskeyActionValue = PasskeyActions.Register;
   protected PasskeyActions = PasskeyActions;
+  protected hasSearched = false;
   protected searchText: string;
   protected searchTypeSearch = false;
   protected senderTabId?: string;
@@ -287,7 +289,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         const confirmed = await this.dialogService.openSimpleDialog({
           title: { key: "overwritePasskey" },
           content: { key: "overwritePasskeyAlert" },
-          type: "info",
+          type: "warning",
         });
 
         if (!confirmed) {
@@ -370,19 +372,30 @@ export class Fido2Component implements OnInit, OnDestroy {
     return this.equivalentDomains;
   }
 
+  async clearSearch() {
+    this.searchText = "";
+    await this.setDisplayedCiphersToAllDomainMatch();
+  }
+
+  protected async setDisplayedCiphersToAllDomainMatch() {
+    const equivalentDomains = await this.getEquivalentDomains();
+    this.displayedCiphers = this.ciphers.filter((cipher) =>
+      cipher.login.matchesUri(this.url, equivalentDomains),
+    );
+  }
+
   protected async search() {
-    this.hasSearched = await this.searchService.isSearchable(this.searchText);
-    if (this.hasSearched) {
+    this.hasSearched = true;
+    const isSearchable = await this.searchService.isSearchable(this.searchText);
+
+    if (isSearchable) {
       this.displayedCiphers = await this.searchService.searchCiphers(
         this.searchText,
         null,
         this.ciphers,
       );
     } else {
-      const equivalentDomains = await this.getEquivalentDomains();
-      this.displayedCiphers = this.ciphers.filter((cipher) =>
-        cipher.login.matchesUri(this.url, equivalentDomains),
-      );
+      await this.setDisplayedCiphersToAllDomainMatch();
     }
   }
 

@@ -120,7 +120,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       id: "syncVault",
       label: this.localize("syncVault"),
       click: () => this.sendMessage("syncVault"),
-      enabled: !this._isLocked,
+      enabled: this.hasAuthenticatedAccounts,
     };
   }
 

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as http from "http";
 
 import { OptionValues } from "commander";
@@ -17,7 +19,6 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -29,7 +30,6 @@ import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -38,6 +38,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { Response } from "../../models/response";
@@ -61,7 +62,7 @@ export class LoginCommand {
     protected passwordStrengthService: PasswordStrengthServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
     protected accountService: AccountService,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected policyService: PolicyService,
     protected twoFactorService: TwoFactorService,
     protected syncService: SyncService,
@@ -164,6 +165,8 @@ export class LoginCommand {
       if (options.method != null) {
         twoFactorMethod = parseInt(options.method, null);
       }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return Response.error("Invalid two-step login method.");
     }
@@ -239,6 +242,8 @@ export class LoginCommand {
         if (twoFactorMethod != null) {
           try {
             selectedProvider = twoFactorProviders.filter((p) => p.type === twoFactorMethod)[0];
+            // FIXME: Remove when updating file. Eslint update
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (e) {
             return Response.error("Invalid two-step login method.");
           }
@@ -421,7 +426,7 @@ export class LoginCommand {
       );
 
       const request = new PasswordRequest();
-      request.masterPasswordHash = await this.cryptoService.hashMasterKey(currentPassword, null);
+      request.masterPasswordHash = await this.keyService.hashMasterKey(currentPassword, null);
       request.masterPasswordHint = hint;
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;
@@ -570,21 +575,21 @@ export class LoginCommand {
     const kdfConfig = await this.kdfConfigService.getKdfConfig();
 
     // Create new key and hash new password
-    const newMasterKey = await this.cryptoService.makeMasterKey(
+    const newMasterKey = await this.keyService.makeMasterKey(
       masterPassword,
       this.email.trim().toLowerCase(),
       kdfConfig,
     );
-    const newPasswordHash = await this.cryptoService.hashMasterKey(masterPassword, newMasterKey);
+    const newPasswordHash = await this.keyService.hashMasterKey(masterPassword, newMasterKey);
 
     // Grab user key
-    const userKey = await this.cryptoService.getUserKey();
+    const userKey = await this.keyService.getUserKey();
     if (!userKey) {
       throw new Error("User key not found.");
     }
 
     // Re-encrypt user key with new master key
-    const newUserKey = await this.cryptoService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
+    const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
 
     return { newPasswordHash, newUserKey: newUserKey, hint: masterPasswordHint };
   }

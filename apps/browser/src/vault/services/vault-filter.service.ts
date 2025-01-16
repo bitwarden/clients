@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { VaultFilterService as BaseVaultFilterService } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -5,7 +8,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -22,7 +24,7 @@ export class VaultFilterService extends BaseVaultFilterService {
     collectionService: CollectionService,
     policyService: PolicyService,
     stateProvider: StateProvider,
-    private accountService: AccountService,
+    accountService: AccountService,
   ) {
     super(
       organizationService,
@@ -31,6 +33,7 @@ export class VaultFilterService extends BaseVaultFilterService {
       collectionService,
       policyService,
       stateProvider,
+      accountService,
     );
     this.vaultFilter.myVaultOnly = false;
     this.vaultFilter.selectedOrganizationId = null;

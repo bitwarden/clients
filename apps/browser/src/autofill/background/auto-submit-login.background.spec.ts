@@ -42,7 +42,7 @@ describe("AutoSubmitLoginBackground", () => {
   const validIpdUrl1 = "https://example.com";
   const validIpdUrl2 = "https://subdomain.example3.com";
   const validAutoSubmitHost = "some-valid-url.com";
-  const validAutoSubmitUrl = `https://${validAutoSubmitHost}/?autofill=1`;
+  const validAutoSubmitUrl = `https://${validAutoSubmitHost}/#autosubmit=1`;
 
   beforeEach(() => {
     logService = mock<LogService>();
@@ -122,7 +122,7 @@ describe("AutoSubmitLoginBackground", () => {
         await autoSubmitLoginBackground.init();
       });
 
-      it("sets up the auto-submit workflow when the web request occurs in the main frame and the destination URL contains a valid auto-fill param", () => {
+      it("sets up the auto-submit workflow when the web request occurs in the main frame and the destination URL contains a valid auto-fill hash", () => {
         triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
 
         expect(autoSubmitLoginBackground["currentAutoSubmitHostData"]).toStrictEqual({
@@ -226,7 +226,7 @@ describe("AutoSubmitLoginBackground", () => {
 
       it("disables the auto-submit workflow if a web request is initiated after the auto-submit route has been visited", () => {
         webRequestDetails.url = `https://${validAutoSubmitHost}`;
-        webRequestDetails.initiator = `https://${validAutoSubmitHost}?autofill=1`;
+        webRequestDetails.initiator = `https://${validAutoSubmitHost}#autosubmit=1`;
 
         triggerWebRequestOnBeforeRequestEvent(webRequestDetails);
 
@@ -453,12 +453,16 @@ describe("AutoSubmitLoginBackground", () => {
 
         sendMockExtensionMessage({ command: "triggerAutoSubmitLogin" }, sender);
 
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled;
       });
 
       it("skips acting on messages whose command does not have a registered handler", () => {
         sendMockExtensionMessage({ command: "someInvalidCommand" }, sender);
 
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled;
       });
 

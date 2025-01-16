@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { map } from "rxjs";
@@ -24,6 +26,8 @@ export class ProjectsListComponent {
   }
   private _projects: ProjectListView[];
 
+  @Input() showMenus?: boolean = true;
+
   @Input()
   set search(search: string) {
     this.selection.clear();
@@ -33,6 +37,7 @@ export class ProjectsListComponent {
   @Output() editProjectEvent = new EventEmitter<string>();
   @Output() deleteProjectEvent = new EventEmitter<ProjectListView[]>();
   @Output() newProjectEvent = new EventEmitter();
+  @Output() copiedProjectUUIdEvent = new EventEmitter<string>();
 
   selection = new SelectionModel<string>(true, []);
   protected dataSource = new TableDataSource<ProjectListView>();
@@ -89,5 +94,14 @@ export class ProjectsListComponent {
       return true;
     }
     return false;
+  }
+
+  copyProjectUuidToClipboard(id: string) {
+    this.platformUtilsService.copyToClipboard(id);
+    this.platformUtilsService.showToast(
+      "success",
+      null,
+      this.i18nService.t("valueCopied", this.i18nService.t("projectId")),
+    );
   }
 }

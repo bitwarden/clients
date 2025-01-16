@@ -6,9 +6,11 @@
 	<true/>
 	<key>com.apple.security.inherit</key>
 	<true/>
-	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
-	<key>com.apple.security.cs.disable-library-validation</key>
+	<!--
+	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
 	<true/>
+	-->
 </dict>
 </plist>

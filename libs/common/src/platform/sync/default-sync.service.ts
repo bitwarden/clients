@@ -1,7 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+import {
+  CollectionService,
+  CollectionData,
+  CollectionDetailsResponse,
+} from "@bitwarden/admin-console/common";
+
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "../../../../auth/src/common/types";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -29,16 +44,12 @@ import { SendApiService } from "../../tools/send/services/send-api.service.abstr
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
-import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
 import { CipherData } from "../../vault/models/data/cipher.data";
-import { CollectionData } from "../../vault/models/data/collection.data";
 import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
-import { CollectionDetailsResponse } from "../../vault/models/response/collection.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
-import { CryptoService } from "../abstractions/crypto.service";
 import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
@@ -57,7 +68,7 @@ export class DefaultSyncService extends CoreSyncService {
     private domainSettingsService: DomainSettingsService,
     folderService: InternalFolderService,
     cipherService: CipherService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     collectionService: CollectionService,
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
@@ -175,10 +186,10 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key, response.id);
-    await this.cryptoService.setPrivateKey(response.privateKey, response.id);
-    await this.cryptoService.setProviderKeys(response.providers, response.id);
-    await this.cryptoService.setOrgKeys(
+    await this.keyService.setMasterKeyEncryptedUserKey(response.key, response.id);
+    await this.keyService.setPrivateKey(response.privateKey, response.id);
+    await this.keyService.setProviderKeys(response.providers, response.id);
+    await this.keyService.setOrgKeys(
       response.organizations,
       response.providerOrganizations,
       response.id,

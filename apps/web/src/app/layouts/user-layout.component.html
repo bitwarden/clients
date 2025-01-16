@@ -24,11 +24,7 @@
         [text]="'emergencyAccess' | i18n"
         route="settings/emergency-access"
       ></bit-nav-item>
-      <bit-nav-item
-        [text]="'sponsoredFamilies' | i18n"
-        route="settings/sponsored-families"
-        *ngIf="hasFamilySponsorshipAvailable$ | async"
-      ></bit-nav-item>
+      <billing-free-families-nav-item></billing-free-families-nav-item>
     </bit-nav-group>
   </app-side-nav>
 

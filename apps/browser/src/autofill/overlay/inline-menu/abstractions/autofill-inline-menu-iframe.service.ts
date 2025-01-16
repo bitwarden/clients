@@ -3,6 +3,8 @@ export type AutofillInlineMenuIframeExtensionMessage = {
   styles?: Partial<CSSStyleDeclaration>;
   theme?: string;
   portKey?: string;
+  generatedPassword?: string;
+  refreshPassword?: boolean;
 };
 
 export type AutofillInlineMenuIframeExtensionMessageParam = {
@@ -23,6 +25,9 @@ export type BackgroundPortMessageHandlers = {
   }: AutofillInlineMenuIframeExtensionMessageParam) => void;
   updateAutofillInlineMenuColorScheme: () => void;
   fadeInAutofillInlineMenuIframe: () => void;
+  updateAutofillInlineMenuGeneratedPassword: ({
+    message,
+  }: AutofillInlineMenuIframeExtensionMessageParam) => void;
 };
 
 export interface AutofillInlineMenuIframeService {

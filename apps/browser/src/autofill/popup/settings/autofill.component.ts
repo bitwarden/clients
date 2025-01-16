@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -21,10 +23,12 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -45,7 +49,6 @@ import {
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
@@ -63,7 +66,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     JslibModule,
     LinkModule,
     PopOutComponent,
-    PopupFooterComponent,
     PopupHeaderComponent,
     PopupPageComponent,
     RouterModule,
@@ -82,6 +84,8 @@ export class AutofillComponent implements OnInit {
   protected defaultBrowserAutofillDisabled: boolean = false;
   protected inlineMenuVisibility: InlineMenuVisibilitySetting =
     AutofillOverlayVisibility.OnFieldFocus;
+  protected inlineMenuPositioningImprovementsEnabled: boolean = false;
+  protected blockBrowserInjectionsByDomainEnabled: boolean = false;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
   protected disablePasswordManagerURI: DisablePasswordManagerUri =
     DisablePasswordManagerUris.Unknown;
@@ -93,6 +97,8 @@ export class AutofillComponent implements OnInit {
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
   enableInlineMenuOnIconSelect: boolean = false;
+  showInlineMenuIdentities: boolean = true;
+  showInlineMenuCards: boolean = true;
   autofillOnPageLoadDefault: boolean = false;
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
@@ -103,6 +109,7 @@ export class AutofillComponent implements OnInit {
   uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
+  clickItemsVaultView: boolean = false;
   autofillKeyboardHelperText: string;
   accountSwitcherEnabled: boolean = false;
 
@@ -114,6 +121,7 @@ export class AutofillComponent implements OnInit {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private messagingService: MessagingService,
     private vaultSettingsService: VaultSettingsService,
+    private configService: ConfigService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -151,6 +159,22 @@ export class AutofillComponent implements OnInit {
       this.autofillSettingsService.inlineMenuVisibility$,
     );
 
+    this.inlineMenuPositioningImprovementsEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.InlineMenuPositioningImprovements,
+    );
+
+    this.blockBrowserInjectionsByDomainEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.BlockBrowserInjectionsByDomain,
+    );
+
+    this.showInlineMenuIdentities =
+      this.inlineMenuPositioningImprovementsEnabled &&
+      (await firstValueFrom(this.autofillSettingsService.showInlineMenuIdentities$));
+
+    this.showInlineMenuCards =
+      this.inlineMenuPositioningImprovementsEnabled &&
+      (await firstValueFrom(this.autofillSettingsService.showInlineMenuCards$));
+
     this.enableInlineMenuOnIconSelect =
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick;
 
@@ -187,6 +211,10 @@ export class AutofillComponent implements OnInit {
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
     );
+
+    this.clickItemsVaultView = await firstValueFrom(
+      this.vaultSettingsService.clickItemsToAutofillVaultView$,
+    );
   }
 
   async updateInlineMenuVisibility() {
@@ -201,7 +229,11 @@ export class AutofillComponent implements OnInit {
         : AutofillOverlayVisibility.Off;
 
     await this.autofillSettingsService.setInlineMenuVisibility(newInlineMenuVisibilityValue);
-    await this.requestPrivacyPermission();
+
+    // No need to initiate browser permission request if a feature is being turned off
+    if (newInlineMenuVisibilityValue !== AutofillOverlayVisibility.Off) {
+      await this.requestPrivacyPermission();
+    }
   }
 
   async updateAutofillOnPageLoad() {
@@ -380,5 +412,17 @@ export class AutofillComponent implements OnInit {
 
   async updateShowIdentitiesCurrentTab() {
     await this.vaultSettingsService.setShowIdentitiesCurrentTab(this.showIdentitiesCurrentTab);
+  }
+
+  async updateShowInlineMenuCards() {
+    await this.autofillSettingsService.setShowInlineMenuCards(this.showInlineMenuCards);
+  }
+
+  async updateShowInlineMenuIdentities() {
+    await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
+  }
+
+  async updateClickItemsVaultView() {
+    await this.vaultSettingsService.setClickItemsToAutofillVaultView(this.clickItemsVaultView);
   }
 }

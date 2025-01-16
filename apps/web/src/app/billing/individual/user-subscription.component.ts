@@ -1,8 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -35,18 +38,12 @@ import { UpdateLicenseDialogResult } from "../shared/update-license-types";
 export class UserSubscriptionComponent implements OnInit {
   loading = false;
   firstLoaded = false;
-  adjustStorageAdd = true;
-  showUpdateLicense = false;
   sub: SubscriptionResponse;
   selfHosted = false;
   cloudWebVaultUrl: string;
-  enableTimeThreshold: boolean;
 
   cancelPromise: Promise<any>;
   reinstatePromise: Promise<any>;
-  protected enableTimeThreshold$ = this.configService.getFeatureFlag$(
-    FeatureFlag.EnableTimeThreshold,
-  );
 
   protected deprecateStripeSourcesAPI$ = this.configService.getFeatureFlag$(
     FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
@@ -64,14 +61,14 @@ export class UserSubscriptionComponent implements OnInit {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {
-    this.selfHosted = platformUtilsService.isSelfHost();
+    this.selfHosted = this.platformUtilsService.isSelfHost();
   }
 
   async ngOnInit() {
     this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
     await this.load();
-    this.enableTimeThreshold = await firstValueFrom(this.enableTimeThreshold$);
     this.firstLoaded = true;
   }
 
@@ -80,7 +77,10 @@ export class UserSubscriptionComponent implements OnInit {
       return;
     }
 
-    if (await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$)) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$);
+    if (
+      await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$(userId.id))
+    ) {
       this.loading = true;
       this.sub = await this.apiService.getUserSubscription();
     } else {
@@ -216,11 +216,28 @@ export class UserSubscriptionComponent implements OnInit {
       : 0;
   }
 
-  get storageProgressWidth() {
-    return this.storagePercentage < 5 ? 5 : 0;
-  }
-
   get title(): string {
     return this.i18nService.t(this.selfHosted ? "subscription" : "premiumMembership");
+  }
+
+  get subscriptionStatus(): string | null {
+    if (!this.subscription) {
+      return null;
+    } else {
+      /*
+       Premium users who sign up with PayPal will have their subscription activated by a webhook.
+       This is an arbitrary 15-second grace period where we show their subscription as active rather than
+       incomplete while we wait for our webhook to process the `invoice.created` event.
+      */
+      if (this.subscription.status === "incomplete") {
+        const periodStartMS = new Date(this.subscription.periodStartDate).getTime();
+        const nowMS = new Date().getTime();
+        return nowMS - periodStartMS <= 15000
+          ? this.i18nService.t("active")
+          : this.subscription.status;
+      }
+
+      return this.subscription.status;
+    }
   }
 }

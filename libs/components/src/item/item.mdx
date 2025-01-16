@@ -55,12 +55,13 @@ The content can be a button, anchor, or static container.
 
 `bit-item-content` contains the following slots to help position the content:
 
-| Slot               | Description                                         |
-| ------------------ | --------------------------------------------------- |
-| default            | primary text or arbitrary content; fan favorite     |
-| `slot="secondary"` | supporting text; under the default slot             |
-| `slot="start"`     | commonly an icon or avatar; before the default slot |
-| `slot="end"`       | commonly an icon; after the default slot            |
+| Slot                      | Description                                                                                               |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| default                   | primary text or arbitrary content; fan favorite                                                           |
+| `slot="secondary"`        | supporting text; under the default slot                                                                   |
+| `slot="start"`            | commonly an icon or avatar; before the default slot                                                       |
+| `slot="default-trailing"` | commonly a badge; default content that should not be truncated and is placed right after the default slot |
+| `slot="end"`              | commonly an icon; placed at the far end after the default slot                                            |
 
 - Note: There is also an `end` slot within `bit-item` itself. Place
   [interactive secondary actions](#secondary-actions) there, and place non-interactive content (such
@@ -70,7 +71,8 @@ The content can be a button, anchor, or static container.
 <bit-item>
   <button bit-item-content type="button">
     <bit-avatar slot="start" text="Foo"></bit-avatar>
-    foo@bitwarden.com
+    foo&#64;bitwarden.com
+    <span bitBadge variant="primary" slot="default-trailing">Auto-fill</span>
     <ng-container slot="secondary">
       <div>Bitwarden.com</div>
       <div><em>locked</em></div>

@@ -6,7 +6,7 @@
   <bit-card>
     <bit-form-field>
       <bit-label>{{ "notes" | i18n }}</bit-label>
-      <textarea bitInput formControlName="notes"></textarea>
+      <textarea bitInput rows="5" formControlName="notes"></textarea>
     </bit-form-field>
     <bit-form-control
       *ngIf="passwordRepromptEnabled$ | async"

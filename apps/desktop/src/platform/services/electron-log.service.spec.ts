@@ -2,7 +2,7 @@ import { ElectronLogMainService } from "./electron-log.main.service";
 
 // Mock the use of the electron API to avoid errors
 jest.mock("electron", () => ({
-  ipcMain: { handle: jest.fn() },
+  ipcMain: { handle: jest.fn(), on: jest.fn() },
 }));
 
 describe("ElectronLogMainService", () => {

@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, first } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -44,16 +44,6 @@ describe("SendListFiltersService", () => {
 
   it("returns all send types", () => {
     expect(service.sendTypes.map((c) => c.value)).toEqual([SendType.File, SendType.Text]);
-  });
-
-  it("filters disabled sends", (done) => {
-    const sends = [{ disabled: true }, { disabled: false }, { disabled: true }] as SendView[];
-    service.filterFunction$.pipe(first()).subscribe((filterFunction) => {
-      expect(filterFunction(sends)).toEqual([sends[1]]);
-      done();
-    });
-
-    service.filterForm.patchValue({});
   });
 
   it("resets the filter form", () => {

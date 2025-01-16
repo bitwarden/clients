@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   Component,
   EventEmitter,
@@ -10,7 +12,9 @@ import {
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
+import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -23,16 +27,21 @@ import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-organization-create.request";
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { TaxInformation } from "@bitwarden/common/billing/models/domain";
+import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
 import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment.request";
+import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
+import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -40,12 +49,12 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
 import { PaymentV2Component } from "../shared/payment/payment-v2.component";
 import { PaymentComponent } from "../shared/payment/payment.component";
-import { TaxInfoComponent } from "../shared/tax-info.component";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -67,13 +76,14 @@ const Allowed2020PlansForLegacyProviders = [
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(PaymentV2Component) paymentV2Component: PaymentV2Component;
-  @ViewChild(TaxInfoComponent) taxComponent: TaxInfoComponent;
+  @ViewChild(ManageTaxInformationComponent) taxComponent: ManageTaxInformationComponent;
 
-  @Input() organizationId: string;
+  @Input() organizationId?: string;
   @Input() showFree = true;
   @Input() showCancel = false;
   @Input() acceptingSponsorship = false;
   @Input() currentPlan: PlanResponse;
+
   selectedFile: File;
 
   @Input()
@@ -87,6 +97,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   private _productTier = ProductTierType.Free;
+
+  protected taxInformation: TaxInformation;
 
   @Input()
   get plan(): PlanType {
@@ -114,6 +126,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   discount = 0;
   deprecateStripeSourcesAPI: boolean;
 
+  protected useLicenseUploaderComponent$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader,
+  );
+
   secretsManagerSubscription = secretsManagerSubscribeFormFactory(this.formBuilder);
 
   selfHostedForm = this.formBuilder.group({
@@ -140,26 +156,31 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   billing: BillingResponse;
   provider: ProviderResponse;
 
-  private destroy$ = new Subject<void>();
+  protected estimatedTax: number = 0;
+  protected total: number = 0;
+
+  private destroy$: Subject<void> = new Subject<void>();
 
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
+    private encryptService: EncryptService,
     private router: Router,
     private syncService: SyncService,
     private policyService: PolicyService,
     private organizationService: OrganizationService,
-    private logService: LogService,
     private messagingService: MessagingService,
     private formBuilder: FormBuilder,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private providerApiService: ProviderApiServiceAbstraction,
     private toastService: ToastService,
     private configService: ConfigService,
+    private billingApiService: BillingApiServiceAbstraction,
+    private taxService: TaxServiceAbstraction,
   ) {
-    this.selfHosted = platformUtilsService.isSelfHost();
+    this.selfHosted = this.platformUtilsService.isSelfHost();
   }
 
   async ngOnInit() {
@@ -171,6 +192,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.organization = await this.organizationService.get(this.organizationId);
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
+      this.taxInformation = await this.organizationApiService.getTaxInfo(this.organizationId);
+    } else if (!this.selfHosted) {
+      this.taxInformation = await this.apiService.getTaxInfo();
     }
 
     if (!this.selfHosted) {
@@ -231,6 +255,16 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
 
     this.loading = false;
+
+    this.formGroup.valueChanges.pipe(debounceTime(1000), takeUntil(this.destroy$)).subscribe(() => {
+      this.refreshSalesTax();
+    });
+
+    this.secretsManagerForm.valueChanges
+      .pipe(debounceTime(1000), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.refreshSalesTax();
+      });
   }
 
   ngOnDestroy() {
@@ -428,17 +462,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return this.selectedPlan.trialPeriodDays != null;
   }
 
-  get taxCharges() {
-    return this.taxComponent != null && this.taxComponent.taxRate != null
-      ? (this.taxComponent.taxRate / 100) *
-          (this.passwordManagerSubtotal + this.secretsManagerSubtotal)
-      : 0;
-  }
-
-  get total() {
-    return this.passwordManagerSubtotal + this.secretsManagerSubtotal + this.taxCharges || 0;
-  }
-
   get paymentDesc() {
     if (this.acceptingSponsorship) {
       return this.i18nService.t("paymentSponsored");
@@ -544,9 +567,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.changedProduct();
   }
 
-  changedCountry() {
+  protected changedCountry(): void {
     if (this.deprecateStripeSourcesAPI) {
-      this.paymentV2Component.showBankAccount = this.taxComponent.country === "US";
+      this.paymentV2Component.showBankAccount = this.taxInformation?.country === "US";
       if (
         !this.paymentV2Component.showBankAccount &&
         this.paymentV2Component.selected === PaymentMethodType.BankAccount
@@ -554,7 +577,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.paymentV2Component.select(PaymentMethodType.Card);
       }
     } else {
-      this.paymentComponent.hideBank = this.taxComponent.taxFormGroup?.value.country !== "US";
+      this.paymentComponent.hideBank = this.taxInformation?.country !== "US";
       if (
         this.paymentComponent.hideBank &&
         this.paymentComponent.method === PaymentMethodType.BankAccount
@@ -565,43 +588,44 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     }
   }
 
-  cancel() {
+  protected onTaxInformationChanged(event: TaxInformation): void {
+    this.taxInformation = event;
+    this.changedCountry();
+    this.refreshSalesTax();
+  }
+
+  protected cancel(): void {
     this.onCanceled.emit();
   }
 
-  setSelectedFile(event: Event) {
+  protected setSelectedFile(event: Event): void {
     const fileInputEl = <HTMLInputElement>event.target;
     this.selectedFile = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
   }
 
   submit = async () => {
-    if (this.taxComponent) {
-      if (!this.taxComponent?.taxFormGroup.valid) {
-        this.taxComponent?.taxFormGroup.markAllAsTouched();
-        return;
-      }
+    if (this.taxComponent && !this.taxComponent.validate()) {
+      return;
     }
 
     if (this.singleOrgPolicyBlock) {
       return;
     }
     const doSubmit = async (): Promise<string> => {
-      let orgId: string = null;
+      let orgId: string;
       if (this.createOrganization) {
-        const orgKey = await this.cryptoService.makeOrgKey<OrgKey>();
+        const orgKey = await this.keyService.makeOrgKey<OrgKey>();
         const key = orgKey[0].encryptedString;
-        const collection = await this.cryptoService.encrypt(
+        const collection = await this.encryptService.encrypt(
           this.i18nService.t("defaultCollection"),
           orgKey[1],
         );
         const collectionCt = collection.encryptedString;
-        const orgKeys = await this.cryptoService.makeKeyPair(orgKey[1]);
+        const orgKeys = await this.keyService.makeKeyPair(orgKey[1]);
 
-        if (this.selfHosted) {
-          orgId = await this.createSelfHosted(key, collectionCt, orgKeys);
-        } else {
-          orgId = await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
-        }
+        orgId = this.selfHosted
+          ? await this.createSelfHosted(key, collectionCt, orgKeys)
+          : await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
 
         this.toastService.showToast({
           variant: "success",
@@ -609,7 +633,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           message: this.i18nService.t("organizationReadyToGo"),
         });
       } else {
-        orgId = await this.updateOrganization(orgId);
+        orgId = await this.updateOrganization();
         this.toastService.showToast({
           variant: "success",
           title: null,
@@ -643,7 +667,63 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.messagingService.send("organizationCreated", { organizationId });
   };
 
-  private async updateOrganization(orgId: string) {
+  protected get showTaxIdField(): boolean {
+    switch (this.formGroup.controls.productTier.value) {
+      case ProductTierType.Free:
+      case ProductTierType.Families:
+        return false;
+      default:
+        return true;
+    }
+  }
+
+  private refreshSalesTax(): void {
+    if (this.formGroup.controls.plan.value == PlanType.Free) {
+      this.estimatedTax = 0;
+      return;
+    }
+
+    if (!this.taxComponent.validate()) {
+      return;
+    }
+
+    const request: PreviewOrganizationInvoiceRequest = {
+      organizationId: this.organizationId,
+      passwordManager: {
+        additionalStorage: this.formGroup.controls.additionalStorage.value,
+        plan: this.formGroup.controls.plan.value,
+        seats: this.formGroup.controls.additionalSeats.value,
+      },
+      taxInformation: {
+        postalCode: this.taxInformation.postalCode,
+        country: this.taxInformation.country,
+        taxId: this.taxInformation.taxId,
+      },
+    };
+
+    if (this.secretsManagerForm.controls.enabled.value === true) {
+      request.secretsManager = {
+        seats: this.secretsManagerForm.controls.userSeats.value,
+        additionalMachineAccounts: this.secretsManagerForm.controls.additionalServiceAccounts.value,
+      };
+    }
+
+    this.taxService
+      .previewOrganizationInvoice(request)
+      .then((invoice) => {
+        this.estimatedTax = invoice.taxAmount;
+        this.total = invoice.totalAmount;
+      })
+      .catch((error) => {
+        this.toastService.showToast({
+          title: "",
+          variant: "error",
+          message: this.i18nService.t(error.message),
+        });
+      });
+  }
+
+  private async updateOrganization() {
     const request = new OrganizationUpgradeRequest();
     request.additionalSeats = this.formGroup.controls.additionalSeats.value;
     request.additionalStorageGb = this.formGroup.controls.additionalStorage.value;
@@ -651,34 +731,38 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
       this.formGroup.controls.premiumAccessAddon.value;
     request.planType = this.selectedPlan.type;
-    request.billingAddressCountry = this.taxComponent.taxFormGroup?.value.country;
-    request.billingAddressPostalCode = this.taxComponent.taxFormGroup?.value.postalCode;
+    request.billingAddressCountry = this.taxInformation?.country;
+    request.billingAddressPostalCode = this.taxInformation?.postalCode;
 
     // Secrets Manager
     this.buildSecretsManagerRequest(request);
 
     if (this.upgradeRequiresPaymentMethod) {
-      let type: PaymentMethodType;
-      let token: string;
-
       if (this.deprecateStripeSourcesAPI) {
-        ({ type, token } = await this.paymentV2Component.tokenize());
+        const updatePaymentMethodRequest = new UpdatePaymentMethodRequest();
+        updatePaymentMethodRequest.paymentSource = await this.paymentV2Component.tokenize();
+        updatePaymentMethodRequest.taxInformation = ExpandedTaxInfoUpdateRequest.From(
+          this.taxInformation,
+        );
+        await this.billingApiService.updateOrganizationPaymentMethod(
+          this.organizationId,
+          updatePaymentMethodRequest,
+        );
       } else {
-        [token, type] = await this.paymentComponent.createPaymentToken();
+        const [paymentToken, paymentMethodType] = await this.paymentComponent.createPaymentToken();
+        const paymentRequest = new PaymentRequest();
+        paymentRequest.paymentToken = paymentToken;
+        paymentRequest.paymentMethodType = paymentMethodType;
+        paymentRequest.country = this.taxInformation?.country;
+        paymentRequest.postalCode = this.taxInformation?.postalCode;
+        await this.organizationApiService.updatePayment(this.organizationId, paymentRequest);
       }
-
-      const paymentRequest = new PaymentRequest();
-      paymentRequest.paymentToken = token;
-      paymentRequest.paymentMethodType = type;
-      paymentRequest.country = this.taxComponent.taxFormGroup?.value.country;
-      paymentRequest.postalCode = this.taxComponent.taxFormGroup?.value.postalCode;
-      await this.organizationApiService.updatePayment(this.organizationId, paymentRequest);
     }
 
     // Backfill pub/priv key if necessary
     if (!this.organization.hasPublicAndPrivateKeys) {
-      const orgShareKey = await this.cryptoService.getOrgKey(this.organizationId);
-      const orgKeys = await this.cryptoService.makeKeyPair(orgShareKey);
+      const orgShareKey = await this.keyService.getOrgKey(this.organizationId);
+      const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 
@@ -694,7 +778,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     collectionCt: string,
     orgKeys: [string, EncString],
     orgKey: SymmetricCryptoKey,
-  ) {
+  ): Promise<string> {
     const request = new OrganizationCreateRequest();
     request.key = key;
     request.collectionName = collectionCt;
@@ -723,15 +807,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
         this.formGroup.controls.premiumAccessAddon.value;
       request.planType = this.selectedPlan.type;
-      request.billingAddressPostalCode = this.taxComponent.taxFormGroup?.value.postalCode;
-      request.billingAddressCountry = this.taxComponent.taxFormGroup?.value.country;
-      if (this.taxComponent.taxFormGroup?.value.includeTaxId) {
-        request.taxIdNumber = this.taxComponent.taxFormGroup?.value.taxId;
-        request.billingAddressLine1 = this.taxComponent.taxFormGroup?.value.line1;
-        request.billingAddressLine2 = this.taxComponent.taxFormGroup?.value.line2;
-        request.billingAddressCity = this.taxComponent.taxFormGroup?.value.city;
-        request.billingAddressState = this.taxComponent.taxFormGroup?.value.state;
-      }
+      request.billingAddressPostalCode = this.taxInformation?.postalCode;
+      request.billingAddressCountry = this.taxInformation?.country;
+      request.taxIdNumber = this.taxInformation?.taxId;
+      request.billingAddressLine1 = this.taxInformation?.line1;
+      request.billingAddressLine2 = this.taxInformation?.line2;
+      request.billingAddressCity = this.taxInformation?.city;
+      request.billingAddressState = this.taxInformation?.state;
     }
 
     // Secrets Manager
@@ -742,9 +824,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.formGroup.controls.clientOwnerEmail.value,
         request,
       );
-      const providerKey = await this.cryptoService.getProviderKey(this.providerId);
+      const providerKey = await this.keyService.getProviderKey(this.providerId);
       providerRequest.organizationCreateRequest.key = (
-        await this.cryptoService.encrypt(orgKey.key, providerKey)
+        await this.encryptService.encrypt(orgKey.key, providerKey)
       ).encryptedString;
       const orgId = (
         await this.apiService.postProviderCreateOrganization(this.providerId, providerRequest)
@@ -845,5 +927,31 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   private planIsEnabled(plan: PlanResponse) {
     return !plan.disabled && !plan.legacyYear;
+  }
+
+  protected async onLicenseFileUploaded(organizationId: string): Promise<void> {
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("organizationCreated"),
+      message: this.i18nService.t("organizationReadyToGo"),
+    });
+
+    if (!this.acceptingSponsorship && !this.isInTrialFlow) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.router.navigate(["/organizations/" + organizationId]);
+    }
+
+    if (this.isInTrialFlow) {
+      this.onTrialBillingSuccess.emit({
+        orgId: organizationId,
+        subLabelText: this.billingSubLabelText(),
+      });
+    }
+
+    this.onSuccess.emit({ organizationId: organizationId });
+
+    // TODO: No one actually listening to this message?
+    this.messagingService.send("organizationCreated", { organizationId: organizationId });
   }
 }

@@ -1,5 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import {
+  CollectionRequest,
+  CollectionAccessDetailsResponse,
+  CollectionDetailsResponse,
+  CollectionResponse,
+} from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
@@ -23,6 +31,7 @@ import {
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
+import { PreValidateSponsorshipResponse } from "../admin-console/models/response/pre-validate-sponsorship.response";
 import {
   ProviderOrganizationOrganizationDetailsResponse,
   ProviderOrganizationResponse,
@@ -35,7 +44,7 @@ import {
 } from "../admin-console/models/response/provider/provider-user.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { TokenService } from "../auth/abstractions/token.service";
-import { CreateAuthRequest } from "../auth/models/request/create-auth.request";
+import { AuthRequest } from "../auth/models/request/auth.request";
 import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
 import { DisableTwoFactorAuthenticatorRequest } from "../auth/models/request/disable-two-factor-authenticator.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
@@ -120,6 +129,7 @@ import { AppIdService } from "../platform/abstractions/app-id.service";
 import { EnvironmentService } from "../platform/abstractions/environment.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
@@ -133,15 +143,9 @@ import { CipherCreateRequest } from "../vault/models/request/cipher-create.reque
 import { CipherPartialRequest } from "../vault/models/request/cipher-partial.request";
 import { CipherShareRequest } from "../vault/models/request/cipher-share.request";
 import { CipherRequest } from "../vault/models/request/cipher.request";
-import { CollectionRequest } from "../vault/models/request/collection.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
-import {
-  CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
-  CollectionResponse,
-} from "../vault/models/response/collection.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 /**
@@ -258,11 +262,12 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // TODO: PM-3519: Create and move to AuthRequest Api service
-  async postAuthRequest(request: CreateAuthRequest): Promise<AuthRequestResponse> {
+  // TODO: PM-9724: Remove legacy auth request methods when we remove legacy LoginViaAuthRequestV1Components
+  async postAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
     const r = await this.send("POST", "/auth-requests/", request, false, true);
     return new AuthRequestResponse(r);
   }
-  async postAdminAuthRequest(request: CreateAuthRequest): Promise<AuthRequestResponse> {
+  async postAdminAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
     const r = await this.send("POST", "/auth-requests/admin-request", request, true, true);
     return new AuthRequestResponse(r);
   }
@@ -583,7 +588,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   putCipherCollectionsAdmin(id: string, request: CipherCollectionsRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/collections-admin", request, true, false);
+    return this.send("PUT", "/ciphers/" + id + "/collections-admin", request, true, true);
   }
 
   postPurgeCiphers(
@@ -1679,8 +1684,10 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  async postPreValidateSponsorshipToken(sponsorshipToken: string): Promise<boolean> {
-    const r = await this.send(
+  async postPreValidateSponsorshipToken(
+    sponsorshipToken: string,
+  ): Promise<PreValidateSponsorshipResponse> {
+    const response = await this.send(
       "POST",
       "/organization/sponsorship/validate-token?sponsorshipToken=" +
         encodeURIComponent(sponsorshipToken),
@@ -1688,7 +1695,8 @@ export class ApiService implements ApiServiceAbstraction {
       true,
       true,
     );
-    return r as boolean;
+
+    return new PreValidateSponsorshipResponse(response);
   }
 
   async postRedeemSponsorship(
@@ -1843,44 +1851,20 @@ export class ApiService implements ApiServiceAbstraction {
     const requestUrl =
       apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
 
-    const headers = new Headers({
-      "Device-Type": this.deviceType,
-    });
-    if (this.customUserAgent != null) {
-      headers.set("User-Agent", this.customUserAgent);
-    }
+    const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
+      authed,
+      hasResponse,
+      body,
+      alterHeaders,
+    );
 
     const requestInit: RequestInit = {
       cache: "no-store",
       credentials: await this.getCredentials(),
       method: method,
     };
-
-    if (authed) {
-      const authHeader = await this.getActiveBearerToken();
-      headers.set("Authorization", "Bearer " + authHeader);
-    }
-    if (body != null) {
-      if (typeof body === "string") {
-        requestInit.body = body;
-        headers.set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-      } else if (typeof body === "object") {
-        if (body instanceof FormData) {
-          requestInit.body = body;
-        } else {
-          headers.set("Content-Type", "application/json; charset=utf-8");
-          requestInit.body = JSON.stringify(body);
-        }
-      }
-    }
-    if (hasResponse) {
-      headers.set("Accept", "application/json");
-    }
-    if (alterHeaders != null) {
-      alterHeaders(headers);
-    }
-
-    requestInit.headers = headers;
+    requestInit.headers = requestHeaders;
+    requestInit.body = requestBody;
     const response = await this.fetch(new Request(requestUrl, requestInit));
 
     const responseType = response.headers.get("content-type");
@@ -1895,6 +1879,51 @@ export class ApiService implements ApiServiceAbstraction {
       const error = await this.handleError(response, false, authed);
       return Promise.reject(error);
     }
+  }
+
+  private async buildHeadersAndBody(
+    authed: boolean,
+    hasResponse: boolean,
+    body: any,
+    alterHeaders: (headers: Headers) => void,
+  ): Promise<[Headers, any]> {
+    let requestBody: any = null;
+    const headers = new Headers({
+      "Device-Type": this.deviceType,
+    });
+
+    if (flagEnabled("prereleaseBuild")) {
+      headers.set("Is-Prerelease", "1");
+    }
+    if (this.customUserAgent != null) {
+      headers.set("User-Agent", this.customUserAgent);
+    }
+    if (hasResponse) {
+      headers.set("Accept", "application/json");
+    }
+    if (alterHeaders != null) {
+      alterHeaders(headers);
+    }
+    if (authed) {
+      const authHeader = await this.getActiveBearerToken();
+      headers.set("Authorization", "Bearer " + authHeader);
+    }
+
+    if (body != null) {
+      if (typeof body === "string") {
+        requestBody = body;
+        headers.set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+      } else if (typeof body === "object") {
+        if (body instanceof FormData) {
+          requestBody = body;
+        } else {
+          headers.set("Content-Type", "application/json; charset=utf-8");
+          requestBody = JSON.stringify(body);
+        }
+      }
+    }
+
+    return [headers, requestBody];
   }
 
   private async handleError(
@@ -1919,7 +1948,6 @@ export class ApiService implements ApiServiceAbstraction {
           responseJson.error === "invalid_grant")
       ) {
         await this.logoutCallback("invalidGrantError");
-        return null;
       }
     }
 

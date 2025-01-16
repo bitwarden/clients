@@ -1,8 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { OnInit, Input, Output, EventEmitter, Component, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, skip, takeUntil, Subject, map } from "rxjs";
+import {
+  BehaviorSubject,
+  takeUntil,
+  Subject,
+  map,
+  filter,
+  tap,
+  skip,
+  ReplaySubject,
+  withLatestFrom,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   Generators,
@@ -10,14 +24,13 @@ import {
   PasswordGenerationOptions,
 } from "@bitwarden/generator-core";
 
-import { DependenciesModule } from "./dependencies";
-import { completeOnAccountSwitch, toValidators } from "./util";
+import { completeOnAccountSwitch } from "./util";
 
 const Controls = Object.freeze({
   length: "length",
   uppercase: "uppercase",
   lowercase: "lowercase",
-  numbers: "numbers",
+  number: "number",
   special: "special",
   minNumber: "minNumber",
   minSpecial: "minSpecial",
@@ -26,20 +39,20 @@ const Controls = Object.freeze({
 
 /** Options group for passwords */
 @Component({
-  standalone: true,
-  selector: "bit-password-settings",
+  selector: "tools-password-settings",
   templateUrl: "password-settings.component.html",
-  imports: [DependenciesModule],
 })
 export class PasswordSettingsComponent implements OnInit, OnDestroy {
   /** Instantiates the component
    *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
+   *  @param i18nService localize hints
    *  @param formBuilder reactive form controls
    */
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
+    private i18nService: I18nService,
     private accountService: AccountService,
   ) {}
 
@@ -54,6 +67,13 @@ export class PasswordSettingsComponent implements OnInit, OnDestroy {
   @Input()
   showHeader: boolean = true;
 
+  /** Number of milliseconds to wait before accepting user input. */
+  @Input()
+  waitMs: number = 100;
+
+  /** Removes bottom margin from `bit-section` */
+  @Input({ transform: coerceBooleanProperty }) disableMargin = false;
+
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like
    *   to receive live settings updates including the initial update,
@@ -63,77 +83,81 @@ export class PasswordSettingsComponent implements OnInit, OnDestroy {
   readonly onUpdated = new EventEmitter<PasswordGenerationOptions>();
 
   protected settings = this.formBuilder.group({
-    [Controls.length]: [Generators.Password.settings.initial.length],
-    [Controls.uppercase]: [Generators.Password.settings.initial.uppercase],
-    [Controls.lowercase]: [Generators.Password.settings.initial.lowercase],
-    [Controls.numbers]: [Generators.Password.settings.initial.number],
-    [Controls.special]: [Generators.Password.settings.initial.special],
-    [Controls.minNumber]: [Generators.Password.settings.initial.minNumber],
-    [Controls.minSpecial]: [Generators.Password.settings.initial.minSpecial],
-    [Controls.avoidAmbiguous]: [!Generators.Password.settings.initial.ambiguous],
+    [Controls.length]: [Generators.password.settings.initial.length],
+    [Controls.uppercase]: [Generators.password.settings.initial.uppercase],
+    [Controls.lowercase]: [Generators.password.settings.initial.lowercase],
+    [Controls.number]: [Generators.password.settings.initial.number],
+    [Controls.special]: [Generators.password.settings.initial.special],
+    [Controls.minNumber]: [Generators.password.settings.initial.minNumber],
+    [Controls.minSpecial]: [Generators.password.settings.initial.minSpecial],
+    [Controls.avoidAmbiguous]: [!Generators.password.settings.initial.ambiguous],
   });
+
+  private get numbers() {
+    return this.settings.get(Controls.number);
+  }
+
+  private get special() {
+    return this.settings.get(Controls.special);
+  }
+
+  private get minNumber() {
+    return this.settings.get(Controls.minNumber);
+  }
+
+  private get minSpecial() {
+    return this.settings.get(Controls.minSpecial);
+  }
 
   async ngOnInit() {
     const singleUserId$ = this.singleUserId$();
-    const settings = await this.generatorService.settings(Generators.Password, { singleUserId$ });
+    const settings = await this.generatorService.settings(Generators.password, { singleUserId$ });
 
-    settings
+    // bind settings to the UI
+    settings.withConstraints$
       .pipe(
-        map((settings) => {
+        map(({ state, constraints }) => {
           // interface is "avoid" while storage is "include"
-          const s: any = { ...settings };
-          s.avoidAmbiguous = s.ambiguous;
+          const s: any = { ...state };
+          s.avoidAmbiguous = !s.ambiguous;
           delete s.ambiguous;
-          return s;
+          return [s, constraints] as const;
         }),
         takeUntil(this.destroyed$),
       )
-      .subscribe((s) => {
+      .subscribe(([state, constraints]) => {
+        let boundariesHint = this.i18nService.t(
+          "spinboxBoundariesHint",
+          constraints.length.min?.toString(),
+          constraints.length.max?.toString(),
+        );
+        if (state.length <= (constraints.length.recommendation ?? 0)) {
+          boundariesHint += this.i18nService.t(
+            "passwordLengthRecommendationHint",
+            constraints.length.recommendation?.toString(),
+          );
+        }
+        this.lengthBoundariesHint.next(boundariesHint);
+
         // skips reactive event emissions to break a subscription cycle
-        this.settings.patchValue(s, { emitEvent: false });
+        this.settings.patchValue(state, { emitEvent: false });
       });
 
-    // the first emission is the current value; subsequent emissions are updates
-    settings.pipe(skip(1), takeUntil(this.destroyed$)).subscribe(this.onUpdated);
-
-    ///
+    // explain policy & disable policy-overridden fields
     this.generatorService
-      .policy$(Generators.Password, { userId$: singleUserId$ })
+      .policy$(Generators.password, { userId$: singleUserId$ })
       .pipe(takeUntil(this.destroyed$))
-      .subscribe((policy) => {
-        this.settings
-          .get(Controls.length)
-          .setValidators(toValidators(Controls.length, Generators.Password, policy));
-
-        this.settings
-          .get(Controls.minNumber)
-          .setValidators(toValidators(Controls.minNumber, Generators.Password, policy));
-
-        this.settings
-          .get(Controls.minSpecial)
-          .setValidators(toValidators(Controls.minSpecial, Generators.Password, policy));
-
-        // forward word boundaries to the template (can't do it through the rx form)
-        // FIXME: move the boundary logic fully into the policy evaluator
-        this.minLength = policy.length?.min ?? Generators.Password.settings.constraints.length.min;
-        this.maxLength = policy.length?.max ?? Generators.Password.settings.constraints.length.max;
-        this.minMinNumber =
-          policy.minNumber?.min ?? Generators.Password.settings.constraints.minNumber.min;
-        this.maxMinNumber =
-          policy.minNumber?.max ?? Generators.Password.settings.constraints.minNumber.max;
-        this.minMinSpecial =
-          policy.minSpecial?.min ?? Generators.Password.settings.constraints.minSpecial.min;
-        this.maxMinSpecial =
-          policy.minSpecial?.max ?? Generators.Password.settings.constraints.minSpecial.max;
+      .subscribe(({ constraints }) => {
+        this.policyInEffect = constraints.policyInEffect;
 
         const toggles = [
-          [Controls.length, policy.length.min < policy.length.max],
-          [Controls.uppercase, !policy.policy.useUppercase],
-          [Controls.lowercase, !policy.policy.useLowercase],
-          [Controls.numbers, !policy.policy.useNumbers],
-          [Controls.special, !policy.policy.useSpecial],
-          [Controls.minNumber, policy.minNumber.min < policy.minNumber.max],
-          [Controls.minSpecial, policy.minSpecial.min < policy.minSpecial.max],
+          [Controls.length, constraints.length.min < constraints.length.max],
+          [Controls.uppercase, !constraints.uppercase?.readonly],
+          [Controls.lowercase, !constraints.lowercase?.readonly],
+          [Controls.number, !constraints.number?.readonly],
+          [Controls.special, !constraints.special?.readonly],
+          [Controls.minNumber, constraints.minNumber.min < constraints.minNumber.max],
+          [Controls.minSpecial, constraints.minSpecial.min < constraints.minSpecial.max],
         ] as [keyof typeof Controls, boolean][];
 
         for (const [control, enabled] of toggles) {
@@ -141,13 +165,55 @@ export class PasswordSettingsComponent implements OnInit, OnDestroy {
         }
       });
 
-    // now that outputs are set up, connect inputs
-    this.settings.valueChanges
+    // cascade selections between checkboxes and spinboxes
+    // before the group saves their values
+    let lastMinNumber = 1;
+    this.numbers.valueChanges
       .pipe(
-        map((settings) => {
+        filter((checked) => !(checked && this.minNumber.value > 0)),
+        map((checked) => (checked ? lastMinNumber : 0)),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe((value) => this.minNumber.setValue(value, { emitEvent: false }));
+
+    this.minNumber.valueChanges
+      .pipe(
+        map((value) => [value, value > 0] as const),
+        tap(([value, checkNumbers]) => (lastMinNumber = checkNumbers ? value : lastMinNumber)),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe(([, checkNumbers]) => this.numbers.setValue(checkNumbers, { emitEvent: false }));
+
+    let lastMinSpecial = 1;
+    this.special.valueChanges
+      .pipe(
+        filter((checked) => !(checked && this.minSpecial.value > 0)),
+        map((checked) => (checked ? lastMinSpecial : 0)),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe((value) => this.minSpecial.setValue(value, { emitEvent: false }));
+
+    this.minSpecial.valueChanges
+      .pipe(
+        map((value) => [value, value > 0] as const),
+        tap(([value, checkSpecial]) => (lastMinSpecial = checkSpecial ? value : lastMinSpecial)),
+        takeUntil(this.destroyed$),
+      )
+      .subscribe(([, checkSpecial]) => this.special.setValue(checkSpecial, { emitEvent: false }));
+
+    // `onUpdated` depends on `settings` because the UserStateSubject is asynchronous;
+    // subscribing directly to `this.settings.valueChanges` introduces a race condition.
+    // skip the first emission because it's the initial value, not an update.
+    settings.pipe(skip(1), takeUntil(this.destroyed$)).subscribe(this.onUpdated);
+
+    // now that outputs are set up, connect inputs
+    this.saveSettings
+      .pipe(
+        withLatestFrom(this.settings.valueChanges),
+        map(([, settings]) => {
           // interface is "avoid" while storage is "include"
           const s: any = { ...settings };
-          s.ambiguous = s.avoidAmbiguous;
+          s.ambiguous = !s.avoidAmbiguous;
           delete s.avoidAmbiguous;
           return s;
         }),
@@ -156,29 +222,24 @@ export class PasswordSettingsComponent implements OnInit, OnDestroy {
       .subscribe(settings);
   }
 
-  /** attribute binding for length[min] */
-  protected minLength: number;
+  private saveSettings = new Subject<string>();
+  save(site: string = "component api call") {
+    this.saveSettings.next(site);
+  }
 
-  /** attribute binding for length[max] */
-  protected maxLength: number;
+  /** display binding for enterprise policy notice */
+  protected policyInEffect: boolean;
 
-  /** attribute binding for minNumber[min] */
-  protected minMinNumber: number;
+  private lengthBoundariesHint = new ReplaySubject<string>(1);
 
-  /** attribute binding for minNumber[max] */
-  protected maxMinNumber: number;
-
-  /** attribute binding for minSpecial[min] */
-  protected minMinSpecial: number;
-
-  /** attribute binding for minSpecial[max] */
-  protected maxMinSpecial: number;
+  /** display binding for min/max constraints of `length` */
+  protected lengthBoundariesHint$ = this.lengthBoundariesHint.asObservable();
 
   private toggleEnabled(setting: keyof typeof Controls, enabled: boolean) {
     if (enabled) {
-      this.settings.get(setting).enable();
+      this.settings.get(setting).enable({ emitEvent: false });
     } else {
-      this.settings.get(setting).disable();
+      this.settings.get(setting).disable({ emitEvent: false });
     }
   }
 
@@ -197,6 +258,7 @@ export class PasswordSettingsComponent implements OnInit, OnDestroy {
 
   private readonly destroyed$ = new Subject<void>();
   ngOnDestroy(): void {
+    this.destroyed$.next();
     this.destroyed$.complete();
   }
 }

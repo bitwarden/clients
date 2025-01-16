@@ -1,12 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, firstValueFrom, map } from "rxjs";
+import { combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -29,19 +32,36 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
   private cipherService: CipherService = inject(CipherService);
   private folderService: FolderService = inject(FolderService);
   private collectionService: CollectionService = inject(CollectionService);
+  private accountService = inject(AccountService);
+
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   async buildConfig(
     mode: CipherFormMode,
     cipherId?: CipherId,
     cipherType?: CipherType,
   ): Promise<CipherFormConfig> {
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+
     const [organizations, collections, allowPersonalOwnership, folders, cipher] =
       await firstValueFrom(
         combineLatest([
           this.organizations$,
-          this.collectionService.decryptedCollections$,
+          this.collectionService.encryptedCollections$.pipe(
+            switchMap((c) =>
+              this.collectionService.decryptedCollections$.pipe(
+                filter((d) => d.length === c.length), // Ensure all collections have been decrypted
+              ),
+            ),
+          ),
           this.allowPersonalOwnership$,
-          this.folderService.folderViews$,
+          this.folderService.folders$(activeUserId).pipe(
+            switchMap((f) =>
+              this.folderService.folderViews$(activeUserId).pipe(
+                filter((d) => d.length - 1 === f.length), // -1 for "No Folder" in folderViews$
+              ),
+            ),
+          ),
           this.getCipher(cipherId),
         ]),
       );

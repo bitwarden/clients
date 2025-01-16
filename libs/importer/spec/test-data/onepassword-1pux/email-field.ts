@@ -26,7 +26,7 @@ export const EmailFieldData: ExportData = {
               favIndex: 1,
               createdAt: 1619467985,
               updatedAt: 1619468230,
-              trashed: false,
+              state: "active",
               categoryUuid: "100",
               details: {
                 loginFields: [],
@@ -49,7 +49,6 @@ export const EmailFieldData: ExportData = {
                             provider: "myEmailProvider",
                           },
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

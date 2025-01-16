@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   combineLatestWith,
   distinctUntilChanged,
@@ -6,30 +8,24 @@ import {
   Observable,
   shareReplay,
   Subscription,
+  BehaviorSubject,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import {
-  Argon2KdfConfig,
-  KdfConfig,
-  PBKDF2KdfConfig,
-} from "@bitwarden/common/auth/models/domain/kdf-config";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -37,12 +33,21 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KdfType } from "@bitwarden/common/platform/enums/kdf-type.enum";
 import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/src/auth/abstractions/device-trust.service.abstraction";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { MasterKey } from "@bitwarden/common/types/key";
+import {
+  KdfType,
+  KeyService,
+  Argon2KdfConfig,
+  KdfConfig,
+  PBKDF2KdfConfig,
+  KdfConfigService,
+} from "@bitwarden/key-management";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -68,7 +73,7 @@ import {
   CACHE_KEY,
 } from "./login-strategy.state";
 
-const sessionTimeoutLength = 2 * 60 * 1000; // 2 minutes
+const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
 
 export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private sessionTimeoutSubscription: Subscription;
@@ -76,6 +81,9 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private loginStrategyCacheState: GlobalState<CacheData | null>;
   private loginStrategyCacheExpirationState: GlobalState<Date | null>;
   private authRequestPushNotificationState: GlobalState<string>;
+  private twoFactorTimeoutSubject = new BehaviorSubject<boolean>(false);
+
+  twoFactorTimeout$: Observable<boolean> = this.twoFactorTimeoutSubject.asObservable();
 
   private loginStrategy$: Observable<
     | UserApiLoginStrategy
@@ -91,7 +99,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   constructor(
     protected accountService: AccountService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    protected cryptoService: CryptoService,
+    protected keyService: KeyService,
     protected apiService: ApiService,
     protected tokenService: TokenService,
     protected appIdService: AppIdService,
@@ -123,7 +131,14 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     );
     this.taskSchedulerService.registerTaskHandler(
       ScheduledTaskNames.loginStrategySessionTimeout,
-      () => this.clearCache(),
+      async () => {
+        this.twoFactorTimeoutSubject.next(true);
+        try {
+          await this.clearCache();
+        } catch (e) {
+          this.logService.error("Failed to clear cache during session timeout", e);
+        }
+      },
     );
 
     this.currentAuthType$ = this.currentAuthnTypeState.state$;
@@ -189,6 +204,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       | WebAuthnLoginCredentials,
   ): Promise<AuthResult> {
     await this.clearCache();
+    this.twoFactorTimeoutSubject.next(false);
 
     await this.currentAuthnTypeState.update((_) => credentials.type);
 
@@ -264,12 +280,16 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
         throw e;
       }
     }
-    return await this.cryptoService.makeMasterKey(masterPassword, email, kdfConfig);
+
+    kdfConfig.validateKdfConfigForPrelogin();
+
+    return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
   }
 
   private async clearCache(): Promise<void> {
     await this.currentAuthnTypeState.update((_) => null);
     await this.loginStrategyCacheState.update((_) => null);
+    this.twoFactorTimeoutSubject.next(false);
     await this.clearSessionTimeout();
   }
 
@@ -316,7 +336,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     const sharedDeps: ConstructorParameters<typeof LoginStrategy> = [
       this.accountService,
       this.masterPasswordService,
-      this.cryptoService,
+      this.keyService,
+      this.encryptService,
       this.apiService,
       this.tokenService,
       this.appIdService,

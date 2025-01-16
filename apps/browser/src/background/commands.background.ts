@@ -1,9 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { openUnlockPopout } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
@@ -17,10 +18,10 @@ export default class CommandsBackground {
 
   constructor(
     private main: MainBackground,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutService: VaultTimeoutService,
     private authService: AuthService,
+    private generatePasswordToClipboard: () => Promise<void>,
   ) {
     this.isSafari = this.platformUtilsService.isSafari();
     this.isVivaldi = this.platformUtilsService.isVivaldi();
@@ -75,13 +76,6 @@ export default class CommandsBackground {
       default:
         break;
     }
-  }
-
-  private async generatePasswordToClipboard() {
-    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-    const password = await this.passwordGenerationService.generatePassword(options);
-    this.platformUtilsService.copyToClipboard(password);
-    await this.passwordGenerationService.addHistory(password);
   }
 
   private async triggerAutofillCommand(

@@ -6,16 +6,20 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  Account,
+  AccountInfo,
+  AccountService,
+} from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { lockGuard } from "./lock.guard";
 
@@ -38,9 +42,9 @@ describe("lockGuard", () => {
       mock<VaultTimeoutSettingsService>();
     vaultTimeoutSettingsService.canLock.mockResolvedValue(setupParams.canLock);
 
-    const cryptoService: MockProxy<CryptoService> = mock<CryptoService>();
-    cryptoService.isLegacyUser.mockResolvedValue(setupParams.isLegacyUser);
-    cryptoService.everHadUserKey$ = of(setupParams.everHadUserKey);
+    const keyService: MockProxy<KeyService> = mock<KeyService>();
+    keyService.isLegacyUser.mockResolvedValue(setupParams.isLegacyUser);
+    keyService.everHadUserKey$ = of(setupParams.everHadUserKey);
 
     const platformUtilService: MockProxy<PlatformUtilsService> = mock<PlatformUtilsService>();
     platformUtilService.getClientType.mockReturnValue(setupParams.clientType);
@@ -56,7 +60,7 @@ describe("lockGuard", () => {
     userVerificationService.hasMasterPassword.mockResolvedValue(setupParams.hasMasterPassword);
 
     const accountService: MockProxy<AccountService> = mock<AccountService>();
-    const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(null);
+    const activeAccountSubject = new BehaviorSubject<Account | null>(null);
     accountService.activeAccount$ = activeAccountSubject;
     activeAccountSubject.next(
       Object.assign(
@@ -83,7 +87,7 @@ describe("lockGuard", () => {
         { provide: MessagingService, useValue: messagingService },
         { provide: AccountService, useValue: accountService },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
-        { provide: CryptoService, useValue: cryptoService },
+        { provide: KeyService, useValue: keyService },
         { provide: PlatformUtilsService, useValue: platformUtilService },
         { provide: DeviceTrustServiceAbstraction, useValue: deviceTrustService },
         { provide: UserVerificationService, useValue: userVerificationService },

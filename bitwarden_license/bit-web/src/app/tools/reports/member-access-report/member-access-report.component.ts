@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
@@ -101,7 +103,7 @@ export class MemberAccessReportComponent implements OnInit {
         usesKeyConnector: user?.usesKeyConnector,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: MemberDialogTab.Role,
-        numConfirmedMembers: this.dataSource.data.length,
+        numSeatsUsed: this.dataSource.data.length,
       },
     });
 

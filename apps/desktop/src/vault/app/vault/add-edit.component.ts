@@ -1,7 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
-import { Component, NgZone, OnChanges, OnInit, OnDestroy, ViewChild } from "@angular/core";
+import { Component, NgZone, OnChanges, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
+import { sshagent as sshAgent } from "desktop_native/napi";
+import { lastValueFrom } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -14,11 +19,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SshKeyPasswordPromptComponent } from "@bitwarden/importer/ui";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 const BroadcasterSubscriptionId = "AddEditComponent";
@@ -30,6 +36,7 @@ const BroadcasterSubscriptionId = "AddEditComponent";
 export class AddEditComponent extends BaseAddEditComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild("form")
   private form: NgForm;
+
   constructor(
     cipherService: CipherService,
     folderService: FolderService,
@@ -46,11 +53,12 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     private ngZone: NgZone,
     logService: LogService,
     organizationService: OrganizationService,
-    sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
     toastService: ToastService,
+    cipherAuthorizationService: CipherAuthorizationService,
+    sdkService: SdkService,
   ) {
     super(
       cipherService,
@@ -66,12 +74,14 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       logService,
       passwordRepromptService,
       organizationService,
-      sendApiService,
       dialogService,
       window,
       datePipe,
       configService,
       toastService,
+      cipherAuthorizationService,
+      toastService,
+      sdkService,
     );
   }
 
@@ -106,9 +116,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     ) {
       this.cipher = null;
     }
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    super.load();
+
+    await super.load();
   }
 
   onWindowHidden() {
@@ -138,5 +147,76 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     this.platformUtilsService.launchUri(
       "https://bitwarden.com/help/managing-items/#protect-individual-items",
     );
+  }
+
+  async importSshKeyFromClipboard(password: string = "") {
+    const key = await this.platformUtilsService.readFromClipboard();
+    const parsedKey = await ipc.platform.sshAgent.importKey(key, password);
+    if (parsedKey == null) {
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t("invalidSshKey"),
+      });
+      return;
+    }
+
+    switch (parsedKey.status) {
+      case sshAgent.SshKeyImportStatus.ParsingError:
+        this.toastService.showToast({
+          variant: "error",
+          title: "",
+          message: this.i18nService.t("invalidSshKey"),
+        });
+        return;
+      case sshAgent.SshKeyImportStatus.UnsupportedKeyType:
+        this.toastService.showToast({
+          variant: "error",
+          title: "",
+          message: this.i18nService.t("sshKeyTypeUnsupported"),
+        });
+        return;
+      case sshAgent.SshKeyImportStatus.PasswordRequired:
+      case sshAgent.SshKeyImportStatus.WrongPassword:
+        if (password !== "") {
+          this.toastService.showToast({
+            variant: "error",
+            title: "",
+            message: this.i18nService.t("sshKeyWrongPassword"),
+          });
+        } else {
+          password = await this.getSshKeyPassword();
+          if (password === "") {
+            return;
+          }
+          await this.importSshKeyFromClipboard(password);
+        }
+        return;
+      default:
+        this.cipher.sshKey.privateKey = parsedKey.sshKey.privateKey;
+        this.cipher.sshKey.publicKey = parsedKey.sshKey.publicKey;
+        this.cipher.sshKey.keyFingerprint = parsedKey.sshKey.keyFingerprint;
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("sshKeyPasted"),
+        });
+    }
+  }
+
+  async getSshKeyPassword(): Promise<string> {
+    const dialog = this.dialogService.open<string>(SshKeyPasswordPromptComponent, {
+      ariaModal: true,
+    });
+
+    return await lastValueFrom(dialog.closed);
+  }
+
+  truncateString(value: string, length: number) {
+    return value.length > length ? value.substring(0, length) + "..." : value;
+  }
+
+  togglePrivateKey() {
+    this.showPrivateKey = !this.showPrivateKey;
   }
 }

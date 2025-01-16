@@ -15,7 +15,7 @@ const icon = svgIcon`<svg xmlns="http://www.w3.org/2000/svg" width="120" height=
   standalone: true,
   imports: [SharedModule, ButtonModule, NoItemsModule],
   template: `<bit-no-items [icon]="icon" class="tw-mt-2 tw-block">
-    <span slot="title" class="tw-mt-4 tw-block">{{ "collectionAccessRestricted" | i18n }}</span>
+    <span slot="title" class="tw-mt-4 tw-block">{{ "youDoNotHavePermissions" | i18n }}</span>
     <button
       *ngIf="canEditCollection"
       slot="button"

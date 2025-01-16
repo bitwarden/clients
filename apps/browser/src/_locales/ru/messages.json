@@ -19,6 +19,18 @@
   "createAccount": {
     "message": "Создать аккаунт"
   },
+  "newToBitwarden": {
+    "message": "Впервые на Bitwarden?"
+  },
+  "logInWithPasskey": {
+    "message": "Войти с passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Использовать единый вход"
+  },
+  "welcomeBack": {
+    "message": "С возвращением"
+  },
   "setAStrongPassword": {
     "message": "Задайте надежный пароль"
   },
@@ -71,6 +83,15 @@
   "joinOrganization": {
     "message": "Присоединиться к организации"
   },
+  "joinOrganizationName": {
+    "message": "Присоединиться к $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
     "message": "Завершите присоединение к этой организации, установив мастер-пароль."
   },
@@ -97,6 +118,9 @@
   },
   "copyPassword": {
     "message": "Скопировать пароль"
+  },
+  "copyPassphrase": {
+    "message": "Скопировать парольную фразу"
   },
   "copyNote": {
     "message": "Скопировать заметку"
@@ -128,6 +152,34 @@
   "copyLicenseNumber": {
     "message": "Скопировать номер лицензии"
   },
+  "copyPrivateKey": {
+    "message": "Скопировать приватный ключ"
+  },
+  "copyPublicKey": {
+    "message": "Скопировать публичный ключ"
+  },
+  "copyFingerprint": {
+    "message": "Скопировать отпечаток"
+  },
+  "copyCustomField": {
+    "message": "Скопировать $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
+  "copyWebsite": {
+    "message": "Скопировать сайт"
+  },
+  "copyNotes": {
+    "message": "Скопировать заметки"
+  },
+  "fill": {
+    "message": "Заполнить",
+    "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
+  },
   "autoFill": {
     "message": "Автозаполнение"
   },
@@ -139,6 +191,13 @@
   },
   "autoFillIdentity": {
     "message": "Автозаполнение личности"
+  },
+  "fillVerificationCode": {
+    "message": "Заполнить код подтверждения"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Заполнить код подтверждения",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
     "message": "Сгенерировать пароль (с копированием)"
@@ -178,6 +237,18 @@
   },
   "addItem": {
     "message": "Добавить элемент"
+  },
+  "accountEmail": {
+    "message": "Email аккаунта"
+  },
+  "requestHint": {
+    "message": "Запросить подсказку"
+  },
+  "requestPasswordHint": {
+    "message": "Запросить подсказку к паролю"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
   },
   "passwordHint": {
     "message": "Подсказка к паролю"
@@ -354,7 +425,7 @@
   },
   "generator": {
     "message": "Генератор",
-    "description": "Short for 'Password Generator'."
+    "description": "Short for 'credential generator'."
   },
   "passGenInfo": {
     "message": "Автоматическая генерация сильных и уникальных паролей для ваших логинов."
@@ -371,6 +442,9 @@
   "generatePassword": {
     "message": "Сгенерировать пароль"
   },
+  "generatePassphrase": {
+    "message": "Создать парольную фразу"
+  },
   "regeneratePassword": {
     "message": "Создать новый пароль"
   },
@@ -379,9 +453,6 @@
   },
   "length": {
     "message": "Длина"
-  },
-  "passwordMinLength": {
-    "message": "Минимальная длина пароля"
   },
   "uppercase": {
     "message": "Прописные буквы (A-Z)",
@@ -454,13 +525,13 @@
   "minSpecial": {
     "message": "Минимум символов"
   },
-  "avoidAmbChar": {
-    "message": "Избегать неоднозначных символов",
-    "description": "deprecated. Use avoidAmbiguous instead."
-  },
   "avoidAmbiguous": {
     "message": "Избегать неоднозначных символов",
     "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "К настройкам генератора были применены требования корпоративной политики.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
     "message": "Поиск в хранилище"
@@ -504,6 +575,9 @@
   "notes": {
     "message": "Заметки"
   },
+  "privateNote": {
+    "message": "Приватная заметка"
+  },
   "note": {
     "message": "Заметка"
   },
@@ -524,6 +598,15 @@
   },
   "launchWebsite": {
     "message": "Открыть сайт"
+  },
+  "launchWebsiteName": {
+    "message": "Открыть сайт $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Сайт"
@@ -549,14 +632,14 @@
   "sessionTimeoutHeader": {
     "message": "Тайм-аут сессии"
   },
+  "vaultTimeoutHeader": {
+    "message": "Тайм-аут хранилища"
+  },
   "otherOptions": {
     "message": "Прочие настройки"
   },
   "rateExtension": {
     "message": "Оценить расширение"
-  },
-  "rateExtensionDesc": {
-    "message": "Пожалуйста, подумайте о том, чтобы помочь нам хорошим отзывом!"
   },
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не поддерживает копирование данных в буфер обмена. Скопируйте вручную."
@@ -566,6 +649,15 @@
   },
   "yourVaultIsLocked": {
     "message": "Ваше хранилище заблокировано. Подтвердите свою личность, чтобы продолжить"
+  },
+  "yourVaultIsLockedV2": {
+    "message": "Ваше хранилище заблокировано"
+  },
+  "yourAccountIsLocked": {
+    "message": "Ваш аккаунт заблокирован"
+  },
+  "or": {
+    "message": "или"
   },
   "unlock": {
     "message": "Разблокировать"
@@ -588,6 +680,9 @@
   },
   "vaultTimeout": {
     "message": "Тайм-аут хранилища"
+  },
+  "vaultTimeout1": {
+    "message": "Тайм-аут"
   },
   "lockNow": {
     "message": "Заблокировать"
@@ -756,6 +851,9 @@
   "logIn": {
     "message": "Войти"
   },
+  "logInToBitwarden": {
+    "message": "Войти в Bitwarden"
+  },
   "restartRegistration": {
     "message": "Перезапустить регистрацию"
   },
@@ -788,6 +886,12 @@
   },
   "twoStepLoginConfirmation": {
     "message": "Двухэтапная аутентификация делает аккаунт более защищенным, поскольку требуется подтверждение входа при помощи другого устройства, например, ключа безопасности, приложения-аутентификатора, SMS, телефонного звонка или электронной почты. Двухэтапная аутентификация включается на bitwarden.com. Перейти на сайт сейчас?"
+  },
+  "twoStepLoginConfirmationContent": {
+    "message": "Сделайте ваш аккаунт более защищенным, настроив двухэтапную аутентификацию в веб-приложении Bitwarden."
+  },
+  "twoStepLoginConfirmationTitle": {
+    "message": "Перейти к веб-приложению?"
   },
   "editedFolder": {
     "message": "Папка сохранена"
@@ -899,6 +1003,9 @@
   },
   "showIdentitiesCurrentTabDesc": {
     "message": "Личности будут отображены на вкладке для удобного автозаполнения."
+  },
+  "clickToAutofillOnVault": {
+    "message": "Кликните элементы для автозаполнения в режиме просмотра хранилища"
   },
   "clearClipboard": {
     "message": "Очистить буфер обмена",
@@ -1018,6 +1125,10 @@
     "message": "ВНИМАНИЕ",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "Предупреждение",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
     "message": "Подтвердить экспорт хранилища"
   },
@@ -1041,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Переместить в организацию"
-  },
-  "share": {
-    "message": "Поделиться"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ перемещен в $ORGNAME$",
@@ -1096,6 +1204,9 @@
   },
   "file": {
     "message": "Файл"
+  },
+  "fileToShare": {
+    "message": "Файл для отправки"
   },
   "selectFile": {
     "message": "Выбрать файл"
@@ -1204,6 +1315,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Введите 6-значный код подтверждения из вашего приложения-аутентификатора."
+  },
+  "authenticationTimeout": {
+    "message": "Таймаут аутентификации"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сеанс аутентификации завершился по времени. Пожалуйста, попробуйте войти еще раз."
   },
   "enterVerificationCodeEmail": {
     "message": "Введите 6-значный код подтверждения, который был отправлен на $EMAIL$.",
@@ -1322,6 +1439,10 @@
   "baseUrl": {
     "message": "URL сервера"
   },
+  "selfHostBaseUrl": {
+    "message": "URL собственного сервера",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "apiUrl": {
     "message": "URL API сервера"
   },
@@ -1349,6 +1470,12 @@
   },
   "showInlineMenuLabel": {
     "message": "Показывать предположения автозаполнения в полях формы"
+  },
+  "showInlineMenuIdentitiesLabel": {
+    "message": "Показывать Личности как предложения"
+  },
+  "showInlineMenuCardsLabel": {
+    "message": "Показывать Карты как предложения"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Показывать подсказки при выборе значка"
@@ -1382,19 +1509,6 @@
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Если обнаружена форма входа, автозаполнение выполняется при загрузке веб-страницы."
-  },
-  "autofillOnPageLoadWarning": {
-    "message": "$OPENTAG$Предупреждение:$CLOSETAG$ взломанные или недоверенные сайты могут использовать автозаполнение при загрузке страницы.",
-    "placeholders": {
-      "openTag": {
-        "content": "$1",
-        "example": "<b>"
-      },
-      "closeTag": {
-        "content": "$2",
-        "example": "</b>"
-      }
-    }
   },
   "experimentalFeature": {
     "message": "Взломанные или недоверенные сайты могут внедрить вредоносный код во время автозаполнения при загрузке страницы."
@@ -1653,6 +1767,9 @@
   "typeIdentity": {
     "message": "Личная информация"
   },
+  "typeSshKey": {
+    "message": "Ключ SSH"
+  },
   "newItemHeader": {
     "message": "Новый $TYPE$",
     "placeholders": {
@@ -1682,6 +1799,15 @@
   },
   "passwordHistory": {
     "message": "История паролей"
+  },
+  "generatorHistory": {
+    "message": "История генератора"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Очистить историю генератора"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Если вы продолжите, все записи будут навсегда удалены из истории генератора. Вы уверены, что хотите продолжить?"
   },
   "back": {
     "message": "Назад"
@@ -1718,6 +1844,9 @@
   },
   "secureNotes": {
     "message": "Защищенные заметки"
+  },
+  "sshKeys": {
+    "message": "Ключи SSH"
   },
   "clear": {
     "message": "Очистить",
@@ -1799,11 +1928,11 @@
   "clearHistory": {
     "message": "Очистить историю"
   },
-  "noPasswordsToShow": {
-    "message": "Нет паролей для отображения"
+  "nothingToShow": {
+    "message": "Нечего показать"
   },
-  "noRecentlyGeneratedPassword": {
-    "message": "Нет недавно сгенерированных паролей"
+  "nothingGeneratedRecently": {
+    "message": "Вы ничего не создавали в последнее время"
   },
   "remove": {
     "message": "Удалить"
@@ -1863,8 +1992,17 @@
   "unlockWithPin": {
     "message": "Разблокировать с помощью PIN-кода"
   },
+  "setYourPinTitle": {
+    "message": "Установка PIN"
+  },
+  "setYourPinButton": {
+    "message": "Задать PIN-код"
+  },
   "setYourPinCode": {
     "message": "Установите PIN-код для разблокировки Bitwarden. Настройки PIN-кода будут сброшены, если вы когда-либо полностью выйдете из приложения."
+  },
+  "setYourPinCode1": {
+    "message": "Ваш PIN-код будет использоваться для разблокировки Bitwarden вместо мастер-пароля. PIN-код будет сброшен, если вы выйдете из Bitwarden."
   },
   "pinRequired": {
     "message": "Необходим PIN-код."
@@ -1878,6 +2016,9 @@
   "unlockWithBiometrics": {
     "message": "Разблокировать с помощью биометрии"
   },
+  "unlockWithMasterPassword": {
+    "message": "Разблокировать мастер-паролем"
+  },
   "awaitDesktop": {
     "message": "Ожидание подтверждения с компьютера"
   },
@@ -1887,6 +2028,9 @@
   "lockWithMasterPassOnRestart": {
     "message": "Блокировать мастер-паролем при перезапуске браузера"
   },
+  "lockWithMasterPassOnRestart1": {
+    "message": "Требовать мастер-пароль при перезапуске браузера"
+  },
   "selectOneCollection": {
     "message": "Необходимо выбрать хотя бы одну коллекцию."
   },
@@ -1895,9 +2039,6 @@
   },
   "clone": {
     "message": "Клонировать"
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "На настройки генератора влияют одна или несколько политик организации."
   },
   "passwordGenerator": {
     "message": "Генератор паролей"
@@ -1925,9 +2066,12 @@
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
   },
+  "vaultTimeoutAction1": {
+    "message": "Тайм-аут действия"
+  },
   "lock": {
     "message": "Блокировка",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Корзина",
@@ -2119,11 +2263,11 @@
   "nativeMessagingWrongUserTitle": {
     "message": "Несоответствие аккаунта"
   },
-  "nativeMessagingWrongUserKeyDesc": {
-    "message": "Биометрическая разблокировка не удалась. Биометрический секретный ключ не смог разблокировать хранилище. Пожалуйста, попробуйте настроить биометрию еще раз."
-  },
   "nativeMessagingWrongUserKeyTitle": {
     "message": "Несовпадение биометрического ключа"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Биометрическая разблокировка не удалась. Биометрический секретный ключ не смог разблокировать хранилище. Пожалуйста, попробуйте настроить биометрию еще раз."
   },
   "biometricsNotEnabledTitle": {
     "message": "Биометрия не настроена"
@@ -2180,6 +2324,9 @@
     "message": "Домены",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Заблокированные домены"
+  },
   "excludedDomains": {
     "message": "Исключенные домены"
   },
@@ -2188,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden не будет предлагать сохранение логинов для этих доменов для всех авторизованных аккаунтов. Для вступления изменений в силу необходимо обновить страницу."
+  },
+  "blockedDomainsDesc": {
+    "message": "Автозаполнение и другие связанные с ним функции не будут предлагаться для этих сайтов. Чтобы изменения вступили в силу, необходимо обновить страницу."
+  },
+  "autofillBlockedNotice": {
+    "message": "Автозаполнение для этого сайта заблокировано. Просмотрите или измените это в настройках."
+  },
+  "autofillBlockedTooltip": {
+    "message": "Автозаполнение на этом сайте заблокировано. Просмотрите в настройках."
   },
   "websiteItemLabel": {
     "message": "Сайт $number$ (URI)",
@@ -2207,23 +2363,42 @@
       }
     }
   },
+  "blockedDomainsSavedSuccess": {
+    "message": "Изменения в заблокированном домене сохранены"
+  },
   "excludedDomainsSavedSuccess": {
     "message": "Изменения в исключенном домене сохранены"
+  },
+  "limitSendViews": {
+    "message": "Лимит просмотров"
+  },
+  "limitSendViewsHint": {
+    "message": "Никто не сможет просмотреть эту Send после лимита просмотров.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "Осталось просмотров: $ACCESSCOUNT$",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
   },
   "send": {
     "message": "Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Поиск Send’ов",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Добавить Send",
+  "sendDetails": {
+    "message": "Информация о Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
     "message": "Текст"
+  },
+  "sendTypeTextToShare": {
+    "message": "Текст для отправки"
   },
   "sendTypeFile": {
     "message": "Файл"
@@ -2232,15 +2407,11 @@
     "message": "Все Send’ы",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "maxAccessCountReached": {
-    "message": "Достигнут максимум обращений",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  "hideTextByDefault": {
+    "message": "Скрыть текст по умолчанию"
   },
   "expired": {
     "message": "Срок истек"
-  },
-  "pendingDeletion": {
-    "message": "Ожидание удаления"
   },
   "passwordProtected": {
     "message": "Защищено паролем"
@@ -2283,34 +2454,23 @@
     "message": "Вы действительно хотите удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deleteSendPermanentConfirmation": {
+    "message": "Вы уверены, что хотите безвозвратно удалить эту Send?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editSend": {
     "message": "Изменить Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Выберите тип Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Понятное имя для описания этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Файл, который вы хотите отправить."
-  },
   "deletionDate": {
     "message": "Дата удаления"
   },
-  "deletionDateDesc": {
-    "message": "Эта Send будет окончательно удалена в указанные дату и время.",
+  "deletionDateDescV2": {
+    "message": "С этой даты Send будет удалена навсегда.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
     "message": "Дата истечения"
-  },
-  "expirationDateDesc": {
-    "message": "Если задано, доступ к этой Send истечет в указанные дату и время.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 день"
@@ -2327,38 +2487,9 @@
   "custom": {
     "message": "Пользовательский"
   },
-  "maximumAccessCount": {
-    "message": "Максимум обращений"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Если задано, пользователи больше не смогут получить доступ к этой Send, как только будет достигнуто максимальное количество обращений.",
+  "sendPasswordDescV3": {
+    "message": "Добавьте опциональный пароль для доступа получателей к этой Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "По возможности запрашивать у пользователей пароль для доступа к этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Личные заметки об этой Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Деактивировать эту Send, чтобы никто не мог получить к ней доступ.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Скопировать ссылку на эту Send в буфер обмена после сохранения.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Текст, который вы хотите отправить."
-  },
-  "sendHideText": {
-    "message": "Скрыть текст этой Send по умолчанию.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Текущих обращений"
   },
   "createSend": {
     "message": "Новая Send",
@@ -2383,8 +2514,26 @@
     "message": "Send успешно создана!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendAvailability": {
-    "message": "Send будет доступна всем, кто получит ссылку в течение следующих дней: $DAYS$.",
+  "sendExpiresInHoursSingle": {
+    "message": "Send будет доступна всем, кто получит ссылку в течение следующего 1 часа.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresInHours": {
+    "message": "Send будет доступна всем, кто получит ссылку в течение следующих $HOURS$ часов.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendExpiresInDaysSingle": {
+    "message": "Send будет доступна всем, кто получит ссылку в течение следующего 1 дня.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresInDays": {
+    "message": "Send будет доступна всем, кто получит ссылку в течение следующих $DAYS$ дней.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "days": {
@@ -2401,6 +2550,14 @@
     "message": "Send сохранена",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendFilePopoutDialogText": {
+    "message": "Открепить расширение?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendFilePopoutDialogDesc": {
+    "message": "Чтобы создать файл Send, необходимо открыть расширение в новом окне.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendLinuxChromiumFileWarning": {
     "message": "Для выбора файла откройте расширение в боковой панели (если возможно) или перейдите в новое окно, нажав на этот баннер."
   },
@@ -2410,20 +2567,11 @@
   "sendSafariFileWarning": {
     "message": "Для выбора файла с помощью Safari, перейдите в новое окно, нажав на этот баннер."
   },
+  "popOut": {
+    "message": "Открепить"
+  },
   "sendFileCalloutHeader": {
     "message": "Перед тем, как начать"
-  },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Для использования календарного стиля выбора даты,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "нажмите здесь",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "для открытия в новом окне.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
   },
   "expirationDateIsInvalid": {
     "message": "Срок истечения указан некорректно."
@@ -2440,11 +2588,8 @@
   "dateParsingError": {
     "message": "Произошла ошибка при сохранении данных о сроках удаления и истечения."
   },
-  "hideEmail": {
-    "message": "Скрыть мой адрес email от получателей."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "На параметры Send влияют одна или несколько политик организации."
+  "hideYourEmail": {
+    "message": "Скрыть ваш email от просматривающих."
   },
   "passwordPrompt": {
     "message": "Повторный запрос мастер-пароля"
@@ -2500,6 +2645,15 @@
     "message": "Необходимо установить мастер-пароль для организации.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "cardMetrics": {
+    "message": "из $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "verificationRequired": {
     "message": "Требуется верификация",
     "description": "Default title for the user verification dialog."
@@ -2510,8 +2664,37 @@
   "minutes": {
     "message": "Мин."
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
+  },
   "vaultTimeoutPolicyInEffect": {
     "message": "В соответствии с политиками вашей организации максимально допустимый тайм-аут хранилища составляет $HOURS$ час. и $MINUTES$ мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "Максимум $HOURS$ час. $MINUTES$ мин.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Время ожидания превышает установленное организацией максимальное ограничение: $HOURS$ час. $MINUTES$ мин.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2621,14 +2804,59 @@
   "error": {
     "message": "Ошибка"
   },
-  "regenerateUsername": {
-    "message": "Пересоздать имя пользователя"
+  "decryptionError": {
+    "message": "Ошибка расшифровки"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden не удалось расшифровать элемент(ы) хранилища, перечисленные ниже."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Обратитесь в службу поддержки,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "чтобы избежать дополнительной потери данных.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Создать имя пользователя"
   },
-  "usernameType": {
-    "message": "Тип имени пользователя"
+  "generateEmail": {
+    "message": "Сгенерировать email"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Значение должно быть между $MIN$ и $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Для создания надежного пароля используйте $RECOMMENDED$ символов или больше.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Для создания надежной парольной фразы используйте $RECOMMENDED$ слов или больше.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "plusAddressedEmail": {
     "message": "Субадресованные email",
@@ -2652,12 +2880,6 @@
   "websiteName": {
     "message": "Название сайта"
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Что вы хотите сгенерировать?"
-  },
-  "passwordType": {
-    "message": "Тип пароля"
-  },
   "service": {
     "message": "Служба"
   },
@@ -2666,6 +2888,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Создать псевдоним электронной почты для внешней службы пересылки."
+  },
+  "forwarderDomainName": {
+    "message": "Домен электронной почты",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Выберите домен, который поддерживается выбранным сервисом",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Ошибка $SERVICENAME$: $ERRORMESSAGE$",
@@ -2866,11 +3096,26 @@
   "resendNotification": {
     "message": "Отправить уведомление повторно"
   },
-  "viewAllLoginOptions": {
+  "viewAllLogInOptions": {
+    "message": "Посмотреть все варианты авторизации"
+  },
+  "viewAllLoginOptionsV1": {
     "message": "Посмотреть все варианты авторизации"
   },
   "notificationSentDevice": {
     "message": "На ваше устройство отправлено уведомление."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "На ваше устройство было отправлено уведомление"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Убедитесь, что ваш аккаунт разблокирован и фраза отпечатка совпадает с фразой на другом устройстве"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Вы получите уведомление, когда запрос будет одобрен"
+  },
+  "needAnotherOptionV1": {
+    "message": "Нужен другой вариант?"
   },
   "loginInitiated": {
     "message": "Вход инициирован"
@@ -2962,14 +3207,20 @@
       }
     }
   },
-  "loggingInOn": {
-    "message": "Войти на"
-  },
   "opensInANewWindow": {
     "message": "Откроется в новом окне"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Запомнить это устройство, чтобы в будущем авторизовываться быстрее"
+  },
   "deviceApprovalRequired": {
     "message": "Требуется одобрение устройства. Выберите вариант ниже:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Требуется подтверждение устройства"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Выберите вариант подтверждения ниже"
   },
   "rememberThisDevice": {
     "message": "Запомнить это устройство"
@@ -3043,6 +3294,9 @@
   },
   "userEmailMissing": {
     "message": "Отсутствует email пользователя"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Email активного пользователя не найден. Разлогиниваем."
   },
   "deviceTrusted": {
     "message": "Доверенное устройство"
@@ -3251,6 +3505,14 @@
   "unlockAccountAria": {
     "message": "Разблокируйте ваш аккаунт, откроется в новом окне",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Код подтверждения, основанный на времени",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Время, оставшееся до истечения срока действия текущего TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Заполнить учетные данные",
@@ -3477,6 +3739,12 @@
   "typePasskey": {
     "message": "Passkey"
   },
+  "accessing": {
+    "message": "Доступ"
+  },
+  "loggedInExclamation": {
+    "message": "Выполнен вход!"
+  },
   "passkeyNotCopied": {
     "message": "Passkey не будет скопирован"
   },
@@ -3500,6 +3768,9 @@
   },
   "noMatchingLoginsForSite": {
     "message": "Нет подходящих логинов для этого сайта"
+  },
+  "searchSavePasskeyNewLogin": {
+    "message": "Найти или сохранить passkey как новый логин"
   },
   "confirm": {
     "message": "Подтвердить"
@@ -3965,6 +4236,21 @@
   "filters": {
     "message": "Фильтры"
   },
+  "filterVault": {
+    "message": "Фильтр хранилища"
+  },
+  "filterApplied": {
+    "message": "Применен один фильтр"
+  },
+  "filterAppliedPlural": {
+    "message": "Применено фильтров: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "personalDetails": {
     "message": "Личные данные"
   },
@@ -4069,6 +4355,9 @@
   },
   "enableAnimations": {
     "message": "Включить анимацию"
+  },
+  "showAnimations": {
+    "message": "Показать анимацию"
   },
   "addAccount": {
     "message": "Добавить аккаунт"
@@ -4285,8 +4574,14 @@
   "itemLocation": {
     "message": "Расположение элемента"
   },
+  "fileSend": {
+    "message": "Файловая Send"
+  },
   "fileSends": {
     "message": "Файловая Send"
+  },
+  "textSend": {
+    "message": "Текстовая Send"
   },
   "textSends": {
     "message": "Текстовая Send"
@@ -4298,16 +4593,55 @@
     "message": "Теперь автозаполнение и поиск на вкладке Хранилище стали проще и интуитивно понятнее, чем когда-либо. Осмотритесь!"
   },
   "accountActions": {
-    "message": "Действия с аккаунтом"
+    "message": "Действия аккаунта"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Показывать количество вариантов автозаполнения логина на значке расширения"
+  },
+  "showQuickCopyActions": {
+    "message": "Показать быстрые действия копирования в хранилище"
   },
   "systemDefault": {
     "message": "Системный"
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "К этой настройке были применены требования корпоративной политики"
+  },
+  "sshPrivateKey": {
+    "message": "Приватный ключ"
+  },
+  "sshPublicKey": {
+    "message": "Публичный ключ"
+  },
+  "sshFingerprint": {
+    "message": "Отпечаток"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Тип ключа"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "retry": {
+    "message": "Повторить"
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Минимальный пользовательский тайм-аут составляет 1 минуту."
+  },
+  "additionalContentAvailable": {
+    "message": "Дополнительный контент доступен"
+  },
+  "fileSavedToDevice": {
+    "message": "Файл сохранен на устройстве. Управляйте им из загрузок устройства."
   },
   "showCharacterCount": {
     "message": "Показать количество символов"
@@ -4335,5 +4669,239 @@
   },
   "noEditPermissions": {
     "message": "У вас нет разрешения на редактирование этого элемента"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Биометрическая разблокировка недоступна, поскольку сначала требуется разблокировка с помощью PIN-кода или пароля."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Биометрическая разблокировка в настоящее время недоступна."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Биометрическая разблокировка недоступна из-за неправильно настроенных системных файлов."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Биометрическая разблокировка недоступна из-за неправильно настроенных системных файлов."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Биометрическая разблокировка недоступна, поскольку Bitwarden для компьютера закрыт."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Биометрическая разблокировка недоступна, потому что она не включена для $EMAIL$ в приложении Bitwarden для компьютера.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Биометрическая разблокировка в настоящее время недоступна по неизвестной причине."
+  },
+  "authenticating": {
+    "message": "Аутентификация"
+  },
+  "fillGeneratedPassword": {
+    "message": "Заполнить сгенерированный пароль",
+    "description": "Heading for the password generator within the inline menu"
+  },
+  "passwordRegenerated": {
+    "message": "Пароль сгенерирован",
+    "description": "Notification message for when a password has been regenerated"
+  },
+  "saveLoginToBitwarden": {
+    "message": "Сохранить логин в Bitwarden?",
+    "description": "Confirmation message for saving a login to Bitwarden"
+  },
+  "spaceCharacterDescriptor": {
+    "message": "Пробел",
+    "description": "Represents the space key in screen reader content as a readable word"
+  },
+  "tildeCharacterDescriptor": {
+    "message": "Тильда",
+    "description": "Represents the ~ key in screen reader content as a readable word"
+  },
+  "backtickCharacterDescriptor": {
+    "message": "Кавычка",
+    "description": "Represents the ` key in screen reader content as a readable word"
+  },
+  "exclamationCharacterDescriptor": {
+    "message": "Восклицательный знак",
+    "description": "Represents the ! key in screen reader content as a readable word"
+  },
+  "atSignCharacterDescriptor": {
+    "message": "Символ At",
+    "description": "Represents the @ key in screen reader content as a readable word"
+  },
+  "hashSignCharacterDescriptor": {
+    "message": "Символ хэша",
+    "description": "Represents the # key in screen reader content as a readable word"
+  },
+  "dollarSignCharacterDescriptor": {
+    "message": "Символ доллара",
+    "description": "Represents the $ key in screen reader content as a readable word"
+  },
+  "percentSignCharacterDescriptor": {
+    "message": "Символ процента",
+    "description": "Represents the % key in screen reader content as a readable word"
+  },
+  "caretCharacterDescriptor": {
+    "message": "Каре",
+    "description": "Represents the ^ key in screen reader content as a readable word"
+  },
+  "ampersandCharacterDescriptor": {
+    "message": "Амперсанд",
+    "description": "Represents the & key in screen reader content as a readable word"
+  },
+  "asteriskCharacterDescriptor": {
+    "message": "Звездочка",
+    "description": "Represents the * key in screen reader content as a readable word"
+  },
+  "parenLeftCharacterDescriptor": {
+    "message": "Левая круглая скобка",
+    "description": "Represents the ( key in screen reader content as a readable word"
+  },
+  "parenRightCharacterDescriptor": {
+    "message": "Правая круглая скобка",
+    "description": "Represents the ) key in screen reader content as a readable word"
+  },
+  "hyphenCharacterDescriptor": {
+    "message": "Подчеркивание",
+    "description": "Represents the _ key in screen reader content as a readable word"
+  },
+  "underscoreCharacterDescriptor": {
+    "message": "Дефис",
+    "description": "Represents the - key in screen reader content as a readable word"
+  },
+  "plusCharacterDescriptor": {
+    "message": "Плюс",
+    "description": "Represents the + key in screen reader content as a readable word"
+  },
+  "equalsCharacterDescriptor": {
+    "message": "Равно",
+    "description": "Represents the = key in screen reader content as a readable word"
+  },
+  "braceLeftCharacterDescriptor": {
+    "message": "Левая фигурная скобка",
+    "description": "Represents the { key in screen reader content as a readable word"
+  },
+  "braceRightCharacterDescriptor": {
+    "message": "Правая фигурная скобка",
+    "description": "Represents the } key in screen reader content as a readable word"
+  },
+  "bracketLeftCharacterDescriptor": {
+    "message": "Левая квадратная скобка",
+    "description": "Represents the [ key in screen reader content as a readable word"
+  },
+  "bracketRightCharacterDescriptor": {
+    "message": "Правая квадратная скобка",
+    "description": "Represents the ] key in screen reader content as a readable word"
+  },
+  "pipeCharacterDescriptor": {
+    "message": "Вертикальная черта",
+    "description": "Represents the | key in screen reader content as a readable word"
+  },
+  "backSlashCharacterDescriptor": {
+    "message": "Обратный слэш",
+    "description": "Represents the back slash key in screen reader content as a readable word"
+  },
+  "colonCharacterDescriptor": {
+    "message": "Двоеточие",
+    "description": "Represents the : key in screen reader content as a readable word"
+  },
+  "semicolonCharacterDescriptor": {
+    "message": "Точка с запятой",
+    "description": "Represents the ; key in screen reader content as a readable word"
+  },
+  "doubleQuoteCharacterDescriptor": {
+    "message": "Двойные кавычки",
+    "description": "Represents the double quote key in screen reader content as a readable word"
+  },
+  "singleQuoteCharacterDescriptor": {
+    "message": "Одинарная кавычка",
+    "description": "Represents the ' key in screen reader content as a readable word"
+  },
+  "lessThanCharacterDescriptor": {
+    "message": "Меньше",
+    "description": "Represents the < key in screen reader content as a readable word"
+  },
+  "greaterThanCharacterDescriptor": {
+    "message": "Больше",
+    "description": "Represents the > key in screen reader content as a readable word"
+  },
+  "commaCharacterDescriptor": {
+    "message": "Запятая",
+    "description": "Represents the , key in screen reader content as a readable word"
+  },
+  "periodCharacterDescriptor": {
+    "message": "Точка",
+    "description": "Represents the . key in screen reader content as a readable word"
+  },
+  "questionCharacterDescriptor": {
+    "message": "Вопросительный знак",
+    "description": "Represents the ? key in screen reader content as a readable word"
+  },
+  "forwardSlashCharacterDescriptor": {
+    "message": "Слэш",
+    "description": "Represents the / key in screen reader content as a readable word"
+  },
+  "lowercaseAriaLabel": {
+    "message": "Строчные буквы"
+  },
+  "uppercaseAriaLabel": {
+    "message": "Заглавные буквы"
+  },
+  "generatedPassword": {
+    "message": "Сгенерированный пароль"
+  },
+  "compactMode": {
+    "message": "Компактный режим"
+  },
+  "beta": {
+    "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Важное уведомление"
+  },
+  "setupTwoStepLogin": {
+    "message": "Настроить двухэтапную аутентификацию"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "В качестве альтернативного способа защиты учетной записи вы можете настроить двухэтапную аутентификацию или сменить электронную почту на ту, к которой вы можете получить доступ."
+  },
+  "remindMeLater": {
+    "message": "Напомнить позже"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Есть ли у вас надежный доступ к электронной почте $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Нет, не знаю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, я имею надежный доступ к своей электронной почте"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Включить двухэтапную аутентификацию"
+  },
+  "changeAcctEmail": {
+    "message": "Изменить email аккаунта"
+  },
+  "extensionWidth": {
+    "message": "Ширина расширения"
+  },
+  "wide": {
+    "message": "Широкое"
+  },
+  "extraWide": {
+    "message": "Очень широкое"
   }
 }

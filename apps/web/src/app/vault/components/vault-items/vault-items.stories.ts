@@ -1,8 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+  Unassigned,
+} from "@bitwarden/admin-console/common";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -19,13 +26,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
-import {
-  CollectionAccessSelectionView,
-  GroupView,
-} from "../../../admin-console/organizations/core";
+import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
-import { CollectionAdminView } from "../../core/views/collection-admin.view";
-import { Unassigned } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { VaultItemsComponent } from "./vault-items.component";
 import { VaultItemsModule } from "./vault-items.module";
@@ -288,6 +290,7 @@ function createCollectionView(i: number): CollectionAdminView {
   view.id = `collection-${i}`;
   view.name = `Collection ${i}`;
   view.organizationId = organization?.id;
+  view.manage = true;
 
   if (group !== undefined) {
     view.groups = [

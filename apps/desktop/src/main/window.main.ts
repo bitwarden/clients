@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
@@ -7,20 +9,12 @@ import { firstValueFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { processisolations } from "@bitwarden/desktop-napi";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowState } from "../platform/models/domain/window-state";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import {
-  cleanUserAgent,
-  isDev,
-  isLinux,
-  isMac,
-  isMacAppStore,
-  isSnapStore,
-  isWindows,
-} from "../utils";
+import { cleanUserAgent, isDev, isLinux, isMac, isMacAppStore, isWindows } from "../utils";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
@@ -69,9 +63,22 @@ export class WindowMain {
       this.logService.info("Render process reloaded");
     });
 
+    ipcMain.on("window-focus", () => {
+      if (this.win != null) {
+        this.win.show();
+        this.win.focus();
+      }
+    });
+
+    ipcMain.on("window-hide", () => {
+      if (this.win != null) {
+        this.win.hide();
+      }
+    });
+
     return new Promise<void>((resolve, reject) => {
       try {
-        if (!isMacAppStore() && !isSnapStore()) {
+        if (!isMacAppStore()) {
           const gotTheLock = app.requestSingleInstanceLock();
           if (!gotTheLock) {
             app.quit();
@@ -308,7 +315,7 @@ export class WindowMain {
   }
 
   private async updateWindowState(configKey: string, win: BrowserWindow) {
-    if (win == null) {
+    if (win == null || win.isDestroyed()) {
       return;
     }
 

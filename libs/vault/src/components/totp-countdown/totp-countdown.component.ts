@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
@@ -6,7 +8,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TypographyModule } from "@bitwarden/components";
 
 @Component({
-  selector: "button[bitTotpCountdown]:not(button[bitButton])",
+  selector: "[bitTotpCountdown]",
   templateUrl: "totp-countdown.component.html",
   standalone: true,
   imports: [CommonModule, TypographyModule],

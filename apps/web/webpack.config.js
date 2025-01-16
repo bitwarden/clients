@@ -78,7 +78,7 @@ const moduleRules = [
     loader: "@ngtools/webpack",
   },
   {
-    test: /\.wasm$/,
+    test: /argon2(-simd)?\.wasm$/,
     loader: "base64-loader",
     type: "javascript/auto",
   },
@@ -135,6 +135,8 @@ const plugins = [
     template: "./src/404.html",
     filename: "404.html",
     chunks: ["styles"],
+    // 404 page is a wildcard, this ensures it uses absolute paths.
+    publicPath: "/",
   }),
   new CopyWebpackPlugin({
     patterns: [
@@ -176,7 +178,7 @@ const plugins = [
     ADDITIONAL_REGIONS: envConfig["additionalRegions"] ?? [],
   }),
   new AngularWebpackPlugin({
-    tsConfigPath: "tsconfig.json",
+    tsconfig: "tsconfig.build.json",
     entryModule: "src/app/app.module#AppModule",
     sourceMap: true,
   }),
@@ -254,7 +256,7 @@ const devServer =
                   'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='
                   'sha256-or0p3LaHetJ4FRq+flVORVFFNsOjQGWrDvX8Jf7ACWg='
                   'sha256-jvLh2uL2/Pq/gpvNJMaEL4C+TNhBeGadLIUyPcVRZvY='
-                  'sha256-Oca9ZYU1dwNscIhdNV7tFBsr4oqagBhZx9/p4w8GOcg='
+                  'sha256-VZTcMoTEw3nbAHejvqlyyRm1Mdx+DVNgyKANjpWw0qg='
                 ;img-src
                   'self'
                   data:
@@ -322,6 +324,7 @@ const webpackConfig = {
   mode: NODE_ENV,
   devtool: "source-map",
   devServer: devServer,
+  target: "web",
   entry: {
     "app/polyfills": "./src/polyfills.ts",
     "app/main": "./src/main.ts",
@@ -381,8 +384,11 @@ const webpackConfig = {
     clean: true,
   },
   module: {
-    noParse: /\.wasm$/,
+    noParse: /argon2(-simd)?\.wasm$/,
     rules: moduleRules,
+  },
+  experiments: {
+    asyncWebAssembly: true,
   },
   plugins: plugins,
 };

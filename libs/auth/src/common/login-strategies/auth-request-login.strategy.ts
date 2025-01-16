@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -99,10 +101,10 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     const authRequestCredentials = this.cache.value.authRequestCredentials;
     // User now may or may not have a master password
     // but set the master key encrypted user key if it exists regardless
-    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key, userId);
+    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
 
     if (authRequestCredentials.decryptedUserKey) {
-      await this.cryptoService.setUserKey(authRequestCredentials.decryptedUserKey, userId);
+      await this.keyService.setUserKey(authRequestCredentials.decryptedUserKey, userId);
     } else {
       await this.trySetUserKeyWithMasterKey(userId);
 
@@ -114,8 +116,11 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
   private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {
-      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
-      await this.cryptoService.setUserKey(userKey, userId);
+      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+        masterKey,
+        userId,
+      );
+      await this.keyService.setUserKey(userKey, userId);
     }
   }
 
@@ -123,7 +128,7 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.cryptoService.setPrivateKey(
+    await this.keyService.setPrivateKey(
       response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
       userId,
     );

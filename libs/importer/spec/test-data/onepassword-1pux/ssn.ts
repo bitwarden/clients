@@ -26,7 +26,7 @@ export const SSNData: ExportData = {
               favIndex: 1,
               createdAt: 1619467910,
               updatedAt: 1619467982,
-              trashed: false,
+              state: "active",
               categoryUuid: "108",
               details: {
                 loginFields: [],
@@ -41,7 +41,6 @@ export const SSNData: ExportData = {
                         value: {
                           string: "Jack Judd",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -57,7 +56,6 @@ export const SSNData: ExportData = {
                         value: {
                           concealed: "131-216-1900",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: true,

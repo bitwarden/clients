@@ -1,3 +1,22 @@
+<bit-banner
+  id="free-trial-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  icon="bwi-billing"
+  [showClose]="false"
+  *ngIf="freeTrialData?.shownBanner"
+>
+  {{ freeTrialData.message }}
+  <a
+    bitLink
+    linkType="secondary"
+    (click)="changePayment()"
+    class="tw-cursor-pointer"
+    rel="noreferrer noopener"
+  >
+    {{ "clickHereToAddPaymentMethod" | i18n }}
+  </a>
+</bit-banner>
 <app-header></app-header>
 <bit-container>
   <ng-container *ngIf="loading">
@@ -43,21 +62,6 @@
       <p *ngIf="subscriptionIsUnpaid" bitTypography="body1">
         {{ "paymentChargedWithUnpaidSubscription" | i18n }}
       </p>
-    </bit-section>
-    <!-- Tax Information -->
-    <bit-section>
-      <h2 bitTypography="h2">{{ "taxInformation" | i18n }}</h2>
-      <p bitTypography="body1">{{ "taxInformationDesc" | i18n }}</p>
-      <app-tax-info></app-tax-info>
-      <button
-        type="button"
-        bitButton
-        bitFormButton
-        buttonType="primary"
-        [bitAction]="updateTaxInformation"
-      >
-        {{ "save" | i18n }}
-      </button>
     </bit-section>
   </ng-container>
 </bit-container>

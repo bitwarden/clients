@@ -9,11 +9,19 @@ module.exports = {
   ...sharedConfig,
   preset: "jest-preset-angular",
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
-  moduleNameMapper: pathsToModuleNameMapper(
-    // lets us use @bitwarden/common/spec in web tests
-    { "@bitwarden/common/spec": ["../../libs/common/spec"], ...(compilerOptions?.paths ?? {}) },
-    {
-      prefix: "<rootDir>/",
-    },
-  ),
+  moduleNameMapper: {
+    // Replace ESM SDK with Node compatible SDK
+    "@bitwarden/common/platform/services/sdk/default-sdk-client-factory":
+      "<rootDir>/../../libs/common/spec/jest-sdk-client-factory",
+    ...pathsToModuleNameMapper(
+      {
+        // lets us use @bitwarden/common/spec in web tests
+        "@bitwarden/common/spec": ["../../libs/common/spec"],
+        ...(compilerOptions?.paths ?? {}),
+      },
+      {
+        prefix: "<rootDir>/",
+      },
+    ),
+  },
 };

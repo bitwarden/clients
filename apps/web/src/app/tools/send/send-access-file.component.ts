@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -26,7 +28,7 @@ export class SendAccessFileComponent {
   constructor(
     private i18nService: I18nService,
     private toastService: ToastService,
-    private cryptoService: CryptoService,
+    private encryptService: EncryptService,
     private fileDownloadService: FileDownloadService,
     private sendApiService: SendApiService,
   ) {}
@@ -62,12 +64,14 @@ export class SendAccessFileComponent {
 
     try {
       const encBuf = await EncArrayBuffer.fromResponse(response);
-      const decBuf = await this.cryptoService.decryptFromBytes(encBuf, this.decKey);
+      const decBuf = await this.encryptService.decryptToBytes(encBuf, this.decKey);
       this.fileDownloadService.download({
         fileName: this.send.file.fileName,
         blobData: decBuf,
         downloadMethod: "save",
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

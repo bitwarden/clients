@@ -1,17 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
-import {
-  DEFAULT_KDF_CONFIG,
-  PBKDF2KdfConfig,
-} from "@bitwarden/common/auth/models/domain/kdf-config";
+import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { KdfType } from "@bitwarden/common/platform/enums";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -21,6 +18,13 @@ import { Login } from "@bitwarden/common/vault/models/domain/login";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import {
+  DEFAULT_KDF_CONFIG,
+  PBKDF2KdfConfig,
+  KdfConfigService,
+  KeyService,
+  KdfType,
+} from "@bitwarden/key-management";
 
 import { BuildTestObject, GetUniqueString } from "../../../../../../common/spec";
 
@@ -148,7 +152,9 @@ describe("VaultExportService", () => {
   let cipherService: MockProxy<CipherService>;
   let pinService: MockProxy<PinServiceAbstraction>;
   let folderService: MockProxy<FolderService>;
-  let cryptoService: MockProxy<CryptoService>;
+  let keyService: MockProxy<KeyService>;
+  let encryptService: MockProxy<EncryptService>;
+  let accountService: MockProxy<AccountService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
 
   beforeEach(() => {
@@ -156,21 +162,35 @@ describe("VaultExportService", () => {
     cipherService = mock<CipherService>();
     pinService = mock<PinServiceAbstraction>();
     folderService = mock<FolderService>();
-    cryptoService = mock<CryptoService>();
+    keyService = mock<KeyService>();
+    encryptService = mock<EncryptService>();
+    accountService = mock<AccountService>();
+
     kdfConfigService = mock<KdfConfigService>();
 
-    folderService.getAllDecryptedFromState.mockResolvedValue(UserFolderViews);
-    folderService.getAllFromState.mockResolvedValue(UserFolders);
+    folderService.folderViews$.mockReturnValue(of(UserFolderViews));
+    folderService.folders$.mockReturnValue(of(UserFolders));
     kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
-    cryptoService.encrypt.mockResolvedValue(new EncString("encrypted"));
+    encryptService.encrypt.mockResolvedValue(new EncString("encrypted"));
+    keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
+    const userId = "" as UserId;
+    const accountInfo: AccountInfo = {
+      email: "",
+      emailVerified: true,
+      name: undefined,
+    };
+    const activeAccount = { id: userId, ...accountInfo };
+    accountService.activeAccount$ = new BehaviorSubject(activeAccount);
 
     exportService = new IndividualVaultExportService(
       folderService,
       cipherService,
       pinService,
-      cryptoService,
+      keyService,
+      encryptService,
       cryptoFunctionService,
       kdfConfigService,
+      accountService,
     );
   });
 
@@ -250,7 +270,7 @@ describe("VaultExportService", () => {
       });
 
       it("has a mac property", async () => {
-        cryptoService.encrypt.mockResolvedValue(mac);
+        encryptService.encrypt.mockResolvedValue(mac);
         exportString = await exportService.getPasswordProtectedExport(password);
         exportObject = JSON.parse(exportString);
 
@@ -258,7 +278,7 @@ describe("VaultExportService", () => {
       });
 
       it("has data property", async () => {
-        cryptoService.encrypt.mockResolvedValue(data);
+        encryptService.encrypt.mockResolvedValue(data);
         exportString = await exportService.getPasswordProtectedExport(password);
         exportObject = JSON.parse(exportString);
 
@@ -274,7 +294,7 @@ describe("VaultExportService", () => {
 
   it("exported unencrypted object contains folders", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
-    await folderService.getAllDecryptedFromState();
+
     const actual = await exportService.getExport("json");
 
     expectEqualFolderViews(UserFolderViews, actual);
@@ -282,7 +302,7 @@ describe("VaultExportService", () => {
 
   it("exported encrypted json contains folders", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
-    await folderService.getAllFromState();
+
     const actual = await exportService.getExport("encrypted_json");
 
     expectEqualFolders(UserFolders, actual);

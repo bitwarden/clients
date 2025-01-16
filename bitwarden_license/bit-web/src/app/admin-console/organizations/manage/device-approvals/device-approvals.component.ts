@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, Subject, switchMap, takeUntil, tap } from "rxjs";
@@ -9,12 +11,13 @@ import { OrganizationAuthRequestService } from "@bitwarden/bit-common/admin-cons
 import { PendingAuthRequestView } from "@bitwarden/bit-common/admin-console/auth-requests/pending-auth-request.view";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { TableDataSource, NoItemsModule, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 import { Devices } from "@bitwarden/web-vault/app/admin-console/icons";
 import { LooseComponentsModule } from "@bitwarden/web-vault/app/shared";
 import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
@@ -30,7 +33,12 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
     }),
     safeProvider({
       provide: OrganizationAuthRequestService,
-      deps: [OrganizationAuthRequestApiService, CryptoService, OrganizationUserApiService],
+      deps: [
+        OrganizationAuthRequestApiService,
+        KeyService,
+        EncryptService,
+        OrganizationUserApiService,
+      ],
     }),
   ] satisfies SafeProvider[],
   imports: [SharedModule, NoItemsModule, LooseComponentsModule],
@@ -90,6 +98,8 @@ export class DeviceApprovalsComponent implements OnInit, OnDestroy {
           title: null,
           message: this.i18nService.t("loginRequestApproved"),
         });
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         this.toastService.showToast({
           variant: "error",

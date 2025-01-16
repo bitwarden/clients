@@ -1,4 +1,6 @@
-<app-vault-banners></app-vault-banners>
+<app-vault-banners
+  [organizationsPaymentStatus]="organizationsPaymentStatus$ | async"
+></app-vault-banners>
 
 <app-vault-header
   [filter]="filter"
@@ -54,9 +56,8 @@
       [showBulkTrashOptions]="filter.type === 'trash'"
       [useEvents]="false"
       [showAdminActions]="false"
-      [showBulkAddToCollections]="vaultBulkManagementActionEnabled$ | async"
+      [showBulkAddToCollections]="true"
       (onEvent)="onVaultItemsEvent($event)"
-      [vaultBulkManagementActionEnabled]="vaultBulkManagementActionEnabled$ | async"
     >
     </app-vault-items>
     <div
