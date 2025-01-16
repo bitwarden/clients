@@ -244,6 +244,10 @@ export class LockComponent implements OnInit, OnDestroy {
     if (activeAccount == null) {
       return;
     }
+    // this account may be unlocked, prevent any prompts so we can redirect to vault
+    if (await this.keyService.hasUserKeyInMemory(activeAccount.id)) {
+      return;
+    }
 
     this.setEmailAsPageSubtitle(activeAccount.email);
 

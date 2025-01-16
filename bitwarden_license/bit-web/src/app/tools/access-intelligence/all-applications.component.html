@@ -55,7 +55,7 @@
       buttonType="secondary"
       bitButton
       *ngIf="isCriticalAppsFeatureEnabled"
-      [disabled]="!selectedIds.size"
+      [disabled]="!selectedUrls.size"
       [loading]="markingAsCritical"
       (click)="markAppsAsCritical()"
     >
@@ -80,9 +80,11 @@
           <input
             bitCheckbox
             type="checkbox"
-            [checked]="selectedIds.has(r.id)"
-            (change)="onCheckboxChange(r.id, $event)"
+            *ngIf="!r.isMarkedAsCritical"
+            [checked]="selectedUrls.has(r.applicationName)"
+            (change)="onCheckboxChange(r.applicationName, $event)"
           />
+          <i class="bwi bwi-star-f" *ngIf="r.isMarkedAsCritical"></i>
         </td>
         <td class="tw-cursor-pointer" (click)="showAppAtRiskMembers(r.applicationName)" bitCell>
           <span>{{ r.applicationName }}</span>
