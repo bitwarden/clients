@@ -29,12 +29,6 @@
       "matches": ["*://*/*", "file:///*"],
       "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
       "run_at": "document_start"
-    },
-    {
-      "all_frames": false,
-      "js": ["content/lp-fileless-importer.js"],
-      "matches": ["https://lastpass.com/export.php"],
-      "run_at": "document_start"
     }
   ],
   "background": {
@@ -140,7 +134,6 @@
   },
   "web_accessible_resources": [
     "content/fido2-page-script.js",
-    "content/lp-suppress-import-download.js",
     "notification/bar.html",
     "images/icon38.png",
     "images/icon38_locked.png",

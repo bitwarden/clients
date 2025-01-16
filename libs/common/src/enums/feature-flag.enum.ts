@@ -16,7 +16,6 @@ export enum FeatureFlag {
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
 
-  BrowserFilelessImport = "browser-fileless-import",
   ItemShare = "item-share",
   GeneratorToolsModernization = "generator-tools-modernization",
   AC1795_UpdatedSubscriptionStatusSection = "AC-1795_updated-subscription-status-section",
@@ -73,7 +72,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
 
-  [FeatureFlag.BrowserFilelessImport]: FALSE,
   [FeatureFlag.ItemShare]: FALSE,
   [FeatureFlag.GeneratorToolsModernization]: FALSE,
   [FeatureFlag.AC1795_UpdatedSubscriptionStatusSection]: FALSE,
