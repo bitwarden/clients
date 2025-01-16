@@ -116,7 +116,6 @@ describe("ProductSwitcherService", () => {
             id: "1234",
             canAccessSecretsManager: true,
             enabled: true,
-            canAccessExport: (_) => true,
           },
         ] as Organization[]);
 
@@ -232,14 +231,12 @@ describe("ProductSwitcherService", () => {
           canAccessSecretsManager: true,
           enabled: true,
           name: "Org 2",
-          canAccessExport: (_) => true,
         },
         {
           id: "4243",
           canAccessSecretsManager: true,
           enabled: true,
           name: "Org 32",
-          canAccessExport: (_) => true,
         },
       ] as Organization[]);
 
