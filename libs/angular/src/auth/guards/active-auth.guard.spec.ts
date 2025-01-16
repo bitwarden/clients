@@ -9,9 +9,9 @@ import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { newDeviceVerificationGuard } from "./new-device-verification.guard";
+import { activeAuthGuard } from "./active-auth.guard";
 
-describe("NewDeviceVerificationGuard", () => {
+describe("activeAuthGuard", () => {
   const setup = (authType: AuthenticationType | null) => {
     const loginStrategyService: MockProxy<LoginStrategyServiceAbstraction> =
       mock<LoginStrategyServiceAbstraction>();
@@ -25,9 +25,9 @@ describe("NewDeviceVerificationGuard", () => {
         RouterTestingModule.withRoutes([
           { path: "", component: EmptyComponent },
           {
-            path: "device-verification",
+            path: "protected",
             component: EmptyComponent,
-            canActivate: [newDeviceVerificationGuard()],
+            canActivate: [activeAuthGuard()],
           },
           { path: "login", component: EmptyComponent },
         ]),
@@ -52,14 +52,14 @@ describe("NewDeviceVerificationGuard", () => {
   it("allows access with an active login session", async () => {
     const { router } = setup(AuthenticationType.Password);
 
-    await router.navigate(["device-verification"]);
-    expect(router.url).toBe("/device-verification");
+    await router.navigate(["protected"]);
+    expect(router.url).toBe("/protected");
   });
 
   it("redirects to login with no active session", async () => {
     const { router, logService } = setup(null);
 
-    await router.navigate(["device-verification"]);
+    await router.navigate(["protected"]);
     expect(router.url).toBe("/login");
     expect(logService.error).toHaveBeenCalledWith("No active login session found.");
   });
