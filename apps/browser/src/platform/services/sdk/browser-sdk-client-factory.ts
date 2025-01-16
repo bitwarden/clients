@@ -17,6 +17,8 @@ const supported = (() => {
         return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
       }
     }
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     // ignore
   }

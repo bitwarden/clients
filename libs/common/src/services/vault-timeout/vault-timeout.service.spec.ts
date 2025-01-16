@@ -3,8 +3,6 @@ import { BehaviorSubject, from, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { BiometricsService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
@@ -15,10 +13,12 @@ import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { FakeMasterPasswordService } from "../../auth/services/master-password/fake-master-password.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
+import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
+import { TaskSchedulerService } from "../../platform/scheduling";
 import { StateEventRunnerService } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";
