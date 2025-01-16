@@ -80,12 +80,14 @@ export class AllApplicationsComponent implements OnInit {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (organizationId) {
-      const organization = this.organizationService
+      const organization$ = this.organizationService
         .organizations$(userId)
         .pipe(getOrganizationById(organizationId));
 
+      const organization = await firstValueFrom(organization$);
+
       if (organization) {
-        this.organization = await firstValueFrom(organization);
+        this.organization = organization;
       } else {
         throw new Error("No organization found.");
       }
@@ -93,7 +95,7 @@ export class AllApplicationsComponent implements OnInit {
       combineLatest([
         this.dataService.applications$,
         this.criticalAppsService.getAppsListForOrg(organizationId),
-        organization,
+        organization$,
       ])
         .pipe(
           takeUntilDestroyed(this.destroyRef),
