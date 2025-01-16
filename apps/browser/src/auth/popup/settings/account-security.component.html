@@ -20,7 +20,7 @@
             {{ biometricUnavailabilityReason }}
           </bit-hint>
         </bit-form-control>
-        <bit-form-control class="tw-pl-5" *ngIf="this.form.value.biometric">
+        <bit-form-control class="tw-pl-5" *ngIf="this.form.value.biometric && showAutoPrompt">
           <input
             bitCheckbox
             id="autoBiometricsPrompt"
