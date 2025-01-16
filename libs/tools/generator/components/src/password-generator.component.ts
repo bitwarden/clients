@@ -18,7 +18,6 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService, Option } from "@bitwarden/components";
@@ -30,6 +29,7 @@ import {
   isPasswordAlgorithm,
   AlgorithmInfo,
   isSameAlgorithm,
+  GenerateRequest,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -44,7 +44,6 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     private generatorHistoryService: GeneratorHistoryService,
     private toastService: ToastService,
     private logService: LogService,
-    private i18nService: I18nService,
     private accountService: AccountService,
     private zone: NgZone,
   ) {}
@@ -69,14 +68,14 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   protected readonly userId$ = new BehaviorSubject<UserId>(null);
 
   /** Emits when a new credential is requested */
-  private readonly generate$ = new Subject<string>();
+  private readonly generate$ = new Subject<GenerateRequest>();
 
   /** Request a new value from the generator
    * @param requestor a label used to trace generation request
    *  origin in the debugger.
    */
   protected async generate(requestor: string) {
-    this.generate$.next(requestor);
+    this.generate$.next({ source: requestor });
   }
 
   /** Tracks changes to the selected credential type

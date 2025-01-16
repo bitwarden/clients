@@ -30,6 +30,7 @@ import {
   CredentialAlgorithm,
   CredentialCategory,
   CredentialGeneratorService,
+  GenerateRequest,
   GeneratedCredential,
   Generators,
   getForwarderConfiguration,
@@ -491,7 +492,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
   protected readonly userId$ = new BehaviorSubject<UserId>(null);
 
   /** Emits when a new credential is requested */
-  private readonly generate$ = new Subject<string>();
+  private readonly generate$ = new Subject<GenerateRequest>();
 
   /**
    * Emits the credential generated message whenever the generator runs
@@ -506,7 +507,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
    *  origin in the debugger.
    */
   protected async generate(requestor: string) {
-    this.generate$.next(requestor);
+    this.generate$.next({ source: requestor });
   }
 
   private toOptions(algorithms: AlgorithmInfo[]) {
