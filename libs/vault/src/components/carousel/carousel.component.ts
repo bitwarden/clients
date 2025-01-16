@@ -22,9 +22,6 @@ import { VaultCarouselButtonComponent } from "./carousel-button/carousel-button.
 import { VaultCarouselContentComponent } from "./carousel-content/carousel-content.component";
 import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.component";
 
-/** Root font size of the document, used to calculate REM units */
-const ROOT_PX_FONT_SIZE = 16;
-
 @Component({
   selector: "vault-carousel",
   templateUrl: "./carousel.component.html",
@@ -78,7 +75,7 @@ export class VaultCarouselComponent implements AfterViewInit {
    * Slides that have differing heights can cause the carousel controls to jump.
    * Set the min height based on the tallest slide.
    */
-  protected minHeight: `${number}rem` | null = null;
+  protected minHeight: `${number}px` | null = null;
 
   /**
    * Focus key manager for keeping tab controls accessible.
@@ -142,7 +139,7 @@ export class VaultCarouselComponent implements AfterViewInit {
     });
 
     // Set the min height of the entire carousel based on the largest slide.
-    this.minHeight = `${(tallestSlideHeightPx + heightOfButtonsPx) / ROOT_PX_FONT_SIZE}rem`;
+    this.minHeight = `${tallestSlideHeightPx + heightOfButtonsPx}px`;
     this.changeDetectorRef.detectChanges();
   }
 }
