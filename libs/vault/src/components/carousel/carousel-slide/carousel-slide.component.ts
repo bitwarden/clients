@@ -25,6 +25,10 @@ export class VaultCarouselSlideComponent implements OnInit {
 
   private _contentPortal: TemplatePortal | null = null;
 
+  /**
+   * A Portal containing the content of the slide.
+   * Used by `VaultCarouselComponent` when the slide becomes active.
+   */
   get content(): TemplatePortal | null {
     return this._contentPortal;
   }
