@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -12,15 +14,26 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { BadgeModule, CheckboxModule } from "@bitwarden/components";
+import { BadgeModule, CheckboxModule, Option } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { CardComponent } from "../../../../../../libs/components/src/card/card.component";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { FormFieldModule } from "../../../../../../libs/components/src/form-field/form-field.module";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SelectModule } from "../../../../../../libs/components/src/select/select.module";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupCompactModeService } from "../../../platform/popup/layout/popup-compact-mode.service";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import {
+  PopupWidthOption,
+  PopupSizeService,
+} from "../../../platform/popup/layout/popup-size.service";
+import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-buttons.service";
 
 @Component({
   standalone: true,
@@ -41,6 +54,9 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 })
 export class AppearanceV2Component implements OnInit {
   private compactModeService = inject(PopupCompactModeService);
+  private copyButtonsService = inject(VaultPopupCopyButtonsService);
+  private popupSizeService = inject(PopupSizeService);
+  private i18nService = inject(I18nService);
 
   appearanceForm = this.formBuilder.group({
     enableFavicon: false,
@@ -48,6 +64,8 @@ export class AppearanceV2Component implements OnInit {
     theme: ThemeType.System,
     enableAnimations: true,
     enableCompactMode: false,
+    showQuickCopyActions: false,
+    width: "default" as PopupWidthOption,
   });
 
   /** To avoid flashes of inaccurate values, only show the form after the entire form is populated. */
@@ -55,6 +73,13 @@ export class AppearanceV2Component implements OnInit {
 
   /** Available theme options */
   themeOptions: { name: string; value: ThemeType }[];
+
+  /** Available width options */
+  protected readonly widthOptions: Option<PopupWidthOption>[] = [
+    { label: this.i18nService.t("default"), value: "default" },
+    { label: this.i18nService.t("wide"), value: "wide" },
+    { label: this.i18nService.t("extraWide"), value: "extra-wide" },
+  ];
 
   constructor(
     private messagingService: MessagingService,
@@ -81,6 +106,10 @@ export class AppearanceV2Component implements OnInit {
       this.animationControlService.enableRoutingAnimation$,
     );
     const enableCompactMode = await firstValueFrom(this.compactModeService.enabled$);
+    const showQuickCopyActions = await firstValueFrom(
+      this.copyButtonsService.showQuickCopyActions$,
+    );
+    const width = await firstValueFrom(this.popupSizeService.width$);
 
     // Set initial values for the form
     this.appearanceForm.setValue({
@@ -89,6 +118,8 @@ export class AppearanceV2Component implements OnInit {
       theme,
       enableAnimations,
       enableCompactMode,
+      showQuickCopyActions,
+      width,
     });
 
     this.formLoading = false;
@@ -122,6 +153,18 @@ export class AppearanceV2Component implements OnInit {
       .subscribe((enableCompactMode) => {
         void this.updateCompactMode(enableCompactMode);
       });
+
+    this.appearanceForm.controls.showQuickCopyActions.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((showQuickCopyActions) => {
+        void this.updateQuickCopyActions(showQuickCopyActions);
+      });
+
+    this.appearanceForm.controls.width.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((width) => {
+        void this.updateWidth(width);
+      });
   }
 
   async updateFavicon(enableFavicon: boolean) {
@@ -143,5 +186,13 @@ export class AppearanceV2Component implements OnInit {
 
   async updateCompactMode(enableCompactMode: boolean) {
     await this.compactModeService.setEnabled(enableCompactMode);
+  }
+
+  async updateQuickCopyActions(showQuickCopyActions: boolean) {
+    await this.copyButtonsService.setShowQuickCopyActions(showQuickCopyActions);
+  }
+
+  async updateWidth(width: PopupWidthOption) {
+    await this.popupSizeService.setWidth(width);
   }
 }

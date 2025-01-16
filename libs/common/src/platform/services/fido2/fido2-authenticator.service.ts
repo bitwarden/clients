@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -23,9 +25,10 @@ import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
 
 import { CBOR } from "./cbor";
+import { compareCredentialIds, parseCredentialId } from "./credential-id-utils";
 import { p1363ToDer } from "./ecdsa-utils";
 import { Fido2Utils } from "./fido2-utils";
-import { guidToRawFormat, guidToStandardFormat } from "./guid-utils";
+import { guidToStandardFormat } from "./guid-utils";
 
 // AAGUID: d548826e-79b4-db40-a3d8-11116f7e8349
 export const AAGUID = new Uint8Array([
@@ -40,10 +43,12 @@ const KeyUsages: KeyUsage[] = ["sign"];
  *
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
-export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstraction {
+export class Fido2AuthenticatorService<ParentWindowReference>
+  implements Fido2AuthenticatorServiceAbstraction<ParentWindowReference>
+{
   constructor(
     private cipherService: CipherService,
-    private userInterface: Fido2UserInterfaceService,
+    private userInterface: Fido2UserInterfaceService<ParentWindowReference>,
     private syncService: SyncService,
     private accountService: AccountService,
     private logService?: LogService,
@@ -51,12 +56,12 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
   async makeCredential(
     params: Fido2AuthenticatorMakeCredentialsParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorMakeCredentialResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
-      tab,
+      window,
       abortController,
     );
 
@@ -178,7 +183,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
       const authData = await generateAuthData({
         rpId: params.rpEntity.id,
-        credentialId: guidToRawFormat(credentialId),
+        credentialId: parseCredentialId(credentialId),
         counter: fido2Credential.counter,
         userPresence: true,
         userVerification: userVerified,
@@ -193,7 +198,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       );
 
       return {
-        credentialId: guidToRawFormat(credentialId),
+        credentialId: parseCredentialId(credentialId),
         attestationObject,
         authData,
         publicKey: pubKeyDer,
@@ -206,12 +211,12 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
   async getAssertion(
     params: Fido2AuthenticatorGetAssertionParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ): Promise<Fido2AuthenticatorGetAssertionResult> {
     const userInterfaceSession = await this.userInterface.newSession(
       params.fallbackSupported,
-      tab,
+      window,
       abortController,
     );
     try {
@@ -313,7 +318,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
         const authenticatorData = await generateAuthData({
           rpId: selectedFido2Credential.rpId,
-          credentialId: guidToRawFormat(selectedCredentialId),
+          credentialId: parseCredentialId(selectedCredentialId),
           counter: selectedFido2Credential.counter,
           userPresence: true,
           userVerification: userVerified,
@@ -328,7 +333,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         return {
           authenticatorData,
           selectedCredential: {
-            id: guidToRawFormat(selectedCredentialId),
+            id: parseCredentialId(selectedCredentialId),
             userHandle: Fido2Utils.stringToBuffer(selectedFido2Credential.userHandle),
           },
           signature,
@@ -412,16 +417,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
     credentials: PublicKeyCredentialDescriptor[],
     rpId: string,
   ): Promise<CipherView[]> {
-    const ids: string[] = [];
-
-    for (const credential of credentials) {
-      try {
-        ids.push(guidToStandardFormat(credential.id));
-        // eslint-disable-next-line no-empty
-      } catch {}
-    }
-
-    if (ids.length === 0) {
+    if (credentials.length === 0) {
       return [];
     }
 
@@ -432,7 +428,12 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         cipher.type === CipherType.Login &&
         cipher.login.hasFido2Credentials &&
         cipher.login.fido2Credentials[0].rpId === rpId &&
-        ids.includes(cipher.login.fido2Credentials[0].credentialId),
+        credentials.some((credential) =>
+          compareCredentialIds(
+            credential.id,
+            parseCredentialId(cipher.login.fido2Credentials[0].credentialId),
+          ),
+        ),
     );
   }
 

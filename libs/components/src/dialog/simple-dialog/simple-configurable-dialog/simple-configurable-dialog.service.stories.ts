@@ -70,7 +70,7 @@ class StoryDialogComponent {
           content: this.i18nService.t("dialogContent"),
           type: "primary",
           acceptButtonText: "Ok",
-          cancelButtonText: null,
+          cancelButtonText: undefined,
         },
         {
           title: this.i18nService.t("primaryTypeSimpleDialog"),
@@ -121,7 +121,7 @@ class StoryDialogComponent {
 
   showCallout = false;
   calloutType = "info";
-  dialogCloseResult: boolean;
+  dialogCloseResult?: boolean;
 
   constructor(
     public dialogService: DialogService,

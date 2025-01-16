@@ -1,9 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as papa from "papaparse";
 import { firstValueFrom, map } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -15,7 +16,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
   BitwardenCsvIndividualExportType,
@@ -31,6 +32,8 @@ export class IndividualVaultExportService
   extends BaseVaultExportService
   implements IndividualVaultExportServiceAbstraction
 {
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   constructor(
     private folderService: FolderService,
     private cipherService: CipherService,
@@ -60,9 +63,10 @@ export class IndividualVaultExportService
     let decFolders: FolderView[] = [];
     let decCiphers: CipherView[] = [];
     const promises = [];
+    const activeUserId = await firstValueFrom(this.activeUserId$);
 
     promises.push(
-      this.folderService.getAllDecryptedFromState().then((folders) => {
+      firstValueFrom(this.folderService.folderViews$(activeUserId)).then((folders) => {
         decFolders = folders;
       }),
     );
@@ -86,9 +90,10 @@ export class IndividualVaultExportService
     let folders: Folder[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
+    const activeUserId = await firstValueFrom(this.activeUserId$);
 
     promises.push(
-      this.folderService.getAllFromState().then((f) => {
+      firstValueFrom(this.folderService.folders$(activeUserId)).then((f) => {
         folders = f;
       }),
     );
@@ -101,10 +106,9 @@ export class IndividualVaultExportService
 
     await Promise.all(promises);
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(
+      await firstValueFrom(this.activeUserId$),
     );
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
     const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), userKey);
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {

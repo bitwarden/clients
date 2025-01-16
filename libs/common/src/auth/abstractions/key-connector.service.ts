@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Organization } from "../../admin-console/models/domain/organization";
 import { UserId } from "../../types/guid";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";

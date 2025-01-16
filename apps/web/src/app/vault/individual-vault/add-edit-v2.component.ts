@@ -1,9 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { switchMap } from "rxjs";
 
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -83,10 +87,16 @@ export class AddEditComponentV2 implements OnInit {
     private i18nService: I18nService,
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntilDestroyed())
-      .subscribe((canAccessPremium) => {
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe((canAccessPremium: boolean) => {
         this.canAccessAttachments = canAccessPremium;
       });
   }
@@ -130,6 +140,8 @@ export class AddEditComponentV2 implements OnInit {
         return this.i18nService.t(partOne, this.i18nService.t("typeIdentity").toLowerCase());
       case CipherType.SecureNote:
         return this.i18nService.t(partOne, this.i18nService.t("note").toLowerCase());
+      case CipherType.SshKey:
+        return this.i18nService.t(partOne, this.i18nService.t("typeSshKey").toLowerCase());
     }
   }
 

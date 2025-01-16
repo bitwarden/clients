@@ -7,6 +7,7 @@ import { ActivateAutofillPolicy } from "./admin-console/policies/activate-autofi
 import { AutomaticAppLoginPolicy } from "./admin-console/policies/automatic-app-login.component";
 import { DisablePersonalVaultExportPolicy } from "./admin-console/policies/disable-personal-vault-export.component";
 import { MaximumVaultTimeoutPolicy } from "./admin-console/policies/maximum-vault-timeout.component";
+import { FreeFamiliesSponsorshipPolicy } from "./billing/policies/free-families-sponsorship.component";
 
 @Component({
   selector: "app-root",
@@ -19,8 +20,16 @@ export class AppComponent extends BaseAppComponent implements OnInit {
     this.policyListService.addPolicies([
       new MaximumVaultTimeoutPolicy(),
       new DisablePersonalVaultExportPolicy(),
-      new ActivateAutofillPolicy(),
     ]);
+
+    this.configService
+      .getFeatureFlag(FeatureFlag.DisableFreeFamiliesSponsorship)
+      .then((isFreeFamilyEnabled) => {
+        if (isFreeFamilyEnabled) {
+          this.policyListService.addPolicies([new FreeFamiliesSponsorshipPolicy()]);
+        }
+        this.policyListService.addPolicies([new ActivateAutofillPolicy()]);
+      });
 
     this.configService.getFeatureFlag(FeatureFlag.IdpAutoSubmitLogin).then((enabled) => {
       if (

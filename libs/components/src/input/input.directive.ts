@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   Directive,
   ElementRef,
@@ -28,6 +30,7 @@ export function inputBorderClasses(error: boolean) {
 @Directive({
   selector: "input[bitInput], select[bitInput], textarea[bitInput]",
   providers: [{ provide: BitFormFieldControl, useExisting: BitInputDirective }],
+  standalone: true,
 })
 export class BitInputDirective implements BitFormFieldControl {
   @HostBinding("class") @Input() get classList() {

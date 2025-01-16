@@ -16,6 +16,8 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { PopupCompactModeService } from "../../../platform/popup/layout/popup-compact-mode.service";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { PopupSizeService } from "../../../platform/popup/layout/popup-size.service";
+import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-buttons.service";
 
 import { AppearanceV2Component } from "./appearance-v2.component";
 
@@ -45,11 +47,18 @@ describe("AppearanceV2Component", () => {
   const selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Nord);
   const enableRoutingAnimation$ = new BehaviorSubject<boolean>(true);
   const enableCompactMode$ = new BehaviorSubject<boolean>(false);
+  const showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
   const setSelectedTheme = jest.fn().mockResolvedValue(undefined);
   const setShowFavicons = jest.fn().mockResolvedValue(undefined);
   const setEnableBadgeCounter = jest.fn().mockResolvedValue(undefined);
   const setEnableRoutingAnimation = jest.fn().mockResolvedValue(undefined);
   const setEnableCompactMode = jest.fn().mockResolvedValue(undefined);
+  const setShowQuickCopyActions = jest.fn().mockResolvedValue(undefined);
+
+  const mockWidthService: Partial<PopupSizeService> = {
+    width$: new BehaviorSubject("default"),
+    setWidth: jest.fn().mockResolvedValue(undefined),
+  };
 
   beforeEach(async () => {
     setSelectedTheme.mockClear();
@@ -78,6 +87,17 @@ describe("AppearanceV2Component", () => {
           provide: PopupCompactModeService,
           useValue: { enabled$: enableCompactMode$, setEnabled: setEnableCompactMode },
         },
+        {
+          provide: VaultPopupCopyButtonsService,
+          useValue: {
+            showQuickCopyActions$,
+            setShowQuickCopyActions,
+          } as Partial<VaultPopupCopyButtonsService>,
+        },
+        {
+          provide: PopupSizeService,
+          useValue: mockWidthService,
+        },
       ],
     })
       .overrideComponent(AppearanceV2Component, {
@@ -102,6 +122,8 @@ describe("AppearanceV2Component", () => {
       enableBadgeCounter: true,
       theme: ThemeType.Nord,
       enableCompactMode: false,
+      showQuickCopyActions: false,
+      width: "default",
     });
   });
 

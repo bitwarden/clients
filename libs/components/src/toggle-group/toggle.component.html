@@ -6,7 +6,7 @@
   [checked]="selected"
   (change)="onInputInteraction()"
 />
-<label for="bit-toggle-{{ id }}" [ngClass]="labelClasses" [title]="labelTextContent">
+<label for="bit-toggle-{{ id }}" [ngClass]="labelClasses" [title]="labelTitle()">
   <span class="tw-line-clamp-2 tw-break-words" #labelContent>
     <ng-content></ng-content>
   </span>

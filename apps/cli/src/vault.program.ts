@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { program, Command } from "commander";
 
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
@@ -111,6 +113,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.organizationUserApiService,
           this.serviceContainer.apiService,
           this.serviceContainer.eventCollectionService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(object, cmd);
 
@@ -179,7 +182,6 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.auditService,
           this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
-          this.serviceContainer.stateService,
           this.serviceContainer.searchService,
           this.serviceContainer.apiService,
           this.serviceContainer.organizationService,
@@ -320,6 +322,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.folderApiService,
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.cipherAuthorizationService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);

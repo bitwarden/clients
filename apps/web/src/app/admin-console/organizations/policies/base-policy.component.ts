@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, Input, OnInit } from "@angular/core";
 import { UntypedFormControl, UntypedFormGroup } from "@angular/forms";
 
@@ -45,7 +47,7 @@ export abstract class BasePolicyComponent implements OnInit {
     return null;
   }
 
-  buildRequest(policiesEnabledMap: Map<PolicyType, boolean>) {
+  buildRequest() {
     const request = new PolicyRequest();
     request.enabled = this.enabled.value;
     request.type = this.policy.type;

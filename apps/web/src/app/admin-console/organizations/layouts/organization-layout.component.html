@@ -4,7 +4,7 @@
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
     <bit-nav-group
       icon="bwi-filter"
-      *ngIf="isAccessIntelligenceFeatureEnabled"
+      *ngIf="organization.useRiskInsights"
       [text]="'accessIntelligence' | i18n"
     >
       <bit-nav-item
@@ -60,6 +60,12 @@
         <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
       </ng-container>
     </bit-nav-group>
+    <bit-nav-item
+      icon="bwi-providers"
+      [text]="'integrations' | i18n"
+      route="integrations"
+      *ngIf="integrationPageEnabled$ | async"
+    ></bit-nav-item>
     <bit-nav-group
       icon="bwi-cog"
       [text]="'settings' | i18n"
@@ -84,15 +90,15 @@
       <bit-nav-item
         [text]="'importData' | i18n"
         route="settings/tools/import"
-        *ngIf="organization.canAccessImportExport"
+        *ngIf="organization.canAccessImport"
       ></bit-nav-item>
       <bit-nav-item
         [text]="'exportVault' | i18n"
         route="settings/tools/export"
-        *ngIf="organization.canAccessImportExport"
+        *ngIf="canAccessExport$ | async"
       ></bit-nav-item>
       <bit-nav-item
-        [text]="'domainVerification' | i18n"
+        [text]="domainVerificationNavigationTextKey | i18n"
         route="settings/domain-verification"
         *ngIf="organization?.canManageDomainVerification"
       ></bit-nav-item>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { throwError } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -85,6 +87,8 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
       }
 
       return Utils.fromBufferToB64(decValue);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.info("Decrypt error.");
       return null;
@@ -102,6 +106,8 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
           }
         }
       }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.info("Session key is invalid.");
     }

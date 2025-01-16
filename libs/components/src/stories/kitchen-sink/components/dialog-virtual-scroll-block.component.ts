@@ -10,7 +10,7 @@ import { TableDataSource, TableModule } from "../../../table";
   selector: "dialog-virtual-scroll-block",
   standalone: true,
   imports: [DialogModule, IconButtonModule, SectionComponent, TableModule, ScrollingModule],
-  template: ` <bit-section>
+  template: /*html*/ `<bit-section>
     <cdk-virtual-scroll-viewport scrollWindow itemSize="47">
       <bit-table [dataSource]="dataSource">
         <ng-container header>

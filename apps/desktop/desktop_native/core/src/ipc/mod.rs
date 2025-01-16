@@ -1,3 +1,6 @@
+use tokio::io::{AsyncRead, AsyncWrite};
+use tokio_util::codec::{Framed, LengthDelimitedCodec};
+
 pub mod client;
 pub mod server;
 
@@ -15,6 +18,16 @@ pub const NATIVE_MESSAGING_BUFFER_SIZE: usize = 1024 * 1024;
 /// This number is more or less arbitrary and can be adjusted as needed,
 /// but ideally the messages should be processed as quickly as possible.
 pub const MESSAGE_CHANNEL_BUFFER: usize = 32;
+
+/// This is the codec used for communication through the UNIX socket / Windows named pipe.
+/// It's an internal implementation detail, but we want to make sure that both the client
+///  and the server use the same one.
+fn internal_ipc_codec<T: AsyncRead + AsyncWrite>(inner: T) -> Framed<T, LengthDelimitedCodec> {
+    LengthDelimitedCodec::builder()
+        .max_frame_length(NATIVE_MESSAGING_BUFFER_SIZE)
+        .native_endian()
+        .new_framed(inner)
+}
 
 /// Resolve the path to the IPC socket.
 pub fn path(name: &str) -> std::path::PathBuf {

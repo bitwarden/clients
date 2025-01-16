@@ -152,7 +152,12 @@ export const SMAvailable: Story = {
   ...Template,
   args: {
     mockOrgs: [
-      { id: "org-a", canManageUsers: false, canAccessSecretsManager: true, enabled: true },
+      {
+        id: "org-a",
+        canManageUsers: false,
+        canAccessSecretsManager: true,
+        enabled: true,
+      },
     ] as Organization[],
     mockProviders: [],
   },
@@ -162,7 +167,12 @@ export const SMAndACAvailable: Story = {
   ...Template,
   args: {
     mockOrgs: [
-      { id: "org-a", canManageUsers: true, canAccessSecretsManager: true, enabled: true },
+      {
+        id: "org-a",
+        canManageUsers: true,
+        canAccessSecretsManager: true,
+        enabled: true,
+      },
     ] as Organization[],
     mockProviders: [],
   },
@@ -172,7 +182,12 @@ export const WithAllOptions: Story = {
   ...Template,
   args: {
     mockOrgs: [
-      { id: "org-a", canManageUsers: true, canAccessSecretsManager: true, enabled: true },
+      {
+        id: "org-a",
+        canManageUsers: true,
+        canAccessSecretsManager: true,
+        enabled: true,
+      },
     ] as Organization[],
     mockProviders: [{ id: "provider-a" }] as Provider[],
   },

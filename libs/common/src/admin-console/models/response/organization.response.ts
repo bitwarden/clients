@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { PlanType } from "../../../billing/enums";
 import { PlanResponse } from "../../../billing/models/response/plan.response";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -34,9 +36,8 @@ export class OrganizationResponse extends BaseResponse {
   maxAutoscaleSmServiceAccounts?: number;
   limitCollectionCreation: boolean;
   limitCollectionDeletion: boolean;
-  // Deprecated: https://bitwarden.atlassian.net/browse/PM-10863
-  limitCollectionCreationDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
+  useRiskInsights: boolean;
 
   constructor(response: any) {
     super(response);
@@ -74,12 +75,9 @@ export class OrganizationResponse extends BaseResponse {
     this.maxAutoscaleSmServiceAccounts = this.getResponseProperty("MaxAutoscaleSmServiceAccounts");
     this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
     this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
-    // Deprecated: https://bitwarden.atlassian.net/browse/PM-10863
-    this.limitCollectionCreationDeletion = this.getResponseProperty(
-      "LimitCollectionCreationDeletion",
-    );
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );
+    this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
   }
 }

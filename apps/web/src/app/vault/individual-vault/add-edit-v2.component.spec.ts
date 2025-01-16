@@ -9,6 +9,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -34,6 +35,7 @@ describe("AddEditComponentV2", () => {
   let messagingService: MockProxy<MessagingService>;
   let folderService: MockProxy<FolderService>;
   let collectionService: MockProxy<CollectionService>;
+  let accountService: MockProxy<AccountService>;
 
   const mockParams = {
     cloneMode: false,
@@ -55,7 +57,9 @@ describe("AddEditComponentV2", () => {
     );
 
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
-    billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+    billingAccountProfileStateService.hasPremiumFromAnySource$.mockImplementation((userId) =>
+      of(true),
+    );
 
     activatedRoute = mock<ActivatedRoute>();
     activatedRoute.queryParams = of({});
@@ -67,6 +71,9 @@ describe("AddEditComponentV2", () => {
     folderService.folderViews$ = of([]);
     collectionService = mock<CollectionService>();
     collectionService.decryptedCollections$ = of([]);
+
+    accountService = mock<AccountService>();
+    accountService.activeAccount$ = of({ id: "test-id" } as any);
 
     const mockDefaultCipherFormConfigService = {
       buildConfig: jest.fn().mockResolvedValue({
@@ -97,6 +104,7 @@ describe("AddEditComponentV2", () => {
           provide: PasswordGenerationServiceAbstraction,
           useValue: mock<PasswordGenerationServiceAbstraction>(),
         },
+        { provide: AccountService, useValue: accountService },
       ],
     }).compileComponents();
 

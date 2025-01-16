@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -81,7 +83,7 @@ export class MigrateFromLegacyEncryptionComponent {
         });
 
         if (deleteFolders) {
-          await this.folderApiService.deleteAll();
+          await this.folderApiService.deleteAll(activeUser.id);
           await this.syncService.fullSync(true, true);
           await this.submit();
           return;

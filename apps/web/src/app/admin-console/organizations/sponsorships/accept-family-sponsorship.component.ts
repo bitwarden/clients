@@ -1,6 +1,13 @@
-import { Component } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, inject } from "@angular/core";
 import { Params } from "@angular/router";
 import { firstValueFrom } from "rxjs";
+
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { OrganizationSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/organization-sponsorship.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../../common/base.accept.component";
 
@@ -19,17 +26,18 @@ export class AcceptFamilySponsorshipComponent extends BaseAcceptComponent {
 
   requiredParameters = ["email", "token"];
 
+  policyResponse!: OrganizationSponsorshipResponse;
+  policyApiService = inject(PolicyApiServiceAbstraction);
+  configService = inject(ConfigService);
+  toastService = inject(ToastService);
+
   async authedHandler(qParams: Params) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/setup/families-for-enterprise"], { queryParams: qParams });
+    await this.router.navigate(["/setup/families-for-enterprise"], { queryParams: qParams });
   }
 
   async unauthedHandler(qParams: Params) {
     if (!qParams.register) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/login"], { queryParams: { email: qParams.email } });
+      await this.router.navigate(["/login"], { queryParams: { email: qParams.email } });
     } else {
       // TODO: update logic when email verification flag is removed
       let queryParams: Params;

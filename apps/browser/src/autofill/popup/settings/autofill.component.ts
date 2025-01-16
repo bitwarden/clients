@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -47,7 +49,6 @@ import {
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
@@ -65,7 +66,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     JslibModule,
     LinkModule,
     PopOutComponent,
-    PopupFooterComponent,
     PopupHeaderComponent,
     PopupPageComponent,
     RouterModule,
@@ -85,6 +85,7 @@ export class AutofillComponent implements OnInit {
   protected inlineMenuVisibility: InlineMenuVisibilitySetting =
     AutofillOverlayVisibility.OnFieldFocus;
   protected inlineMenuPositioningImprovementsEnabled: boolean = false;
+  protected blockBrowserInjectionsByDomainEnabled: boolean = false;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
   protected disablePasswordManagerURI: DisablePasswordManagerUri =
     DisablePasswordManagerUris.Unknown;
@@ -108,6 +109,7 @@ export class AutofillComponent implements OnInit {
   uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
+  clickItemsVaultView: boolean = false;
   autofillKeyboardHelperText: string;
   accountSwitcherEnabled: boolean = false;
 
@@ -161,6 +163,10 @@ export class AutofillComponent implements OnInit {
       FeatureFlag.InlineMenuPositioningImprovements,
     );
 
+    this.blockBrowserInjectionsByDomainEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.BlockBrowserInjectionsByDomain,
+    );
+
     this.showInlineMenuIdentities =
       this.inlineMenuPositioningImprovementsEnabled &&
       (await firstValueFrom(this.autofillSettingsService.showInlineMenuIdentities$));
@@ -204,6 +210,10 @@ export class AutofillComponent implements OnInit {
 
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
+    );
+
+    this.clickItemsVaultView = await firstValueFrom(
+      this.vaultSettingsService.clickItemsToAutofillVaultView$,
     );
   }
 
@@ -410,5 +420,9 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuIdentities() {
     await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
+  }
+
+  async updateClickItemsVaultView() {
+    await this.vaultSettingsService.setClickItemsToAutofillVaultView(this.clickItemsVaultView);
   }
 }
