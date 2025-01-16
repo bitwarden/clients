@@ -82,7 +82,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private authRequestPushNotificationState: GlobalState<string | null>;
   private twoFactorTimeoutSubject = new BehaviorSubject<boolean>(false);
 
-  twoFactorTimeout$: Observable<boolean> = this.twoFactorTimeoutSubject.asObservable();
+  authenticationSessionTimeout$: Observable<boolean> = this.twoFactorTimeoutSubject.asObservable();
 
   private loginStrategy$: Observable<
     | UserApiLoginStrategy

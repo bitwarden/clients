@@ -53,6 +53,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
 
   protected disableRequestOTP = false;
   private destroy$ = new Subject<void>();
+  protected authenticationSessionTimeoutRoute = "/authentication-timeout";
 
   constructor(
     private router: Router,
@@ -68,18 +69,21 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // Redirect to login if session times out
-    this.passwordLoginStrategy.sessionTimeout$
+    // Redirect to timeout route if session expires
+    this.loginStrategyService.authenticationSessionTimeout$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((timedOut) => {
-        if (timedOut) {
-          this.logService.error("Session timed out.");
-          this.toastService.showToast({
-            title: "",
-            message: this.i18nService.t("sessionTimeout"),
-            variant: "error",
-          });
-          void this.router.navigate(["/login"]);
+      .subscribe((expired) => {
+        if (!expired) {
+          return;
+        }
+
+        try {
+          void this.router.navigate([this.authenticationSessionTimeoutRoute]);
+        } catch (err) {
+          this.logService.error(
+            `Failed to navigate to ${this.authenticationSessionTimeoutRoute} route`,
+            err,
+          );
         }
       });
   }

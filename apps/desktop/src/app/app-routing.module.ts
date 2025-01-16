@@ -102,7 +102,7 @@ const routes: Routes = [
     },
   ),
   {
-    path: "2fa-timeout",
+    path: "authentication-timeout",
     component: AnonLayoutWrapperComponent,
     children: [
       {

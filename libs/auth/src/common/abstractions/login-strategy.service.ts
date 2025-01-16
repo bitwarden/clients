@@ -73,9 +73,9 @@ export abstract class LoginStrategyServiceAbstraction {
    */
   makePreloginKey: (masterPassword: string, email: string) => Promise<MasterKey>;
   /**
-   * Emits true if the two factor session has expired.
+   * Emits true if the authentication session has expired.
    */
-  twoFactorTimeout$: Observable<boolean>;
+  authenticationSessionTimeout$: Observable<boolean>;
   /**
    * Sends a token request to the server with the provided device verification OTP.
    */
