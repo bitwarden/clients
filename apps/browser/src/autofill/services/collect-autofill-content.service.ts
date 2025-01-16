@@ -983,7 +983,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const queueLength = this.mutationsQueue.length;
 
     if (!this.domQueryService.pageContainsShadowDomElements()) {
-      // Checking if a page contains shadowDOM elements is a heavy operation and doesn't have to be done immediately, so we can calls this within an idle moment on the event loop.
+      // Checking if a page contains shadowDOM elements is a heavy operation and doesn't have to be done immediately, so we can call this within an idle moment on the event loop.
       requestIdleCallbackPolyfill(this.checkPageContainsShadowDom, { timeout: 500 });
     }
 
