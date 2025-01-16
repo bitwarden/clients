@@ -382,7 +382,7 @@ export class AddEditV2Component implements OnInit {
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: "deletedItem",
+      message: this.i18nService.t("deletedItem"),
     });
 
     return true;
