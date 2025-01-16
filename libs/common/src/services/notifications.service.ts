@@ -168,10 +168,14 @@ export class NotificationsService implements NotificationsServiceAbstraction {
         await this.syncService.syncUpsertFolder(
           notification.payload as SyncFolderNotification,
           notification.type === NotificationType.SyncFolderUpdate,
+          payloadUserId,
         );
         break;
       case NotificationType.SyncFolderDelete:
-        await this.syncService.syncDeleteFolder(notification.payload as SyncFolderNotification);
+        await this.syncService.syncDeleteFolder(
+          notification.payload as SyncFolderNotification,
+          payloadUserId,
+        );
         break;
       case NotificationType.SyncVault:
       case NotificationType.SyncCiphers:
@@ -219,6 +223,11 @@ export class NotificationsService implements NotificationsServiceAbstraction {
         }
         break;
       case NotificationType.SyncOrganizationStatusChanged:
+        if (isAuthenticated) {
+          await this.syncService.fullSync(true);
+        }
+        break;
+      case NotificationType.SyncOrganizationCollectionSettingChanged:
         if (isAuthenticated) {
           await this.syncService.fullSync(true);
         }

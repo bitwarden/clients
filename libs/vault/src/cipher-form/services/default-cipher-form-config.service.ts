@@ -8,7 +8,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -33,18 +32,21 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
   private cipherService: CipherService = inject(CipherService);
   private folderService: FolderService = inject(FolderService);
   private collectionService: CollectionService = inject(CollectionService);
-  private accountService: AccountService = inject(AccountService);
+  private accountService = inject(AccountService);
+
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   async buildConfig(
     mode: CipherFormMode,
     cipherId?: CipherId,
     cipherType?: CipherType,
   ): Promise<CipherFormConfig> {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+
     const [organizations, collections, allowPersonalOwnership, folders, cipher] =
       await firstValueFrom(
         combineLatest([
-          this.organizations$(userId),
+          this.organizations$(activeUserId),
           this.collectionService.encryptedCollections$.pipe(
             switchMap((c) =>
               this.collectionService.decryptedCollections$.pipe(
@@ -53,9 +55,9 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
             ),
           ),
           this.allowPersonalOwnership$,
-          this.folderService.folders$.pipe(
+          this.folderService.folders$(activeUserId).pipe(
             switchMap((f) =>
-              this.folderService.folderViews$.pipe(
+              this.folderService.folderViews$(activeUserId).pipe(
                 filter((d) => d.length - 1 === f.length), // -1 for "No Folder" in folderViews$
               ),
             ),

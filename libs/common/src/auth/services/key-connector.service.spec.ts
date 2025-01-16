@@ -3,6 +3,8 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
 import { ApiService } from "../../abstractions/api.service";

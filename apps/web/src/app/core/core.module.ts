@@ -30,7 +30,6 @@ import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/serv
 import {
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   LoginComponentService,
-  LockComponentService,
   SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
@@ -92,6 +91,7 @@ import {
   KeyService as KeyServiceAbstraction,
   BiometricsService,
 } from "@bitwarden/key-management";
+import { LockComponentService } from "@bitwarden/key-management/angular";
 
 import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
@@ -99,13 +99,13 @@ import {
   WebSetPasswordJitService,
   WebRegistrationFinishService,
   WebLoginComponentService,
-  WebLockComponentService,
   WebLoginDecryptionOptionsService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
+import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
 import { WebBiometricsService } from "../key-management/web-biometric.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";

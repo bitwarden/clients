@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { Observable, firstValueFrom, switchMap } from "rxjs";
+import { Observable, firstValueFrom, of, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -38,15 +38,21 @@ export class MoreFromBitwardenPageV2Component {
 
   constructor(
     private dialogService: DialogService,
-    billingAccountProfileStateService: BillingAccountProfileStateService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
     private environmentService: EnvironmentService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private familiesPolicyService: FamiliesPolicyService,
   ) {
-    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
     this.familySponsorshipAvailable$ = getUserId(this.accountService.activeAccount$).pipe(
       switchMap((userId) => this.organizationService.familySponsorshipAvailable$(userId)),
+    );
+    this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account
+          ? this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
+          : of(false),
+      ),
     );
     this.hasSingleEnterpriseOrg$ = this.familiesPolicyService.hasSingleEnterpriseOrg$();
     this.isFreeFamilyPolicyEnabled$ = this.familiesPolicyService.isFreeFamilyPolicyEnabled$();

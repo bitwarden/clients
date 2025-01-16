@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -47,6 +47,9 @@ import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.comp
   templateUrl: "organization-subscription-cloud.component.html",
 })
 export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy {
+  static readonly QUERY_PARAM_UPGRADE: string = "upgrade";
+  static readonly ROUTE_PARAM_ORGANIZATION_ID: string = "organizationId";
+
   sub: OrganizationSubscriptionResponse;
   lineItems: BillingSubscriptionItemResponse[] = [];
   organizationId: string;
@@ -88,7 +91,19 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   ) {}
 
   async ngOnInit() {
-    if (this.route.snapshot.queryParamMap.get("upgrade")) {
+    this.organizationId =
+      this.route.snapshot.params[
+        OrganizationSubscriptionCloudComponent.ROUTE_PARAM_ORGANIZATION_ID
+      ];
+    await this.load();
+
+    this.showUpdatedSubscriptionStatusSection$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AC1795_UpdatedSubscriptionStatusSection,
+    );
+
+    if (
+      this.route.snapshot.queryParams[OrganizationSubscriptionCloudComponent.QUERY_PARAM_UPGRADE]
+    ) {
       await this.changePlan();
       const productTierTypeStr = this.route.snapshot.queryParamMap.get("productTierType");
       if (productTierTypeStr != null) {
@@ -98,20 +113,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         }
       }
     }
-
-    this.route.params
-      .pipe(
-        concatMap(async (params) => {
-          this.organizationId = params.organizationId;
-          await this.load();
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
-    this.showUpdatedSubscriptionStatusSection$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AC1795_UpdatedSubscriptionStatusSection,
-    );
   }
 
   ngOnDestroy() {

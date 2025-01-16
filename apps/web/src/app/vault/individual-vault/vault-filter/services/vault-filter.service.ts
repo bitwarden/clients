@@ -46,8 +46,10 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements VaultFilterServiceAbstraction {
-  memberOrganizations$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) => this.organizationService.memberOrganizations$(account?.id)),
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
+  memberOrganizations$ = this.activeUserId$.pipe(
+    switchMap((id) => this.organizationService.memberOrganizations$(id)),
   );
 
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
@@ -62,8 +64,14 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected _organizationFilter = new BehaviorSubject<Organization>(null);
 
-  filteredFolders$: Observable<FolderView[]> = this.folderService.folderViews$.pipe(
-    combineLatestWith(this.cipherService.cipherViews$, this._organizationFilter),
+  filteredFolders$: Observable<FolderView[]> = this.activeUserId$.pipe(
+    switchMap((userId) =>
+      combineLatest([
+        this.folderService.folderViews$(userId),
+        this.cipherService.cipherViews$,
+        this._organizationFilter,
+      ]),
+    ),
     switchMap(([folders, ciphers, org]) => {
       return this.filterFolders(folders, ciphers, org);
     }),

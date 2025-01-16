@@ -43,6 +43,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     private organizationService: OrganizationService,
     private accountService: AccountService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
     super(
       dialogService,
@@ -51,6 +52,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
       messagingService,
       policyService,
       billingAccountProfileStateService,
+      accountService,
     );
   }
 

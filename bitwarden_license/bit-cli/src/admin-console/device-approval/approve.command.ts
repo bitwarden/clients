@@ -1,12 +1,12 @@
 import { firstValueFrom, map } from "rxjs";
 
+import { OrganizationAuthRequestService } from "@bitwarden/bit-common/admin-console/auth-requests";
 import { Response } from "@bitwarden/cli/models/response";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { OrganizationAuthRequestService } from "../../../../bit-common/src/admin-console/auth-requests";
 import { ServiceContainer } from "../../service-container";
 
 export class ApproveCommand {

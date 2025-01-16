@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -58,8 +58,13 @@ export class OpenAttachmentsComponent implements OnInit {
     private filePopoutUtilsService: FilePopoutUtilsService,
     private accountService: AccountService,
   ) {
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntilDestroyed())
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntilDestroyed(),
+      )
       .subscribe((canAccessPremium) => {
         this.canAccessAttachments = canAccessPremium;
       });

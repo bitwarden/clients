@@ -74,6 +74,7 @@ describe("ViewComponent", () => {
           useValue: mock<BillingAccountProfileStateService>(),
         },
         { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
         {
           provide: CipherAuthorizationService,
           useValue: {

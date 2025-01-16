@@ -13,8 +13,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
+import { RouterService } from "@bitwarden/web-vault/app/core";
 
-import { RouterService } from "../../../../../../../../clients/apps/web/src/app/core/router.service";
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import { ServiceAccountService } from "../service-account.service";
 

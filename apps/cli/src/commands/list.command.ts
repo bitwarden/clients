@@ -138,7 +138,10 @@ export class ListCommand {
   }
 
   private async listFolders(options: Options) {
-    let folders = await this.folderService.getAllDecryptedFromState();
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
 
     if (options.search != null && options.search.trim() !== "") {
       folders = CliUtils.searchFolders(folders, options.search);

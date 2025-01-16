@@ -10,7 +10,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -38,7 +37,7 @@ describe("VaultPopupListFiltersService", () => {
   } as unknown as CollectionService;
 
   const folderService = {
-    folderViews$,
+    folderViews$: () => folderViews$,
   } as unknown as FolderService;
 
   const cipherService = {
@@ -58,9 +57,6 @@ describe("VaultPopupListFiltersService", () => {
     policyAppliesToActiveUser$: jest.fn(() => policyAppliesToActiveUser$),
   };
 
-  const userId = Utils.newGuid() as UserId;
-  const accountService = mockAccountServiceWith(userId);
-
   const state$ = new BehaviorSubject<boolean>(false);
   const update = jest.fn().mockResolvedValue(undefined);
 
@@ -69,6 +65,8 @@ describe("VaultPopupListFiltersService", () => {
     decryptedCollections$.next([]);
     policyAppliesToActiveUser$.next(false);
     policyService.policyAppliesToActiveUser$.mockClear();
+
+    const accountService = mockAccountServiceWith("userId" as UserId);
 
     collectionService.getAllNested = () => Promise.resolve([]);
     TestBed.configureTestingModule({
@@ -493,7 +491,7 @@ describe("VaultPopupListFiltersService", () => {
       state$.next(true);
 
       service.filterVisibilityState$.subscribe((filterVisibility) => {
-        expect(filterVisibility).toBeTrue();
+        expect(filterVisibility).toBe(true);
         done();
       });
     });
@@ -501,7 +499,7 @@ describe("VaultPopupListFiltersService", () => {
     it("updates stored filter state", async () => {
       await service.updateFilterVisibility(false);
 
-      expect(update).toHaveBeenCalledOnce();
+      expect(update).toHaveBeenCalledTimes(1);
       // Get callback passed to `update`
       const updateCallback = update.mock.calls[0][0];
       expect(updateCallback()).toBe(false);

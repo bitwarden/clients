@@ -168,6 +168,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { ConsoleLogService } from "../platform/services/console-log.service";
@@ -487,7 +488,29 @@ export class ServiceContainer {
 
     this.containerService = new ContainerService(this.keyService, this.encryptService);
 
-    this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
+    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
+
+    this.authService = new AuthService(
+      this.accountService,
+      this.messagingService,
+      this.keyService,
+      this.apiService,
+      this.stateService,
+      this.tokenService,
+    );
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
+
+    this.domainSettingsService = new DefaultDomainSettingsService(
+      this.stateProvider,
+      this.configService,
+    );
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
 
@@ -579,28 +602,11 @@ export class ServiceContainer {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
+      this.platformUtilsService,
+      this.apiService,
     );
 
     this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
-
-    this.authService = new AuthService(
-      this.accountService,
-      this.messagingService,
-      this.keyService,
-      this.apiService,
-      this.stateService,
-      this.tokenService,
-    );
-
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
-      this.authService,
-    );
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(
@@ -692,11 +698,11 @@ export class ServiceContainer {
       this.userVerificationApiService,
       this.userDecryptionOptionsService,
       this.pinService,
-      this.logService,
-      this.vaultTimeoutSettingsService,
-      this.platformUtilsService,
       this.kdfConfigService,
+      new CliBiometricsService(),
     );
+
+    const biometricService = new CliBiometricsService();
 
     this.vaultTimeoutService = new VaultTimeoutService(
       this.accountService,
@@ -713,6 +719,7 @@ export class ServiceContainer {
       this.stateEventRunnerService,
       this.taskSchedulerService,
       this.logService,
+      biometricService,
       lockedCallback,
       undefined,
     );

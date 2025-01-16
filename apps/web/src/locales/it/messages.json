@@ -1128,6 +1128,12 @@
   "verifyIdentity": {
     "message": "Verifica la tua identità"
   },
+  "whatIsADevice": {
+    "message": "Cos'è un dispositivo?"
+  },
+  "aDeviceIs": {
+    "message": "Un dispositivo è un'installazione unica dell'app Bitwarden con la quale hai effettuato l'accesso. Reinstallazione, eliminazione dei dati dell'app o cancellazione dei cookie potrebbero causare la comparsa di un dispositivo più volte."
+  },
   "logInInitiated": {
     "message": "Login avviato"
   },
@@ -1714,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Accedi di nuovo."
+  },
+  "currentSession": {
+    "message": "Sessione attuale"
+  },
+  "requestPending": {
+    "message": "Richiesta in attesa"
   },
   "logBackInOthersToo": {
     "message": "Accedi di nuovo. Se stai usando Bitwarden su altre app, esci e rientra anche in quelle."
@@ -3266,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Hai ancora 1 invito."
+  },
   "userUsingTwoStep": {
     "message": "Questo utente usa la verifica in due passaggi per proteggere il suo account."
   },
@@ -3764,6 +3779,15 @@
   },
   "device": {
     "message": "Dispositivo"
+  },
+  "loginStatus": {
+    "message": "Stato accesso"
+  },
+  "firstLogin": {
+    "message": "Primo accesso"
+  },
+  "trusted": {
+    "message": "Di fiducia"
   },
   "creatingAccountOn": {
     "message": "Creazione account su"
@@ -5654,6 +5678,20 @@
   },
   "error": {
     "message": "Errore"
+  },
+  "decryptionError": {
+    "message": "Errore di decifrazione"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden non può decifrare gli elementi elencati di seguito."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contatta il cliente correttamente",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "per evitare ulteriori perdite di dati.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Gestisci utenti deve essere abilitato con il permesso di gestire il ripristino delle password"
@@ -8236,6 +8274,18 @@
   "approveRequest": {
     "message": "Approva richiesta"
   },
+  "deviceApproved": {
+    "message": "Dispositivo approvato"
+  },
+  "deviceRemoved": {
+    "message": "Dispositivo rimosso"
+  },
+  "removeDevice": {
+    "message": "Rimuovi dispositivo"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Sei sicuro di voler rimuovere il dispositivo?"
+  },
   "noDeviceRequests": {
     "message": "Nessuna richiesta da approvare"
   },
@@ -9271,6 +9321,18 @@
   "updatedTaxInformation": {
     "message": "Informazioni fiscali aggiornate"
   },
+  "billingInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "An error occurred while previewing the invoice. Please try again later."
+  },
   "unverified": {
     "message": "Non verificato"
   },
@@ -9923,6 +9985,15 @@
   "removeMembers": {
     "message": "Remove members"
   },
+  "devices": {
+    "message": "Dispositivi"
+  },
+  "deviceListDescription": {
+    "message": "Il tuo account è stato connesso a ciascuno dei dispositivi qui sotto. Se non riconosci un dispositivo, rimuovilo ora."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Il tuo account è stato connesso a ciascuno dei dispositivi qui sotto."
+  },
   "claimedDomains": {
     "message": "Claimed domains"
   },
@@ -10007,5 +10078,63 @@
   },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
+  },
+  "resellerRenewalWarning": {
+    "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "The invoice for your subscription has not been paid. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Abbonamento organizzazione riavviato"
+  },
+  "restartSubscription": {
+    "message": "Riavvia il tuo abbonamento"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Contatta $PROVIDER$ per assistenza.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
-import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -52,6 +52,8 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
 })
 export class CipherViewComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) cipher: CipherView | null = null;
+
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
@@ -145,8 +147,14 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     }
 
     if (this.cipher.folderId) {
+      const activeUserId = await firstValueFrom(this.activeUserId$);
+
+      if (!activeUserId) {
+        return;
+      }
+
       this.folder$ = this.folderService
-        .getDecrypted$(this.cipher.folderId)
+        .getDecrypted$(this.cipher.folderId, activeUserId)
         .pipe(takeUntil(this.destroyed$));
     }
   }

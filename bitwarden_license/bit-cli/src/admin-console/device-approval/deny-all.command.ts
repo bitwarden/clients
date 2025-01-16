@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+import { OrganizationAuthRequestService } from "@bitwarden/bit-common/admin-console/auth-requests";
 import { Response } from "@bitwarden/cli/models/response";
 import { MessageResponse } from "@bitwarden/cli/models/response/message.response";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -9,7 +10,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { OrganizationAuthRequestService } from "../../../../bit-common/src/admin-console/auth-requests";
 import { ServiceContainer } from "../../service-container";
 
 export class DenyAllCommand {
