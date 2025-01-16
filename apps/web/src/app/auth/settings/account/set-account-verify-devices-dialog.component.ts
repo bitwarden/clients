@@ -4,7 +4,7 @@ import { FormBuilder } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { SetVerifyDevicesRequest } from "@bitwarden/common/auth/models/request/set-verify-devices.request";
 import { Verification } from "@bitwarden/common/auth/types/verification";
@@ -21,7 +21,7 @@ export class SetAccountVerifyDevicesDialogComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
   // the default for new device verification is true
   verifyNewDeviceLogin: boolean = true;
-  activeUserId: UserId;
+  activeUserId: UserId = null;
 
   setVerifyDevicesForm = this.formBuilder.group({
     verification: undefined as Verification | undefined,
@@ -39,18 +39,17 @@ export class SetAccountVerifyDevicesDialogComponent implements OnDestroy {
   ) {
     this.accountService.accountVerifyDevices$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((verifyDevices) => {
+      .subscribe((verifyDevices: boolean) => {
         this.verifyNewDeviceLogin = verifyDevices;
       });
     this.accountService.activeAccount$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((account) => (this.activeUserId = account.id));
+      .subscribe((account: Account) => (this.activeUserId = account.id));
   }
 
   submit = async () => {
     try {
-      //todo create request object
-      const verification = this.setVerifyDevicesForm.get("verification").value;
+      const verification = this.setVerifyDevicesForm.get("verification")?.value;
       const request: SetVerifyDevicesRequest = await this.userVerificationService.buildRequest(
         verification,
         SetVerifyDevicesRequest,
