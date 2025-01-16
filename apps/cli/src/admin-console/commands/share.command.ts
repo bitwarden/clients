@@ -34,6 +34,8 @@ export class ShareCommand {
         if (req == null || req.length === 0) {
           return Response.badRequest("You must provide at least one collection id for this item.");
         }
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         return Response.badRequest("Error parsing the encoded request data.");
       }

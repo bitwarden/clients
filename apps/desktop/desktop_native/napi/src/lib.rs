@@ -362,14 +362,6 @@ pub mod sshagent {
             .clear_keys()
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
-
-    #[napi]
-    pub async fn generate_keypair(key_algorithm: String) -> napi::Result<SshKey> {
-        desktop_core::ssh_agent::generator::generate_keypair(key_algorithm)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
-            .map(|k| k.into())
-    }
 }
 
 #[napi]
