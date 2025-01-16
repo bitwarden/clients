@@ -9,7 +9,7 @@ import {
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
-  newDeviceVerificationGuard,
+  activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
@@ -591,7 +591,7 @@ const routes: Routes = [
       },
       {
         path: "device-verification",
-        canActivate: [newDeviceVerificationGuard()],
+        canActivate: [activeAuthGuard()],
         children: [
           {
             path: "",

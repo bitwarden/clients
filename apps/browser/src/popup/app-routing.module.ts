@@ -12,7 +12,7 @@ import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui
 import {
   authGuard,
   lockGuard,
-  newDeviceVerificationGuard,
+  activeAuthGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
@@ -238,7 +238,7 @@ const routes: Routes = [
   {
     path: "device-verification",
     component: ExtensionAnonLayoutWrapperComponent,
-    canActivate: [newDeviceVerificationGuard()],
+    canActivate: [activeAuthGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
     data: {
       pageIcon: DeviceVerificationIcon,
