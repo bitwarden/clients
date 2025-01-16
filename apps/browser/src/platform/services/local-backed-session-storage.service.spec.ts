@@ -48,6 +48,8 @@ describe("LocalBackedSessionStorage", () => {
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
       encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
         encrypted,
         sessionKey,
@@ -69,6 +71,8 @@ describe("LocalBackedSessionStorage", () => {
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
       encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
         encrypted,
         sessionKey,

@@ -3,9 +3,9 @@
 import { map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { CollectionId } from "@bitwarden/common/types/guid";
 
+import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionId } from "../../types/guid";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
 

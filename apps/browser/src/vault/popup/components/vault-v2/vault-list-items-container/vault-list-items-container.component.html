@@ -80,11 +80,9 @@
         <button
           bit-item-content
           type="button"
-          (click)="primaryActionAutofill ? doAutofill(cipher) : onViewCipher(cipher)"
+          (click)="primaryActionOnSelect(cipher)"
           (dblclick)="launchCipher(cipher)"
-          [appA11yTitle]="
-            (primaryActionAutofill ? 'autofillTitle' : 'viewItemTitle') | i18n: cipher.name
-          "
+          [appA11yTitle]="cipherItemTitleKey | async | i18n: cipher.name"
           class="{{ itemHeightClass }}"
         >
           <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
@@ -106,7 +104,7 @@
           <span slot="secondary">{{ cipher.subTitle }}</span>
         </button>
         <ng-container slot="end">
-          <bit-item-action *ngIf="showAutofillButton && !primaryActionAutofill">
+          <bit-item-action *ngIf="!(hideAutofillButton$ | async)">
             <button
               type="button"
               bitBadge
@@ -131,7 +129,7 @@
           <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
           <app-item-more-options
             [cipher]="cipher"
-            [hideAutofillOptions]="showAutofillButton"
+            [hideAutofillOptions]="hideAutofillOptions$ | async"
             [showViewOption]="primaryActionAutofill"
           ></app-item-more-options>
         </ng-container>

@@ -15,8 +15,8 @@ import {
   signal,
   ViewChild,
 } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
-import { map } from "rxjs";
+import { Router } from "@angular/router";
+import { firstValueFrom, Observable, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -62,7 +62,6 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     TypographyModule,
     JslibModule,
     SectionHeaderComponent,
-    RouterLink,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
@@ -152,10 +151,39 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   onRefresh = new EventEmitter<void>();
 
   /**
+   * Flag indicating that the current tab location is blocked
+   */
+  currentURIIsBlocked$: Observable<boolean> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$;
+
+  /**
+   * Resolved i18n key to use for suggested cipher items
+   */
+  cipherItemTitleKey = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) =>
+      this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle",
+    ),
+  );
+
+  /**
    * Option to show the autofill button for each item.
    */
   @Input({ transform: booleanAttribute })
   showAutofillButton: boolean;
+
+  /**
+   * Flag indicating whether the suggested cipher item autofill button should be shown or not
+   */
+  hideAutofillButton$ = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) => !this.showAutofillButton || uriIsBlocked || this.primaryActionAutofill),
+  );
+
+  /**
+   * Flag indicating whether the cipher item autofill options should be shown or not
+   */
+  hideAutofillOptions$: Observable<boolean> = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) => uriIsBlocked || this.showAutofillButton),
+  );
 
   /**
    * Option to perform autofill operation as the primary action for autofill suggestions.
@@ -214,6 +242,14 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
+  }
+
+  async primaryActionOnSelect(cipher: CipherView) {
+    const isBlocked = await firstValueFrom(this.currentURIIsBlocked$);
+
+    return this.primaryActionAutofill && !isBlocked
+      ? this.doAutofill(cipher)
+      : this.onViewCipher(cipher);
   }
 
   /**

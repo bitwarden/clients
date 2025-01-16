@@ -1,11 +1,12 @@
+import { CardView } from "../vault/models/view/card.view";
+
 import {
   DelimiterPatternExpression,
   ExpiryFullYearPattern,
   ExpiryFullYearPatternExpression,
   IrrelevantExpiryCharactersPatternExpression,
   MonthPatternExpression,
-} from "@bitwarden/common/autofill/constants";
-import { CardView } from "@bitwarden/common/vault/models/view/card.view";
+} from "./constants";
 
 type NonZeroIntegers = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type Year = `${NonZeroIntegers}${NonZeroIntegers}${0 | NonZeroIntegers}${0 | NonZeroIntegers}`;

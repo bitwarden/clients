@@ -957,8 +957,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
     };
 
+    const allFields = this.formFieldElements;
+    const allFieldsRect = [];
+
+    for (const key of allFields.keys()) {
+      const rect = await this.getMostRecentlyFocusedFieldRects(key);
+      allFieldsRect.push({ ...allFields.get(key), rect }); // Add the combined result to the array
+    }
+
     await this.sendExtensionMessage("updateFocusedFieldData", {
       focusedFieldData: this.focusedFieldData,
+      allFieldsRect,
     });
   }
 
@@ -1408,6 +1417,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         url.origin + pathWithoutTrailingSlashAndSearch,
         url.origin + pathWithoutTrailingSlashSearchAndHash,
       ]);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
       return null;
     }

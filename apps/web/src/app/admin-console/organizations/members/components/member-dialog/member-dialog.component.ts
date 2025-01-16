@@ -68,7 +68,7 @@ export interface MemberDialogParams {
   usesKeyConnector: boolean;
   isOnSecretsManagerStandalone: boolean;
   initialTab?: MemberDialogTab;
-  numConfirmedMembers: number;
+  numSeatsUsed: number;
   managedByOrganization?: boolean;
 }
 
@@ -263,7 +263,7 @@ export class MemberDialogComponent implements OnDestroy {
       });
 
     this.remainingSeats$ = this.organization$.pipe(
-      map((organization) => organization.seats - this.params.numConfirmedMembers),
+      map((organization) => organization.seats - this.params.numSeatsUsed),
     );
   }
 
@@ -458,7 +458,7 @@ export class MemberDialogComponent implements OnDestroy {
       }
       if (
         organization.hasReseller &&
-        this.params.numConfirmedMembers + emails.length > organization.seats
+        this.params.numSeatsUsed + emails.length > organization.seats
       ) {
         this.formGroup.controls.emails.setErrors({
           tooManyEmails: { message: this.i18nService.t("seatLimitReachedContactYourProvider") },
