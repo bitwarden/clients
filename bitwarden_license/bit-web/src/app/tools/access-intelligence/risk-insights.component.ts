@@ -16,6 +16,7 @@ import { ApplicationHealthReportDetail } from "@bitwarden/bit-common/tools/repor
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { AsyncActionsModule, ButtonModule, TabsModule } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
@@ -113,6 +114,7 @@ export class RiskInsightsComponent implements OnInit {
           if (applications) {
             this.appsCount = applications.length;
           }
+          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId);
         },
       });
   }

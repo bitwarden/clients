@@ -7,6 +7,8 @@ describe("LP Suppress Import Download for Manifest v2", () => {
       return node;
     });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./lp-suppress-import-download-script-append.mv2");
 
     expect(window.document.createElement).toHaveBeenCalledWith("script");

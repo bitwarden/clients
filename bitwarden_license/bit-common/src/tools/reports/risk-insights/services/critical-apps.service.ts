@@ -68,7 +68,7 @@ export class CriticalAppsService {
     );
 
     const dbResponse = await firstValueFrom(
-      this.criticalAppsApiService.SaveCriticalApps(criticalAppsRequests),
+      this.criticalAppsApiService.saveCriticalApps(criticalAppsRequests),
     );
 
     // add the new entries to the criticalAppsList
@@ -102,7 +102,7 @@ export class CriticalAppsService {
     }
 
     const result$ = zip(
-      this.criticalAppsApiService.GetCriticalApps(orgId),
+      this.criticalAppsApiService.getCriticalApps(orgId),
       from(this.keyService.getOrgKey(orgId)),
     ).pipe(
       switchMap(([response, key]) => {

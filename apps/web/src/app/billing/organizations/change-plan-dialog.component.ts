@@ -1062,7 +1062,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private refreshSalesTax(): void {
-    if (!this.taxInformation.country || !this.taxInformation.postalCode) {
+    if (
+      this.taxInformation === undefined ||
+      !this.taxInformation.country ||
+      !this.taxInformation.postalCode
+    ) {
       return;
     }
 

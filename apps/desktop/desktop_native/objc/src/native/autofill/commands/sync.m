@@ -30,21 +30,24 @@ void runSync(void* context, NSDictionary *params) {
       [mappedCredentials addObject:credential];
     }
 
-    if ([type isEqualToString:@"fido2"]) {
-      NSString *cipherId = credential[@"cipherId"];
-      NSString *rpId = credential[@"rpId"];
-      NSString *userName = credential[@"userName"];
-      NSData *credentialId = decodeBase64URL(credential[@"credentialId"]);
-      NSData *userHandle = decodeBase64URL(credential[@"userHandle"]);
+    if (@available(macos 14, *)) {
+      if ([type isEqualToString:@"fido2"]) {
+        NSString *cipherId = credential[@"cipherId"];
+        NSString *rpId = credential[@"rpId"];
+        NSString *userName = credential[@"userName"];
+        NSData *credentialId = decodeBase64URL(credential[@"credentialId"]);
+        NSData *userHandle = decodeBase64URL(credential[@"userHandle"]);
 
-      ASPasskeyCredentialIdentity *credential = [[ASPasskeyCredentialIdentity alloc]
-        initWithRelyingPartyIdentifier:rpId
-        userName:userName
-        credentialID:credentialId
-        userHandle:userHandle
-        recordIdentifier:cipherId];
+        Class passkeyCredentialIdentityClass = NSClassFromString(@"ASPasskeyCredentialIdentity");
+        id credential = [[passkeyCredentialIdentityClass alloc]
+          initWithRelyingPartyIdentifier:rpId
+          userName:userName
+          credentialID:credentialId
+          userHandle:userHandle
+          recordIdentifier:cipherId];
 
-      [mappedCredentials addObject:credential];
+        [mappedCredentials addObject:credential];
+      }
     }
   }
 

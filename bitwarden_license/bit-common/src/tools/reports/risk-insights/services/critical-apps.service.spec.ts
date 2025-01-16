@@ -25,8 +25,8 @@ describe("CriticalAppsService", () => {
   const keyService = mock<KeyService>();
   const encryptService = mock<EncryptService>();
   const criticalAppsApiService = mock<CriticalAppsApiService>({
-    SaveCriticalApps: jest.fn(),
-    GetCriticalApps: jest.fn(),
+    saveCriticalApps: jest.fn(),
+    getCriticalApps: jest.fn(),
   });
 
   beforeEach(() => {
@@ -55,7 +55,7 @@ describe("CriticalAppsService", () => {
     ] as PasswordHealthReportApplicationsResponse[];
 
     encryptService.encrypt.mockResolvedValue(new EncString("encryptedUrlName"));
-    criticalAppsApiService.SaveCriticalApps.mockReturnValue(of(response));
+    criticalAppsApiService.saveCriticalApps.mockReturnValue(of(response));
 
     // act
     await service.setCriticalApps("org1", criticalApps);
@@ -63,7 +63,7 @@ describe("CriticalAppsService", () => {
     // expectations
     expect(keyService.getOrgKey).toHaveBeenCalledWith("org1");
     expect(encryptService.encrypt).toHaveBeenCalledTimes(2);
-    expect(criticalAppsApiService.SaveCriticalApps).toHaveBeenCalledWith(request);
+    expect(criticalAppsApiService.saveCriticalApps).toHaveBeenCalledWith(request);
   });
 
   it("should exclude records that already exist", async () => {
@@ -91,7 +91,7 @@ describe("CriticalAppsService", () => {
     ] as PasswordHealthReportApplicationsResponse[];
 
     encryptService.encrypt.mockResolvedValue(new EncString("encryptedUrlName"));
-    criticalAppsApiService.SaveCriticalApps.mockReturnValue(of(response));
+    criticalAppsApiService.saveCriticalApps.mockReturnValue(of(response));
 
     // act
     await service.setCriticalApps("org1", selectedUrls);
@@ -99,7 +99,7 @@ describe("CriticalAppsService", () => {
     // expectations
     expect(keyService.getOrgKey).toHaveBeenCalledWith("org1");
     expect(encryptService.encrypt).toHaveBeenCalledTimes(1);
-    expect(criticalAppsApiService.SaveCriticalApps).toHaveBeenCalledWith(request);
+    expect(criticalAppsApiService.saveCriticalApps).toHaveBeenCalledWith(request);
   });
 
   it("should get critical apps", fakeAsync(() => {
@@ -110,7 +110,7 @@ describe("CriticalAppsService", () => {
     ] as PasswordHealthReportApplicationsResponse[];
 
     encryptService.decryptToUtf8.mockResolvedValue("https://example.com");
-    criticalAppsApiService.GetCriticalApps.mockReturnValue(of(response));
+    criticalAppsApiService.getCriticalApps.mockReturnValue(of(response));
 
     const mockRandomBytes = new Uint8Array(64) as CsprngArray;
     const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
@@ -120,8 +120,8 @@ describe("CriticalAppsService", () => {
     flush();
 
     expect(keyService.getOrgKey).toHaveBeenCalledWith(orgId.toString());
-    // expect(encryptService.decryptToUtf8).toHaveBeenCalledTimes(2);
-    expect(criticalAppsApiService.GetCriticalApps).toHaveBeenCalledWith(orgId);
+    expect(encryptService.decryptToUtf8).toHaveBeenCalledTimes(2);
+    expect(criticalAppsApiService.getCriticalApps).toHaveBeenCalledWith(orgId);
   }));
 
   it("should get by org id", () => {

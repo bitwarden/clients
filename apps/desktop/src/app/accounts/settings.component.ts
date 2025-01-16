@@ -362,12 +362,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.supportsBiometric =
-      (await this.biometricsService.getBiometricsStatus()) === BiometricsStatus.Available;
+    this.supportsBiometric = this.shouldAllowBiometricSetup(
+      await this.biometricsService.getBiometricsStatus(),
+    );
     this.timerId = setInterval(async () => {
-      this.supportsBiometric =
-        (await this.biometricsService.getBiometricsStatus()) === BiometricsStatus.Available;
+      this.supportsBiometric = this.shouldAllowBiometricSetup(
+        await this.biometricsService.getBiometricsStatus(),
+      );
     }, 1000);
+  }
+
+  private shouldAllowBiometricSetup(biometricStatus: BiometricsStatus): boolean {
+    return [
+      BiometricsStatus.Available,
+      BiometricsStatus.AutoSetupNeeded,
+      BiometricsStatus.ManualSetupNeeded,
+    ].includes(biometricStatus);
   }
 
   async saveVaultTimeout(newValue: VaultTimeout) {
@@ -650,7 +660,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const skipSupportedPlatformCheck =
       ipc.platform.allowBrowserintegrationOverride || ipc.platform.isDev;
 
-    if (skipSupportedPlatformCheck) {
+    if (!skipSupportedPlatformCheck) {
       if (
         ipc.platform.deviceType === DeviceType.MacOsDesktop &&
         !this.platformUtilsService.isMacAppStore()

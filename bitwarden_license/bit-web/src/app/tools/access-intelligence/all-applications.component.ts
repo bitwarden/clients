@@ -1,19 +1,9 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import {
-  combineLatest,
-  debounceTime,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  Subscription,
-  switchMap,
-} from "rxjs";
+import { combineLatest, debounceTime, map, Observable, of, skipWhile } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports  -- used for dependency injection
 import {
   CriticalAppsService,
   RiskInsightsDataService,
@@ -29,7 +19,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   DialogService,
@@ -45,6 +34,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
+import { OrgAtRiskAppsDialogComponent } from "./org-at-risk-apps-dialog.component";
 import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
@@ -62,80 +52,59 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
     SharedModule,
   ],
 })
-export class AllApplicationsComponent implements OnInit, OnDestroy {
+export class AllApplicationsComponent implements OnInit {
   protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
-  protected organization = {} as Organization;
+  protected organization = new Organization();
   noItemsIcon = Icons.Security;
   protected markingAsCritical = false;
-  protected applicationSummary = {} as ApplicationHealthReportSummary;
-  private subscription = new Subscription();
+  protected applicationSummary: ApplicationHealthReportSummary = {
+    totalMemberCount: 0,
+    totalAtRiskMemberCount: 0,
+    totalApplicationCount: 0,
+    totalAtRiskApplicationCount: 0,
+  };
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
   isCriticalAppsFeatureEnabled = false;
 
   async ngOnInit() {
-    this.activatedRoute.paramMap
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-
-        map(async (params) => {
-          const organizationId = params.get("organizationId") ?? "";
-          this.organization = (await firstValueFrom(
-            this.organizationService.get$(organizationId),
-          )) as Organization;
-          return params;
-          // TODO: use organizationId to fetch data
-        }),
-        switchMap(async (params) => await params),
-      )
-      .subscribe((params) => {
-        const orgId = params.get("organizationId");
-        this.criticalAppsService.setOrganizationId(orgId as OrganizationId);
-      });
-
     this.isCriticalAppsFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CriticalApps,
     );
 
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    combineLatest([
+      this.dataService.applications$,
+      this.criticalAppsService.getAppsListForOrg(organizationId),
+      this.organizationService.get$(organizationId),
+    ])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        skipWhile(([_, __, organization]) => !organization),
+        map(([applications, criticalApps, organization]) => {
+          const criticalUrls = criticalApps.map((ca) => ca.uri);
+          const data = applications?.map((app) => ({
+            ...app,
+            isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+          })) as ApplicationHealthReportDetailWithCriticalFlag[];
+          return { data, organization };
+        }),
+      )
+      .subscribe(({ data, organization }) => {
+        if (data){
+          this.dataSource.data = data;
+          this.applicationSummary = this.reportService.generateApplicationsSummary(data);
+        }
+        if (organization) {
+          this.organization = organization;
+        }
+      });
 
-    if (organizationId) {
-      this.organization = await this.organizationService.get(organizationId);
-
-      this.subscription = combineLatest([
-        this.dataService.applications$,
-        this.criticalAppsService.getAppsListForOrg(organizationId),
-      ])
-        .pipe(
-          map(([applications, criticalApps]) => {
-            const criticalUrls = criticalApps.map((ca) => ca.uri);
-            const data = applications?.map((app) => ({
-              ...app,
-              isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-            })) as ApplicationHealthReportDetailWithCriticalFlag[];
-            return data;
-          }),
-          map((applications: ApplicationHealthReportDetailWithCriticalFlag[]) => {
-            if (applications) {
-              this.dataSource.data = applications ?? [];
-              this.applicationSummary = this.reportService.generateApplicationsSummary(
-                applications ?? [],
-              );
-            }
-          }),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe();
-      this.isLoading$ = this.dataService.isLoading$;
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    this.isLoading$ = this.dataService.isLoading$;
   }
 
   constructor(
@@ -204,6 +173,12 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
   showOrgAtRiskMembers = async () => {
     this.dialogService.open(OrgAtRiskMembersDialogComponent, {
       data: this.reportService.generateAtRiskMemberList(this.dataSource.data),
+    });
+  };
+
+  showOrgAtRiskApps = async () => {
+    this.dialogService.open(OrgAtRiskAppsDialogComponent, {
+      data: this.reportService.generateAtRiskApplicationList(this.dataSource.data),
     });
   };
 

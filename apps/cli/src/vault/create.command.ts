@@ -66,6 +66,8 @@ export class CreateCommand {
         try {
           const reqJson = Buffer.from(requestJson, "base64").toString();
           req = JSON.parse(reqJson);
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           return Response.badRequest("Error parsing the encoded request data.");
         }
