@@ -89,9 +89,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private loginStrategyCacheState: GlobalState<CacheData | null>;
   private loginStrategyCacheExpirationState: GlobalState<Date | null>;
   private authRequestPushNotificationState: GlobalState<string | null>;
-  private twoFactorTimeoutSubject = new BehaviorSubject<boolean>(false);
+  private authenticationTimeoutSubject = new BehaviorSubject<boolean>(false);
 
-  authenticationSessionTimeout$: Observable<boolean> = this.twoFactorTimeoutSubject.asObservable();
+  authenticationSessionTimeout$: Observable<boolean> =
+    this.authenticationTimeoutSubject.asObservable();
 
   private loginStrategy$: Observable<
     | UserApiLoginStrategy
@@ -140,7 +141,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     this.taskSchedulerService.registerTaskHandler(
       ScheduledTaskNames.loginStrategySessionTimeout,
       async () => {
-        this.twoFactorTimeoutSubject.next(true);
+        this.authenticationTimeoutSubject.next(true);
         try {
           await this.clearCache();
         } catch (e) {
@@ -212,7 +213,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       | WebAuthnLoginCredentials,
   ): Promise<AuthResult> {
     await this.clearCache();
-    this.twoFactorTimeoutSubject.next(false);
+    this.authenticationTimeoutSubject.next(false);
 
     await this.currentAuthnTypeState.update((_) => credentials.type);
 
@@ -340,7 +341,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private async clearCache(): Promise<void> {
     await this.currentAuthnTypeState.update((_) => null);
     await this.loginStrategyCacheState.update((_) => null);
-    this.twoFactorTimeoutSubject.next(false);
+    this.authenticationTimeoutSubject.next(false);
     await this.clearSessionTimeout();
   }
 
