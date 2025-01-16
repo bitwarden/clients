@@ -71,6 +71,29 @@
     },
     {
       "matchPackageNames": [
+        "@angular-eslint/eslint-plugin-template",
+        "@angular-eslint/eslint-plugin",
+        "@angular-eslint/schematics",
+        "@angular-eslint/template-parser",
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser",
+        "eslint-config-prettier",
+        "eslint-import-resolver-typescript",
+        "eslint-plugin-import",
+        "eslint-plugin-rxjs-angular",
+        "eslint-plugin-rxjs",
+        "eslint-plugin-storybook",
+        "eslint-plugin-tailwindcss",
+        "eslint",
+        "husky",
+        "lint-staged"
+      ],
+      "description": "Architecture owned dependencies",
+      "commitMessagePrefix": "[deps] Architecture:",
+      "reviewers": ["team:dept-architecture"]
+    },
+    {
+      "matchPackageNames": [
         "@emotion/css",
         "@webcomponents/custom-elements",
         "concurrently",
@@ -190,28 +213,11 @@
     },
     {
       "matchPackageNames": [
-        "@angular-eslint/eslint-plugin",
-        "@angular-eslint/eslint-plugin-template",
-        "@angular-eslint/schematics",
-        "@angular-eslint/template-parser",
-        "@angular/elements",
         "@types/jest",
-        "@typescript-eslint/eslint-plugin",
-        "@typescript-eslint/parser",
-        "eslint",
-        "eslint-config-prettier",
-        "eslint-import-resolver-typescript",
-        "eslint-plugin-import",
-        "eslint-plugin-rxjs",
-        "eslint-plugin-rxjs-angular",
-        "eslint-plugin-storybook",
-        "eslint-plugin-tailwindcss",
-        "husky",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",
         "jest-diff",
-        "lint-staged",
         "ts-jest"
       ],
       "description": "Secrets Manager owned dependencies",
