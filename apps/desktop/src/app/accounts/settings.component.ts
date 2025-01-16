@@ -495,7 +495,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       }
 
       const status = await this.biometricsService.getBiometricsStatus();
-      this.logService.info("status", status);
 
       if (status === BiometricsStatus.AutoSetupNeeded) {
         await this.biometricsService.setupBiometrics();
