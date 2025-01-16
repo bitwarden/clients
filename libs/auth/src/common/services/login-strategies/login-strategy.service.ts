@@ -47,15 +47,24 @@ import {
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
-import { AuthRequestLoginStrategy } from "../../login-strategies/auth-request-login.strategy";
+import {
+  AuthRequestLoginStrategy,
+  AuthRequestLoginStrategyData,
+} from "../../login-strategies/auth-request-login.strategy";
 import { LoginStrategy } from "../../login-strategies/login.strategy";
 import {
   PasswordLoginStrategy,
   PasswordLoginStrategyData,
 } from "../../login-strategies/password-login.strategy";
-import { SsoLoginStrategy } from "../../login-strategies/sso-login.strategy";
-import { UserApiLoginStrategy } from "../../login-strategies/user-api-login.strategy";
-import { WebAuthnLoginStrategy } from "../../login-strategies/webauthn-login.strategy";
+import { SsoLoginStrategy, SsoLoginStrategyData } from "../../login-strategies/sso-login.strategy";
+import {
+  UserApiLoginStrategy,
+  UserApiLoginStrategyData,
+} from "../../login-strategies/user-api-login.strategy";
+import {
+  WebAuthnLoginStrategy,
+  WebAuthnLoginStrategyData,
+} from "../../login-strategies/webauthn-login.strategy";
 import {
   UserApiLoginCredentials,
   PasswordLoginCredentials,
@@ -409,11 +418,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               ...sharedDeps,
             );
           case AuthenticationType.Sso:
-            if (!data?.sso) {
-              throw new Error("Sso is required");
-            }
             return new SsoLoginStrategy(
-              data.sso,
+              data?.sso ?? new SsoLoginStrategyData(),
               this.keyConnectorService,
               this.deviceTrustService,
               this.authRequestService,
@@ -421,29 +427,23 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:
-            if (!data?.userApiKey) {
-              throw new Error("User API key is required");
-            }
             return new UserApiLoginStrategy(
-              data.userApiKey,
+              data?.userApiKey ?? new UserApiLoginStrategyData(),
               this.environmentService,
               this.keyConnectorService,
               ...sharedDeps,
             );
           case AuthenticationType.AuthRequest:
-            if (!data?.authRequest) {
-              throw new Error("Auth request is required");
-            }
             return new AuthRequestLoginStrategy(
-              data.authRequest,
+              data?.authRequest ?? new AuthRequestLoginStrategyData(),
               this.deviceTrustService,
               ...sharedDeps,
             );
           case AuthenticationType.WebAuthn:
-            if (!data?.webAuthn) {
-              throw new Error("WebAuthn is required");
-            }
-            return new WebAuthnLoginStrategy(data.webAuthn, ...sharedDeps);
+            return new WebAuthnLoginStrategy(
+              data?.webAuthn ?? new WebAuthnLoginStrategyData(),
+              ...sharedDeps,
+            );
         }
       }),
     );
