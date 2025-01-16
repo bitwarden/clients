@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import type { BitwardenClient } from "@bitwarden/sdk-internal";
 
@@ -14,28 +17,36 @@ const supported = (() => {
         return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
       }
     }
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     // ignore
   }
   return false;
 })();
 
+// Due to using webpack as bundler, sync imports will return an async module. Since we do support
+// top level awaits, we define a promise we can await in the `load` function.
+let loadingPromise: Promise<any> | undefined;
+
 // Manifest v3 does not support dynamic imports in the service worker.
 if (BrowserApi.isManifestVersion(3)) {
   if (supported) {
     // eslint-disable-next-line no-console
     console.debug("WebAssembly is supported in this environment");
-    import("./wasm");
+    loadingPromise = import("./wasm");
   } else {
     // eslint-disable-next-line no-console
     console.debug("WebAssembly is not supported in this environment");
-    import("./fallback");
+    loadingPromise = import("./fallback");
   }
 }
 
 // Manifest v2 expects dynamic imports to prevent timing issues.
 async function load() {
   if (BrowserApi.isManifestVersion(3)) {
+    // Ensure we have loaded the module
+    await loadingPromise;
     return;
   }
 
@@ -56,11 +67,20 @@ async function load() {
  * Works both in popup and service worker.
  */
 export class BrowserSdkClientFactory implements SdkClientFactory {
+  constructor(private logService: LogService) {}
+
   async createSdkClient(
     ...args: ConstructorParameters<typeof BitwardenClient>
   ): Promise<BitwardenClient> {
+    const startTime = performance.now();
     await load();
 
-    return Promise.resolve((globalThis as any).init_sdk(...args));
+    const endTime = performance.now();
+
+    const instance = (globalThis as any).init_sdk(...args);
+
+    this.logService.info("WASM SDK loaded in", Math.round(endTime - startTime), "ms");
+
+    return instance;
   }
 }

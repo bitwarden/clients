@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { View } from "../../../../models/view/view";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
 import { SendFile } from "../domain/send-file";

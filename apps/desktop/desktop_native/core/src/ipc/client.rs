@@ -1,13 +1,11 @@
 use std::path::PathBuf;
 
+use futures::{SinkExt, StreamExt};
 use interprocess::local_socket::{
     tokio::{prelude::*, Stream},
     GenericFilePath, ToFsName,
 };
 use log::{error, info};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-
-use crate::ipc::NATIVE_MESSAGING_BUFFER_SIZE;
 
 pub async fn connect(
     path: PathBuf,
@@ -17,7 +15,9 @@ pub async fn connect(
     info!("Attempting to connect to {}", path.display());
 
     let name = path.as_os_str().to_fs_name::<GenericFilePath>()?;
-    let mut conn = Stream::connect(name).await?;
+    let conn = Stream::connect(name).await?;
+
+    let mut conn = crate::ipc::internal_ipc_codec(conn);
 
     info!("Connected to {}", path.display());
 
@@ -26,8 +26,6 @@ pub async fn connect(
     // As it's only two, we hardcode the JSON values to avoid pulling in a JSON library.
     send.send("{\"command\":\"connected\"}".to_owned()).await?;
 
-    let mut buffer = vec![0; NATIVE_MESSAGING_BUFFER_SIZE];
-
     // Listen to IPC messages
     loop {
         tokio::select! {
@@ -35,7 +33,7 @@ pub async fn connect(
             msg = recv.recv() => {
                 match msg {
                     Some(msg) => {
-                        conn.write_all(msg.as_bytes()).await?;
+                        conn.send(msg.into()).await?;
                     }
                     None => {
                         info!("Client channel closed");
@@ -45,18 +43,18 @@ pub async fn connect(
             },
 
             // Forward messages from the IPC server
-            res = conn.read(&mut buffer[..]) => {
+            res = conn.next() => {
                 match res {
-                    Err(e) => {
+                    Some(Err(e)) => {
                         error!("Error reading from IPC server: {e}");
                         break;
                     }
-                    Ok(0) => {
+                     None => {
                         info!("Connection closed");
                         break;
                     }
-                    Ok(n) => {
-                        let message = String::from_utf8_lossy(&buffer[..n]).to_string();
+                    Some(Ok(bytes)) => {
+                        let message = String::from_utf8_lossy(&bytes).to_string();
                         send.send(message).await?;
                     }
                 }

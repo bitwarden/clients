@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, NgZone, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -247,6 +249,8 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
     try {
       await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       this.platformUtilsService.showToast(
         "error",

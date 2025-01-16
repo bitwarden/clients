@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
@@ -19,6 +21,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TwoFactorAuthDuoComponent as TwoFactorAuthDuoBaseComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-duo.component";
 
 const BroadcasterSubscriptionId = "TwoFactorComponent";

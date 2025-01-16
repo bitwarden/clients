@@ -53,7 +53,7 @@ export const Premium: Story = {
     template: `
       <bit-banner [bannerType]="bannerType" (onClose)="onClose($event)" [showClose]=showClose>
         Content Really Long Text Lorem Ipsum Ipsum Ipsum
-        <button bitLink linkType="contrast">Button</button>
+        <button bitLink linkType="secondary">Button</button>
       </bit-banner>
       `,
   }),

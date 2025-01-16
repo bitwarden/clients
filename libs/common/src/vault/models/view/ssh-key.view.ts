@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { SshKey } from "../domain/ssh-key";
@@ -17,6 +19,10 @@ export class SshKeyView extends ItemView {
   }
 
   get maskedPrivateKey(): string {
+    if (!this.privateKey || this.privateKey.length === 0) {
+      return "";
+    }
+
     let lines = this.privateKey.split("\n").filter((l) => l.trim() !== "");
     lines = lines.map((l, i) => {
       if (i === 0 || i === lines.length - 1) {

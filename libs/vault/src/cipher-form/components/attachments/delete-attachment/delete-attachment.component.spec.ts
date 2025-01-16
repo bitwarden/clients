@@ -98,7 +98,7 @@ describe("DeleteAttachmentComponent", () => {
 
     expect(showToast).toHaveBeenCalledWith({
       variant: "success",
-      title: null,
+      title: "",
       message: "deletedAttachment",
     });
   });

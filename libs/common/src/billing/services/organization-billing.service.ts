@@ -1,23 +1,31 @@
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { KeyService } from "@bitwarden/key-management";
+
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { EncString } from "../../platform/models/domain/enc-string";
+import { SyncService } from "../../platform/sync";
 import { OrgKey } from "../../types/key";
-import { SyncService } from "../../vault/abstractions/sync/sync.service.abstraction";
 import {
+  BillingApiServiceAbstraction,
   OrganizationBillingServiceAbstraction,
   OrganizationInformation,
   PaymentInformation,
   PlanInformation,
   SubscriptionInformation,
-} from "../abstractions/organization-billing.service";
+} from "../abstractions";
 import { PlanType } from "../enums";
 import { OrganizationNoPaymentMethodCreateRequest } from "../models/request/organization-no-payment-method-create-request";
+import { BillingSourceResponse } from "../models/response/billing.response";
+import { PaymentSourceResponse } from "../models/response/payment-source.response";
 
 interface OrganizationKeys {
   encryptedKey: EncString;
@@ -29,12 +37,31 @@ interface OrganizationKeys {
 export class OrganizationBillingService implements OrganizationBillingServiceAbstraction {
   constructor(
     private apiService: ApiService,
+    private billingApiService: BillingApiServiceAbstraction,
+    private configService: ConfigService,
     private keyService: KeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiService,
     private syncService: SyncService,
   ) {}
+
+  async getPaymentSource(
+    organizationId: string,
+  ): Promise<BillingSourceResponse | PaymentSourceResponse> {
+    const deprecateStripeSourcesAPI = await this.configService.getFeatureFlag(
+      FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
+    );
+
+    if (deprecateStripeSourcesAPI) {
+      const paymentMethod =
+        await this.billingApiService.getOrganizationPaymentMethod(organizationId);
+      return paymentMethod.paymentSource;
+    } else {
+      const billing = await this.organizationApiService.getBilling(organizationId);
+      return billing.paymentSource;
+    }
+  }
 
   async purchaseSubscription(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
     const request = new OrganizationCreateRequest();
@@ -48,26 +75,6 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     this.setPlanInformation(request, subscription.plan);
 
     this.setPaymentInformation(request, subscription.payment);
-
-    const response = await this.organizationApiService.create(request);
-
-    await this.apiService.refreshIdentityToken();
-
-    await this.syncService.fullSync(true);
-
-    return response;
-  }
-
-  async startFree(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
-    const request = new OrganizationCreateRequest();
-
-    const organizationKeys = await this.makeOrganizationKeys();
-
-    this.setOrganizationKeys(request, organizationKeys);
-
-    this.setOrganizationInformation(request, subscription.organization);
-
-    this.setPlanInformation(request, subscription.plan);
 
     const response = await this.organizationApiService.create(request);
 
@@ -92,6 +99,26 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     this.setPlanInformation(request, subscription.plan);
 
     const response = await this.organizationApiService.createWithoutPayment(request);
+
+    await this.apiService.refreshIdentityToken();
+
+    await this.syncService.fullSync(true);
+
+    return response;
+  }
+
+  async startFree(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
+    const request = new OrganizationCreateRequest();
+
+    const organizationKeys = await this.makeOrganizationKeys();
+
+    this.setOrganizationKeys(request, organizationKeys);
+
+    this.setOrganizationInformation(request, subscription.organization);
+
+    this.setPlanInformation(request, subscription.plan);
+
+    const response = await this.organizationApiService.create(request);
 
     await this.apiService.refreshIdentityToken();
 
@@ -195,5 +222,18 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     if (information.storage) {
       request.additionalStorageGb = information.storage;
     }
+  }
+
+  async restartSubscription(
+    organizationId: string,
+    subscription: SubscriptionInformation,
+  ): Promise<void> {
+    const request = new OrganizationCreateRequest();
+    const organizationKeys = await this.makeOrganizationKeys();
+    this.setOrganizationKeys(request, organizationKeys);
+    this.setOrganizationInformation(request, subscription.organization);
+    this.setPlanInformation(request, subscription.plan);
+    this.setPaymentInformation(request, subscription.payment);
+    await this.billingApiService.restartSubscription(organizationId, request);
   }
 }

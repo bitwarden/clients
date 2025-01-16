@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
-import { Argon2KdfConfig, PBKDF2KdfConfig } from "../../auth/models/domain/kdf-config";
+import { PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
+
 import { CsprngArray } from "../../types/csprng";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 

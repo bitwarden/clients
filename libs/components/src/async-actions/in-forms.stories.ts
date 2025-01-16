@@ -5,6 +5,8 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { delay, of } from "rxjs";
 
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { I18nService } from "@bitwarden/common/src/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
@@ -109,20 +111,17 @@ export default {
   title: "Component Library/Async Actions/In Forms",
   decorators: [
     moduleMetadata({
-      declarations: [
+      declarations: [PromiseExampleComponent, ObservableExampleComponent],
+      imports: [
         BitSubmitDirective,
         BitFormButtonDirective,
-        PromiseExampleComponent,
-        ObservableExampleComponent,
-        BitActionDirective,
-      ],
-      imports: [
         FormsModule,
         ReactiveFormsModule,
         FormFieldModule,
         InputModule,
         ButtonModule,
         IconButtonModule,
+        BitActionDirective,
       ],
       providers: [
         {

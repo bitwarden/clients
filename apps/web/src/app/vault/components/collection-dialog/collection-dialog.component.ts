@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
@@ -29,7 +31,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { BitValidators, DialogService } from "@bitwarden/components";
 
-import { GroupService, GroupView } from "../../../admin-console/organizations/core";
+import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
 import { PermissionMode } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.component";
 import {
   AccessItemType,
@@ -101,7 +103,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef<CollectionDialogResult>,
     private organizationService: OrganizationService,
-    private groupService: GroupService,
+    private groupService: GroupApiService,
     private collectionAdminService: CollectionAdminService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,

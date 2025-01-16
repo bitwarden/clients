@@ -1,12 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { NgClass } from "@angular/common";
 import { Input, HostBinding, Component } from "@angular/core";
 
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
 
 const focusRing = [
-  "focus-visible:tw-ring",
+  "focus-visible:tw-ring-2",
   "focus-visible:tw-ring-offset-2",
-  "focus-visible:tw-ring-primary-700",
+  "focus-visible:tw-ring-primary-600",
   "focus-visible:tw-z-10",
 ];
 
@@ -17,24 +20,15 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "!tw-text-contrast",
     "hover:tw-bg-primary-700",
     "hover:tw-border-primary-700",
-    "disabled:tw-bg-primary-600/60",
-    "disabled:tw-border-primary-600/60",
-    "disabled:!tw-text-contrast/60",
-    "disabled:tw-bg-clip-padding",
-    "disabled:tw-cursor-not-allowed",
     ...focusRing,
   ],
   secondary: [
     "tw-bg-transparent",
-    "tw-border-text-muted",
-    "!tw-text-muted",
-    "hover:tw-bg-text-muted",
-    "hover:tw-border-text-muted",
+    "tw-border-primary-600",
+    "!tw-text-primary-600",
+    "hover:tw-bg-primary-600",
+    "hover:tw-border-primary-600",
     "hover:!tw-text-contrast",
-    "disabled:tw-bg-transparent",
-    "disabled:tw-border-text-muted/60",
-    "disabled:!tw-text-muted/60",
-    "disabled:tw-cursor-not-allowed",
     ...focusRing,
   ],
   danger: [
@@ -44,10 +38,6 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "hover:tw-bg-danger-600",
     "hover:tw-border-danger-600",
     "hover:!tw-text-contrast",
-    "disabled:tw-bg-transparent",
-    "disabled:tw-border-danger-600/60",
-    "disabled:!tw-text-danger/60",
-    "disabled:tw-cursor-not-allowed",
     ...focusRing,
   ],
   unstyled: [],
@@ -57,6 +47,8 @@ const buttonStyles: Record<ButtonType, string[]> = {
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
+  standalone: true,
+  imports: [NgClass],
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
@@ -64,14 +56,22 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       "tw-font-semibold",
       "tw-py-1.5",
       "tw-px-3",
-      "tw-rounded",
+      "tw-rounded-full",
       "tw-transition",
-      "tw-border",
+      "tw-border-2",
       "tw-border-solid",
       "tw-text-center",
       "tw-no-underline",
       "hover:tw-no-underline",
       "focus:tw-outline-none",
+      "disabled:tw-bg-secondary-300",
+      "disabled:hover:tw-bg-secondary-300",
+      "disabled:tw-border-secondary-300",
+      "disabled:hover:tw-border-secondary-300",
+      "disabled:!tw-text-muted",
+      "disabled:hover:!tw-text-muted",
+      "disabled:tw-cursor-not-allowed",
+      "disabled:hover:tw-no-underline",
     ]
       .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
       .concat(buttonStyles[this.buttonType ?? "secondary"]);
@@ -99,8 +99,4 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   @Input() loading = false;
 
   @Input() disabled = false;
-
-  setButtonType(value: "primary" | "secondary" | "danger" | "unstyled") {
-    this.buttonType = value;
-  }
 }

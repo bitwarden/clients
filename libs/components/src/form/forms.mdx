@@ -55,6 +55,18 @@ Be sure to use an appropriate type attribute on fields when defining new field c
 `email` for email address or `number` for numerical information) to take advantage of newer input
 controls like email verification, number selection, and more.
 
+Labels accept an optional `end` slot for any content that should not be truncated if the label text
+is too long, such as info link buttons or badges.
+
+```
+<bit-label>
+  Label text goes here
+  <a href="#" slot="end" bitLink>
+    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+  </a>
+</bit-label>
+```
+
 #### Default with required attribute
 
 <Story of={fieldStories.Default} />
@@ -86,6 +98,9 @@ button consists of a label and a radio input.
 
 The full form control + label should be selectable to allow the user a larger click target.
 
+Labels accept an optional `end` slot for any content that is not part of the main label text, such
+as info link buttons or badges.
+
 Radio groups should always have a default selected value.
 
 Radio groups may optionally include extra helper text below each radio button.
@@ -112,6 +127,9 @@ Checkboxes can be displayed on their own or in a group (select multiple form que
 displayed in a group, include an input Label and any associated required/validation logic for the
 field.
 
+Labels accept an optional `end` slot for any content that is not part of the main label text, such
+as info link buttons or badges.
+
 Unlike radio groups, checkbox groups are not required to have a default selected value.
 
 Checkbox groups can include extra explanation text below each radio button or just the checkbox
@@ -133,6 +151,12 @@ If a checkbox group has more than 4 options a
 - If whether or not a form field is required depends on another field, add this to the field's
   helper text.
   - **Example:** "Billing Email is required if owned by a business".
+
+### Icon Buttons in Form Fields
+
+When adding prefix or suffix icon buttons to a form field, be sure to use the `appA11yTitle`
+directive to provide a label for screenreaders. Typically, the label should follow this pattern:
+`{Action} {field label}`, i.e. "Copy username".
 
 ### Form Field Errors
 

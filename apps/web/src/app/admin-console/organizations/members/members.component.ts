@@ -1,4 +1,6 @@
-import { Component, ViewChild, ViewContainerRef } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -56,11 +58,12 @@ import {
 } from "../../../billing/organizations/change-plan-dialog.component";
 import { BaseMembersComponent } from "../../common/base-members.component";
 import { PeopleTableDataSource } from "../../common/people-table-data-source";
-import { GroupService } from "../core";
+import { GroupApiService } from "../core";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
+import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
 import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
@@ -82,7 +85,7 @@ class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView>
 @Component({
   templateUrl: "members.component.html",
 })
-export class MembersComponent extends BaseMembersComponent<OrganizationUserView> {
+export class MembersComponent extends BaseMembersComponent<OrganizationUserView> implements OnInit {
   @ViewChild("resetPasswordTemplate", { read: ViewContainerRef, static: true })
   resetPasswordModalRef: ViewContainerRef;
 
@@ -95,20 +98,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   status: OrganizationUserStatusType = null;
   orgResetPasswordPolicyEnabled = false;
   orgIsOnSecretsManagerStandalone = false;
+  accountDeprovisioningEnabled = false;
 
   protected canUseSecretsManager$: Observable<boolean>;
 
-  protected enableUpgradePasswordManagerSub$ = this.configService.getFeatureFlag$(
-    FeatureFlag.EnableUpgradePasswordManagerSub,
-  );
-
-  protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.AccountDeprovisioning,
-  );
-
   // Fixed sizes used for cdkVirtualScroll
-  protected rowHeight = 62;
-  protected rowHeightClass = `tw-h-[62px]`;
+  protected rowHeight = 69;
+  protected rowHeightClass = `tw-h-[69px]`;
 
   constructor(
     apiService: ApiService,
@@ -129,7 +125,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,
     private router: Router,
-    private groupService: GroupService,
+    private groupService: GroupApiService,
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
     private modalService: ModalService,
@@ -217,6 +213,12 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         takeUntilDestroyed(),
       )
       .subscribe();
+  }
+
+  async ngOnInit() {
+    this.accountDeprovisioningEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.AccountDeprovisioning,
+    );
   }
 
   async getUsers(): Promise<OrganizationUserView[]> {
@@ -487,30 +489,31 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         this.organization.productTierType === ProductTierType.TeamsStarter ||
         this.organization.productTierType === ProductTierType.Families)
     ) {
-      const enableUpgradePasswordManagerSub = await firstValueFrom(
-        this.enableUpgradePasswordManagerSub$,
-      );
-      if (enableUpgradePasswordManagerSub && this.organization.canEditSubscription) {
-        const reference = openChangePlanDialog(this.dialogService, {
-          data: {
-            organizationId: this.organization.id,
-            subscription: null,
-            productTierType: this.organization.productTierType,
-          },
-        });
-
-        const result = await lastValueFrom(reference.closed);
-
-        if (result === ChangePlanDialogResultType.Submitted) {
-          await this.load();
-        }
-        return;
-      } else {
-        // Show org upgrade modal
+      if (!this.organization.canEditSubscription) {
         await this.showSeatLimitReachedDialog();
         return;
       }
+
+      const reference = openChangePlanDialog(this.dialogService, {
+        data: {
+          organizationId: this.organization.id,
+          subscription: null,
+          productTierType: this.organization.productTierType,
+        },
+      });
+
+      const result = await lastValueFrom(reference.closed);
+
+      if (result === ChangePlanDialogResultType.Submitted) {
+        await this.load();
+      }
+      return;
     }
+
+    const numSeatsUsed =
+      this.dataSource.confirmedUserCount +
+      this.dataSource.invitedUserCount +
+      this.dataSource.acceptedUserCount;
 
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
@@ -521,7 +524,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         usesKeyConnector: user?.usesKeyConnector,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: initialTab,
-        numConfirmedMembers: this.dataSource.confirmedUserCount,
+        numSeatsUsed,
         managedByOrganization: user?.managedByOrganization,
       },
     });
@@ -547,6 +550,21 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     const dialogRef = BulkRemoveDialogComponent.open(this.dialogService, {
+      data: {
+        organizationId: this.organization.id,
+        users: this.dataSource.getCheckedUsers(),
+      },
+    });
+    await lastValueFrom(dialogRef.closed);
+    await this.load();
+  }
+
+  async bulkDelete() {
+    if (this.actionPromise != null) {
+      return;
+    }
+
+    const dialogRef = BulkDeleteDialogComponent.open(this.dialogService, {
       data: {
         organizationId: this.organization.id,
         users: this.dataSource.getCheckedUsers(),
@@ -736,7 +754,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         key: "deleteOrganizationUser",
         placeholders: [this.userNamePipe.transform(user)],
       },
-      content: { key: "deleteOrganizationUserWarning" },
+      content: {
+        key: "deleteOrganizationUserWarningDesc",
+        placeholders: [this.userNamePipe.transform(user)],
+      },
       type: "warning",
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
@@ -775,5 +796,66 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       },
       type: "warning",
     });
+  }
+
+  get showBulkConfirmUsers(): boolean {
+    if (!this.accountDeprovisioningEnabled) {
+      return super.showBulkConfirmUsers;
+    }
+
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status == this.userStatusType.Accepted);
+  }
+
+  get showBulkReinviteUsers(): boolean {
+    if (!this.accountDeprovisioningEnabled) {
+      return super.showBulkReinviteUsers;
+    }
+
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status == this.userStatusType.Invited);
+  }
+
+  get showBulkRestoreUsers(): boolean {
+    return (
+      !this.accountDeprovisioningEnabled ||
+      this.dataSource
+        .getCheckedUsers()
+        .every((member) => member.status == this.userStatusType.Revoked)
+    );
+  }
+
+  get showBulkRevokeUsers(): boolean {
+    return (
+      !this.accountDeprovisioningEnabled ||
+      this.dataSource
+        .getCheckedUsers()
+        .every((member) => member.status != this.userStatusType.Revoked)
+    );
+  }
+
+  get showBulkRemoveUsers(): boolean {
+    return (
+      !this.accountDeprovisioningEnabled ||
+      this.dataSource.getCheckedUsers().every((member) => !member.managedByOrganization)
+    );
+  }
+
+  get showBulkDeleteUsers(): boolean {
+    if (!this.accountDeprovisioningEnabled) {
+      return false;
+    }
+
+    const validStatuses = [
+      this.userStatusType.Accepted,
+      this.userStatusType.Confirmed,
+      this.userStatusType.Revoked,
+    ];
+
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
   }
 }

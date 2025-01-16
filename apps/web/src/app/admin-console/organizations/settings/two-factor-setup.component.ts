@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
@@ -8,6 +10,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
@@ -15,13 +18,13 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService } from "@bitwarden/components";
 
-import { TwoFactorDuoComponent } from "../../../auth/settings/two-factor-duo.component";
-import { TwoFactorSetupComponent as BaseTwoFactorSetupComponent } from "../../../auth/settings/two-factor-setup.component";
-import { TwoFactorVerifyComponent } from "../../../auth/settings/two-factor-verify.component";
+import { TwoFactorSetupDuoComponent } from "../../../auth/settings/two-factor/two-factor-setup-duo.component";
+import { TwoFactorSetupComponent as BaseTwoFactorSetupComponent } from "../../../auth/settings/two-factor/two-factor-setup.component";
+import { TwoFactorVerifyComponent } from "../../../auth/settings/two-factor/two-factor-verify.component";
 
 @Component({
   selector: "app-two-factor-setup",
-  templateUrl: "../../../auth/settings/two-factor-setup.component.html",
+  templateUrl: "../../../auth/settings/two-factor/two-factor-setup.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent implements OnInit {
@@ -35,6 +38,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
     super(
       dialogService,
@@ -43,6 +47,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
       messagingService,
       policyService,
       billingAccountProfileStateService,
+      accountService,
     );
   }
 
@@ -79,12 +84,15 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
         if (!result) {
           return;
         }
-        const duoComp: DialogRef<boolean, any> = TwoFactorDuoComponent.open(this.dialogService, {
-          data: {
-            authResponse: result,
-            organizationId: this.organizationId,
+        const duoComp: DialogRef<boolean, any> = TwoFactorSetupDuoComponent.open(
+          this.dialogService,
+          {
+            data: {
+              authResponse: result,
+              organizationId: this.organizationId,
+            },
           },
-        });
+        );
         this.twoFactorSetupSubscription = duoComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {

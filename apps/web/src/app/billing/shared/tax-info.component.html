@@ -13,50 +13,40 @@
         </bit-select>
       </bit-form-field>
     </div>
-    <div [ngClass]="trialFlow ? 'tw-col-span-6' : 'tw-col-span-4'">
+    <div class="tw-col-span-6">
       <bit-form-field>
         <bit-label>{{ "zipPostalCode" | i18n }}</bit-label>
         <input bitInput type="text" formControlName="postalCode" autocomplete="postal-code" />
       </bit-form-field>
     </div>
-    <div class="tw-col-span-6" *ngIf="showTaxIdCheckbox">
-      <bit-form-control>
-        <input bitCheckbox type="checkbox" formControlName="includeTaxId" />
-        <bit-label>{{ "includeVAT" | i18n }}</bit-label>
-      </bit-form-control>
-    </div>
-  </div>
-  <div class="tw-grid tw-grid-cols-12 tw-gap-4" *ngIf="showTaxIdFields">
-    <div class="tw-col-span-6">
-      <bit-form-field>
-        <bit-label>{{ "taxIdNumber" | i18n }}</bit-label>
-        <input bitInput type="text" formControlName="taxId" />
-      </bit-form-field>
-    </div>
-  </div>
-  <div class="tw-grid tw-grid-cols-12 tw-gap-4" *ngIf="showTaxIdFields">
-    <div class="tw-col-span-6">
+    <div class="tw-col-span-6" *ngIf="isTaxSupported">
       <bit-form-field>
         <bit-label>{{ "address1" | i18n }}</bit-label>
         <input bitInput type="text" formControlName="line1" autocomplete="address-line1" />
       </bit-form-field>
     </div>
-    <div class="tw-col-span-6">
+    <div class="tw-col-span-6" *ngIf="isTaxSupported">
       <bit-form-field>
         <bit-label>{{ "address2" | i18n }}</bit-label>
         <input bitInput type="text" formControlName="line2" autocomplete="address-line2" />
       </bit-form-field>
     </div>
-    <div class="tw-col-span-6">
+    <div class="tw-col-span-6" *ngIf="isTaxSupported">
       <bit-form-field>
         <bit-label for="addressCity">{{ "cityTown" | i18n }}</bit-label>
         <input bitInput type="text" formControlName="city" autocomplete="address-level2" />
       </bit-form-field>
     </div>
-    <div class="tw-col-span-6">
+    <div class="tw-col-span-6" *ngIf="isTaxSupported">
       <bit-form-field>
         <bit-label>{{ "stateProvince" | i18n }}</bit-label>
         <input bitInput type="text" formControlName="state" autocomplete="address-level1" />
+      </bit-form-field>
+    </div>
+    <div class="tw-col-span-6" *ngIf="isTaxSupported && showTaxIdField">
+      <bit-form-field>
+        <bit-label>{{ "taxIdNumber" | i18n }}</bit-label>
+        <input bitInput type="text" formControlName="taxId" />
       </bit-form-field>
     </div>
   </div>

@@ -9,8 +9,10 @@ import { BitRowDef, TableScrollComponent } from "./table-scroll.component";
 import { TableBodyDirective, TableComponent } from "./table.component";
 
 @NgModule({
-  imports: [CommonModule, ScrollingModule, BitRowDef],
-  declarations: [
+  imports: [
+    CommonModule,
+    ScrollingModule,
+    BitRowDef,
     CellDirective,
     RowDirective,
     SortableComponent,

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -74,6 +76,13 @@ export class VaultCipherRowComponent implements OnInit {
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }
+  }
+
+  protected get clickAction() {
+    if (this.cipher.decryptionFailure) {
+      return "showFailedToDecrypt";
+    }
+    return this.extensionRefreshEnabled ? "view" : null;
   }
 
   protected get showTotpCopyButton() {

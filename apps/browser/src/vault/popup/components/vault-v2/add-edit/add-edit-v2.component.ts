@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -324,15 +326,15 @@ export class AddEditV2Component implements OnInit {
 
     switch (type) {
       case CipherType.Login:
-        return this.i18nService.t(partOne, this.i18nService.t("typeLogin").toLocaleLowerCase());
+        return this.i18nService.t(partOne, this.i18nService.t("typeLogin"));
       case CipherType.Card:
-        return this.i18nService.t(partOne, this.i18nService.t("typeCard").toLocaleLowerCase());
+        return this.i18nService.t(partOne, this.i18nService.t("typeCard"));
       case CipherType.Identity:
-        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity").toLocaleLowerCase());
+        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity"));
       case CipherType.SecureNote:
-        return this.i18nService.t(partOne, this.i18nService.t("note").toLocaleLowerCase());
+        return this.i18nService.t(partOne, this.i18nService.t("note"));
       case CipherType.SshKey:
-        return this.i18nService.t(partOne, this.i18nService.t("typeSshKey").toLocaleLowerCase());
+        return this.i18nService.t(partOne, this.i18nService.t("typeSshKey"));
     }
   }
 }

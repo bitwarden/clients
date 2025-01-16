@@ -1,4 +1,4 @@
-import { DefaultPassphraseBoundaries, Policies } from "../data";
+import { Generators } from "../data";
 
 import { PassphrasePolicyConstraints } from "./passphrase-policy-constraints";
 
@@ -9,54 +9,66 @@ const SomeSettings = {
   wordSeparator: "-",
 };
 
+const disabledPolicy = Generators.passphrase.policy.disabledValue;
+const someConstraints = Generators.passphrase.settings.constraints;
+
 describe("PassphrasePolicyConstraints", () => {
   describe("constructor", () => {
     it("uses default boundaries when the policy is disabled", () => {
-      const { constraints } = new PassphrasePolicyConstraints(Policies.Passphrase.disabledValue);
+      const { constraints } = new PassphrasePolicyConstraints(disabledPolicy, someConstraints);
 
       expect(constraints.policyInEffect).toBeFalsy();
       expect(constraints.capitalize).toBeUndefined();
       expect(constraints.includeNumber).toBeUndefined();
-      expect(constraints.numWords).toEqual(DefaultPassphraseBoundaries.numWords);
+      expect(constraints.numWords).toEqual(someConstraints.numWords);
     });
 
     it("requires capitalization when the policy requires capitalization", () => {
-      const { constraints } = new PassphrasePolicyConstraints({
-        ...Policies.Passphrase.disabledValue,
-        capitalize: true,
-      });
+      const { constraints } = new PassphrasePolicyConstraints(
+        {
+          ...disabledPolicy,
+          capitalize: true,
+        },
+        someConstraints,
+      );
 
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.capitalize).toMatchObject({ readonly: true, requiredValue: true });
     });
 
     it("requires a number when the policy requires a number", () => {
-      const { constraints } = new PassphrasePolicyConstraints({
-        ...Policies.Passphrase.disabledValue,
-        includeNumber: true,
-      });
+      const { constraints } = new PassphrasePolicyConstraints(
+        {
+          ...disabledPolicy,
+          includeNumber: true,
+        },
+        someConstraints,
+      );
 
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.includeNumber).toMatchObject({ readonly: true, requiredValue: true });
     });
 
     it("minNumberWords <= numWords.min  when the policy requires numberCount", () => {
-      const { constraints } = new PassphrasePolicyConstraints({
-        ...Policies.Passphrase.disabledValue,
-        minNumberWords: 10,
-      });
+      const { constraints } = new PassphrasePolicyConstraints(
+        {
+          ...disabledPolicy,
+          minNumberWords: 10,
+        },
+        someConstraints,
+      );
 
       expect(constraints.policyInEffect).toBeTruthy();
       expect(constraints.numWords).toMatchObject({
         min: 10,
-        max: DefaultPassphraseBoundaries.numWords.max,
+        max: someConstraints.numWords.max,
       });
     });
   });
 
   describe("adjust", () => {
     it("allows an empty word separator", () => {
-      const policy = new PassphrasePolicyConstraints(Policies.Passphrase.disabledValue);
+      const policy = new PassphrasePolicyConstraints(disabledPolicy, someConstraints);
 
       const { wordSeparator } = policy.adjust({ ...SomeSettings, wordSeparator: "" });
 
@@ -64,7 +76,7 @@ describe("PassphrasePolicyConstraints", () => {
     });
 
     it("takes only the first character of wordSeparator", () => {
-      const policy = new PassphrasePolicyConstraints(Policies.Passphrase.disabledValue);
+      const policy = new PassphrasePolicyConstraints(disabledPolicy, someConstraints);
 
       const { wordSeparator } = policy.adjust({ ...SomeSettings, wordSeparator: "?." });
 
@@ -72,26 +84,32 @@ describe("PassphrasePolicyConstraints", () => {
     });
 
     it.each([
-      [1, 6],
-      [21, 20],
-    ])("fits numWords (=%p) within the default bounds (6 <= %p <= 20)", (value, expected) => {
-      const policy = new PassphrasePolicyConstraints(Policies.Passphrase.disabledValue);
+      [1, someConstraints.numWords.min, 3, someConstraints.numWords.max],
+      [21, someConstraints.numWords.min, 20, someConstraints.numWords.max],
+    ])(
+      `fits numWords (=%p) within the default bounds (%p <= %p <= %p)`,
+      (value, _, expected, __) => {
+        const policy = new PassphrasePolicyConstraints(disabledPolicy, someConstraints);
 
-      const { numWords } = policy.adjust({ ...SomeSettings, numWords: value });
+        const { numWords } = policy.adjust({ ...SomeSettings, numWords: value });
 
-      expect(numWords).toEqual(expected);
-    });
+        expect(numWords).toEqual(expected);
+      },
+    );
 
     it.each([
-      [1, 6, 6],
-      [21, 20, 20],
+      [1, 6, 6, someConstraints.numWords.max],
+      [21, 20, 20, someConstraints.numWords.max],
     ])(
-      "fits numWords (=%p) within the policy bounds (%p <= %p <= 20)",
-      (value, minNumberWords, expected) => {
-        const policy = new PassphrasePolicyConstraints({
-          ...Policies.Passphrase.disabledValue,
-          minNumberWords,
-        });
+      "fits numWords (=%p) within the policy bounds (%p <= %p <= %p)",
+      (value, minNumberWords, expected, _) => {
+        const policy = new PassphrasePolicyConstraints(
+          {
+            ...disabledPolicy,
+            minNumberWords,
+          },
+          someConstraints,
+        );
 
         const { numWords } = policy.adjust({ ...SomeSettings, numWords: value });
 
@@ -100,10 +118,13 @@ describe("PassphrasePolicyConstraints", () => {
     );
 
     it("sets capitalize to true when the policy requires it", () => {
-      const policy = new PassphrasePolicyConstraints({
-        ...Policies.Passphrase.disabledValue,
-        capitalize: true,
-      });
+      const policy = new PassphrasePolicyConstraints(
+        {
+          ...disabledPolicy,
+          capitalize: true,
+        },
+        someConstraints,
+      );
 
       const { capitalize } = policy.adjust({ ...SomeSettings, capitalize: false });
 
@@ -111,10 +132,13 @@ describe("PassphrasePolicyConstraints", () => {
     });
 
     it("sets includeNumber to true when the policy requires it", () => {
-      const policy = new PassphrasePolicyConstraints({
-        ...Policies.Passphrase.disabledValue,
-        includeNumber: true,
-      });
+      const policy = new PassphrasePolicyConstraints(
+        {
+          ...disabledPolicy,
+          includeNumber: true,
+        },
+        someConstraints,
+      );
 
       const { includeNumber } = policy.adjust({ ...SomeSettings, capitalize: false });
 
@@ -124,7 +148,7 @@ describe("PassphrasePolicyConstraints", () => {
 
   describe("fix", () => {
     it("returns its input", () => {
-      const policy = new PassphrasePolicyConstraints(Policies.Passphrase.disabledValue);
+      const policy = new PassphrasePolicyConstraints(disabledPolicy, someConstraints);
 
       const result = policy.fix(SomeSettings);
 

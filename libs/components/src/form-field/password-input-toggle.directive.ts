@@ -18,6 +18,7 @@ import { BitFormFieldComponent } from "./form-field.component";
 
 @Directive({
   selector: "[bitPasswordInputToggle]",
+  standalone: true,
 })
 export class BitPasswordInputToggleDirective implements AfterContentInit, OnChanges {
   /**
@@ -37,8 +38,6 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
     this.toggledChange.emit(this.toggled);
 
     this.update();
-
-    this.formField.input?.focus();
   }
 
   constructor(

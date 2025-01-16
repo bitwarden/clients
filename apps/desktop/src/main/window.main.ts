@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { once } from "node:events";
 import * as path from "path";
 import * as url from "url";
@@ -12,15 +14,7 @@ import { BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowState } from "../platform/models/domain/window-state";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import {
-  cleanUserAgent,
-  isDev,
-  isLinux,
-  isMac,
-  isMacAppStore,
-  isSnapStore,
-  isWindows,
-} from "../utils";
+import { cleanUserAgent, isDev, isLinux, isMac, isMacAppStore, isWindows } from "../utils";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
@@ -84,7 +78,7 @@ export class WindowMain {
 
     return new Promise<void>((resolve, reject) => {
       try {
-        if (!isMacAppStore() && !isSnapStore()) {
+        if (!isMacAppStore()) {
           const gotTheLock = app.requestSingleInstanceLock();
           if (!gotTheLock) {
             app.quit();

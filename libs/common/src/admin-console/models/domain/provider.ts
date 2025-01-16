@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ProviderStatusType, ProviderUserStatusType, ProviderUserType } from "../../enums";
 import { ProviderData } from "../data/provider.data";
 

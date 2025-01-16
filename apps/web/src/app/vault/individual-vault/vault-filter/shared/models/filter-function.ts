@@ -23,6 +23,9 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
     if (filter.type === "note" && cipher.type !== CipherType.SecureNote) {
       return false;
     }
+    if (filter.type === "sshKey" && cipher.type !== CipherType.SshKey) {
+      return false;
+    }
     if (filter.type === "trash" && !cipher.isDeleted) {
       return false;
     }

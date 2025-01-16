@@ -53,7 +53,7 @@ const routes: Routes = [
             path: "import",
             loadComponent: () =>
               import("./org-import.component").then((mod) => mod.OrgImportComponent),
-            canActivate: [organizationPermissionsGuard((org) => org.canAccessImportExport)],
+            canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
             data: {
               titleId: "importData",
             },
@@ -64,7 +64,7 @@ const routes: Routes = [
               import("../tools/vault-export/org-vault-export.component").then(
                 (mod) => mod.OrganizationVaultExportComponent,
               ),
-            canActivate: [organizationPermissionsGuard((org) => org.canAccessImportExport)],
+            canActivate: [organizationPermissionsGuard((org) => org.canAccessExport)],
             data: {
               titleId: "exportVault",
             },
@@ -82,7 +82,7 @@ function getSettingsRoute(organization: Organization) {
   if (organization.canManagePolicies) {
     return "policies";
   }
-  if (organization.canAccessImportExport) {
+  if (organization.canAccessImport) {
     return ["tools", "import"];
   }
   if (organization.canManageSso) {
@@ -94,7 +94,8 @@ function getSettingsRoute(organization: Organization) {
   if (organization.canManageDeviceApprovals) {
     return "device-approvals";
   }
-  return undefined;
+
+  return "/";
 }
 
 @NgModule({

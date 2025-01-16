@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Sikret notat"
   },
+  "typeSshKey": {
+    "message": "SSH-nøgle"
+  },
   "folders": {
     "message": "Mapper"
   },
@@ -177,6 +180,63 @@
   "address": {
     "message": "Adresse"
   },
+  "sshPrivateKey": {
+    "message": "Privat nøgle"
+  },
+  "sshPublicKey": {
+    "message": "Offentlig nøgle"
+  },
+  "sshFingerprint": {
+    "message": "Fingeraftryk"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Nøgletype"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "En ny SSH-nøgle er genereret"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Den angivne adgangskode er forkert."
+  },
+  "importSshKey": {
+    "message": "Import"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Bekræft adgangskode"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Angiv adgangskoden til SSH-nøglen."
+  },
+  "enterSshKeyPassword": {
+    "message": "Angiv adgangskode"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Oplås boksen op for at godkende SSH-nøgleanmodningen."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "SSH-nøgleanmodning fik timeout."
+  },
+  "enableSshAgent": {
+    "message": "Aktivér SSH-agent"
+  },
+  "enableSshAgentDesc": {
+    "message": "Aktivér SSH-agenten for at signere SSH-forespørgsler direkte fra Bitwarden-boksen."
+  },
+  "enableSshAgentHelp": {
+    "message": "SSH-agent er en tjeneste rettet mod udviklere, der muliggør at signere SSH-forespørgsler direkte fra Bitwarden-boksen."
+  },
   "premiumRequired": {
     "message": "Premium kræves"
   },
@@ -188,6 +248,20 @@
   },
   "error": {
     "message": "Fejl"
+  },
+  "decryptionError": {
+    "message": "Dekrypteringsfejl"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kunne ikke dekryptere boks-emne(r) anført nedenfor."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontakt kundeservice",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "for at undgå yderligere tab af data.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "Januar"
@@ -399,6 +473,12 @@
   },
   "copyPassword": {
     "message": "Kopiér adgangskode"
+  },
+  "regenerateSshKey": {
+    "message": "Regenerér SSH-nøgle"
+  },
+  "copySshPrivateKey": {
+    "message": "Kopiér SSH privat nøgle"
   },
   "copyPassphrase": {
     "message": "Kopiér adgangssætning",
@@ -852,6 +932,12 @@
   },
   "baseUrl": {
     "message": "Server-URL"
+  },
+  "authenticationTimeout": {
+    "message": "Godkendelsestimeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Godkendelsessessionen fik timeout. Genstart loginprocessen."
   },
   "selfHostBaseUrl": {
     "message": "URL til selv-hostet server",
@@ -1320,12 +1406,30 @@
   "passwordHistory": {
     "message": "Adgangskodehistorik"
   },
+  "generatorHistory": {
+    "message": "Generatorhistorik"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Ryd generatorhistorik"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Fortsætter man, slettes alle poster permanent fra generatorhistorikken. Sikker på, at handlingen skal udføres?"
+  },
   "clear": {
     "message": "Ryd",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Der er ingen kodeord at vise."
+  },
+  "clearHistory": {
+    "message": "Ryd historik"
+  },
+  "nothingToShow": {
+    "message": "Intet at vise"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Intet genereret for nylig"
   },
   "undo": {
     "message": "Fortryd"
@@ -1643,9 +1747,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Bekræft for Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Godkend for at oplåse Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Oplås med Touch ID"
@@ -2393,8 +2494,8 @@
   "generateEmail": {
     "message": "Generér e-mail"
   },
-  "generatorBoundariesHint": {
-    "message": "Værdi skal være mellem $MIN$ og $MAX$",
+  "spinboxBoundariesHint": {
+    "message": "Værdi skal være mellem $MIN$ og $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2404,6 +2505,26 @@
       "max": {
         "content": "$2",
         "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Brug minimum $RECOMMENDED$ tegn for at generere en stærk adgangskode.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Brug minimum $RECOMMENDED$ ord for at generere en stærk adgangssætning.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
       }
     }
   },
@@ -2618,14 +2739,29 @@
   "notificationSentDevice": {
     "message": "En notifikation er sendt til din enhed."
   },
+  "aNotificationWasSentToYourDevice": {
+    "message": "En notifikation er sendt til enheden"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Sørg for, at boksen er oplåst, samt at fingeraftrykssætningen matcher på den anden enhed"
+  },
+  "needAnotherOptionV1": {
+    "message": "Behov for en anden mulighed?"
+  },
   "fingerprintMatchInfo": {
     "message": "Sørg for, at din boks er oplåst, og at fingeraftrykssætningen matcher den anden enheds."
   },
   "fingerprintPhraseHeader": {
     "message": "Fingeraftrykssætning"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Man vil få besked, når anmodningen er godkendt"
+  },
   "needAnotherOption": {
     "message": "Log ind med enhed skal være opsat i indstillingerne i Bitwarden mobil-appen. Behov for en anden mulighed?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Vis alle indlogningsmuligheder"
   },
   "viewAllLoginOptions": {
     "message": "Vis alle indlogningsmuligheder"
@@ -2743,8 +2879,17 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Svag adgangskode identificeret og fundet i datalæk. Brug en unik adgangskode til at beskytte din konto. Sikker på, at at denne adgangskode skal bruges?"
   },
+  "useThisPassword": {
+    "message": "Anvend denne adgangskode"
+  },
+  "useThisUsername": {
+    "message": "Anvend dette brugernavn"
+  },
   "checkForBreaches": {
     "message": "Tjek kendte datalæk for denne adgangskode"
+  },
+  "loggedInExclamation": {
+    "message": "Logget ind!"
   },
   "important": {
     "message": "Vigtigt:"
@@ -2776,8 +2921,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Anbefalet indstillingsopdatering"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Husk denne enhed for at gøre fremtidige indlogninger gnidningsløse"
+  },
   "deviceApprovalRequired": {
     "message": "Enhedsgodkendelse kræves. Vælg en godkendelsesmulighed nedenfor:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Enhedsgodkendelse kræves"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Vælg en godkendelsesmulighed nedenfor"
   },
   "rememberThisDevice": {
     "message": "Husk denne enhed"
@@ -2830,6 +2984,9 @@
   },
   "userEmailMissing": {
     "message": "Brugers e-mail mangler"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktiv bruger e-mail ikke fundet. Man logges ud."
   },
   "deviceTrusted": {
     "message": "Enhed betroet"
@@ -3225,7 +3382,97 @@
   "ssoError": {
     "message": "Ingen ledige porte fundet til SSO-login."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisk oplåsning er utilgængelig, da PIN- eller adgangskode kræves først."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisk oplåsning er p.t. utilgængelig."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisk oplåsning er utilgængelig grundet fejlopsatte systemfiler."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisk oplåsning er utilgængelig grundet fejlopsatte systemfiler."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometrisk oplåsning er utilgængelig, da det ikke er aktiveret for $EMAIL$ i Bitwarden computer-appen.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisk oplåsning er p.t. utilgængelig grundet en ukendt årsag."
+  },
+  "authorize": {
+    "message": "Godkend"
+  },
+  "deny": {
+    "message": "Afvis"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Bekræft brug af SSH-nøgle"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "anmoder om adgang til"
+  },
+  "unknownApplication": {
+    "message": "En applikation"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "Import af adgangskodebeskyttede SSH-nøgler understøttes endnu ikke"
+  },
+  "invalidSshKey": {
+    "message": "SSH-nøglen er ugyldig"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "SSH-nøgletypen understøttes ikke"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importér nøgle fra udklipsholder"
+  },
+  "sshKeyPasted": {
+    "message": "SSH-nøgle er importeret"
+  },
   "fileSavedToDevice": {
     "message": "Fil gemt på enheden. Håndtér fra enhedens downloads."
+  },
+  "importantNotice": {
+    "message": "Vigtig notits"
+  },
+  "setupTwoStepLogin": {
+    "message": "Opsæt totrins-login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Startende i februar 2025, sender Bitwarden en kode til kontoe-mailadressen for at bekræfte logins fra nye enheder."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Man kan opsætte totrins-login som en alternativ måde at beskytte sin konto på eller ændre sin e-mail til en, man kan tilgå."
+  },
+  "remindMeLater": {
+    "message": "Påmind senere"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Er der pålidelig adgang til e-mailadressen, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nej, muligvis ikke"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, e-mailadressen kan pålideligt tilgås"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Slå totrins-login til"
+  },
+  "changeAcctEmail": {
+    "message": "Skift kontoe-mailadresse"
   }
 }

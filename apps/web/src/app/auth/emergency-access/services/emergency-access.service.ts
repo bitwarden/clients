@@ -1,19 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import {
-  Argon2KdfConfig,
-  KdfConfig,
-  PBKDF2KdfConfig,
-} from "@bitwarden/common/auth/models/domain/kdf-config";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { KdfType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -22,7 +18,14 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { UserKeyRotationDataProvider, KeyService } from "@bitwarden/key-management";
+import {
+  Argon2KdfConfig,
+  KdfConfig,
+  PBKDF2KdfConfig,
+  UserKeyRotationDataProvider,
+  KeyService,
+  KdfType,
+} from "@bitwarden/key-management";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -150,14 +153,13 @@ export class EmergencyAccessService
    * Intended for grantor.
    * @param id emergency access id
    * @param token secret token provided in email
+   * @param publicKey public key of grantee
    */
-  async confirm(id: string, granteeId: string) {
+  async confirm(id: string, granteeId: string, publicKey: Uint8Array): Promise<void> {
     const userKey = await this.keyService.getUserKey();
     if (!userKey) {
       throw new Error("No user key found");
     }
-    const publicKeyResponse = await this.apiService.getUserPublicKey(granteeId);
-    const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
     try {
       this.logService.debug(

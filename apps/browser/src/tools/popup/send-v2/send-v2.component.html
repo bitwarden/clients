@@ -6,7 +6,7 @@
       <app-current-account></app-current-account>
     </ng-container>
   </popup-header>
-  <div slot="above-scroll-area" class="tw-p-4">
+  <ng-container slot="above-scroll-area" *ngIf="!(sendsLoading$ | async)">
     <bit-callout *ngIf="sendsDisabled" [title]="'sendDisabled' | i18n">
       {{ "sendDisabledWarning" | i18n }}
     </bit-callout>
@@ -14,7 +14,7 @@
       <tools-send-search></tools-send-search>
       <app-send-list-filters></app-send-list-filters>
     </ng-container>
-  </div>
+  </ng-container>
 
   <div
     *ngIf="listState === sendState.Empty"

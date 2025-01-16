@@ -1,4 +1,4 @@
-import { Meta, Story, Source, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Story, Canvas } from "@storybook/addon-docs";
 
 import * as stories from "./typography.stories";
 
@@ -10,62 +10,16 @@ import { TypographyModule } from "@bitwarden/components";
 
 # Typography
 
-<Primary />
-
-<Controls />
-
-## Stories
-
-<Story of={stories.H1} />
+The `bitTypography` directive applies text styles to its host element.
 
 ```html
 <h1 bitTypography="h1">H1</h1>
 ```
 
-<Story of={stories.H2} />
+For headings, note that the semantic element and the text style may not always be in sync:
 
 ```html
-<h2 bitTypography="h2">H2</h2>
+<h2 bitTypography="h5">Semantically, I am an h2, but I use h5 styles.</h2>
 ```
 
-<Story of={stories.H3} />
-
-```html
-<h3 bitTypography="h3">H3</h3>
-```
-
-<Story of={stories.H4} />
-
-```html
-<h4 bitTypography="h4">H4</h4>
-```
-
-<Story of={stories.H5} />
-
-```html
-<h5 bitTypography="h5">H5</h5>
-```
-
-<Story of={stories.H6} />
-
-```html
-<h6 bitTypography="h6">H6</h6>
-```
-
-<Story of={stories.Body1} />
-
-```html
-<p bitTypography="body1">Body 1</p>
-```
-
-<Story of={stories.Body2} />
-
-```html
-<p bitTypography="body2">Body 2</h1>
-```
-
-<Story of={stories.Helper} />
-
-```html
-<p bitTypography="helper">Helper Text</h1>
-```
+<Canvas story={stories.Default} />

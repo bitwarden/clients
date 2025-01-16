@@ -306,7 +306,7 @@ input[type="password"]::-ms-reveal {
 // contrast against the background, so its inversion is also still readable)
 // and suppress user selection for most elements (to make it more app-like)
 
-::selection {
+:not(bit-form-field input)::selection {
   @include themify($themes) {
     color: themed("backgroundColor");
     background-color: themed("primaryAccentColor");

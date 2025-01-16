@@ -10,6 +10,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ColorPasswordModule, ItemModule } from "@bitwarden/components";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ColorPasswordComponent } from "@bitwarden/components/src/color-password/color-password.component";
 
 import { PasswordHistoryViewComponent } from "./password-history-view.component";
@@ -46,6 +48,7 @@ describe("PasswordHistoryViewComponent", () => {
 
     fixture = TestBed.createComponent(PasswordHistoryViewComponent);
     component = fixture.componentInstance;
+    component.cipher = mockCipher;
     fixture.detectChanges();
   });
 
@@ -60,8 +63,8 @@ describe("PasswordHistoryViewComponent", () => {
     beforeEach(async () => {
       mockCipher.passwordHistory = [password1, password2];
 
-      mockCipherService.get.mockResolvedValue({ decrypt: jest.fn().mockResolvedValue(mockCipher) });
-      await component.ngOnInit();
+      component.cipher = mockCipher;
+      component.ngOnInit();
       fixture.detectChanges();
     });
 

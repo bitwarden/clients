@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { concatMap, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
@@ -14,7 +16,7 @@ import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
-import { ClientType, EventType } from "@bitwarden/common/enums";
+import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -22,8 +24,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -39,7 +41,8 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { generate_ssh_key } from "@bitwarden/sdk-internal";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 @Directive()
@@ -101,6 +104,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private personalOwnershipPolicyAppliesToActiveUser: boolean;
   private previousCipherId: string;
 
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
     const creationDate = this.datePipe.transform(
@@ -123,13 +128,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected policyService: PolicyService,
     protected logService: LogService,
     protected passwordRepromptService: PasswordRepromptService,
-    private organizationService: OrganizationService,
-    protected sendApiService: SendApiService,
+    protected organizationService: OrganizationService,
     protected dialogService: DialogService,
     protected win: Window,
     protected datePipe: DatePipe,
     protected configService: ConfigService,
     protected cipherAuthorizationService: CipherAuthorizationService,
+    protected toastService: ToastService,
+    private sdkService: SdkService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("typeLogin"), value: CipherType.Login },
@@ -206,7 +212,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.canUseReprompt = await this.passwordRepromptService.enabled();
 
     const sshKeysEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem);
-    if (this.platformUtilsService.getClientType() == ClientType.Desktop && sshKeysEnabled) {
+    if (sshKeysEnabled) {
       this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
     }
   }
@@ -259,12 +265,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     const loadedAddEditCipherInfo = await this.loadAddEditCipherInfo();
 
+    const activeUserId = await firstValueFrom(this.activeUserId$);
     if (this.cipher == null) {
       if (this.editMode) {
         const cipher = await this.loadCipher();
-        const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-        );
         this.cipher = await cipher.decrypt(
           await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
         );
@@ -323,7 +327,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.cipher.login.fido2Credentials = null;
     }
 
-    this.folders$ = this.folderService.folderViews$;
+    this.folders$ = this.folderService.folderViews$(activeUserId);
 
     if (this.editMode && this.previousCipherId !== this.cipherId) {
       void this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, [this.cipher]);
@@ -339,6 +343,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
       [this.collectionId as CollectionId],
       this.isAdminConsoleAction,
     );
+
+    if (!this.editMode || this.cloneMode) {
+      // Creating an ssh key directly while filtering to the ssh key category
+      // must force a key to be set. SSH keys must never be created with an empty private key field
+      if (
+        this.cipher.type === CipherType.SshKey &&
+        (this.cipher.sshKey.privateKey == null || this.cipher.sshKey.privateKey === "")
+      ) {
+        await this.generateSshKey(false);
+      }
+    }
   }
 
   async submit(): Promise<boolean> {
@@ -699,7 +714,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   protected saveCipher(cipher: Cipher) {
-    const isNotClone = this.editMode && !this.cloneMode;
     let orgAdmin = this.organization?.canEditAllCiphers;
 
     // if a cipher is unassigned we want to check if they are an admin or have permission to edit any collection
@@ -709,19 +723,30 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     return this.cipher.id == null
       ? this.cipherService.createWithServer(cipher, orgAdmin)
-      : this.cipherService.updateWithServer(cipher, orgAdmin, isNotClone);
+      : this.cipherService.updateWithServer(cipher, orgAdmin);
   }
 
   protected deleteCipher() {
-    const asAdmin = this.organization?.canEditAllCiphers || !this.cipher.collectionIds;
     return this.cipher.isDeleted
-      ? this.cipherService.deleteWithServer(this.cipher.id, asAdmin)
-      : this.cipherService.softDeleteWithServer(this.cipher.id, asAdmin);
+      ? this.cipherService.deleteWithServer(this.cipher.id, this.asAdmin)
+      : this.cipherService.softDeleteWithServer(this.cipher.id, this.asAdmin);
   }
 
   protected restoreCipher() {
-    const asAdmin = this.organization?.canEditAllCiphers;
-    return this.cipherService.restoreWithServer(this.cipher.id, asAdmin);
+    return this.cipherService.restoreWithServer(this.cipher.id, this.asAdmin);
+  }
+
+  /**
+   * Determines if a cipher must be deleted as an admin by belonging to an organization and being unassigned to a collection.
+   */
+  get asAdmin(): boolean {
+    return (
+      this.cipher.organizationId !== null &&
+      this.cipher.organizationId.length > 0 &&
+      (this.organization?.canEditAllCiphers ||
+        !this.cipher.collectionIds ||
+        this.cipher.collectionIds.length === 0)
+    );
   }
 
   get defaultOwnerId(): string | null {
@@ -775,5 +800,27 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     return true;
+  }
+
+  private async generateSshKey(showNotification: boolean = true) {
+    await firstValueFrom(this.sdkService.client$);
+    const sshKey = generate_ssh_key("Ed25519");
+    this.cipher.sshKey.privateKey = sshKey.private_key;
+    this.cipher.sshKey.publicKey = sshKey.public_key;
+    this.cipher.sshKey.keyFingerprint = sshKey.key_fingerprint;
+
+    if (showNotification) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("sshKeyGenerated"),
+      });
+    }
+  }
+
+  async typeChange() {
+    if (this.cipher.type === CipherType.SshKey) {
+      await this.generateSshKey();
+    }
   }
 }

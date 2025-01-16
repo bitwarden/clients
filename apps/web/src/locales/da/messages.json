@@ -3,16 +3,19 @@
     "message": "Alle applikationer"
   },
   "criticalApplications": {
-    "message": "Kritiske applikationer"
+    "message": "Kritiske apps"
+  },
+  "accessIntelligence": {
+    "message": "Adgangsefterretning"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "Risikoindsigt"
   },
   "passwordRisk": {
     "message": "Adgangskoderisiko"
   },
-  "discoverAtRiskPasswords": {
-    "message": "Opdag udsatte adgangskoder og underret brugerne om at ændre disse."
+  "reviewAtRiskPasswords": {
+    "message": "Gennemgå risikobetonede adgangskoder (svage, eksponerede eller genbrugte) på tværs af applikationer. Vælg de mest kritiske applikationer for at prioritere sikkerhedshandlinger for brugerne til at håndtere risikobetonede adgangskoder."
   },
   "dataLastUpdated": {
     "message": "Data senest opdateret: $DATE$",
@@ -25,6 +28,15 @@
   },
   "notifiedMembers": {
     "message": "Underrettede medlemmer"
+  },
+  "revokeMembers": {
+    "message": "Ophæv medlemmer"
+  },
+  "restoreMembers": {
+    "message": "Gendan medlemmer"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Kan ikke gendanne organisationsadgang"
   },
   "allApplicationsWithCount": {
     "message": "Alle applikationer ($COUNT$)",
@@ -39,7 +51,7 @@
     "message": "Opret nyt login-emne"
   },
   "criticalApplicationsWithCount": {
-    "message": "Kritiske applikationer ($COUNT$)",
+    "message": "Kritiske apps ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -57,7 +69,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "Ingen applikationer fundet i $ORG NAVN$",
+    "message": "Ingen apps fundet i $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -66,16 +78,16 @@
     }
   },
   "noAppsInOrgDescription": {
-    "message": "Når brugerne gemmer logins, fremgår applikationer med udsatte adgangskoder her. Markér kritiske appikationer og giv brugerne besked om at opdatere adgangskoder."
+    "message": "Når brugerne gemmer logins, vil apps med udsatte adgangskoder fremgå her. Markér kritiske apps og giv brugerne besked om at opdatere adgangskoder."
   },
   "noCriticalAppsTitle": {
-    "message": "Ingen applikationer markret som Kritisk"
+    "message": "Ingen apps markret som Kritisk"
   },
   "noCriticalAppsDescription": {
-    "message": "Vælg de mest kritiske applikationer for at afsløre udsatte adgangskoder og give brugerne besked om at ændre disse."
+    "message": "Vælg de mest kritiske apps for at afsløre udsatte adgangskoder og give brugerne besked om at ændre disse."
   },
   "markCriticalApps": {
-    "message": "Markér kritiske applikationer"
+    "message": "Markér kritiske apps"
   },
   "markAppAsCritical": {
     "message": "Markér app som kritisk"
@@ -96,7 +108,7 @@
     "message": "Adgangskoder i alt"
   },
   "searchApps": {
-    "message": "Søg i applikationer"
+    "message": "Søg i apps"
   },
   "atRiskMembers": {
     "message": "Udsatte medlemmer"
@@ -559,6 +571,9 @@
   "typeSecureNote": {
     "message": "Sikret notat"
   },
+  "typeSshKey": {
+    "message": "SSH-nøgle"
+  },
   "typeLoginPlural": {
     "message": "Logins"
   },
@@ -978,6 +993,9 @@
   "loginWithDeviceEnabledNote": {
     "message": "Log ind med enhed skal være opsat i indstillingerne i Bitwarden-appen. Brug for en anden mulighed?"
   },
+  "needAnotherOptionV1": {
+    "message": "Behov for en anden mulighed?"
+  },
   "loginWithMasterPassword": {
     "message": "Log ind med hovedadgangskode"
   },
@@ -1101,8 +1119,20 @@
   "logInToBitwarden": {
     "message": "Log ind på Bitwarden"
   },
+  "authenticationTimeout": {
+    "message": "Godkendelsestimeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Godkendelsessessionen fik timeout. Genstart loginprocessen."
+  },
   "verifyIdentity": {
     "message": "Bekræft din identitet"
+  },
+  "whatIsADevice": {
+    "message": "Hvad er en enhed?"
+  },
+  "aDeviceIs": {
+    "message": "En enhed er en unik installation af Bitwarden-appen, hvor man har logget ind. Geninstallation, rydning af app-data eller rydning af cookies kan medføre, at en enhed vises op flere gange."
   },
   "logInInitiated": {
     "message": "Indlogning påbegyndt"
@@ -1295,6 +1325,12 @@
   },
   "notificationSentDevice": {
     "message": "En notifikation er sendt til din enhed."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "En notifikation er sendt til enheden"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Sørg for, at boksen er oplåst, samt at fingeraftrykssætningen matcher på den anden enhed"
   },
   "versionNumber": {
     "message": "Version $VERSION_NUMBER$",
@@ -1627,8 +1663,26 @@
   "passwordHistory": {
     "message": "Adgangskodehistorik"
   },
+  "generatorHistory": {
+    "message": "Generatorhistorik"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Ryd generatorhistorik"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Fortsætter man, slettes alle poster permanent fra generatorhistorikken. Sikker på, at handlingen skal udføres?"
+  },
   "noPasswordsInList": {
     "message": "Der er ingen adgangskoder at vise."
+  },
+  "clearHistory": {
+    "message": "Ryd historik"
+  },
+  "nothingToShow": {
+    "message": "Intet at vise"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Intet genereret for nylig"
   },
   "clear": {
     "message": "Ryd",
@@ -1666,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "Log ind igen."
+  },
+  "currentSession": {
+    "message": "Aktuel session"
+  },
+  "requestPending": {
+    "message": "Anmodning afventer"
   },
   "logBackInOthersToo": {
     "message": "Log ind igen. Bruger du andre Bitwarden-applikationer, så log også ud og ind igen på disse."
@@ -1752,8 +1812,8 @@
   "sessionsDeauthorized": {
     "message": "Godkendelser for alle sessioner fjernet"
   },
-  "accountIsManagedMessage": {
-    "message": "Denne konto håndteres af $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "Denne konto ejes af $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -3218,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Der er 1 invitation tilbage."
+  },
   "userUsingTwoStep": {
     "message": "Denne bruger benytter totrins-login for at beskytte kontoen."
   },
@@ -3380,6 +3443,9 @@
         "example": "'Google'"
       }
     }
+  },
+  "viewAllLogInOptions": {
+    "message": "Vis alle indlogningsmuligheder"
   },
   "viewAllLoginOptions": {
     "message": "Vis alle indlogningsmuligheder"
@@ -3714,6 +3780,15 @@
   "device": {
     "message": "Enhed"
   },
+  "loginStatus": {
+    "message": "Indlogningsstatus"
+  },
+  "firstLogin": {
+    "message": "Første login"
+  },
+  "trusted": {
+    "message": "Betroet"
+  },
   "creatingAccountOn": {
     "message": "Opretter konto på"
   },
@@ -3831,8 +3906,60 @@
   "updateBrowser": {
     "message": "Opdatér browser"
   },
+  "generatingRiskInsights": {
+    "message": "Genererer risikoindsigter..."
+  },
   "updateBrowserDesc": {
     "message": "Du bruger en ikke-understøttet webbrowser. Web-boksen fungerer muligvis ikke korrekt."
+  },
+  "freeTrialEndPromptCount": {
+    "message": "Den gratis prøveperiode slutter om $COUNT$ dage.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, den gratis prøveperiode slutter om $COUNT$ dage.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, den gratis prøveperiode slutter i morgen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Den gratis prøveperiode slutter i morgen."
+  },
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, den gratis prøveperiode slutter i dag.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Den gratis prøveperiode slutter i dag."
+  },
+  "clickHereToAddPaymentMethod": {
+    "message": "Klik her for at tilføje en betalingsmetode."
   },
   "joinOrganization": {
     "message": "Bliv medlem af organisation"
@@ -4388,6 +4515,9 @@
     "message": "Bed aldrig om at bekræfte fingeraftrykssætninger for inviterede brugere (anbefales ikke)",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Man vil få besked, når anmodningen er godkendt"
+  },
   "free": {
     "message": "Gratis",
     "description": "Free, as in 'Free beer'"
@@ -4617,6 +4747,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Log ind via din organisations single sign-on portal. Angiv organisationens SSO-identifikator for at begynde."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Angiv organisationens SSO-identifikator for at begynde"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "For at logge ind med sin SSO-udbyder skal man angive sin organisations SSO-identifikator for at begynde. Man skal muligvis angive denne SSO-identifikator ved indlogning fra en ny enhed."
   },
   "enterpriseSingleSignOn": {
     "message": "Virksomheds Single Sign-On"
@@ -5522,6 +5658,12 @@
   "bulkFilteredMessage": {
     "message": "Udelukket, ikke anvendelig til denne handling"
   },
+  "nonCompliantMembersTitle": {
+    "message": "Uoverensstemmende medlemmer"
+  },
+  "nonCompliantMembersError": {
+    "message": "Medlemmer, som ikke overholder enkelt organisations- eller totrins login-politikken, kan ikke genoprettes, før de er i overholder politikkravene"
+  },
   "fingerprint": {
     "message": "Fingeraftryk"
   },
@@ -5536,6 +5678,20 @@
   },
   "error": {
     "message": "Fejl"
+  },
+  "decryptionError": {
+    "message": "Dekrypteringsfejl"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kunne ikke dekryptere boks-emne(r) anført nedenfor."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontakt kundeservice",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "for at undgå yderligere tab af data.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "Håndtér brugere skal også tildeles med tilladelsen håndtér kontogendannelse"
@@ -6029,9 +6185,6 @@
   "emailSent": {
     "message": "E-mail sendt"
   },
-  "revokeSponsorshipConfirmation": {
-    "message": "Efter fjernelse af denne konto udløber Familie-abonnementets sponsorat ved slutningen af faktureringsperioden. Du vil ikke kunne indløse et nyt sponsortilbud, før det eksisterende udløber. Sikker på, at du vil fortsætte?"
-  },
   "removeSponsorshipSuccess": {
     "message": "Sponsoratet fjernet"
   },
@@ -6321,6 +6474,9 @@
   "idpSingleSignOnServiceUrlRequired": {
     "message": "Obligatorisk, såfremt Enheds-ID ikke er en URL."
   },
+  "offerNoLongerValid": {
+    "message": "Dette tilbud er udløbet. Kontakt organisationsadministratorer for mere information."
+  },
   "openIdOptionalCustomizations": {
     "message": "Valgfrie tilpasninger"
   },
@@ -6413,8 +6569,8 @@
   "generateEmail": {
     "message": "Generér e-mail"
   },
-  "generatorBoundariesHint": {
-    "message": "Værdi skal være mellem $MIN$ og $MAX$",
+  "spinboxBoundariesHint": {
+    "message": "Værdi skal være mellem $MIN$ og $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -6424,6 +6580,26 @@
       "max": {
         "content": "$2",
         "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Brug minimum $RECOMMENDED$ tegn for at generere en stærk adgangskode.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Brug minimum $RECOMMENDED$ ord for at generere en stærk adgangssætning.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
       }
     }
   },
@@ -6679,6 +6855,10 @@
   },
   "scimDescription": {
     "message": "Tildel automatisk brugere og grupper den foretrukne identitetsudbyder via SCIM-provisionering",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Tildel automatisk brugere og grupper den foretrukne identitetsudbyder via SCIM-provisionering. Find understøttede integrationer",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -7958,8 +8138,17 @@
   "loginInitiated": {
     "message": "Indlogning påbegyndt"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Husk denne enhed for at gøre fremtidige indlogninger gnidningsløse"
+  },
   "deviceApprovalRequired": {
     "message": "Enhedsgodkendelse kræves. Vælg en godkendelsesmulighed nedenfor:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Enhedsgodkendelse kræves"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Vælg en godkendelsesmulighed nedenfor"
   },
   "rememberThisDevice": {
     "message": "Husk denne enhed"
@@ -8085,6 +8274,18 @@
   "approveRequest": {
     "message": "Godkend anmodning"
   },
+  "deviceApproved": {
+    "message": "Enhed godkendt"
+  },
+  "deviceRemoved": {
+    "message": "Enhed fjernet"
+  },
+  "removeDevice": {
+    "message": "Fjern enhed"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Sikker på, at denne enhed skal fjernes?"
+  },
   "noDeviceRequests": {
     "message": "Ingen enhedsanmodninger"
   },
@@ -8190,6 +8391,9 @@
   "userEmailMissing": {
     "message": "Brugers e-mail mangler"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Aktiv bruger e-mail ikke fundet. Man logges ud."
+  },
   "deviceTrusted": {
     "message": "Enhed betroet"
   },
@@ -8284,9 +8488,6 @@
   },
   "collectionManagementDesc": {
     "message": "Håndtér samlingsadfærden for organisationen"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Begræns samlingsoprettelse og -sletning til ejere og admins"
   },
   "limitCollectionCreationDesc": {
     "message": "Begræns samlingsoprettelse til ejere og admins"
@@ -8441,7 +8642,7 @@
   },
   "addAPaymentMethod": {
     "message": "tilføj en betalingsmetode",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "Organisationsoplysninger"
@@ -8866,44 +9067,99 @@
   "sdksDesc": {
     "message": "Brug Bitwarden Secrets Manager SDK i flg. programmeringssprog til bygning af egne applikationer."
   },
-  "setUpGithubActions": {
-    "message": "Opsæt Github-handlinger"
+  "ssoDescStart": {
+    "message": "Opsæt",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Opsæt Kubernetes"
+  "ssoDescEnd": {
+    "message": "for Bitwarden vha. implementeringsvejledningen for den aktuelle Identitetsudbyder.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Opsæt GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Brugerprovisionering"
   },
-  "setUpAnsible": {
-    "message": "Opsæt Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Vis Ruby-repo"
+  "scimIntegrationDescStart": {
+    "message": "Configure ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Vis C#-repo"
+  "scimIntegrationDescEnd": {
+    "message": "(System til håndtering af Kryds-domæneidentitet) for automatisk at tildele brugere og grupper til Bitwarden vha. implementeringsvejledningen for den aktuelle Identitetsudbyder.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Vis C++-repo"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "VIs JS WebAssembly-repo"
+  "bwdcDesc": {
+    "message": "Opsæt Bitwarden Directory Connector til automatisk at tildele brugere og grupper vha. implementeringsvejledningen for den aktuelle Identitetsudbyder."
   },
-  "javaSDKRepo": {
-    "message": "Vis Java-repo"
+  "eventManagement": {
+    "message": "Begivenhedshåndtering"
   },
-  "pythonSDKRepo": {
-    "message": "Vis Python-repo"
+  "eventManagementDesc": {
+    "message": "Integrér Bitwarden-begivenhedslogger med det aktuelle SIEM (systeminformation og begivenhedshåndtering) system vha. implementeringsvejledningen til den aktuelle platform."
   },
-  "phpSDKRepo": {
-    "message": "Vis php-repo"
+  "deviceManagement": {
+    "message": "Enhedshåndtering"
   },
-  "rubySDKRepo": {
-    "message": "Vis Ruby-repo"
+  "deviceManagementDesc": {
+    "message": "Opsæt enhedshåndtering for Bitwarden vha. implementeringsvejledningen for den aktuelle platform."
   },
-  "goSDKRepo": {
-    "message": "Vis Go-repo"
+  "integrationCardTooltip": {
+    "message": "Start $INTEGRATION$-implementeringsguiden.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Opsæt $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Vis $SDK$-repo",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "åbn $INTEGRATION$-implementeringsguiden på en ny fane.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "se $SDK$-repo på en ny fane.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "opset $INTEGRATION$-implementeringsguiden på en ny fane.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Opret en ny kundeorganisation til at håndtere som udbyder. Yderligere pladser afspejles i næste faktureringscyklus."
@@ -9014,6 +9270,12 @@
   "providerPlan": {
     "message": "Administreret Tjenesteudbyder"
   },
+  "managedServiceProvider": {
+    "message": "Håndteret tjenesteudbyder"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "Multiorganisationsvirksomhed"
+  },
   "orgSeats": {
     "message": "Organisationspladser"
   },
@@ -9058,6 +9320,18 @@
   },
   "updatedTaxInformation": {
     "message": "Opdaterede momsoplysninger"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Ugyldigt moms-ID. Mener man, at dette er en fejl, kontakt venligst supporten."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Moms-ID kan ikke bekræftes. Mener man, at dette er en fejl, kontakt venligst supporten."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Ugyldigt moms-ID. Mener man, at dette er en fejl, kontakt venligst supporten."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "En fejl opstod under forhåndsvisning af fakturaen. Forsøg igen senere."
   },
   "unverified": {
     "message": "Ubekræftet"
@@ -9416,6 +9690,30 @@
   "additionalStorageGbMessage": {
     "message": "GB ekstra lagerplads"
   },
+  "sshKeyAlgorithm": {
+    "message": "Nøglealgoritme"
+  },
+  "sshKeyFingerprint": {
+    "message": "Fingeraftryk"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Privat nøgle"
+  },
+  "sshKeyPublicKey": {
+    "message": "Offentlig nøgle"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
   "premiumAccounts": {
     "message": "6 Premium-konti"
   },
@@ -9544,16 +9842,16 @@
     "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
   },
   "toHostBitwardenOnYourOwnServer": {
-    "message": "For hoste Bitwarden på egen server, skal man uploade sin licensfil. Opsæt automatisk faktureringssynk for den selv-hostede organisation for at understøtte Free Families-abonnementstyper og avancerede faktureringsmuligheder for organisationen."
+    "message": "For at hoste Bitwarden på egen server skal man uploade sin licensfil. Opsæt automatisk faktureringssynk for den selv-hostede organisation for at understøtte Free Families-abonnementstyper og avancerede faktureringsmuligheder for organisationen."
   },
   "selfHostingTitleProper": {
     "message": "Selv-hosting"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Bekræftelse af et domæne vil slå den enkelte organisationspolitik til."
+  "claim-domain-single-org-warning": {
+    "message": "Registrering af et domæne vil slå den enkelte organisationspolitik til."
   },
   "single-org-revoked-user-warning": {
-    "message": "Ikke-overholdende medlemmers privilegier ophæves. Administratorer kan gendanne medlemmer, når overholdelse er opfyldt."
+    "message": "Ikke-overholdende medlemmers privilegier ophæves. Administratorer kan gendanne medlemmer, når de har forladt alle øvrige organisationer."
   },
   "deleteOrganizationUser": {
     "message": "Slet $NAME$",
@@ -9565,9 +9863,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Når medlemmer slettes, vil deres Bitwarden-konto og individuelle boksdata blive slettet permanent. Indsamlingsdata vil forblive i organisationen. For at genindsætte dem, skal de oprette en konto og onboarderes igen.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Dette sletter permanent alle elementer ejet af $NAME$. Samlingsemner berøres ikke.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Dette sletter permanent alle elementer ejet af flg. medlemmer. Samlingsemner berøres ikke.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "Slet $NAME$",
@@ -9579,6 +9887,254 @@
     }
   },
   "organizationUserDeletedDesc": {
-    "message": "Brugeren er fjernet fra organisationen og alle tilknyttede brugerdata er slettet."
+    "message": "Brugeren er fjernet fra organisationen, og alle tilknyttede brugerdata er slettet."
+  },
+  "deletedUserId": {
+    "message": "Slettet bruger $ID$ - en ejer/admin har slettet brugerkontoen",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "Brugeren $ID$ har forladt organisationen",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "$ORGANIZATION$ er suspenderet",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "Kontakt organisationsejeren for assistance."
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "Tilføj en betalingsmetode for at få adgang til organisationen igen."
+  },
+  "deleteMembers": {
+    "message": "Slet medlemmer"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "Denne handling er ikke anvendelig til nogen af de valgte medlemmer."
+  },
+  "deletedSuccessfully": {
+    "message": "Slettet"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "Fjern Gratis Bitwarden Families-sponsorering"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "Tillad ikke medlemmer at indløse en Families-abonnementstype via denne organisation."
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "Betaling via bankkonto er kun tilgængelig for kunder i USA. Man anmodes om at bekræfte sin bankkonto. Vi vil foretage en mikro-indbetaling inden for de næste 1-2 arbejdsdage. Indtast kontoudtogsbeskrivelseskoden fra denne indbetaling på organisationens faktureringsside for at bekræfte bankkontoen. Manglende bekræftelse af bankkontoen vil resultere i manglende betaling, hvorefter abonnementet suspenderes."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "Vi har foretaget en mikro-indbetaling på den oplyste bankkonto (hvilket kan tage 1-2 hverdage). Angiv den sekscifrede kode startende med 'SM' fra på indbetalingsbeskrivelsen. Manglende bekræftelse af bankkontoen vil resultere i manglende betaling, hvorefter abonnementet suspenderes."
+  },
+  "descriptorCode": {
+    "message": "Beskrivelseskode"
+  },
+  "importantNotice": {
+    "message": "Vigtig notits"
+  },
+  "setupTwoStepLogin": {
+    "message": "Opsæt totrins-login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Startende i februar 2025, sender Bitwarden en kode til kontoe-mailadressen for at bekræfte logins fra nye enheder."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Man kan opsætte totrins-login som en alternativ måde at beskytte sin konto på eller ændre sin e-mail til en, man kan tilgå."
+  },
+  "remindMeLater": {
+    "message": "Påmind senere"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Er der pålidelig adgang til e-mailadressen, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nej, muligvis ikke"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, e-mailadressen kan pålideligt tilgås"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Slå totrins-login til"
+  },
+  "changeAcctEmail": {
+    "message": "Skift kontoe-mailadresse"
+  },
+  "removeMembers": {
+    "message": "Fjern medlemmer"
+  },
+  "devices": {
+    "message": "Enheder"
+  },
+  "deviceListDescription": {
+    "message": "Der er blevet logget ind på kontoen på hver af enhederne nedenfor. Genkendes en enhed ikke, fjern den nu."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Der er blevet logget ind på kontoen på hver af enhederne nedenfor."
+  },
+  "claimedDomains": {
+    "message": "Registrerede domæner"
+  },
+  "claimDomain": {
+    "message": "Registrering af domæne"
+  },
+  "reclaimDomain": {
+    "message": "Genregistrering af domæne"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Eks.: mitdomaene.dk. Underdomæner kræver, at separate poster registreres."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automatisk Registrerede Domæner"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden vil forsøge at registrere domænet 3 gange i løbet af de første 72 timer. Kan domænet ikke registreres, tjek DNS-posten på værten og registrér manuelt. Såfremt uregistreret efter 7 dage, fjernes domænet fra organisationen."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ ikke registreret. Tjek DNS-posterne.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Registreret"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Under verifikation"
+  },
+  "claimedDomainsDesc": {
+    "message": "Registrér et domæne for at eje alle medlemskonti, hvis e-mailadresse matcher domænet. Medlemmer vil kunne overspringe SSO-identifikatoren under indlogning. Administratorer vil også kunne slette medlemskonti."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Input er ikke i et gyldigt format. Format: mitdomaene.dk. Underdomæner kræver, at separate poster registreres."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ registreret",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ ikke registreret",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Fjernes $EMAIL$, kan sponsoratet for denne Family-abonnementstype ikke indløses. Fortsæt alligevel?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Fjerner $EMAIL$, ophører sponsoratet for denne Family-abonnementstype, og der opkræves $40 + gældende skat pr. $DATE$ via den registrerede betalingsmetode. Et nyt sponsorat vil ikke kunne indløses før $DATE$. Fortsæt alligevel?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domæne registreret"
+  },
+  "organizationNameMaxLength": {
+    "message": "Organisationsnavn må ikke overstige 50 tegn."
+  },
+  "resellerRenewalWarning": {
+    "message": "Abonnementet fornyes snart. For at sikre uafbrudt tjeneste, kontakt $RESELLER$ for at bekræfte fornyelsen inden $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "En faktura for abonnementet er udstedt pr. $ISSUED_DATE$. For at sikre uafbrudt tjeneste, kontakt $RESELLER$ for at bekræfte fornyelsen inden $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "Fakturaen for abonnementet er ikke blevet betalt. For at sikre uafbrudt tjeneste, kontakt $RESELLER$ for at bekræfte fornyelsen inden $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organisationsabonnement genstartet"
+  },
+  "restartSubscription": {
+    "message": "Genstart abonnementet"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Kontakt $PROVIDER$ for assistance.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
   }
 }

@@ -17,7 +17,7 @@ export function unauthUiRefreshRedirect(redirectUrl: string): () => Promise<bool
     );
     if (shouldRedirect) {
       const currentNavigation = router.getCurrentNavigation();
-      const queryParams = currentNavigation?.extras?.queryParams || {};
+      const queryParams = currentNavigation?.extractedUrl?.queryParams || {};
 
       // Preserve query params when redirecting as it is likely that the refreshed component
       // will be consuming the same query params.

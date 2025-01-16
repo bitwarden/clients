@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   DefaultPasswordGenerationOptions,
@@ -33,7 +35,7 @@ export class GenerateCommand {
       includeNumber: normalizedOptions.includeNumber,
       minNumber: normalizedOptions.minNumber,
       minSpecial: normalizedOptions.minSpecial,
-      ambiguous: normalizedOptions.ambiguous,
+      ambiguous: !normalizedOptions.ambiguous,
     };
 
     const enforcedOptions = (await this.stateService.getIsAuthenticated())

@@ -1,4 +1,4 @@
-<popup-page>
+<popup-page [disablePadding]="true">
   <popup-header
     slot="header"
     [background]="'alt'"
@@ -19,8 +19,8 @@
     [icon]="pageIcon"
     [showReadonlyHostname]="showReadonlyHostname"
     [hideLogo]="true"
-    [decreaseTopPadding]="true"
     [maxWidth]="maxWidth"
+    [hideFooter]="hideFooter"
   >
     <router-outlet></router-outlet>
     <router-outlet slot="secondary" name="secondary"></router-outlet>

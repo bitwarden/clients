@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -50,8 +52,8 @@ export class MembersComponent extends BaseMembersComponent<ProviderUser> {
   dataSource = new MembersTableDataSource();
   loading = true;
   providerId: string;
-  rowHeight = 62;
-  rowHeightClass = `tw-h-[62px]`;
+  rowHeight = 69;
+  rowHeightClass = `tw-h-[69px]`;
   status: ProviderUserStatusType = null;
 
   userStatusType = ProviderUserStatusType;

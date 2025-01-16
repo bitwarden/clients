@@ -1,25 +1,30 @@
 <div
   bitTypography="body2"
-  class="tw-inline-flex tw-items-center tw-rounded-full tw-border-solid tw-border tw-border-text-muted"
-  [ngClass]="[
-    selectedOption
-      ? 'tw-bg-text-muted tw-text-contrast tw-gap-1'
-      : 'tw-bg-transparent tw-text-muted tw-gap-1.5',
-    focusVisibleWithin() ? 'tw-ring-2 tw-ring-primary-500 tw-ring-offset-1' : '',
-    fullWidth ? 'tw-w-full' : 'tw-max-w-52',
-  ]"
+  class="tw-inline-flex tw-items-center tw-rounded-full tw-w-full tw-border-solid tw-border tw-gap-1.5 tw-group/chip-select"
+  [ngClass]="{
+    'tw-bg-text-muted hover:tw-bg-secondary-700 tw-text-contrast hover:!tw-border-secondary-700':
+      selectedOption && !disabled,
+    'tw-bg-transparent hover:tw-border-secondary-700 !tw-text-muted hover:tw-bg-secondary-100':
+      !selectedOption && !disabled,
+    'tw-bg-secondary-300 tw-text-muted tw-border-transparent': disabled,
+    'tw-border-text-muted': !disabled,
+    'tw-ring-2 tw-ring-primary-600 tw-ring-offset-1': focusVisibleWithin(),
+  }"
 >
   <!-- Primary button -->
   <button
     type="button"
-    class="fvw-target tw-inline-flex tw-gap-1.5 tw-items-center tw-justify-between tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-py-1 tw-pl-3 last:tw-pr-3 tw-truncate tw-text-[inherit]"
+    class="fvw-target tw-inline-flex tw-gap-1.5 tw-items-center tw-justify-between tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-py-1 tw-pl-3 last:tw-pr-3 [&:not(:last-child)]:tw-pr-0 tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
     [ngClass]="{
       'tw-cursor-not-allowed': disabled,
+      'group-hover/chip-select:tw-text-secondary-700': !selectedOption && !disabled,
     }"
     [bitMenuTriggerFor]="menu"
     [disabled]="disabled"
     [title]="label"
     #menuTrigger="menuTrigger"
+    (click)="setMenuWidth()"
+    #chipSelectButton
   >
     <span class="tw-inline-flex tw-items-center tw-gap-1.5 tw-truncate">
       <i class="bwi !tw-text-[inherit]" [ngClass]="icon"></i>
@@ -27,7 +32,7 @@
     </span>
     <i
       *ngIf="!selectedOption"
-      class="bwi"
+      class="bwi tw-mt-0.5"
       [ngClass]="menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
     ></i>
   </button>
@@ -38,7 +43,7 @@
     type="button"
     [attr.aria-label]="'removeItem' | i18n: label"
     [disabled]="disabled"
-    class="tw-bg-transparent hover:tw-bg-transparent tw-outline-none tw-rounded-full tw-p-1 tw-my-1 tw-mr-1 tw-text-[inherit] tw-border-solid tw-border tw-border-text-muted hover:tw-border-text-contrast hover:disabled:tw-border-transparent tw-aspect-square tw-flex tw-items-center tw-justify-center tw-h-fit focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:hover:tw-border-transparent"
+    class="tw-bg-transparent hover:tw-bg-transparent tw-outline-none tw-rounded-full tw-py-0.5 tw-px-1 tw-mr-1 tw-text-[color:inherit] tw-text-[length:inherit] tw-border-solid tw-border tw-border-transparent hover:tw-border-text-contrast hover:disabled:tw-border-transparent tw-flex tw-items-center tw-justify-center focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:hover:tw-border-transparent"
     [ngClass]="{
       'tw-cursor-not-allowed': disabled,
     }"
@@ -48,13 +53,18 @@
   </button>
 </div>
 
-<bit-menu #menu>
-  <div *ngIf="renderedOptions" class="tw-max-h-80 tw-min-w-52 tw-max-w-80 tw-text-sm">
+<bit-menu #menu (closed)="handleMenuClosed()">
+  <div
+    *ngIf="renderedOptions"
+    class="tw-max-h-80 tw-min-w-32 tw-max-w-80 tw-text-sm"
+    [ngStyle]="menuWidth && { width: menuWidth + 'px' }"
+  >
     <ng-container *ngIf="getParent(renderedOptions) as parent">
       <button
         type="button"
         bitMenuItem
         (click)="viewOption(parent, $event)"
+        class="tw-text-[length:inherit]"
         [title]="'backTo' | i18n: parent.label ?? placeholderText"
       >
         <i slot="start" class="bwi bwi-angle-left" aria-hidden="true"></i>
@@ -66,6 +76,7 @@
         bitMenuItem
         (click)="selectOption(renderedOptions, $event)"
         [title]="'viewItemsIn' | i18n: renderedOptions.label"
+        class="tw-text-[length:inherit]"
       >
         <i slot="start" class="bwi bwi-list" aria-hidden="true"></i>
         {{ "viewItemsIn" | i18n: renderedOptions.label }}
@@ -79,6 +90,7 @@
       (click)="option.children?.length ? viewOption(option, $event) : selectOption(option, $event)"
       [disabled]="option.disabled"
       [title]="option.label"
+      class="tw-text-[length:inherit]"
       [attr.aria-haspopup]="option.children?.length ? 'menu' : null"
     >
       <i

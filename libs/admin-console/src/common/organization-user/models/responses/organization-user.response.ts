@@ -5,7 +5,7 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { SelectionReadOnlyResponse } from "@bitwarden/common/admin-console/models/response/selection-read-only.response";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { KdfType } from "@bitwarden/common/platform/enums";
+import { KdfType } from "@bitwarden/key-management";
 
 export class OrganizationUserResponse extends BaseResponse {
   id: string;

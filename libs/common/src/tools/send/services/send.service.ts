@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
-import { PBKDF2KdfConfig } from "../../../auth/models/domain/kdf-config";
+import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
+
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";

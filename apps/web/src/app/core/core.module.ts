@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { APP_INITIALIZER, NgModule, Optional, SkipSelf } from "@angular/core";
 import { Router } from "@angular/router";
@@ -28,8 +30,9 @@ import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/serv
 import {
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   LoginComponentService,
-  LockComponentService,
   SetPasswordJitService,
+  SsoComponentService,
+  LoginDecryptionOptionsService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -45,10 +48,10 @@ import {
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -60,6 +63,7 @@ import {
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -82,7 +86,12 @@ import {
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { KeyService as KeyServiceAbstraction, BiometricsService } from "@bitwarden/key-management";
+import {
+  KdfConfigService,
+  KeyService as KeyServiceAbstraction,
+  BiometricsService,
+} from "@bitwarden/key-management";
+import { LockComponentService } from "@bitwarden/key-management/angular";
 
 import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
@@ -90,11 +99,14 @@ import {
   WebSetPasswordJitService,
   WebRegistrationFinishService,
   WebLoginComponentService,
-  WebLockComponentService,
+  WebLoginDecryptionOptionsService,
 } from "../auth";
+import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
+import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
+import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
 import { WebBiometricsService } from "../key-management/web-biometric.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
@@ -282,9 +294,24 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: ProcessReloadServiceAbstraction,
+    useClass: WebProcessReloadService,
+    deps: [WINDOW],
+  }),
+  safeProvider({
     provide: LoginEmailService,
     useClass: LoginEmailService,
     deps: [AccountService, AuthService, StateProvider],
+  }),
+  safeProvider({
+    provide: SsoComponentService,
+    useClass: WebSsoComponentService,
+    deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: LoginDecryptionOptionsService,
+    useClass: WebLoginDecryptionOptionsService,
+    deps: [MessagingService, RouterService, AcceptOrganizationInviteService],
   }),
 ];
 

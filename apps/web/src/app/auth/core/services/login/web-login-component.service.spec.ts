@@ -16,7 +16,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { RouterService } from "../../../../../../../../apps/web/src/app/core";
-import { flagEnabled } from "../../../../../utils/flags";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
 import { WebLoginComponentService } from "./web-login-component.service";
@@ -71,18 +70,6 @@ describe("WebLoginComponentService", () => {
 
   it("creates the service", () => {
     expect(service).toBeTruthy();
-  });
-
-  describe("isLoginViaAuthRequestSupported", () => {
-    it("returns true if showPasswordless flag is enabled", () => {
-      (flagEnabled as jest.Mock).mockReturnValue(true);
-      expect(service.isLoginViaAuthRequestSupported()).toBe(true);
-    });
-
-    it("returns false if showPasswordless flag is disabled", () => {
-      (flagEnabled as jest.Mock).mockReturnValue(false);
-      expect(service.isLoginViaAuthRequestSupported()).toBeFalsy();
-    });
   });
 
   describe("getOrgPolicies", () => {

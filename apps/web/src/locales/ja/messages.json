@@ -3,19 +3,22 @@
     "message": "すべてのアプリ"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "きわめて重要なアプリ"
+  },
+  "accessIntelligence": {
+    "message": "アクセス インテリジェンス"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "リスク分析"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "パスワードのリスク"
   },
-  "discoverAtRiskPasswords": {
-    "message": "Discover at-risk passwords and notify users to change those passwords."
+  "reviewAtRiskPasswords": {
+    "message": "危険なパスワード（強度が低い、流出済み、再利用）を、アプリをまたいで調査します。特に重要なアプリを選択して、危険なパスワードに優先対応するようユーザーに促しましょう。"
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "データの最終更新: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -25,6 +28,15 @@
   },
   "notifiedMembers": {
     "message": "通知済みメンバー"
+  },
+  "revokeMembers": {
+    "message": "メンバーを削除"
+  },
+  "restoreMembers": {
+    "message": "メンバーを復元"
+  },
+  "cannotRestoreAccessError": {
+    "message": "組織へのアクセスを復元できません"
   },
   "allApplicationsWithCount": {
     "message": "すべてのアプリ ($COUNT$)",
@@ -36,10 +48,10 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "新しいログインアイテムを作成"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "特に重要なアプリ ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -57,7 +69,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "$ORG NAME$ にアプリが見つかりませんでした",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -66,22 +78,22 @@
     }
   },
   "noAppsInOrgDescription": {
-    "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
+    "message": "ユーザーがログイン情報を保存すると、アプリがここに表示され、リスクの高いパスワードがあれば表示されます。特に重要なアプリはマークして、パスワードを更新するようにユーザーに通知しましょう。"
   },
   "noCriticalAppsTitle": {
-    "message": "You haven't marked any applications as a Critical"
+    "message": "重要なアプリとしてマークしたものがありません"
   },
   "noCriticalAppsDescription": {
-    "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
+    "message": "特に重要なアプリケーションを選択して、危険なパスワードを発見し、ユーザーにパスワードを変更するよう通知しましょう。"
   },
   "markCriticalApps": {
-    "message": "Mark critical apps"
+    "message": "重要なアプリをマークする"
   },
   "markAppAsCritical": {
-    "message": "Mark app as critical"
+    "message": "重要なアプリとしてマーク"
   },
   "appsMarkedAsCritical": {
-    "message": "Apps marked as critical"
+    "message": "重要なアプリとしてマークされました"
   },
   "application": {
     "message": "アプリ"
@@ -90,13 +102,13 @@
     "message": "リスクがあるパスワード"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "パスワードの変更を要求する"
   },
   "totalPasswords": {
     "message": "合計パスワード数"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "アプリを検索"
   },
   "atRiskMembers": {
     "message": "リスクがあるメンバー"
@@ -457,7 +469,7 @@
     "message": "パスワードの自動生成"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "パスフレーズを生成"
   },
   "checkPassword": {
     "message": "パスワードが漏洩していないか確認する"
@@ -558,6 +570,9 @@
   },
   "typeSecureNote": {
     "message": "セキュアメモ"
+  },
+  "typeSshKey": {
+    "message": "SSH 鍵"
   },
   "typeLoginPlural": {
     "message": "ログイン"
@@ -718,11 +733,11 @@
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "パスフレーズをコピー",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "パスワードをコピーしました"
   },
   "copyUsername": {
     "message": "ユーザー名のコピー",
@@ -978,6 +993,9 @@
   "loginWithDeviceEnabledNote": {
     "message": "Bitwarden アプリで「デバイスでログイン」の設定をする必要があります。別のオプションが必要ですか？"
   },
+  "needAnotherOptionV1": {
+    "message": "別の選択肢が必要ですか？"
+  },
   "loginWithMasterPassword": {
     "message": "マスターパスワードでログイン"
   },
@@ -991,13 +1009,13 @@
     "message": "別のログイン方法を使用する"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "パスキーでログイン"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "シングルサインオンを使用する"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "ようこそ"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "無効なパスキーです。もう一度やり直してください。"
@@ -1081,7 +1099,7 @@
     "message": "アカウントの作成"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Bitwarden は初めてですか？"
   },
   "setAStrongPassword": {
     "message": "強力なパスワードを設定する"
@@ -1099,10 +1117,22 @@
     "message": "ログイン"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Bitwarden にログイン"
+  },
+  "authenticationTimeout": {
+    "message": "認証のタイムアウト"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "認証セッションの有効期限が切れました。ログイン操作を最初からやり直してください。"
   },
   "verifyIdentity": {
     "message": "本人確認"
+  },
+  "whatIsADevice": {
+    "message": "What is a device?"
+  },
+  "aDeviceIs": {
+    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
   },
   "logInInitiated": {
     "message": "ログイン開始"
@@ -1270,7 +1300,7 @@
     "message": "このコレクション内のアイテムをすべて表示する権限がありません。"
   },
   "youDoNotHavePermissions": {
-    "message": "You do not have permissions to this collection"
+    "message": "このコレクションの利用権限がありません"
   },
   "noCollectionsInList": {
     "message": "表示するコレクションがありません"
@@ -1295,6 +1325,12 @@
   },
   "notificationSentDevice": {
     "message": "デバイスに通知を送信しました。"
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "お使いのデバイスに通知が送信されました"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "アカウントがロック解除されていることと、フィンガープリントフレーズが他の端末と一致していることを確認してください"
   },
   "versionNumber": {
     "message": "バージョン $VERSION_NUMBER$",
@@ -1627,8 +1663,26 @@
   "passwordHistory": {
     "message": "パスワードの履歴"
   },
+  "generatorHistory": {
+    "message": "生成履歴"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "生成履歴を消去"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "続行すると、すべてのエントリは生成履歴から完全に削除されます。続行してもよろしいですか？"
+  },
   "noPasswordsInList": {
     "message": "表示するパスワードがありません"
+  },
+  "clearHistory": {
+    "message": "履歴を消去"
+  },
+  "nothingToShow": {
+    "message": "表示するものがありません"
+  },
+  "nothingGeneratedRecently": {
+    "message": "最近生成したものはありません"
   },
   "clear": {
     "message": "消去する",
@@ -1666,6 +1720,12 @@
   },
   "logBackIn": {
     "message": "ログインし直してください"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "requestPending": {
+    "message": "Request pending"
   },
   "logBackInOthersToo": {
     "message": "ログインし直してください。他のBitwardenのアプリを使用している場合、同様にログインし直してください。"
@@ -1738,7 +1798,7 @@
     "message": "これらの操作はやり直せないため注意してください！"
   },
   "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
+    "message": "この操作は元に戻せないため注意してください！"
   },
   "deauthorizeSessions": {
     "message": "セッションの承認を取り消す"
@@ -1752,8 +1812,8 @@
   "sessionsDeauthorized": {
     "message": "全てのセッションを無効化"
   },
-  "accountIsManagedMessage": {
-    "message": "This account is managed by $ORGANIZATIONNAME$",
+  "accountIsOwnedMessage": {
+    "message": "このアカウントは $ORGANIZATIONNAME$ が所有しています",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -3218,6 +3278,9 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "You have 1 invite remaining."
+  },
   "userUsingTwoStep": {
     "message": "このユーザーはアカウントを保護するため二段階認証を利用しています。"
   },
@@ -3380,6 +3443,9 @@
         "example": "'Google'"
       }
     }
+  },
+  "viewAllLogInOptions": {
+    "message": "すべてのログインオプションを表示"
   },
   "viewAllLoginOptions": {
     "message": "すべてのログインオプションを表示"
@@ -3714,6 +3780,15 @@
   "device": {
     "message": "デバイス"
   },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
   "creatingAccountOn": {
     "message": "アカウント作成："
   },
@@ -3831,14 +3906,66 @@
   "updateBrowser": {
     "message": "ブラウザを更新"
   },
+  "generatingRiskInsights": {
+    "message": "リスク分析を生成しています..."
+  },
   "updateBrowserDesc": {
     "message": "サポートされていないブラウザを使用しています。ウェブ保管庫が正しく動作しないかもしれません。"
+  },
+  "freeTrialEndPromptCount": {
+    "message": "無料体験はあと $COUNT$ 日で終了します。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$ 様、無料体験はあと $COUNT$ 日で終了します。",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$ 様、無料体験は明日で終了します。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "無料体験は明日終了します。"
+  },
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$ 様、無料体験は本日終了します。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "無料体験は本日で終了します。"
+  },
+  "clickHereToAddPaymentMethod": {
+    "message": "支払い方法を追加するにはここをクリックしてください。"
   },
   "joinOrganization": {
     "message": "組織に参加"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "$ORGANIZATIONNAME$ に参加",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -4388,6 +4515,9 @@
     "message": "今後パスフレーズを確認しない",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "リクエストが承認されると通知されます"
+  },
   "free": {
     "message": "無料",
     "description": "Free, as in 'Free beer'"
@@ -4618,6 +4748,12 @@
   "ssoLogInWithOrgIdentifier": {
     "message": "組織のシングルサインオンポータルを使用してログインします。開始するには組織の識別子を入力してください。"
   },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "組織の SSO ID を入力して開始します"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "SSO プロバイダーでログインするには、組織の SSO ID を入力して開始します。新しいデバイスからログインする際に、この SSO ID を入力する必要がある場合があります。"
+  },
   "enterpriseSingleSignOn": {
     "message": "組織のシングルサインオン"
   },
@@ -4686,7 +4822,7 @@
     "message": "ユーザーが他の組織に参加できないように制限します。"
   },
   "singleOrgPolicyDesc": {
-    "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
+    "message": "メンバーに対し、他の組織への参加を制限します。ドメイン認証を有効にしている組織では、このポリシーは必須となります。"
   },
   "singleOrgBlockCreateMessage": {
     "message": "現在の組織には、複数の組織に参加することを許可していないポリシーがあります。 組織の管理者に連絡するか、別の Bitwarden アカウントから登録してください。"
@@ -4695,7 +4831,7 @@
     "message": "オーナーまたは管理者でなく、すでに他の組織のメンバーであるメンバーは組織から削除されます。"
   },
   "singleOrgPolicyMemberWarning": {
-    "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
+    "message": "ポリシーに準拠していないメンバーは、他のすべての組織から退出するまで失効状態になります。これは管理者には適用されず、管理者はコンプライアンスが満たされたメンバーを復元できます。"
   },
   "requireSso": {
     "message": "シングルサインオン認証"
@@ -5522,6 +5658,12 @@
   "bulkFilteredMessage": {
     "message": "除外します。このアクションには適用されません。"
   },
+  "nonCompliantMembersTitle": {
+    "message": "非準拠のメンバー"
+  },
+  "nonCompliantMembersError": {
+    "message": "単一組織ポリシーまたは2段階ログインポリシーに準拠していないメンバーは、ポリシー要件を遵守するまで復元できません。"
+  },
   "fingerprint": {
     "message": "指紋"
   },
@@ -5536,6 +5678,20 @@
   },
   "error": {
     "message": "エラー"
+  },
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "ユーザーを管理するには、アカウントのリカバリ管理権限を付与する必要があります。"
@@ -6029,9 +6185,6 @@
   "emailSent": {
     "message": "メールが送信されました"
   },
-  "revokeSponsorshipConfirmation": {
-    "message": "このアカウントを削除した後、家族向けプランのスポンサーシップは請求期間の終了時に失効します。 既存のスポンサーオファーの有効期限が切れるまで、新しいスポンサーオファーを引き換えることはできません。続行してもよろしいですか？"
-  },
   "removeSponsorshipSuccess": {
     "message": "スポンサーシップを削除しました"
   },
@@ -6321,6 +6474,9 @@
   "idpSingleSignOnServiceUrlRequired": {
     "message": "エンティティ ID が URL でない場合は必須です。"
   },
+  "offerNoLongerValid": {
+    "message": "このオファーは無効になりました。詳しくは組織の管理者にお問い合わせください。"
+  },
   "openIdOptionalCustomizations": {
     "message": "オプションのカスタマイズ"
   },
@@ -6411,10 +6567,10 @@
     "message": "ユーザー名を生成"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "メールアドレスを生成"
   },
-  "generatorBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$",
+  "spinboxBoundariesHint": {
+    "message": "値は $MIN$ から $MAX$ の間でなければなりません。",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -6424,6 +6580,26 @@
       "max": {
         "content": "$2",
         "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " 強力なパスワードを生成するには、 $RECOMMENDED$ 文字以上を使用してください。",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " 強力なパスフレーズを生成するには、 $RECOMMENDED$ 単語以上を使用してください。",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
       }
     }
   },
@@ -6533,11 +6709,11 @@
     "message": "外部転送サービスを使用してメールエイリアスを生成します。"
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "メールアドレスのドメイン",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "選択したサービスでサポートされているドメインを選択してください",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -6679,6 +6855,10 @@
   },
   "scimDescription": {
     "message": "SCIM プロビジョニングにより、ユーザーとグループを希望する ID プロバイダーで自動的にプロビジョニングします。",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "SCIMプロビジョニングにより、お好みのID プロバイダでユーザーとグループを自動的にプロビジョニングします。利用可能な連携サービスを探す。",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -7958,8 +8138,17 @@
   "loginInitiated": {
     "message": "ログイン開始"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "このデバイスを記憶して今後のログインをシームレスにする"
+  },
   "deviceApprovalRequired": {
     "message": "デバイスの承認が必要です。以下から承認オプションを選択してください:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "デバイスの承認が必要です"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "以下の承認オプションを選択してください"
   },
   "rememberThisDevice": {
     "message": "このデバイスを記憶する"
@@ -8085,6 +8274,18 @@
   "approveRequest": {
     "message": "リクエストを承認"
   },
+  "deviceApproved": {
+    "message": "Device approved"
+  },
+  "deviceRemoved": {
+    "message": "Device removed"
+  },
+  "removeDevice": {
+    "message": "Remove device"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Are you sure you want to remove this device?"
+  },
   "noDeviceRequests": {
     "message": "デバイスリクエストはありません"
   },
@@ -8190,6 +8391,9 @@
   "userEmailMissing": {
     "message": "ユーザーのメールアドレスがありません"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "アクティブなユーザーメールアドレスが見つかりません。ログアウトします。"
+  },
   "deviceTrusted": {
     "message": "信頼されたデバイス"
   },
@@ -8285,14 +8489,11 @@
   "collectionManagementDesc": {
     "message": "組織のコレクションに関する挙動を管理します"
   },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "コレクションの作成・削除を所有者と管理者のみに制限"
-  },
   "limitCollectionCreationDesc": {
-    "message": "Limit collection creation to owners and admins"
+    "message": "コレクションの作成を所有者と管理者のみに制限"
   },
   "limitCollectionDeletionDesc": {
-    "message": "Limit collection deletion to owners and admins"
+    "message": "コレクションの削除を所有者と管理者のみに制限"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "所有者と管理者はすべてのコレクションとアイテムを管理できます"
@@ -8340,7 +8541,7 @@
     "message": "サーバー URL"
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "自己ホスト型サーバー URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "aliasDomain": {
@@ -8441,7 +8642,7 @@
   },
   "addAPaymentMethod": {
     "message": "支払い方法を追加してください",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "組織情報"
@@ -8866,44 +9067,99 @@
   "sdksDesc": {
     "message": "Bitwarden シークレットマネージャー SDK を以下のプログラミング言語で使用して、独自のアプリを構築できます。"
   },
-  "setUpGithubActions": {
-    "message": "Github アクションを設定"
+  "ssoDescStart": {
+    "message": "設定",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Kubernetes を設定"
+  "ssoDescEnd": {
+    "message": "id プロバイダの実装ガイドを参照してください。",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "GitLab CI/CD の設定"
+  "userProvisioning": {
+    "message": "ユーザプロビジョニング"
   },
-  "setUpAnsible": {
-    "message": "Ansible を設定"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Rust リポジトリを表示"
+  "scimIntegrationDescStart": {
+    "message": "設定 ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "C# リポジトリを表示"
+  "scimIntegrationDescEnd": {
+    "message": "(System for Cross-domain Identity Management) を使用して、identity Providerの実装ガイドに従って、ユーザーとグループを自動的にBitwardenにプロビジョニングします。",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "C++ リポジトリを表示"
+  "bwdc": {
+    "message": "Bitwarden ディレクトリコネクタ"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "JS WebAssembly リポジトリを表示"
+  "bwdcDesc": {
+    "message": "Bitwarden Directory Connector を設定し、Identity Provider（Idプロバイダー）の実装ガイドを使用して、ユーザーとグループを自動的にプロビジョニングするようにしてください。"
   },
-  "javaSDKRepo": {
-    "message": "Java リポジトリを表示"
+  "eventManagement": {
+    "message": "イベント管理"
   },
-  "pythonSDKRepo": {
-    "message": "Python リポジトリを表示"
+  "eventManagementDesc": {
+    "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
-  "phpSDKRepo": {
-    "message": "PHP リポジトリを表示"
+  "deviceManagement": {
+    "message": "Device management"
   },
-  "rubySDKRepo": {
-    "message": "Ruby リポジトリを表示"
+  "deviceManagementDesc": {
+    "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
-  "goSDKRepo": {
-    "message": "Go リポジトリを表示"
+  "integrationCardTooltip": {
+    "message": "Launch $INTEGRATION$ implementation guide.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Set up $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "View $SDK$ repository",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "open $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "view $SDK$ repository in a new tab.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "set up $INTEGRATION$ implementation guide in a new tab.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "プロバイダーとして管理するための新しいクライアント組織を作成します。次の請求サイクルに追加のシートが反映されます。"
@@ -9014,6 +9270,12 @@
   "providerPlan": {
     "message": "マネージドサービスプロバイダー"
   },
+  "managedServiceProvider": {
+    "message": "Managed service provider"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "Multi-organization enterprise"
+  },
   "orgSeats": {
     "message": "組織のシート"
   },
@@ -9058,6 +9320,18 @@
   },
   "updatedTaxInformation": {
     "message": "更新された税情報"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Invalid tax ID, if you believe this is an error please contact support."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "An error occurred while previewing the invoice. Please try again later."
   },
   "unverified": {
     "message": "未認証"
@@ -9416,6 +9690,30 @@
   "additionalStorageGbMessage": {
     "message": "GB の追加ストレージ"
   },
+  "sshKeyAlgorithm": {
+    "message": "Key algorithm"
+  },
+  "sshKeyFingerprint": {
+    "message": "Fingerprint"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Private key"
+  },
+  "sshKeyPublicKey": {
+    "message": "Public key"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
   "premiumAccounts": {
     "message": "6個のプレミアムアカウント"
   },
@@ -9549,8 +9847,8 @@
   "selfHostingTitleProper": {
     "message": "Self-Hosting"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Verifying a domain will turn on the single organization policy."
+  "claim-domain-single-org-warning": {
+    "message": "Claiming a domain will turn on the single organization policy."
   },
   "single-org-revoked-user-warning": {
     "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
@@ -9565,9 +9863,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "When a member is deleted, their Bitwarden account and individual vault data will be permanently deleted. Collection data will remain in the organization. To reinstate them they must create an account and be onboarded again.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "これにより、 $NAME$が所有するすべてのアイテムが完全に削除されます。コレクションアイテムに影響はありません。",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "これにより、以下のメンバーが所有するすべてのアイテムが永久に削除されます。コレクション アイテムは影響を受けません。",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "Deleted $NAME$",
@@ -9580,5 +9888,253 @@
   },
   "organizationUserDeletedDesc": {
     "message": "The user was removed from the organization and all associated user data has been deleted."
+  },
+  "deletedUserId": {
+    "message": "Deleted user $ID$ - an owner / admin deleted the user account",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "User $ID$ left organization",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "The $ORGANIZATION$ is suspended",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "Contact your organization owner for assistance."
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "To regain access to your organization, add a payment method."
+  },
+  "deleteMembers": {
+    "message": "Delete members"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "This action is not applicable to any of the selected members."
+  },
+  "deletedSuccessfully": {
+    "message": "Deleted successfully"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "Remove Free Bitwarden Families sponsorship"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "Do not allow members to redeem a Families plan through this organization."
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "We have made a micro-deposit to your bank account (this may take 1-2 business days). Enter the six-digit code starting with 'SM' found on the deposit description. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "descriptorCode": {
+    "message": "Descriptor code"
+  },
+  "importantNotice": {
+    "message": "Important notice"
+  },
+  "setupTwoStepLogin": {
+    "message": "Set up two-step login"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+  },
+  "remindMeLater": {
+    "message": "Remind me later"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "No, I do not"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Yes, I can reliably access my email"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Turn on two-step login"
+  },
+  "changeAcctEmail": {
+    "message": "Change account email"
+  },
+  "removeMembers": {
+    "message": "メンバーを削除"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "deviceListDescription": {
+    "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
+  },
+  "claimedDomains": {
+    "message": "Claimed domains"
+  },
+  "claimDomain": {
+    "message": "Claim domain"
+  },
+  "reclaimDomain": {
+    "message": "Reclaim domain"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Example: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automatic Claimed Domains"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden will attempt to claim the domain 3 times during the first 72 hours. If the domain can’t be claimed, check the DNS record in your host and manually claim. The domain will be removed from your organization in 7 days if it is not claimed."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ not claimed. Check your DNS records.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Claimed"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Under verification"
+  },
+  "claimedDomainsDesc": {
+    "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be claimed."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ not claimed",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan cannot be redeemed. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $40 + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domain claimed"
+  },
+  "organizationNameMaxLength": {
+    "message": "Organization name cannot exceed 50 characters."
+  },
+  "resellerRenewalWarning": {
+    "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarning": {
+    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarning": {
+    "message": "The invoice for your subscription has not been paid. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Organization subscription restarted"
+  },
+  "restartSubscription": {
+    "message": "Restart your subscription"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Contact $PROVIDER$ for assistance.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
   }
 }

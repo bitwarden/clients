@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { NgIf, NgClass } from "@angular/common";
 import { Component, Input, OnChanges } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
@@ -16,6 +19,8 @@ const SizeClasses: Record<SizeTypes, string[]> = {
 @Component({
   selector: "bit-avatar",
   template: `<img *ngIf="src" [src]="src" title="{{ title || text }}" [ngClass]="classList" />`,
+  standalone: true,
+  imports: [NgIf, NgClass],
 })
 export class AvatarComponent implements OnChanges {
   @Input() border = false;
@@ -116,7 +121,7 @@ export class AvatarComponent implements OnChanges {
     textTag.setAttribute("fill", Utils.pickTextColorBasedOnBgColor(color, 135, true));
     textTag.setAttribute(
       "font-family",
-      '"Open Sans","Helvetica Neue",Helvetica,Arial,' +
+      '"DM Sans","Helvetica Neue",Helvetica,Arial,' +
         'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
     );
     // Warning do not use innerHTML here, characters are user provided

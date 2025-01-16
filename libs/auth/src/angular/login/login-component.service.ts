@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 
@@ -22,11 +24,6 @@ export abstract class LoginComponentService {
    * - Used by: Web
    */
   getOrgPolicies: () => Promise<PasswordPolicies | null>;
-
-  /**
-   * Indicates whether login with device (auth request) is supported on the given client
-   */
-  isLoginViaAuthRequestSupported: () => boolean;
 
   /**
    * Indicates whether login with passkey is supported on the given client
