@@ -248,6 +248,7 @@ const routes: Routes = [
       pageSubtitle: {
         key: "weDontRecognizeThisDevice",
       },
+      showBackButton: true,
       elevation: 1,
     } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
   },
