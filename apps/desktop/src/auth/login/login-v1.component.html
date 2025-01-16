@@ -2,7 +2,7 @@
   <form
     id="login-page"
     #form
-    (ngSubmit)="submitLogin()"
+    (ngSubmit)="submit()"
     [appApiAction]="formPromise"
     [formGroup]="formGroup"
     attr.aria-hidden="{{ showingModal }}"

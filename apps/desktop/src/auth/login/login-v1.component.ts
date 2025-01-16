@@ -204,7 +204,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
       return;
     }
 
-    await super.submitLogin();
+    await super.submit();
     if (this.captchaSiteKey) {
       const content = document.getElementById("content") as HTMLDivElement;
       content.setAttribute("style", "width:335px");

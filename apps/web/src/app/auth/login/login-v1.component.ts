@@ -99,7 +99,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   };
 
   private async submitFormHelper(showToast: boolean) {
-    await super.submitLogin(showToast);
+    await super.submit(showToast);
   }
 
   async ngOnInit() {

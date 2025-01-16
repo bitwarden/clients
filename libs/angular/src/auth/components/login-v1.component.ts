@@ -139,7 +139,7 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
     this.destroy$.complete();
   }
 
-  async submitLogin(showToast = true) {
+  async submit(showToast = true) {
     await this.setupCaptcha();
 
     this.formGroup.markAllAsTouched();
