@@ -212,7 +212,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected dialogService: DialogService,
     protected folderService: FolderService,
     protected organizationService: OrganizationService,
-    private accountService: AccountService,
     protected collectionService: CollectionService,
     protected formBuilder: FormBuilder,
     @Inject(ImportCollectionServiceAbstraction)

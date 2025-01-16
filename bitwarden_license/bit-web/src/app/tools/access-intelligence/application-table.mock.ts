@@ -6,6 +6,7 @@ export const applicationTableMockData = [
     totalPasswords: 10,
     atRiskMembers: 2,
     totalMembers: 5,
+    isMarkedAsCritical: false,
   },
   {
     id: 2,
@@ -14,6 +15,7 @@ export const applicationTableMockData = [
     totalPasswords: 8,
     atRiskMembers: 1,
     totalMembers: 3,
+    isMarkedAsCritical: false,
   },
   {
     id: 3,
@@ -22,6 +24,7 @@ export const applicationTableMockData = [
     totalPasswords: 6,
     atRiskMembers: 0,
     totalMembers: 2,
+    isMarkedAsCritical: false,
   },
   {
     id: 4,
@@ -30,6 +33,7 @@ export const applicationTableMockData = [
     totalPasswords: 4,
     atRiskMembers: 0,
     totalMembers: 1,
+    isMarkedAsCritical: false,
   },
   {
     id: 5,
@@ -38,6 +42,7 @@ export const applicationTableMockData = [
     totalPasswords: 2,
     atRiskMembers: 0,
     totalMembers: 0,
+    isMarkedAsCritical: false,
   },
   {
     id: 6,
@@ -46,5 +51,6 @@ export const applicationTableMockData = [
     totalPasswords: 1,
     atRiskMembers: 0,
     totalMembers: 0,
+    isMarkedAsCritical: false,
   },
 ];

@@ -237,15 +237,21 @@ export class AppComponent implements OnDestroy, OnInit {
           }
           case "syncOrganizationCollectionSettingChanged": {
             const { organizationId, limitCollectionCreation, limitCollectionDeletion } = message;
-            const organizations = await firstValueFrom(this.organizationService.organizations$);
+            const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+            const organizations = await firstValueFrom(
+              this.organizationService.organizations$(userId),
+            );
             const organization = organizations.find((org) => org.id === organizationId);
 
             if (organization) {
-              await this.organizationService.upsert({
-                ...organization,
-                limitCollectionCreation: limitCollectionCreation,
-                limitCollectionDeletion: limitCollectionDeletion,
-              });
+              await this.organizationService.upsert(
+                {
+                  ...organization,
+                  limitCollectionCreation: limitCollectionCreation,
+                  limitCollectionDeletion: limitCollectionDeletion,
+                },
+                userId,
+              );
             }
             break;
           }

@@ -41,9 +41,8 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     policyService: PolicyService,
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
-    private accountService: AccountService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
-    accountService: AccountService,
+    protected accountService: AccountService,
   ) {
     super(
       dialogService,

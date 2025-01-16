@@ -250,10 +250,7 @@ export class VaultPopupItemsService {
    */
   deletedCiphers$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([
-        this.organizationService.organizations$,
-        this.collectionService.decryptedCollections$,
-      ]).pipe(
+      combineLatest([this.organizations$, this.collectionService.decryptedCollections$]).pipe(
         map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));

@@ -12,7 +12,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -82,7 +81,7 @@ describe("vault filter service", () => {
       i18nService,
       stateProvider,
       collectionService,
-      accountService as AccountService,
+      accountService,
     );
     collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
   });

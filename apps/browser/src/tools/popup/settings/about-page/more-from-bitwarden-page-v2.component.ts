@@ -41,8 +41,8 @@ export class MoreFromBitwardenPageV2Component {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private environmentService: EnvironmentService,
     private organizationService: OrganizationService,
-    private accountService: AccountService,
     private familiesPolicyService: FamiliesPolicyService,
+    private accountService: AccountService,
   ) {
     this.familySponsorshipAvailable$ = getUserId(this.accountService.activeAccount$).pipe(
       switchMap((userId) => this.organizationService.familySponsorshipAvailable$(userId)),
