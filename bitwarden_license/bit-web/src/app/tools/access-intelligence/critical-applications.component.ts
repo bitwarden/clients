@@ -31,6 +31,7 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
 
 import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
 import { applicationTableMockData } from "./application-table.mock";
+import { OrgAtRiskAppsDialogComponent } from "./org-at-risk-apps-dialog.component";
 import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
 
@@ -125,6 +126,12 @@ export class CriticalApplicationsComponent implements OnInit {
   showOrgAtRiskMembers = async () => {
     this.dialogService.open(OrgAtRiskMembersDialogComponent, {
       data: this.reportService.generateAtRiskMemberList(this.dataSource.data),
+    });
+  };
+
+  showOrgAtRiskApps = async () => {
+    this.dialogService.open(OrgAtRiskAppsDialogComponent, {
+      data: this.reportService.generateAtRiskApplicationList(this.dataSource.data),
     });
   };
 
