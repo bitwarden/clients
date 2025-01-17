@@ -30,7 +30,6 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
-import { applicationTableMockData } from "./application-table.mock";
 import { OrgAtRiskAppsDialogComponent } from "./org-at-risk-apps-dialog.component";
 import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
@@ -50,24 +49,9 @@ export class CriticalApplicationsComponent implements OnInit {
   protected organizationId: string;
   protected applicationSummary = {} as ApplicationHealthReportSummary;
   noItemsIcon = Icons.Security;
-  // MOCK DATA
-  protected mockData = applicationTableMockData;
-  protected mockAtRiskMembersCount = 0;
-  protected mockAtRiskAppsCount = 0;
-  protected mockTotalMembersCount = 0;
-  protected mockTotalAppsCount = 0;
 
-  async ngOnInit() {
-    this.activatedRoute.paramMap
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        map(async (params) => {
-          this.organizationId = params.get("organizationId");
-          // TODO: use organizationId to fetch data
-        }),
-      )
-      .subscribe();
-
+  ngOnInit() {
+    this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
     combineLatest([
       this.dataService.applications$,
       this.criticalAppsService.getAppsListForOrg(this.organizationId),
@@ -82,14 +66,13 @@ export class CriticalApplicationsComponent implements OnInit {
           })) as ApplicationHealthReportDetailWithCriticalFlag[];
           return data?.filter((app) => app.isMarkedAsCritical);
         }),
-        map((applications: ApplicationHealthReportDetailWithCriticalFlag[]) => {
-          this.dataSource.data = applications ?? [];
-          this.applicationSummary = this.reportService.generateApplicationsSummary(
-            applications ?? [],
-          );
-        }),
       )
-      .subscribe();
+      .subscribe((applications) => {
+        if (applications) {
+          this.dataSource.data = applications;
+          this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
+        }
+      });
   }
 
   goToAllAppsTab = async () => {
