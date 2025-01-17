@@ -187,7 +187,7 @@ export default tseslint.config(
   {
     files: ["apps/browser/src/**/*.ts", "libs/**/*.ts"],
     ignores: [
-      "apps/browser/src/autofill/{content,notification}/**/*.ts",
+      "apps/browser/src/autofill/{deprecated/content,content,notification}/**/*.ts",
       "apps/browser/src/**/background/**/*.ts", // It's okay to have long lived listeners in the background
       "apps/browser/src/platform/background.ts",
     ],
@@ -215,17 +215,7 @@ export default tseslint.config(
     files: ["**/src/**/*.ts"],
     ignores: ["**/platform/**/*.ts"],
     rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            "**/platform/**/internal", // General internal pattern
-            // All features that have been converted to barrel files
-            "**/platform/messaging/**",
-            "**/src/**/*", // Prevent relative imports across libs.
-          ],
-        },
-      ],
+      "no-restricted-imports": buildNoRestrictedImports(),
     },
   },
 
@@ -252,44 +242,30 @@ export default tseslint.config(
   {
     files: ["apps/web/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            "**/app/core/*",
-            "**/reports/*",
-            "**/app/shared/*",
-            "**/organizations/settings/*",
-            "**/organizations/policies/*",
-            "@bitwarden/web-vault/*",
-            "src/**/*",
-            "bitwarden_license",
-          ],
-        },
-      ],
+      "no-restricted-imports": buildNoRestrictedImports([
+        "**/app/core/*",
+        "**/reports/*",
+        "**/app/shared/*",
+        "**/organizations/settings/*",
+        "**/organizations/policies/*",
+      ]),
     },
   },
   {
     files: ["bitwarden_license/bit-common/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": ["error", { patterns: ["@bitwarden/bit-common/*", "**/src/**/*"] }],
+      "no-restricted-imports": buildNoRestrictedImports(["@bitwarden/bit-common/*"]),
     },
   },
   {
     files: ["apps/**/*.ts"],
     rules: {
       // Catches static imports
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            "bitwarden_license/**",
-            "@bitwarden/bit-common/*",
-            "@bitwarden/bit-web/*",
-            "**/src/**/*",
-          ],
-        },
-      ],
+      "no-restricted-imports": buildNoRestrictedImports([
+        "bitwarden_license/**",
+        "@bitwarden/bit-common/*",
+        "@bitwarden/bit-web/*",
+      ]),
     },
   },
 
@@ -374,3 +350,22 @@ export default tseslint.config(
     ],
   },
 );
+
+/**
+ * // Helper function for building no-restricted-imports rule
+ * @param {string[]} additionalForbiddenPatterns
+ * @returns {any}
+ */
+function buildNoRestrictedImports(additionalForbiddenPatterns = []) {
+  return [
+    "error",
+    {
+      patterns: [
+        "**/platform/**/internal", // General internal pattern
+        // All features that have been converted to barrel files
+        "**/platform/messaging/**",
+        "**/src/**/*", // Prevent relative imports across libs.
+      ].concat(additionalForbiddenPatterns),
+    },
+  ];
+}
