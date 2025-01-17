@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "웹사이트 $number$ (URI)",
@@ -4008,7 +4008,10 @@
     "message": "패스키 제거됨"
   },
   "autofillSuggestions": {
-    "message": "자동 완성 제안"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "이 사이트에서 자동으로 작성할 로그인 항목 저장"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "텍스트 Send"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden이 새로운 모습으로 돌아왔습니다!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "보관함 탭에서 자동 완성하고 검색하는 것이 그 어느 때보다 쉽고 직관적입니다. 둘러보세요!"
   },
   "accountActions": {
     "message": "계정 작업"

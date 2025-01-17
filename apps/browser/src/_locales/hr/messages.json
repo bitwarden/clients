@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "Web stranica $number$ (URI)",
@@ -4008,7 +4008,10 @@
     "message": "Pristupni ključ uklonjen"
   },
   "autofillSuggestions": {
-    "message": "Prijedlozi auto-ispune"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "Spremi u auto-ispunu stavku prijave za ovu stranicu"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Send tekstovi"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden ima novi izgled!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Auto-ispuna i pretraga iz kartice Trezor je lakša i intuitivnija nego ikad prije. Razgledaj!"
   },
   "accountActions": {
     "message": "Radnje na računu"

@@ -45,7 +45,7 @@ class ExtensionContainerComponent {}
     <bit-section>
       <bit-item-group aria-label="Mock Vault Items">
         <bit-item *ngFor="let item of data; index as i">
-          <button bit-item-content>
+          <button type="button" bit-item-content>
             <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
             {{ i }} of {{ data.length - 1 }}
             <span slot="secondary">Bar</span>
@@ -277,8 +277,8 @@ class MockSettingsPageComponent {}
       </popup-header>
       <vault-placeholder></vault-placeholder>
       <popup-footer slot="footer">
-        <button bitButton buttonType="primary">Save</button>
-        <button bitButton buttonType="secondary">Cancel</button>
+        <button type="button" bitButton buttonType="primary">Save</button>
+        <button type="button" bitButton buttonType="secondary">Cancel</button>
         <button slot="end" type="button" buttonType="danger" bitIconButton="bwi-trash"></button>
       </popup-footer>
     </popup-page>
