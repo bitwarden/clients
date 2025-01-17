@@ -1,8 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, HostBinding, input } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { IconButtonModule } from "../icon-button";
-import { I18nPipe } from "../shared/i18n.pipe";
 import { TypographyModule } from "../typography";
 
 import { DrawerCloseDirective } from "./drawer-close.directive";
