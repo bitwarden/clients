@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Automatické vyplňování a další související funkce nebudou pro tyto webové stránky nabízeny. Aby se změny projevily, musíte stránku aktualizovat."
   },
-  "autofillBlockedNotice": {
-    "message": "Automatické vyplňování je pro tento web zablokováno. Zkontrolujte to nebo to změňte v nastavení."
+  "autofillBlockedNoticeV2": {
+    "message": "Automatické vyplňování je pro tuto stránku zablokováno."
   },
-  "autofillBlockedTooltip": {
-    "message": "Automatické vyplňování je pro tento web zablokováno. Zkontrolujte to v nastavení."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Změňte to v nastavení"
   },
   "websiteItemLabel": {
     "message": "Webová stránka $number$ (URI)",
@@ -4010,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "Návrhy automatického vyplňování"
   },
+  "itemSuggestions": {
+    "message": "Navrhované položky"
+  },
   "autofillSuggestionsTip": {
     "message": "Uložit přihlašovací údaje pro tuto stránku do automatického vyplňování"
   },
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Sends s texty"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden má nový vzhled!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Je snazší a intuitivnější než kdy jindy automaticky vyplňovat a vyhledávat z karty trezor. Mrkněte se!"
   },
   "accountActions": {
     "message": "Činnosti účtu"

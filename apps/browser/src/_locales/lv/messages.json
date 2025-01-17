@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Automātiskā aizpilde un citas saistītās iespējas šajās tīmekļvietnēs netiks piedāvātas. Ir jāatsvaidzina lapa, lai izmaiņas iedarbotos."
   },
-  "autofillBlockedNotice": {
-    "message": "Automātiskā aizpilde šajā tīmekļvietnē ir liegta. Šo pārskatīt vai mainīt var iestatījumos."
+  "autofillBlockedNoticeV2": {
+    "message": "Automātiskā aizpilde šajā tīmekļvietnē ir liegta."
   },
-  "autofillBlockedTooltip": {
-    "message": "Automātiskā aizpilde šajā tīmekļvietnē ir liegta. Šo var pārskatīt iestatījumos."
+  "autofillBlockedNoticeGuidance": {
+    "message": "To var mainīt iestatījumos"
   },
   "websiteItemLabel": {
     "message": "Tīmekļvietne $number$ (URI)",
@@ -4008,7 +4008,10 @@
     "message": "Piekļuves atslēga noņemta"
   },
   "autofillSuggestions": {
-    "message": "Ieteikumi automātiskajai aizpildei"
+    "message": "Automātiskās aizpildes ieteikumi"
+  },
+  "itemSuggestions": {
+    "message": "Ieteiktie vienumi"
   },
   "autofillSuggestionsTip": {
     "message": "Saglabāt pieteikšanās vienumi, ko automātiski aizpildīt šajā vietnē"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Teksta Send"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden ir jauns izskats."
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Veikt automātisko aizpildi un meklēšanu glabātavas cilnē ir vienkāršāk un izprotamāk kā jebkad. Apskati izmaiņas!"
   },
   "accountActions": {
     "message": "Konta darbības"

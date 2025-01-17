@@ -7,22 +7,26 @@ on:
       publish_type:
         description: 'Publish Options'
         required: true
-        default: 'Initial Publish'
+        default: 'Publish'
         type: choice
         options:
-          - Initial Publish
-          - Republish
+          - Publish
           - Dry Run
       version:
         description: 'Version to publish (default: latest desktop release)'
         required: true
         type: string
         default: latest
-      rollout_percentage:
-        description: 'Staged Rollout Percentage'
+      electron_rollout_percentage:
+        description: 'Staged Rollout Percentage for Electron'
         required: true
         default: '10'
         type: string
+      electron_publish:
+        description: 'Publish Electron blob to AWS'
+        required: true
+        default: true
+        type: boolean
       snap_publish:
         description: 'Publish to Snap store'
         required: true
@@ -107,6 +111,7 @@ jobs:
     name: Electron blob publish
     runs-on: ubuntu-22.04
     needs: setup
+    if: inputs.electron_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
@@ -137,7 +142,7 @@ jobs:
       - name: Set staged rollout percentage
         env:
           RELEASE_CHANNEL: ${{ needs.setup.outputs.release_channel }}
-          ROLLOUT_PCT: ${{ inputs.rollout_percentage }}
+          ROLLOUT_PCT: ${{ inputs.electron_rollout_percentage }}
         run: |
           echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}.yml
           echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}-linux.yml

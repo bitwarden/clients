@@ -91,7 +91,7 @@ describe("DefaultvNextCollectionService", () => {
 
       // Assert emitted values
       expect(result.length).toBe(2);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: collection1.id,
           name: "DEC_NAME_" + collection1.id,
@@ -167,7 +167,7 @@ describe("DefaultvNextCollectionService", () => {
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
 
       expect(result.length).toBe(2);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: collection1.id,
           name: makeEncString("ENC_NAME_" + collection1.id),
@@ -205,7 +205,7 @@ describe("DefaultvNextCollectionService", () => {
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toBe(3);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: collection1.id,
           name: makeEncString("UPDATED_ENC_NAME_" + collection1.id),
@@ -230,7 +230,7 @@ describe("DefaultvNextCollectionService", () => {
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toBe(1);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: collection1.id,
           name: makeEncString("ENC_NAME_" + collection1.id),
@@ -253,7 +253,7 @@ describe("DefaultvNextCollectionService", () => {
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toBe(1);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         {
           id: newCollection3.id,
           name: makeEncString("ENC_NAME_" + newCollection3.id),

@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "Skift kontoe-mailadresse"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Organisationsopgradering krævet"
+  },
+  "upgradeOrganization": {
+    "message": "Opgradér organisation"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Denne funktion er utilgængelig for gratis organisationer. Skift til en betalingsabonnementstype for at oplåse flere funktioner."
   }
 }

@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "E-mailadres van het account veranderen"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Organisatie-upgrade vereist"
+  },
+  "upgradeOrganization": {
+    "message": "Organisatie upgraden"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Deze mogelijkheid is niet beschikbaar voor gratis organisaties. Schakel over naar een betaald abonnement om meer mogelijkheden te ontgrendelen."
   }
 }
