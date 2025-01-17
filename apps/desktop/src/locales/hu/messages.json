@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "Fiók email cím megváltoztatása"
+  },
+  "organizationUpgradeRequired": {
+    "message": "A szervezet felminősítése szükséges."
+  },
+  "upgradeOrganization": {
+    "message": "Szervezeti áttérés"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Ez a szolgáltatás nem elérhető ingyenes szervezeteknek. Váltás fizetős díjcsomagra a további funkciók feloldásához."
   }
 }
