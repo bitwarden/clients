@@ -48,6 +48,9 @@ export class BiometricMessageHandlerService {
     private ngZone: NgZone,
   ) {}
 
+  private publicKeysForAppId: Map<string, Uint8Array> = new Map();
+  private trustedAppIds: Set<string> = new Set();
+
   async handleMessage(msg: LegacyMessageWrapper) {
     const { appId, message: rawMessage } = msg as LegacyMessageWrapper;
 
@@ -69,32 +72,18 @@ export class BiometricMessageHandlerService {
         return;
       }
 
-      if (await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)) {
-        this.logService.info("[Native Messaging IPC] Requesting fingerprint verification.");
-        ipc.platform.nativeMessaging.sendMessage({
-          command: "verifyFingerprint",
-          appId: appId,
-        });
-
-        const fingerprint = await this.keyService.getFingerprint(
-          rawMessage.userId,
-          remotePublicKey,
+      this.logService.info(
+        "[Native Messaging IPC] Received setupEncryption message, has :" + appId,
+        this.publicKeysForAppId.has(appId),
+      );
+      if (this.publicKeysForAppId.has(appId)) {
+        this.logService.info(
+          "[Native Messaging IPC] Public key for app id changed. Invalidating trust",
         );
-
-        this.messagingService.send("setFocus");
-
-        const dialogRef = this.ngZone.run(() =>
-          BrowserSyncVerificationDialogComponent.open(this.dialogService, { fingerprint }),
-        );
-
-        const browserSyncVerified = await firstValueFrom(dialogRef.closed);
-
-        if (browserSyncVerified !== true) {
-          this.logService.info("[Native Messaging IPC] Fingerprint verification failed.");
-          return;
-        }
+        this.trustedAppIds.delete(appId);
       }
 
+      this.publicKeysForAppId.set(appId, remotePublicKey);
       await this.secureCommunication(remotePublicKey, appId);
       return;
     }
@@ -320,6 +309,18 @@ export class BiometricMessageHandlerService {
     appId: string,
   ) {
     const messageUserId = message.userId as UserId;
+    if (!(await this.validateFingerprint(appId))) {
+      await this.send(
+        {
+          command: BiometricsCommands.UnlockWithBiometricsForUser,
+          messageId,
+          response: false,
+        },
+        appId,
+      );
+      return;
+    }
+
     try {
       const userKey = await this.biometricsService.unlockWithBiometricsForUser(messageUserId);
       if (userKey != null) {
@@ -368,5 +369,50 @@ export class BiometricMessageHandlerService {
         ipc.platform.reloadProcess();
       }
     }
+  }
+
+  async validateFingerprint(appId: string) {
+    if (this.trustedAppIds.has(appId)) {
+      return true;
+    }
+
+    if (await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)) {
+      this.logService.info("[Native Messaging IPC] Requesting fingerprint verification.");
+      ipc.platform.nativeMessaging.sendMessage({
+        command: "verifyFingerprint",
+        appId: appId,
+      });
+
+      const fingerprint = await this.keyService.getFingerprint(
+        appId,
+        this.publicKeysForAppId.get(appId),
+      );
+
+      this.messagingService.send("setFocus");
+
+      const dialogRef = this.ngZone.run(() =>
+        BrowserSyncVerificationDialogComponent.open(this.dialogService, { fingerprint }),
+      );
+
+      const browserSyncVerified = await firstValueFrom(dialogRef.closed);
+      if (browserSyncVerified !== true) {
+        this.logService.info("[Native Messaging IPC] Fingerprint verification failed.");
+        ipc.platform.nativeMessaging.sendMessage({
+          command: "rejectedFingerprint",
+          appId: appId,
+        });
+        return false;
+      } else {
+        this.logService.info("[Native Messaging IPC] Fingerprint verified.");
+        ipc.platform.nativeMessaging.sendMessage({
+          command: "verifiedFingerprint",
+          appId: appId,
+        });
+      }
+
+      this.trustedAppIds.add(appId);
+    }
+
+    return true;
   }
 }
