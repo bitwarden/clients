@@ -196,19 +196,24 @@ export class NativeMessagingBackground {
             }
             return;
           case "verifyFingerprint": {
+            this.logService.info("[Native Messaging IPC] Legacy app is requesting fingerprint");
+            this.messagingService.send("showUpdateDesktopAppOrDisableFingerprintDialog", {});
+            break;
+          }
+          case "verifyDesktopIPCFingerprint": {
             this.logService.info(
               "[Native Messaging IPC] Desktop app requested trust verification by fingerprint.",
             );
             await this.showFingerprintDialog();
             break;
           }
-          case "verifiedFingerprint": {
+          case "verifiedDesktopIPCFingerprint": {
             await this.biometricStateService.setFingerprintValidated(true);
-            this.messagingService.send("hideNativeMessagingFinterprintDialog", {});
+            this.messagingService.send("hideNativeMessagingFingerprintDialog", {});
             break;
           }
-          case "rejectedFingerprint": {
-            this.messagingService.send("hideNativeMessagingFinterprintDialog", {});
+          case "rejectedDesktopIPCFingerprint": {
+            this.messagingService.send("hideNativeMessagingFingerprintDialog", {});
             break;
           }
           case "wrongUserId":
@@ -430,7 +435,7 @@ export class NativeMessagingBackground {
   private async showFingerprintDialog() {
     const fingerprint = await this.keyService.getFingerprint(this.appId, this.publicKey);
 
-    this.messagingService.send("showNativeMessagingFinterprintDialog", {
+    this.messagingService.send("showNativeMessagingFingerprintDialog", {
       fingerprint: fingerprint,
     });
   }

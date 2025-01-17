@@ -32,7 +32,7 @@ export class DesktopSyncVerificationDialogComponent implements OnDestroy, OnInit
   ngOnInit(): void {
     this.messageListener.allMessages$
       .pipe(
-        filter((m) => m.command === "hideNativeMessagingFinterprintDialog"),
+        filter((m) => m.command === "hideNativeMessagingFingerprintDialog"),
         takeUntil(this.destroy$),
       )
       .subscribe(() => {

@@ -398,14 +398,14 @@ export class BiometricMessageHandlerService {
       if (browserSyncVerified !== true) {
         this.logService.info("[Native Messaging IPC] Fingerprint verification failed.");
         ipc.platform.nativeMessaging.sendMessage({
-          command: "rejectedFingerprint",
+          command: "rejectedDesktopIPCFingerprint",
           appId: appId,
         });
         return false;
       } else {
         this.logService.info("[Native Messaging IPC] Fingerprint verified.");
         ipc.platform.nativeMessaging.sendMessage({
-          command: "verifiedFingerprint",
+          command: "verifiedDesktopIPCFingerprint",
           appId: appId,
         });
       }
