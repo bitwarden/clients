@@ -113,6 +113,7 @@ export class PaymentV2Component implements OnInit, OnDestroy {
       const clientSecret = await this.billingApiService.createSetupIntent(type);
 
       if (this.usingBankAccount) {
+        this.formGroup.markAllAsTouched();
         if (this.formGroup.valid) {
           const token = await this.stripeService.setupBankAccountPaymentMethod(clientSecret, {
             accountHolderName: this.formGroup.value.bankInformation.accountHolderName,
@@ -146,7 +147,11 @@ export class PaymentV2Component implements OnInit, OnDestroy {
       };
     }
 
-    throw new Error("Payment method not recognized or insufficient information provided.");
+    if (this.usingAccountCredit) {
+      throw "Invalid payment method";
+    }
+
+    return null;
   }
 
   ngOnDestroy(): void {
