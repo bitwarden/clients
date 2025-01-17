@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "Сајт $number$ (УРЛ)",
@@ -4008,7 +4008,10 @@
     "message": "Приступни кључ је уклоњен"
   },
   "autofillSuggestions": {
-    "message": "Предлози за ауто-попуњавање"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "Сачувајте ставку за пријаву за ову локацију за ауто-попуњавање"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Текст „Send“"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden има нови изглед!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Лакше је и интуитивније него икада да се аутоматски попуњава и тражи са картице Сефа. Проверите!"
   },
   "accountActions": {
     "message": "Акције везане за налог"

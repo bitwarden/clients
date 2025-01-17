@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -4010,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "Autofill suggestions"
   },
+  "itemSuggestions": {
+    "message": "Suggested items"
+  },
   "autofillSuggestionsTip": {
     "message": "Save a login item for this site to autofill"
   },
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Text Sends"
-  },
-  "bitwardenNewLook": {
-    "message": "बिटवार्डन का नया रूप!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "वॉल्ट टैब से ऑटोफिल और सर्च करना पहले से कहीं ज़्यादा आसान और सहज है। सबकुछ ध्यान से देखें!"
   },
   "accountActions": {
     "message": "Account actions"
