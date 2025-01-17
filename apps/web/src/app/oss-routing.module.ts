@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
+import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -46,7 +47,6 @@ import {
   VaultIcons,
 } from "@bitwarden/vault";
 
-import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { flagEnabled, Flags } from "../utils/flags";
 
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
