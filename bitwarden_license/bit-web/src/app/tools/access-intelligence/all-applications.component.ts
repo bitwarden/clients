@@ -95,7 +95,7 @@ export class AllApplicationsComponent implements OnInit {
         }),
       )
       .subscribe(({ data, organization }) => {
-        if (data){
+        if (data) {
           this.dataSource.data = data;
           this.applicationSummary = this.reportService.generateApplicationsSummary(data);
         }
