@@ -176,6 +176,95 @@ export default tseslint.config(
       "tailwindcss/no-contradicting-classname": "error",
     },
   },
+
+  // App overrides. Be considerate if you override these.
+  {
+    files: ["apps/browser/src/**/*.ts"],
+    ignores: [
+      "apps/browser/src/**/{content,popup,spec}/**/*.ts",
+      "apps/browser/src/**/autofill/{notification,overlay}/**/*.ts",
+      "apps/browser/src/**/autofill/**/{autofill-overlay-content,collect-autofill-content,dom-element-visibility,insert-autofill-content}.service.ts",
+      "apps/browser/src/**/*.spec.ts",
+    ],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        {
+          name: "window",
+          message:
+            "The `window` object is not available in service workers and may not be available within the background script. Consider using `self`, `globalThis`, or another global property instead.",
+        },
+      ],
+    },
+  },
+  {
+    files: ["apps/web/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            "**/app/core/*",
+            "**/reports/*",
+            "**/app/shared/*",
+            "**/organizations/settings/*",
+            "**/organizations/policies/*",
+            "@bitwarden/web-vault/*",
+            "src/**/*",
+            "bitwarden_license",
+          ],
+        },
+      ],
+    },
+  },
+
+  /// Team overrides
+  {
+    files: [
+      "apps/cli/src/admin-console/**/*.ts",
+      "apps/web/src/app/admin-console/**/*.ts",
+      "bitwarden_license/bit-cli/src/admin-console/**/*.ts",
+      "bitwarden_license/bit-web/src/app/admin-console/**/*.ts",
+      "libs/admin-console/src/**/*.ts",
+    ],
+    rules: {
+      "@angular-eslint/component-class-suffix": "error",
+      "@angular-eslint/contextual-lifecycle": "error",
+      "@angular-eslint/directive-class-suffix": "error",
+      "@angular-eslint/no-empty-lifecycle-method": "error",
+      "@angular-eslint/no-input-rename": "error",
+      "@angular-eslint/no-inputs-metadata-property": "error",
+      "@angular-eslint/no-output-native": "error",
+      "@angular-eslint/no-output-on-prefix": "error",
+      "@angular-eslint/no-output-rename": "error",
+      "@angular-eslint/no-outputs-metadata-property": "error",
+      "@angular-eslint/use-lifecycle-interface": "error",
+      "@angular-eslint/use-pipe-transform-interface": "error",
+    },
+  },
+  {
+    files: ["libs/common/src/state-migrations/**/*.ts"],
+    rules: {
+      "import/no-restricted-paths": [
+        "error",
+        {
+          basePath: "libs/common/src/state-migrations",
+          zones: [
+            {
+              target: "./",
+              from: "../",
+              // Relative to from, not basePath
+              except: ["state-migrations"],
+              message:
+                "State migrations should rarely import from the greater codebase. If you need to import from another location, take into account the likelihood of change in that code and consider copying to the migration instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  // Keep ignores at the end
   {
     ignores: [
       "**/build/",
