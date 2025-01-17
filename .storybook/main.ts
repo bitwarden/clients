@@ -1,7 +1,8 @@
 import { dirname, join } from "path";
+
 import { StorybookConfig } from "@storybook/angular";
-import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import remarkGfm from "remark-gfm";
+import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 
 const config: StorybookConfig = {
   stories: [
