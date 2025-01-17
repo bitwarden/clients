@@ -4,8 +4,8 @@ import { CommonModule, CurrencyPipe, Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
+import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/billing/components/premium.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/vault/components/premium.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";

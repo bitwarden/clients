@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 
-import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/vault/components/premium.component";
+import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/billing/components/premium.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
