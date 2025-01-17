@@ -2325,7 +2325,7 @@
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "Blocked domains"
+    "message": "Dominios bloqueados"
   },
   "excludedDomains": {
     "message": "Dominios excluídos"
@@ -2337,13 +2337,13 @@
     "message": "Bitwarden non ofrecerá gardar contas para estes dominios en ningunha das sesións iniciadas. Recarga a páxina para que os cambios fornezan efecto."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "O autoenchido e outras funcións relacionadas non estarán dispoñibles para estas webs. Debes recargar a páxina para que os cambios teñan efecto."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "O autoenchido está bloqueado para esta web."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Cambia isto en axustes"
   },
   "websiteItemLabel": {
     "message": "Web $number$ (URI)",
@@ -2364,7 +2364,7 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "Blocked domain changes saved"
+    "message": "Dominios bloqueados gardados"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Dominios excluídos gardados"
@@ -2805,17 +2805,17 @@
     "message": "Erro"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Erro de descifrado"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden non puido descifrar os seguintes elementos."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Contacto co cliente exitoso",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "para evitar a perda de datos.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
@@ -4008,7 +4008,10 @@
     "message": "Clave de acceso eliminada"
   },
   "autofillSuggestions": {
-    "message": "Suxestións de autoenchido"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Entradas suxeridas"
   },
   "autofillSuggestionsTip": {
     "message": "Gardar unha credencial como suxestión para este sitio"
@@ -4586,12 +4589,6 @@
   "textSends": {
     "message": "Textos Send"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden ten un novo look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "É máis fácil e intuitivo que nunca autoencher e buscar dende a caixa forte. Bota un ollo!"
-  },
   "accountActions": {
     "message": "Accións da conta"
   },
@@ -4671,22 +4668,22 @@
     "message": "Non tes permiso para modificar esta entrada"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "O desbloqueo biométrico non está dispoñible porque se require o PIN ou contrasinal primeiro."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "O desbloqueo biométrico non está dispoñible."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "O desbloqueo biométrico non está dispoñible por arquivos do sistema desconfigurados."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "O desbloqueo biométrico non está dispoñible por arquivos do sistema desconfigurados."
   },
   "biometricsStatusHelptextDesktopDisconnected": {
-    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+    "message": "O desbloqueo biométrico non está dispoñible porque a aplicación de escritorio está pechada."
   },
   "biometricsStatusHelptextNotEnabledInDesktop": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "O desbloqueo biométrico non está dispoñible porque non está activada para $EMAIL$ na aplicación de escritorio.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4695,7 +4692,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "O desbloqueo biométrico non está dispoñible por algunha razón non prevista."
   },
   "authenticating": {
     "message": "Autenticando"

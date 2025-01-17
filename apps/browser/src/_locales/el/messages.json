@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Η αυτόματη συμπλήρωση και άλλες σχετικές λειτουργίες δεν θα προσφερθούν για αυτούς τους ιστότοπους. Πρέπει να ανανεώσετε τη σελίδα για να τεθούν σε ισχύ οι αλλαγές."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "Ιστοσελίδα $number$ (URI)",
@@ -4008,7 +4008,10 @@
     "message": "Το κλειδί πρόσβασης αφαιρέθηκε"
   },
   "autofillSuggestions": {
-    "message": "Προτάσεις αυτόματης συμπλήρωσης"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "Αποθηκεύστε ένα αντικείμενο σύνδεσης για την αυτόματη συμπλήρωση αυτού του ιστοτόπου"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Send κειμένων"
-  },
-  "bitwardenNewLook": {
-    "message": "Το Bitwarden έχει μια νέα εμφάνιση!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Είναι πιο ευκολότερο και πιο διαισθητικό από ποτέ στην αυτόματη συμπλήρωση και αναζήτηση από την καρτέλα Θησαυ/κιο. Ρίξτε μια ματιά τριγύρω!"
   },
   "accountActions": {
     "message": "Ενέργειες λογαριασμού"

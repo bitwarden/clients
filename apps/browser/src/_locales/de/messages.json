@@ -2337,13 +2337,13 @@
     "message": "Bitwarden wird für alle angemeldeten Konten nicht danach fragen Zugangsdaten für diese Domains speichern. Du musst die Seite neu laden, damit die Änderungen wirksam werden."
   },
   "blockedDomainsDesc": {
-    "message": "Automatisches Ausfüllen und andere zugehörige Funktionen werden für diese Webseiten nicht angeboten. Sie müssen die Seite aktualisieren, damit die Änderungen wirksam werden."
+    "message": "Automatisches Ausfüllen und andere zugehörige Funktionen werden für diese Webseiten nicht angeboten. Du musst die Seite neu laden, damit die Änderungen wirksam werden."
   },
-  "autofillBlockedNotice": {
-    "message": "Das automatische Ausfüllen ist für diese Website gesperrt. Dieses Verhalten kann in den Einstellungen überprüft oder geändert werden."
+  "autofillBlockedNoticeV2": {
+    "message": "Automatisches Ausfüllen ist für diese Website gesperrt."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Dies in den Einstellungen ändern"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2808,14 +2808,14 @@
     "message": "Entschlüsselungsfehler"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden konnte den unten aufgelisteten Tresoreintrag bzw. die Tresoreinträge nicht entschlüsseln."
+    "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Kontaktiere den Kundensupport",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "um zusätzlichen Datenverlust zu vermeiden.",
+    "message": ", um zusätzlichen Datenverlust zu vermeiden.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
@@ -4010,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "Vorschläge zum Auto-Ausfüllen"
   },
+  "itemSuggestions": {
+    "message": "Vorgeschlagene Einträge"
+  },
   "autofillSuggestionsTip": {
     "message": "Speichere einen Login-Eintrag für diese Seite zum automatischen Ausfüllen"
   },
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Text-Sends"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden hat einen neuen Look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Auto-Ausfüllen und Suchen vom Tresor-Tab ist einfacher und intuitiver als je zuvor. Schau dich um!"
   },
   "accountActions": {
     "message": "Konto-Aktionen"
