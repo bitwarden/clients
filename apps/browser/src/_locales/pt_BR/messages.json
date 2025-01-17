@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "Site $number$ (URI)",
@@ -4008,7 +4008,10 @@
     "message": "Chave de acesso removida"
   },
   "autofillSuggestions": {
-    "message": "Sugestões de autopreenchimento"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "Salvar um item de login para este site autopreenchimento"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Texto enviado"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden tem uma nova aparência!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "É mais fácil e mais intuitivo do que nunca autopreenchimento e pesquise na guia Cofre. Dê uma olhada ao redor!"
   },
   "accountActions": {
     "message": "Ações da conta"
