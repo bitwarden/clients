@@ -9,8 +9,10 @@ import eslintConfigPrettier from "eslint-config-prettier";
 import eslintPluginTailwindCSS from "eslint-plugin-tailwindcss";
 import rxjs from "eslint-plugin-rxjs";
 import angularRxjs from "eslint-plugin-rxjs-angular";
+import storybook from "eslint-plugin-storybook";
 
 export default tseslint.config(
+  ...storybook.configs["flat/recommended"],
   {
     // Everything in this config object targets our TypeScript files (Components, Directives, Pipes etc)
     files: ["**/*.ts", "**/*.js"],
@@ -47,6 +49,8 @@ export default tseslint.config(
     processor: angular.processInlineTemplates,
     rules: {
       ...rxjs.configs.recommended.rules,
+      "rxjs-angular/prefer-takeuntil": ["error", { alias: ["takeUntilDestroyed"] }],
+      "rxjs/no-exposed-subjects": ["error", { allowProtected: true }],
 
       // TODO: Enable these.
       "@angular-eslint/component-class-suffix": 0,
