@@ -46,6 +46,8 @@ export default tseslint.config(
     },
     processor: angular.processInlineTemplates,
     rules: {
+      ...rxjs.configs.recommended.rules,
+
       // TODO: Enable these.
       "@angular-eslint/component-class-suffix": 0,
       "@angular-eslint/contextual-lifecycle": 0,
