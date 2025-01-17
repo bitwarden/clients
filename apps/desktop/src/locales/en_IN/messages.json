@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "Change account email"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Organisation upgrade required"
+  },
+  "upgradeOrganization": {
+    "message": "Upgrade organisation"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "This feature is not available for free organisations. Switch to a paid plan to unlock more features."
   }
 }

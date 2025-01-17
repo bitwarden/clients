@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "自動填入及其它相關的功能無法在這些網站上使用。您必須重新整理頁面來使變更生效。"
   },
-  "autofillBlockedNotice": {
-    "message": "自動填入已在此網站被封鎖。請在設定中檢視或更改此限制。"
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "自動填入已在此網站被封鎖。請在設定中檢視。"
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "網站 $number$ (URI)",
@@ -4008,7 +4008,10 @@
     "message": "密碼金鑰已移除"
   },
   "autofillSuggestions": {
-    "message": "自動填入建議"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "對此網站儲存登入項目為自動填入"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "文字 Sends"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden 有了新外觀！"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "更容易使用的自動填入及密碼庫搜尋體驗。試試看吧！"
   },
   "accountActions": {
     "message": "帳號動作"

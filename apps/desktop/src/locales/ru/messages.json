@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "Изменить email аккаунта"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Требуется обновление организации"
+  },
+  "upgradeOrganization": {
+    "message": "Обновить организацию"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Эта функция недоступна для бесплатных организаций. Переключитесь на платный план, чтобы разблокировать дополнительные возможности."
   }
 }
