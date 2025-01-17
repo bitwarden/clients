@@ -177,6 +177,52 @@ export default tseslint.config(
     },
   },
 
+  // Global quirks
+  {
+    files: ["apps/browser/src/**/*.ts", "libs/**/*.ts"],
+    ignores: [
+      "apps/browser/src/autofill/{content,notification}/**/*.ts",
+      "apps/browser/src/**/background/**/*.ts", // It's okay to have long lived listeners in the background
+      "apps/browser/src/platform/background.ts",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          message:
+            "Using addListener in the browser popup produces a memory leak in Safari, use `BrowserApi.addListener` instead",
+          // This selector covers events like chrome.storage.onChange & chrome.runtime.onMessage
+          selector:
+            "CallExpression > [object.object.object.name='chrome'][property.name='addListener']",
+        },
+        {
+          message:
+            "Using addListener in the browser popup produces a memory leak in Safari, use `BrowserApi.addListener` instead",
+          // This selector covers events like chrome.storage.local.onChange
+          selector:
+            "CallExpression > [object.object.object.object.name='chrome'][property.name='addListener']",
+        },
+      ],
+    },
+  },
+  {
+    files: ["**/src/**/*.ts"],
+    ignores: ["**/platform/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            "**/platform/**/internal", // General internal pattern
+            // All features that have been converted to barrel files
+            "**/platform/messaging/**",
+            "**/src/**/*", // Prevent relative imports across libs.
+          ],
+        },
+      ],
+    },
+  },
+
   // App overrides. Be considerate if you override these.
   {
     files: ["apps/browser/src/**/*.ts"],
@@ -212,6 +258,29 @@ export default tseslint.config(
             "@bitwarden/web-vault/*",
             "src/**/*",
             "bitwarden_license",
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["bitwarden_license/bit-common/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: ["@bitwarden/bit-common/*", "**/src/**/*"] }],
+    },
+  },
+  {
+    files: ["apps/**/*.ts"],
+    rules: {
+      // Catches static imports
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            "bitwarden_license/**",
+            "@bitwarden/bit-common/*",
+            "@bitwarden/bit-web/*",
+            "**/src/**/*",
           ],
         },
       ],
