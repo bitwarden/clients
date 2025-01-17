@@ -1,15 +1,18 @@
+import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { activeAuthGuard } from "./active-auth.guard";
+
+@Component({ template: "" })
+class EmptyComponent {}
 
 describe("activeAuthGuard", () => {
   const setup = (authType: AuthenticationType | null) => {
@@ -25,7 +28,7 @@ describe("activeAuthGuard", () => {
         RouterTestingModule.withRoutes([
           { path: "", component: EmptyComponent },
           {
-            path: "protected",
+            path: "protected-route",
             component: EmptyComponent,
             canActivate: [activeAuthGuard()],
           },
@@ -36,11 +39,13 @@ describe("activeAuthGuard", () => {
         { provide: LoginStrategyServiceAbstraction, useValue: loginStrategyService },
         { provide: LogService, useValue: logService },
       ],
+      declarations: [EmptyComponent],
     });
 
     return {
       router: testBed.inject(Router),
       logService,
+      loginStrategyService,
     };
   };
 
@@ -52,14 +57,14 @@ describe("activeAuthGuard", () => {
   it("allows access with an active login session", async () => {
     const { router } = setup(AuthenticationType.Password);
 
-    await router.navigate(["protected"]);
-    expect(router.url).toBe("/protected");
+    await router.navigate(["protected-route"]);
+    expect(router.url).toBe("/protected-route");
   });
 
   it("redirects to login with no active session", async () => {
     const { router, logService } = setup(null);
 
-    await router.navigate(["protected"]);
+    await router.navigate(["protected-route"]);
     expect(router.url).toBe("/login");
     expect(logService.error).toHaveBeenCalledWith("No active login session found.");
   });
