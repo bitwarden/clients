@@ -1,15 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
 import {
   BehaviorSubject,
   catchError,
-  concatMap,
   distinctUntilChanged,
   filter,
   map,
-  of,
   ReplaySubject,
   Subject,
   switchMap,
@@ -46,6 +45,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private accountService: AccountService,
     private zone: NgZone,
+    private ariaLive: LiveAnnouncer,
   ) {}
 
   /** Binds the component to a specific user's settings.
@@ -69,6 +69,9 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
 
   /** Emits when a new credential is requested */
   private readonly generate$ = new Subject<GenerateRequest>();
+
+  /** Identifies generator requests that were requested by the user */
+  protected readonly USER_REQUEST = "user request";
 
   /** Request a new value from the generator
    * @param requestor a label used to trace generation request
@@ -138,10 +141,10 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$),
+        withLatestFrom(this.userId$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId]) => {
+      .subscribe(([generated, userId, algorithm]) => {
         this.generatorHistoryService
           .track(userId, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
@@ -151,6 +154,10 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
+          if (generated.source === this.USER_REQUEST) {
+            this.announce(algorithm.onGeneratedMessage);
+          }
+
           this.onGenerated.next(generated);
           this.value$.next(generated.credential);
         });
@@ -206,6 +213,10 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     });
   }
 
+  private announce(message: string) {
+    this.ariaLive.announce(message).catch((e) => this.logService.error(e));
+  }
+
   private typeToGenerator$(type: CredentialAlgorithm) {
     const dependencies = {
       on$: this.generate$,
@@ -251,14 +262,6 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   protected credentialTypeLabel$ = this.algorithm$.pipe(
     filter((algorithm) => !!algorithm),
     map(({ credentialType }) => credentialType),
-  );
-
-  /**
-   * Emits the credential generated message whenever the generator runs
-   */
-  protected credentialGeneratedMessage$ = this.value$.pipe(
-    withLatestFrom(this.algorithm$),
-    concatMap(([, algorithm]) => of("", algorithm.onGeneratedMessage)),
   );
 
   private toOptions(algorithms: AlgorithmInfo[]) {

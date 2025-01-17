@@ -7,7 +7,7 @@
       type="button"
       bitIconButton="bwi-generate"
       buttonType="main"
-      (click)="generate('user request')"
+      (click)="generate(USER_REQUEST)"
       [appA11yTitle]="credentialTypeGenerateLabel$ | async"
       [disabled]="!(algorithm$ | async)"
     >
@@ -26,7 +26,6 @@
       {{ credentialTypeCopyLabel$ | async }}
     </button>
   </div>
-  <div class="tw-sr-only" aria-live="assertive">{{ credentialGeneratedMessage$ | async }}</div>
 </bit-card>
 <bit-section [disableMargin]="disableMargin">
   <bit-section-header>

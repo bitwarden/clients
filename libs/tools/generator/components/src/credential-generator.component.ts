@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import {
@@ -7,18 +8,13 @@ import {
   catchError,
   combineLatest,
   combineLatestWith,
-  concat,
-  delay,
   distinctUntilChanged,
-  exhaustMap,
   filter,
   map,
-  of,
   ReplaySubject,
   Subject,
   switchMap,
   takeUntil,
-  takeWhile,
   withLatestFrom,
 } from "rxjs";
 
@@ -52,9 +48,6 @@ const IDENTIFIER = "identifier";
 const FORWARDER = "forwarder";
 const NONE_SELECTED = "none";
 
-const RESET_INDICATOR = "reset";
-const DEFAULT_GENERATED_THROTTLE_MS = 100;
-
 @Component({
   selector: "tools-credential-generator",
   templateUrl: "credential-generator.component.html",
@@ -69,6 +62,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private zone: NgZone,
     private formBuilder: FormBuilder,
+    private ariaLive: LiveAnnouncer,
   ) {}
 
   /** Binds the component to a specific user's settings. When this input is not provided,
@@ -80,12 +74,6 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
   /** Emits credentials created from a generation request. */
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
-
-  /** The length of time to wait between 'credential generated' screen
-   *  reader messages.
-   */
-  @Input()
-  ariaAlertThrottle = DEFAULT_GENERATED_THROTTLE_MS;
 
   protected root$ = new BehaviorSubject<{ nav: string }>({
     nav: null,
@@ -200,10 +188,10 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$),
+        withLatestFrom(this.userId$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId]) => {
+      .subscribe(([generated, userId, algorithm]) => {
         this.generatorHistoryService
           .track(userId, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
@@ -213,6 +201,10 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
+          if (generated.source === this.USER_REQUEST) {
+            this.announce(algorithm.onGeneratedMessage);
+          }
+
           this.generatedCredential$.next(generated);
           this.onGenerated.next(generated);
         });
@@ -406,6 +398,10 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
     });
   }
 
+  private announce(message: string) {
+    this.ariaLive.announce(message).catch((e) => this.logService.error(e));
+  }
+
   private typeToGenerator$(type: CredentialAlgorithm) {
     const dependencies = {
       on$: this.generate$,
@@ -507,28 +503,11 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
   /** Emits when the userId changes */
   protected readonly userId$ = new BehaviorSubject<UserId>(null);
 
-  /** Emits when a new credential is requested */
-  private readonly generate$ = new Subject<GenerateRequest>();
-
+  /** Identifies generator requests that were requested by the user */
   protected readonly USER_REQUEST = "user request";
 
-  /**
-   * Emits the credential generated message whenever the generator runs
-   */
-  protected credentialGeneratedMessage$ = this.generatedCredential$.pipe(
-    filter((generated) => generated?.source === this.USER_REQUEST),
-    withLatestFrom(this.algorithm$),
-    // throttle notifications so that repeated user requests don't spam
-    // the screen reader with notifications
-    exhaustMap(([, algorithm]) =>
-      concat(
-        of(algorithm.onGeneratedMessage),
-        // throttle split evenly between notification and reset
-        of("").pipe(delay(this.ariaAlertThrottle / 2)),
-        of(RESET_INDICATOR).pipe(delay(this.ariaAlertThrottle / 2)),
-      ).pipe(takeWhile((v) => v !== RESET_INDICATOR)),
-    ),
-  );
+  /** Emits when a new credential is requested */
+  private readonly generate$ = new Subject<GenerateRequest>();
 
   /** Request a new value from the generator
    * @param requestor a label used to trace generation request
