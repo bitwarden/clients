@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Az automatikus kitöltés és az egyéb kapcsolódó funkciók ezeken a webhelyeken nincsenek a kínálatban. A változtatások életbe lépéséhez frissíteni kell az oldalt."
   },
-  "autofillBlockedNotice": {
-    "message": "Az automatikus kitöltés le van tiltva ezen a webhelyen. Tekintsük át vagy módosítsuk ezt a beállításokban."
+  "autofillBlockedNoticeV2": {
+    "message": "Az automatikus kitöltés blokkolásra került ezen a webhelyen."
   },
-  "autofillBlockedTooltip": {
-    "message": "Az automatikus kitöltés le van tiltva ezen a webhelyen. Tekintsük át ezt a beállításokban."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Megváltoztatás a beállításokban"
   },
   "websiteItemLabel": {
     "message": "Webhely $number$ (URI)",
@@ -4010,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "Automatikus kitöltés javaslatok"
   },
+  "itemSuggestions": {
+    "message": "Javasolt elemek"
+  },
   "autofillSuggestionsTip": {
     "message": "A bejelentkezési elem mentése ehhez a webhelyhez az automatikus kitöltéshez"
   },
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Szöveg küldés"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden has a new look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
   },
   "accountActions": {
     "message": "Fiókműveletek"

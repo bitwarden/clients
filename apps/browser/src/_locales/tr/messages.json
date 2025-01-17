@@ -1275,7 +1275,7 @@
     "message": "Bitwarden'ı desteklediğiniz için teşekkür ederiz."
   },
   "premiumFeatures": {
-    "message": "Premium'a yükseltin ve şunları alın:"
+    "message": "Premium'a geçmenin avantajları:"
   },
   "premiumPrice": {
     "message": "Bunların hepsi sadece yılda $PRICE$!",
@@ -1502,13 +1502,13 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Sayfa yüklendiğinde otomatik doldur"
+    "message": "Sayfa yüklenince otomatik doldur"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "Sayfa yüklendiğinde otomatik doldur"
+    "message": "Sayfa yüklenince otomatik doldur"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "Sayfa yüklendiğinde giriş formu tespit edilirse otomatik olarak formu doldur."
+    "message": "Sayfa yüklenince giriş formu tespit edilirse otomatik olarak formu doldur."
   },
   "experimentalFeature": {
     "message": "Ele geçirilmiş veya güvenilmeyen web siteleri sayfa yüklenirken otomatik doldurmayı suistimal edebilir."
@@ -1523,19 +1523,19 @@
     "message": "Hesaplar için varsayılan otomatik doldurma ayarı"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "\"Sayfa yüklendiğinde otomatik doldur\"u her hesabın \"Düzenle\" görünümünden ayrı ayrı kapatabilirsiniz."
+    "message": "\"Sayfa yüklenince otomatik doldur\"u her hesabın \"Düzenle\" görünümünden ayrı ayrı kapatabilirsiniz."
   },
   "itemAutoFillOnPageLoad": {
-    "message": "Sayfa yüklendiğinde otomatik doldur (Seçeneklerde ayarlanmışsa)"
+    "message": "Sayfa yüklenince otomatik doldur (Seçeneklerde ayarlanmışsa)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Varsayılan ayarı kullan"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Sayfa yüklendiğinde otomatik doldur"
+    "message": "Sayfa yüklenince otomatik doldur"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Sayfa yüklendiğinde otomatik doldurma"
+    "message": "Sayfa yüklenince otomatik doldurma"
   },
   "commandOpenPopup": {
     "message": "Kasayı açılır pencerede aç"
@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Bu sitede otomatik doldurma engellenmiş."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Bunu ayarlardan değiştirebilirsiniz"
   },
   "websiteItemLabel": {
     "message": "Web sitesi $number$ (URI)",
@@ -3151,7 +3151,7 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "Kuruluş ilkeleriniz, sayfa yüklendiğinde otomatik doldurmayı etkinleştirdi."
+    "message": "Kuruluş ilkeleriniz, sayfa yüklenince otomatik doldurmayı etkinleştirdi."
   },
   "howToAutofill": {
     "message": "Otomatik doldurma nasıl yapılır?"
@@ -3461,11 +3461,11 @@
     "message": "Alias alan adı"
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Ana parolayı yeniden isteyen kayıtlar sayfa yüklendiğinde otomatik olarak doldurulamaz. Sayfa yüklendiğinde otomatik doldurma kapatıldı.",
+    "message": "Ana parolayı yeniden isteyen kayıtlar sayfa yüklenince otomatik olarak doldurulamaz. Sayfa yüklenince otomatik doldurma kapatıldı.",
     "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
-    "message": "Sayfa yüklendiğinde otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
+    "message": "Sayfa yüklenince otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
@@ -3740,7 +3740,7 @@
     "message": "Geçiş anahtarı"
   },
   "accessing": {
-    "message": "Erişim"
+    "message": "Erişilen konum:"
   },
   "loggedInExclamation": {
     "message": "Giriş yapıldı!"
@@ -4009,6 +4009,9 @@
   },
   "autofillSuggestions": {
     "message": "Önerileri otomatik doldur"
+  },
+  "itemSuggestions": {
+    "message": "Önerilen kayıtlar"
   },
   "autofillSuggestionsTip": {
     "message": "Otomatik doldurma için bu siteye ait bir hesap kaydededin"
@@ -4333,7 +4336,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Sayfa yüklendiğinde otomatik doldur"
+    "message": "Sayfa yüklenince otomatik doldur"
   },
   "cardExpiredTitle": {
     "message": "Kartın süresi dolmuş"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Metin Send'leri"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden'ın tasarımı güncellendi!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Otomatik doldurma ve kasanızda arama yapma artık eskisinden daha kolay. Yeni tasarıma göz atmayı unutmayın!"
   },
   "accountActions": {
     "message": "Hesap işlemleri"

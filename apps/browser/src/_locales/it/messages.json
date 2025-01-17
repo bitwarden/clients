@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Per questi siti, l'auto-completamento e funzionalità simili non saranno disponibili. Ricarica la pagina per applicare le modifiche."
   },
-  "autofillBlockedNotice": {
-    "message": "L'auto-completamento è bloccato per questo sito. Modifica questa scelta nelle impostazioni."
+  "autofillBlockedNoticeV2": {
+    "message": "La compilazione automatica è bloccata per questo sito."
   },
-  "autofillBlockedTooltip": {
-    "message": "L'auto-completamento è bloccato per questo sito. Verifica nelle impostazioni."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Modifica questo nelle impostazioni"
   },
   "websiteItemLabel": {
     "message": "Sito $number$ (URI)",
@@ -4008,7 +4008,10 @@
     "message": "Passkey rimossa"
   },
   "autofillSuggestions": {
-    "message": "Suggerimenti per il riempimento automatico"
+    "message": "Suggerimenti riempimento automatico"
+  },
+  "itemSuggestions": {
+    "message": "Elementi suggeriti"
   },
   "autofillSuggestionsTip": {
     "message": "Salva un elemento di accesso per questo sito da riempire automaticamente"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Send Testo"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden ha un nuovo look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "È più facile e intuitivo che mai utilizzare il riempimento automatico e cercare dalla scheda Cassaforte. Dai un'occhiata!"
   },
   "accountActions": {
     "message": "Azioni dell'account"

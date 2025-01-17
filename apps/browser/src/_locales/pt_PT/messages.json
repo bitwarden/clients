@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "O preenchimento automático e outras funcionalidades relacionadas não serão disponibilizados para estes sites. É necessário atualizar a página para que as alterações tenham efeito."
   },
-  "autofillBlockedNotice": {
-    "message": "O preenchimento automático está bloqueado para este site. Reveja ou altere esta opção nas definições."
+  "autofillBlockedNoticeV2": {
+    "message": "O preenchimento automático está bloqueado para este site."
   },
-  "autofillBlockedTooltip": {
-    "message": "O preenchimento automático está bloqueado neste site. Reveja nas definições."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Alterar esta opção nas definições"
   },
   "websiteItemLabel": {
     "message": "Site $number$ (URI)",
@@ -4010,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "Sugestões de preenchimento automático"
   },
+  "itemSuggestions": {
+    "message": "Itens sugeridos"
+  },
   "autofillSuggestionsTip": {
     "message": "Guarde uma credencial deste site para preenchimento automático"
   },
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Sends de texto"
-  },
-  "bitwardenNewLook": {
-    "message": "O Bitwarden tem um novo visual!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "É mais fácil e mais intuitivo do que nunca preencher automaticamente e pesquisar a partir do separador Cofre. Dê uma vista de olhos!"
   },
   "accountActions": {
     "message": "Ações da conta"

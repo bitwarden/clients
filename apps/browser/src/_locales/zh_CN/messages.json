@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "将不会为这些网站提供自动填充和其他相关功能。您必须刷新页面才能使更改生效。"
   },
-  "autofillBlockedNotice": {
-    "message": "该网站的自动填充功能已被阻止。请在设置中查看或更改。"
+  "autofillBlockedNoticeV2": {
+    "message": "该网站的自动填充已被屏蔽。"
   },
-  "autofillBlockedTooltip": {
-    "message": "该网站的自动填充功能已被阻止。请在设置中查看。"
+  "autofillBlockedNoticeGuidance": {
+    "message": "在设置中更改它"
   },
   "websiteItemLabel": {
     "message": "网站 $number$ (URI)",
@@ -4010,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "自动填充建议"
   },
+  "itemSuggestions": {
+    "message": "建议的项目"
+  },
   "autofillSuggestionsTip": {
     "message": "将此站点保存为登录项目以用于自动填充"
   },
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "文本 Send"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden 拥有一个新的外观！"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "从密码库标签页自动填充和搜索比以往任何时候都更简单直观。来看看吧！"
   },
   "accountActions": {
     "message": "账户操作"
