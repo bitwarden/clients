@@ -113,6 +113,39 @@
   "atRiskMembers": {
     "message": "Riskli üzvlər"
   },
+  "atRiskMembersWithCount": {
+    "message": "Risk altındakı üzvlər ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "Risk altındakı tətbiqlər ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "Bu üzvlər, tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "Bu tətbiqlər zəif, ifşa olunmuş və ya təkrar istifadə edilmiş parollara sahibdir."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "Bu üzvlər, $APPNAME$ tətbiqinə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "Cəmi üzv"
   },
@@ -3281,6 +3314,9 @@
   "inviteSingleEmailDesc": {
     "message": "1 dəvət haqqınız var."
   },
+  "inviteZeroEmailDesc": {
+    "message": "0 dəvət haqqınız var."
+  },
   "userUsingTwoStep": {
     "message": "Bu istifadəçinin hesabını qorumaq üçün iki addımlı giriş istifadə edilir."
   },
@@ -3788,6 +3824,67 @@
   },
   "trusted": {
     "message": "Güvənli"
+  },
+  "needsApproval": {
+    "message": "Təsdiq lazımdır"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Giriş etməyə çalışırsınız?"
+  },
+  "logInAttemptBy": {
+    "message": "$EMAIL$ tərəfindən giriş cəhdi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Cihaz növü"
+  },
+  "ipAddress": {
+    "message": "IP Ünvan"
+  },
+  "confirmLogIn": {
+    "message": "Girişi təsdiqlə"
+  },
+  "denyLogIn": {
+    "message": "Girişə rədd cavabı ver"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Bu tələb artıq yararsızdır."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş təsdiqləndi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu həqiqətən siz idinizsə, cihazla yenidən giriş etməyə çalışın."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Giriş tələbinin müddəti artıq bitib."
+  },
+  "justNow": {
+    "message": "İndicə"
+  },
+  "requestedXMinutesAgo": {
+    "message": "$MINUTES$ dəqiqə əvvəl tələb göndərildi",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Hesab yaradılır"
@@ -8171,33 +8268,33 @@
   "trustedDevices": {
     "message": "Güvənli cihazlar"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Kimlik doğrulandıqdan sonra üzvlər, cihazlarından saxlanılan açarı istifadə edərək seyf datasının şifrəsini aça biləcək",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "SSO ilə giriş edərkən üzvlərin ana parola ehtiyacı olmayacaq. Ana parol, cihazda saxlanılan bir şifrələmə açarı ilə əvəz olunur və bu da cihazı güvənli hala gətirir. Üzvün hesabını yaradıb giriş etdiyi ilk cihaz, güvənli hesab olunacaq. Yeni cihazların mövcud güvənli cihaz və ya bir inzibatçı tərəfindən təsdiqlənməsi lazım gələcək.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
-    "message": "vahid təşkilat",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink1": {
+    "message": "Vahid təşkilat",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
+  "memberDecryptionOptionTdeDescPart2": {
     "message": "siyasəti,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "SSO tələb olunur",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink2": {
+    "message": "SSO tələb olunan",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
-    "message": "siyasəti və",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart3": {
+    "message": "siyasət və",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
+  "memberDecryptionOptionTdeDescLink3": {
     "message": "hesab geri qaytarma administrasiyası",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "bu seçim istifadə edildikdə avto-yazılma ilə işə salınacaq.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "siyasəti, bu seçim istifadə olunduqda işə düşəcək.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
@@ -10079,7 +10176,7 @@
   "organizationNameMaxLength": {
     "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
   },
-  "resellerRenewalWarning": {
+  "resellerRenewalWarningMsg": {
     "message": "Abunəliyiniz tezliklə yenilənəcək. Kəsintisiz xidməti təmin etmək və yeniləməni $RENEWAL_DATE$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
     "placeholders": {
       "reseller": {
@@ -10092,7 +10189,7 @@
       }
     }
   },
-  "resellerOpenInvoiceWarning": {
+  "resellerOpenInvoiceWarningMgs": {
     "message": "Abunəliyinizə aid faktura $ISSUED_DATE$ tarixində təqdim edildi. Kəsintisiz xidməti təmin etmək və yeniləməni $DUE_DATE$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
     "placeholders": {
       "reseller": {
@@ -10109,7 +10206,7 @@
       }
     }
   },
-  "resellerPastDueWarning": {
+  "resellerPastDueWarningMsg": {
     "message": "Abunəliyinizə aid faktura üzrə ödəniş edilmədi. Kəsintisiz xidməti təmin etmək və yeniləməni $GRACE_PERIOD_END$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
     "placeholders": {
       "reseller": {
