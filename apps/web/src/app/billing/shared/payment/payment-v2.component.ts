@@ -148,7 +148,10 @@ export class PaymentV2Component implements OnInit, OnDestroy {
     }
 
     if (this.usingAccountCredit) {
-      throw "Invalid payment method";
+      return {
+        type: PaymentMethodType.Credit,
+        token: null,
+      };
     }
 
     return null;
