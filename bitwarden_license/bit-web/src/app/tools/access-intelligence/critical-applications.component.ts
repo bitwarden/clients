@@ -15,8 +15,6 @@ import {
   ApplicationHealthReportDetailWithCriticalFlag,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DialogService,
   Icons,
@@ -83,13 +81,11 @@ export class CriticalApplicationsComponent implements OnInit {
   };
 
   constructor(
-    protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     protected dataService: RiskInsightsDataService,
     protected criticalAppsService: CriticalAppsService,
     protected reportService: RiskInsightsReportService,
-    protected configService: ConfigService,
     protected dialogService: DialogService,
   ) {
     this.searchControl.valueChanges
