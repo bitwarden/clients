@@ -78,7 +78,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       window,
       datePipe,
       configService,
-      toastService,
       cipherAuthorizationService,
       toastService,
       sdkService,
