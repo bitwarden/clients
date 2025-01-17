@@ -7,8 +7,10 @@ import {
   catchError,
   combineLatest,
   combineLatestWith,
-  concatMap,
+  concat,
+  delay,
   distinctUntilChanged,
+  exhaustMap,
   filter,
   map,
   of,
@@ -16,6 +18,7 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  takeWhile,
   withLatestFrom,
 } from "rxjs";
 
@@ -49,6 +52,9 @@ const IDENTIFIER = "identifier";
 const FORWARDER = "forwarder";
 const NONE_SELECTED = "none";
 
+const RESET_INDICATOR = "reset";
+const DEFAULT_GENERATED_THROTTLE_MS = 100;
+
 @Component({
   selector: "tools-credential-generator",
   templateUrl: "credential-generator.component.html",
@@ -74,6 +80,12 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
   /** Emits credentials created from a generation request. */
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
+
+  /** The length of time to wait between 'credential generated' screen
+   *  reader messages.
+   */
+  @Input()
+  ariaAlertThrottle = DEFAULT_GENERATED_THROTTLE_MS;
 
   protected root$ = new BehaviorSubject<{ nav: string }>({
     nav: null,
@@ -201,8 +213,8 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
+          this.generatedCredential$.next(generated);
           this.onGenerated.next(generated);
-          this.value$.next(generated.credential);
         });
       });
 
@@ -386,7 +398,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
     this.algorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
       this.zone.run(() => {
         if (!a || a.onlyOnRequest) {
-          this.value$.next("-");
+          this.generatedCredential$.next(null);
         } else {
           this.generate("autogenerate").catch((e: unknown) => this.logService.error(e));
         }
@@ -485,8 +497,12 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
   /** tracks the currently selected credential category */
   protected category$ = new ReplaySubject<string>(1);
 
+  private readonly generatedCredential$ = new BehaviorSubject<GeneratedCredential>(null);
+
   /** Emits the last generated value. */
-  protected readonly value$ = new BehaviorSubject<string>("");
+  protected readonly value$ = this.generatedCredential$.pipe(
+    map((generated) => generated?.credential ?? "-"),
+  );
 
   /** Emits when the userId changes */
   protected readonly userId$ = new BehaviorSubject<UserId>(null);
@@ -494,12 +510,24 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
   /** Emits when a new credential is requested */
   private readonly generate$ = new Subject<GenerateRequest>();
 
+  protected readonly USER_REQUEST = "user request";
+
   /**
    * Emits the credential generated message whenever the generator runs
    */
-  protected credentialGeneratedMessage$ = this.value$.pipe(
+  protected credentialGeneratedMessage$ = this.generatedCredential$.pipe(
+    filter((generated) => generated?.source === this.USER_REQUEST),
     withLatestFrom(this.algorithm$),
-    concatMap(([, algorithm]) => of("", algorithm.onGeneratedMessage)),
+    // throttle notifications so that repeated user requests don't spam
+    // the screen reader with notifications
+    exhaustMap(([, algorithm]) =>
+      concat(
+        of(algorithm.onGeneratedMessage),
+        // throttle split evenly between notification and reset
+        of("").pipe(delay(this.ariaAlertThrottle / 2)),
+        of(RESET_INDICATOR).pipe(delay(this.ariaAlertThrottle / 2)),
+      ).pipe(takeWhile((v) => v !== RESET_INDICATOR)),
+    ),
   );
 
   /** Request a new value from the generator
@@ -526,7 +554,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
 
     // finalize subjects
     this.generate$.complete();
-    this.value$.complete();
+    this.generatedCredential$.complete();
 
     // finalize component bindings
     this.onGenerated.complete();
