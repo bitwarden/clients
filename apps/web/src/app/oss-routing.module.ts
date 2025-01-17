@@ -11,6 +11,7 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
+import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -44,7 +45,6 @@ import {
   VaultIcons,
 } from "@bitwarden/vault";
 
-import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { flagEnabled, Flags } from "../utils/flags";
 
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
@@ -69,7 +69,6 @@ import { SecurityRoutingModule } from "./auth/settings/security/security-routing
 import { SsoComponentV1 } from "./auth/sso-v1.component";
 import { CompleteTrialInitiationComponent } from "./auth/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
 import { freeTrialTextResolver } from "./auth/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
-import { TrialInitiationComponent } from "./auth/trial-initiation/trial-initiation.component";
 import { TwoFactorAuthComponent } from "./auth/two-factor-auth.component";
 import { TwoFactorComponent } from "./auth/two-factor.component";
 import { UpdatePasswordComponent } from "./auth/update-password.component";
@@ -94,6 +93,18 @@ import { SendComponent } from "./tools/send/send.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
+  // These need to be placed at the top of the list prior to the root
+  // so that the redirectGuard does not interrupt the navigation.
+  {
+    path: "register",
+    redirectTo: "signup",
+    pathMatch: "full",
+  },
+  {
+    path: "trial",
+    redirectTo: "signup",
+    pathMatch: "full",
+  },
   {
     path: "",
     component: FrontendLayoutComponent,
@@ -109,17 +120,6 @@ const routes: Routes = [
         path: "login-with-passkey",
         component: LoginViaWebAuthnComponent,
         data: { titleId: "logInWithPasskey" } satisfies RouteDataProperties,
-      },
-      {
-        path: "register",
-        component: TrialInitiationComponent,
-        canActivate: [unauthGuardFn()],
-        data: { titleId: "createAccount" } satisfies RouteDataProperties,
-      },
-      {
-        path: "trial",
-        redirectTo: "register",
-        pathMatch: "full",
       },
       {
         path: "set-password",
