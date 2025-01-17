@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "Zmeniť e-mail účtu"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Vyžaduje sa upgrade organizácie"
+  },
+  "upgradeOrganization": {
+    "message": "Upgrade organizácie"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Táto funkcia nie je k dispozícii pre bezplatné organizácie. Ak chcete odomknúť ďalšie funkcie, prejdite na platený plán."
   }
 }

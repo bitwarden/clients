@@ -6,7 +6,7 @@
     "build:chrome": "cross-env BROWSER=chrome MANIFEST_VERSION=3 webpack",
     "build:edge": "cross-env BROWSER=edge MANIFEST_VERSION=3 webpack",
     "build:firefox": "cross-env BROWSER=firefox webpack",
-    "build:opera": "cross-env BROWSER=opera MANIFEST_VERSION=3 webpack",
+    "build:opera": "cross-env BROWSER=opera webpack",
     "build:safari": "cross-env BROWSER=safari webpack",
     "build:watch": "npm run build:watch:chrome",
     "build:watch:chrome": "npm run build:chrome -- --watch",

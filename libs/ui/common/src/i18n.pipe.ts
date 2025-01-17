@@ -3,7 +3,13 @@ import { Pipe, PipeTransform } from "@angular/core";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 /**
- * Temporarily duplicate this pipe
+ * Localizes the specified string.
+ *
+ * @example
+ * {{ 'key' | i18n }}
+ *
+ * @example
+ * {{ 'key' | i18n: 'param1' }}
  */
 @Pipe({
   name: "i18n",

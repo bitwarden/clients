@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Автозаполнение и другие связанные с ним функции не будут предлагаться для этих сайтов. Чтобы изменения вступили в силу, необходимо обновить страницу."
   },
-  "autofillBlockedNotice": {
-    "message": "Автозаполнение для этого сайта заблокировано. Просмотрите или измените это в настройках."
+  "autofillBlockedNoticeV2": {
+    "message": "Автозаполнение для этого сайта заблокировано."
   },
-  "autofillBlockedTooltip": {
-    "message": "Автозаполнение на этом сайте заблокировано. Просмотрите в настройках."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Измените это в настройках"
   },
   "websiteItemLabel": {
     "message": "Сайт $number$ (URI)",
@@ -4010,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "Предложения по автозаполнению"
   },
+  "itemSuggestions": {
+    "message": "Предлагаемые элементы"
+  },
   "autofillSuggestionsTip": {
     "message": "Сохранить логин для этого сайта для автозаполнения"
   },
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Текстовая Send"
-  },
-  "bitwardenNewLook": {
-    "message": "У Bitwarden новый облик!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Теперь автозаполнение и поиск на вкладке Хранилище стали проще и интуитивно понятнее, чем когда-либо. Осмотритесь!"
   },
   "accountActions": {
     "message": "Действия аккаунта"
