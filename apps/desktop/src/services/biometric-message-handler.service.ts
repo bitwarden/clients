@@ -379,7 +379,7 @@ export class BiometricMessageHandlerService {
     if (await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)) {
       this.logService.info("[Native Messaging IPC] Requesting fingerprint verification.");
       ipc.platform.nativeMessaging.sendMessage({
-        command: "verifyFingerprint",
+        command: "verifyDesktopIPCFingerprint",
         appId: appId,
       });
 
