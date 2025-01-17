@@ -5,8 +5,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
+import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
-import { positionFixedWrapperDecorator } from "../utils/position-fixed-wrapper-decorator";
 
 import { NavItemComponent } from "./nav-item.component";
 import { NavigationModule } from "./navigation.module";

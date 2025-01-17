@@ -1,13 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
-import {
-  Meta,
-  StoryObj,
-  applicationConfig,
-  componentWrapperDecorator,
-  moduleMetadata,
-} from "@storybook/angular";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import {
   userEvent,
   getAllByRole,
@@ -23,6 +17,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService } from "../../dialog";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
+import { disableBothThemeDecorator, positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
 import { KitchenSinkForm } from "./components/kitchen-sink-form.component";
@@ -35,25 +30,8 @@ export default {
   title: "Documentation / Kitchen Sink",
   component: LayoutComponent,
   decorators: [
-    componentWrapperDecorator(
-      /**
-       * Applying a CSS transform makes a `position: fixed` element act like it is `position: relative`
-       * https://github.com/storybookjs/storybook/issues/8011#issue-490251969
-       */
-      (story) => {
-        return /* HTML */ `<div class="tw-scale-100 tw-border-2 tw-border-solid tw-border-[red]">
-          ${story}
-        </div>`;
-      },
-      ({ globals }) => {
-        /**
-         * avoid a bug with the way that we render the same component twice in the same iframe and how
-         * that interacts with the router-outlet
-         */
-        const themeOverride = globals["theme"] === "both" ? "light" : globals["theme"];
-        return { theme: themeOverride };
-      },
-    ),
+    positionFixedWrapperDecorator(),
+    disableBothThemeDecorator,
     moduleMetadata({
       imports: [
         KitchenSinkSharedModule,
@@ -135,7 +113,7 @@ export const MenuOpen: Story = {
   },
 };
 
-export const DefaultDialogOpen: Story = {
+export const DialogOpen: Story = {
   ...Default,
   play: async (context) => {
     const canvas = context.canvasElement;
@@ -145,6 +123,19 @@ export const DefaultDialogOpen: Story = {
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
     await fireEvent.click(dialogButton);
+  },
+};
+
+export const DrawerOpen: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const drawerButton = getByRole(canvas, "button", {
+      name: "Open Drawer",
+    });
+
+    // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
+    await fireEvent.click(drawerButton);
   },
 };
 
