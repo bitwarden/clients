@@ -9,10 +9,16 @@ import { CopyClickDirective } from "./copy-click.directive";
 
 @Component({
   template: `
-    <button appCopyClick="no toast shown" #noToast></button>
-    <button appCopyClick="info toast shown" showToast="info" #infoToast></button>
-    <button appCopyClick="success toast shown" showToast #successToast></button>
-    <button appCopyClick="toast with label" showToast valueLabel="Content" #toastWithLabel></button>
+    <button type="button" appCopyClick="no toast shown" #noToast></button>
+    <button type="button" appCopyClick="info toast shown" showToast="info" #infoToast></button>
+    <button type="button" appCopyClick="success toast shown" showToast #successToast></button>
+    <button
+      type="button"
+      appCopyClick="toast with label"
+      showToast
+      valueLabel="Content"
+      #toastWithLabel
+    ></button>
   `,
 })
 class TestCopyClickComponent {

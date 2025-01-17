@@ -19,7 +19,7 @@ interface Animal {
 }
 
 @Component({
-  template: `<button bitButton (click)="openDialog()">Open Dialog</button>`,
+  template: `<button bitButton type="button" (click)="openDialog()">Open Dialog</button>`,
 })
 class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
@@ -42,8 +42,10 @@ class StoryDialogComponent {
         Animal: {{ animal }}
       </span>
       <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" (click)="dialogRef.close()">Save</button>
-        <button bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
       </ng-container>
     </bit-dialog>
   `,
