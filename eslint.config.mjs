@@ -7,6 +7,8 @@ import angular from "angular-eslint";
 import importPlugin from "eslint-plugin-import";
 import eslintConfigPrettier from "eslint-config-prettier";
 import eslintPluginTailwindCSS from "eslint-plugin-tailwindcss";
+import rxjs from "eslint-plugin-rxjs";
+import angularRxjs from "eslint-plugin-rxjs-angular";
 
 export default tseslint.config(
   {
@@ -21,6 +23,10 @@ export default tseslint.config(
       importPlugin.flatConfigs.typescript,
       eslintConfigPrettier, // Disables rules that conflict with Prettier
     ],
+    plugins: {
+      rxjs: rxjs,
+      "rxjs-angular": angularRxjs,
+    },
     languageOptions: {
       parserOptions: {
         project: ["./tsconfig.eslint.json"],
@@ -60,6 +66,7 @@ export default tseslint.config(
       "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: false }],
       "@typescript-eslint/no-this-alias": ["error", { allowedNames: ["self"] }],
+      "@typescript-eslint/no-unused-expressions": ["error", { allowTernary: true }],
       "@typescript-eslint/no-unused-vars": ["error", { args: "none" }],
 
       curly: ["error", "all"],
