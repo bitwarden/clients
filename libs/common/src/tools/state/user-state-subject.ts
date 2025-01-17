@@ -26,10 +26,9 @@ import {
   skip,
 } from "rxjs";
 
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SingleUserState, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
-
+import { EncString } from "../../platform/models/domain/enc-string";
+import { SingleUserState, UserKeyDefinition } from "../../platform/state";
+import { UserId } from "../../types/guid";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { UserBound } from "../dependencies";
 import { anyComplete, errorOnChange, ready, withLatestReady } from "../rx";

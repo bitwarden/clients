@@ -196,11 +196,7 @@ jobs:
           - name: "edge"
             npm_command: "dist:edge"
             archive_name: "dist-edge.zip"
-            artifact_name: "dist-edge"
-          - name: "edge-mv3"
-            npm_command: "dist:edge:mv3"
-            archive_name: "dist-edge.zip"
-            artifact_name: "DO-NOT-USE-FOR-PROD-dist-edge-MV3"
+            artifact_name: "dist-edge-MV3"
           - name: "firefox"
             npm_command: "dist:firefox"
             archive_name: "dist-firefox.zip"
@@ -212,11 +208,7 @@ jobs:
           - name: "opera"
             npm_command: "dist:opera"
             archive_name: "dist-opera.zip"
-            artifact_name: "dist-opera"
-          - name: "opera-mv3"
-            npm_command: "dist:opera:mv3"
-            archive_name: "dist-opera.zip"
-            artifact_name: "DO-NOT-USE-FOR-PROD-dist-opera-MV3"
+            artifact_name: "dist-opera-MV3"
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2

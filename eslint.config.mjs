@@ -6,11 +6,12 @@ import angular from "angular-eslint";
 // @ts-ignore
 import importPlugin from "eslint-plugin-import";
 import eslintConfigPrettier from "eslint-config-prettier";
+import eslintPluginTailwindCSS from "eslint-plugin-tailwindcss";
 
 export default tseslint.config(
   {
     // Everything in this config object targets our TypeScript files (Components, Directives, Pipes etc)
-    files: ["*.ts", "*.js"],
+    files: ["**/*.ts", "**/*.js"],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
@@ -139,14 +140,34 @@ export default tseslint.config(
   {
     // Everything in this config object targets our HTML files (external templates,
     // and inline templates as long as we have the `processor` set on our TypeScript config above)
-    files: ["*.html"],
+    files: ["**/*.html"],
     extends: [
       // Apply the recommended Angular template rules
-      ...angular.configs.templateRecommended,
+      // ...angular.configs.templateRecommended,
       // Apply the Angular template rules which focus on accessibility of our apps
-      ...angular.configs.templateAccessibility,
+      // ...angular.configs.templateAccessibility,
     ],
-    rules: {},
+    languageOptions: {
+      parser: angular.templateParser,
+    },
+    plugins: {
+      "@angular-eslint/template": angular.templatePlugin,
+      tailwindcss: eslintPluginTailwindCSS,
+    },
+    rules: {
+      "@angular-eslint/template/button-has-type": "error",
+      "tailwindcss/no-custom-classname": [
+        "error",
+        {
+          // uses negative lookahead to whitelist any class that doesn't start with "tw-"
+          // in other words: classnames that start with tw- must be valid TailwindCSS classes
+          whitelist: ["(?!(tw)\\-).*"],
+        },
+      ],
+      "tailwindcss/enforces-negative-arbitrary-values": "error",
+      "tailwindcss/enforces-shorthand": "error",
+      "tailwindcss/no-contradicting-classname": "error",
+    },
   },
   {
     ignores: [

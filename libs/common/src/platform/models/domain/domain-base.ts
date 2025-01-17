@@ -8,7 +8,7 @@ import { EncryptService } from "../../abstractions/encrypt.service";
 import { EncString } from "./enc-string";
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type EncStringKeys<T> = ConditionalKeys<ConditionalExcept<T, Function>, EncString>;
 export type DecryptedObject<
   TEncryptedObject,

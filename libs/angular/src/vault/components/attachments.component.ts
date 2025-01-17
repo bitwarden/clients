@@ -192,6 +192,8 @@ export class AttachmentsComponent implements OnInit {
         title: null,
         message: this.i18nService.t("fileSavedToDevice"),
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
     }
@@ -285,6 +287,8 @@ export class AttachmentsComponent implements OnInit {
             this.i18nService.t("attachmentSaved"),
           );
           this.onReuploadedAttachment.emit();
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
         }

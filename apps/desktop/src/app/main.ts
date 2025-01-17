@@ -1,7 +1,9 @@
 import { enableProdMode } from "@angular/core";
 import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("../scss/styles.scss");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("../scss/tailwind.css");
 
 import { AppModule } from "./app.module";

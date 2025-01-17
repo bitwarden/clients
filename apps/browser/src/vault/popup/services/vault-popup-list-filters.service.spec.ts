@@ -488,7 +488,7 @@ describe("VaultPopupListFiltersService", () => {
       state$.next(true);
 
       service.filterVisibilityState$.subscribe((filterVisibility) => {
-        expect(filterVisibility).toBeTrue();
+        expect(filterVisibility).toBe(true);
         done();
       });
     });
@@ -496,7 +496,7 @@ describe("VaultPopupListFiltersService", () => {
     it("updates stored filter state", async () => {
       await service.updateFilterVisibility(false);
 
-      expect(update).toHaveBeenCalledOnce();
+      expect(update).toHaveBeenCalledTimes(1);
       // Get callback passed to `update`
       const updateCallback = update.mock.calls[0][0];
       expect(updateCallback()).toBe(false);

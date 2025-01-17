@@ -1,5 +1,5 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
@@ -28,13 +28,7 @@ class KitchenSinkDialog {
 @Component({
   standalone: true,
   selector: "bit-tab-main",
-  imports: [
-    KitchenSinkSharedModule,
-    KitchenSinkTable,
-    KitchenSinkToggleList,
-    KitchenSinkForm,
-    KitchenSinkDialog,
-  ],
+  imports: [KitchenSinkSharedModule, KitchenSinkTable, KitchenSinkToggleList, KitchenSinkForm],
   template: `
     <bit-banner bannerType="info" class="-tw-m-6 tw-flex tw-flex-col tw-pb-6">
       Kitchen Sink test zone
@@ -47,6 +41,11 @@ class KitchenSinkDialog {
         </bit-breadcrumb>
       </bit-breadcrumbs>
     </p>
+
+    <div class="tw-mb-6 tw-mt-6">
+      <h1 bitTypography="h1">Bitwarden Kitchen Sink<bit-avatar text="Bit Warden"></bit-avatar></h1>
+      <a bitLink linkType="primary" href="#">Learn more</a>
+    </div>
 
     <bit-callout type="info" title="About the Kitchen Sink">
       <p bitTypography="body1">
@@ -63,18 +62,14 @@ class KitchenSinkDialog {
       </p>
     </bit-callout>
 
-    <div class="tw-mb-6 tw-mt-6">
-      <h1 bitTypography="h1">Bitwarden <bit-avatar text="Bit Warden"></bit-avatar></h1>
-      <a bitLink linkType="primary" href="#">Learn more</a>
-    </div>
-
     <bit-tab-group label="Main content tabs" class="tw-text-main">
       <bit-tab label="Evaluation">
         <bit-section>
           <h2 bitTypography="h2" class="tw-mb-6">About</h2>
           <bit-kitchen-sink-table></bit-kitchen-sink-table>
 
-          <button bitButton (click)="openDefaultDialog()">Open Dialog</button>
+          <button bitButton (click)="openDialog()">Open Dialog</button>
+          <button bitButton (click)="openDrawer()">Open Drawer</button>
         </bit-section>
         <bit-section>
           <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>
@@ -99,13 +94,85 @@ class KitchenSinkDialog {
         </bit-section>
       </bit-tab>
     </bit-tab-group>
+
+    <bit-drawer [(open)]="drawerOpen">
+      <bit-drawer-header title="Foo ipsum"></bit-drawer-header>
+      <bit-drawer-body>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <bit-form-field>
+          <bit-label>What did foo say to bar?</bit-label>
+          <input bitInput value="Baz" />
+        </bit-form-field>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+        <p bitTypography="body1">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+          sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+          est laborum.
+        </p>
+      </bit-drawer-body>
+    </bit-drawer>
   `,
 })
 export class KitchenSinkMainComponent {
   constructor(public dialogService: DialogService) {}
 
-  openDefaultDialog() {
+  protected drawerOpen = signal(false);
+
+  openDialog() {
     this.dialogService.open(KitchenSinkDialog);
+  }
+
+  openDrawer() {
+    this.drawerOpen.set(true);
   }
 
   navItems = [
