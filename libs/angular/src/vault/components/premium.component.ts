@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { OnInit, Directive } from "@angular/core";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -11,7 +12,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
+import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 
 @Directive()
 export class PremiumComponent implements OnInit {
@@ -30,8 +31,14 @@ export class PremiumComponent implements OnInit {
     protected dialogService: DialogService,
     private environmentService: EnvironmentService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    private toastService: ToastService,
+    accountService: AccountService,
   ) {
-    this.isPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+    this.isPremium$ = accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    );
   }
 
   async ngOnInit() {
@@ -45,7 +52,11 @@ export class PremiumComponent implements OnInit {
     try {
       this.refreshPromise = this.apiService.refreshIdentityToken();
       await this.refreshPromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("refreshComplete"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("refreshComplete"),
+      });
     } catch (e) {
       this.logService.error(e);
     }

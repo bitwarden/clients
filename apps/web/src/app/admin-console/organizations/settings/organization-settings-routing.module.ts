@@ -1,13 +1,8 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { inject, NgModule } from "@angular/core";
-import { CanMatchFn, RouterModule, Routes } from "@angular/router";
-import { map } from "rxjs";
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
@@ -15,11 +10,6 @@ import { PoliciesComponent } from "../../organizations/policies";
 
 import { AccountComponent } from "./account.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
-
-const removeProviderExportPermission$: CanMatchFn = () =>
-  inject(ConfigService)
-    .getFeatureFlag$(FeatureFlag.PM11360RemoveProviderExportPermission)
-    .pipe(map((removeProviderExport) => removeProviderExport === true));
 
 const routes: Routes = [
   {
@@ -68,27 +58,13 @@ const routes: Routes = [
               titleId: "importData",
             },
           },
-
-          // Export routing is temporarily duplicated to set the flag value passed into org.canAccessExport
           {
             path: "export",
             loadComponent: () =>
               import("../tools/vault-export/org-vault-export.component").then(
                 (mod) => mod.OrganizationVaultExportComponent,
               ),
-            canMatch: [removeProviderExportPermission$], // if this matches, the flag is ON
-            canActivate: [organizationPermissionsGuard((org) => org.canAccessExport(true))],
-            data: {
-              titleId: "exportVault",
-            },
-          },
-          {
-            path: "export",
-            loadComponent: () =>
-              import("../tools/vault-export/org-vault-export.component").then(
-                (mod) => mod.OrganizationVaultExportComponent,
-              ),
-            canActivate: [organizationPermissionsGuard((org) => org.canAccessExport(false))],
+            canActivate: [organizationPermissionsGuard((org) => org.canAccessExport)],
             data: {
               titleId: "exportVault",
             },
@@ -118,7 +94,8 @@ function getSettingsRoute(organization: Organization) {
   if (organization.canManageDeviceApprovals) {
     return "device-approvals";
   }
-  return undefined;
+
+  return "/";
 }
 
 @NgModule({

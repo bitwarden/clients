@@ -249,6 +249,20 @@
   "error": {
     "message": "错误"
   },
+  "decryptionError": {
+    "message": "解密错误"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden 无法解密下列密码库项目。"
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "联系客户成功团队",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "以避免额外的数据丢失。",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "一月"
   },
@@ -742,7 +756,7 @@
     "message": "必须填写确认主密码。"
   },
   "masterPasswordMinlength": {
-    "message": "主密码必须至少 $VALUE$ 个字符长度。",
+    "message": "主密码长度必须至少为 $VALUE$ 个字符。",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -975,13 +989,13 @@
     "message": "您的登录会话已过期。"
   },
   "restartRegistration": {
-    "message": "重新开始注册"
+    "message": "重启注册"
   },
   "expiredLink": {
     "message": "失效链接"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "请重新注册或尝试登录。"
+    "message": "请重启注册或尝试登录。"
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "您可能已经有一个账户了"
@@ -1008,7 +1022,7 @@
     "message": "账户"
   },
   "loading": {
-    "message": "加载中…"
+    "message": "正在加载..."
   },
   "lockVault": {
     "message": "锁定密码库"
@@ -1044,7 +1058,7 @@
     "message": "前往网页 App 吗？"
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "您可以在 Bitwarden 网页应用上更改您的主密码。"
+    "message": "您可以在 Bitwarden 网页 App 上更改您的主密码。"
   },
   "fingerprintPhrase": {
     "message": "指纹短语",
@@ -1058,7 +1072,7 @@
     "message": "转到网页版密码库"
   },
   "getMobileApp": {
-    "message": "获取移动应用程序"
+    "message": "获取移动 App"
   },
   "getBrowserExtension": {
     "message": "获取浏览器扩展"
@@ -1247,13 +1261,13 @@
     "message": "语言"
   },
   "languageDesc": {
-    "message": "更改应用程序所使用的语言。重新启动后生效。"
+    "message": "更改应用程序所使用的语言。重启后生效。"
   },
   "theme": {
     "message": "主题"
   },
   "themeDesc": {
-    "message": "更改本应用程序的颜色主题。"
+    "message": "更改应用程序的颜色主题。"
   },
   "dark": {
     "message": "深色",
@@ -1665,7 +1679,7 @@
     "message": "确认密码库导出"
   },
   "exportWarningDesc": {
-    "message": "导出的密码库数据包含未加密格式。您不应该通过不安全的渠道（例如电子邮件）来存储或发送导出的文件。用完后请立即将其删除。"
+    "message": "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
     "message": "此导出将使用您账户的加密密钥来加密您的数据。如果您曾经轮换过账户的加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
@@ -1711,7 +1725,7 @@
     "message": "使用 PIN 码解锁"
   },
   "setYourPinCode": {
-    "message": "设定您用来解锁 Bitwarden 的 PIN 码。您的 PIN 设置将在您完全注销本应用程序时被重置。"
+    "message": "设置用于解锁 Bitwarden 的 PIN 码。您的 PIN 设置将在您完全注销应用程序时被重置。"
   },
   "pinRequired": {
     "message": "需要 PIN 码。"
@@ -1753,7 +1767,7 @@
     "message": "应用程序启动时要求使用触控 ID"
   },
   "requirePasswordOnStart": {
-    "message": "应用程序启动时要求输入密码或 PIN 码"
+    "message": "App 启动时要求输入密码或 PIN 码"
   },
   "recommendedForSecurity": {
     "message": "安全起见，推荐设置。"
@@ -2255,7 +2269,7 @@
     "message": "更新主密码"
   },
   "updateMasterPasswordWarning": {
-    "message": "您的主密码最近被您组织的管理员更改过。要访问密码库，您必须立即更新它。继续操作将使您退出当前会话并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
+    "message": "您的主密码最近被您组织的管理员更改过。要访问密码库，您必须立即更新它。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
@@ -2402,7 +2416,7 @@
     "message": "偏好设置"
   },
   "appPreferences": {
-    "message": "应用设置（所有账户）"
+    "message": "应用程序设置（所有账户）"
   },
   "accountSwitcherLimitReached": {
     "message": "已达到账户上限。请注销一个账户后再添加其他账户。"
@@ -2495,7 +2509,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多个字符生成强大的密码。",
+    "message": " 使用 $RECOMMENDED$ 个或更多字符生成强大的密码。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2505,7 +2519,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多个单词生成强大的密码短语。",
+    "message": " 使用 $RECOMMENDED$ 个或更多单词生成强大的密码短语。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2864,6 +2878,12 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护你的账户。确定要使用这个密码吗？"
+  },
+  "useThisPassword": {
+    "message": "使用此密码"
+  },
+  "useThisUsername": {
+    "message": "使用此用户名"
   },
   "checkForBreaches": {
     "message": "检查已知的数据泄露是否包含此密码"
@@ -3362,6 +3382,30 @@
   "ssoError": {
     "message": "找不到用于 SSO 登录的可用端口。"
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "生物识别解锁不可用，因为需要先使用 PIN 或密码解锁。"
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "生物识别解锁当前不可用。"
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "由于系统文件配置错误，生物识别解锁不可用。"
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "由于系统文件配置错误，生物识别解锁不可用。"
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "生物识别解锁不可用，因为在 Bitwarden 桌面 App 中没有为 $EMAIL$ 启用生物识别解锁。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "由于某个未知的原因，生物识别解锁当前不可用。"
+  },
   "authorize": {
     "message": "批准"
   },
@@ -3369,7 +3413,7 @@
     "message": "拒绝"
   },
   "sshkeyApprovalTitle": {
-    "message": "确认 SSH 密钥的使用方式"
+    "message": "确认 SSH 密钥的使用"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "正在请求访问"
@@ -3402,7 +3446,7 @@
     "message": "设置两步登录"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月开始，Bitwarden 将向您的账户电子邮箱发送一个代码，以验证来自新设备的登录。"
+    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
   },
   "newDeviceVerificationNoticeContentPage2": {
     "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
@@ -3411,7 +3455,7 @@
     "message": "稍后提醒我"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能可靠地访问您的电子邮箱 $EMAIL$ 吗？",
+    "message": "您能可正常访问您的电子邮箱 $EMAIL$ 吗？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3423,12 +3467,21 @@
     "message": "不，我不能"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以可靠地访问我的电子邮箱"
+    "message": "是的，我可以正常访问我的电子邮箱"
   },
   "turnOnTwoStepLogin": {
     "message": "开启两步登录"
   },
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"
+  },
+  "organizationUpgradeRequired": {
+    "message": "需要升级组织"
+  },
+  "upgradeOrganization": {
+    "message": "升级组织"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "此功能不适用于免费组织。请切换到付费计划以解锁更多功能。"
   }
 }

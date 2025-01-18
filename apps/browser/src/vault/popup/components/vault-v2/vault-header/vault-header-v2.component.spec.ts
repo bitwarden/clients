@@ -152,7 +152,7 @@ describe("VaultHeaderV2Component", () => {
   it("defaults the initial state to true", (done) => {
     // The initial value of the `state$` variable above is undefined
     component["initialDisclosureVisibility$"].subscribe((initialVisibility) => {
-      expect(initialVisibility).toBeTrue();
+      expect(initialVisibility).toBe(true);
       done();
     });
 

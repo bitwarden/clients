@@ -9,6 +9,8 @@ import {
 } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { I18nService } from "@bitwarden/common/src/platform/abstractions/i18n.service";
 
 import { BadgeModule } from "../badge";
@@ -81,7 +83,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=3930%3A16850&t=xXPx6GJYsJfuMQPE-4",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-35837&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;

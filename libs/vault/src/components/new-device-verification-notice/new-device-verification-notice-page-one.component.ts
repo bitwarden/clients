@@ -20,6 +20,7 @@ import {
   FormFieldModule,
   RadioButtonModule,
   TypographyModule,
+  LinkModule,
 } from "@bitwarden/components";
 
 import {
@@ -41,6 +42,7 @@ import {
     FormFieldModule,
     AsyncActionsModule,
     ReactiveFormsModule,
+    LinkModule,
   ],
 })
 export class NewDeviceVerificationNoticePageOneComponent implements OnInit, AfterViewInit {
@@ -119,4 +121,10 @@ export class NewDeviceVerificationNoticePageOneComponent implements OnInit, Afte
 
     await this.router.navigate(["/vault"]);
   };
+
+  navigateToNewDeviceVerificationHelp(event: Event) {
+    event.preventDefault();
+
+    this.platformUtilsService.launchUri("https://bitwarden.com/help/new-device-verification/");
+  }
 }

@@ -67,9 +67,13 @@ describe("DomainBase", () => {
       );
 
       // @ts-expect-error -- encString2 was not decrypted
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       decrypted as { encToString: string; encString2: string; plainText: string };
 
       // encString2 was not decrypted, so it's still an EncString
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       decrypted as { encToString: string; encString2: EncString; plainText: string };
     });
 

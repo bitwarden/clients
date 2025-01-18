@@ -12,6 +12,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   ApplicationHealthReportDetail,
   ApplicationHealthReportSummary,
+  AtRiskMemberDetail,
+  AtRiskApplicationDetail,
   CipherHealthReportDetail,
   CipherHealthReportUriDetail,
   ExposedPasswordDetail,
@@ -87,6 +89,54 @@ export class RiskInsightsReportService {
     );
 
     return results$;
+  }
+
+  /**
+   * Generates a list of members with at-risk passwords along with the number of at-risk passwords.
+   */
+  generateAtRiskMemberList(
+    cipherHealthReportDetails: ApplicationHealthReportDetail[],
+  ): AtRiskMemberDetail[] {
+    const memberRiskMap = new Map<string, number>();
+
+    cipherHealthReportDetails.forEach((app) => {
+      app.atRiskMemberDetails.forEach((member) => {
+        if (memberRiskMap.has(member.email)) {
+          memberRiskMap.set(member.email, memberRiskMap.get(member.email) + 1);
+        } else {
+          memberRiskMap.set(member.email, 1);
+        }
+      });
+    });
+
+    return Array.from(memberRiskMap.entries()).map(([email, atRiskPasswordCount]) => ({
+      email,
+      atRiskPasswordCount,
+    }));
+  }
+
+  generateAtRiskApplicationList(
+    cipherHealthReportDetails: ApplicationHealthReportDetail[],
+  ): AtRiskApplicationDetail[] {
+    const appsRiskMap = new Map<string, number>();
+
+    cipherHealthReportDetails
+      .filter((app) => app.atRiskPasswordCount > 0)
+      .forEach((app) => {
+        if (appsRiskMap.has(app.applicationName)) {
+          appsRiskMap.set(
+            app.applicationName,
+            appsRiskMap.get(app.applicationName) + app.atRiskPasswordCount,
+          );
+        } else {
+          appsRiskMap.set(app.applicationName, app.atRiskPasswordCount);
+        }
+      });
+
+    return Array.from(appsRiskMap.entries()).map(([applicationName, atRiskPasswordCount]) => ({
+      applicationName,
+      atRiskPasswordCount,
+    }));
   }
 
   /**
@@ -295,7 +345,7 @@ export class RiskInsightsReportService {
       reportDetail.atRiskMemberDetails = this.getUniqueMembers(
         reportDetail.atRiskMemberDetails.concat(newUriDetail.cipherMembers),
       );
-      reportDetail.atRiskMemberCount += reportDetail.atRiskMemberDetails.length;
+      reportDetail.atRiskMemberCount = reportDetail.atRiskMemberDetails.length;
     }
 
     reportDetail.memberCount = reportDetail.memberDetails.length;

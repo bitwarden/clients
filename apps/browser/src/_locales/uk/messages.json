@@ -2324,6 +2324,9 @@
     "message": "Домени",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Заблоковані домени"
+  },
   "excludedDomains": {
     "message": "Виключені домени"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden не запитуватиме про збереження даних входу для цих доменів для всіх облікових записів, до яких виконано вхід. Потрібно оновити сторінку для застосування змін."
+  },
+  "blockedDomainsDesc": {
+    "message": "Автозаповнення та інші пов'язані функції не пропонуватимуться для цих вебсайтів. Вам слід оновити сторінку для застосування змін."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Автозаповнення для цього вебсайту заблоковано."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Змінити в налаштуваннях"
   },
   "websiteItemLabel": {
     "message": "Вебсайт $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Зміни заблокованих доменів збережено"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Виняток для домену збережено"
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Помилка"
+  },
+  "decryptionError": {
+    "message": "Помилка розшифрування"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Зверніться до служби підтримки клієнтів,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "щоб уникнути втрати даних.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Генерувати ім'я користувача"
@@ -3981,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "Пропозиції автозаповнення"
   },
+  "itemSuggestions": {
+    "message": "Запропоновані записи"
+  },
   "autofillSuggestionsTip": {
     "message": "Зберегти дані входу цього сайту для автозаповнення"
   },
@@ -4557,12 +4589,6 @@
   "textSends": {
     "message": "Відправлення тексту"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden має новий вигляд!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Ще простіше автозаповнення та інтуїтивніший пошук у сховищі. Ознайомтеся!"
-  },
   "accountActions": {
     "message": "Дії з обліковим записом"
   },
@@ -4640,6 +4666,33 @@
   },
   "noEditPermissions": {
     "message": "Вам не дозволено редагувати цей запис"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Біометричне розблокування недоступне, оскільки спочатку потрібно ввести PIN-код або пароль."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Біометричне розблокування наразі недоступне."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Біометричне розблокування недоступне через неправильно налаштовані системні файли."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Біометричне розблокування недоступне через неправильно налаштовані системні файли."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Біометричне розблокування недоступне, оскільки програму Bitwarden для комп'ютера закрито."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Біометричне розблокування недоступне, оскільки воно не увімкнене для $EMAIL$ у програмі Bitwarden для комп'ютера.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Біометричне розблокування зараз недоступне з невідомої причини."
   },
   "authenticating": {
     "message": "Аутентифікація"

@@ -3,7 +3,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -45,6 +47,7 @@ describe("NewItemDropdownV2Component", () => {
 
     await TestBed.configureTestingModule({
       imports: [
+        JslibModule,
         CommonModule,
         RouterLink,
         ButtonModule,
@@ -53,6 +56,8 @@ describe("NewItemDropdownV2Component", () => {
         NewItemDropdownV2Component,
       ],
       providers: [
+        { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ConfigService, useValue: { getFeatureFlag: () => Promise.resolve(false) } },
         { provide: DialogService, useValue: dialogServiceMock },
         { provide: I18nService, useValue: i18nServiceMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
@@ -82,7 +87,7 @@ describe("NewItemDropdownV2Component", () => {
       jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
       jest.spyOn(Utils, "getHostname").mockReturnValue("example.com");
 
-      const params = component.buildQueryParams(CipherType.Login);
+      const params = await component.buildQueryParams(CipherType.Login);
 
       expect(params).toEqual({
         type: CipherType.Login.toString(),
@@ -94,14 +99,14 @@ describe("NewItemDropdownV2Component", () => {
       });
     });
 
-    it("should build query params for a Login cipher when popped out", () => {
+    it("should build query params for a Login cipher when popped out", async () => {
       component.initialValues = {
         collectionId: "777-888-999",
       } as NewItemInitialValues;
 
       jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
 
-      const params = component.buildQueryParams(CipherType.Login);
+      const params = await component.buildQueryParams(CipherType.Login);
 
       expect(params).toEqual({
         type: CipherType.Login.toString(),
@@ -109,12 +114,12 @@ describe("NewItemDropdownV2Component", () => {
       });
     });
 
-    it("should build query params for a secure note", () => {
+    it("should build query params for a secure note", async () => {
       component.initialValues = {
         collectionId: "777-888-999",
       } as NewItemInitialValues;
 
-      const params = component.buildQueryParams(CipherType.SecureNote);
+      const params = await component.buildQueryParams(CipherType.SecureNote);
 
       expect(params).toEqual({
         type: CipherType.SecureNote.toString(),
@@ -122,12 +127,12 @@ describe("NewItemDropdownV2Component", () => {
       });
     });
 
-    it("should build query params for an Identity", () => {
+    it("should build query params for an Identity", async () => {
       component.initialValues = {
         collectionId: "777-888-999",
       } as NewItemInitialValues;
 
-      const params = component.buildQueryParams(CipherType.Identity);
+      const params = await component.buildQueryParams(CipherType.Identity);
 
       expect(params).toEqual({
         type: CipherType.Identity.toString(),
@@ -135,12 +140,12 @@ describe("NewItemDropdownV2Component", () => {
       });
     });
 
-    it("should build query params for a Card", () => {
+    it("should build query params for a Card", async () => {
       component.initialValues = {
         collectionId: "777-888-999",
       } as NewItemInitialValues;
 
-      const params = component.buildQueryParams(CipherType.Card);
+      const params = await component.buildQueryParams(CipherType.Card);
 
       expect(params).toEqual({
         type: CipherType.Card.toString(),
@@ -148,12 +153,12 @@ describe("NewItemDropdownV2Component", () => {
       });
     });
 
-    it("should build query params for a SshKey", () => {
+    it("should build query params for a SshKey", async () => {
       component.initialValues = {
         collectionId: "777-888-999",
       } as NewItemInitialValues;
 
-      const params = component.buildQueryParams(CipherType.SshKey);
+      const params = await component.buildQueryParams(CipherType.SshKey);
 
       expect(params).toEqual({
         type: CipherType.SshKey.toString(),
