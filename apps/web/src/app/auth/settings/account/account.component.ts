@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
 import { combineLatest, from, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -21,17 +20,15 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
 })
 export class AccountComponent implements OnInit, OnDestroy {
   @ViewChild("deauthorizeSessionsTemplate", { read: ViewContainerRef, static: true })
-  deauthModalRef: ViewContainerRef;
   private destroy$ = new Subject<void>();
 
-  showChangeEmail$: Observable<boolean>;
-  showPurgeVault$: Observable<boolean>;
-  showDeleteAccount$: Observable<boolean>;
-  showSetNewDeviceLoginProtection$: Observable<boolean>;
-  verifyNewDeviceLogin: boolean;
+  showChangeEmail$: Observable<boolean> = new Observable();
+  showPurgeVault$: Observable<boolean> = new Observable();
+  showDeleteAccount$: Observable<boolean> = new Observable();
+  showSetNewDeviceLoginProtection$: Observable<boolean> = new Observable();
+  verifyNewDeviceLogin: boolean = true;
 
   constructor(
-    private modalService: ModalService,
     private accountService: AccountService,
     private dialogService: DialogService,
     private userVerificationService: UserVerificationService,
@@ -91,9 +88,10 @@ export class AccountComponent implements OnInit, OnDestroy {
       });
   }
 
-  async deauthorizeSessions() {
-    await this.modalService.openViewRef(DeauthorizeSessionsComponent, this.deauthModalRef);
-  }
+  deauthorizeSessions = async () => {
+    const dialogRef = DeauthorizeSessionsComponent.open(this.dialogService);
+    await lastValueFrom(dialogRef.closed);
+  };
 
   purgeVault = async () => {
     const dialogRef = PurgeVaultComponent.open(this.dialogService);
