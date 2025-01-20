@@ -444,11 +444,11 @@ export class BiometricMessageHandlerService {
   }
 
   async validateFingerprint(appId: string): Promise<boolean> {
-    if ((await this.connectedApps.has(appId)) && (await this.connectedApps.get(appId)).trusted) {
-      return true;
-    }
-
     if (await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)) {
+      if ((await this.connectedApps.has(appId)) && (await this.connectedApps.get(appId)).trusted) {
+        return true;
+      }
+
       ipc.platform.nativeMessaging.sendMessage({
         command: "verifyDesktopIPCFingerprint",
         appId: appId,
