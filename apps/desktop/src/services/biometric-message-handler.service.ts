@@ -31,6 +31,11 @@ import { DesktopSettingsService } from "../platform/services/desktop-settings.se
 const MessageValidTimeout = 10 * 1000;
 const HashAlgorithmForAsymmetricEncryption = "sha1";
 
+type ConnectedApp = {
+  publicKey: Uint8Array;
+  trusted: boolean;
+};
+
 @Injectable()
 export class BiometricMessageHandlerService {
   constructor(
@@ -48,8 +53,7 @@ export class BiometricMessageHandlerService {
     private ngZone: NgZone,
   ) {}
 
-  private publicKeysForAppId: Map<string, Uint8Array> = new Map();
-  private trustedAppIds: Set<string> = new Set();
+  private connectedApps: Map<string, ConnectedApp> = new Map();
 
   async handleMessage(msg: LegacyMessageWrapper) {
     const { appId, message: rawMessage } = msg as LegacyMessageWrapper;
@@ -74,16 +78,18 @@ export class BiometricMessageHandlerService {
 
       this.logService.info(
         "[Native Messaging IPC] Received setupEncryption message, has :" + appId,
-        this.publicKeysForAppId.has(appId),
+        this.connectedApps.has(appId),
       );
-      if (this.publicKeysForAppId.has(appId)) {
+      if (this.connectedApps.has(appId)) {
         this.logService.info(
           "[Native Messaging IPC] Public key for app id changed. Invalidating trust",
         );
-        this.trustedAppIds.delete(appId);
       }
 
-      this.publicKeysForAppId.set(appId, remotePublicKey);
+      this.connectedApps.set(appId, {
+        publicKey: remotePublicKey,
+        trusted: false,
+      });
       await this.secureCommunication(remotePublicKey, appId);
       return;
     }
@@ -372,7 +378,7 @@ export class BiometricMessageHandlerService {
   }
 
   async validateFingerprint(appId: string) {
-    if (this.trustedAppIds.has(appId)) {
+    if (this.connectedApps.has(appId) && this.connectedApps.get(appId).trusted) {
       return true;
     }
 
@@ -385,7 +391,7 @@ export class BiometricMessageHandlerService {
 
       const fingerprint = await this.keyService.getFingerprint(
         appId,
-        this.publicKeysForAppId.get(appId),
+        this.connectedApps.get(appId)?.publicKey,
       );
 
       this.messagingService.send("setFocus");
@@ -410,7 +416,7 @@ export class BiometricMessageHandlerService {
         });
       }
 
-      this.trustedAppIds.add(appId);
+      this.connectedApps.get(appId).trusted = true;
     }
 
     return true;
