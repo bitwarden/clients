@@ -96,7 +96,6 @@ import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
-import { TaxRateResponse } from "../billing/models/response/tax-rate.response";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
@@ -382,7 +381,6 @@ export abstract class ApiService {
   ): Promise<OrganizationConnectionResponse<TConfig>>;
   deleteOrganizationConnection: (id: string) => Promise<void>;
   getPlans: () => Promise<ListResponse<PlanResponse>>;
-  getTaxRates: () => Promise<ListResponse<TaxRateResponse>>;
 
   getProviderUsers: (providerId: string) => Promise<ListResponse<ProviderUserUserDetailsResponse>>;
   getProviderUser: (providerId: string, id: string) => Promise<ProviderUserResponse>;
