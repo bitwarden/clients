@@ -7,7 +7,10 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { FakeGlobalState } from "../../../spec/fake-state";
-import { FakeGlobalStateProvider } from "../../../spec/fake-state-provider";
+import {
+  FakeGlobalStateProvider,
+  FakeSingleUserStateProvider,
+} from "../../../spec/fake-state-provider";
 import { trackEmissions } from "../../../spec/utils";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
@@ -66,6 +69,7 @@ describe("accountService", () => {
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
   let globalStateProvider: FakeGlobalStateProvider;
+  let singleUserStateProvider: FakeSingleUserStateProvider;
   let sut: AccountServiceImplementation;
   let accountsState: FakeGlobalState<Record<UserId, AccountInfo>>;
   let activeAccountIdState: FakeGlobalState<UserId>;
@@ -76,8 +80,14 @@ describe("accountService", () => {
     messagingService = mock();
     logService = mock();
     globalStateProvider = new FakeGlobalStateProvider();
+    singleUserStateProvider = new FakeSingleUserStateProvider();
 
-    sut = new AccountServiceImplementation(messagingService, logService, globalStateProvider);
+    sut = new AccountServiceImplementation(
+      messagingService,
+      logService,
+      globalStateProvider,
+      singleUserStateProvider,
+    );
 
     accountsState = globalStateProvider.getFake(ACCOUNT_ACCOUNTS);
     activeAccountIdState = globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID);
