@@ -336,7 +336,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: Fido2UserInterfaceServiceAbstraction,
     useClass: DesktopFido2UserInterfaceService,
-    deps: [AuthServiceAbstraction, CipherServiceAbstraction, AccountService, LogService],
+    deps: [
+      AuthServiceAbstraction,
+      CipherServiceAbstraction,
+      AccountService,
+      LogService,
+      MessagingServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: Fido2AuthenticatorServiceAbstraction,

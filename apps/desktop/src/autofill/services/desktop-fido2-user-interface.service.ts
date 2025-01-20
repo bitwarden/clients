@@ -10,6 +10,7 @@ import {
   PickCredentialParams,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -27,6 +28,7 @@ export class DesktopFido2UserInterfaceService
     private cipherService: CipherService,
     private accountService: AccountService,
     private logService: LogService,
+    private messagingService: MessagingService,
   ) {}
 
   async newSession(
@@ -40,6 +42,7 @@ export class DesktopFido2UserInterfaceService
       this.cipherService,
       this.accountService,
       this.logService,
+      this.messagingService,
     );
   }
 }
@@ -50,6 +53,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private cipherService: CipherService,
     private accountService: AccountService,
     private logService: LogService,
+    private messagingService: MessagingService,
   ) {}
 
   async pickCredential({
@@ -74,6 +78,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       userVerification,
       rpId,
     );
+
+    await this.messagingService.send("loadurl", { url: "/passkeys", modal: true });
 
     // Store the passkey on a new cipher to avoid replacing something important
     const cipher = new CipherView();

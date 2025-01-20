@@ -37,6 +37,9 @@ export class MessagingMain {
 
   async onMessage(message: any) {
     switch (message.command) {
+      case "loadurl":
+        await this.main.windowMain.loadUrl(message.url, message.modal);
+        break;
       case "scheduleNextSync":
         this.scheduleNextSync();
         break;

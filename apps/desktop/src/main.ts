@@ -205,6 +205,13 @@ export class Main {
       new ElectronMainMessagingService(this.windowMain),
     );
 
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.messagingService,
+    );
+
     messageSubject.asObservable().subscribe((message) => {
       void this.messagingMain.onMessage(message).catch((err) => {
         this.logService.error(
