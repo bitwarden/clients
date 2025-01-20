@@ -250,10 +250,7 @@ export class BiometricMessageHandlerService {
       // TODO: legacy, remove after 2025.3
       case BiometricsCommands.Unlock: {
         if (
-          (await firstValueFrom(
-            this.desktopSettingService.browserIntegrationFingerprintEnabled$,
-          )) &&
-          !(await this.connectedApps.get(appId)).trusted
+          await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)
         ) {
           await this.send({ command: "biometricUnlock", response: "not available" }, appId);
           await this.dialogService.openSimpleDialog({
