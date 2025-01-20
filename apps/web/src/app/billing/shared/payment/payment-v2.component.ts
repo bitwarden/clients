@@ -113,16 +113,21 @@ export class PaymentV2Component implements OnInit, OnDestroy {
       const clientSecret = await this.billingApiService.createSetupIntent(type);
 
       if (this.usingBankAccount) {
-        const token = await this.stripeService.setupBankAccountPaymentMethod(clientSecret, {
-          accountHolderName: this.formGroup.value.bankInformation.accountHolderName,
-          routingNumber: this.formGroup.value.bankInformation.routingNumber,
-          accountNumber: this.formGroup.value.bankInformation.accountNumber,
-          accountHolderType: this.formGroup.value.bankInformation.accountHolderType,
-        });
-        return {
-          type,
-          token,
-        };
+        this.formGroup.markAllAsTouched();
+        if (this.formGroup.valid) {
+          const token = await this.stripeService.setupBankAccountPaymentMethod(clientSecret, {
+            accountHolderName: this.formGroup.value.bankInformation.accountHolderName,
+            routingNumber: this.formGroup.value.bankInformation.routingNumber,
+            accountNumber: this.formGroup.value.bankInformation.accountNumber,
+            accountHolderType: this.formGroup.value.bankInformation.accountHolderType,
+          });
+          return {
+            type,
+            token,
+          };
+        } else {
+          throw "Invalid input provided, Please ensure all required fields are filled out correctly and try again.";
+        }
       }
 
       if (this.usingCard) {
@@ -139,6 +144,13 @@ export class PaymentV2Component implements OnInit, OnDestroy {
       return {
         type,
         token,
+      };
+    }
+
+    if (this.usingAccountCredit) {
+      return {
+        type: PaymentMethodType.Credit,
+        token: null,
       };
     }
 

@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofyldning og andre relaterede funktioner tilbydes ikke på disse websteder. Siden skal opdateres for at effektuere ændringerne."
   },
-  "autofillBlockedNotice": {
-    "message": "Autoudfyldning er blokeret på dette websted. Gennemgå eller ændr dette i Indstillinger."
+  "autofillBlockedNoticeV2": {
+    "message": "Autoudfyldning blokeret for dette websted."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autoudfyldning er blokeret på dette websted. Gennemgå i Indstillinger."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Ændr dette i Indstillinger"
   },
   "websiteItemLabel": {
     "message": "Websted $number$ (URI)",
@@ -4010,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "Autoudfyldningsforslag"
   },
+  "itemSuggestions": {
+    "message": "Foreslåede emner"
+  },
   "autofillSuggestionsTip": {
     "message": "Gem et loginemne for dette websted til autoudfyldning"
   },
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Tekst-Sends"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden har fået et nyt look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Det er lettere og mere intuitivt end nogensinde at autoudfylde og søge via fanen Boks. Tag et kig omkring!"
   },
   "accountActions": {
     "message": "Kontohandlinger"

@@ -2880,10 +2880,10 @@
     "message": "Noteikta vāja parole, un tā ir atrasta datu noplūdē. Jāizmanto spēcīga un neatkārtojama parole, lai aizsargātu savu kontu. Vai tiešām izmantot šo paroli?"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Izmantot šo paroli"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Izmantot šo lietotājvārdu"
   },
   "checkForBreaches": {
     "message": "Meklēt šo paroli zināmās datu noplūdēs"
@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "Mainīt konta e-pasta adresi"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Nepieciešams apvienības uzlabojums"
+  },
+  "upgradeOrganization": {
+    "message": "Uzlabot apvienību"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Šī iespēja nav pieejama bezmaksas apvienībām. Maksas plāna izvēle sniedz plašākas iespējas."
   }
 }

@@ -3,9 +3,7 @@
   <ng-container bitDialogContent>
     <div class="tw-flex tw-flex-col tw-gap-2">
       <span bitDialogTitle>{{ "atRiskMembersWithCount" | i18n: members.length }} </span>
-      <span class="tw-text-muted">{{
-        "atRiskMembersDescriptionWithApp" | i18n: applicationName
-      }}</span>
+      <span>{{ "atRiskMembersDescriptionWithApp" | i18n: applicationName }}</span>
       <div class="tw-mt-1">
         <ng-container *ngFor="let member of members">
           <div>{{ member.email }}</div>
