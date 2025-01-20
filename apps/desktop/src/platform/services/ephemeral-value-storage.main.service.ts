@@ -17,5 +17,8 @@ export class EphemeralValueStorageService {
     ipcMain.handle("deleteEphemeralValue", async (event, key: string) => {
       this.ephemeralValues.delete(key);
     });
+    ipcMain.handle("listEphemeralValues", async (event) => {
+      return Array.from(this.ephemeralValues.keys());
+    });
   }
 }

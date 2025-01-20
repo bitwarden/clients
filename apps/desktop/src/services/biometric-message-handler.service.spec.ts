@@ -11,7 +11,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { FakeAccountService } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, I18nMockService } from "@bitwarden/components";
 import { KeyService, BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
@@ -54,6 +54,7 @@ describe("BiometricMessageHandlerService", () => {
   let accountService: AccountService;
   let authService: MockProxy<AuthService>;
   let ngZone: MockProxy<NgZone>;
+  let i18nService: MockProxy<I18nMockService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -69,6 +70,7 @@ describe("BiometricMessageHandlerService", () => {
     accountService = new FakeAccountService(accounts);
     authService = mock<AuthService>();
     ngZone = mock<NgZone>();
+    i18nService = mock<I18nMockService>();
 
     service = new BiometricMessageHandlerService(
       cryptoFunctionService,
@@ -83,6 +85,7 @@ describe("BiometricMessageHandlerService", () => {
       accountService,
       authService,
       ngZone,
+      i18nService,
     );
   });
 
