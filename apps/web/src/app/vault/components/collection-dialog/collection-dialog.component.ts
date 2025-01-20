@@ -29,7 +29,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { BitValidators, DialogService } from "@bitwarden/components";
+import { BitValidators, DialogService, ToastService } from "@bitwarden/components";
 
 import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
 import { PermissionMode } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.component";
@@ -110,6 +110,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private organizationUserApiService: OrganizationUserApiService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
+    private toastService: ToastService,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
   }
@@ -274,17 +275,20 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       const accessTabError = this.formGroup.controls.access.hasError("managePermissionRequired");
 
       if (this.tabIndex === CollectionDialogTabType.Access && !accessTabError) {
-        this.platformUtilsService.showToast(
-          "error",
-          null,
-          this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("collectionInfo")),
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t(
+            "fieldOnTabRequiresAttention",
+            this.i18nService.t("collectionInfo"),
+          ),
+        });
       } else if (this.tabIndex === CollectionDialogTabType.Info && accessTabError) {
-        this.platformUtilsService.showToast(
-          "error",
-          null,
-          this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("access")),
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("access")),
+        });
       }
       return;
     }
@@ -309,14 +313,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     const savedCollection = await this.collectionAdminService.save(collectionView);
 
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t(
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(
         this.editMode ? "editedCollectionId" : "createdCollectionId",
         collectionView.name,
       ),
-    );
+    });
 
     this.close(CollectionDialogAction.Saved, savedCollection);
   };
@@ -339,11 +343,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     await this.collectionAdminService.delete(this.params.organizationId, this.params.collectionId);
 
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("deletedCollectionId", this.collection?.name),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("deletedCollectionId", this.collection?.name),
+    });
 
     this.close(CollectionDialogAction.Deleted, this.collection);
   };

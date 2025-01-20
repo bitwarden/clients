@@ -9,10 +9,10 @@ import {
 } from "@angular/forms";
 
 import { isBrowserSafariApi } from "@bitwarden/platform";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { InputModule } from "../input/input.module";
 import { FocusableElement } from "../shared/focusable-element";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 let nextId = 0;
 
@@ -46,6 +46,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
 
   @Input() disabled: boolean;
   @Input() placeholder: string;
+  @Input() autocomplete: string;
 
   getFocusTarget() {
     return this.input.nativeElement;

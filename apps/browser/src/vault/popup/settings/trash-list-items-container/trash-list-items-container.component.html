@@ -13,10 +13,25 @@
         [appA11yTitle]="'viewItemTitle' | i18n: cipher.name"
         (click)="onViewCipher(cipher)"
       >
-        <app-vault-icon slot="start" [cipher]="cipher"></app-vault-icon>
+        <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
+          <app-vault-icon [cipher]="cipher"></app-vault-icon>
+        </div>
         <span data-testid="item-name">{{ cipher.name }}</span>
+        <i
+          *ngIf="cipher.organizationId"
+          appOrgIcon
+          [tierType]="cipher.organization.productTierType"
+          [size]="'small'"
+          [appA11yTitle]="orgIconTooltip(cipher)"
+        ></i>
+        <i
+          *ngIf="cipher.hasAttachments"
+          class="bwi bwi-paperclip bwi-sm"
+          [appA11yTitle]="'attachments' | i18n"
+        ></i>
+        <span slot="secondary">{{ cipher.subTitle }}</span>
       </button>
-      <ng-container slot="end" *ngIf="cipher.edit">
+      <ng-container slot="end" *ngIf="cipher.edit && cipher.viewPassword">
         <bit-item-action>
           <button
             type="button"
@@ -27,7 +42,12 @@
             [bitMenuTriggerFor]="moreOptions"
           ></button>
           <bit-menu #moreOptions>
-            <button type="button" bitMenuItem (click)="restore(cipher)">
+            <button
+              type="button"
+              bitMenuItem
+              (click)="restore(cipher)"
+              *ngIf="!cipher.decryptionFailure"
+            >
               {{ "restore" | i18n }}
             </button>
             <button type="button" bitMenuItem *appCanDeleteCipher="cipher" (click)="delete(cipher)">

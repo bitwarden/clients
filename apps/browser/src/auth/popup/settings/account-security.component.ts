@@ -17,6 +17,7 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  timer,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -28,6 +29,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { DeviceType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -53,14 +55,17 @@ import {
   TypographyModule,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService, BiometricsService, BiometricStateService } from "@bitwarden/key-management";
+import {
+  KeyService,
+  BiometricsService,
+  BiometricStateService,
+  BiometricsStatus,
+} from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import { enableAccountSwitching } from "../../../platform/flags";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { SetPinComponent } from "../components/set-pin.component";
@@ -82,7 +87,6 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     JslibModule,
     LinkModule,
     PopOutComponent,
-    PopupFooterComponent,
     PopupHeaderComponent,
     PopupPageComponent,
     RouterModule,
@@ -101,9 +105,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   availableVaultTimeoutActions: VaultTimeoutAction[] = [];
   vaultTimeoutOptions: VaultTimeoutOption[] = [];
   hasVaultTimeoutPolicy = false;
-  supportsBiometric: boolean;
+  biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
-  accountSwitcherEnabled = false;
+  showAutoPrompt = true;
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -136,11 +140,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
-  ) {
-    this.accountSwitcherEnabled = enableAccountSwitching();
-  }
+  ) {}
 
   async ngOnInit() {
+    // Firefox popup closes when unfocused by biometrics, blocking all unlock methods
+    if (this.platformUtilsService.getDevice() === DeviceType.FirefoxExtension) {
+      this.showAutoPrompt = false;
+    }
+
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
     this.showMasterPasswordOnClientRestartOption = hasMasterPassword;
     const maximumVaultTimeoutPolicy = this.policyService.get$(PolicyType.MaximumVaultTimeout);
@@ -201,7 +208,41 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
-    this.supportsBiometric = await this.biometricsService.supportsBiometric();
+    timer(0, 1000)
+      .pipe(
+        switchMap(async () => {
+          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
+          const biometricSettingAvailable =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) ||
+            (status !== BiometricsStatus.DesktopDisconnected &&
+              status !== BiometricsStatus.NotEnabledInConnectedDesktopApp) ||
+            (await this.vaultTimeoutSettingsService.isBiometricLockSet());
+          if (!biometricSettingAvailable) {
+            this.form.controls.biometric.disable({ emitEvent: false });
+          } else {
+            this.form.controls.biometric.enable({ emitEvent: false });
+          }
+
+          if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
+            this.biometricUnavailabilityReason = this.i18nService.t(
+              "biometricsStatusHelptextDesktopDisconnected",
+            );
+          } else if (
+            status === BiometricsStatus.NotEnabledInConnectedDesktopApp &&
+            !biometricSettingAvailable
+          ) {
+            this.biometricUnavailabilityReason = this.i18nService.t(
+              "biometricsStatusHelptextNotEnabledInDesktop",
+              activeAccount.email,
+            );
+          } else {
+            this.biometricUnavailabilityReason = "";
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
     this.showChangeMasterPass = await this.userVerificationService.hasMasterPassword();
 
     this.form.controls.vaultTimeout.valueChanges
@@ -401,7 +442,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async updateBiometric(enabled: boolean) {
-    if (enabled && this.supportsBiometric) {
+    if (enabled) {
       let granted;
       try {
         granted = await BrowserApi.requestPermission({ permissions: ["nativeMessaging"] });
@@ -473,7 +514,18 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     const biometricsPromise = async () => {
       try {
-        const result = await this.biometricsService.authenticateBiometric();
+        const userId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((a) => a.id)),
+        );
+        let result = false;
+        try {
+          const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
+          result = await this.keyService.validateUserKey(userKey, userId);
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) {
+          result = false;
+        }
 
         // prevent duplicate dialog
         biometricsResponseReceived = true;

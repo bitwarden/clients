@@ -77,10 +77,7 @@ export class OrganizationLayoutComponent implements OnInit {
       filter((org) => org != null),
     );
 
-    this.canAccessExport$ = combineLatest([
-      this.organization$,
-      this.configService.getFeatureFlag$(FeatureFlag.PM11360RemoveProviderExportPermission),
-    ]).pipe(map(([org, removeProviderExport]) => org.canAccessExport(removeProviderExport)));
+    this.canAccessExport$ = this.organization$.pipe(map((org) => org.canAccessExport));
 
     this.showPaymentAndHistory$ = this.organization$.pipe(
       map(

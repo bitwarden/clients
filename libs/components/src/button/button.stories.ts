@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Meta, StoryObj } from "@storybook/angular";
 
 import { ButtonComponent } from "./button.component";
@@ -15,7 +13,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=5115%3A26950",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-28224&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta<ButtonComponent>;
@@ -107,13 +105,13 @@ export const DisabledWithAttribute: Story = {
 };
 
 export const Block: Story = {
-  render: (args: ButtonComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <span class="tw-flex">
         <button bitButton [buttonType]="buttonType" [block]="block">[block]="true" Button</button>
         <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ml-2">[block]="true" Link</a>
-  
+
         <button bitButton [buttonType]="buttonType" block class="tw-ml-2">block Button</button>
         <a bitButton [buttonType]="buttonType" block href="#" class="tw-ml-2">block Link</a>
       </span>

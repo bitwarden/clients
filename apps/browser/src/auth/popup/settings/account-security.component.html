@@ -11,13 +11,16 @@
         <h2 bitTypography="h6">{{ "unlockMethods" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
-        <bit-form-control *ngIf="supportsBiometric">
+        <bit-form-control>
           <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
           <bit-label for="biometric" class="tw-whitespace-normal">{{
             "unlockWithBiometrics" | i18n
           }}</bit-label>
+          <bit-hint *ngIf="biometricUnavailabilityReason">
+            {{ biometricUnavailabilityReason }}
+          </bit-hint>
         </bit-form-control>
-        <bit-form-control class="tw-pl-5" *ngIf="supportsBiometric && this.form.value.biometric">
+        <bit-form-control class="tw-pl-5" *ngIf="this.form.value.biometric && showAutoPrompt">
           <input
             bitCheckbox
             id="autoBiometricsPrompt"
@@ -105,18 +108,6 @@
           {{ "changeMasterPassword" | i18n }}
           <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
         </button>
-      </bit-item>
-      <bit-item
-        *ngIf="
-          !accountSwitcherEnabled && availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)
-        "
-      >
-        <button bit-item-content type="button" appStopClick (click)="lock()"></button>
-        {{ "lockNow" | i18n }}
-      </bit-item>
-      <bit-item *ngIf="!accountSwitcherEnabled">
-        <button bit-item-content type="button" appStopClick (click)="logOut()"></button>
-        {{ "logOut" | i18n }}
       </bit-item>
     </bit-section>
   </div>

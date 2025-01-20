@@ -1,9 +1,9 @@
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
-import { CountryListItem } from "@bitwarden/common/billing/models/domain";
-import { PreviewIndividualInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-individual-invoice.request";
-import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
-import { PreviewInvoiceResponse } from "@bitwarden/common/billing/models/response/preview-invoice.response";
+import { ApiService } from "../../abstractions/api.service";
+import { TaxServiceAbstraction } from "../abstractions/tax.service.abstraction";
+import { CountryListItem } from "../models/domain";
+import { PreviewIndividualInvoiceRequest } from "../models/request/preview-individual-invoice.request";
+import { PreviewOrganizationInvoiceRequest } from "../models/request/preview-organization-invoice.request";
+import { PreviewInvoiceResponse } from "../models/response/preview-invoice.response";
 
 export class TaxService implements TaxServiceAbstraction {
   constructor(private apiService: ApiService) {}

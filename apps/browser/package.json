@@ -1,10 +1,10 @@
 {
   "name": "@bitwarden/browser",
-  "version": "2025.1.0",
+  "version": "2025.1.1",
   "scripts": {
     "build": "npm run build:chrome",
     "build:chrome": "cross-env BROWSER=chrome MANIFEST_VERSION=3 webpack",
-    "build:edge": "cross-env BROWSER=edge webpack",
+    "build:edge": "cross-env BROWSER=edge MANIFEST_VERSION=3 webpack",
     "build:firefox": "cross-env BROWSER=firefox webpack",
     "build:opera": "cross-env BROWSER=opera webpack",
     "build:safari": "cross-env BROWSER=safari webpack",
@@ -30,6 +30,7 @@
     "dist:safari:mv3": "cross-env MANIFEST_VERSION=3 npm run dist:safari",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:watch:all": "jest --watchAll"
+    "test:watch:all": "jest --watchAll",
+    "test:clearCache": "jest --clear-cache"
   }
 }
