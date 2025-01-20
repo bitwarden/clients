@@ -3795,6 +3795,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "Unlinked SSO for user $ID$.",
     "placeholders": {

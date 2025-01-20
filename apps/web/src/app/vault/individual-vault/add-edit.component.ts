@@ -194,11 +194,11 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     }
 
     this.platformUtilsService.copyToClipboard(value, { window: window });
-    this.platformUtilsService.showToast(
-      "info",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
-    );
+    this.toastService.showToast({
+      variant: "info",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
+    });
 
     if (this.editMode) {
       if (typeI18nKey === "password") {
