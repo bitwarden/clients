@@ -35,10 +35,7 @@
       'tw-min-h-60': loading,
     }"
   >
-    <div
-      *ngIf="loading"
-      class="tw-absolute tw-flex tw-h-full tw-w-full tw-items-center tw-justify-center"
-    >
+    <div *ngIf="loading" class="tw-absolute tw-flex tw-size-full tw-items-center tw-justify-center">
       <i class="bwi bwi-spinner bwi-spin bwi-lg" [attr.aria-label]="'loading' | i18n"></i>
     </div>
     <div
