@@ -7,7 +7,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
   selector: "bit-kitchen-sink-toggle-list",
   imports: [KitchenSinkSharedModule],
   template: `
-    <div class="tw-mt-6 tw-mb-6">
+    <div class="tw-my-6">
       <bit-toggle-group [(selected)]="selectedToggle" aria-label="Company list filter">
         <bit-toggle value="all"> All <span bitBadge variant="info">3</span> </bit-toggle>
 

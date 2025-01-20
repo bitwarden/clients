@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill en andere gerelateerde functies worden niet aangeboden voor deze websites. Vernieuw de pagina om de wijzigingen toe te passen."
   },
-  "autofillBlockedNotice": {
-    "message": "Automatisch invullen is geblokkeerd voor deze website. Bekijk of verander dit in de instellingen."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is geblokkeerd voor deze website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Automatisch invullen is geblokkeerd voor deze website. Bekijk in de instellingen."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Dit aanpassen in instellingen"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -4010,6 +4010,9 @@
   "autofillSuggestions": {
     "message": "Suggesties automatisch invullen"
   },
+  "itemSuggestions": {
+    "message": "Voorgestelde items"
+  },
   "autofillSuggestionsTip": {
     "message": "Inlogitem opslaan voor automatisch invullen op deze site"
   },
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "Tekst-Sends"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden heeft een nieuw uiterlijk!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Automatisch invullen en zoeken is makkelijker en intuïtiever dan ooit vanaf het tabblad Kluis. Kijk rond!"
   },
   "accountActions": {
     "message": "Accountacties"

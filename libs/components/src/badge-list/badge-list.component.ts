@@ -3,8 +3,9 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { BadgeModule, BadgeVariant } from "../badge";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 @Component({
   selector: "bit-badge-list",

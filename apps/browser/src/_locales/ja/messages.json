@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "ウェブサイト $number$ (URI)",
@@ -4008,7 +4008,10 @@
     "message": "パスキーを削除しました"
   },
   "autofillSuggestions": {
-    "message": "候補を自動入力する"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "自動入力するためにこのサイトのログインアイテムを保存します"
@@ -4585,12 +4588,6 @@
   },
   "textSends": {
     "message": "テキスト Send"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden が新しい外観になりました。"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "保管庫タブからの自動入力と検索がこれまで以上に簡単で直感的になりました。"
   },
   "accountActions": {
     "message": "アカウントの操作"

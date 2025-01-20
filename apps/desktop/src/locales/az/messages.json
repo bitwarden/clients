@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "Hesabın e-poçtunu dəyişdir"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Təşkilat yüksəltmə tələb olunur"
+  },
+  "upgradeOrganization": {
+    "message": "Təşkilatı yüksəlt"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Bu özəllik, ödənişsiz təşkilatlar üçün əlçatan deyil. Daha çox özəlliyin kilidini açmaq üçün ödənişli plana keçin."
   }
 }

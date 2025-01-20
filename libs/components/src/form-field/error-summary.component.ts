@@ -4,7 +4,7 @@ import { NgIf } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { AbstractControl, UntypedFormGroup } from "@angular/forms";
 
-import { I18nPipe } from "../shared/i18n.pipe";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
   selector: "bit-error-summary",
