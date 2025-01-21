@@ -1,13 +1,16 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
 
-<Meta title="Components/Notifications/Notification Footer" />
+import * as stories from "./footer.lit-stories";
+
+<Meta title="Components/Notifications/Notification Footer" of={stories} />
 
 ## Notification Footer
 
 The `NotificationFooter` component is used to display a footer for notifications, allowing dynamic
 customization based on the `theme` and `notificationType`.
 
----
+<Primary />
+<Controls />
 
 ## Props
 

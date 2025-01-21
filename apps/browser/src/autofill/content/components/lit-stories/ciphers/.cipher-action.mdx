@@ -1,12 +1,17 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
 
-<Meta title="Components/Ciphers/Cipher Action" />
+import * as stories from "./cipher-action.lit-stories";
+
+<Meta title="Components/Ciphers/Cipher Action" of={stories} />
 
 ## Cipher Action
 
 The `CipherAction` component is a functional UI element that handles actions related to ciphers in a
 secure environment. Built with the `lit` library and styled for consistency across themes, it
 provides flexibility and accessibility while supporting various notification types.
+
+<Primary />
+<Controls />
 
 ## Props
 

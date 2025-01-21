@@ -1,19 +1,24 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
 
-<Meta title="Components/Buttons/Action Button" />
+import * as stories from "./badge-button.lit-stories";
 
-## Action Button
+<Meta title="Components/Buttons/Badge Button" of={stories} />
 
-The `ActionButton` component is a customizable button built using the `lit` library and styled with
-`@emotion/css`. This component supports themes, handles click events, and includes a disabled state.
-It is designed with accessibility and responsive design in mind.
+## Badge Button
+
+The `BadgeButton` component is a compact, styled button built using the `lit` library and styled
+with `@emotion/css`. It is designed to display concise text and supports themes, click event
+handling, and a disabled state. The component is optimized for accessibility and responsive design.
+
+<Primary />
+<Controls />
 
 ## Props
 
 | **Prop**       | **Type**                   | **Required** | **Description**                                             |
 | -------------- | -------------------------- | ------------ | ----------------------------------------------------------- |
 | `buttonAction` | `(e: Event) => void`       | Yes          | The function to execute when the button is clicked.         |
-| `buttonText`   | `string`                   | Yes          | The text to display on the button.                          |
+| `buttonText`   | `string`                   | Yes          | The text to display on the badge button.                    |
 | `disabled`     | `boolean` (default: false) | No           | Disables the button when set to `true`.                     |
 | `theme`        | `Theme`                    | Yes          | The theme to style the button. Must match the `Theme` enum. |
 
@@ -26,13 +31,13 @@ It is designed with accessibility and responsive design in mind.
 
 2. Pass the required props to the component when rendering:
    - `buttonAction`: A function that handles the click event.
-   - `buttonText`: The text displayed on the button.
+   - `buttonText`: The text displayed on the badge button.
    - `disabled` (optional): A boolean indicating whether the button is disabled.
    - `theme`: The theme to style the button (must be a valid `Theme`).
 
 ## Accessibility (WCAG) Compliance
 
-The `ActionButton` component follows the
+The `BadgeButton` component follows the
 [W3C ARIA button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/). Below is a breakdown of
 key accessibility considerations:
 

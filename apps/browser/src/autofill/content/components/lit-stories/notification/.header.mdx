@@ -1,6 +1,8 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
 
-<Meta title="Components/Notifications/Notification Header" />
+import * as stories from "./header.lit-stories";
+
+<Meta title="Components/Notifications/Notification Header" of={stories} />
 
 ## Notification Header
 
@@ -8,7 +10,8 @@ The `NotificationHeader` component is used to display a notification banner with
 and an optional close button. This component is versatile and can be styled dynamically based on the
 `theme` and other provided props.
 
----
+<Primary />
+<Controls />
 
 ## Props
 

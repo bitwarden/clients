@@ -1,12 +1,17 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
 
-<Meta title="Components/Ciphers/Cipher Icon" />
+import * as stories from "./cipher-icon.lit-stories";
+
+<Meta title="Components/Ciphers/Cipher Icon" of={stories} />
 
 ## Cipher Icon
 
 The `CipherIcon` component is a versatile icon renderer designed for secure environments. It
 dynamically supports custom icons provided via URIs or displays a default icon (`Globe`) styled
 based on the theme and provided properties.
+
+<Primary />
+<Controls />
 
 ## Props
 

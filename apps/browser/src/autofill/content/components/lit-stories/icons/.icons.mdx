@@ -1,12 +1,15 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls } from "@storybook/addon-docs";
 
-<Meta title="Components/Icons/Icons" />
+import * as stories from "./icons.lit-stories";
+
+<Meta title="Components/Icons/Icons" of={stories} />
 
 ## Icon Stories
 
 The `Icons` component suite demonstrates various icon components styled dynamically based on props
 like size, color, and theme. Each story is an example of how a specific icon can be rendered.
 
+<Controls />
 ### Icons
 
 |                           |                    |

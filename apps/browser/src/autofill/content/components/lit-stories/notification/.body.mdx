@@ -1,6 +1,8 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
 
-<Meta title="Components/Notifications/Notification Body" />
+import * as stories from "./body.lit-stories";
+
+<Meta title="Components/Notifications/Notification Body" of={stories} />
 
 ## Notification Body
 
@@ -8,7 +10,8 @@ The `NotificationBody` component displays a detailed notification with a list of
 notification type, and styling based on the selected theme. It is a flexible component for
 presenting actionable information.
 
----
+<Primary />
+<Controls />
 
 ## Props
 

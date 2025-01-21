@@ -1,6 +1,8 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
 
-<Meta title="Components/Buttons/Close Button" />
+import * as stories from "./close-button.lit-stories";
+
+<Meta title="Components/Buttons/Close Button" of={stories} />
 
 ## Close Button
 
@@ -8,6 +10,8 @@ The `CloseButton` component is a lightweight, themeable button used for closing 
 dismissing elements. It is built using the `lit` library, styled with `@emotion/css`, and integrates
 a close icon for visual clarity. The component is designed to be intuitive and accessible.
 
+<Primary />
+<Controls />
 ## Props
 
 | **Prop**                  | **Type**             | **Required** | **Description**                                             |

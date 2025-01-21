@@ -1,6 +1,8 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
 
-<Meta title="Components/Buttons/Edit Button" />
+import * as stories from "./edit-button.lit-stories";
+
+<Meta title="Components/Buttons/Edit Button" of={stories} />
 
 ## Edit Button
 
@@ -9,6 +11,8 @@ represent edit functionality. It is built using the `lit` library and styled wit
 The component supports themes, click events, and a disabled state, making it ideal for use in forms
 or settings where inline editing is required.
 
+<Primary />
+<Controls />
 ## Props
 
 | **Prop**       | **Type**                   | **Required** | **Description**                                             |

@@ -1,12 +1,17 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
 
-<Meta title="Components/Ciphers/Cipher Indicator Icon" />
+import * as stories from "./cipher-indicator-icon.lit-stories";
+
+<Meta title="Components/Ciphers/Cipher Indicator Icon" of={stories} />
 
 ## Cipher Info Indicator Icons
 
 The `CipherInfoIndicatorIcons` component displays a set of icons indicating specific attributes
 related to cipher information. It supports business and family organization indicators, styled
 dynamically based on the provided theme.
+
+<Primary />
+<Controls />
 
 ## Props
 
