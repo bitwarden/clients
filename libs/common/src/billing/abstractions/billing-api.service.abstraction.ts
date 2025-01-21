@@ -13,11 +13,20 @@ import { ExpandedTaxInfoUpdateRequest } from "../models/request/expanded-tax-inf
 import { UpdateClientOrganizationRequest } from "../models/request/update-client-organization.request";
 import { UpdatePaymentMethodRequest } from "../models/request/update-payment-method.request";
 import { VerifyBankAccountRequest } from "../models/request/verify-bank-account.request";
+import { AddableOrganizationResponse } from "../models/response/addable-organization.response";
 import { InvoicesResponse } from "../models/response/invoices.response";
 import { PaymentMethodResponse } from "../models/response/payment-method.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export abstract class BillingApiServiceAbstraction {
+  addExistingOrganizationToProvider: (
+    providerId: string,
+    request: {
+      key: string;
+      organizationId: string;
+    },
+  ) => Promise<void>;
+
   cancelOrganizationSubscription: (
     organizationId: string,
     request: SubscriptionCancellationRequest,
@@ -39,6 +48,8 @@ export abstract class BillingApiServiceAbstraction {
   getOrganizationPaymentMethod: (organizationId: string) => Promise<PaymentMethodResponse>;
 
   getPlans: () => Promise<ListResponse<PlanResponse>>;
+
+  getProviderAddableOrganizations: (providerId: string) => Promise<AddableOrganizationResponse[]>;
 
   getProviderClientInvoiceReport: (providerId: string, invoiceId: string) => Promise<string>;
 

@@ -46,6 +46,7 @@ export enum FeatureFlag {
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
+  PM15179_AddExistingOrgsFromProviderPortal = "PM-15179-add-existing-orgs-from-provider-portal",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -102,6 +103,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
+  [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
