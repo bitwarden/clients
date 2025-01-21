@@ -3425,38 +3425,6 @@
     "message": "Összezárás váltás",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Adatok importálása a Bitwardenbe?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "A LastPass adatok megvédése és importálása a Bitwardenbe?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Mentés titkosítatlan fájlként",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importálás a Bitwardenbe",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importálás...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Az adatok sikeresen importálásra kerültek.",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Hiba történt az importálás során. A részletekért ellenőrizzük a konzolt.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Hálózati hiba történt az importálás során.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Áldomain"
   },

@@ -20,16 +20,16 @@
     "message": "Crea un compte"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Nou a Bitwarden?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Inicieu sessió amb la clau de pas"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Inici de sessió únic"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Benvingut/da de nou"
   },
   "setAStrongPassword": {
     "message": "Estableix una contrasenya segura"
@@ -120,7 +120,7 @@
     "message": "Copia contrasenya"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Copia frase de pas"
   },
   "copyNote": {
     "message": "Copia nota"
@@ -177,7 +177,7 @@
     "message": "Copia notes"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Emplena",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -193,10 +193,10 @@
     "message": "Emplena automàticament l'identitat"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Emplena el codi de verificació"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Emplena el codi de verificació",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -443,7 +443,7 @@
     "message": "Genera contrasenya"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Genera frase de pas"
   },
   "regeneratePassword": {
     "message": "Regenera contrasenya"
@@ -576,7 +576,7 @@
     "message": "Notes"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Nota privada"
   },
   "note": {
     "message": "Nota"
@@ -682,7 +682,7 @@
     "message": "Temps d'espera de la caixa forta"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "Temps d'espera"
   },
   "lockNow": {
     "message": "Bloqueja ara"
@@ -2391,7 +2391,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
-    "message": "Detalls de l'enviament",
+    "message": "Detalls del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
@@ -2408,7 +2408,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideTextByDefault": {
-    "message": "Ocultar el text per defecte"
+    "message": "Amaga el text per defecte"
   },
   "expired": {
     "message": "Caducat"
@@ -2466,7 +2466,7 @@
     "message": "Data de supressió"
   },
   "deletionDateDescV2": {
-    "message": "L'enviament s'esborrarà permanentment en aquesta data.",
+    "message": "El Send se suprimirà permanentment en aquesta data.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
@@ -2849,7 +2849,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Utilitzeu paraules $RECOMMENDED$ o més per generar una frase de pas segura.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3424,38 +3424,6 @@
   "toggleCollapse": {
     "message": "Redueix/Amplia",
     "description": "Toggling an expand/collapse state."
-  },
-  "filelessImport": {
-    "message": "Voleu importar les vostres dades a Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Protegiu les vostres dades de LastPass i importeu-les a Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Guarda com a fitxer sense xifrar",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importa a Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "S'està important...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Les dades s'han importat correctament!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "S'ha produït un error en importar. Consulteu la consola per obtenir més informació.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "S'ha trobat un error de xarxa durant la importació.",
-    "description": "Notification message for when an import has failed due to a network error."
   },
   "aliasDomain": {
     "message": "Alies de domini"

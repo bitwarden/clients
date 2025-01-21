@@ -3425,38 +3425,6 @@
     "message": "Ein-/ausklappen",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Deine Daten in Bitwarden importieren?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Deine LastPass-Daten schützen und in Bitwarden importieren?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Als unverschlüsselte Datei speichern",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "In Bitwarden importieren",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Wird importiert...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Daten erfolgreich importiert!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Fehler beim Importieren. Überprüfe die Konsole für Details.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Netzwerkfehler beim Importieren.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias-Domain"
   },

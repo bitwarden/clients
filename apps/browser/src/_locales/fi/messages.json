@@ -3425,38 +3425,6 @@
     "message": "Laajenna tai supista",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Haluatko tuoda tietosi Bitwardeniin?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Haluatko suojata LastPass-tietosi tuomalla ne Bitwardeniin?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Tallenna salaamattomana tiedostona",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Tuo Bitwardeniin",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Tuodaan...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Tietojen tuonti onnistui.",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Tuontivirhe. Näet isätietoja hallinnasta.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Verkkovirhe tuonnin aikana.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Aliaksen verkkotunnus"
   },

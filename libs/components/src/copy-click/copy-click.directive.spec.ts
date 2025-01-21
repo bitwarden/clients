@@ -3,23 +3,32 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+
+import { ToastService } from "../";
 
 import { CopyClickDirective } from "./copy-click.directive";
 
 @Component({
   template: `
-    <button appCopyClick="no toast shown" #noToast></button>
-    <button appCopyClick="info toast shown" showToast="info" #infoToast></button>
-    <button appCopyClick="success toast shown" showToast #successToast></button>
-    <button appCopyClick="toast with label" showToast valueLabel="Content" #toastWithLabel></button>
+    <button type="button" appCopyClick="no toast shown" #noToast></button>
+    <button type="button" appCopyClick="info toast shown" showToast="info" #infoToast></button>
+    <button type="button" appCopyClick="success toast shown" showToast #successToast></button>
+    <button
+      type="button"
+      appCopyClick="toast with label"
+      showToast
+      valueLabel="Content"
+      #toastWithLabel
+    ></button>
   `,
+  standalone: true,
+  imports: [CopyClickDirective],
 })
 class TestCopyClickComponent {
-  @ViewChild("noToast") noToastButton: ElementRef<HTMLButtonElement>;
-  @ViewChild("infoToast") infoToastButton: ElementRef<HTMLButtonElement>;
-  @ViewChild("successToast") successToastButton: ElementRef<HTMLButtonElement>;
-  @ViewChild("toastWithLabel") toastWithLabelButton: ElementRef<HTMLButtonElement>;
+  @ViewChild("noToast") noToastButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild("infoToast") infoToastButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild("successToast") successToastButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild("toastWithLabel") toastWithLabelButton!: ElementRef<HTMLButtonElement>;
 }
 
 describe("CopyClickDirective", () => {
@@ -32,7 +41,7 @@ describe("CopyClickDirective", () => {
     showToast.mockClear();
 
     await TestBed.configureTestingModule({
-      declarations: [CopyClickDirective, TestCopyClickComponent],
+      imports: [TestCopyClickComponent],
       providers: [
         {
           provide: I18nService,

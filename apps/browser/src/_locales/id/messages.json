@@ -3425,38 +3425,6 @@
     "message": "Saklar lipat",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Impor data Anda ke Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Lindungi data LastPass Anda dan impor ke Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Simpan sebagai berkas yang tidak dienkripsi",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Impor ke Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Mengimpor...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Data berhasil diimpor!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Gagal mengimpor. Periksa konsol untuk rinciannya.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Kesalahan jaringan ditemui ketika mengimpor.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Domain alias"
   },

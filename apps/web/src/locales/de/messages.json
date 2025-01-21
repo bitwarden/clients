@@ -113,6 +113,39 @@
   "atRiskMembers": {
     "message": "Risikoreiche Mitglieder"
   },
+  "atRiskMembersWithCount": {
+    "message": "Risikoreiche Mitglieder ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "Risikoreiche Anwendungen ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "Diese Mitglieder melden sich bei Anwendungen mit schwachen, kompromittierten oder wiederverwendeten Passwörtern an."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "Diese Anwendungen haben schwache, kompromittierte oder wiederverwendete Passwörter."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "Diese Mitglieder melden sich bei $APPNAME$ mit schwachen, kompromittierten oder wiederverwendeten Passwörtern an.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "Mitglieder insgesamt"
   },
@@ -1129,10 +1162,10 @@
     "message": "Verifiziere deine Identität"
   },
   "whatIsADevice": {
-    "message": "Was ist ein \"Gerät\"?"
+    "message": "Was ist ein Gerät?"
   },
   "aDeviceIs": {
-    "message": "Ein \"Gerät\" ist eine einzigartige Installation der Bitwarden-App, in der du dich angemeldet hast. Eine Neuinstallation, das Löschen von App-Daten oder das Löschen von Cookies könnte dazu führen, dass ein \"Gerät\" mehrfach erscheint."
+    "message": "Ein Gerät ist eine einzigartige Installation der Bitwarden-App, in der du dich angemeldet hast. Eine Neuinstallation, das Löschen von App-Daten oder das Löschen von Cookies könnte dazu führen, dass ein Gerät mehrfach erscheint."
   },
   "logInInitiated": {
     "message": "Anmeldung eingeleitet"
@@ -3281,6 +3314,9 @@
   "inviteSingleEmailDesc": {
     "message": "Du hast noch eine Einladung übrig."
   },
+  "inviteZeroEmailDesc": {
+    "message": "Du hast 0 Einladungen übrig."
+  },
   "userUsingTwoStep": {
     "message": "Dieser Benutzer hat sein Konto mit einer Zwei-Faktor-Authentifizierung geschützt."
   },
@@ -3788,6 +3824,67 @@
   },
   "trusted": {
     "message": "Vertrauenswürdig"
+  },
+  "needsApproval": {
+    "message": "Benötigt Genehmigung"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Versuchst du dich anzumelden?"
+  },
+  "logInAttemptBy": {
+    "message": "Anmeldeversuch von $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Gerätetyp"
+  },
+  "ipAddress": {
+    "message": "IP-Adresse"
+  },
+  "confirmLogIn": {
+    "message": "Anmeldung genehmigen"
+  },
+  "denyLogIn": {
+    "message": "Anmeldung ablehnen"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Diese Anfrage ist nicht mehr gültig."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Anmeldung von $EMAIL$ auf $DEVICE$ bestätigt",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Anmeldeanfrage ist bereits abgelaufen."
+  },
+  "justNow": {
+    "message": "Gerade eben"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Vor $MINUTES$ Minuten angefordert",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Konto wird erstellt bei"
@@ -5686,11 +5783,11 @@
     "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktiere das Kundenerfolgsteam",
+    "message": "Kontaktiere den Kundensupport",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "um zusätzlichen Datenverlust zu vermeiden.",
+    "message": ", um zusätzlichen Datenverlust zu vermeiden.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
@@ -8171,33 +8268,33 @@
   "trustedDevices": {
     "message": "Vertrauenswürdige Geräte"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Einmal authentifiziert, entschlüsseln Mitglieder Tresordaten mit einem Schlüssel auf ihrem Gerät. Die Richtlinie für",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "Mitglieder benötigen kein Master-Passwort beim Anmelden mit SSO. Das Master-Passwort wird durch einen auf dem Gerät gespeicherten Verschlüsselungsschlüssel ersetzt, wodurch das Gerät vertrauenswürdig ist. Dem erste Gerät, auf das ein Mitglied sein Konto erstellt und sich anmeldet, wird vertraut. Neue Geräte müssen von einem bestehenden vertrauenswürdigen Gerät oder einem Administrator genehmigt werden. Die Richtlinie für eine",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
-    "message": "einzelne Organisationen",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink1": {
+    "message": "einzelne Organisation",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
+  "memberDecryptionOptionTdeDescPart2": {
     "message": ", die Richtlinie zum",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+  "memberDecryptionOptionTdeDescLink2": {
     "message": "Verlangen einer SSO-Authentifizierung",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
+  "memberDecryptionOptionTdeDescPart3": {
     "message": "und die Richtlinie für die",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
+  "memberDecryptionOptionTdeDescLink3": {
     "message": "Kontowiederherstellungsverwaltung",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "mit automatischer Registrierung werden aktiviert, wenn diese Option verwendet wird.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "werden aktiviert, wenn diese Option verwendet wird.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Deine Organisationsberechtigungen wurden aktualisiert und verlangen, dass du ein Master-Passwort festlegen musst.",
@@ -8275,16 +8372,16 @@
     "message": "Anfrage genehmigen"
   },
   "deviceApproved": {
-    "message": "\"Gerät\" genehmigt"
+    "message": "Gerät genehmigt"
   },
   "deviceRemoved": {
-    "message": "\"Gerät\" entfernt"
+    "message": "Gerät entfernt"
   },
   "removeDevice": {
-    "message": "\"Gerät\" entfernen"
+    "message": "Gerät entfernen"
   },
   "removeDeviceConfirmation": {
-    "message": "Möchtest du das \"Gerät\" wirklich entfernen?"
+    "message": "Bist du sicher, das du dieses Gerät entfernen möchtest?"
   },
   "noDeviceRequests": {
     "message": "Keine Geräteanfragen"
@@ -9986,13 +10083,13 @@
     "message": "Mitglieder entfernen"
   },
   "devices": {
-    "message": "\"Geräte\""
+    "message": "Geräte"
   },
   "deviceListDescription": {
-    "message": "Dein Konto wurde bei jedem der folgenden \"Geräte\" eingeloggt. Wenn du ein \"Gerät\" nicht wiedererkennst, dann entferne es jetzt."
+    "message": "Dein Konto ist bei jedem der folgenden Geräte angemeldet. Wenn du ein Gerät nicht wiedererkennst, entferne es jetzt."
   },
   "deviceListDescriptionTemp": {
-    "message": "Dein Konto wurde bei jedem der folgenden \"Geräte\" eingeloggt."
+    "message": "Dein Konto wurde bei jedem der unter aufgeführten Geräte angemeldet."
   },
   "claimedDomains": {
     "message": "Beanspruchte Domains"
@@ -10079,7 +10176,7 @@
   "organizationNameMaxLength": {
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
-  "resellerRenewalWarning": {
+  "resellerRenewalWarningMsg": {
     "message": "Dein Abonnement wird bald verlängert. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$ um deine Verlängerung vor dem $RENEWAL_DATE$ zu bestätigen.",
     "placeholders": {
       "reseller": {
@@ -10092,7 +10189,7 @@
       }
     }
   },
-  "resellerOpenInvoiceWarning": {
+  "resellerOpenInvoiceWarningMgs": {
     "message": "Eine Rechnung für dein Abonnement wurde am $ISSUED_DATE$ ausgestellt. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$, um deine Verlängerung vor dem $DUE_DATE$ zu bestätigen.",
     "placeholders": {
       "reseller": {
@@ -10109,7 +10206,7 @@
       }
     }
   },
-  "resellerPastDueWarning": {
+  "resellerPastDueWarningMsg": {
     "message": "Die Rechnung für dein Abonnement wurde nicht bezahlt. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$, um deine Verlängerung vor dem $GRACE_PERIOD_END$ zu bestätigen.",
     "placeholders": {
       "reseller": {
