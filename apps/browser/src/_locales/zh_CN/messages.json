@@ -3425,38 +3425,6 @@
     "message": "切换折叠",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "导入您的数据到 Bitwarden 吗？",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "保护您的 LastPass 数据并导入到 Bitwarden 吗？",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "保存为未加密的文件",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "导入到 Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "正在导入...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "数据成功导入！",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "导入时出错。检查控制台以获取详细信息。",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "导入过程中遇到网络错误。",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "别名域"
   },
