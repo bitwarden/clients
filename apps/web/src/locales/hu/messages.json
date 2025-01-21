@@ -113,6 +113,39 @@
   "atRiskMembers": {
     "message": "Veszélyes tagok"
   },
+  "atRiskMembersWithCount": {
+    "message": "Veszélyes tagok ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "Kockázatos alkalmazások ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "Ezek a tagok gyenge, nyílt vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "Ezeknél az alkalmazásoknál gyenge, nyílt vagy újra felhasznált jelszavak vannak."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "Ezek a tagok gyenge, nyilvános vagy újrahasznált jelszavakkal jelentkeznek be $APPNAME$ alkalmazásba.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "Összes tagok száma"
   },
@@ -3281,6 +3314,9 @@
   "inviteSingleEmailDesc": {
     "message": "1 meghívó maradt."
   },
+  "inviteZeroEmailDesc": {
+    "message": "0 meghívó maradt."
+  },
   "userUsingTwoStep": {
     "message": "Ez a felhasználó kétlépcsős bejelentkezést használ fiókja védelmére."
   },
@@ -3788,6 +3824,67 @@
   },
   "trusted": {
     "message": "Megbízható"
+  },
+  "needsApproval": {
+    "message": "Jóváhagyást igényel"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Megpróbálunk bejelentkezni?"
+  },
+  "logInAttemptBy": {
+    "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Eszköz típus"
+  },
+  "ipAddress": {
+    "message": "IP cím"
+  },
+  "confirmLogIn": {
+    "message": "Bejelentkezés megerősítése"
+  },
+  "denyLogIn": {
+    "message": "Bejelentkezés megtagadása"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "A kérés a továbbiakban már nem érvényes."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "A bejelentkezési kérés már lejárt."
+  },
+  "justNow": {
+    "message": "Éppen most"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Kérve $MINUTES$ perccel ezelőtt",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Fiók létrehozása:"
@@ -8171,33 +8268,33 @@
   "trustedDevices": {
     "message": "Megbízható eszközök"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "A hitelesítés után a tagok az eszközükön tárolt kulccsal visszafejtik a tároló adatait. Ehhez",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "A tagoknak nincs szükségük mesterjelszóra az egyszeri bejelentkezéskor. A mesterjelszót az eszközön tárolt titkosítási kulccsal helyettesítjük, így az eszköz megbízható. Az az első eszköz, amelyen a tag létrehozza a fiókját és bejelentkezik, megbízható lesz. Az új eszközöket egy meglévő megbízható eszköznek vagy egy rendszergazdának kell jóváhagynia. Az",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
+  "memberDecryptionOptionTdeDescLink1": {
     "message": "önálló szervezet",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
+  "memberDecryptionOptionTdeDescPart2": {
     "message": "rendszabály,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "SSO szükséges",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink2": {
+    "message": "az SSO szükséges",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
-    "message": "rendszabály és ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart3": {
+    "message": "rendszabály és",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
-    "message": "fiók helyreállítási adminisztráció",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink3": {
+    "message": "a fiók helyreállítási adminisztráció",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "automatikus regisztrációval rendelkező rendszabály kerül bekapcsolásra, ha ezt az opció van használatban.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "rendszabály bekapcsolásra kerül, ha ezt a lehetőséget használjuk.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "A szervezeti engedélyek frissítésre kerültek, ezért be kell állítani egy mesterjelszót.",
@@ -10079,7 +10176,7 @@
   "organizationNameMaxLength": {
     "message": "A szervezet neve nem haladhatja meg az 50 karaktert."
   },
-  "resellerRenewalWarning": {
+  "resellerRenewalWarningMsg": {
     "message": "Az előfizetés hamarosan megújul. A folyamatos szolgáltatás biztosítása érdekében lépjünk kapcsolatba $RESELLER$ viszonteladóval és erősítsük meg a megújítást $RENEWAL_DATE$ előtt.",
     "placeholders": {
       "reseller": {
@@ -10092,7 +10189,7 @@
       }
     }
   },
-  "resellerOpenInvoiceWarning": {
+  "resellerOpenInvoiceWarningMgs": {
     "message": "Az előfizetésről szóló számla kiállítása $ISSUED_DATE$ napon történt. A megszakítás nélküli szolgáltatás biztosítása érdekében lépjünk kapcsolatba $RESELLER$ viszonteladóval és erősítsük meg a megújítást $DUE_DATE$ előtt.",
     "placeholders": {
       "reseller": {
@@ -10109,7 +10206,7 @@
       }
     }
   },
-  "resellerPastDueWarning": {
+  "resellerPastDueWarningMsg": {
     "message": "Az előfizetésről szóló számla nem lett kfizetve. A folyamatos szolgáltatás biztosítása érdekében lépjünk kapcsolatba $RESELLER$ viszonteladóval és erősítsük meg a megújítást $GRACE_PERIOD_END$ előtt.",
     "placeholders": {
       "reseller": {

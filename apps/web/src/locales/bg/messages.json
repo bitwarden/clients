@@ -15,7 +15,7 @@
     "message": "Рискова парола"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Прегледайте паролите в риск (слаби, преизползвани или разобличени) в различните приложения. Изберете най-важните си приложения, за да дадете приоритет на действията по сигурността за потребителите си, така че те да обърнат внимание на паролите си в риск."
   },
   "dataLastUpdated": {
     "message": "Последно обновяване на данните: $DATE$",
@@ -112,6 +112,39 @@
   },
   "atRiskMembers": {
     "message": "Членове в риск"
+  },
+  "atRiskMembersWithCount": {
+    "message": "Членове в риск ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "Приложения в риск ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "Тези членове се вписват в приложенията със слаби, преизползвани или разобличени пароли."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "Тези приложения имат слаби, преизползвани или разобличени пароли."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "Тези членове се вписват в $APPNAME$ със слаби, преизползвани или разобличени пароли.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
   },
   "totalMembers": {
     "message": "Общо членове"
@@ -3281,6 +3314,9 @@
   "inviteSingleEmailDesc": {
     "message": "Имате 1 оставаща покана."
   },
+  "inviteZeroEmailDesc": {
+    "message": "Имате 0 оставащи покани."
+  },
   "userUsingTwoStep": {
     "message": "Този потребител използва двустепенна защита за достъп."
   },
@@ -3788,6 +3824,67 @@
   },
   "trusted": {
     "message": "Доверено"
+  },
+  "needsApproval": {
+    "message": "Изисква одобрение"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Опитвате се да се впишете ли?"
+  },
+  "logInAttemptBy": {
+    "message": "Опит за вписване от $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Вид устройство"
+  },
+  "ipAddress": {
+    "message": "IP адрес"
+  },
+  "confirmLogIn": {
+    "message": "Потвърждаване на вписването"
+  },
+  "denyLogIn": {
+    "message": "Отказване на вписването"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Тази заявка вече не е активна."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Вписването за $EMAIL$ на $DEVICE$ е одобрено",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Вие отказахте опит за вписване от друго устройство. Ако това наистина сте били Вие, опитайте да се впишете от устройството отново."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Заявката за вписване вече е изтекла."
+  },
+  "justNow": {
+    "message": "Току-що"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Заявено преди $MINUTES$ минути",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Създаване на регистрация в"
@@ -8171,33 +8268,33 @@
   "trustedDevices": {
     "message": "Доверени устройства"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "След вписване, членовете ще дешифрират данните от трезорите си чрез ключ, който се съхранява на устройство. Политиката за",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "Членовете няма да имат нужда от главна парола, когато се вписват чрез еднократно удостоверяване. Главната парола се заменя от шифроващ ключ съхраняван на устройството, което прави това устройство доверено. Първото устройство, с което членът създаде акаунта си и на което се впише, ще бъде доверено. Новите устройства ще трябва да бъдат одобрени от съществуващо доверено устройство или от администратор. Политиката за",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
+  "memberDecryptionOptionTdeDescLink1": {
     "message": "единствена организация",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
-    "message": ",",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart2": {
+    "message": ", политиката за",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "политиката за изискване на еднократно удостоверяване",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink2": {
+    "message": "еднократно удостоверяване",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
-    "message": "и",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart3": {
+    "message": "и политиката за",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
-    "message": "политиката за управление на възстановяването на регистрации",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink3": {
+    "message": "администриране на възстановяването на акаунти",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "с автоматично включване ще бъдат активирани при използването на тази настройка.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "ще бъдат включени, когато се ползва тази опция.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Правата Ви в организацията бяха променени, необходимо е да зададете главна парола.",
@@ -10079,7 +10176,7 @@
   "organizationNameMaxLength": {
     "message": "Името на организацията не може да бъде по-дълго от 50 знака."
   },
-  "resellerRenewalWarning": {
+  "resellerRenewalWarningMsg": {
     "message": "Вашият абонамент ще бъде подновен скоро. За да подсигурите, че услугата няма да има прекъсвания, свържете се с $RESELLER$ и потвърдете подновяването преди $RENEWAL_DATE$.",
     "placeholders": {
       "reseller": {
@@ -10092,7 +10189,7 @@
       }
     }
   },
-  "resellerOpenInvoiceWarning": {
+  "resellerOpenInvoiceWarningMgs": {
     "message": "Фактура за абонамента Ви беше издадена на $ISSUED_DATE$. За да подсигурите, че услугата няма да има прекъсвания, свържете се с $RESELLER$ и потвърдете подновяването преди $DUE_DATE$.",
     "placeholders": {
       "reseller": {
@@ -10109,7 +10206,7 @@
       }
     }
   },
-  "resellerPastDueWarning": {
+  "resellerPastDueWarningMsg": {
     "message": "Фактурата за абонамента Ви не е била платена. За да подсигурите, че услугата няма да има прекъсвания, свържете се с $RESELLER$ и потвърдете подновяването преди $GRACE_PERIOD_END$.",
     "placeholders": {
       "reseller": {

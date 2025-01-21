@@ -113,6 +113,39 @@
   "atRiskMembers": {
     "message": "At-risk members"
   },
+  "atRiskMembersWithCount": {
+    "message": "At-risk members ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "At-risk applications ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "These applications have weak, exposed, or reused passwords."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "Total members"
   },
@@ -3281,6 +3314,9 @@
   "inviteSingleEmailDesc": {
     "message": "You have 1 invite remaining."
   },
+  "inviteZeroEmailDesc": {
+    "message": "You have 0 invites remaining."
+  },
   "userUsingTwoStep": {
     "message": "Pengguna ini menggunakan proses masuk dua langkah untuk melindungi akun mereka."
   },
@@ -3788,6 +3824,67 @@
   },
   "trusted": {
     "message": "Trusted"
+  },
+  "needsApproval": {
+    "message": "Needs approval"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Are you trying to log in?"
+  },
+  "logInAttemptBy": {
+    "message": "Login attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Device Type"
+  },
+  "ipAddress": {
+    "message": "IP Address"
+  },
+  "confirmLogIn": {
+    "message": "Confirm login"
+  },
+  "denyLogIn": {
+    "message": "Deny login"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "This request is no longer valid."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Login request has already expired."
+  },
+  "justNow": {
+    "message": "Just now"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Requested $MINUTES$ minutes ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Creating account on"
@@ -8171,33 +8268,33 @@
   "trustedDevices": {
     "message": "Trusted devices"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
+  "memberDecryptionOptionTdeDescLink1": {
     "message": "single organization",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
+  "memberDecryptionOptionTdeDescPart2": {
     "message": "policy,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+  "memberDecryptionOptionTdeDescLink2": {
     "message": "SSO required",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
+  "memberDecryptionOptionTdeDescPart3": {
     "message": "policy, and",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
+  "memberDecryptionOptionTdeDescLink3": {
     "message": "account recovery administration",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "policy with automatic enrollment will turn on when this option is used.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "policy will turn on when this option is used.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Your organization permissions were updated, requiring you to set a master password.",
@@ -10079,8 +10176,8 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
-  "resellerRenewalWarning": {
-    "message": "Your subscription will renew soon. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+  "resellerRenewalWarningMsg": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10092,8 +10189,8 @@
       }
     }
   },
-  "resellerOpenInvoiceWarning": {
-    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+  "resellerOpenInvoiceWarningMgs": {
+    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10109,8 +10206,8 @@
       }
     }
   },
-  "resellerPastDueWarning": {
-    "message": "The invoice for your subscription has not been paid. To insure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+  "resellerPastDueWarningMsg": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
