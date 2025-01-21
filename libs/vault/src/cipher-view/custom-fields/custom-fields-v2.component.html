@@ -36,7 +36,6 @@
         <button
           bitSuffix
           type="button"
-          *ngIf="this.cipher.viewPassword"
           bitIconButton
           bitPasswordInputToggle
           *ngIf="canViewPassword"
@@ -45,7 +44,6 @@
         <button
           bitIconButton="bwi-clone"
           bitSuffix
-          *ngIf="this.cipher.viewPassword"
           type="button"
           [appCopyClick]="field.value"
           showToast
