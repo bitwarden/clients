@@ -1,7 +1,7 @@
-import { firstValueFrom } from "rxjs";
+import { filter, firstValueFrom } from "rxjs";
 
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { IpcService, PingMessagePayload } from "@bitwarden/common/platform/ipc";
+import { IpcService, PingMessagePayload, PongMessagePayload } from "@bitwarden/common/platform/ipc";
 import { Manager } from "@bitwarden/sdk-internal";
 
 import { WebCommunicationProvider } from "./web-communication-provider";
@@ -39,6 +39,18 @@ export class WebIpcService extends IpcService {
       });
       // eslint-disable-next-line no-console
       console.log("[IPC] Sent ping");
+
+      const pong = await firstValueFrom(
+        this.messages$.pipe(
+          filter(
+            (message) =>
+              message.data[0] === PongMessagePayload[0] &&
+              message.data[1] === PongMessagePayload[1],
+          ),
+        ),
+      );
+      // eslint-disable-next-line no-console
+      console.log("[IPC] Received pong", pong);
     } catch (error) {
       // Doesn't work for some reason?
       // if (error instanceof SendError) {

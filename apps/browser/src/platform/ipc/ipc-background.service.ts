@@ -23,6 +23,7 @@ export class IpcBackgroundService extends IpcService {
 
       await super.init();
 
+      // TODO: Remove pong - this is simply a proof of concept
       this.messages$.subscribe((message) => {
         if (
           message.data[0] === PingMessagePayload[0] &&

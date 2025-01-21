@@ -3,6 +3,7 @@
 
 import { isIpcMessage } from "@bitwarden/common/platform/ipc/ipc-message";
 
+// Web -> Background
 export function sendExtensionMessage(message: unknown) {
   if (
     typeof browser !== "undefined" &&
@@ -17,8 +18,29 @@ export function sendExtensionMessage(message: unknown) {
 }
 
 window.addEventListener("message", (event) => {
-  console.log("Received message", event.data);
   if (isIpcMessage(event.data)) {
     sendExtensionMessage(event.data);
   }
 });
+
+// Background -> Web
+function setupMessageListener() {
+  function listener(message: unknown) {
+    if (isIpcMessage(message)) {
+      void window.postMessage(message);
+    }
+  }
+
+  if (
+    typeof browser !== "undefined" &&
+    typeof browser.runtime !== "undefined" &&
+    typeof browser.runtime.onMessage !== "undefined"
+  ) {
+    browser.runtime.onMessage.addListener(listener);
+    return;
+  }
+
+  chrome.runtime.onMessage.addListener(listener);
+}
+
+setupMessageListener();
