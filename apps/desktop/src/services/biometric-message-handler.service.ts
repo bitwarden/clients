@@ -42,6 +42,10 @@ const ConnectedAppPrefix = "connectedApp_";
 
 class ConnectedApps {
   async get(appId: string): Promise<ConnectedApp> {
+    if (!(await this.has(appId))) {
+      return null;
+    }
+
     return JSON.parse(
       await ipc.platform.ephemeralStore.getEphemeralValue(`${ConnectedAppPrefix}${appId}`),
     );
@@ -124,10 +128,6 @@ export class BiometricMessageHandlerService {
         return;
       }
 
-      this.logService.info(
-        "[Native Messaging IPC] Received setupEncryption message, has :" + appId,
-        await this.connectedApps.has(appId),
-      );
       if (await this.connectedApps.has(appId)) {
         this.logService.info(
           "[Native Messaging IPC] Public key for app id changed. Invalidating trust",
@@ -143,10 +143,7 @@ export class BiometricMessageHandlerService {
       return;
     }
 
-    if (
-      !(await this.connectedApps.has(appId)) ||
-      (await this.connectedApps.get(appId)).sessionSecret == null
-    ) {
+    if ((await this.connectedApps.get(appId))?.sessionSecret == null) {
       this.logService.info(
         "[Native Messaging IPC] Session secret for secure channel is missing. Invalidating encryption...",
       );
@@ -442,8 +439,9 @@ export class BiometricMessageHandlerService {
 
   async validateFingerprint(appId: string): Promise<boolean> {
     if (await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)) {
-      if ((await this.connectedApps.has(appId)) && (await this.connectedApps.get(appId)).trusted) {
-        return true;
+      const appToValidate = await this.connectedApps.get(appId);
+      if (appToValidate == null) {
+        return false;
       }
 
       ipc.platform.nativeMessaging.sendMessage({
@@ -453,7 +451,7 @@ export class BiometricMessageHandlerService {
 
       const fingerprint = await this.keyService.getFingerprint(
         appId,
-        Utils.fromB64ToArray((await this.connectedApps.get(appId))?.publicKey),
+        Utils.fromB64ToArray(appToValidate.publicKey),
       );
 
       this.messagingService.send("setFocus");
@@ -478,9 +476,8 @@ export class BiometricMessageHandlerService {
         });
       }
 
-      const connectedApp = await this.connectedApps.get(appId);
-      connectedApp.trusted = true;
-      await this.connectedApps.set(appId, connectedApp);
+      appToValidate.trusted = true;
+      await this.connectedApps.set(appId, appToValidate);
     }
 
     return true;
