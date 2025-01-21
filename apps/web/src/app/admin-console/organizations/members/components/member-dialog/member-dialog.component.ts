@@ -106,6 +106,7 @@ export class MemberDialogComponent implements OnDestroy {
   showNoMasterPasswordWarning = false;
   isOnSecretsManagerStandalone: boolean;
   remainingSeats$: Observable<number>;
+  editParams$: Observable<EditMemberDialogParams>;
 
   protected organization$: Observable<Organization>;
   protected collectionAccessItems: AccessItemView[] = [];
@@ -186,9 +187,11 @@ export class MemberDialogComponent implements OnDestroy {
         this.params.organizationUserId,
       );
       this.tabIndex = this.params.initialTab;
+      this.editParams$ = of(this.params);
     } else {
       this.editMode = false;
       this.title = this.i18nService.t("inviteMember");
+      this.editParams$ = of(null);
       userDetails$ = of(null);
       this.tabIndex = MemberDialogTab.Role;
     }

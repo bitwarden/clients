@@ -4,8 +4,8 @@
       {{ title }}
       <span
         class="tw-text-sm tw-normal-case tw-text-muted"
-        *ngIf="!loading && this.isEditDialogParams(this.params) && params.name"
-        >{{ params.name }}</span
+        *ngIf="!loading && editParams$ && (editParams$ | async)?.name"
+        >{{ (editParams$ | async)?.name }}</span
       >
       <span bitBadge variant="secondary" *ngIf="isRevoked">{{ "revoked" | i18n }}</span>
     </span>
@@ -270,8 +270,9 @@
         </button>
         <button
           *ngIf="
-            this.isEditDialogParams(this.params) &&
-            (!(accountDeprovisioningEnabled$ | async) || !params.managedByOrganization)
+            this.editMode &&
+            (!(accountDeprovisioningEnabled$ | async) ||
+              !(editParams$ | async)?.managedByOrganization)
           "
           type="button"
           bitIconButton="bwi-close"
@@ -283,9 +284,9 @@
         ></button>
         <button
           *ngIf="
-            this.isEditDialogParams(this.params) &&
+            this.editMode &&
             (accountDeprovisioningEnabled$ | async) &&
-            params.managedByOrganization
+            (editParams$ | async)?.managedByOrganization
           "
           type="button"
           bitIconButton="bwi-trash"
