@@ -54,7 +54,7 @@ describe("VaultPopupScrollPositionService", () => {
     it("removes scroll listener", () => {
       service.stop();
 
-      expect(unsubscribe).toHaveBeenCalledOnce();
+      expect(unsubscribe).toHaveBeenCalledTimes(1);
       expect(service["scrollSubscription"]).toBeNull();
     });
 
@@ -131,7 +131,7 @@ describe("VaultPopupScrollPositionService", () => {
         elementScrolled$.next(null);
         tick();
 
-        expect(virtualElement.measureScrollOffset).toHaveBeenCalledOnce();
+        expect(virtualElement.measureScrollOffset).toHaveBeenCalledTimes(1);
         expect(virtualElement.measureScrollOffset).toHaveBeenCalledWith("top");
         expect(service["scrollPosition"]).toBe(455);
       }));

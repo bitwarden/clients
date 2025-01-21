@@ -255,19 +255,19 @@ describe("ViewV2Component", () => {
     it("opens confirmation modal", async () => {
       await component.delete();
 
-      expect(openSimpleDialog).toHaveBeenCalledOnce();
+      expect(openSimpleDialog).toHaveBeenCalledTimes(1);
     });
 
     it("navigates back", async () => {
       await component.delete();
 
-      expect(back).toHaveBeenCalledOnce();
+      expect(back).toHaveBeenCalledTimes(1);
     });
 
     it("stops scroll position service", async () => {
       await component.delete();
 
-      expect(stop).toHaveBeenCalledOnce();
+      expect(stop).toHaveBeenCalledTimes(1);
       expect(stop).toHaveBeenCalledWith(true);
     });
 
@@ -303,7 +303,7 @@ describe("ViewV2Component", () => {
         it("opens confirmation dialog", async () => {
           await component.delete();
 
-          expect(openSimpleDialog).toHaveBeenCalledOnce();
+          expect(openSimpleDialog).toHaveBeenCalledTimes(1);
           expect(openSimpleDialog).toHaveBeenCalledWith({
             content: {
               key: "deleteItemConfirmation",
@@ -341,7 +341,7 @@ describe("ViewV2Component", () => {
         it("opens confirmation dialog", async () => {
           await component.delete();
 
-          expect(openSimpleDialog).toHaveBeenCalledOnce();
+          expect(openSimpleDialog).toHaveBeenCalledTimes(1);
           expect(openSimpleDialog).toHaveBeenCalledWith({
             content: {
               key: "permanentlyDeleteItemConfirmation",
