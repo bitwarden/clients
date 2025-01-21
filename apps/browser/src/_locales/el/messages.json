@@ -3425,38 +3425,6 @@
     "message": "Εναλλαγή σύμπτυξης",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Εισαγωγή των δεδομένων σας στο Bitwarden;",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Προστατέψτε τα δεδομένα LastPass και εισαγάγετε στο Bitwarden;",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Αποθήκευση ως μη κρυπτογραφημένο αρχείο",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Εισαγωγή στο Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Εισαγωγή...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Επιτυχής εισαγωγή δεδομένων!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Σφάλμα εισαγωγής. Ελέγξτε την κονσόλα για λεπτομέρειες.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Εμφανίστηκε σφάλμα δικτύου κατά την εισαγωγή.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Ψευδώνυμο τομέα"
   },

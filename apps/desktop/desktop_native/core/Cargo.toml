@@ -28,7 +28,7 @@ base64 = "=0.22.1"
 byteorder = "=1.5.0"
 cbc = { version = "=0.1.2", features = ["alloc"] }
 homedir = "=0.3.4"
-pin-project = "=1.1.7"
+pin-project = "=1.1.8"
 dirs = "=5.0.1"
 futures = "=0.3.31"
 interprocess = { version = "=2.2.1", features = ["tokio"] }

@@ -3425,38 +3425,6 @@
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "استيراد بياناتك إلى Bitwarden؟",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "حماية بياناتك الأخيرة واستيرادك إلى Bitwarden؟",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "حفظ كملف غير مشفر",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "استيراد إلى Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "جارِ الاستيراد...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "لقد تم استيراد البيانات بنجاح!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "خطأ في الاستيراد. تحقق من وحدة التحكم للحصول على التفاصيل.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "تم مواجهة خطأ في الشبكة أثناء الاستيراد.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "الاسم البديل للنطاق"
   },

@@ -3425,38 +3425,6 @@
     "message": "Pārslēgt sakļaušanu",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Ievietot datus Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Aizsargāt LastPass datus un ievietot tos Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Saglabāt kā nešifrētu datni",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Ievietot Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Ievieto...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Dati veiksmīgi ievietoti.",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Kļūda ievietošanā. Jāpārbauda konsole, lai iegūtu vairāk informācijas.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Ievietošanas laikā atgadījās tīkla kļūda.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Aizstājdomēns"
   },
