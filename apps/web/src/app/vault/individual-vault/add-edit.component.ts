@@ -66,7 +66,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     protected messagingService: MessagingService,
     eventCollectionService: EventCollectionService,
     protected policyService: PolicyService,
-    organizationService: OrganizationService,
+    protected organizationService: OrganizationService,
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     dialogService: DialogService,
@@ -107,7 +107,11 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
 
     // https://bitwarden.atlassian.net/browse/PM-10413
     // cannot generate ssh keys so block creation
-    if (this.type === CipherType.SshKey && this.cipherId == null) {
+    if (
+      this.type === CipherType.SshKey &&
+      this.cipherId == null &&
+      !(await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem))
+    ) {
       this.type = CipherType.Login;
       this.cipher.type = CipherType.Login;
     }
@@ -190,11 +194,11 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     }
 
     this.platformUtilsService.copyToClipboard(value, { window: window });
-    this.platformUtilsService.showToast(
-      "info",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
-    );
+    this.toastService.showToast({
+      variant: "info",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
+    });
 
     if (this.editMode) {
       if (typeI18nKey === "password") {
@@ -303,7 +307,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       this.cipher.type === CipherType.Login &&
       this.cipher.login.totp &&
       this.organization?.productTierType != ProductTierType.Free &&
-      (this.cipher.organizationUseTotp || this.canAccessPremium)
+      ((this.canAccessPremium && this.cipher.organizationId == null) ||
+        this.cipher.organizationUseTotp)
     );
   }
 

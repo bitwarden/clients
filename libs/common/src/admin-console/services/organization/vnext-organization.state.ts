@@ -1,7 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { ORGANIZATIONS_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
-
+import { ORGANIZATIONS_DISK, UserKeyDefinition } from "../../../platform/state";
 import { OrganizationData } from "../../models/data/organization.data";
 
 /**

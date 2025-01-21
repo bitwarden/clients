@@ -50,7 +50,7 @@ export class NewItemDropdownV2Component implements OnInit {
     this.tab = await BrowserApi.getTabFromCurrentWindow();
   }
 
-  async buildQueryParams(type: CipherType): Promise<AddEditQueryParams> {
+  buildQueryParams(type: CipherType): AddEditQueryParams {
     const poppedOut = BrowserPopupUtils.inPopout(window);
 
     const loginDetails: { uri?: string; name?: string } = {};

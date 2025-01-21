@@ -1,15 +1,17 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { debounceTime, map, Observable, of, Subscription } from "rxjs";
+import { combineLatest, debounceTime, map, Observable, of, skipWhile } from "rxjs";
 
 import {
+  CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import {
   ApplicationHealthReportDetail,
+  ApplicationHealthReportDetailWithCriticalFlag,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -19,6 +21,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
+  DialogService,
   Icons,
   NoItemsModule,
   SearchModule,
@@ -30,6 +33,9 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
+import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
+import { OrgAtRiskAppsDialogComponent } from "./org-at-risk-apps-dialog.component";
+import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
@@ -46,16 +52,20 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
     SharedModule,
   ],
 })
-export class AllApplicationsComponent implements OnInit, OnDestroy {
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetail>();
-  protected selectedIds: Set<number> = new Set<number>();
+export class AllApplicationsComponent implements OnInit {
+  protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
+  protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
-  protected organization = {} as Organization;
+  protected organization = new Organization();
   noItemsIcon = Icons.Security;
   protected markingAsCritical = false;
-  protected applicationSummary = {} as ApplicationHealthReportSummary;
-  private subscription = new Subscription();
+  protected applicationSummary: ApplicationHealthReportSummary = {
+    totalMemberCount: 0,
+    totalAtRiskMemberCount: 0,
+    totalApplicationCount: 0,
+    totalAtRiskApplicationCount: 0,
+  };
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
@@ -66,28 +76,35 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
       FeatureFlag.CriticalApps,
     );
 
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    combineLatest([
+      this.dataService.applications$,
+      this.criticalAppsService.getAppsListForOrg(organizationId),
+      this.organizationService.get$(organizationId),
+    ])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        skipWhile(([_, __, organization]) => !organization),
+        map(([applications, criticalApps, organization]) => {
+          const criticalUrls = criticalApps.map((ca) => ca.uri);
+          const data = applications?.map((app) => ({
+            ...app,
+            isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+          })) as ApplicationHealthReportDetailWithCriticalFlag[];
+          return { data, organization };
+        }),
+      )
+      .subscribe(({ data, organization }) => {
+        if (data) {
+          this.dataSource.data = data;
+          this.applicationSummary = this.reportService.generateApplicationsSummary(data);
+        }
+        if (organization) {
+          this.organization = organization;
+        }
+      });
 
-    if (organizationId) {
-      this.organization = await this.organizationService.get(organizationId);
-      this.subscription = this.dataService.applications$
-        .pipe(
-          map((applications) => {
-            if (applications) {
-              this.dataSource.data = applications;
-              this.applicationSummary =
-                this.reportService.generateApplicationsSummary(applications);
-            }
-          }),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe();
-      this.isLoading$ = this.dataService.isLoading$;
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    this.isLoading$ = this.dataService.isLoading$;
   }
 
   constructor(
@@ -99,6 +116,8 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     protected dataService: RiskInsightsDataService,
     protected organizationService: OrganizationService,
     protected reportService: RiskInsightsReportService,
+    protected criticalAppsService: CriticalAppsService,
+    protected dialogService: DialogService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -114,33 +133,63 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     });
   };
 
+  isMarkedAsCriticalItem(applicationName: string) {
+    return this.selectedUrls.has(applicationName);
+  }
+
   markAppsAsCritical = async () => {
-    // TODO: Send to API once implemented
     this.markingAsCritical = true;
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.selectedIds.clear();
-        this.toastService.showToast({
-          variant: "success",
-          title: "",
-          message: this.i18nService.t("appsMarkedAsCritical"),
-        });
-        resolve(true);
-        this.markingAsCritical = false;
-      }, 1000);
-    });
+
+    try {
+      await this.criticalAppsService.setCriticalApps(
+        this.organization.id,
+        Array.from(this.selectedUrls),
+      );
+
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("appsMarkedAsCritical"),
+      });
+    } finally {
+      this.selectedUrls.clear();
+      this.markingAsCritical = false;
+    }
   };
 
   trackByFunction(_: number, item: ApplicationHealthReportDetail) {
     return item.applicationName;
   }
 
-  onCheckboxChange(id: number, event: Event) {
+  showAppAtRiskMembers = async (applicationName: string) => {
+    openAppAtRiskMembersDialog(this.dialogService, {
+      members:
+        this.dataSource.data.find((app) => app.applicationName === applicationName)
+          ?.atRiskMemberDetails ?? [],
+      applicationName,
+    });
+  };
+
+  showOrgAtRiskMembers = async () => {
+    this.dialogService.open(OrgAtRiskMembersDialogComponent, {
+      data: this.reportService.generateAtRiskMemberList(this.dataSource.data),
+    });
+  };
+
+  showOrgAtRiskApps = async () => {
+    this.dialogService.open(OrgAtRiskAppsDialogComponent, {
+      data: this.reportService.generateAtRiskApplicationList(this.dataSource.data),
+    });
+  };
+
+  onCheckboxChange(applicationName: string, event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
     if (isChecked) {
-      this.selectedIds.add(id);
+      this.selectedUrls.add(applicationName);
     } else {
-      this.selectedIds.delete(id);
+      this.selectedUrls.delete(applicationName);
     }
   }
+
+  getSelectedUrls = () => Array.from(this.selectedUrls);
 }

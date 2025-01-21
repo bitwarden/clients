@@ -10,8 +10,8 @@ import {
   DialogModule,
   FormFieldModule,
   IconButtonModule,
+  DialogService,
 } from "@bitwarden/components";
-import { DialogService } from "@bitwarden/components/src/dialog";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 export interface ApproveSshRequestParams {

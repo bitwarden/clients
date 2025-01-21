@@ -1,26 +1,35 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { Component } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormControl } from "@angular/forms";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom, from, map } from "rxjs";
-import { switchMap, takeUntil } from "rxjs/operators";
+import { debounceTime, first, switchMap } from "rxjs/operators";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  AvatarModule,
+  DialogService,
+  TableDataSource,
+  TableModule,
+  ToastService,
+} from "@bitwarden/components";
+import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/shared";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { WebProviderService } from "../services/web-provider.service";
 
 import { AddOrganizationComponent } from "./add-organization.component";
-import { BaseClientsComponent } from "./base-clients.component";
 
 const DisallowedPlanTypes = [
   PlanType.Free,
@@ -32,13 +41,26 @@ const DisallowedPlanTypes = [
 
 @Component({
   templateUrl: "clients.component.html",
+  standalone: true,
+  imports: [
+    SharedOrganizationModule,
+    HeaderModule,
+    CommonModule,
+    JslibModule,
+    AvatarModule,
+    RouterModule,
+    TableModule,
+  ],
 })
-export class ClientsComponent extends BaseClientsComponent implements OnInit, OnDestroy {
-  providerId: string;
-  addableOrganizations: Organization[];
+export class ClientsComponent {
+  providerId: string = "";
+  addableOrganizations: Organization[] = [];
   loading = true;
   manageOrganizations = false;
   showAddExisting = false;
+  dataSource: TableDataSource<ProviderOrganizationOrganizationDetailsResponse> =
+    new TableDataSource();
+  protected searchControl = new FormControl("", { nonNullable: true });
 
   constructor(
     private router: Router,
@@ -46,28 +68,19 @@ export class ClientsComponent extends BaseClientsComponent implements OnInit, On
     private apiService: ApiService,
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    activatedRoute: ActivatedRoute,
-    dialogService: DialogService,
-    i18nService: I18nService,
-    searchService: SearchService,
-    toastService: ToastService,
-    validationService: ValidationService,
-    webProviderService: WebProviderService,
+    private activatedRoute: ActivatedRoute,
+    private dialogService: DialogService,
+    private i18nService: I18nService,
+    private toastService: ToastService,
+    private validationService: ValidationService,
+    private webProviderService: WebProviderService,
   ) {
-    super(
-      activatedRoute,
-      dialogService,
-      i18nService,
-      searchService,
-      toastService,
-      validationService,
-      webProviderService,
-    );
-  }
+    this.activatedRoute.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((queryParams) => {
+      this.searchControl.setValue(queryParams.search);
+    });
 
-  ngOnInit() {
-    this.activatedRoute.parent.params
-      .pipe(
+    this.activatedRoute.parent?.params
+      ?.pipe(
         switchMap((params) => {
           this.providerId = params.providerId;
           return this.providerService.get$(this.providerId).pipe(
@@ -85,18 +98,46 @@ export class ClientsComponent extends BaseClientsComponent implements OnInit, On
             }),
           );
         }),
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(),
       )
       .subscribe();
+
+    this.searchControl.valueChanges
+      .pipe(debounceTime(200), takeUntilDestroyed())
+      .subscribe((searchText) => {
+        this.dataSource.filter = (data) =>
+          data.organizationName.toLowerCase().indexOf(searchText.toLowerCase()) > -1;
+      });
   }
 
-  ngOnDestroy() {
-    super.ngOnDestroy();
+  async remove(organization: ProviderOrganizationOrganizationDetailsResponse) {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: organization.organizationName,
+      content: { key: "detachOrganizationConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await this.webProviderService.detachOrganization(this.providerId, organization.id);
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("detachedOrganization", organization.organizationName),
+      });
+      await this.load();
+    } catch (e) {
+      this.validationService.showError(e);
+    }
   }
 
   async load() {
     const response = await this.apiService.getProviderClients(this.providerId);
-    this.clients = response.data != null && response.data.length > 0 ? response.data : [];
+    const clients = response.data != null && response.data.length > 0 ? response.data : [];
+    this.dataSource.data = clients;
     this.manageOrganizations =
       (await this.providerService.get(this.providerId)).type === ProviderUserType.ProviderAdmin;
     const candidateOrgs = (await this.organizationService.getAll()).filter(

@@ -2324,6 +2324,9 @@
     "message": "Domini",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Domini bloccati"
+  },
   "excludedDomains": {
     "message": "Domini esclusi"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden non chiederà di salvare le credenziali di accesso per questi domini per tutti gli account sul dispositivo. Ricarica la pagina affinché le modifiche abbiano effetto."
+  },
+  "blockedDomainsDesc": {
+    "message": "Per questi siti, l'auto-completamento e funzionalità simili non saranno disponibili. Ricarica la pagina per applicare le modifiche."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "La compilazione automatica è bloccata per questo sito."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Modifica questo nelle impostazioni"
   },
   "websiteItemLabel": {
     "message": "Sito $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Modifiche ai domini bloccati salvate"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Modifiche del dominio escluso salvate"
@@ -2788,6 +2803,20 @@
   },
   "error": {
     "message": "Errore"
+  },
+  "decryptionError": {
+    "message": "Errore di decifrazione"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden non può decifrare gli elementi elencati di seguito."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contatta il cliente correttamente",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "per evitare ulteriori perdite di dati.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Genera nome utente"
@@ -3396,38 +3425,6 @@
     "message": "Comprimi/espandi",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Importare i tuoi dati su Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Proteggere i tuoi dati LastPass e importarli su Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Salva come file non crittografato",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importa su Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importazione in corso...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Dati importati!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Errore durante l'importazione. Controlla la console per i dettagli.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Errore di connessione durante l'importazione.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Dominio alias"
   },
@@ -3979,7 +3976,10 @@
     "message": "Passkey rimossa"
   },
   "autofillSuggestions": {
-    "message": "Suggerimenti per il riempimento automatico"
+    "message": "Suggerimenti riempimento automatico"
+  },
+  "itemSuggestions": {
+    "message": "Elementi suggeriti"
   },
   "autofillSuggestionsTip": {
     "message": "Salva un elemento di accesso per questo sito da riempire automaticamente"
@@ -4557,12 +4557,6 @@
   "textSends": {
     "message": "Send Testo"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden ha un nuovo look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "È più facile e intuitivo che mai utilizzare il riempimento automatico e cercare dalla scheda Cassaforte. Dai un'occhiata!"
-  },
   "accountActions": {
     "message": "Azioni dell'account"
   },
@@ -4640,6 +4634,33 @@
   },
   "noEditPermissions": {
     "message": "Non hai i permessi per modificare questo elemento"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Lo sblocco biometrico non è disponibile perché è necessario prima sbloccare con PIN o parola d'accesso."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Lo sblocco biometrico non è attualmente disponibile."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Lo sblocco biometrico non è disponibile a causa di file di sistema mal configurati."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Lo sblocco biometrico non è disponibile a causa di file di sistema mal configurati."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Lo sblocco biometrico non è disponibile perché l'app desktop Bitwarden è chiusa."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Lo sblocco biometrico non è disponibile perché non è abilitato per $EMAIL$ nell'app desktop Bitwarden.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Lo sblocco biometrico non è attualmente disponibile per un motivo sconosciuto."
   },
   "authenticating": {
     "message": "Autenticazione"

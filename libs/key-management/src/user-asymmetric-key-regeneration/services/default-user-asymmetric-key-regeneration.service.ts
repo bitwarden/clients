@@ -49,13 +49,30 @@ export class DefaultUserAsymmetricKeysRegenerationService
   }
 
   private async shouldRegenerate(userId: UserId): Promise<boolean> {
-    const [userKey, userKeyEncryptedPrivateKey, publicKeyResponse] = await firstValueFrom(
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    // For SSO logins from untrusted devices, the userKey will not be available, and the private key regeneration process should be skipped.
+    // In such cases, regeneration will occur on the following device login flow.
+    if (!userKey) {
+      this.logService.info(
+        "[UserAsymmetricKeyRegeneration] User symmetric key unavailable, skipping regeneration for the user.",
+      );
+      return false;
+    }
+
+    const [userKeyEncryptedPrivateKey, publicKeyResponse] = await firstValueFrom(
       combineLatest([
-        this.keyService.userKey$(userId),
         this.keyService.userEncryptedPrivateKey$(userId),
         this.apiService.getUserPublicKey(userId),
       ]),
     );
+
+    if (!userKeyEncryptedPrivateKey || !publicKeyResponse) {
+      this.logService.warning(
+        "[UserAsymmetricKeyRegeneration] User's asymmetric key initialization data is unavailable, skipping regeneration.",
+      );
+      return false;
+    }
 
     const verificationResponse = await firstValueFrom(
       this.sdkService.client$.pipe(

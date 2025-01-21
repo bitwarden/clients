@@ -210,6 +210,9 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
       case NotificationType.SyncOrganizationStatusChanged:
         await this.syncService.fullSync(true);
         break;
+      case NotificationType.SyncOrganizationCollectionSettingChanged:
+        await this.syncService.fullSync(true);
+        break;
       default:
         break;
     }
