@@ -3425,38 +3425,6 @@
     "message": "開く/閉じる",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Bitwarden にデータをインポートしますか？",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "LastPass データを Bitwarden にインポートしますか？",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "暗号化されていないファイルとして保存",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Bitwarden にインポート",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "インポート中...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "データをインポートしました！",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "インポート中にエラーが発生しました。詳細はコンソールを確認してください。",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "インポート中にネットワークエラーが発生しました。",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "エイリアスドメイン"
   },

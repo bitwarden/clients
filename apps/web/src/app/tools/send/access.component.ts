@@ -5,9 +5,7 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
-import { RegisterRouteService } from "@bitwarden/auth/common";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -58,9 +56,6 @@ export class AccessComponent implements OnInit {
 
   protected formGroup = this.formBuilder.group({});
 
-  // TODO: remove when email verification flag is removed
-  registerRoute$ = this.registerRouteService.registerRoute$();
-
   private id: string;
   private key: string;
 
@@ -71,8 +66,6 @@ export class AccessComponent implements OnInit {
     private sendApiService: SendApiService,
     private toastService: ToastService,
     private i18nService: I18nService,
-    private configService: ConfigService,
-    private registerRouteService: RegisterRouteService,
     private layoutWrapperDataService: AnonLayoutWrapperDataService,
     protected formBuilder: FormBuilder,
   ) {}
