@@ -23,7 +23,6 @@ export enum FeatureFlag {
   ExtensionRefresh = "extension-refresh",
   PersistPopupView = "persist-popup-view",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
-  EmailVerification = "email-verification",
   TwoFactorComponentRefactor = "two-factor-component-refactor",
   ProviderClientVaultPrivacyBanner = "ac-2833-provider-client-vault-privacy-banner",
   VaultBulkManagementAction = "vault-bulk-management-action",
@@ -43,7 +42,6 @@ export enum FeatureFlag {
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
   DisableFreeFamiliesSponsorship = "PM-12274-disable-free-families-sponsorship",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
-  PM12443RemovePagingLogic = "pm-12443-remove-paging-logic",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
 }
@@ -79,7 +77,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ExtensionRefresh]: FALSE,
   [FeatureFlag.PersistPopupView]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
-  [FeatureFlag.EmailVerification]: FALSE,
   [FeatureFlag.TwoFactorComponentRefactor]: FALSE,
   [FeatureFlag.ProviderClientVaultPrivacyBanner]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
@@ -99,7 +96,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
   [FeatureFlag.DisableFreeFamiliesSponsorship]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-  [FeatureFlag.PM12443RemovePagingLogic]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;

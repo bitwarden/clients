@@ -3425,38 +3425,6 @@
     "message": "Přepnout sbalení",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Importovat data do Bitwardenu?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Chránit Vaše data LastPass a importovat do Bitwardenu?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Uložit jako nešifrovaný soubor",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importovat do Bitwardenu",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importování...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Data byla úspěšně importována!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Chyba při importu. Podrobnosti naleznete v konzoli.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Při importu došlo k chybě sítě.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Doména aliasu"
   },

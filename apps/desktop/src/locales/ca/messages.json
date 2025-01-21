@@ -27,7 +27,7 @@
     "message": "Nota segura"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Clau SSH"
   },
   "folders": {
     "message": "Carpetes"
@@ -64,7 +64,7 @@
     }
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Benvingut/da de nou"
   },
   "moveToOrgDesc": {
     "message": "Trieu una organització a la qual vulgueu desplaçar aquest element. El trasllat a una organització transfereix la propietat de l'element a aquesta organització. Ja no sereu el propietari directe d'aquest element una vegada s'haja mogut."
@@ -181,16 +181,16 @@
     "message": "Adreça"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Clau privada"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Clau pública"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Empremta digital"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Tipus de clau"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -205,22 +205,22 @@
     "message": "RSA 4096-Bit"
   },
   "sshKeyGenerated": {
-    "message": "A new SSH key was generated"
+    "message": "S'ha generat una nova clau SSH"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "La contrasenya que heu introduït és incorrecta."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importa"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Confirma contrasenya"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Introduïu la contrasenya per a la clau SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Introduïu la contrasenya"
   },
   "sshAgentUnlockRequired": {
     "message": "Please unlock your vault to approve the SSH key request."
@@ -250,7 +250,7 @@
     "message": "Error"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Error de desxifrat"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -337,7 +337,7 @@
     "message": "Genera contrasenya"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Genera frase de pas"
   },
   "type": {
     "message": "Tipus"
@@ -481,7 +481,7 @@
     "message": "Copy SSH private key"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "Copia frase de pas",
     "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
@@ -512,11 +512,11 @@
     "message": "Caràcters especials (!@#$%^&*)"
   },
   "include": {
-    "message": "Include",
+    "message": "Inclou",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Inclou majúscules",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -524,7 +524,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Inclou minúscules",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -532,7 +532,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Inclou números",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -540,7 +540,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Inclou caràcters especials",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -575,7 +575,7 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Eviteu caràcters ambigus",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -638,7 +638,7 @@
     "message": "Crea un compte"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Nou a Bitwarden?"
   },
   "setAStrongPassword": {
     "message": "Estableix una contrasenya segura"
@@ -653,13 +653,13 @@
     "message": "Log in to Bitwarden"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Inicieu sessió amb la clau de pas"
   },
   "loginWithDevice": {
-    "message": "Log in with device"
+    "message": "Inici de sessió amb dispositiu"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Usa inici de sessió únic"
   },
   "submit": {
     "message": "Envia"
@@ -705,10 +705,10 @@
     "message": "Pista de la contrasenya mestra"
   },
   "joinOrganization": {
-    "message": "Uneix-te a l'organització"
+    "message": "Uniu-vos a l'organització"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Uniu-vos a $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -723,13 +723,13 @@
     "message": "Configuració"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Correu electrònic del compte"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Sol·licita pista"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Sol·licita pista de la contrasenya"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
@@ -1087,16 +1087,16 @@
     "message": "La caixa forta està bloquejada. Comproveu la contrasenya mestra per continuar."
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "El compte està bloquejat"
   },
   "or": {
-    "message": "or"
+    "message": "o"
   },
   "unlockWithBiometrics": {
-    "message": "Unlock with biometrics"
+    "message": "Desbloqueja amb dades biomètriques"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "Desbloqueja amb contrasenya mestra"
   },
   "unlock": {
     "message": "Desbloqueja"
@@ -1127,7 +1127,7 @@
     "message": "Temps d'espera de la caixa forta"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "Temps d'espera"
   },
   "vaultTimeoutDesc": {
     "message": "Trieu quan es tancarà la vostra caixa forta i feu l'acció seleccionada."
@@ -1334,7 +1334,7 @@
     "description": "Copy credit card number"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Copia el correu electrònic"
   },
   "copySecurityCode": {
     "message": "Copia el codi de seguretat",
@@ -1407,13 +1407,13 @@
     "message": "Historial de les contrasenyes"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Historial del generador"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Neteja l'historial del generador"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Si continueu, totes les entrades se suprimiran permanentment de l'historial del generador. Esteu segur que voleu continuar?"
   },
   "clear": {
     "message": "Esborra",
@@ -1423,10 +1423,10 @@
     "message": "No hi ha cap contrasenya a llistar."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Neteja l'historial"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Res a mostrar"
   },
   "nothingGeneratedRecently": {
     "message": "You haven't generated anything recently"
@@ -1506,7 +1506,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Còpia correcta"
   },
   "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
@@ -2470,7 +2470,7 @@
     "message": "Bloquejat"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "La caixa forta està bloquejada"
   },
   "unlocked": {
     "message": "Desbloquejat"
@@ -2746,7 +2746,7 @@
     "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Necessiteu una altra opció?"
   },
   "fingerprintMatchInfo": {
     "message": "Assegureu-vos que la vostra caixa forta estiga desbloquejada i que la frase d'empremta digital coincidisca amb l'altre dispositiu."
@@ -2889,13 +2889,13 @@
     "message": "Comproveu les filtracions de dades conegudes per a aquesta contrasenya"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Connectat!"
   },
   "important": {
     "message": "Important:"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Accedint a"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "You have been logged out because your access token could not be decrypted. Please log in again to resolve this issue."
@@ -3374,10 +3374,10 @@
     "message": "Dades"
   },
   "fileSends": {
-    "message": "File Sends"
+    "message": "Sends de fitxers"
   },
   "textSends": {
-    "message": "Text Sends"
+    "message": "Sends de text"
   },
   "ssoError": {
     "message": "No free ports could be found for the sso login."
@@ -3410,7 +3410,7 @@
     "message": "Authorize"
   },
   "deny": {
-    "message": "Deny"
+    "message": "Denega"
   },
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"

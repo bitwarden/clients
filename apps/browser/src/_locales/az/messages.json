@@ -3425,38 +3425,6 @@
     "message": "Yığcamlaşdırmanı aç/bağla",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Datanız Bitwarden-ə köçürülsün?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "LastPass datanızı qoruyub Bitwarden-ə köçürürsünüz?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Şifrələnməmiş fayl olaraq saxla",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Bitwarden-ə köçür",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Daxilə köçürülür...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Data uğurla daxilə köçürüldü!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Daxilə köçürmə xətası. Detallar üçün konsolu yoxlayın.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Daxilə köçürmə zamanı şəbəkə xətası baş verdi.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Domen ləqəbi"
   },
