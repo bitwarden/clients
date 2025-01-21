@@ -14,6 +14,7 @@ import {
   DialogModule,
   FormFieldModule,
   IconButtonModule,
+  ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -46,6 +47,7 @@ export class PasswordRepromptComponent {
     protected i18nService: I18nService,
     protected formBuilder: FormBuilder,
     protected dialogRef: DialogRef,
+    private toastService: ToastService,
     protected accountService: AccountService,
   ) {}
 
@@ -73,11 +75,11 @@ export class PasswordRepromptComponent {
         userId,
       ))
     ) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("invalidMasterPassword"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidMasterPassword"),
+      });
       return;
     }
 

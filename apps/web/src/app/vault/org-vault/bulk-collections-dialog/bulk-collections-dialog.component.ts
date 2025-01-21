@@ -18,7 +18,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
 import {
@@ -73,6 +73,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private collectionAdminService: CollectionAdminService,
+    private toastService: ToastService,
   ) {
     this.numCollections = this.params.collections.length;
     const organization$ = this.accountService.activeAccount$.pipe(
@@ -130,7 +131,11 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
       groups,
     );
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("editedCollections"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("editedCollections"),
+    });
 
     this.dialogRef.close(BulkCollectionsDialogResult.Saved);
   };

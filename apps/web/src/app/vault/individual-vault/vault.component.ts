@@ -725,6 +725,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       mode,
       formConfig,
       activeCollectionId,
+      restore: this.restore,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);

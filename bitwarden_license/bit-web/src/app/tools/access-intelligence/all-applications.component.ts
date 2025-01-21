@@ -62,10 +62,15 @@ export class AllApplicationsComponent implements OnInit {
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
-  protected organization = {} as Organization;
+  protected organization = new Organization();
   noItemsIcon = Icons.Security;
   protected markingAsCritical = false;
-  protected applicationSummary = {} as ApplicationHealthReportSummary;
+  protected applicationSummary: ApplicationHealthReportSummary = {
+    totalMemberCount: 0,
+    totalAtRiskMemberCount: 0,
+    totalApplicationCount: 0,
+    totalAtRiskApplicationCount: 0,
+  };
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
@@ -83,14 +88,6 @@ export class AllApplicationsComponent implements OnInit {
       const organization$ = this.organizationService
         .organizations$(userId)
         .pipe(getOrganizationById(organizationId));
-
-      const organization = await firstValueFrom(organization$);
-
-      if (organization) {
-        this.organization = organization;
-      } else {
-        throw new Error("No organization found.");
-      }
 
       combineLatest([
         this.dataService.applications$,
@@ -110,8 +107,10 @@ export class AllApplicationsComponent implements OnInit {
           }),
         )
         .subscribe(({ data, organization }) => {
-          this.dataSource.data = data ?? [];
-          this.applicationSummary = this.reportService.generateApplicationsSummary(data ?? []);
+          if (data) {
+            this.dataSource.data = data;
+            this.applicationSummary = this.reportService.generateApplicationsSummary(data);
+          }
           if (organization) {
             this.organization = organization;
           }
