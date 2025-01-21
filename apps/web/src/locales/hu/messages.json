@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Az SSO szétkapcsolásra került."
+  },
   "unlinkedSsoUser": {
     "message": "SSO szétkapcsolva $ID$ felhasználónál.",
     "placeholders": {

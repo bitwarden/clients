@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "Користувач $ID$ не має пов'язаного SSO.",
     "placeholders": {

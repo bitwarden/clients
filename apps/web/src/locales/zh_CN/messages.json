@@ -2864,10 +2864,10 @@
     "message": "账单"
   },
   "noUnpaidInvoices": {
-    "message": "没有未支付的账单。"
+    "message": "无未支付的账单。"
   },
   "noPaidInvoices": {
-    "message": "没有已支付的账单。"
+    "message": "无已支付的账单。"
   },
   "paid": {
     "message": "已支付",
@@ -3767,6 +3767,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
   },
   "unlinkedSsoUser": {
     "message": "为用户 $ID$ 取消链接 SSO。",
@@ -8269,31 +8272,31 @@
     "message": "受信任设备"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "message": "使用 SSO 登录时，成员无需主密码。主密码将被存储在设备上的加密密钥所取代，从而使该设备成为受信任设备。成员创建账户并登录的第一个设备将受到信任。新设备需要由现有受信任设备或管理员批准。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
-    "message": "single organization",
+    "message": "单一组织",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart2": {
-    "message": "policy,",
+    "message": "策略，",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink2": {
-    "message": "SSO required",
+    "message": "要求 SSO",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart3": {
-    "message": "policy, and",
+    "message": "策略，以及",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink3": {
-    "message": "account recovery administration",
+    "message": "账户恢复管理",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart4": {
-    "message": "policy will turn on when this option is used.",
+    "message": "策略将在使用此选项时开启。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -9183,7 +9186,7 @@
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "scimIntegrationDescEnd": {
-    "message": "（跨域身份管理系统）（使用您的身份提供程序的实施指南）以自动向 Bitwarden 配置用户和群组。",
+    "message": "（跨域身份管理系统）以自动向 Bitwarden 配置用户和群组（使用您的身份提供程序的实施指南）。",
     "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "bwdc": {

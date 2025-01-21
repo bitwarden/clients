@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "SSO tidak ditautkan untuk pengguna $ID$.",
     "placeholders": {

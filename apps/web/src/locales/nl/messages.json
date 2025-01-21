@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Ontkoppelde SSO."
+  },
   "unlinkedSsoUser": {
     "message": "SSO ontkoppeld voor gebruiker $ID$.",
     "placeholders": {

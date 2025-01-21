@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "SSO-Verknüpfung aufgehoben."
+  },
   "unlinkedSsoUser": {
     "message": "SSO-Verknüpfung für Benutzer $ID$ aufgehoben.",
     "placeholders": {

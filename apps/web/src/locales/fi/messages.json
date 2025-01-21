@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "Poisti kertakirjautumisen käyttäjältä \"$ID$\".",
     "placeholders": {

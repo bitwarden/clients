@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "SSO non collegato."
+  },
   "unlinkedSsoUser": {
     "message": "SSO per l'utente $ID$ scollegato.",
     "placeholders": {

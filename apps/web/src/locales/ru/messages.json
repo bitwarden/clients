@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Несвязанный SSO."
+  },
   "unlinkedSsoUser": {
     "message": "Несвязанный SSO для пользователя $ID$.",
     "placeholders": {
@@ -8269,7 +8272,7 @@
     "message": "Доверенные устройства"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "message": "Пользователям не понадобится мастер-пароль при входе в систему с SSO. Мастер-пароль заменяется ключом шифрования, хранящимся на устройстве, который делает его надёжным. Первое устройство, в которое участник создаёт свой аккаунт и входит в первый раз, будет доверенным. Новые устройства должны быть утверждены существующим доверенным устройством или администратором.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {

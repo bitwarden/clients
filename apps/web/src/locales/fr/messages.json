@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "SSO non lié."
+  },
   "unlinkedSsoUser": {
     "message": "SSO dissocié pour l'utilisateur $ID$.",
     "placeholders": {

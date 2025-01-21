@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "ಬಳಕೆದಾರ $ID$ ಗಾಗಿ ಲಿಂಕ್ ಮಾಡದ SSO.",
     "placeholders": {

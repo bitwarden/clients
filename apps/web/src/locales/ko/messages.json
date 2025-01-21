@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "$ID$ 사용자에 대한 SSO 연결이 해제되었습니다.",
     "placeholders": {

@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "SSO برای کاربر $ID$ پیوند نخورده است.",
     "placeholders": {

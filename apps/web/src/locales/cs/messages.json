@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Nepropojené SSO."
+  },
   "unlinkedSsoUser": {
     "message": "Bylo zrušeno propojení SSO pro uživatele $ID$.",
     "placeholders": {

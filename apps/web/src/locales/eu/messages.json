@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "$ID$ erabiltzailearentzako SSO lotura kendua.",
     "placeholders": {

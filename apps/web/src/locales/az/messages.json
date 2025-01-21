@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Əlaqələndirilməmiş SSO."
+  },
   "unlinkedSsoUser": {
     "message": "$ID$ istifadəçisi üçün SSO əlaqəsi kəsildi.",
     "placeholders": {

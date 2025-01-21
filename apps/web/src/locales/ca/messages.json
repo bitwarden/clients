@@ -1,6 +1,6 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Totes les notificacions"
   },
   "criticalApplications": {
     "message": "Critical applications"
@@ -96,7 +96,7 @@
     "message": "Apps marked as critical"
   },
   "application": {
-    "message": "Application"
+    "message": "Aplicació"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
@@ -193,7 +193,7 @@
     "message": "Notes"
   },
   "note": {
-    "message": "Note"
+    "message": "Nota"
   },
   "customFields": {
     "message": "Camps personalitzats"
@@ -205,16 +205,16 @@
     "message": "Credencials d'inici de sessió"
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Detalls personals"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identificació"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Informació de contacte"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Dades de la targeta"
   },
   "cardBrandDetails": {
     "message": "$BRAND$ details",
@@ -378,7 +378,7 @@
     "message": "Dr."
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Targeta de crèdit caducada"
   },
   "cardExpiredMessage": {
     "message": "If you've renewed it, update the card's information"
@@ -825,7 +825,7 @@
     "message": "Copy license number"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Copia el nom"
   },
   "me": {
     "message": "Jo"
@@ -1911,7 +1911,7 @@
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLoginLink": {
-    "message": "new login",
+    "message": "inici de sessió nou",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsPartTwoNoOrgs": {
@@ -2165,7 +2165,7 @@
     "message": ","
   },
   "twoStepAuthenticatorInstructionInfix2": {
-    "message": "or"
+    "message": "o"
   },
   "twoStepAuthenticatorInstructionSuffix": {
     "message": "."
@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "SSO sense enllaçar per a l'usuari $ID$.",
     "placeholders": {
@@ -3875,7 +3878,7 @@
     "message": "Login request has already expired."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Ara mateix"
   },
   "requestedXMinutesAgo": {
     "message": "Requested $MINUTES$ minutes ago",
@@ -3890,7 +3893,7 @@
     "message": "Creating account on"
   },
   "checkYourEmail": {
-    "message": "Check your email"
+    "message": "Comprova el correu"
   },
   "followTheLinkInTheEmailSentTo": {
     "message": "Follow the link in the email sent to"
@@ -4452,7 +4455,7 @@
     "message": "By continuing, you agree to the"
   },
   "and": {
-    "message": "and"
+    "message": "i"
   },
   "acceptPolicies": {
     "message": "Si activeu aquesta casella, indiqueu que esteu d’acord amb el següent:"
@@ -4473,7 +4476,7 @@
     "message": "Temps d'espera de la caixa forta"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "Temps d'espera"
   },
   "vaultTimeoutDesc": {
     "message": "Trieu quan es tancarà la vostra caixa forta i feu l'acció seleccionada."
@@ -4542,7 +4545,7 @@
     "message": "Seleccionat"
   },
   "recommended": {
-    "message": "Recommended"
+    "message": "Recomanat"
   },
   "ownership": {
     "message": "Propietat"
@@ -5029,7 +5032,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Copia l'enllaç"
   },
   "copySendLink": {
     "message": "Copia l'enllaç Send",
@@ -5535,7 +5538,7 @@
     }
   },
   "viewSend": {
-    "message": "View Send",
+    "message": "Veure Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -7937,7 +7940,7 @@
     "message": "Càrrega de fitxers"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Puja"
   },
   "acceptedFormats": {
     "message": "Formats acceptats:"
@@ -7949,10 +7952,10 @@
     "message": "o"
   },
   "unlockWithBiometrics": {
-    "message": "Unlock with biometrics"
+    "message": "Desbloqueja amb dades biomètriques"
   },
   "unlockWithPin": {
-    "message": "Unlock with PIN"
+    "message": "Desbloqueja amb codi PIN"
   },
   "unlockWithMasterPassword": {
     "message": "Unlock with master password"

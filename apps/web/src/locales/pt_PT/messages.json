@@ -3768,8 +3768,11 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "SSO desvinculado."
+  },
   "unlinkedSsoUser": {
-    "message": "SSO do utilizador $ID$ desligado.",
+    "message": "SSO desvinculado para o utilizador $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4904,13 +4907,13 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
-    "message": "Desativar SSO"
+    "message": "Desvincular SSO"
   },
   "unlinkSsoConfirmation": {
-    "message": "Tem a certeza de que pretende desligar o SSO desta organização?"
+    "message": "Tem a certeza de que pretende desvincular o SSO desta organização?"
   },
   "linkSso": {
-    "message": "Ativar SSO"
+    "message": "Vincular SSO"
   },
   "singleOrg": {
     "message": "Organização única"

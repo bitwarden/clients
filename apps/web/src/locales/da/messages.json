@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Fjern SSO-tilknytning."
+  },
   "unlinkedSsoUser": {
     "message": "Af-linket SSO for bruger $ID$.",
     "placeholders": {

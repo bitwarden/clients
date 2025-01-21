@@ -3768,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
+  },
   "unlinkedSsoUser": {
     "message": "Odłącz logowanie jednokrotne SSO dla użytkownika %$ID$.",
     "placeholders": {
