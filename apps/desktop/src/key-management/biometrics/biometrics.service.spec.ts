@@ -117,15 +117,15 @@ describe("biometrics tests", function () {
       const testCases = [
         // happy path
         [true, false, false, BiometricsStatus.Available],
-        [false, true, true, BiometricsStatus.AutoSetupNeeded],
-        [false, true, false, BiometricsStatus.ManualSetupNeeded],
-        [false, false, false, BiometricsStatus.HardwareUnavailable],
+        [false, true, true, BiometricsStatus.HardwareUnavailable],
+        [true, true, true, BiometricsStatus.AutoSetupNeeded],
+        [true, true, false, BiometricsStatus.ManualSetupNeeded],
 
         // should not happen
         [false, false, true, BiometricsStatus.HardwareUnavailable],
-        [true, true, true, BiometricsStatus.Available],
-        [true, true, false, BiometricsStatus.Available],
         [true, false, true, BiometricsStatus.Available],
+        [false, true, false, BiometricsStatus.HardwareUnavailable],
+        [false, false, false, BiometricsStatus.HardwareUnavailable],
       ];
 
       for (const [supportsBiometric, needsSetup, canAutoSetup, expected] of testCases) {

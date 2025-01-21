@@ -5,8 +5,8 @@ import { NgClass, NgIf } from "@angular/common";
 import { Component, ContentChild, HostBinding, Input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { I18nPipe } from "../shared/i18n.pipe";
 import { TypographyDirective } from "../typography/typography.directive";
 
 import { BitFormControlAbstraction } from "./form-control.abstraction";

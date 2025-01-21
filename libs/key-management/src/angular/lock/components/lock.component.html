@@ -6,15 +6,13 @@
 
 <ng-container *ngIf="unlockOptions; else loading">
   <!-- Biometrics Unlock -->
-  <ng-container
-    *ngIf="unlockOptions.biometrics.enabled && activeUnlockOption === UnlockOption.Biometrics"
-  >
+  <ng-container *ngIf="activeUnlockOption === UnlockOption.Biometrics">
     <button
       type="button"
       bitButton
       buttonType="primary"
       class="tw-mb-3"
-      [disabled]="unlockingViaBiometrics"
+      [disabled]="unlockingViaBiometrics || !biometricsAvailable"
       [loading]="unlockingViaBiometrics"
       block
       (click)="unlockViaBiometrics()"
