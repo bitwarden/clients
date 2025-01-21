@@ -3425,38 +3425,6 @@
     "message": "Bật/tắt thu gọn",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Nhập dữ liệu của bạn vào Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Bảo vệ dữ liệu LastPass của bạn và nhập vào Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Lưu dưới dạng tập tin không được mã hóa",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Nhập vào Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Đang nhập...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Dữ liệu đã được nhập thành công!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Xảy ra lỗi trong quá trình nhập. Kiểm tra bảng điều khiển để biết thêm chi tiết.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Đã xảy ra lỗi mạng trong quá trình nhập dữ liệu.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Tên miền thay thế"
   },
