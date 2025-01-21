@@ -19,7 +19,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
-import { VaultUiOnboardingService } from "../../services/vault-ui-onboarding.service";
 
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
 import {
@@ -58,7 +57,6 @@ enum VaultState {
     VaultHeaderV2Component,
     DecryptionFailureDialogComponent,
   ],
-  providers: [VaultUiOnboardingService],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
@@ -97,7 +95,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
-    private vaultUiOnboardingService: VaultUiOnboardingService,
     private vaultScrollPositionService: VaultPopupScrollPositionService,
     private destroyRef: DestroyRef,
     private cipherService: CipherService,
@@ -143,8 +140,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    await this.vaultUiOnboardingService.showOnboardingDialog();
-
     this.cipherService.failedToDecryptCiphers$
       .pipe(
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),

@@ -167,6 +167,10 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       );
     });
 
+    if (!this.cipherFormContainer.originalCipherView?.viewPassword) {
+      this.customFieldsForm.disable();
+    }
+
     // Disable the form if in partial-edit mode
     // Must happen after the initial fields are populated
     if (this.cipherFormContainer.config.mode === "partial-edit") {

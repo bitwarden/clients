@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "Cambia l'e-mail dell'account"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Aggiornamento dell'organizzazione richiesto"
+  },
+  "upgradeOrganization": {
+    "message": "Aggiorna organizzazione"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Questa funzione non è disponibile per le organizzazioni gratuite. Passa a un piano a pagamento per sbloccare più funzioni."
   }
 }

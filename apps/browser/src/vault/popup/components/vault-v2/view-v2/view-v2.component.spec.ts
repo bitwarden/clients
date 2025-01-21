@@ -202,7 +202,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(doAutofill).toHaveBeenCalledOnce();
+      expect(doAutofill).toHaveBeenCalledTimes(1);
     }));
 
     it('invokes `copy` when action="copy-username"', fakeAsync(() => {
@@ -210,7 +210,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(copy).toHaveBeenCalledOnce();
+      expect(copy).toHaveBeenCalledTimes(1);
     }));
 
     it('invokes `copy` when action="copy-password"', fakeAsync(() => {
@@ -218,7 +218,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(copy).toHaveBeenCalledOnce();
+      expect(copy).toHaveBeenCalledTimes(1);
     }));
 
     it('invokes `copy` when action="copy-totp"', fakeAsync(() => {
@@ -226,7 +226,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(copy).toHaveBeenCalledOnce();
+      expect(copy).toHaveBeenCalledTimes(1);
     }));
 
     it("closes the popout after a load action", fakeAsync(() => {
@@ -241,9 +241,9 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(doAutofill).toHaveBeenCalledOnce();
+      expect(doAutofill).toHaveBeenCalledTimes(1);
       expect(focusSpy).toHaveBeenCalledWith(99);
-      expect(closeSpy).toHaveBeenCalledOnce();
+      expect(closeSpy).toHaveBeenCalledTimes(1);
     }));
   });
 

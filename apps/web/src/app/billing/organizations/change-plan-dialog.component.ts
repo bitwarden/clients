@@ -485,6 +485,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get selectedPlanInterval() {
+    if (this.isSubscriptionCanceled) {
+      return this.currentPlan.isAnnual ? "year" : "month";
+    }
     return this.selectedPlan.isAnnual ? "year" : "month";
   }
 
@@ -1062,7 +1065,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private refreshSalesTax(): void {
-    if (!this.taxInformation.country || !this.taxInformation.postalCode) {
+    if (
+      this.taxInformation === undefined ||
+      !this.taxInformation.country ||
+      !this.taxInformation.postalCode
+    ) {
       return;
     }
 

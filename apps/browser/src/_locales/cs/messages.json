@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Automatické vyplňování a další související funkce nebudou pro tyto webové stránky nabízeny. Aby se změny projevily, musíte stránku aktualizovat."
   },
-  "autofillBlockedNotice": {
-    "message": "Automatické vyplňování je pro tento web zablokováno. Zkontrolujte to nebo to změňte v nastavení."
+  "autofillBlockedNoticeV2": {
+    "message": "Automatické vyplňování je pro tuto stránku zablokováno."
   },
-  "autofillBlockedTooltip": {
-    "message": "Automatické vyplňování je pro tento web zablokováno. Zkontrolujte to v nastavení."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Změňte to v nastavení"
   },
   "websiteItemLabel": {
     "message": "Webová stránka $number$ (URI)",
@@ -3425,38 +3425,6 @@
     "message": "Přepnout sbalení",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Importovat data do Bitwardenu?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Chránit Vaše data LastPass a importovat do Bitwardenu?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Uložit jako nešifrovaný soubor",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importovat do Bitwardenu",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importování...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Data byla úspěšně importována!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Chyba při importu. Podrobnosti naleznete v konzoli.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Při importu došlo k chybě sítě.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Doména aliasu"
   },
@@ -4009,6 +3977,9 @@
   },
   "autofillSuggestions": {
     "message": "Návrhy automatického vyplňování"
+  },
+  "itemSuggestions": {
+    "message": "Navrhované položky"
   },
   "autofillSuggestionsTip": {
     "message": "Uložit přihlašovací údaje pro tuto stránku do automatického vyplňování"
@@ -4585,12 +4556,6 @@
   },
   "textSends": {
     "message": "Sends s texty"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden má nový vzhled!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Je snazší a intuitivnější než kdy jindy automaticky vyplňovat a vyhledávat z karty trezor. Mrkněte se!"
   },
   "accountActions": {
     "message": "Činnosti účtu"

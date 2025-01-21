@@ -947,7 +947,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.mutationsQueue.length) {
-      requestIdleCallbackPolyfill(debounce(this.processMutations, 100), { timeout: 500 });
+      // Collect all mutations and debounce the processing of those mutations by 100ms to ensure we don't process too many mutations at once.
+      debounce(this.processMutations, 100);
     }
     this.mutationsQueue.push(mutations);
   };
@@ -982,7 +983,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const queueLength = this.mutationsQueue.length;
 
     if (!this.domQueryService.pageContainsShadowDomElements()) {
-      this.checkPageContainsShadowDom();
+      // Checking if a page contains shadowDOM elements is a heavy operation and doesn't have to be done immediately, so we can call this within an idle moment on the event loop.
+      requestIdleCallbackPolyfill(this.checkPageContainsShadowDom, { timeout: 500 });
     }
 
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
