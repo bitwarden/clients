@@ -15,8 +15,8 @@ import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
     <bit-dialog title="Dialog Title" dialogSize="large">
       <span bitDialogContent> Dialog body text goes here. </span>
       <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" (click)="dialogRef.close()">OK</button>
-        <button bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">OK</button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
       </ng-container>
     </bit-dialog>
   `,
@@ -42,7 +42,7 @@ class KitchenSinkDialog {
       </bit-breadcrumbs>
     </p>
 
-    <div class="tw-mb-6 tw-mt-6">
+    <div class="tw-my-6">
       <h1 bitTypography="h1">Bitwarden Kitchen Sink<bit-avatar text="Bit Warden"></bit-avatar></h1>
       <a bitLink linkType="primary" href="#">Learn more</a>
     </div>
@@ -68,8 +68,8 @@ class KitchenSinkDialog {
           <h2 bitTypography="h2" class="tw-mb-6">About</h2>
           <bit-kitchen-sink-table></bit-kitchen-sink-table>
 
-          <button bitButton (click)="openDialog()">Open Dialog</button>
-          <button bitButton (click)="openDrawer()">Open Drawer</button>
+          <button type="button" bitButton (click)="openDialog()">Open Dialog</button>
+          <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
         </bit-section>
         <bit-section>
           <h2 bitTypography="h2" class="tw-mb-6">Companies using Bitwarden</h2>

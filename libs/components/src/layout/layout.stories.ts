@@ -31,6 +31,10 @@ export default {
   ],
   parameters: {
     chromatic: { viewports: [640, 1280] },
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21662-51009&t=k6OTDDPZOTtypRqo-11",
+    },
   },
 } as Meta;
 

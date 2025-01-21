@@ -3425,38 +3425,6 @@
     "message": "Déplier/Replier",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Importer vos données dans Bitwarden ?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Protéger vos données LastPass et importer dans Bitwarden ?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Enregistrer en tant que fichier non chiffré",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importer vers Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importation en cours...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Données importées avec succès !",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Erreur lors de l'importation. Consultez la console pour plus de détails.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Une erreur réseau s'est produite lors de l'importation.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Domaine de l'alias"
   },

@@ -9,6 +9,7 @@
       "@bitwarden/angular/*": ["../../libs/angular/src/*"],
       "@bitwarden/auth": ["../../libs/auth/src"],
       "@bitwarden/billing": ["../../libs/billing/src"],
+      "@bitwarden/bit-common/*": ["../bit-common/src/*"],
       "@bitwarden/common/*": ["../../libs/common/src/*"],
       "@bitwarden/components": ["../../libs/components/src"],
       "@bitwarden/generator-components": ["../../libs/tools/generator/components/src"],
@@ -16,18 +17,18 @@
       "@bitwarden/generator-history": ["../../libs/tools/generator/extensions/history/src"],
       "@bitwarden/generator-legacy": ["../../libs/tools/generator/extensions/legacy/src"],
       "@bitwarden/generator-navigation": ["../../libs/tools/generator/extensions/navigation/src"],
+      "@bitwarden/key-management": ["../../libs/key-management/src"],
+      "@bitwarden/key-management/angular": ["../../libs/key-management/src/angular"],
+      "@bitwarden/platform": ["../../libs/platform/src"],
+      "@bitwarden/send-ui": ["../../libs/tools/send/send-ui/src"],
+      "@bitwarden/tools-card": ["../../libs/tools/card/src"],
+      "@bitwarden/ui-common": ["../../libs/ui/common/src"],
       "@bitwarden/vault-export-core": [
         "../../libs/tools/export/vault-export/vault-export-core/src"
       ],
       "@bitwarden/vault-export-ui": ["../../libs/tools/export/vault-export/vault-export-core/src"],
-      "@bitwarden/send-ui": ["../../libs/tools/send/send-ui/src"],
-      "@bitwarden/tools-card": ["../../libs/tools/card/src"],
-      "@bitwarden/key-management": ["../../libs/key-management/src"],
-      "@bitwarden/key-management/angular": ["../../libs/key-management/src/angular"],
-      "@bitwarden/platform": ["../../libs/platform/src"],
       "@bitwarden/vault": ["../../libs/vault/src"],
-      "@bitwarden/web-vault/*": ["../../apps/web/src/*"],
-      "@bitwarden/bit-common/*": ["../bit-common/src/*"]
+      "@bitwarden/web-vault/*": ["../../apps/web/src/*"]
     }
   }
 }
