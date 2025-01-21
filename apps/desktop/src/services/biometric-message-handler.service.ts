@@ -444,6 +444,10 @@ export class BiometricMessageHandlerService {
         return false;
       }
 
+      if (appToValidate.trusted) {
+        return true;
+      }
+
       ipc.platform.nativeMessaging.sendMessage({
         command: "verifyDesktopIPCFingerprint",
         appId: appId,

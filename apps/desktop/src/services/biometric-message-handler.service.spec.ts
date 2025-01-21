@@ -316,6 +316,41 @@ describe("BiometricMessageHandlerService", () => {
         }),
       );
     });
+
+    it("should not attempt to verify when the connected app is already trusted", async () => {
+      desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
+      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
+        "connectedApp_appId",
+      ]);
+      (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
+        JSON.stringify({
+          publicKey: Utils.fromUtf8ToB64("publicKey"),
+          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
+          trusted: true,
+        }),
+      );
+      encryptService.decryptToUtf8.mockResolvedValue(
+        JSON.stringify({
+          command: BiometricsCommands.UnlockWithBiometricsForUser,
+          messageId: 0,
+          timestamp: Date.now(),
+          userId: SomeUser,
+        }),
+      );
+      await service.handleMessage({
+        appId: "appId",
+        message: {
+          command: BiometricsCommands.UnlockWithBiometricsForUser,
+          messageId: 0,
+          timestamp: Date.now(),
+          userId: SomeUser,
+        },
+      });
+      expect(ipc.platform.nativeMessaging.sendMessage).not.toHaveBeenCalledWith({
+        command: "verifyDesktopIPCFingerprint",
+        appId: "appId",
+      });
+    });
   });
 
   describe("process reload", () => {
