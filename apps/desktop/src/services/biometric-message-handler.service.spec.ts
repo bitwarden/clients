@@ -76,7 +76,7 @@ describe("BiometricMessageHandlerService", () => {
     (global as any).ipc = {
       platform: {
         ephemeralStore: {
-          listEphemeralValues: jest.fn(),
+          listEphemeralValueKeys: jest.fn(),
           getEphemeralValue: jest.fn(),
           removeEphemeralValue: jest.fn(),
           setEphemeralValue: jest.fn(),
@@ -124,7 +124,9 @@ describe("BiometricMessageHandlerService", () => {
     });
 
     it("should setup secure communication", async () => {
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValues.mockResolvedValue(["appId"]);
+      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
+        "connectedApp_appId",
+      ]);
       (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
         JSON.stringify({
           publicKey: Utils.fromUtf8ToB64("publicKey"),
@@ -158,7 +160,7 @@ describe("BiometricMessageHandlerService", () => {
     });
 
     it("should invalidate encryption if connection is not secured", async () => {
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValues.mockResolvedValue([
+      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
         "connectedApp_appId",
       ]);
       (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
@@ -184,7 +186,7 @@ describe("BiometricMessageHandlerService", () => {
 
     it("should show update dialog when legacy unlock is requested with fingerprint active", async () => {
       desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValues.mockResolvedValue([
+      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
         "connectedApp_appId",
       ]);
       (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
@@ -216,7 +218,7 @@ describe("BiometricMessageHandlerService", () => {
 
     it("should send verify fingerprint when fingerprinting is required on modern unlock, and dialog is accepted, and set to trusted", async () => {
       desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValues.mockResolvedValue([
+      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
         "connectedApp_appId",
       ]);
       (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
@@ -267,7 +269,7 @@ describe("BiometricMessageHandlerService", () => {
 
     it("should send reject fingerprint when fingerprinting is required on modern unlock, and dialog is rejected, and it should not set to trusted", async () => {
       desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValues.mockResolvedValue([
+      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
         "connectedApp_appId",
       ]);
       (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(

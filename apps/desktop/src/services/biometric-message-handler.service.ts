@@ -52,7 +52,7 @@ class ConnectedApps {
   }
 
   async list(): Promise<string[]> {
-    return (await ipc.platform.ephemeralStore.listEphemeralValues())
+    return (await ipc.platform.ephemeralStore.listEphemeralValueKeys())
       .filter((key) => key.startsWith(ConnectedAppPrefix))
       .map((key) => key.replace(ConnectedAppPrefix, ""));
   }
