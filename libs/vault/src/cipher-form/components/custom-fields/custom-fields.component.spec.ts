@@ -61,7 +61,13 @@ describe("CustomFieldsComponent", () => {
         },
         {
           provide: CipherFormContainer,
-          useValue: { patchCipher, originalCipherView, registerChildForm: jest.fn(), config },
+          useValue: {
+            patchCipher,
+            originalCipherView,
+            registerChildForm: jest.fn(),
+            config,
+            getInitialCipherView: jest.fn(() => originalCipherView),
+          },
         },
         {
           provide: LiveAnnouncer,

@@ -71,7 +71,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     protected messagingService: MessagingService,
     protected policyService: PolicyService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
-    private accountService: AccountService,
+    protected accountService: AccountService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>

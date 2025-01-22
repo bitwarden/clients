@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
+import { firstValueFrom, map } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ImportServiceAbstraction, ImportType } from "@bitwarden/importer/core";
 
@@ -16,12 +18,23 @@ export class ImportCommand {
     private importService: ImportServiceAbstraction,
     private organizationService: OrganizationService,
     private syncService: SyncService,
+    private accountService: AccountService,
   ) {}
 
   async run(format: ImportType, filepath: string, options: OptionValues): Promise<Response> {
     const organizationId = options.organizationid;
     if (organizationId != null) {
-      const organization = await this.organizationService.getFromState(organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      if (!userId) {
+        return Response.badRequest("No user found.");
+      }
+      const organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(map((organizations) => organizations.find((o) => o.id === organizationId))),
+      );
 
       if (organization == null) {
         return Response.badRequest(

@@ -11,13 +11,16 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
-import { debounceTime } from "rxjs/operators";
+import { Subject, firstValueFrom, takeUntil } from "rxjs";
+import { debounceTime, map } from "rxjs/operators";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -27,6 +30,7 @@ import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-organization-create.request";
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
@@ -179,6 +183,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private billingApiService: BillingApiServiceAbstraction,
     private taxService: TaxServiceAbstraction,
+    private accountService: AccountService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
   }
@@ -189,7 +194,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     );
 
     if (this.organizationId) {
-      this.organization = await this.organizationService.get(this.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.organizationId)),
+      );
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
       this.sub = await this.organizationApiService.getSubscription(this.organizationId);
       this.taxInformation = await this.organizationApiService.getTaxInfo(this.organizationId);

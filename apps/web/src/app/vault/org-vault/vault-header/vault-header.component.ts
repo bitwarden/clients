@@ -11,7 +11,6 @@ import {
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -90,7 +89,6 @@ export class VaultHeaderComponent implements OnInit {
   @Output() searchTextChanged = new EventEmitter<string>();
 
   protected CollectionDialogTabType = CollectionDialogTabType;
-  protected organizations$ = this.organizationService.organizations$;
 
   /**
    * Whether the extension refresh feature flag is enabled.
@@ -101,7 +99,6 @@ export class VaultHeaderComponent implements OnInit {
   protected CipherType = CipherType;
 
   constructor(
-    private organizationService: OrganizationService,
     private i18nService: I18nService,
     private dialogService: DialogService,
     private collectionAdminService: CollectionAdminService,
