@@ -11,6 +11,7 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
 import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
@@ -41,6 +42,7 @@ import {
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management/angular";
 import {
   NewDeviceVerificationNoticePageOneComponent,
@@ -585,7 +587,11 @@ const routes: Routes = [
       },
       {
         path: "device-verification",
-        canActivate: [activeAuthGuard()],
+        canActivate: [
+          canAccessFeature(FeatureFlag.NewDeviceVerification),
+          unauthGuardFn(),
+          activeAuthGuard(),
+        ],
         children: [
           {
             path: "",
