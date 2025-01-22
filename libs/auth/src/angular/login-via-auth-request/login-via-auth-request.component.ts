@@ -73,9 +73,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   protected Flow = Flow;
   protected flow = Flow.StandardAuthRequest;
   protected webVaultUrl: string;
-  protected get deviceManagementUrl(): string {
-    return `${this.webVaultUrl}/#/settings/security/device-management`;
-  }
+  protected deviceManagementUrl: string;
 
   constructor(
     private accountService: AccountService,
@@ -119,6 +117,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     // Get the web vault URL from the environment service
     this.environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.webVaultUrl = env.getWebVaultUrl();
+      this.deviceManagementUrl = `${this.webVaultUrl}/#/settings/security/device-management`;
     });
   }
 

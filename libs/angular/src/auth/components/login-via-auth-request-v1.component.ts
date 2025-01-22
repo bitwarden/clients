@@ -65,14 +65,11 @@ export class LoginViaAuthRequestComponentV1
   protected StateEnum = State;
   protected state = State.StandardAuthRequest;
   protected webVaultUrl: string;
-  protected get deviceManagementUrl(): string {
-    return `${this.webVaultUrl}/#/settings/security/device-management`;
-  }
-
   protected twoFactorRoute = "2fa";
   protected successRoute = "vault";
   protected forcePasswordResetRoute = "update-temp-password";
   private resendTimeout = 12000;
+  protected deviceManagementUrl: string;
 
   private authRequestKeyPair: { publicKey: Uint8Array; privateKey: Uint8Array };
 
@@ -102,6 +99,7 @@ export class LoginViaAuthRequestComponentV1
     // Get the web vault URL from the environment service
     environmentService.environment$.pipe(takeUntil(this.destroy$)).subscribe((env) => {
       this.webVaultUrl = env.getWebVaultUrl();
+      this.deviceManagementUrl = `${this.webVaultUrl}/#/settings/security/device-management`;
     });
 
     // Gets signalR push notification
