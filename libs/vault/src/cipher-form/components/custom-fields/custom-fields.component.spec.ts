@@ -19,6 +19,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { DialogService } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { BitPasswordInputToggleDirective } from "../../../../../components/src/form-field/password-input-toggle.directive";
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -111,7 +113,7 @@ describe("CustomFieldsComponent", () => {
       ]);
     });
 
-    it("forbids a user to view hidden fields when the cipher `viewPassword` is false", () => {
+    it("when `viewPassword` is false the user cannot see the view toggle option", () => {
       originalCipherView.viewPassword = false;
       originalCipherView.fields = mockFieldViews;
 
@@ -121,7 +123,20 @@ describe("CustomFieldsComponent", () => {
 
       const button = fixture.debugElement.query(By.directive(BitPasswordInputToggleDirective));
 
-      expect(button.nativeElement.disabled).toBe(true);
+      expect(button).toBeFalsy();
+    });
+
+    it("when `viewPassword` is true the user can see the view toggle option", () => {
+      originalCipherView.viewPassword = true;
+      originalCipherView.fields = mockFieldViews;
+
+      component.ngOnInit();
+
+      fixture.detectChanges();
+
+      const button = fixture.debugElement.query(By.directive(BitPasswordInputToggleDirective));
+
+      expect(button).toBeTruthy();
     });
 
     describe("linkedFieldOptions", () => {

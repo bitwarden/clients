@@ -1,4 +1,4 @@
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { BaseResponse } from "../../../../models/response/base.response";
 
 export class VerifiedOrganizationDomainSsoDetailsResponse extends BaseResponse {
   organizationName: string;

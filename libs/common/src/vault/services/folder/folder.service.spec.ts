@@ -1,6 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { makeEncString } from "../../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
@@ -75,7 +77,7 @@ describe("Folder Service", () => {
       const result = await firstValueFrom(folderService.folders$(mockUserId));
 
       expect(result.length).toBe(2);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         { id: "1", name: makeEncString("ENC_STRING_1") },
         { id: "2", name: makeEncString("ENC_STRING_2") },
       ]);
@@ -96,7 +98,7 @@ describe("Folder Service", () => {
       const result = await firstValueFrom(folderService.folderViews$(mockUserId));
 
       expect(result.length).toBe(3);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         { id: "1", name: "DEC" },
         { id: "2", name: "DEC" },
         { name: "No Folder" },

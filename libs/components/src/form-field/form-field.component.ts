@@ -14,10 +14,11 @@ import {
   signal,
 } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { BitHintComponent } from "../form-control/hint.component";
 import { BitLabel } from "../form-control/label.component";
 import { inputBorderClasses } from "../input/input.directive";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 import { BitErrorComponent } from "./error.component";
 import { BitFormFieldControl } from "./form-field-control";

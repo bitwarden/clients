@@ -268,7 +268,6 @@ import { OffscreenStorageService } from "../platform/storage/offscreen-storage.s
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
-import FilelessImporterBackground from "../tools/background/fileless-importer.background";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
@@ -393,7 +392,6 @@ export default class MainBackground {
   private notificationBackground: NotificationBackground;
   private overlayBackground: OverlayBackgroundInterface;
   private overlayNotificationsBackground: OverlayNotificationsBackgroundInterface;
-  private filelessImporterBackground: FilelessImporterBackground;
   private runtimeBackground: RuntimeBackground;
   private tabsBackground: TabsBackground;
   private webRequestBackground: WebRequestBackground;
@@ -632,11 +630,6 @@ export default class MainBackground {
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      this.logService,
-    );
-
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
     this.pinService = new PinService(
@@ -663,6 +656,14 @@ export default class MainBackground {
       this.accountService,
       this.stateProvider,
       this.kdfConfigService,
+    );
+
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
+      this.messagingService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -1157,16 +1158,6 @@ export default class MainBackground {
       this.notificationBackground,
     );
 
-    this.filelessImporterBackground = new FilelessImporterBackground(
-      this.configService,
-      this.authService,
-      this.policyService,
-      this.notificationBackground,
-      this.importService,
-      this.syncService,
-      this.scriptInjectorService,
-    );
-
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
       this.logService,
       this.autofillService,
@@ -1293,7 +1284,6 @@ export default class MainBackground {
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
-    this.filelessImporterBackground.init();
     this.commandsBackground.init();
     this.contextMenusBackground?.init();
     this.idleBackground.init();

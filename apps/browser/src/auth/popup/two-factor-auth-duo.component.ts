@@ -13,11 +13,20 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { AsyncActionsModule } from "../../../../../libs/components/src/async-actions";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ButtonModule } from "../../../../../libs/components/src/button";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { FormFieldModule } from "../../../../../libs/components/src/form-field";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { LinkModule } from "../../../../../libs/components/src/link";
-import { I18nPipe } from "../../../../../libs/components/src/shared/i18n.pipe";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TypographyModule } from "../../../../../libs/components/src/typography";
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
 
@@ -38,7 +47,6 @@ import { ZonedMessageListenerService } from "../../platform/browser/zoned-messag
     AsyncActionsModule,
     FormsModule,
   ],
-  providers: [I18nPipe],
 })
 export class TwoFactorAuthDuoComponent
   extends TwoFactorAuthDuoBaseComponent

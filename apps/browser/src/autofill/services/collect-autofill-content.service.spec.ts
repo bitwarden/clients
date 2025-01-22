@@ -21,7 +21,7 @@ jest.mock("../utils", () => {
   const utils = jest.requireActual("../utils");
   return {
     ...utils,
-    debounce: jest.fn((fn) => fn),
+    debounce: jest.fn((fn, wait) => setTimeout(() => fn(), wait)),
   };
 });
 

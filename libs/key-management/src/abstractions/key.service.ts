@@ -5,13 +5,29 @@ import { Observable } from "rxjs";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { KdfConfig } from "@bitwarden/key-management";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ProfileOrganizationResponse } from "../../../common/src/admin-console/models/response/profile-organization.response";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ProfileProviderOrganizationResponse } from "../../../common/src/admin-console/models/response/profile-provider-organization.response";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ProfileProviderResponse } from "../../../common/src/admin-console/models/response/profile-provider.response";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { KeySuffixOptions, HashPurpose } from "../../../common/src/platform/enums";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { EncryptedString, EncString } from "../../../common/src/platform/models/domain/enc-string";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "../../../common/src/platform/models/domain/symmetric-crypto-key";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { OrganizationId, UserId } from "../../../common/src/types/guid";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import {
   UserKey,
   MasterKey,

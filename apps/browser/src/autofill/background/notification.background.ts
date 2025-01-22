@@ -37,7 +37,6 @@ import { AutofillService } from "../services/abstractions/autofill.service";
 import {
   AddChangePasswordQueueMessage,
   AddLoginQueueMessage,
-  AddRequestFilelessImportQueueMessage,
   AddUnlockVaultQueueMessage,
   ChangePasswordMessageData,
   AddLoginMessageData,
@@ -200,11 +199,6 @@ export default class NotificationBackground {
     switch (notificationType) {
       case NotificationQueueMessageType.AddLogin:
         typeData.removeIndividualVault = await this.removeIndividualVault();
-        break;
-      case NotificationQueueMessageType.RequestFilelessImport:
-        typeData.importType = (
-          notificationQueueMessage as AddRequestFilelessImportQueueMessage
-        ).importType;
         break;
     }
 
@@ -399,25 +393,6 @@ export default class NotificationBackground {
     }
   }
 
-  /**
-   * Sets up a notification to request a fileless import when the user
-   * attempts to trigger an import from a third party website.
-   *
-   * @param tab - The tab that we are sending the notification to
-   * @param importType - The type of import that is being requested
-   */
-  async requestFilelessImport(tab: chrome.tabs.Tab, importType: string) {
-    const currentAuthStatus = await this.getAuthStatus();
-    if (currentAuthStatus !== AuthenticationStatus.Unlocked || this.notificationQueue.length) {
-      return;
-    }
-
-    const loginDomain = Utils.getDomain(tab.url);
-    if (loginDomain) {
-      await this.pushRequestFilelessImportToQueue(loginDomain, tab, importType);
-    }
-  }
-
   private async pushChangePasswordToQueue(
     cipherId: string,
     loginDomain: string,
@@ -454,36 +429,6 @@ export default class NotificationBackground {
       wasVaultLocked: true,
     };
     await this.sendNotificationQueueMessage(tab, message);
-  }
-
-  /**
-   * Pushes a request to start a fileless import to the notification queue.
-   * This will display a notification bar to the user, prompting them to
-   * start the import.
-   *
-   * @param loginDomain - The domain of the tab that we are sending the notification to
-   * @param tab - The tab that we are sending the notification to
-   * @param importType - The type of import that is being requested
-   */
-  private async pushRequestFilelessImportToQueue(
-    loginDomain: string,
-    tab: chrome.tabs.Tab,
-    importType?: string,
-  ) {
-    this.removeTabFromNotificationQueue(tab);
-    const launchTimestamp = new Date().getTime();
-    const message: AddRequestFilelessImportQueueMessage = {
-      type: NotificationQueueMessageType.RequestFilelessImport,
-      domain: loginDomain,
-      tab,
-      launchTimestamp,
-      expires: new Date(launchTimestamp + 0.5 * 60000), // 30 seconds
-      wasVaultLocked: false,
-      importType,
-    };
-    this.notificationQueue.push(message);
-    await this.checkNotificationQueue(tab);
-    this.removeTabFromNotificationQueue(tab);
   }
 
   /**

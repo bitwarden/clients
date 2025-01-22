@@ -20,6 +20,7 @@ import {
   DefaultLoginComponentService,
   LoginDecryptionOptionsService,
   DefaultLoginDecryptionOptionsService,
+  DefaultLoginApprovalComponentService,
 } from "@bitwarden/auth/angular";
 import {
   AuthRequestServiceAbstraction,
@@ -34,11 +35,11 @@ import {
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
   LogoutReason,
-  RegisterRouteService,
   AuthRequestApiService,
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
   LoginSuccessHandlerService,
+  LoginApprovalComponentServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -291,6 +292,7 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   DefaultUserAsymmetricKeysRegenerationApiService,
 } from "@bitwarden/key-management";
+import { SafeInjectionToken } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 import {
   VaultExportService,
@@ -301,6 +303,8 @@ import {
   IndividualVaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { NewDeviceVerificationNoticeService } from "../../../vault/src/services/new-device-verification-notice.service";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { ViewCacheService } from "../platform/abstractions/view-cache.service";
@@ -319,7 +323,6 @@ import {
   MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
-  SafeInjectionToken,
   SECURE_STORAGE,
   STATE_FACTORY,
   SUPPORTS_SECURE_STORAGE,
@@ -1351,11 +1354,6 @@ const safeProviders: SafeProvider[] = [
     deps: [ConfigService],
   }),
   safeProvider({
-    provide: RegisterRouteService,
-    useClass: RegisterRouteService,
-    deps: [ConfigService],
-  }),
-  safeProvider({
     provide: AnonLayoutWrapperDataService,
     useClass: DefaultAnonLayoutWrapperDataService,
     deps: [],
@@ -1402,6 +1400,11 @@ const safeProviders: SafeProvider[] = [
     provide: AuthRequestApiService,
     useClass: DefaultAuthRequestApiService,
     deps: [ApiServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: LoginApprovalComponentServiceAbstraction,
+    useClass: DefaultLoginApprovalComponentService,
+    deps: [],
   }),
   safeProvider({
     provide: LoginDecryptionOptionsService,
