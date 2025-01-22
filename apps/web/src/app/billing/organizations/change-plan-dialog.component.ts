@@ -49,6 +49,7 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -183,7 +184,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   focusedIndex: number | null = null;
   accountCredit: number;
   paymentSource?: PaymentSourceResponse;
-
+  plans: ListResponse<PlanResponse>;
   deprecateStripeSourcesAPI: boolean;
   isSubscriptionCanceled: boolean = false;
 
@@ -237,9 +238,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     if (!this.selfHosted) {
-      const plans = await this.apiService.getPlans();
-      this.passwordManagerPlans = plans.data.filter((plan) => !!plan.PasswordManager);
-      this.secretsManagerPlans = plans.data.filter((plan) => !!plan.SecretsManager);
+      this.plans = await this.apiService.getPlans();
+      this.passwordManagerPlans = this.plans.data.filter((plan) => !!plan.PasswordManager);
+      this.secretsManagerPlans = this.plans.data.filter((plan) => !!plan.SecretsManager);
 
       if (
         this.productTier === ProductTierType.Enterprise ||
@@ -791,8 +792,15 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       billingEmail: org.billingEmail,
     };
 
+    const filteredPlan = this.plans.data
+      .filter((plan) => plan.productTier === this.selectedPlan.productTier && !plan.legacyYear)
+      .find((plan) => {
+        const isSameBillingCycle = plan.isAnnual === this.selectedPlan.isAnnual;
+        return isSameBillingCycle;
+      });
+
     const plan: PlanInformation = {
-      type: this.selectedPlan.type,
+      type: filteredPlan.type,
       passwordManagerSeats: org.seats,
     };
 
