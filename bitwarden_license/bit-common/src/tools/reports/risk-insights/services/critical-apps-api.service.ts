@@ -4,6 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
+  PasswordHealthReportApplicationDropRequest,
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
 } from "./critical-apps.service";
@@ -35,5 +36,17 @@ export class CriticalAppsApiService {
     );
 
     return from(dbResponse as Promise<PasswordHealthReportApplicationsResponse[]>);
+  }
+
+  dropCriticalApp(request: PasswordHealthReportApplicationDropRequest): Observable<void> {
+    const dbResponse = this.apiService.send(
+      "DELETE",
+      "/reports/password-health-report-application/",
+      request,
+      true,
+      true,
+    );
+
+    return from(dbResponse as Promise<void>);
   }
 }

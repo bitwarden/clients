@@ -16,6 +16,8 @@ import {
   ApplicationHealthReportDetailWithCriticalFlag,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DialogService,
   Icons,
@@ -28,6 +30,7 @@ import { CardComponent } from "@bitwarden/tools-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
+
 
 import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
 import { OrgAtRiskAppsDialogComponent } from "./org-at-risk-apps-dialog.component";
@@ -84,18 +87,24 @@ export class CriticalApplicationsComponent implements OnInit {
   };
 
   unmarkAsCriticalApp = async (hostname: string) => {
-    await this.unmarkCriticalApplicationApiService.unmarkCriticalApplication(
-      this.organizationId,
-      hostname,
-    );
+    try {
+      await this.criticalAppsService.dropCriticalApp(
+        this.organizationId as OrganizationId,
+        hostname,
+      );
+    } catch (error) {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        variant: "error",
+        title: this.i18nService.t("error"),
+      });
+      return;
+    }
+
     this.toastService.showToast({
-      //  TODO uncomment when UnmarkCriticalApplicationApiService is properly implemented
-      // message: this.i18nService.t("criticalApplicationSuccessfullyUnmarked"),
-      // variant: "success",
-      // title: this.i18nService.t("Success"),
-      title: "API not yet implemented",
-      variant: "warning",
-      message: "API not yet implemented",
+      message: this.i18nService.t("criticalApplicationSuccessfullyUnmarked"),
+      variant: "success",
+      title: this.i18nService.t("success"),
     });
     this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };
@@ -103,12 +112,12 @@ export class CriticalApplicationsComponent implements OnInit {
   constructor(
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    private unmarkCriticalApplicationApiService: UnmarkCriticalApplicationApiService,
     protected toastService: ToastService,
     protected dataService: RiskInsightsDataService,
     protected criticalAppsService: CriticalAppsService,
     protected reportService: RiskInsightsReportService,
     protected dialogService: DialogService,
+    protected i18nService: I18nService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())

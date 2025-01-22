@@ -94,6 +94,23 @@ export class CriticalAppsService {
     this.orgId.next(orgId);
   }
 
+  // Drop a critical app for a given organization
+  // Only one record can be dropped at a time
+  async dropCriticalApp(orgId: OrganizationId, selectedUrl: string) {
+    const record = this.criticalAppsList.value
+      .filter((f) => f.organizationId === orgId || f.uri === selectedUrl)
+      .map((f) => ({
+        organizationId: f.organizationId,
+        PasswordHealthReportApplicationIds: [f.id],
+      }));
+
+    // drop one record  - only one record can be dropped at a time
+    await this.criticalAppsApiService.dropCriticalApp(record[0]);
+
+    const updatedList = this.criticalAppsList.value.filter((f) => f.uri !== selectedUrl);
+    this.criticalAppsList.next(updatedList);
+  }
+
   private retrieveCriticalApps(
     orgId: OrganizationId | null,
   ): Observable<PasswordHealthReportApplicationsResponse[]> {
@@ -154,6 +171,11 @@ export interface PasswordHealthReportApplicationsResponse {
   id: PasswordHealthReportApplicationId;
   organizationId: OrganizationId;
   uri: string;
+}
+
+export interface PasswordHealthReportApplicationDropRequest {
+  organizationId: OrganizationId;
+  PasswordHealthReportApplicationIds: string[];
 }
 
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;
