@@ -81,7 +81,7 @@ describe("CriticalAppsApiService", () => {
   it("should call apiService.send with correct parameters for DropCriticalApp", (done) => {
     const request: PasswordHealthReportApplicationDropRequest = {
       organizationId: "org1" as OrganizationId,
-      PasswordHealthReportApplicationIds: ["123"],
+      passwordHealthReportApplicationIds: ["123"],
     };
 
     apiService.send.mockReturnValue(Promise.resolve());

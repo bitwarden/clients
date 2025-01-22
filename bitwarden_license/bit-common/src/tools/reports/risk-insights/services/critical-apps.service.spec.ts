@@ -158,7 +158,7 @@ describe("CriticalAppsService", () => {
     // expectations
     expect(criticalAppsApiService.dropCriticalApp).toHaveBeenCalledWith({
       organizationId: orgId,
-      PasswordHealthReportApplicationIds: ["id1"],
+      passwordHealthReportApplicationIds: ["id1"],
     });
     expect(service.getAppsListForOrg(orgId)).toBeTruthy();
     service.getAppsListForOrg(orgId).subscribe((res) => {

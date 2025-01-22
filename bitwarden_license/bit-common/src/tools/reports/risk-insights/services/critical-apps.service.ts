@@ -101,7 +101,7 @@ export class CriticalAppsService {
       .filter((f) => f.organizationId === orgId && f.uri === selectedUrl)
       .map((f) => ({
         organizationId: f.organizationId,
-        PasswordHealthReportApplicationIds: [f.id],
+        passwordHealthReportApplicationIds: [f.id],
       }));
 
     if (record.length === 0) {
@@ -179,7 +179,7 @@ export interface PasswordHealthReportApplicationsResponse {
 
 export interface PasswordHealthReportApplicationDropRequest {
   organizationId: OrganizationId;
-  PasswordHealthReportApplicationIds: string[];
+  passwordHealthReportApplicationIds: string[];
 }
 
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;
