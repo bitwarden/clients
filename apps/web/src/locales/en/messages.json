@@ -9298,6 +9298,9 @@
   "monthPerMember": {
     "message": "month per member"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
+  },
   "seats": {
     "message": "Seats"
   },
