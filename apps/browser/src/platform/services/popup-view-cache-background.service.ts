@@ -60,6 +60,11 @@ export class PopupViewCacheBackgroundService {
       )
       .subscribe();
 
+    this.messageListener
+      .messages$(ClEAR_VIEW_CACHE_COMMAND)
+      .pipe(concatMap(() => this.popupViewCacheState.update(() => null)))
+      .subscribe();
+
     merge(
       // on tab changed, excluding extension tabs
       fromChromeEvent(chrome.tabs.onActivated).pipe(
