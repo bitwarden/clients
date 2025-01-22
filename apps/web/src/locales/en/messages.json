@@ -1386,6 +1386,15 @@
   "notificationSentDevicePart1": {
     "message": "Unlock Bitwarden on your device or on the "
   },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
   "notificationSentDeviceAnchor": {
     "message": "web app"
   },
