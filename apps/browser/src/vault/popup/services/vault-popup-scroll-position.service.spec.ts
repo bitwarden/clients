@@ -91,7 +91,6 @@ describe("VaultPopupScrollPositionService", () => {
       beforeEach(() => {
         (virtualElement.scrollTo as jest.Mock).mockClear();
         nativeElement.querySelector.mockClear();
-        nativeElement.style.visibility = "hidden";
       });
 
       it("does not scroll when `scrollPosition` is null", () => {
@@ -100,7 +99,6 @@ describe("VaultPopupScrollPositionService", () => {
         service.start(virtualElement);
 
         expect(virtualElement.scrollTo).not.toHaveBeenCalled();
-        expect(nativeElement.style.visibility).toBe("visible");
       });
 
       it("scrolls the virtual element to `scrollPosition`", fakeAsync(() => {
@@ -111,7 +109,6 @@ describe("VaultPopupScrollPositionService", () => {
         tick();
 
         expect(virtualElement.scrollTo).toHaveBeenCalledWith({ behavior: "instant", top: 500 });
-        expect(nativeElement.style.visibility).toBe("visible");
       }));
     });
 

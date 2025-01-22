@@ -36,10 +36,7 @@ export class VaultPopupScrollPositionService {
       // Use `setTimeout` to scroll after rendering is complete
       setTimeout(() => {
         virtualScrollElement.scrollTo({ top: this.scrollPosition!, behavior: "instant" });
-        this.showVirtualScrollElement(virtualScrollElement);
       });
-    } else {
-      this.showVirtualScrollElement(virtualScrollElement);
     }
 
     this.scrollSubscription?.unsubscribe();
@@ -67,21 +64,6 @@ export class VaultPopupScrollPositionService {
   /** Returns true when a scroll position has been stored. */
   hasScrollPosition() {
     return this.scrollPosition !== null;
-  }
-
-  /**
-   * Hides the virtual scroll element.
-   * This is useful when the user has a large amount of ciphers, restoring
-   * the scroll position can take a little longer and result in the user seeing a
-   * "jump" when navigating back to the vault.
-   */
-  hideVirtualScrollElement(virtualScrollElement: CdkVirtualScrollableElement) {
-    virtualScrollElement.getElementRef().nativeElement.style.visibility = "hidden";
-  }
-
-  /** Shows the virtual scroll element */
-  showVirtualScrollElement(virtualScrollElement: CdkVirtualScrollableElement) {
-    virtualScrollElement.getElementRef().nativeElement.style.visibility = "visible";
   }
 
   /** Conditionally resets the scroll listeners based on the ending path of the navigation */
