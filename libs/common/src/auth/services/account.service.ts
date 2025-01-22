@@ -85,7 +85,7 @@ export class AccountServiceImplementation implements InternalAccountService {
   accounts$: Observable<Record<UserId, AccountInfo>>;
   activeAccount$: Observable<Account | null>;
   accountActivity$: Observable<Record<UserId, Date>>;
-  accountVerifyDevices$: Observable<boolean>;
+  accountVerifyNewDeviceLogin$: Observable<boolean>;
   sortedUserIds$: Observable<UserId[]>;
   nextUpAccount$: Observable<Account>;
 
@@ -128,7 +128,7 @@ export class AccountServiceImplementation implements InternalAccountService {
         return nextId ? { id: nextId, ...accounts[nextId] } : null;
       }),
     );
-    this.accountVerifyDevices$ = this.activeAccountIdState.state$.pipe(
+    this.accountVerifyNewDeviceLogin$ = this.activeAccountIdState.state$.pipe(
       switchMap(
         (userId) =>
           this.singleUserStateProvider.get(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).state$,
@@ -213,7 +213,10 @@ export class AccountServiceImplementation implements InternalAccountService {
     );
   }
 
-  async setAccountVerifyDevices(userId: UserId, setVerifyNewDeviceLogin: boolean): Promise<void> {
+  async setAccountVerifyNewDeviceLogin(
+    userId: UserId,
+    setVerifyNewDeviceLogin: boolean,
+  ): Promise<void> {
     if (!Utils.isGuid(userId)) {
       // only store for valid userIds
       return;

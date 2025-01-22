@@ -81,7 +81,7 @@ export class AccountComponent implements OnInit, OnDestroy {
           !isAccountDeprovisioningEnabled || !userIsManagedByOrganization,
       ),
     );
-    this.accountService.accountVerifyDevices$
+    this.accountService.accountVerifyNewDeviceLogin$
       .pipe(takeUntil(this.destroy$))
       .subscribe((verifyDevices) => {
         this.verifyNewDeviceLogin = verifyDevices;

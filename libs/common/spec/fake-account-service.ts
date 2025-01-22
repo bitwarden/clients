@@ -44,7 +44,7 @@ export class FakeAccountService implements AccountService {
   accounts$ = this.accountsSubject.asObservable();
   activeAccount$ = this.activeAccountSubject.asObservable();
   accountActivity$ = this.accountActivitySubject.asObservable();
-  accountVerifyDevices$ = this.accountVerifyDevicesSubject.asObservable();
+  accountVerifyNewDeviceLogin$ = this.accountVerifyDevicesSubject.asObservable();
   get sortedUserIds$() {
     return this.accountActivity$.pipe(
       map((activity) => {
@@ -71,8 +71,8 @@ export class FakeAccountService implements AccountService {
     this.accountActivitySubject.next(accountActivity);
   }
 
-  setAccountVerifyDevices(userId: UserId, verifyNewDeviceLogin: boolean): Promise<void> {
-    return this.mock.setAccountVerifyDevices(userId, verifyNewDeviceLogin);
+  setAccountVerifyNewDeviceLogin(userId: UserId, verifyNewDeviceLogin: boolean): Promise<void> {
+    return this.mock.setAccountVerifyNewDeviceLogin(userId, verifyNewDeviceLogin);
   }
 
   setAccountActivity(userId: UserId, lastActivity: Date): Promise<void> {

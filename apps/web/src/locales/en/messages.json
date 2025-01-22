@@ -1848,12 +1848,6 @@
   "dangerZone": {
     "message": "Danger zone"
   },
-  "dangerZoneDesc": {
-    "message": "Careful, these actions are not reversible!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "Deauthorize sessions"
   },

@@ -1,8 +1,11 @@
 import { DialogRef } from "@angular/cdk/dialog";
+import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -10,10 +13,36 @@ import { SetVerifyDevicesRequest } from "@bitwarden/common/auth/models/request/s
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  CalloutModule,
+  DialogModule,
+  DialogService,
+  FormFieldModule,
+  IconButtonModule,
+  RadioButtonModule,
+  SelectModule,
+  ToastService,
+} from "@bitwarden/components";
 
 @Component({
   templateUrl: "./set-account-verify-devices-dialog.component.html",
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    JslibModule,
+    FormFieldModule,
+    AsyncActionsModule,
+    ButtonModule,
+    IconButtonModule,
+    SelectModule,
+    CalloutModule,
+    RadioButtonModule,
+    DialogModule,
+    UserVerificationFormInputComponent,
+  ],
 })
 export class SetAccountVerifyDevicesDialogComponent implements OnDestroy {
   // use this subject for all subscriptions to ensure all subscripts are completed
@@ -35,7 +64,7 @@ export class SetAccountVerifyDevicesDialogComponent implements OnDestroy {
     private dialogRef: DialogRef,
     private toastService: ToastService,
   ) {
-    this.accountService.accountVerifyDevices$
+    this.accountService.accountVerifyNewDeviceLogin$
       .pipe(takeUntil(this.destroy$))
       .subscribe((verifyDevices: boolean) => {
         this.verifyNewDeviceLogin = verifyDevices;
@@ -55,7 +84,10 @@ export class SetAccountVerifyDevicesDialogComponent implements OnDestroy {
       // set verify device opposite what is currently is.
       request.verifyDevices = !this.verifyNewDeviceLogin;
       await this.accountApiService.setVerifyDevices(request);
-      await this.accountService.setAccountVerifyDevices(activeAccount!.id, request.verifyDevices);
+      await this.accountService.setAccountVerifyNewDeviceLogin(
+        activeAccount!.id,
+        request.verifyDevices,
+      );
       this.dialogRef.close();
       this.toastService.showToast({
         variant: "success",
