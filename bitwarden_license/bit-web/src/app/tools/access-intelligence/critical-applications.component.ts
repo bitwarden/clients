@@ -10,7 +10,6 @@ import {
   CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
-  UnmarkCriticalApplicationApiService,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import {
   ApplicationHealthReportDetailWithCriticalFlag,
@@ -41,7 +40,7 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   selector: "tools-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [CardComponent, HeaderModule, SearchModule, NoItemsModule, PipesModule, SharedModule],
-  providers: [UnmarkCriticalApplicationApiService],
+  providers: [],
 })
 export class CriticalApplicationsComponent implements OnInit {
   protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
