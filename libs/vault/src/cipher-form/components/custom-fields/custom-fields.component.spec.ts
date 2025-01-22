@@ -100,6 +100,7 @@ describe("CustomFieldsComponent", () => {
           type: FieldType.Text,
           value: "text value",
           newField: false,
+          disabled: false,
         },
         {
           linkedId: null,
@@ -107,6 +108,7 @@ describe("CustomFieldsComponent", () => {
           type: FieldType.Hidden,
           value: "hidden value",
           newField: false,
+          disabled: false,
         },
         {
           linkedId: null,
@@ -114,8 +116,16 @@ describe("CustomFieldsComponent", () => {
           type: FieldType.Boolean,
           value: true,
           newField: false,
+          disabled: false,
         },
-        { linkedId: 1, name: "linked label", type: FieldType.Linked, value: null, newField: false },
+        {
+          linkedId: 1,
+          name: "linked label",
+          type: FieldType.Linked,
+          value: null,
+          newField: false,
+          disabled: false,
+        },
       ]);
     });
 
