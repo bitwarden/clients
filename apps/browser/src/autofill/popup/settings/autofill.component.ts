@@ -107,8 +107,8 @@ export class AutofillComponent implements OnInit {
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
   uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
-  showCardsCurrentTab: boolean = false;
-  showIdentitiesCurrentTab: boolean = false;
+  showCardsCurrentTab: boolean = true;
+  showIdentitiesCurrentTab: boolean = true;
   clickItemsVaultView: boolean = false;
   autofillKeyboardHelperText: string;
   accountSwitcherEnabled: boolean = false;
