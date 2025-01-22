@@ -31,7 +31,6 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-
 import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
 import { OrgAtRiskAppsDialogComponent } from "./org-at-risk-apps-dialog.component";
 import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
@@ -92,7 +91,7 @@ export class CriticalApplicationsComponent implements OnInit {
         this.organizationId as OrganizationId,
         hostname,
       );
-    } catch (error) {
+    } catch {
       this.toastService.showToast({
         message: this.i18nService.t("unexpectedError"),
         variant: "error",

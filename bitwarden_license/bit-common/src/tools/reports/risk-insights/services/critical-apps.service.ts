@@ -98,11 +98,15 @@ export class CriticalAppsService {
   // Only one record can be dropped at a time
   async dropCriticalApp(orgId: OrganizationId, selectedUrl: string) {
     const record = this.criticalAppsList.value
-      .filter((f) => f.organizationId === orgId || f.uri === selectedUrl)
+      .filter((f) => f.organizationId === orgId && f.uri === selectedUrl)
       .map((f) => ({
         organizationId: f.organizationId,
         PasswordHealthReportApplicationIds: [f.id],
       }));
+
+    if (record.length === 0) {
+      return;
+    }
 
     // drop one record  - only one record can be dropped at a time
     await this.criticalAppsApiService.dropCriticalApp(record[0]);

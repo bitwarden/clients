@@ -139,4 +139,54 @@ describe("CriticalAppsService", () => {
       expect(res).toHaveLength(2);
     });
   });
+
+  it("should drop a critical app", async () => {
+    // arrange
+    const orgId = "org1" as OrganizationId;
+    const selectedUrl = "https://example.com";
+
+    const initialList = [
+      { id: "id1", organizationId: "org1", uri: "https://example.com" },
+      { id: "id2", organizationId: "org1", uri: "https://example.org" },
+    ] as PasswordHealthReportApplicationsResponse[];
+
+    service.setAppsInListForOrg(initialList);
+
+    // act
+    await service.dropCriticalApp(orgId, selectedUrl);
+
+    // expectations
+    expect(criticalAppsApiService.dropCriticalApp).toHaveBeenCalledWith({
+      organizationId: orgId,
+      PasswordHealthReportApplicationIds: ["id1"],
+    });
+    expect(service.getAppsListForOrg(orgId)).toBeTruthy();
+    service.getAppsListForOrg(orgId).subscribe((res) => {
+      expect(res).toHaveLength(1);
+      expect(res[0].uri).toBe("https://example.org");
+    });
+  });
+
+  it("should not drop a critical app if it does not exist", async () => {
+    // arrange
+    const orgId = "org1" as OrganizationId;
+    const selectedUrl = "https://nonexistent.com";
+
+    const initialList = [
+      { id: "id1", organizationId: "org1", uri: "https://example.com" },
+      { id: "id2", organizationId: "org1", uri: "https://example.org" },
+    ] as PasswordHealthReportApplicationsResponse[];
+
+    service.setAppsInListForOrg(initialList);
+
+    // act
+    await service.dropCriticalApp(orgId, selectedUrl);
+
+    // expectations
+    expect(criticalAppsApiService.dropCriticalApp).not.toHaveBeenCalled();
+    expect(service.getAppsListForOrg(orgId)).toBeTruthy();
+    service.getAppsListForOrg(orgId).subscribe((res) => {
+      expect(res).toHaveLength(2);
+    });
+  });
 });
