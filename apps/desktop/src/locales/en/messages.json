@@ -2843,6 +2843,15 @@
   "thisRequestIsNoLongerValid": {
     "message": "This request is no longer valid."
   },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "accountAccessRequestedConfirmAccessAttempt": {
     "message": "Account access requested, confirm access attempt for $EMAIL$",
     "placeholders": {
