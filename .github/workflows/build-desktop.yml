@@ -1354,7 +1354,7 @@ jobs:
           
           cp $desktop_profile_path "$PROFILES_DIR_PATH/$DESKTOP_UUID.provisionprofile"
           
-          cp $HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill \
+          cp $HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
 
       - name: Increment version
