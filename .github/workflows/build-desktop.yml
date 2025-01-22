@@ -1401,7 +1401,6 @@ jobs:
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         run: node build.js cross-platform
 
