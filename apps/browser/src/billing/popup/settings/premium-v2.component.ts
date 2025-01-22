@@ -20,6 +20,7 @@ import {
   DialogService,
   ItemModule,
   SectionComponent,
+  ToastService,
 } from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -57,6 +58,7 @@ export class PremiumV2Component extends BasePremiumComponent {
     dialogService: DialogService,
     environmentService: EnvironmentService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    toastService: ToastService,
     accountService: AccountService,
   ) {
     super(
@@ -68,6 +70,7 @@ export class PremiumV2Component extends BasePremiumComponent {
       dialogService,
       environmentService,
       billingAccountProfileStateService,
+      toastService,
       accountService,
     );
 

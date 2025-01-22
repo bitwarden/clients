@@ -130,7 +130,7 @@
                             : selectableProduct.PasswordManager.seatPrice
                           ) | currency: "$"
                         }}
-                        /{{ "month" | i18n }}
+                        /{{ selectedPlanInterval | i18n }}
                       </ng-container>
                     </b>
                   </ng-container>
@@ -400,7 +400,7 @@
                     : selectedPlan.PasswordManager.basePrice
                   ) | currency: "$"
                 }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 <ng-container *ngIf="acceptingSponsorship; else notAcceptingSponsorship">
@@ -427,7 +427,7 @@
                 <span *ngIf="!selectedPlan.PasswordManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.PasswordManager.seatPrice | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
 
               <span>
@@ -444,7 +444,7 @@
                 {{ "additionalStorageGbMessage" | i18n }}
                 &times;
                 {{ additionalStoragePriceMonthly(selectedPlan) | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalStorageTotal(selectedPlan) | currency: "$" }}</span>
             </p>
@@ -485,7 +485,7 @@
                     : selectedPlan.SecretsManager.basePrice
                   ) | currency: "$"
                 }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
             </p>
             <p
@@ -504,7 +504,7 @@
                 <span *ngIf="!selectedPlan.SecretsManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.SecretsManager.seatPrice | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
 
               <span>
@@ -524,7 +524,7 @@
                 {{ "serviceAccounts" | i18n | lowercase }}
                 &times;
                 {{ selectedPlan?.SecretsManager?.additionalPricePerServiceAccount | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
@@ -580,7 +580,7 @@
                 <span *ngIf="!selectedPlan.PasswordManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.PasswordManager.seatPrice | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 {{ passwordManagerSeatTotal(selectedPlan) | currency: "$" }}
@@ -596,7 +596,7 @@
                 {{ "additionalStorageGbMessage" | i18n }}
                 &times;
                 {{ additionalStoragePriceMonthly(selectedPlan) | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{
                 storageGb * selectedPlan.PasswordManager.additionalStoragePricePerGb | currency: "$"
@@ -656,7 +656,7 @@
                 <span *ngIf="!selectedPlan.SecretsManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.SecretsManager.seatPrice | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 {{ secretsManagerSeatTotal(selectedPlan, sub?.smSeats) | currency: "$" }}
@@ -675,7 +675,7 @@
                 {{ "serviceAccounts" | i18n | lowercase }}
                 &times;
                 {{ selectedPlan.SecretsManager.additionalPricePerServiceAccount | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
@@ -725,7 +725,7 @@
                     : selectedPlan.SecretsManager.basePrice
                   ) | currency: "$"
                 }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
             </p>
             <p
@@ -744,7 +744,7 @@
                 <span *ngIf="!selectedPlan.SecretsManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.SecretsManager.seatPrice | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
 
               <span>
@@ -764,7 +764,7 @@
                 {{ "serviceAccounts" | i18n }}
                 &times;
                 {{ selectedPlan.SecretsManager.additionalPricePerServiceAccount | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
@@ -786,7 +786,7 @@
                     : selectedPlan.PasswordManager.basePrice
                   ) | currency: "$"
                 }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 <ng-container *ngIf="acceptingSponsorship; else notAcceptingSponsorship">
@@ -813,7 +813,7 @@
                 <span *ngIf="!selectedPlan.PasswordManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.PasswordManager.seatPrice | currency: "$" }}
-                /{{ "year" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
 
               <span *ngIf="isSecretsManagerTrial()">
@@ -860,7 +860,7 @@
                 <span *ngIf="!selectedPlan.SecretsManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.SecretsManager.seatPrice | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>
                 {{ secretsManagerSeatTotal(selectedPlan, sub?.smSeats) | currency: "$" }}
@@ -879,7 +879,7 @@
                 {{ "serviceAccounts" | i18n }}
                 &times;
                 {{ selectedPlan.SecretsManager.additionalPricePerServiceAccount | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
@@ -914,7 +914,7 @@
                 <span *ngIf="!selectedPlan.PasswordManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.PasswordManager.seatPrice | currency: "$" }}
-                /{{ "month" | i18n }}
+                /{{ selectedPlanInterval | i18n }}
               </span>
               <span *ngIf="isSecretsManagerTrial()">
                 {{ "freeForOneYear" | i18n }}
