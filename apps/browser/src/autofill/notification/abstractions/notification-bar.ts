@@ -4,7 +4,6 @@ const NotificationTypes = {
   Add: "add",
   Change: "change",
   Unlock: "unlock",
-  FilelessImport: "fileless-import",
 } as const;
 
 type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationTypes];

@@ -4,7 +4,6 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { FilelessImportPort, FilelessImportType } from "../../tools/enums/fileless-import.enums";
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
@@ -59,11 +58,6 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
-    filelessImport: chrome.i18n.getMessage("filelessImport"),
-    lpFilelessImport: chrome.i18n.getMessage("lpFilelessImport"),
-    cancelFilelessImport: chrome.i18n.getMessage("no"),
-    lpCancelFilelessImport: chrome.i18n.getMessage("lpCancelFilelessImport"),
-    startFilelessImport: chrome.i18n.getMessage("startFilelessImport"),
   };
 
   setupLogoLink(i18n);
@@ -107,22 +101,6 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
 
   unlockTemplate.content.getElementById("unlock-text").textContent = i18n.notificationUnlockDesc;
 
-  // i18n for "Fileless Import" (fileless-import) template
-  const isLpImport = initData.importType === FilelessImportType.LP;
-  const importTemplate = document.getElementById("template-fileless-import") as HTMLTemplateElement;
-
-  const startImportButton = importTemplate.content.getElementById("start-fileless-import");
-  startImportButton.textContent = i18n.startFilelessImport;
-
-  const cancelImportButton = importTemplate.content.getElementById("cancel-fileless-import");
-  cancelImportButton.textContent = isLpImport
-    ? i18n.lpCancelFilelessImport
-    : i18n.cancelFilelessImport;
-
-  importTemplate.content.getElementById("fileless-import-text").textContent = isLpImport
-    ? i18n.lpFilelessImport
-    : i18n.filelessImport;
-
   // i18n for body content
   const closeButton = document.getElementById("close-button");
   closeButton.title = i18n.close;
@@ -134,8 +112,6 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     handleTypeChange();
   } else if (notificationType === "unlock") {
     handleTypeUnlock();
-  } else if (notificationType === "fileless-import") {
-    handleTypeFilelessImport();
   }
 
   closeButton.addEventListener("click", (e) => {
@@ -247,59 +223,6 @@ function handleTypeUnlock() {
       command: "bgReopenUnlockPopout",
     });
   });
-}
-
-/**
- * Sets up a port to communicate with the fileless importer content script.
- * This connection to the background script is used to trigger the action of
- * downloading the CSV file from the LP importer or importing the data into
- * the Bitwarden vault.
- */
-function handleTypeFilelessImport() {
-  const importType = notificationBarIframeInitData.importType;
-  const port = chrome.runtime.connect({ name: FilelessImportPort.NotificationBar });
-  setContent(document.getElementById("template-fileless-import") as HTMLTemplateElement);
-
-  const startFilelessImportButton = document.getElementById("start-fileless-import");
-  const startFilelessImport = () => {
-    port.postMessage({ command: "startFilelessImport", importType });
-    document.getElementById("fileless-import-buttons").textContent =
-      chrome.i18n.getMessage("importing");
-    startFilelessImportButton.removeEventListener("click", startFilelessImport);
-  };
-  startFilelessImportButton.addEventListener("click", startFilelessImport);
-
-  const cancelFilelessImportButton = document.getElementById("cancel-fileless-import");
-  cancelFilelessImportButton.addEventListener("click", () => {
-    port.postMessage({ command: "cancelFilelessImport", importType });
-  });
-
-  const handlePortMessage = (msg: any) => {
-    if (msg.command !== "filelessImportCompleted" && msg.command !== "filelessImportFailed") {
-      return;
-    }
-
-    port.disconnect();
-
-    const filelessImportButtons = document.getElementById("fileless-import-buttons");
-    const notificationBarOuterWrapper = document.getElementById("notification-bar-outer-wrapper");
-
-    if (msg.command === "filelessImportCompleted") {
-      filelessImportButtons.textContent = chrome.i18n.getMessage("dataSuccessfullyImported");
-      filelessImportButtons.prepend(buildSvgDomElement(circleCheckIcon));
-      filelessImportButtons.classList.add("success-message");
-      notificationBarOuterWrapper.classList.add("success-event");
-      adjustHeight();
-      return;
-    }
-
-    filelessImportButtons.textContent = chrome.i18n.getMessage("dataImportFailed");
-    filelessImportButtons.classList.add("error-message");
-    notificationBarOuterWrapper.classList.add("error-event");
-    adjustHeight();
-    logService.error(`Error Encountered During Import: ${msg.importErrorMessage}`);
-  };
-  port.onMessage.addListener(handlePortMessage);
 }
 
 function setContent(template: HTMLTemplateElement) {

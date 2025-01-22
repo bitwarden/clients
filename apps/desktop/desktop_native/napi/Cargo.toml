@@ -27,7 +27,7 @@ tokio-util = "=0.7.12"
 tokio-stream = "=0.1.15"
 
 [target.'cfg(windows)'.dependencies]
-windows-registry = "=0.3.0"
+windows-registry = "=0.4.0"
 
 [build-dependencies]
 napi-build = "=2.1.4"

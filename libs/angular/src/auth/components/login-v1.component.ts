@@ -10,11 +10,9 @@ import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
   PasswordLoginCredentials,
-  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -56,7 +54,7 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
     return this.formGroup.controls.email;
   }
 
-  formGroup = this.formBuilder.group({
+  formGroup = this.formBuilder.nonNullable.group({
     email: ["", [Validators.required, Validators.email]],
     masterPassword: [
       "",
@@ -67,14 +65,12 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
 
   protected twoFactorRoute = "2fa";
   protected successRoute = "vault";
-  // TODO: remove when email verification flag is removed
-  protected registerRoute$ = this.registerRouteService.registerRoute$();
   protected forcePasswordResetRoute = "update-temp-password";
 
   protected destroy$ = new Subject<void>();
 
   get loggedEmail() {
-    return this.formGroup.value.email;
+    return this.formGroup.controls.email.value;
   }
 
   constructor(
@@ -95,8 +91,6 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
     protected route: ActivatedRoute,
     protected loginEmailService: LoginEmailServiceAbstraction,
     protected ssoLoginService: SsoLoginServiceAbstraction,
-    protected webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    protected registerRouteService: RegisterRouteService,
     protected toastService: ToastService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
@@ -146,8 +140,6 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
   }
 
   async submit(showToast = true) {
-    const data = this.formGroup.value;
-
     await this.setupCaptcha();
 
     this.formGroup.markAllAsTouched();
@@ -170,10 +162,10 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
 
     try {
       const credentials = new PasswordLoginCredentials(
-        data.email,
-        data.masterPassword,
+        this.formGroup.controls.email.value,
+        this.formGroup.controls.masterPassword.value,
         this.captchaToken,
-        null,
+        undefined,
       );
 
       this.formPromise = this.loginStrategyService.logIn(credentials);

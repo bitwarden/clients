@@ -27,9 +27,6 @@ import { FormFieldModule } from "../../../../../libs/components/src/form-field";
 import { LinkModule } from "../../../../../libs/components/src/link";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
-import { I18nPipe } from "../../../../../libs/components/src/shared/i18n.pipe";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
 import { TypographyModule } from "../../../../../libs/components/src/typography";
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
 
@@ -50,7 +47,6 @@ import { ZonedMessageListenerService } from "../../platform/browser/zoned-messag
     AsyncActionsModule,
     FormsModule,
   ],
-  providers: [I18nPipe],
 })
 export class TwoFactorAuthDuoComponent
   extends TwoFactorAuthDuoBaseComponent

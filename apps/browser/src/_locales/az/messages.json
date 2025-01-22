@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Bu veb saytlar üçün avto-doldurma və digər əlaqəli özəlliklər təklif olunmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
   },
-  "autofillBlockedNotice": {
-    "message": "Bu veb sayt üçün avto-doldurma əngəllənib. Bunu ayarlarda incələyin və ya dəyişdirin."
+  "autofillBlockedNoticeV2": {
+    "message": "Bu veb sayt üçün avto-doldurma əngəllənib."
   },
-  "autofillBlockedTooltip": {
-    "message": "Bu veb saytda avto-doldurma əngəllənib. Ayarlarda incələyin."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Bunu ayarlarda dəyişdir"
   },
   "websiteItemLabel": {
     "message": "Veb sayt $number$ (URI)",
@@ -3425,38 +3425,6 @@
     "message": "Yığcamlaşdırmanı aç/bağla",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Datanız Bitwarden-ə köçürülsün?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "LastPass datanızı qoruyub Bitwarden-ə köçürürsünüz?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Şifrələnməmiş fayl olaraq saxla",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Bitwarden-ə köçür",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Daxilə köçürülür...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Data uğurla daxilə köçürüldü!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Daxilə köçürmə xətası. Detallar üçün konsolu yoxlayın.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Daxilə köçürmə zamanı şəbəkə xətası baş verdi.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Domen ləqəbi"
   },
@@ -4009,6 +3977,9 @@
   },
   "autofillSuggestions": {
     "message": "Avto-doldurma təklifləri"
+  },
+  "itemSuggestions": {
+    "message": "Təklif olunan elementlər"
   },
   "autofillSuggestionsTip": {
     "message": "Bu saytın avto-doldurması üçün giriş elementini saxlayın"
@@ -4585,12 +4556,6 @@
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden-in yeni bir görünüşü var!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Seyf vərəqindən avto-doldurma və axtarış etmə artıq daha asan və intuitivdir. Nəzər salın!"
   },
   "accountActions": {
     "message": "Hesab fəaliyyətləri"

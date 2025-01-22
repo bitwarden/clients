@@ -48,19 +48,18 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   loading = true;
   badToken = false;
 
-  token: string;
-  existingFamilyOrganizations: Organization[];
-  existingFamilyOrganizations$: Observable<Organization[]>;
+  token!: string;
+  existingFamilyOrganizations$!: Observable<Organization[]>;
 
   showNewOrganization = false;
-  _organizationPlansComponent: OrganizationPlansComponent;
-  preValidateSponsorshipResponse: PreValidateSponsorshipResponse;
+  preValidateSponsorshipResponse!: PreValidateSponsorshipResponse;
   _selectedFamilyOrganizationId = "";
 
   private _destroy = new Subject<void>();
   formGroup = this.formBuilder.group({
     selectedFamilyOrganizationId: ["", Validators.required],
   });
+
   constructor(
     private router: Router,
     private platformUtilsService: PlatformUtilsService,

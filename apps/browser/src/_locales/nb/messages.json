@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -3425,38 +3425,6 @@
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Vil du importere dataene dine til Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Protect your LastPass data and import to Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Lagre som ukryptert fil",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importer til Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importerer …",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Dataene ble vellykket importert!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Feil under importering. Sjekk loggkonsollen for detaljer.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Network error encountered during import.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias-domene"
   },
@@ -4008,7 +3976,10 @@
     "message": "Passkey removed"
   },
   "autofillSuggestions": {
-    "message": "Autoutfyllingsforslag"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "Save a login item for this site to autofill"
@@ -4585,12 +4556,6 @@
   },
   "textSends": {
     "message": "Text Sends"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden har fått et nytt utseende!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
   },
   "accountActions": {
     "message": "Account actions"

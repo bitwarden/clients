@@ -12,7 +12,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
+import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 
 @Directive()
 export class PremiumComponent implements OnInit {
@@ -31,6 +31,7 @@ export class PremiumComponent implements OnInit {
     protected dialogService: DialogService,
     private environmentService: EnvironmentService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    private toastService: ToastService,
     accountService: AccountService,
   ) {
     this.isPremium$ = accountService.activeAccount$.pipe(
@@ -51,7 +52,11 @@ export class PremiumComponent implements OnInit {
     try {
       this.refreshPromise = this.apiService.refreshIdentityToken();
       await this.refreshPromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("refreshComplete"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("refreshComplete"),
+      });
     } catch (e) {
       this.logService.error(e);
     }

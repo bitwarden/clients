@@ -59,7 +59,7 @@ const PASSPHRASE: CredentialGeneratorConfiguration<
   onGeneratedMessageKey: "passphraseGenerated",
   credentialTypeKey: "passphrase",
   copyKey: "copyPassphrase",
-  useGeneratedValueKey: "useThisPassphrase",
+  useGeneratedValueKey: "useThisPassword",
   onlyOnRequest: false,
   request: [],
   engine: {

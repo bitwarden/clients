@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "Webbplats $number$ (URI)",
@@ -3425,38 +3425,6 @@
     "message": "Växla synlig/dold",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Importera din data till Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Skydda din LastPass-data och importera till Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Spara som okrypterad fil",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importera till Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importerar...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Data har importerats till ditt valv!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Fel vid importeringen. Kolla konsolen för detaljer.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Nätverksfel uppstod vid import.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Aliasdomän"
   },
@@ -4009,6 +3977,9 @@
   },
   "autofillSuggestions": {
     "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "Save a login item for this site to autofill"
@@ -4585,12 +4556,6 @@
   },
   "textSends": {
     "message": "Text Sends"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden har fått ett nytt utseende!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
   },
   "accountActions": {
     "message": "Kontoåtgärder"

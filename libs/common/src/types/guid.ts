@@ -10,3 +10,4 @@ export type PolicyId = Opaque<string, "PolicyId">;
 export type CipherId = Opaque<string, "CipherId">;
 export type SendId = Opaque<string, "SendId">;
 export type IndexedEntityId = Opaque<string, "IndexedEntityId">;
+export type SecurityTaskId = Opaque<string, "SecurityTaskId">;
