@@ -1,12 +1,17 @@
 <div class="tw-text-center">
   <ng-container *ngIf="flow === Flow.StandardAuthRequest">
-    <p>
+    <p *ngIf="clientType !== ClientType.Web">
       {{ "notificationSentDevicePart1" | i18n }}
-      <a bitLink linkType="primary" routerLink="/settings/security/device-management">{{
-        "notificationSentDeviceAnchor" | i18n
-      }}</a
-      >.
-      {{ "notificationSentDevicePart2" | i18n }}
+      <a
+        bitLink
+        linkType="primary"
+        class="tw-cursor-pointer"
+        (click)="openExternal(deviceManagementUrl)"
+        >{{ "notificationSentDeviceAnchor" | i18n }}</a
+      >. {{ "notificationSentDevicePart2" | i18n }}
+    </p>
+    <p *ngIf="clientType === ClientType.Web">
+      {{ "notificationSentDeviceComplete" | i18n }}
     </p>
 
     <div class="tw-font-semibold">{{ "fingerprintPhraseHeader" | i18n }}</div>

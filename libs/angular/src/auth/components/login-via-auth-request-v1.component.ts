@@ -64,6 +64,10 @@ export class LoginViaAuthRequestComponentV1
 
   protected StateEnum = State;
   protected state = State.StandardAuthRequest;
+  protected webVaultUrl: string;
+  protected get deviceManagementUrl(): string {
+    return `${this.webVaultUrl}/#/settings/security/device-management`;
+  }
 
   protected twoFactorRoute = "2fa";
   protected successRoute = "vault";
@@ -94,6 +98,11 @@ export class LoginViaAuthRequestComponentV1
     protected toastService: ToastService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
+
+    // Get the web vault URL from the environment service
+    environmentService.environment$.pipe(takeUntil(this.destroy$)).subscribe((env) => {
+      this.webVaultUrl = env.getWebVaultUrl();
+    });
 
     // Gets signalR push notification
     // Only fires on approval to prevent enumeration

@@ -12,11 +12,13 @@
         <div>
           <p>
             {{ "notificationSentDevicePart1" | i18n }}
-            <a bitLink linkType="primary" routerLink="/settings/security/device-management">{{
-              "notificationSentDeviceAnchor" | i18n
-            }}</a
-            >.
-            {{ "notificationSentDevicePart2" | i18n }}
+            <a
+              bitLink
+              linkType="primary"
+              class="tw-cursor-pointer"
+              (click)="openExternal(deviceManagementUrl)"
+              >{{ "notificationSentDeviceAnchor" | i18n }}</a
+            >. {{ "notificationSentDevicePart2" | i18n }}
           </p>
         </div>
 
