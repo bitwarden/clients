@@ -1401,8 +1401,10 @@ jobs:
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
-        working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        working-directory: apps/desktop/desktop_native        
+        run: |
+          rustup target add aarch64-apple-darwin
+          node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
