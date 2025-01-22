@@ -3106,7 +3106,7 @@
     "message": "A notification has been sent to your device."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Unlock Bitwarden on your device or on the"
   },
   "notificationSentDeviceAnchor": {
     "message": "web app"
