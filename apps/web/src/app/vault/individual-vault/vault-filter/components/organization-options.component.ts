@@ -146,7 +146,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         return this.syncService.fullSync(true);
       });
       await this.actionPromise;
-      this.platformUtilsService.showToast("success", null, "Unlinked SSO");
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("unlinkedSso"),
+      });
     } catch (e) {
       this.logService.error(e);
     }
@@ -166,7 +170,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     try {
       this.actionPromise = this.organizationApiService.leave(org.id);
       await this.actionPromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("leftOrganization"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("leftOrganization"),
+      });
     } catch (e) {
       this.logService.error(e);
     }
@@ -199,11 +207,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         );
       try {
         await this.actionPromise;
-        this.platformUtilsService.showToast(
-          "success",
-          null,
-          this.i18nService.t("withdrawPasswordResetSuccess"),
-        );
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("withdrawPasswordResetSuccess"),
+        });
         await this.syncService.fullSync(true);
       } catch (e) {
         this.logService.error(e);

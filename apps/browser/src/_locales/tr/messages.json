@@ -385,7 +385,7 @@
     "message": "Hiç klasör eklenmedi"
   },
   "createFoldersToOrganize": {
-    "message": "Create folders to organize your vault items"
+    "message": "Kasanızdaki kayıtları organize etmek için klasörler oluşturun"
   },
   "deleteFolderPermanently": {
     "message": "Bu klasörü kalıcı olarak silmek istediğinizden emin misiniz?"
@@ -2337,7 +2337,7 @@
     "message": "Bitwarden, oturum açmış tüm hesaplar için bu alan adlarının hesap bilgilerini kaydetmeyi sormayacaktır. Değişikliklerin etkili olması için sayfayı yenilemeniz gerekir."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "Bu siteler için otomatik doldurma ve diğer ilgili özellikler önerilmeyecektir. Değişikliklerin devreye girmesi için sayfayı yenilemelisiniz."
   },
   "autofillBlockedNoticeV2": {
     "message": "Bu sitede otomatik doldurma engellenmiş."
@@ -3424,38 +3424,6 @@
   "toggleCollapse": {
     "message": "Daraltmayı aç/kapat",
     "description": "Toggling an expand/collapse state."
-  },
-  "filelessImport": {
-    "message": "Verileriniz Bitwarden'a aktarılsın mı?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "LastPass verileriniz korunsun ve Bitwarden'a aktarılsın mı?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Şifrelenmemiş dosya olarak kaydet",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Bitwarden'a aktar",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "İçe aktarılıyor...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Veriler başarıyla içe aktarıldı!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "İçe aktarma hatası. Ayrıntılar için konsolu kontrol edin.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "İçe aktarma sırasında ağ hatasıyla karşılaşıldı.",
-    "description": "Notification message for when an import has failed due to a network error."
   },
   "aliasDomain": {
     "message": "Alias alan adı"

@@ -3,7 +3,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+
+import { ToastService } from "../";
 
 import { CopyClickDirective } from "./copy-click.directive";
 
@@ -20,12 +21,14 @@ import { CopyClickDirective } from "./copy-click.directive";
       #toastWithLabel
     ></button>
   `,
+  standalone: true,
+  imports: [CopyClickDirective],
 })
 class TestCopyClickComponent {
-  @ViewChild("noToast") noToastButton: ElementRef<HTMLButtonElement>;
-  @ViewChild("infoToast") infoToastButton: ElementRef<HTMLButtonElement>;
-  @ViewChild("successToast") successToastButton: ElementRef<HTMLButtonElement>;
-  @ViewChild("toastWithLabel") toastWithLabelButton: ElementRef<HTMLButtonElement>;
+  @ViewChild("noToast") noToastButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild("infoToast") infoToastButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild("successToast") successToastButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild("toastWithLabel") toastWithLabelButton!: ElementRef<HTMLButtonElement>;
 }
 
 describe("CopyClickDirective", () => {
@@ -38,7 +41,7 @@ describe("CopyClickDirective", () => {
     showToast.mockClear();
 
     await TestBed.configureTestingModule({
-      declarations: [CopyClickDirective, TestCopyClickComponent],
+      imports: [TestCopyClickComponent],
       providers: [
         {
           provide: I18nService,

@@ -485,6 +485,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get selectedPlanInterval() {
+    if (this.isSubscriptionCanceled) {
+      return this.currentPlan.isAnnual ? "year" : "month";
+    }
     return this.selectedPlan.isAnnual ? "year" : "month";
   }
 

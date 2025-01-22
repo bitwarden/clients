@@ -22,11 +22,6 @@ on:
         required: true
         default: '10'
         type: string
-      electron_publish:
-        description: 'Publish Electron blob to AWS'
-        required: true
-        default: true
-        type: boolean
       snap_publish:
         description: 'Publish to Snap store'
         required: true
@@ -111,7 +106,6 @@ jobs:
     name: Electron blob publish
     runs-on: ubuntu-22.04
     needs: setup
-    if: inputs.electron_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}

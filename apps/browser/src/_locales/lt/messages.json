@@ -3425,38 +3425,6 @@
     "message": "Perjungti sutrumpinimą",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Importuoti duomenis į Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Apsaugoti LastPass duomenis ir importuoti į Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Išsaugoti kaip neužšifruotą failą",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importuoti į Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importuojama...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Duomenys sėkmingai importuoti.",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Klaida importuojant. Išsamesnės informacijos patikrink konsolėje.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Importuojant įvyko tinklo klaida.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Domeno slapyvardis"
   },
