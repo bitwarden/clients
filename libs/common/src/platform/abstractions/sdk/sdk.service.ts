@@ -16,7 +16,7 @@ export abstract class SdkService {
    * Retrieve a client initialized without a user.
    * This client can only be used for operations that don't require a user context.
    */
-  client$: Observable<BitwardenClient | undefined>;
+  client$: Observable<BitwardenClient>;
 
   /**
    * Retrieve a client initialized for a specific user.
