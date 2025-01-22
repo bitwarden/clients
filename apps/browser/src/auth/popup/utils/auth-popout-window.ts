@@ -60,6 +60,13 @@ async function openSsoAuthResultPopout(resultData: { code: string; state: string
 }
 
 /**
+ * Closes the two-factor authentication popout window.
+ */
+async function closeSsoAuthResultPopout() {
+  await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.ssoAuthResult);
+}
+
+/**
  * Opens a window that facilitates two-factor authentication.
  *
  * @param twoFactorAuthData - The data from the two-factor authentication.
@@ -87,6 +94,7 @@ export {
   openUnlockPopout,
   closeUnlockPopout,
   openSsoAuthResultPopout,
+  closeSsoAuthResultPopout,
   openTwoFactorAuthPopout,
   closeTwoFactorAuthPopout,
 };

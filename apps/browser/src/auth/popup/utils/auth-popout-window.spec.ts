@@ -9,6 +9,7 @@ import {
   openSsoAuthResultPopout,
   openTwoFactorAuthPopout,
   closeTwoFactorAuthPopout,
+  closeSsoAuthResultPopout,
 } from "./auth-popout-window";
 
 describe("AuthPopoutWindow", () => {
@@ -94,6 +95,14 @@ describe("AuthPopoutWindow", () => {
       expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/sso?code=code&state=state", {
         singleActionKey: AuthPopoutType.ssoAuthResult,
       });
+    });
+  });
+
+  describe("closeSsoAuthResultPopout", () => {
+    it("closes the SSO authentication result popout window", async () => {
+      await closeSsoAuthResultPopout();
+
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.ssoAuthResult);
     });
   });
 
