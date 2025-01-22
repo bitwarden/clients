@@ -218,7 +218,7 @@ jobs:
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
+        # if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         env:
           PKG_CONFIG_ALLOW_CROSS: true
