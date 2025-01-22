@@ -994,6 +994,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       disableForm,
       activeCollectionId,
       isAdminConsoleAction: true,
+      restore: this.restore,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
@@ -1033,7 +1034,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
   }
 
-  async restore(c: CipherView): Promise<boolean> {
+  restore = async (c: CipherView): Promise<boolean> => {
     if (!c.isDeleted) {
       return;
     }
@@ -1064,7 +1065,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.logService.error(e);
     }
-  }
+  };
 
   async bulkRestore(ciphers: CipherView[]) {
     if (

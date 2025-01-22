@@ -162,10 +162,6 @@ export class NativeMessagingBackground {
               HashAlgorithmForEncryption,
             );
 
-            if (this.validatingFingerprint) {
-              this.validatingFingerprint = false;
-              await this.biometricStateService.setFingerprintValidated(true);
-            }
             this.sharedSecret = new SymmetricCryptoKey(decrypted);
             this.logService.info("[Native Messaging IPC] Secure channel established");
 
@@ -200,15 +196,24 @@ export class NativeMessagingBackground {
             }
             return;
           case "verifyFingerprint": {
-            if (this.sharedSecret == null) {
-              this.logService.info(
-                "[Native Messaging IPC] Desktop app requested trust verification by fingerprint.",
-              );
-              this.validatingFingerprint = true;
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.showFingerprintDialog();
-            }
+            this.logService.info("[Native Messaging IPC] Legacy app is requesting fingerprint");
+            this.messagingService.send("showUpdateDesktopAppOrDisableFingerprintDialog", {});
+            break;
+          }
+          case "verifyDesktopIPCFingerprint": {
+            this.logService.info(
+              "[Native Messaging IPC] Desktop app requested trust verification by fingerprint.",
+            );
+            await this.showFingerprintDialog();
+            break;
+          }
+          case "verifiedDesktopIPCFingerprint": {
+            await this.biometricStateService.setFingerprintValidated(true);
+            this.messagingService.send("hideNativeMessagingFingerprintDialog", {});
+            break;
+          }
+          case "rejectedDesktopIPCFingerprint": {
+            this.messagingService.send("hideNativeMessagingFingerprintDialog", {});
             break;
           }
           case "wrongUserId":
@@ -428,12 +433,9 @@ export class NativeMessagingBackground {
   }
 
   private async showFingerprintDialog() {
-    const fingerprint = await this.keyService.getFingerprint(
-      (await firstValueFrom(this.accountService.activeAccount$))?.id,
-      this.publicKey,
-    );
+    const fingerprint = await this.keyService.getFingerprint(this.appId, this.publicKey);
 
-    this.messagingService.send("showNativeMessagingFinterprintDialog", {
+    this.messagingService.send("showNativeMessagingFingerprintDialog", {
       fingerprint: fingerprint,
     });
   }

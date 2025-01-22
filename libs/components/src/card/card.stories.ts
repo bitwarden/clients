@@ -34,6 +34,12 @@ export default {
       (story) => `<div class="tw-bg-background-alt tw-p-10 tw-text-main">${story}</div>`,
     ),
   ],
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-28355&t=b5tDKylm5sWm2yKo-4",
+    },
+  },
 } as Meta;
 
 type Story = StoryObj<CardComponent>;

@@ -1,4 +1,5 @@
 name: Staged Rollout Desktop
+run-name: Staged Rollout Desktop - ${{ inputs.rollout_percentage }}%
 
 on:
   workflow_dispatch:
