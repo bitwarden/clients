@@ -2752,7 +2752,7 @@
     "message": "web app"
   },
   "notificationSentDevicePart2": {
-    "message": ". Make sure the Fingerprint phrase matches the one below before approving"
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "Need another option?"

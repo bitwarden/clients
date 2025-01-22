@@ -3112,7 +3112,7 @@
     "message": "web app"
   },
   "notificationSentDevicePart2": {
-    "message": ". Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
