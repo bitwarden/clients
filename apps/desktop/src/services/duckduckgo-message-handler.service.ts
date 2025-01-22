@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -128,6 +130,8 @@ export class DuckDuckGoMessageHandlerService {
           sharedKey: Utils.fromBufferToB64(encryptedSecret),
         },
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       this.sendResponse({
         messageId: messageId,
@@ -151,6 +155,8 @@ export class DuckDuckGoMessageHandlerService {
         await this.encryptedMessageHandlerService.responseDataForCommand(decryptedCommandData);
 
       await this.sendEncryptedResponse(message, { command, payload: responseData });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

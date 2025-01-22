@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Subject, filter, firstValueFrom, map, merge, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
@@ -199,11 +201,12 @@ import {
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
 import {
-  DefaultKdfConfigService,
-  KdfConfigService,
   BiometricStateService,
   BiometricsService,
   DefaultBiometricStateService,
+  DefaultKeyService,
+  DefaultKdfConfigService,
+  KdfConfigService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
 import {
@@ -230,13 +233,15 @@ import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-ha
 import LegacyOverlayBackground from "../autofill/deprecated/background/overlay.background.deprecated";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
-import { BrowserFido2UserInterfaceService } from "../autofill/fido2/services/browser-fido2-user-interface.service";
+import {
+  BrowserFido2ParentWindowReference,
+  BrowserFido2UserInterfaceService,
+} from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
-import { BrowserKeyService } from "../key-management/browser-key.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
@@ -263,7 +268,6 @@ import { OffscreenStorageService } from "../platform/storage/offscreen-storage.s
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
-import FilelessImporterBackground from "../tools/background/fileless-importer.background";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
@@ -335,10 +339,10 @@ export default class MainBackground {
   policyApiService: PolicyApiServiceAbstraction;
   sendApiService: SendApiServiceAbstraction;
   userVerificationApiService: UserVerificationApiServiceAbstraction;
-  fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction;
-  fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction;
+  fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>;
+  fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<BrowserFido2ParentWindowReference>;
   fido2ActiveRequestManager: Fido2ActiveRequestManagerAbstraction;
-  fido2ClientService: Fido2ClientServiceAbstraction;
+  fido2ClientService: Fido2ClientServiceAbstraction<BrowserFido2ParentWindowReference>;
   avatarService: AvatarServiceAbstraction;
   mainContextMenuHandler: MainContextMenuHandler;
   cipherContextMenuHandler: CipherContextMenuHandler;
@@ -388,7 +392,6 @@ export default class MainBackground {
   private notificationBackground: NotificationBackground;
   private overlayBackground: OverlayBackgroundInterface;
   private overlayNotificationsBackground: OverlayNotificationsBackgroundInterface;
-  private filelessImporterBackground: FilelessImporterBackground;
   private runtimeBackground: RuntimeBackground;
   private tabsBackground: TabsBackground;
   private webRequestBackground: WebRequestBackground;
@@ -411,6 +414,7 @@ export default class MainBackground {
       await this.refreshMenu(true);
       if (this.systemService != null) {
         await this.systemService.clearPendingClipboard();
+        await this.biometricsService.setShouldAutopromptNow(false);
         await this.processReloadService.startProcessReload(this.authService);
       }
     };
@@ -626,10 +630,6 @@ export default class MainBackground {
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-    );
-
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
     this.pinService = new PinService(
@@ -644,7 +644,7 @@ export default class MainBackground {
       this.stateService,
     );
 
-    this.keyService = new BrowserKeyService(
+    this.keyService = new DefaultKeyService(
       this.pinService,
       this.masterPasswordService,
       this.keyGenerationService,
@@ -655,9 +655,15 @@ export default class MainBackground {
       this.stateService,
       this.accountService,
       this.stateProvider,
-      this.biometricStateService,
-      this.biometricsService,
       this.kdfConfigService,
+    );
+
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.biometricStateService,
+      this.messagingService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
@@ -690,8 +696,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
     );
 
-    this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
-    this.fileUploadService = new FileUploadService(this.logService);
+    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
@@ -734,7 +739,6 @@ export default class MainBackground {
       this.accountService,
       this.kdfConfigService,
       this.keyService,
-      this.apiService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -766,7 +770,10 @@ export default class MainBackground {
       this.configService,
     );
 
-    this.devicesService = new DevicesServiceImplementation(this.devicesApiService);
+    this.devicesService = new DevicesServiceImplementation(
+      this.devicesApiService,
+      this.appIdService,
+    );
 
     this.authRequestService = new AuthRequestService(
       this.appIdService,
@@ -789,6 +796,8 @@ export default class MainBackground {
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
+      this.platformUtilsService,
+      this.apiService,
     );
 
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
@@ -803,6 +812,11 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+    );
+
+    this.domainSettingsService = new DefaultDomainSettingsService(
+      this.stateProvider,
+      this.configService,
     );
 
     this.themeStateService = new DefaultThemeStateService(
@@ -844,10 +858,8 @@ export default class MainBackground {
       this.userVerificationApiService,
       this.userDecryptionOptionsService,
       this.pinService,
-      this.logService,
-      this.vaultTimeoutSettingsService,
-      this.platformUtilsService,
       this.kdfConfigService,
+      this.biometricsService,
     );
 
     this.vaultFilterService = new VaultFilterService(
@@ -877,6 +889,7 @@ export default class MainBackground {
       this.stateEventRunnerService,
       this.taskSchedulerService,
       this.logService,
+      this.biometricsService,
       lockedCallback,
       logoutCallback,
     );
@@ -953,6 +966,7 @@ export default class MainBackground {
     this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
 
     this.scriptInjectorService = new BrowserScriptInjectorService(
+      this.domainSettingsService,
       this.platformUtilsService,
       this.logService,
     );
@@ -1051,14 +1065,6 @@ export default class MainBackground {
 
     const systemUtilsServiceReloadCallback = async () => {
       await this.taskSchedulerService.clearAllScheduledTasks();
-      if (this.platformUtilsService.isSafari()) {
-        // If we do `chrome.runtime.reload` on safari they will send an onInstalled reason of install
-        // and that prompts us to show a new tab, this apparently doesn't happen on sideloaded
-        // extensions and only shows itself production scenarios. See: https://bitwarden.atlassian.net/browse/PM-12298
-        self.location.reload();
-        return;
-      }
-
       BrowserApi.reloadExtension();
     };
 
@@ -1075,6 +1081,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       this.biometricStateService,
       this.accountService,
+      this.logService,
     );
 
     // Other fields
@@ -1108,6 +1115,7 @@ export default class MainBackground {
       messageListener,
       this.accountService,
       lockService,
+      this.billingAccountProfileStateService,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
@@ -1148,16 +1156,6 @@ export default class MainBackground {
       this.logService,
       this.configService,
       this.notificationBackground,
-    );
-
-    this.filelessImporterBackground = new FilelessImporterBackground(
-      this.configService,
-      this.authService,
-      this.policyService,
-      this.notificationBackground,
-      this.importService,
-      this.syncService,
-      this.scriptInjectorService,
     );
 
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
@@ -1227,6 +1225,7 @@ export default class MainBackground {
       this.i18nService,
       this.logService,
       this.billingAccountProfileStateService,
+      this.accountService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(
@@ -1285,7 +1284,6 @@ export default class MainBackground {
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
-    this.filelessImporterBackground.init();
     this.commandsBackground.init();
     this.contextMenusBackground?.init();
     this.idleBackground.init();
@@ -1316,27 +1314,10 @@ export default class MainBackground {
 
     await this.initOverlayAndTabsBackground();
 
-    if (flagEnabled("sdk")) {
-      // Warn if the SDK for some reason can't be initialized
-      let supported = false;
-      let error: Error;
-      try {
-        supported = await firstValueFrom(this.sdkService.supported$);
-      } catch (e) {
-        error = e;
-      }
-
-      if (!supported) {
-        this.sdkService
-          .failedToInitialize("background", error)
-          .catch((e) => this.logService.error(e));
-      }
-    }
-
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
         await this.refreshBadge();
-        await this.fullSync(true);
+        await this.fullSync(false);
         this.taskSchedulerService.setInterval(
           ScheduledTaskNames.scheduleNextSyncInterval,
           5 * 60 * 1000, // check every 5 minutes

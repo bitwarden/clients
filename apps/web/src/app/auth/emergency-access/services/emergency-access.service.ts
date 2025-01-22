@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -151,14 +153,13 @@ export class EmergencyAccessService
    * Intended for grantor.
    * @param id emergency access id
    * @param token secret token provided in email
+   * @param publicKey public key of grantee
    */
-  async confirm(id: string, granteeId: string) {
+  async confirm(id: string, granteeId: string, publicKey: Uint8Array): Promise<void> {
     const userKey = await this.keyService.getUserKey();
     if (!userKey) {
       throw new Error("No user key found");
     }
-    const publicKeyResponse = await this.apiService.getUserPublicKey(granteeId);
-    const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
     try {
       this.logService.debug(

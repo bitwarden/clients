@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -35,7 +37,11 @@ import {
 } from "@bitwarden/components";
 import { CopyCipherFieldService } from "@bitwarden/vault";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { PremiumUpgradePromptService } from "../../../../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { CipherViewComponent } from "../../../../../../../../libs/vault/src/cipher-view";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -144,18 +150,15 @@ export class ViewV2Component {
   setHeader(type: CipherType) {
     switch (type) {
       case CipherType.Login:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeLogin").toLowerCase());
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeLogin"));
       case CipherType.Card:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeCard").toLowerCase());
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeCard"));
       case CipherType.Identity:
-        return this.i18nService.t(
-          "viewItemHeader",
-          this.i18nService.t("typeIdentity").toLowerCase(),
-        );
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeIdentity"));
       case CipherType.SecureNote:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("note").toLowerCase());
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("note"));
       case CipherType.SshKey:
-        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeSshkey").toLowerCase());
+        return this.i18nService.t("viewItemHeader", this.i18nService.t("typeSshkey"));
     }
   }
 
@@ -232,7 +235,11 @@ export class ViewV2Component {
   }
 
   protected showFooter(): boolean {
-    return this.cipher && (!this.cipher.isDeleted || (this.cipher.isDeleted && this.cipher.edit));
+    return (
+      this.cipher &&
+      (!this.cipher.isDeleted ||
+        (this.cipher.isDeleted && this.cipher.edit && this.cipher.viewPassword))
+    );
   }
 
   /**

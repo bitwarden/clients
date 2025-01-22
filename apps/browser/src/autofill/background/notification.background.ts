@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -35,7 +37,6 @@ import { AutofillService } from "../services/abstractions/autofill.service";
 import {
   AddChangePasswordQueueMessage,
   AddLoginQueueMessage,
-  AddRequestFilelessImportQueueMessage,
   AddUnlockVaultQueueMessage,
   ChangePasswordMessageData,
   AddLoginMessageData,
@@ -80,6 +81,8 @@ export default class NotificationBackground {
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
   };
+
+  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   constructor(
     private autofillService: AutofillService,
@@ -196,11 +199,6 @@ export default class NotificationBackground {
     switch (notificationType) {
       case NotificationQueueMessageType.AddLogin:
         typeData.removeIndividualVault = await this.removeIndividualVault();
-        break;
-      case NotificationQueueMessageType.RequestFilelessImport:
-        typeData.importType = (
-          notificationQueueMessage as AddRequestFilelessImportQueueMessage
-        ).importType;
         break;
     }
 
@@ -395,25 +393,6 @@ export default class NotificationBackground {
     }
   }
 
-  /**
-   * Sets up a notification to request a fileless import when the user
-   * attempts to trigger an import from a third party website.
-   *
-   * @param tab - The tab that we are sending the notification to
-   * @param importType - The type of import that is being requested
-   */
-  async requestFilelessImport(tab: chrome.tabs.Tab, importType: string) {
-    const currentAuthStatus = await this.getAuthStatus();
-    if (currentAuthStatus !== AuthenticationStatus.Unlocked || this.notificationQueue.length) {
-      return;
-    }
-
-    const loginDomain = Utils.getDomain(tab.url);
-    if (loginDomain) {
-      await this.pushRequestFilelessImportToQueue(loginDomain, tab, importType);
-    }
-  }
-
   private async pushChangePasswordToQueue(
     cipherId: string,
     loginDomain: string,
@@ -450,36 +429,6 @@ export default class NotificationBackground {
       wasVaultLocked: true,
     };
     await this.sendNotificationQueueMessage(tab, message);
-  }
-
-  /**
-   * Pushes a request to start a fileless import to the notification queue.
-   * This will display a notification bar to the user, prompting them to
-   * start the import.
-   *
-   * @param loginDomain - The domain of the tab that we are sending the notification to
-   * @param tab - The tab that we are sending the notification to
-   * @param importType - The type of import that is being requested
-   */
-  private async pushRequestFilelessImportToQueue(
-    loginDomain: string,
-    tab: chrome.tabs.Tab,
-    importType?: string,
-  ) {
-    this.removeTabFromNotificationQueue(tab);
-    const launchTimestamp = new Date().getTime();
-    const message: AddRequestFilelessImportQueueMessage = {
-      type: NotificationQueueMessageType.RequestFilelessImport,
-      domain: loginDomain,
-      tab,
-      launchTimestamp,
-      expires: new Date(launchTimestamp + 0.5 * 60000), // 30 seconds
-      wasVaultLocked: false,
-      importType,
-    };
-    this.notificationQueue.push(message);
-    await this.checkNotificationQueue(tab);
-    this.removeTabFromNotificationQueue(tab);
   }
 
   /**
@@ -567,9 +516,7 @@ export default class NotificationBackground {
         return;
       }
 
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(this.activeUserId$);
 
       const cipher = await this.cipherService.encrypt(newCipher, activeUserId);
       try {
@@ -609,10 +556,7 @@ export default class NotificationBackground {
       return;
     }
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
+    const activeUserId = await firstValueFrom(this.activeUserId$);
     const cipher = await this.cipherService.encrypt(cipherView, activeUserId);
     try {
       // We've only updated the password, no need to broadcast editedCipher message
@@ -645,17 +589,15 @@ export default class NotificationBackground {
     if (Utils.isNullOrWhitespace(folderId) || folderId === "null") {
       return false;
     }
-
-    const folders = await firstValueFrom(this.folderService.folderViews$);
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const folders = await firstValueFrom(this.folderService.folderViews$(activeUserId));
     return folders.some((x) => x.id === folderId);
   }
 
   private async getDecryptedCipherById(cipherId: string) {
     const cipher = await this.cipherService.get(cipherId);
     if (cipher != null && cipher.type === CipherType.Login) {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(this.activeUserId$);
 
       return await cipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
@@ -695,7 +637,8 @@ export default class NotificationBackground {
    * Returns the first value found from the folder service's folderViews$ observable.
    */
   private async getFolderData() {
-    return await firstValueFrom(this.folderService.folderViews$);
+    const activeUserId = await firstValueFrom(this.activeUserId$);
+    return await firstValueFrom(this.folderService.folderViews$(activeUserId));
   }
 
   private async getWebVaultUrl(): Promise<string> {

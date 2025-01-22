@@ -137,21 +137,21 @@ describe("ViewV2Component", () => {
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader typelogin");
+      expect(component.headerText).toEqual("viewItemHeader typeLogin");
 
       // Set header text for a card
       mockCipher.type = CipherType.Card;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader typecard");
+      expect(component.headerText).toEqual("viewItemHeader typeCard");
 
       // Set header text for an identity
       mockCipher.type = CipherType.Identity;
       params$.next({ cipherId: mockCipher.id });
       flush(); // Resolve all promises
 
-      expect(component.headerText).toEqual("viewItemHeader typeidentity");
+      expect(component.headerText).toEqual("viewItemHeader typeIdentity");
 
       // Set header text for a secure note
       mockCipher.type = CipherType.SecureNote;
@@ -179,7 +179,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(doAutofill).toHaveBeenCalledOnce();
+      expect(doAutofill).toHaveBeenCalledTimes(1);
     }));
 
     it('invokes `copy` when action="copy-username"', fakeAsync(() => {
@@ -187,7 +187,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(copy).toHaveBeenCalledOnce();
+      expect(copy).toHaveBeenCalledTimes(1);
     }));
 
     it('invokes `copy` when action="copy-password"', fakeAsync(() => {
@@ -195,7 +195,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(copy).toHaveBeenCalledOnce();
+      expect(copy).toHaveBeenCalledTimes(1);
     }));
 
     it('invokes `copy` when action="copy-totp"', fakeAsync(() => {
@@ -203,7 +203,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(copy).toHaveBeenCalledOnce();
+      expect(copy).toHaveBeenCalledTimes(1);
     }));
 
     it("closes the popout after a load action", fakeAsync(() => {
@@ -218,9 +218,9 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(doAutofill).toHaveBeenCalledOnce();
+      expect(doAutofill).toHaveBeenCalledTimes(1);
       expect(focusSpy).toHaveBeenCalledWith(99);
-      expect(closeSpy).toHaveBeenCalledOnce();
+      expect(closeSpy).toHaveBeenCalledTimes(1);
     }));
   });
 });

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   AfterViewInit,
   Component,
@@ -16,6 +18,8 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { compareValues } from "../../../common/src/platform/misc/compare-values";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";

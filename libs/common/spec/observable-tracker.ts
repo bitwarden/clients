@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, Observable, Subject, Subscription, throwError, timeout } from "rxjs";
 
 /** Test class to enable async awaiting of observable emissions */

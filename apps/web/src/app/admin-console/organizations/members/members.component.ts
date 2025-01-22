@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -487,6 +489,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         this.organization.productTierType === ProductTierType.TeamsStarter ||
         this.organization.productTierType === ProductTierType.Families)
     ) {
+      if (!this.organization.canEditSubscription) {
+        await this.showSeatLimitReachedDialog();
+        return;
+      }
+
       const reference = openChangePlanDialog(this.dialogService, {
         data: {
           organizationId: this.organization.id,
@@ -503,6 +510,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return;
     }
 
+    const numSeatsUsed =
+      this.dataSource.confirmedUserCount +
+      this.dataSource.invitedUserCount +
+      this.dataSource.acceptedUserCount;
+
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
@@ -512,7 +524,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         usesKeyConnector: user?.usesKeyConnector,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: initialTab,
-        numConfirmedMembers: this.dataSource.confirmedUserCount,
+        numSeatsUsed,
         managedByOrganization: user?.managedByOrganization,
       },
     });

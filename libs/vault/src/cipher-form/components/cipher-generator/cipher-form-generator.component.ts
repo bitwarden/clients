@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { GeneratorModule } from "@bitwarden/generator-components";
-import { GeneratedCredential } from "@bitwarden/generator-core";
+import { AlgorithmInfo, GeneratedCredential } from "@bitwarden/generator-core";
 
 /**
  * Renders a password or username generator UI and emits the most recently generated value.
@@ -16,6 +18,9 @@ import { GeneratedCredential } from "@bitwarden/generator-core";
   imports: [CommonModule, GeneratorModule],
 })
 export class CipherFormGeneratorComponent {
+  @Input()
+  algorithm: (selected: AlgorithmInfo) => void;
+
   /**
    * The type of generator form to show.
    */

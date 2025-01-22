@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { ConnectedPosition } from "@angular/cdk/overlay";
 import { Component, OnInit } from "@angular/core";
@@ -14,6 +16,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
+
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 
 type ActiveAccount = {
   id: string;
@@ -88,6 +92,7 @@ export class AccountSwitcherComponent implements OnInit {
     private environmentService: EnvironmentService,
     private loginEmailService: LoginEmailServiceAbstraction,
     private accountService: AccountService,
+    private biometricsService: DesktopBiometricsService,
   ) {
     this.activeAccount$ = this.accountService.activeAccount$.pipe(
       switchMap(async (active) => {
@@ -179,6 +184,7 @@ export class AccountSwitcherComponent implements OnInit {
 
   async switch(userId: string) {
     this.close();
+    await this.biometricsService.setShouldAutopromptNow(true);
 
     this.disabled = true;
     const accountSwitchFinishedPromise = firstValueFrom(

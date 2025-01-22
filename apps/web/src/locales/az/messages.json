@@ -29,6 +29,15 @@
   "notifiedMembers": {
     "message": "Məlumatlandırılan üzvlər"
   },
+  "revokeMembers": {
+    "message": "Üzvləri ləğv et"
+  },
+  "restoreMembers": {
+    "message": "Üzvləri bərpa et"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Təşkilat müraciəti bərpa edilə bilmir"
+  },
   "allApplicationsWithCount": {
     "message": "Bütün tətbiqlər ($COUNT$)",
     "placeholders": {
@@ -103,6 +112,39 @@
   },
   "atRiskMembers": {
     "message": "Riskli üzvlər"
+  },
+  "atRiskMembersWithCount": {
+    "message": "Risk altındakı üzvlər ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "Risk altındakı tətbiqlər ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "Bu üzvlər, tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "Bu tətbiqlər zəif, ifşa olunmuş və ya təkrar istifadə edilmiş parollara sahibdir."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "Bu üzvlər, $APPNAME$ tətbiqinə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
   },
   "totalMembers": {
     "message": "Cəmi üzv"
@@ -1003,7 +1045,7 @@
     "message": "Keçid açarı ilə giriş et"
   },
   "useSingleSignOn": {
-    "message": "Tək daxil olma üsulunu istifadə et"
+    "message": "Vahid daxil olma üsulunu istifadə et"
   },
   "welcomeBack": {
     "message": "Yenidən xoş gəlmisiniz"
@@ -1110,8 +1152,20 @@
   "logInToBitwarden": {
     "message": "Bitwarden-ə giriş edin"
   },
+  "authenticationTimeout": {
+    "message": "Kimlik doğrulama vaxtı bitdi"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
+  },
   "verifyIdentity": {
     "message": "Kimliyinizi doğrulayın"
+  },
+  "whatIsADevice": {
+    "message": "Cihaz nədir?"
+  },
+  "aDeviceIs": {
+    "message": "Cihaz, giriş etdiyiniz Bitwarden tətbiqinin unikal quraşdırmasıdır. Yenidən quraşdırılması, tətbiq datasının təmizlənməsi və ya çərəzlərin təmizlənməsi, cihazın bir neçə dəfə görünməsinə səbəb ola bilər."
   },
   "logInInitiated": {
     "message": "Giriş etmə başladıldı"
@@ -1699,6 +1753,12 @@
   },
   "logBackIn": {
     "message": "Lütfən yenidən giriş edin."
+  },
+  "currentSession": {
+    "message": "Hazırkı seans"
+  },
+  "requestPending": {
+    "message": "Tələb gözlənir"
   },
   "logBackInOthersToo": {
     "message": "Lütfən yenidən giriş edin. Digər Bitwarden tətbiqlərini istifadə edirsinizsə, onlardan da çıxış edib təkrar giriş etməlisiniz."
@@ -3156,7 +3216,7 @@
     "message": "Siyasətlər"
   },
   "singleSignOn": {
-    "message": "Tək daxil olma"
+    "message": "Vahid daxil olma"
   },
   "editPolicy": {
     "message": "Siyasətə düzəliş et"
@@ -3250,6 +3310,12 @@
         "example": "20"
       }
     }
+  },
+  "inviteSingleEmailDesc": {
+    "message": "1 dəvət haqqınız var."
+  },
+  "inviteZeroEmailDesc": {
+    "message": "0 dəvət haqqınız var."
   },
   "userUsingTwoStep": {
     "message": "Bu istifadəçinin hesabını qorumaq üçün iki addımlı giriş istifadə edilir."
@@ -3702,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Əlaqələndirilməmiş SSO."
+  },
   "unlinkedSsoUser": {
     "message": "$ID$ istifadəçisi üçün SSO əlaqəsi kəsildi.",
     "placeholders": {
@@ -3749,6 +3818,76 @@
   },
   "device": {
     "message": "Cihaz"
+  },
+  "loginStatus": {
+    "message": "Giriş statusu"
+  },
+  "firstLogin": {
+    "message": "İlk giriş"
+  },
+  "trusted": {
+    "message": "Güvənli"
+  },
+  "needsApproval": {
+    "message": "Təsdiq lazımdır"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Giriş etməyə çalışırsınız?"
+  },
+  "logInAttemptBy": {
+    "message": "$EMAIL$ tərəfindən giriş cəhdi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Cihaz növü"
+  },
+  "ipAddress": {
+    "message": "IP Ünvan"
+  },
+  "confirmLogIn": {
+    "message": "Girişi təsdiqlə"
+  },
+  "denyLogIn": {
+    "message": "Girişə rədd cavabı ver"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Bu tələb artıq yararsızdır."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş təsdiqləndi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu həqiqətən siz idinizsə, cihazla yenidən giriş etməyə çalışın."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Giriş tələbinin müddəti artıq bitib."
+  },
+  "justNow": {
+    "message": "İndicə"
+  },
+  "requestedXMinutesAgo": {
+    "message": "$MINUTES$ dəqiqə əvvəl tələb göndərildi",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Hesab yaradılır"
@@ -3867,33 +4006,36 @@
   "updateBrowser": {
     "message": "Brauzeri güncəllə"
   },
+  "generatingRiskInsights": {
+    "message": "Risk təhlilləriniz yaradılır..."
+  },
   "updateBrowserDesc": {
     "message": "Dəstəklənməyən bir veb brauzer istifadə edirsiniz. Veb seyf düzgün işləməyə bilər."
   },
-  "freeTrialEndPrompt": {
-    "message": "Ödənişsiz sınağınız $COUNT$ günə bitir. Abunəliyi davam etdirmək üçün,",
+  "freeTrialEndPromptCount": {
+    "message": "Ödənişsiz sınaq müddətiniz $COUNT$ günə bitir.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, ödənişsiz sınağınız $COUNT$ günə bitir. Abunəliyi davam etdirmək üçün,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, ödənişsiz sınağınız sabah bitir. Abunəliyi davam etdirmək üçün,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, ödənişsiz sınaq müddətiniz $COUNT$ günə bitir.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, ödənişsiz sınaq müddətiniz sabah bitir.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +4043,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "Ödənişsiz sınağınız sabah bitir. Abunəliyi davam etdirmək üçün,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Ödənişsiz sınaq müddətiniz sabah bitir."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, ödənişsiz sınağınız bu gün bitir. Abunəliyi davam etdirmək üçün,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, ödənişsiz sınaq müddətiniz bu gün bitir.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +4055,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Ödənişsiz sınağınız bu gün bitir. Abunəliyi davam etdirmək üçün,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Ödənişsiz sınaq müddətiniz bu gün bitir."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "bir ödəniş üsulu əlavə edin."
+  "clickHereToAddPaymentMethod": {
+    "message": "Ödəniş üsulu əlavə etmək üçün bura klikləyin."
   },
   "joinOrganization": {
     "message": "Təşkilata qoşul"
@@ -4704,10 +4846,16 @@
     "message": "Təşkilat identifikatoru"
   },
   "ssoLogInWithOrgIdentifier": {
-    "message": "Təşkilatınızın tək daxil olma portalını istifadə edərək giriş edin. Başlatmaq üçün lütfən təşkilatınızın identifikatorunu daxil edin."
+    "message": "Təşkilatınızın vahid daxil olma portalını istifadə edərək giriş edin. Başlatmaq üçün lütfən təşkilatınızın SSO identifikatorunu daxil edin."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Başlamaq üçün təşkilatınızın SSO identifikatorunu daxil edin"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "SSO provayderinizlə giriş etmək üçün başlamaq üzrə təşkilatınızın SSO identifikatorunu daxil edin. Yeni bir cihazdan giriş etdiyiniz zaman bu SSO identifikatorunu daxil etməyiniz lazım gələ bilər."
   },
   "enterpriseSingleSignOn": {
-    "message": "Müəssisə üçün tək daxil olma"
+    "message": "Müəssisə üçün vahid daxil olma"
   },
   "ssoHandOff": {
     "message": "Bu vərəqi indi bağlayıb uzantıda davam edə bilərsiniz."
@@ -4768,7 +4916,7 @@
     "message": "SSO ilə əlaqələndir"
   },
   "singleOrg": {
-    "message": "Tək təşkilat"
+    "message": "Vahid təşkilat"
   },
   "singleOrgDesc": {
     "message": "İstifadəçilərin digər təşkilatlara qoşulmasını məhdudlaşdırın."
@@ -4786,19 +4934,19 @@
     "message": "Uyumlu olmayan üzvlər, digər bütün təşkilatları tərk edənə qədər rədd edilmiş statusa daxil ediləcək. Administratorlar azaddır və uyum təmin edildikdən sonra üzvləri bərpa edə bilər."
   },
   "requireSso": {
-    "message": "Tək daxil olma kimlik doğrulaması"
+    "message": "Vahid daxil olma kimlik doğrulamasını tələb et"
   },
   "requireSsoPolicyDesc": {
-    "message": "İstifadəçilərin müəssisə kimi \"tək daxil olma\" metodu ilə giriş etməsini məcburi edin."
+    "message": "Üzvlərin \"Müəssisə üçün vahid daxil olma\" üsulu ilə giriş etməsini tələb et."
   },
   "prerequisite": {
     "message": "Ön şərt"
   },
   "requireSsoPolicyReq": {
-    "message": "\"Tək təşkilat\" müəssisə siyasəti, bu siyasəti aktivləşdirməzdən əvvəl fəallaşdırılmalıdır."
+    "message": "Bu siyasəti aktivləşdirməzdən əvvəl vahid təşkilat üçün Müəssisə siyasəti işə salınmalıdır."
   },
   "requireSsoPolicyReqError": {
-    "message": "Tək təşkilat siyasəti fəal deyil."
+    "message": "Vahid təşkilat siyasəti qurulmayıb."
   },
   "requireSsoExemption": {
     "message": "Təşkilat sahibləri və administratorlar, bu siyasətin tətbiq edilməsindən azaddırlar."
@@ -5521,7 +5669,7 @@
     "message": "Ana parolları olan mövcud hesablar, administratorların öz hesablarını geri qaytara bilməsi üçün üzvlərin öz-özünə yazılmalarını tələb edəcək. Avto-yazılma, yeni üzvlər üçün hesabın geri qaytarılmasını işə salacaq."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "Bu siyasət aktivləşdirilməzdən əvvəl, \"Tək təşkilat\" Müəssisə siyasəti işə salınmalıdır."
+    "message": "Bu siyasəti aktivləşdirməzdən əvvəl vahid təşkilat üçün Müəssisə siyasəti işə salınmalıdır."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Avtomatik qeydiyyat"
@@ -5610,6 +5758,12 @@
   "bulkFilteredMessage": {
     "message": "İstisna edildi, bu əməliyyat üçün etibarlı deyil."
   },
+  "nonCompliantMembersTitle": {
+    "message": "Uyğun olmayan üzvlər"
+  },
+  "nonCompliantMembersError": {
+    "message": "Vahid təşkilat və ya İki addımlı giriş siyasəti ilə uyumlu olmayan üzvlər, siyasət tələblərinə əməl edənə qədər bərpa oluna bilməz."
+  },
   "fingerprint": {
     "message": "Barmaq izi"
   },
@@ -5624,6 +5778,20 @@
   },
   "error": {
     "message": "Xəta"
+  },
+  "decryptionError": {
+    "message": "Şifrə açma xətası"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden, aşağıda sadalanan seyf element(lər)inin şifrəsini aça bilmədi."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Əlavə data itkisini önləmək üçün",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "müştəri dəstəyi ilə əlaqə saxlayın.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "İdarə edilən istifadəçilərə həm də \"Hesab geri qaytarılmasını idarə et\" icazəsi verilməlidir"
@@ -5986,10 +6154,10 @@
     "message": "Bağlanma növü"
   },
   "idpSingleSignOnServiceUrl": {
-    "message": "Tək daxil olma xidmətinin URL-si"
+    "message": "Vahid daxil olma xidmətinin URL-si"
   },
   "idpSingleLogoutServiceUrl": {
-    "message": "Tək çıxış etmə xidmətinin URL-si"
+    "message": "Vahid çıxış etmə xidmətinin URL-si"
   },
   "idpX509PublicCert": {
     "message": "X509 İctimai Sertifikat"
@@ -6007,7 +6175,7 @@
     "message": "Kimlik doğrulama tələblərini imzala"
   },
   "ssoSettingsSaved": {
-    "message": "Tək daxil olma konfiqurasiyası saxlanıldı."
+    "message": "Vahid daxil olma konfiqurasiyası saxlanıldı"
   },
   "sponsoredFamilies": {
     "message": "Ödənişsiz Bitwarden Ailələri"
@@ -6117,9 +6285,6 @@
   "emailSent": {
     "message": "E-poçt göndərildi"
   },
-  "revokeSponsorshipConfirmation": {
-    "message": "Bu hesabı sildikdən sonra bu abunəliyə və əlaqəli fakturalara görə Ailələr təşkilatının sahibi məsuliyyət daşıyacaq. Davam etmək istəyirsiniz?"
-  },
   "removeSponsorshipSuccess": {
     "message": "Sponsorluq silindi"
   },
@@ -6182,7 +6347,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "tək daxil olma kimlik doğrulama siyasətini tələb et",
+    "message": "vahid daxil olma kimlik doğrulama siyasətini tələb et",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -6203,7 +6368,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescLink": {
-    "message": "SSO kimlik doğrulaması və tək təşkilat siyasətləri tələb olunur",
+    "message": "SSO kimlik doğrulaması və vahid təşkilat siyasətləri tələbi",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescEnd": {
@@ -6790,6 +6955,10 @@
   },
   "scimDescription": {
     "message": "SCIM təmin etmə vasitəsilə tərcih etdiyiniz kimlik doğrulama provayderləri ilə istifadəçiləri və qrupları avtomatik təmin edin",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "SCIM təmin etmə vasitəsilə tərcih etdiyiniz kimlik doğrulama provayderləri ilə istifadəçiləri və qrupları avtomatik təmin edin. Dəstəklənən inteqrasiyaları tapın",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8102,33 +8271,33 @@
   "trustedDevices": {
     "message": "Güvənli cihazlar"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Kimlik doğrulandıqdan sonra üzvlər, cihazlarından saxlanılan açarı istifadə edərək seyf datasının şifrəsini aça biləcək",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "SSO ilə giriş edərkən üzvlərin ana parola ehtiyacı olmayacaq. Ana parol, cihazda saxlanılan bir şifrələmə açarı ilə əvəz olunur və bu da cihazı güvənli hala gətirir. Üzvün hesabını yaradıb giriş etdiyi ilk cihaz, güvənli hesab olunacaq. Yeni cihazların mövcud güvənli cihaz və ya bir inzibatçı tərəfindən təsdiqlənməsi lazım gələcək.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
-    "message": "tək təşkilat",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink1": {
+    "message": "Vahid təşkilat",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
+  "memberDecryptionOptionTdeDescPart2": {
     "message": "siyasəti,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "SSO tələb olunur",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink2": {
+    "message": "SSO tələb olunan",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
-    "message": "siyasəti və",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart3": {
+    "message": "siyasət və",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
+  "memberDecryptionOptionTdeDescLink3": {
     "message": "hesab geri qaytarma administrasiyası",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "bu seçim istifadə edildikdə avto-yazılma ilə işə salınacaq.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "siyasəti, bu seçim istifadə olunduqda işə düşəcək.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
@@ -8204,6 +8373,18 @@
   },
   "approveRequest": {
     "message": "Tələbi təsdiqlə"
+  },
+  "deviceApproved": {
+    "message": "Cihaz təsdiqləndi"
+  },
+  "deviceRemoved": {
+    "message": "Cihaz silindi"
+  },
+  "removeDevice": {
+    "message": "Cihazı sil"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Bu cihazı silmək istədiyinizə əminsiniz?"
   },
   "noDeviceRequests": {
     "message": "Heç bir cihaz tələbi yoxdur"
@@ -8986,44 +9167,99 @@
   "sdksDesc": {
     "message": "Öz tətbiqlərinizi qurmaq üçün \"Bitwarden Sirr Meneceri SDK\"sını aşağıdakı proqramlaşdırma dillərində istifadə edin."
   },
-  "setUpGithubActions": {
-    "message": "Github Actions qur"
+  "ssoDescStart": {
+    "message": "Konfiqurasiya et",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Kubernetes-i qur"
+  "ssoDescEnd": {
+    "message": "Kimlik Provayderiniz üçün icra bələdçisini istifadə edərək Bitwarden üçün",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "GitLab CI/CD qur"
+  "userProvisioning": {
+    "message": "İstifadəçi təminatı"
   },
-  "setUpAnsible": {
-    "message": "Ansible qur"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Rust repozitoriyasına bax"
+  "scimIntegrationDescStart": {
+    "message": "Konfiqurasiya et",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "C# repozitoriyasına bax"
+  "scimIntegrationDescEnd": {
+    "message": "Kimlik Provayderinizin icra bələdçisini istifadə edərək istifadəçiləri və qrupları Bitwarden-ə avtomatik olaraq təmin etmək üçün (System for Cross-domain Identity Management).",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "C++ repozitoriyasına bax"
+  "bwdc": {
+    "message": "Bitwarden Directory Connector"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "JS WebAssembly repozitoriyasına bax"
+  "bwdcDesc": {
+    "message": "Kimlik Provayderinizin icra bələdçisini istifadə edərək istifadəçiləri və qrupları avtomatik olaraq təmin etmək üçün Bitwarden Directory Connector-u konfiqurasiya edin."
   },
-  "javaSDKRepo": {
-    "message": "Java repozitoriyasına bax"
+  "eventManagement": {
+    "message": "Event idarəetməsi"
   },
-  "pythonSDKRepo": {
-    "message": "Python repozitoriyasına bax"
+  "eventManagementDesc": {
+    "message": "Platformanız üçün icra bələdçisini istifadə edərək Bitwarden event log-larını SIEM sisteminizə inteqrasiya edin."
   },
-  "phpSDKRepo": {
-    "message": "php repozitoriyasına bax"
+  "deviceManagement": {
+    "message": "Cihaz idarəetməsi"
   },
-  "rubySDKRepo": {
-    "message": "Ruby repozitoriyasına bax"
+  "deviceManagementDesc": {
+    "message": "Platformanız üçün icra bələdçisini istifadə edərək Bitwarden üçün cihaz idarəetməsini konfiqurasiya edin."
   },
-  "goSDKRepo": {
-    "message": "Go repozitoriyasına bax"
+  "integrationCardTooltip": {
+    "message": "$INTEGRATION$ icra bələdçisini başlat.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "$INTEGRATION$ qur.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "$SDK$ repozitoriyasına bax",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "$INTEGRATION$ icra bələdçisini yeni bir vərəqdə aç.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "$SDK$ repozitoriyasına yeni vərəqdə bax.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "$INTEGRATION$ icra bələdçisini yeni bir vərəqdə qur.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Provayder kimi idarə etmək üçün yeni bir client təşkilatı yaradın. Əlavə yerlər növbəti faktura dövründə əks olunacaq."
@@ -9184,6 +9420,18 @@
   },
   "updatedTaxInformation": {
     "message": "Güncəlllənən vergi məlumatı"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Yararsız vergi kimliyi, bunun xəta olduğunu düşünürsünüzsə, dəstək komandası ilə əlaqə saxlayın."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Vergi kimliyi nömrənizi doğrulaya bilmədik, bunun xəta olduğunu düşünürsünüzsə, dəstək komandası ilə əlaqə saxlayın."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Yararsız vergi kimliyi, bunun xəta olduğunu düşünürsünüzsə, dəstək komandası ilə əlaqə saxlayın."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Faktura önizləməsi zamanı bir xəta baş verdi. Lütfən daha sonra yenidən sınayın."
   },
   "unverified": {
     "message": "Doğrulanmayıb"
@@ -9699,8 +9947,8 @@
   "selfHostingTitleProper": {
     "message": "Self-Hosting"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Bir domeni doğrulamaq, tək təşkilat siyasətini işə salacaq."
+  "claim-domain-single-org-warning": {
+    "message": "Bir domeni götürmək, vahid təşkilat siyasətini işə salacaq."
   },
   "single-org-revoked-user-warning": {
     "message": "Uyumlu olmayan üzvlər rədd ediləcək. Digər bütün təşkilatları tərk etdikdən sonra üzvlər, administratorlar tərəfindən bərpa edilə bilər."
@@ -9715,9 +9963,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Bir hesab silindikdə, Bitwarden hesabı və onun fərdi seyf dataları həmişəlik silinir. Təşkilatdakı kolleksiya dataları qalır. Bunları yenidən fəallaşdırmaq üçün bir hesab yaradılmalı və yenidən təşkilata qoşulması lazımdır.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Bu, sahibi $NAME$ olan bütün elementləri həmişəlik siləcək. Kolleksiya elementləri təsirlənmir.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Bu, sahibi aşağıdakı üzvlər olan bütün elementləri həmişəlik siləcək. Kolleksiya elementləri təsirlənmir.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ silindi",
@@ -9787,5 +10045,196 @@
   },
   "descriptorCode": {
     "message": "Açıqlayıcı kod"
+  },
+  "importantNotice": {
+    "message": "Vacib bildiriş"
+  },
+  "setupTwoStepLogin": {
+    "message": "İki addımlı girişi qur"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz."
+  },
+  "remindMeLater": {
+    "message": "Daha sonra xatırlat"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Xeyr, edə bilmirəm"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "İki addımlı girişi işə sal"
+  },
+  "changeAcctEmail": {
+    "message": "Hesabın e-poçtunu dəyişdir"
+  },
+  "removeMembers": {
+    "message": "Üzvləri çıxart"
+  },
+  "devices": {
+    "message": "Cihazlar"
+  },
+  "deviceListDescription": {
+    "message": "Aşağıdakı cihazların hər birində hesabınıza giriş edilib. Tanımadığınız cihaz varsa, onu silin."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Aşağıdakı cihazların hər birində hesabınıza giriş edilib."
+  },
+  "claimedDomains": {
+    "message": "Götürülmüş domenlər"
+  },
+  "claimDomain": {
+    "message": "Domen götür"
+  },
+  "reclaimDomain": {
+    "message": "Domeni təkrar götür"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Nümunə: mydomain.com. Alt domenlərin götürülməsi üçün ayrıca girişlər tələb olunur."
+  },
+  "automaticClaimedDomains": {
+    "message": "Avtomatik götürülən domenlər"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden, ilk 72 saat ərzində domeni 3 dəfə götürməyə çalışacaq. Əgər domen götürülə bilməsə, \"host\"unuzdakı DNS qeydini yoxlayın və manual götürün. Domen götürülməsə, 7 gün ərzində təşkilatınızdan silinəcək."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ götürülmədi. DNS qeydlərinizi yoxlayın.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Götürüldü"
+  },
+  "domainStatusUnderVerification": {
+    "message": "Doğrulama altında"
+  },
+  "claimedDomainsDesc": {
+    "message": "Domenlə uyuşan e-poçt ünvanına sahib bütün üzvlərin hesablarına sahib olmaq üçün bir domen götürün. Üzvlər giriş edərkən SSO identifikatorunu ötürə biləcək. Həmçinin inzibatçılar, üzv hesablarını silə biləcək."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Giriş, yararlı bir format deyil. Format: mydomain.com. Alt domenlərin götürülməsi üçün ayrıca girişlər tələb olunur."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$ götürüldü",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$ götürülmədi",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "$EMAIL$ silinsə, bu Ailələr planı üçün sponsorluq istifadə edilə bilməz. Davam etmək istədiyinizə əminsiniz?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "$EMAIL$ silinsə, bu Ailə planı üçün sponsorluq bitəcək və saxlanılmış ödəniş üsulundan $DATE$ tarixində $40 + müvafiq vergi tutulacaq. $DATE$ tarixinə qədər yeni bir sponsorluq istifadə edə bilməyəcəksiniz. Davam etmək istədiyinizə əminsiniz?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Domen götürüldü"
+  },
+  "organizationNameMaxLength": {
+    "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
+  },
+  "resellerRenewalWarningMsg": {
+    "message": "Abunəliyiniz tezliklə yenilənəcək. Kəsintisiz xidməti təmin etmək və yeniləməni $RENEWAL_DATE$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarningMgs": {
+    "message": "Abunəliyinizə aid faktura $ISSUED_DATE$ tarixində təqdim edildi. Kəsintisiz xidməti təmin etmək və yeniləməni $DUE_DATE$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsg": {
+    "message": "Abunəliyinizə aid faktura üzrə ödəniş edilmədi. Kəsintisiz xidməti təmin etmək və yeniləməni $GRACE_PERIOD_END$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Təşkilat abunəliyi yenidən başladıldı"
+  },
+  "restartSubscription": {
+    "message": "Abunəliyinizi yenidən başladın"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Kömək üçün $PROVIDER$ ilə əlaqə saxlayın.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
   }
 }

@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import {
-  CollectionRequest,
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
+  CollectionRequest,
   CollectionResponse,
 } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
@@ -101,7 +103,6 @@ import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
-import { TaxRateResponse } from "../billing/models/response/tax-rate.response";
 import { DeviceType } from "../enums";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
@@ -893,11 +894,6 @@ export class ApiService implements ApiServiceAbstraction {
   async getPlans(): Promise<ListResponse<PlanResponse>> {
     const r = await this.send("GET", "/plans", null, false, true);
     return new ListResponse(r, PlanResponse);
-  }
-
-  async getTaxRates(): Promise<ListResponse<TaxRateResponse>> {
-    const r = await this.send("GET", "/plans/sales-tax-rates/", null, true, true);
-    return new ListResponse(r, TaxRateResponse);
   }
 
   // Settings APIs
@@ -1833,7 +1829,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async send(
-    method: "GET" | "POST" | "PUT" | "DELETE",
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     path: string,
     body: any,
     authed: boolean,
@@ -1873,7 +1869,7 @@ export class ApiService implements ApiServiceAbstraction {
       return responseJson;
     } else if (hasResponse && response.status === 200 && responseIsCsv) {
       return await response.text();
-    } else if (response.status !== 200) {
+    } else if (response.status !== 200 && response.status !== 204) {
       const error = await this.handleError(response, false, authed);
       return Promise.reject(error);
     }
@@ -1946,7 +1942,6 @@ export class ApiService implements ApiServiceAbstraction {
           responseJson.error === "invalid_grant")
       ) {
         await this.logoutCallback("invalidGrantError");
-        return null;
       }
     }
 

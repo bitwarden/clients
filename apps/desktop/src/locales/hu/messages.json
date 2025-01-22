@@ -217,7 +217,7 @@
     "message": "Jelszó megerősítése"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Írjuk be az SSH kulcshoz tartozó jelszót."
+    "message": "Adjuk meg az SSH kulcs jelszót."
   },
   "enterSshKeyPassword": {
     "message": "Jelszó megadása"
@@ -248,6 +248,20 @@
   },
   "error": {
     "message": "Hiba"
+  },
+  "decryptionError": {
+    "message": "Visszafejtési hiba"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "A Bitwarden nem tudta visszafejteni az alább felsorolt ​​széf elemeket."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Ügyfélszolgálat elérés siker",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "további adatvesztés elkerülése érdekében.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "január"
@@ -918,6 +932,12 @@
   },
   "baseUrl": {
     "message": "Szerver webcím"
+  },
+  "authenticationTimeout": {
+    "message": "Hitelesítési időkifutás"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A hitelesítési munkamenet időkifutással leállt. Indítsuk újra a bejelentkezési folyamatot."
   },
   "selfHostBaseUrl": {
     "message": "Saját üzemeltetésű szerver webcím",
@@ -1727,9 +1747,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Bitwarden ellenőrzés."
-  },
-  "polkitConsentMessage": {
-    "message": "Hitelesítés a Bitwarden feloldásához."
   },
   "unlockWithTouchId": {
     "message": "Feloldás Touch ID segítségével"
@@ -2862,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Gyenge jelszó lett azonosítva és megtalálva egy adatvédelmi incidens során. A fók védelme érdekében használjunk erős és egyedi jelszót. Biztosan használni szeretnénk ezt a jelszót?"
   },
+  "useThisPassword": {
+    "message": "Jelszó használata"
+  },
+  "useThisUsername": {
+    "message": "Felhasználónév használata"
+  },
   "checkForBreaches": {
     "message": "Az ehhez a jelszóhoz tartozó ismert adatvédelmi incidensek ellenőrzése"
   },
@@ -3359,6 +3382,30 @@
   "ssoError": {
     "message": "Nem található szabad port az sso bejelentkezéshez."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "A biometrikus feloldás nem érhető el, mert először PIN kóddal vagy jelszóval kell feloldani."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "A biometrikus feloldás jelenleg nem érhető el."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "A biometrikus feloldás nem érhető el a rosszul konfigurált rendszerfájlok miatt."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "A biometrikus feloldás nem érhető el a rosszul konfigurált rendszerfájlok miatt."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "A biometrikus feloldás nem érhető el, mert nincs engedélyezve $EMAIL$ számára a Bitwarden asztali alkalmazásban.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "A biometrikus feloldás jelenleg ismeretlen okból nem érhető el."
+  },
   "authorize": {
     "message": "Hitelesítés"
   },
@@ -3391,5 +3438,50 @@
   },
   "fileSavedToDevice": {
     "message": "A fájl mentésre került az eszközre. Kezeljük az eszközről a letöltéseket."
+  },
+  "importantNotice": {
+    "message": "Fontos megjegyzés"
+  },
+  "setupTwoStepLogin": {
+    "message": "Kétlépéses bejelentkezés beüzemelése"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email-címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "A fiók védelmének alternatív módjaként beállíthatunk kétlépcsős bejelentkezést vagy módosíthatjuk az email címet egy elérhetőre."
+  },
+  "remindMeLater": {
+    "message": "Emlékeztetés később"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Megbízható a hozzáférés $EMAIL$ email címhez?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nem, nem érem el"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Igen, megbízhatóan hozzáférek az emailjeimhez"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Kétlépéses bejelentkezés bekapcsolása"
+  },
+  "changeAcctEmail": {
+    "message": "Fiók email cím megváltoztatása"
+  },
+  "organizationUpgradeRequired": {
+    "message": "A szervezet felminősítése szükséges."
+  },
+  "upgradeOrganization": {
+    "message": "Szervezeti áttérés"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Ez a szolgáltatás nem elérhető ingyenes szervezeteknek. Váltás fizetős díjcsomagra a további funkciók feloldásához."
   }
 }

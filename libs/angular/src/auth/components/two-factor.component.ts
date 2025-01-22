@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, Inject, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
@@ -155,7 +157,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
           this.toastService.showToast({
             variant: "error",
             title: this.i18nService.t("errorOccurred"),
-            message: error,
+            message: this.i18nService.t("webauthnCancelOrTimeout"),
           });
         },
         (info: string) => {

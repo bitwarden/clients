@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import { Component, OnDestroy, OnInit, Type, ViewChild, ViewContainerRef } from "@angular/core";
 import {
@@ -8,6 +10,7 @@ import {
   Subject,
   Subscription,
   takeUntil,
+  switchMap,
 } from "rxjs";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -16,6 +19,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
@@ -67,8 +71,13 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     protected messagingService: MessagingService,
     protected policyService: PolicyService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {
-    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+    this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+      ),
+    );
   }
 
   async ngOnInit() {

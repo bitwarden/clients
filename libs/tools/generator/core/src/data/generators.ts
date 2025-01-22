@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
@@ -56,6 +58,7 @@ const PASSPHRASE: CredentialGeneratorConfiguration<
   generateKey: "generatePassphrase",
   generatedValueKey: "passphrase",
   copyKey: "copyPassphrase",
+  useGeneratedValueKey: "useThisPassword",
   onlyOnRequest: false,
   request: [],
   engine: {
@@ -117,6 +120,7 @@ const PASSWORD: CredentialGeneratorConfiguration<
   generateKey: "generatePassword",
   generatedValueKey: "password",
   copyKey: "copyPassword",
+  useGeneratedValueKey: "useThisPassword",
   onlyOnRequest: false,
   request: [],
   engine: {
@@ -193,6 +197,7 @@ const USERNAME: CredentialGeneratorConfiguration<EffUsernameGenerationOptions, N
     generateKey: "generateUsername",
     generatedValueKey: "username",
     copyKey: "copyUsername",
+    useGeneratedValueKey: "useThisUsername",
     onlyOnRequest: false,
     request: [],
     engine: {
@@ -245,6 +250,7 @@ const CATCHALL: CredentialGeneratorConfiguration<CatchallGenerationOptions, NoPo
     generateKey: "generateEmail",
     generatedValueKey: "email",
     copyKey: "copyEmail",
+    useGeneratedValueKey: "useThisEmail",
     onlyOnRequest: false,
     request: [],
     engine: {
@@ -300,6 +306,7 @@ const SUBADDRESS: CredentialGeneratorConfiguration<SubaddressGenerationOptions, 
     generateKey: "generateEmail",
     generatedValueKey: "email",
     copyKey: "copyEmail",
+    useGeneratedValueKey: "useThisEmail",
     onlyOnRequest: false,
     request: [],
     engine: {
@@ -357,6 +364,7 @@ export function toCredentialGeneratorConfiguration<Settings extends ApiSettings 
     generateKey: "generateEmail",
     generatedValueKey: "email",
     copyKey: "copyEmail",
+    useGeneratedValueKey: "useThisEmail",
     onlyOnRequest: true,
     request: configuration.forwarder.request,
     engine: {

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { inject, Injectable, NgZone } from "@angular/core";
 import {
   BehaviorSubject,
@@ -88,6 +90,8 @@ export class VaultPopupItemsService {
     tap(() => this._ciphersLoading$.next()),
     waitUntilSync(this.syncService),
     switchMap(() => Utils.asyncToObservable(() => this.cipherService.getAllDecrypted())),
+    withLatestFrom(this.cipherService.failedToDecryptCiphers$),
+    map(([ciphers, failedToDecryptCiphers]) => [...failedToDecryptCiphers, ...ciphers]),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -162,15 +166,12 @@ export class VaultPopupItemsService {
 
   /**
    * List of favorite ciphers that are not currently suggested for autofill.
-   * Ciphers are sorted by last used date, then by name.
+   * Ciphers are sorted by name.
    */
   favoriteCiphers$: Observable<PopupCipherView[]> = this.autoFillCiphers$.pipe(
     withLatestFrom(this._filteredCipherList$),
     map(([autoFillCiphers, ciphers]) =>
       ciphers.filter((cipher) => cipher.favorite && !autoFillCiphers.includes(cipher)),
-    ),
-    map((ciphers) =>
-      ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b)),
     ),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
@@ -190,11 +191,6 @@ export class VaultPopupItemsService {
       ciphers.filter(
         (cipher) => !autoFillCiphers.includes(cipher) && !favoriteCiphers.includes(cipher),
       ),
-    ),
-    withLatestFrom(this._hasSearchText$),
-    map(([ciphers, hasSearchText]) =>
-      // Do not sort alphabetically when there is search text, default to the search service scoring
-      hasSearchText ? ciphers : ciphers.sort(this.cipherService.getLocaleSortingFunction()),
     ),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
@@ -251,8 +247,28 @@ export class VaultPopupItemsService {
   /**
    * Observable that contains the list of ciphers that have been deleted.
    */
-  deletedCiphers$: Observable<CipherView[]> = this._allDecryptedCiphers$.pipe(
-    map((ciphers) => ciphers.filter((c) => c.isDeleted)),
+  deletedCiphers$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
+    switchMap((ciphers) =>
+      combineLatest([
+        this.organizationService.organizations$,
+        this.collectionService.decryptedCollections$,
+      ]).pipe(
+        map(([organizations, collections]) => {
+          const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
+          const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
+          return ciphers
+            .filter((c) => c.isDeleted)
+            .map(
+              (cipher) =>
+                new PopupCipherView(
+                  cipher,
+                  cipher.collectionIds?.map((colId) => collectionMap[colId as CollectionId]),
+                  orgMap[cipher.organizationId as OrganizationId],
+                ),
+            );
+        }),
+      ),
+    ),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 

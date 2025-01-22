@@ -29,6 +29,15 @@
   "notifiedMembers": {
     "message": "Obeznámení členové"
   },
+  "revokeMembers": {
+    "message": "Odvolat členy"
+  },
+  "restoreMembers": {
+    "message": "Obnovit členy"
+  },
+  "cannotRestoreAccessError": {
+    "message": "Nelze obnovit přístup organizace"
+  },
   "allApplicationsWithCount": {
     "message": "Všechny aplikace ($COUNT$)",
     "placeholders": {
@@ -104,11 +113,44 @@
   "atRiskMembers": {
     "message": "Ohrožení členové"
   },
+  "atRiskMembersWithCount": {
+    "message": "Rizikoví členové ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "Rizikové aplikace ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "Tito členové se přihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "Tyto aplikace mají slabá, odhalená nebo opakovaně používaná hesla."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "Tito členové se přihlašují do $APPNAME$ se slabými, odhalenými nebo znovu použitými hesly.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "Celkem členů"
   },
   "atRiskApplications": {
-    "message": "Ohrožené aplikace"
+    "message": "Rizikové aplikace"
   },
   "totalApplications": {
     "message": "Celkem aplikací"
@@ -1110,8 +1152,20 @@
   "logInToBitwarden": {
     "message": "Přihlásit se do Bitwardenu"
   },
+  "authenticationTimeout": {
+    "message": "Časový limit ověření"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Vypršel časový limit relace ověřování. Restartujte proces přihlášení."
+  },
   "verifyIdentity": {
     "message": "Ověřte svou totožnost"
+  },
+  "whatIsADevice": {
+    "message": "Co je to zařízení?"
+  },
+  "aDeviceIs": {
+    "message": "Zařízení je jedinečná instalace aplikace Bitwarden, ve které jste se přihlásili. Přeinstalování, vymazání dat aplikace nebo vymazání souborů cookie může vést k tomu, že se zařízení objeví vícekrát."
   },
   "logInInitiated": {
     "message": "Bylo zahájeno přihlášení"
@@ -1699,6 +1753,12 @@
   },
   "logBackIn": {
     "message": "Přihlaste se znovu."
+  },
+  "currentSession": {
+    "message": "Aktuální relace"
+  },
+  "requestPending": {
+    "message": "Čekající požadavek"
   },
   "logBackInOthersToo": {
     "message": "Přihlaste se znovu. Používáte-li jiné aplikace Bitwardenu, přihlaste se znovu i v nich."
@@ -3251,6 +3311,12 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "Zbývá Vám 1 pozvánka."
+  },
+  "inviteZeroEmailDesc": {
+    "message": "Zbývá Vám 0 pozvánek."
+  },
   "userUsingTwoStep": {
     "message": "Tento uživatel používá pro ochranu svého účtu dvoufázové přihlášení."
   },
@@ -3702,6 +3768,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Nepropojené SSO."
+  },
   "unlinkedSsoUser": {
     "message": "Bylo zrušeno propojení SSO pro uživatele $ID$.",
     "placeholders": {
@@ -3749,6 +3818,76 @@
   },
   "device": {
     "message": "Zařízení"
+  },
+  "loginStatus": {
+    "message": "Stav přihlášení"
+  },
+  "firstLogin": {
+    "message": "První přihlášení"
+  },
+  "trusted": {
+    "message": "Důvěryhodný"
+  },
+  "needsApproval": {
+    "message": "Vyžaduje schválení"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Pokoušíte se přihlásit?"
+  },
+  "logInAttemptBy": {
+    "message": "Pokus o přihlášení z $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Typ zařízení"
+  },
+  "ipAddress": {
+    "message": "IP adresa"
+  },
+  "confirmLogIn": {
+    "message": "Potvrdit přihlášení"
+  },
+  "denyLogIn": {
+    "message": "Zamítnout přihlášení"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Tento požadavek již není platný."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Přihlášení bylo potvrzeno z $EMAIL$ pro $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Pokus o přihlášení byl zamítnut z jiného zařízení. Pokud jste to opravdu Vy, zkuste se znovu přihlásit do zařízení."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Požadavek na přihlášení již vypršel."
+  },
+  "justNow": {
+    "message": "Právě teď"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Požadováno před $MINUTES$ minutami",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Vytváření účtu na"
@@ -3867,33 +4006,36 @@
   "updateBrowser": {
     "message": "Aktualizovat prohlížeč"
   },
+  "generatingRiskInsights": {
+    "message": "Generování poznatků o rizicích..."
+  },
   "updateBrowserDesc": {
     "message": "Používáte nepodporovaný webový prohlížeč. Webový trezor nemusí pracovat správně."
   },
-  "freeTrialEndPrompt": {
-    "message": "Vaše zkušební verze končí za $COUNT$ dnů. Chcete-li si zachovat předplatné,",
+  "freeTrialEndPromptCount": {
+    "message": "Vaše zkušební doba končí za $COUNT$ dnů.",
     "placeholders": {
       "count": {
-        "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
-      }
-    }
-  },
-  "freeTrialEndPromptAboveTwoDays": {
-    "message": "$ORGANIZATION$, Vaše zkušební verze končí za $COUNT$ dnů. Chcete-li si zachovat předplatné,",
-    "placeholders": {
-      "count": {
-        "content": "$2",
-        "example": "organization name"
-      },
-      "organization": {
         "content": "$1",
         "example": "remaining days"
       }
     }
   },
-  "freeTrialEndPromptForOneDay": {
-    "message": "$ORGANIZATION$, Vaše zkušební verze končí zítra. Chcete-li si zachovat předplatné,",
+  "freeTrialEndPromptMultipleDays": {
+    "message": "$ORGANIZATION$, Vaše zkušební doba končí za $COUNT$ dnů.",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "remaining days"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptTomorrow": {
+    "message": "$ORGANIZATION$, Vaše zkušební doba končí zítra.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3901,11 +4043,11 @@
       }
     }
   },
-  "freeTrialEndPromptForOneDayNoOrgName": {
-    "message": "Vaše zkušební verze končí zítra. Chcete-li si zachovat předplatné,"
+  "freeTrialEndPromptTomorrowNoOrgName": {
+    "message": "Vaše zkušební verze končí zítra."
   },
-  "freeTrialEndPromptForLessThanADay": {
-    "message": "$ORGANIZATION$, Vaše zkušební verze končí dnes. Chcete-li si zachovat předplatné,",
+  "freeTrialEndPromptToday": {
+    "message": "$ORGANIZATION$, Vaše zkušební doba končí dnes.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3913,11 +4055,11 @@
       }
     }
   },
-  "freeTrialEndingSoonWithoutOrgName": {
-    "message": "Vaše zkušební verze končí dnes. Chcete-li si zachovat předplatné,"
+  "freeTrialEndingTodayWithoutOrgName": {
+    "message": "Vaše zkušební verze končí dnes."
   },
-  "routeToPaymentMethodTrigger": {
-    "message": "přidejte platební metodu."
+  "clickHereToAddPaymentMethod": {
+    "message": "Klepněte zde pro přidání platební metody."
   },
   "joinOrganization": {
     "message": "Přidat se k organizaci"
@@ -4705,6 +4847,12 @@
   },
   "ssoLogInWithOrgIdentifier": {
     "message": "Přihlaste se pomocí přihlašovacího portálu Vaší organizace. Chcete-li začít, zadejte identifikátor Vaší organizace."
+  },
+  "singleSignOnEnterOrgIdentifier": {
+    "message": "Chcete-li začít, zadejte SSO identifikátor Vaší organizace"
+  },
+  "singleSignOnEnterOrgIdentifierText": {
+    "message": "Chcete-li se přihlásit u poskytovatele SSO, zadejte nejprve SSO identifikátor Vaší organizace. Možná budete muset zadat tento identifikátor SSO při přihlášení z nového zařízení."
   },
   "enterpriseSingleSignOn": {
     "message": "Jednotné podnikové přihlášení"
@@ -5610,6 +5758,12 @@
   "bulkFilteredMessage": {
     "message": "Vyloučené, neplatí pro tuto akci"
   },
+  "nonCompliantMembersTitle": {
+    "message": "Nevyhovující členové"
+  },
+  "nonCompliantMembersError": {
+    "message": "Členové, kteří nevyhovují zásadám jednotného přihlašování nebo dvoufázového přihlašování, nemohou být obnoveni, dokud nedodrží požadavky těchto zásad."
+  },
   "fingerprint": {
     "message": "Otisk prstu"
   },
@@ -5624,6 +5778,20 @@
   },
   "error": {
     "message": "Chyba"
+  },
+  "decryptionError": {
+    "message": "Chyba dešifrování"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nemohl dešifrovat níže uvedené položky v trezoru."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktujte zákaznickou podporu,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "abyste zabránili ztrátě dat.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
     "message": "S oprávněním spravovat obnovení hesla musí být povolena také správa uživatelů"
@@ -6116,9 +6284,6 @@
   },
   "emailSent": {
     "message": "E-mail byl odeslán"
-  },
-  "revokeSponsorshipConfirmation": {
-    "message": "Po odebrání tohoto účtu vyprší sponzorování rodinného plánu na konci fakturační doby. Nebudete moci uplatnit novou nabídku sponzorování, dokud stávající neskončí. Opravdu chcete pokračovat?"
   },
   "removeSponsorshipSuccess": {
     "message": "Sponzorství bylo odebráno"
@@ -6790,6 +6955,10 @@
   },
   "scimDescription": {
     "message": "Automatické zajišťování uživatelů a skupin u preferovaného poskytovatele identit prostřednictvím zajišťování SCIM.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimIntegrationDescription": {
+    "message": "Automatické zajišťování uživatelů a skupin u preferovaného poskytovatele identit prostřednictvím zajišťování SCIM. Najde podporované integrace.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
@@ -8102,33 +8271,33 @@
   "trustedDevices": {
     "message": "Důvěryhodná zařízení"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Po ověření budou členové dešifrovat data v trezoru pomocí klíče uloženého na jejich zařízení. ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
-    "message": "Při použití této možnosti ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink1": {
+    "message": "single organization",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
-    "message": "se zapnou zásady jednotné organizace, ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart2": {
+    "message": "policy,",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "zásady vyžadované SSO ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink2": {
+    "message": "SSO required",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
-    "message": "a zásady správy obnovení účtu ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart3": {
+    "message": "policy, and",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
-    "message": "s ",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink3": {
+    "message": "account recovery administration",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "s automatickým zápisem.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "policy will turn on when this option is used.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Oprávnění Vaší organizace byla aktualizována. To vyžaduje nastavení hlavního hesla.",
@@ -8204,6 +8373,18 @@
   },
   "approveRequest": {
     "message": "Schválit žádost"
+  },
+  "deviceApproved": {
+    "message": "Zařízení schváleno"
+  },
+  "deviceRemoved": {
+    "message": "Zařízení odebráno"
+  },
+  "removeDevice": {
+    "message": "Odebrat zařízení"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Opravdu chcete odebrat toto zařízení?"
   },
   "noDeviceRequests": {
     "message": "Žádné žádosti ze zařízení"
@@ -8986,44 +9167,99 @@
   "sdksDesc": {
     "message": "Použije SDK Správce tajných klíčů Bitwarden v následujících programovacích jazycích k vytvoření vlastních aplikací."
   },
-  "setUpGithubActions": {
-    "message": "Nastavit akce GitHubu"
+  "ssoDescStart": {
+    "message": "Nastavit",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpKubernetes": {
-    "message": "Nastavit Kubernetes"
+  "ssoDescEnd": {
+    "message": "Bitwarden pomocí průvodce implementací Vašeho poskytovatele identity.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure single sign-on for Bitwarden using the implementation guide for your Identity Provider."
   },
-  "setUpGitlabCICD": {
-    "message": "Nastavit GitLab CI/CD"
+  "userProvisioning": {
+    "message": "Zajišťování uživatele"
   },
-  "setUpAnsible": {
-    "message": "Nastavit Ansible"
+  "scimIntegration": {
+    "message": "SCIM"
   },
-  "rustSDKRepo": {
-    "message": "Zobrazit repozitář Rust"
+  "scimIntegrationDescStart": {
+    "message": "Nastavit ",
+    "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cSharpSDKRepo": {
-    "message": "Zobrazit repozitář C#"
+  "scimIntegrationDescEnd": {
+    "message": "(Systém pro správu identity napříč doménami) automaticky poskytuje uživatelům a skupinám Bitwarden pomocí prováděcího průvodce pro Vašeho poskytovatele identity.",
+    "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
-  "cPlusPlusSDKRepo": {
-    "message": "Zobrazit repozitář C++"
+  "bwdc": {
+    "message": "Konektor adresáře Bitwarden"
   },
-  "jsWebAssemblySDKRepo": {
-    "message": "Zobrazit repozitář JS WebAssembly"
+  "bwdcDesc": {
+    "message": "Nastaví konektor adresáře Bitwarden tak, aby automaticky poskytoval uživatele a skupiny pomocí implementačního průvodce pro Vašeho poskytovatele identity."
   },
-  "javaSDKRepo": {
-    "message": "Zobrazit repozitář Java"
+  "eventManagement": {
+    "message": "Správa událostí"
   },
-  "pythonSDKRepo": {
-    "message": "Zobrazit repozitář Python"
+  "eventManagementDesc": {
+    "message": "Integruje logy událostí Bitwardenu do systému SIEM (systémové informace a správu událostí) pomocí implementačního průvodce Vaší platformy."
   },
-  "phpSDKRepo": {
-    "message": "Zobrazit repozitář PHP"
+  "deviceManagement": {
+    "message": "Správa zařízení"
   },
-  "rubySDKRepo": {
-    "message": "Zobrazit repozitář Ruby"
+  "deviceManagementDesc": {
+    "message": "Nastaví správu zařízení pro Bitwarden pomocí implementačního průvodce pro Vaši platformu."
   },
-  "goSDKRepo": {
-    "message": "Zobrazit repozitář Go"
+  "integrationCardTooltip": {
+    "message": "Spustí průvodce implementací $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smIntegrationTooltip": {
+    "message": "Nastaví $INTEGRATION$.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "smSdkTooltip": {
+    "message": "Zobrazit repozitář $SDK$",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "Rust"
+      }
+    }
+  },
+  "integrationCardAriaLabel": {
+    "message": "otevře průvodce implementací $INTEGRATION$ na nové kartě.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
+  },
+  "smSdkAriaLabel": {
+    "message": "zobrazí repozitář $SDK$ na nové kartě.",
+    "placeholders": {
+      "sdk": {
+        "content": "$1",
+        "example": "rust"
+      }
+    }
+  },
+  "smIntegrationCardAriaLabel": {
+    "message": "nastaví průvodce implementací $INTEGRATION$ na nové kartě.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "google"
+      }
+    }
   },
   "createNewClientToManageAsProvider": {
     "message": "Vytvořte novou klientskou organizaci pro správu jako poskytovatele. Další uživatelé budou reflektováni v dalším platebním cyklu."
@@ -9184,6 +9420,18 @@
   },
   "updatedTaxInformation": {
     "message": "Aktualizované daňové údaje"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Neplatné DIČ. Pokud se domníváte, že se jedná o chybu, kontaktujte podporu."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Nebyli jsme schopni ověřit Vaše DIČ. Pokud se domníváte, že se jedná o chybu, kontaktujte podporu."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Neplatné DIČ. Pokud se domníváte, že se jedná o chybu, kontaktujte podporu."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Při náhledu faktury došlo k chybě. Opakujte akci později."
   },
   "unverified": {
     "message": "Neověřeno"
@@ -9699,8 +9947,8 @@
   "selfHostingTitleProper": {
     "message": "Vlastní hosting"
   },
-  "verified-domain-single-org-warning": {
-    "message": "Ověřením domény se zapnou zásady jediné organizace."
+  "claim-domain-single-org-warning": {
+    "message": "Uplatněním domény se zapnou zásady jediné organizace."
   },
   "single-org-revoked-user-warning": {
     "message": "Nevyhovujícím členům bude členství zrušeno. Správci mohou obnovit členy, jakmile opustí všechny ostatní organizace."
@@ -9715,9 +9963,19 @@
       "description": "Title for the delete organization user dialog"
     }
   },
-  "deleteOrganizationUserWarning": {
-    "message": "Pokud je člen smazán, jeho účet Bitwarden a individuální údaje z trezoru budou trvale smazány. Data kolekce zůstanou v organizaci. Pro jejich obnovení si musí vytvořit účet a být znovu zařazen do systému.",
-    "description": "Warning for the delete organization user dialog"
+  "deleteOrganizationUserWarningDesc": {
+    "message": "Tímto trvale smažete všechny položky vlastněné $NAME$. Položky kolekcí nejsou ovlivněny.",
+    "description": "Warning description for the delete organization user dialog",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "deleteManyOrganizationUsersWarningDesc": {
+    "message": "Tímto trvale smažete všechny položky vlastněné následujícími členy. Položky kolekcí nejsou ovlivněny.",
+    "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
     "message": "$NAME$ - smazán",
@@ -9787,5 +10045,196 @@
   },
   "descriptorCode": {
     "message": "Kód z popisu"
+  },
+  "importantNotice": {
+    "message": "Důležité upozornění"
+  },
+  "setupTwoStepLogin": {
+    "message": "Nastavit dvoufázové přihlášení"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden odešle kód na e-mail Vašeho účtu pro ověření přihlášení z nových zařízení počínaje únorem 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Dvoufázové přihlášení můžete nastavit jako alternativní způsob ochrany Vašeho účtu nebo změnit svůj e-mail na ten, k němuž můžete přistupovat."
+  },
+  "remindMeLater": {
+    "message": "Připomenout později"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Máte spolehlivý přístup ke svému e-mailu $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ne, nemám"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ano, ke svému e-mailu mám přístup"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zapnout dvoufázové přihlášení"
+  },
+  "changeAcctEmail": {
+    "message": "Změnit e-mail účtu"
+  },
+  "removeMembers": {
+    "message": "Odebrat členy"
+  },
+  "devices": {
+    "message": "Zařízení"
+  },
+  "deviceListDescription": {
+    "message": "Váš účet byl přihlášen do každého z níže uvedených zařízení. Pokud zařízení nepoznáváte, odeberte jej nyní."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Váš účet byl přihlášen do každého z níže uvedených zařízení."
+  },
+  "claimedDomains": {
+    "message": "Uplatněné domény"
+  },
+  "claimDomain": {
+    "message": "Uplatnit doménu"
+  },
+  "reclaimDomain": {
+    "message": "Znovu uplatnit doménu"
+  },
+  "claimDomainNameInputHint": {
+    "message": "Příklad: mojedoména.cz. Poddomény vyžadují samostatné záznamy, které je třeba ověřit."
+  },
+  "automaticClaimedDomains": {
+    "message": "Automaticky uplatněné domény"
+  },
+  "automaticDomainClaimProcess": {
+    "message": "Bitwarden se pokusí uplatnit doménu třikrát během prvních 72 hodin. Pokud doménu nelze uplatnit, zkontrolujte záznam DNS v hostitelském počítači a uplatněte ji ručně. Pokud se doménu nepodaří uplatnit, bude z Vaší organizace odebrána do 7 dnů."
+  },
+  "domainNotClaimed": {
+    "message": "$DOMAIN$ nebyla uplatněna. Zkontrolujte DNS záznamy.",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainStatusClaimed": {
+    "message": "Uplatněno"
+  },
+  "domainStatusUnderVerification": {
+    "message": "V ověřování"
+  },
+  "claimedDomainsDesc": {
+    "message": "Uplatněním domény získáte všechny členské účty, jejichž e-mailová adresa se shoduje s doménou. Členové budou moci při přihlašování přeskočit identifikátor SSO. Správci budou moci členské účty také mazat."
+  },
+  "invalidDomainNameClaimMessage": {
+    "message": "Vstup není platný formát. Příklad: mojedoména.cz.Poddomény vyžadují samostatné záznamy, které je třeba uplatnit."
+  },
+  "domainClaimedEvent": {
+    "message": "$DOMAIN$: uplatněno",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "domainNotClaimedEvent": {
+    "message": "$DOMAIN$: neuplatněno",
+    "placeholders": {
+      "DOMAIN": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
+    "message": "Pokud odeberte $EMAIL$, nelze sponzorství pro tento rodinný plán uplatnit. Opravdu chcete pokračovat?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      }
+    }
+  },
+  "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
+    "message": "Pokud odeberete $EMAIL$, sponzorství tohoto rodinného plánu bude ukončeno. Z uloženého způsobu platby bude účtováno 40 USD + příslušná daň a to dne $DATE$. Nové sponzorství budete moci uplatnit až od $DATE$. Jste si jisti, že chcete pokračovat?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/10/2024"
+      }
+    }
+  },
+  "domainClaimed": {
+    "message": "Doména uplatněna"
+  },
+  "organizationNameMaxLength": {
+    "message": "Název organizace nesmí přesáhnout 50 znaků."
+  },
+  "resellerRenewalWarningMsg": {
+    "message": "Vaše předplatné se brzy obnoví. Chcete-li zajistit nepřerušenou službu, kontaktujte $RESELLER$ pro potvrzení obnovení před $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarningMgs": {
+    "message": "Faktura pro Vaše předplatné byla vystavena dne $ISSUED_DATE$. Chcete-li zajistit nepřerušovanou službu, kontaktujte $RESELLER$ pro potvrzení obnovení před $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsg": {
+    "message": "Faktura za Vaše předplatné nebyla zaplacena. Chcete-li zajistit nepřerušovanou službu, kontaktujte $RESELLER$ pro potvrzení obnovení před $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Předplatné organizace bylo restartováno"
+  },
+  "restartSubscription": {
+    "message": "Restartovat Vaše předplatné"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Kontaktujte $PROVIDER$ pro pomoc.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
   }
 }

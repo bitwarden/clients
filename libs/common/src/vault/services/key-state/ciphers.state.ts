@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import {
@@ -20,6 +22,15 @@ export const ENCRYPTED_CIPHERS = UserKeyDefinition.record<CipherData>(CIPHERS_DI
 export const DECRYPTED_CIPHERS = UserKeyDefinition.record<CipherView>(
   CIPHERS_MEMORY,
   "decryptedCiphers",
+  {
+    deserializer: (cipher: Jsonify<CipherView>) => CipherView.fromJSON(cipher),
+    clearOn: ["logout", "lock"],
+  },
+);
+
+export const FAILED_DECRYPTED_CIPHERS = UserKeyDefinition.array<CipherView>(
+  CIPHERS_MEMORY,
+  "failedDecryptedCiphers",
   {
     deserializer: (cipher: Jsonify<CipherView>) => CipherView.fromJSON(cipher),
     clearOn: ["logout", "lock"],

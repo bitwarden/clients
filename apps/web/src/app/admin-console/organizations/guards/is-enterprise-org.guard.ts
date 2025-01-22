@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { inject } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
@@ -17,7 +19,7 @@ import { DialogService } from "@bitwarden/components";
  * if they have access to upgrade the organization. If the organization is
  * enterprise routing proceeds."
  */
-export function isEnterpriseOrgGuard(): CanActivateFn {
+export function isEnterpriseOrgGuard(showError: boolean = true): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, _state: RouterStateSnapshot) => {
     const router = inject(Router);
     const organizationService = inject(OrganizationService);
@@ -29,7 +31,7 @@ export function isEnterpriseOrgGuard(): CanActivateFn {
       return router.createUrlTree(["/"]);
     }
 
-    if (org.productTierType != ProductTierType.Enterprise) {
+    if (org.productTierType != ProductTierType.Enterprise && showError) {
       // Users without billing permission can't access billing
       if (!org.canEditSubscription) {
         await dialogService.openSimpleDialog({

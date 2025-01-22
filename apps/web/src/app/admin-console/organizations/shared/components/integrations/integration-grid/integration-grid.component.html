@@ -1,0 +1,18 @@
+<ul
+  class="tw-inline-grid tw-grid-cols-3 tw-gap-6 tw-m-0 tw-p-0 tw-w-full tw-auto-cols-auto tw-list-none lg:tw-grid-cols-4 lg:tw-gap-10 lg:tw-w-auto"
+>
+  <li
+    *ngFor="let integration of integrations"
+    [title]="tooltipI18nKey | i18n: integration.name"
+    [attr.aria-label]="ariaI18nKey | i18n: integration.name"
+  >
+    <app-integration-card
+      [name]="integration.name"
+      [linkURL]="integration.linkURL"
+      [image]="integration.image"
+      [imageDarkMode]="integration.imageDarkMode"
+      [externalURL]="integration.type === IntegrationType.SDK"
+      [newBadgeExpiration]="integration.newBadgeExpiration"
+    ></app-integration-card>
+  </li>
+</ul>

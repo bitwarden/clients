@@ -20,7 +20,7 @@
     "**/node_modules/@bitwarden/desktop-napi/index.js",
     "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
   ],
-  "electronVersion": "32.1.1",
+  "electronVersion": "33.3.1",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -133,7 +133,7 @@
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
-    "hardenedRuntime": false,
+    "hardenedRuntime": true,
     "extendInfo": {
       "LSMinimumSystemVersion": "12",
       "ElectronTeamID": "LTZ2PFU5D6"
@@ -241,7 +241,16 @@
     "autoStart": true,
     "base": "core22",
     "confinement": "strict",
-    "plugs": ["default", "network-bind", "password-manager-service"],
+    "plugs": [
+      "default",
+      "network-bind",
+      "password-manager-service",
+      {
+        "polkit": {
+          "action-prefix": "com.bitwarden.Bitwarden"
+        }
+      }
+    ],
     "stagePackages": ["default"]
   },
   "protocols": [

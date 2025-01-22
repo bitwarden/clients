@@ -4,18 +4,18 @@ use security_framework::passwords::{
 };
 
 pub async fn get_password(service: &str, account: &str) -> Result<String> {
-    let result = String::from_utf8(get_generic_password(&service, &account)?)?;
+    let result = String::from_utf8(get_generic_password(service, account)?)?;
     Ok(result)
 }
 
 pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
-    let result = set_generic_password(&service, &account, password.as_bytes())?;
-    Ok(result)
+    set_generic_password(service, account, password.as_bytes())?;
+    Ok(())
 }
 
 pub async fn delete_password(service: &str, account: &str) -> Result<()> {
-    let result = delete_generic_password(&service, &account)?;
-    Ok(result)
+    delete_generic_password(service, account)?;
+    Ok(())
 }
 
 pub async fn is_available() -> Result<bool> {
@@ -28,12 +28,18 @@ mod tests {
 
     #[tokio::test]
     async fn test() {
-        set_password("BitwardenTest", "BitwardenTest", "Random").await.unwrap();
+        set_password("BitwardenTest", "BitwardenTest", "Random")
+            .await
+            .unwrap();
         assert_eq!(
             "Random",
-            get_password("BitwardenTest", "BitwardenTest").await.unwrap()
+            get_password("BitwardenTest", "BitwardenTest")
+                .await
+                .unwrap()
         );
-        delete_password("BitwardenTest", "BitwardenTest").await.unwrap();
+        delete_password("BitwardenTest", "BitwardenTest")
+            .await
+            .unwrap();
 
         // Ensure password is deleted
         match get_password("BitwardenTest", "BitwardenTest").await {

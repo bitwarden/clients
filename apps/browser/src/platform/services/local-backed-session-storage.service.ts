@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Subject } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -196,6 +198,8 @@ export class LocalBackedSessionStorageService
   private compareValues<T>(value1: T, value2: T): boolean {
     try {
       return compareValues(value1, value2);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.error(
         `error comparing values\n${JSON.stringify(value1)}\n${JSON.stringify(value2)}`,

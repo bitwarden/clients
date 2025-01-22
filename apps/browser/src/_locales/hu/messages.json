@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Automatikus kitöltés személyazonosság"
   },
+  "fillVerificationCode": {
+    "message": "Ellenőrző kód kitöltése"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Ellenőrző Kód kitöltése",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Jelszó generálás (másolt)"
   },
@@ -447,9 +454,6 @@
   "length": {
     "message": "Hossz"
   },
-  "passwordMinLength": {
-    "message": "Minimum jelszó hosszúság"
-  },
   "uppercase": {
     "message": "Nagybetűs (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -520,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Minimális speciális"
-  },
-  "avoidAmbChar": {
-    "message": "Félreérthető karakterek mellőzése",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Félreérthető karakterek mellőzése",
@@ -640,9 +640,6 @@
   },
   "rateExtension": {
     "message": "Bővítmény értékelése"
-  },
-  "rateExtensionDesc": {
-    "message": "Kérlek, fontold meg egy jó értékelés hagyását, ezzel segítve nekünk!"
   },
   "browserNotSupportClipboard": {
     "message": "A webböngésződ nem támogat könnyű vágólap másolást. Másold manuálisan inkább."
@@ -1007,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Azonosítás elemek listázása a Fül oldalon a könnyű automatikus kitöltéshez."
   },
+  "clickToAutofillOnVault": {
+    "message": "Kattintsunk az elemekre az automatikus kitöltéshez a Széf nézetben"
+  },
   "clearClipboard": {
     "message": "Vágólap ürítése",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1152,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "Áthelyezés szervezethez"
-  },
-  "share": {
-    "message": "Megosztás"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ átkerült $ORGNAME$ szervezethez",
@@ -1318,6 +1315,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Add meg a 6 számjegyű ellenőrző kódot a hitelesítő alkalmazásodból."
+  },
+  "authenticationTimeout": {
+    "message": "Hitelesítési időkifutás"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "A hitelesítési munkamenet időkifutással lejárt. Indítsuk újra a bejelentkezési folyamatot."
   },
   "enterVerificationCodeEmail": {
     "message": "$EMAIL$ email címre elküldött 6 számjegyű ellenőrző kód megadása.",
@@ -2037,9 +2040,6 @@
   "clone": {
     "message": "Klónozás"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Egy vagy több szervezeti szabály érinti a generátor beállításokat."
-  },
   "passwordGenerator": {
     "message": "Jelszó generátor"
   },
@@ -2324,6 +2324,9 @@
     "message": "Tartomány",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Letiltott tartományok"
+  },
   "excludedDomains": {
     "message": "Kizárt domainek"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "A Bitwarden nem kéri a bejelentkezési adatok mentését ezeknél a tartományoknál az összes bejelentkezési fiókra vonatkozva. A változtatások életbe lépéséhez frissíteni kell az oldalt."
+  },
+  "blockedDomainsDesc": {
+    "message": "Az automatikus kitöltés és az egyéb kapcsolódó funkciók ezeken a webhelyeken nincsenek a kínálatban. A változtatások életbe lépéséhez frissíteni kell az oldalt."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Az automatikus kitöltés blokkolásra került ezen a webhelyen."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Megváltoztatás a beállításokban"
   },
   "websiteItemLabel": {
     "message": "Webhely $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "A letiltott tartomány módosítások mentésre kerültek."
   },
   "excludedDomainsSavedSuccess": {
     "message": "A kizárt tartomány módosítások mentésre kerültek."
@@ -2379,14 +2394,6 @@
     "message": "Send részletek",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Send keresése",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Send hozzáadása",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Szöveg"
   },
@@ -2403,15 +2410,8 @@
   "hideTextByDefault": {
     "message": "Szöveg elrejtése alapértelmezetten"
   },
-  "maxAccessCountReached": {
-    "message": "A maximális hozzáférések száma elérésre került.",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Lejárt"
-  },
-  "pendingDeletion": {
-    "message": "Függőben lévő törlés"
   },
   "passwordProtected": {
     "message": "Jelszóval védett"
@@ -2462,23 +2462,8 @@
     "message": "Send szerkesztése",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Milyen típusú ez a Send?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Barátságos név a Send leírására.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "A küldendő fájl."
-  },
   "deletionDate": {
     "message": "Törlési dátum"
-  },
-  "deletionDateDesc": {
-    "message": "A Send véglegesen törölve lesz a meghatározott időpontban.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "A Send véglegesen törölve lesz ebben az időpontban.",
@@ -2486,10 +2471,6 @@
   },
   "expirationDate": {
     "message": "Lejárati dátum"
-  },
-  "expirationDateDesc": {
-    "message": "Amennyiben be van állítva, a hozzáférés ehhez a Sendhez a meghatározott időpontban lejár",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 nap"
@@ -2506,42 +2487,9 @@
   "custom": {
     "message": "Egyedi"
   },
-  "maximumAccessCount": {
-    "message": "Maximális elérési szám"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Beállítva a Küldés elérhetetlen lesz a meghatározott hozzáférések számának elérése után.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Opcionálisan megadhatunk egy jelszót a felhasználók számára a Küldés eléréséhez. ",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Adjunk meg egy opcionális jelszót a címzetteknek a Send eléréséhez.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Személyes megjegyzések erről a Küldésről.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "A Send letiltásával senki nem férhet hozzá.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Mentéskor másoljuk a Küldés hivatkozását a vágólapra.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "A küldendő fájl."
-  },
-  "sendHideText": {
-    "message": "Alapértelmezés szerint elrejti a Küldés szövegét.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuális elérési szám"
   },
   "createSend": {
     "message": "Új Send",
@@ -2625,18 +2573,6 @@
   "sendFileCalloutHeader": {
     "message": "Mielőtt belevágnánk"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Naptár-stílusú dátumválasztáshoz",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "kattintás ide",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "az ablak megnyitásához",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "A megadott lejárati idő nem érvényes."
   },
@@ -2652,14 +2588,8 @@
   "dateParsingError": {
     "message": "Hiba történt a törlési és a lejárati dátum mentésekor."
   },
-  "hideEmail": {
-    "message": "Saját email cím elrejtése a címzettek elől."
-  },
   "hideYourEmail": {
     "message": "Saját email cím elrejtése a megtekintések elől."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Egy vagy több szervezeti szabály érinti a Send opciókat."
   },
   "passwordPrompt": {
     "message": "Mesterjelszó ismételt megadás"
@@ -2874,8 +2804,19 @@
   "error": {
     "message": "Hiba"
   },
-  "regenerateUsername": {
-    "message": "Felhasználónév ismételt geneálása"
+  "decryptionError": {
+    "message": "Visszafejtési hiba"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "A Bitwarden nem tudta visszafejteni az alább felsorolt ​​széf elemeket."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Ügyfélszolgálat elérése",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "további adatvesztés elkerülése érdekében.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Felhasználónév generálása"
@@ -2917,9 +2858,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Felhasználónév típusa"
-  },
   "plusAddressedEmail": {
     "message": "További címzési email cím",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2941,12 +2879,6 @@
   },
   "websiteName": {
     "message": "Webhelynév"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Mit szeretnénk generálni?"
-  },
-  "passwordType": {
-    "message": "Jelszótípus"
   },
   "service": {
     "message": "Szolgáltatás"
@@ -3167,7 +3099,7 @@
   "viewAllLogInOptions": {
     "message": "Összes bejelentkezési opció megtekintése"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Összes bejelentkezési opció megtekintése"
   },
   "notificationSentDevice": {
@@ -3493,38 +3425,6 @@
     "message": "Összezárás váltás",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Adatok importálása a Bitwardenbe?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "A LastPass adatok megvédése és importálása a Bitwardenbe?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Mentés titkosítatlan fájlként",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importálás a Bitwardenbe",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importálás...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Az adatok sikeresen importálásra kerültek.",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Hiba történt az importálás során. A részletekért ellenőrizzük a konzolt.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Hálózati hiba történt az importálás során.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Áldomain"
   },
@@ -3573,6 +3473,14 @@
   "unlockAccountAria": {
     "message": "Oldjuk fel a fiók zárolását, új ablakban nyílik meg.",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Időalapú, egyszeri jelszó ellenőrző kód",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "A jelenlegi TOTP lejártáig hátralévő idő",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Töltse kia hitelesítő adatokat",
@@ -4069,6 +3977,9 @@
   },
   "autofillSuggestions": {
     "message": "Automatikus kitöltés javaslatok"
+  },
+  "itemSuggestions": {
+    "message": "Javasolt elemek"
   },
   "autofillSuggestionsTip": {
     "message": "A bejelentkezési elem mentése ehhez a webhelyhez az automatikus kitöltéshez"
@@ -4646,17 +4557,14 @@
   "textSends": {
     "message": "Szöveg küldés"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden has a new look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
-  },
   "accountActions": {
     "message": "Fiókműveletek"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Az automatikus bejelentkezési kitöltési javaslatok számának megjelenítése a bővítmény ikonján"
+  },
+  "showQuickCopyActions": {
+    "message": "Gyors másolási műveletek megjelenítése a Széfen"
   },
   "systemDefault": {
     "message": "Rendszer alapértelmezett"
@@ -4726,6 +4634,33 @@
   },
   "noEditPermissions": {
     "message": "Nincs jogosulltság ezen elem szerkesztéséheu."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "A biometrikus feloldás nem érhető el, mert először PIN kóddal vagy jelszóval kell feloldani."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "A biometrikus feloldás jelenleg nem érhető el."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "A biometrikus feloldás nem érhető el a rosszul konfigurált rendszerfájlok miatt."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "A biometrikus feloldás nem érhető el a rosszul konfigurált rendszerfájlok miatt."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "A biometrikus feloldás nem érhető el, mert a Bitwarden asztali alkalmazás be van zárva."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "A biometrikus feloldás nem érhető el, mert nincs engedélyezve $EMAIL$ számára a Bitwarden asztali alkalmazásban.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "A biometrikus feloldás jelenleg ismeretlen okból nem érhető el."
   },
   "authenticating": {
     "message": "Authenticating"
@@ -4888,6 +4823,42 @@
   },
   "beta": {
     "message": "Béta"
+  },
+  "importantNotice": {
+    "message": "Fontos megjegyzés"
+  },
+  "setupTwoStepLogin": {
+    "message": "Kétlépéses bejelentkezés beüzemelése"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email-címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "A fiók védelmének alternatív módjaként beállíthatunk kétlépcsős bejelentkezést vagy módosíthatjuk az email címet egy elérhetőre."
+  },
+  "remindMeLater": {
+    "message": "Emlékeztetés később"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Megbízható a hozzáférés $EMAIL$ email címhez?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nem, nem érem el"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Igen, megbízhatóan hozzáférek az emailjeimhez"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Kétlépéses bejelentkezés bekapcsolása"
+  },
+  "changeAcctEmail": {
+    "message": "Fiók email cím megváltoztatása"
   },
   "extensionWidth": {
     "message": "Kiterjesztés szélesség"

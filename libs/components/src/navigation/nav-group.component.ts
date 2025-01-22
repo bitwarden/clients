@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import {
   AfterContentInit,
   booleanAttribute,
@@ -11,13 +12,23 @@ import {
   SkipSelf,
 } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { IconButtonModule } from "../icon-button";
+
 import { NavBaseComponent } from "./nav-base.component";
+import { NavGroupAbstraction, NavItemComponent } from "./nav-item.component";
 import { SideNavService } from "./side-nav.service";
 
 @Component({
   selector: "bit-nav-group",
   templateUrl: "./nav-group.component.html",
-  providers: [{ provide: NavBaseComponent, useExisting: NavGroupComponent }],
+  providers: [
+    { provide: NavBaseComponent, useExisting: NavGroupComponent },
+    { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
+  ],
+  standalone: true,
+  imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
 })
 export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {
   @ContentChildren(NavBaseComponent, {
@@ -60,6 +71,8 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
   setOpen(isOpen: boolean) {
     this.open = isOpen;
     this.openChange.emit(this.open);
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.open && this.parentNavGroup?.setOpen(this.open);
   }
 

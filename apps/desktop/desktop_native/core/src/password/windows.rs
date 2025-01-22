@@ -13,7 +13,7 @@ use windows::{
 
 const CRED_FLAGS_NONE: u32 = 0;
 
-pub async fn get_password<'a>(service: &str, account: &str) -> Result<String> {
+pub async fn get_password(service: &str, account: &str) -> Result<String> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
     let mut credential: *mut CREDENTIALW = std::ptr::null_mut();
@@ -42,7 +42,7 @@ pub async fn get_password<'a>(service: &str, account: &str) -> Result<String> {
         .to_string_lossy()
     };
 
-    Ok(String::from(password))
+    Ok(password)
 }
 
 pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
@@ -112,12 +112,18 @@ mod tests {
 
     #[tokio::test]
     async fn test() {
-        set_password("BitwardenTest", "BitwardenTest", "Random").await.unwrap();
+        set_password("BitwardenTest", "BitwardenTest", "Random")
+            .await
+            .unwrap();
         assert_eq!(
             "Random",
-            get_password("BitwardenTest", "BitwardenTest").await.unwrap()
+            get_password("BitwardenTest", "BitwardenTest")
+                .await
+                .unwrap()
         );
-        delete_password("BitwardenTest", "BitwardenTest").await.unwrap();
+        delete_password("BitwardenTest", "BitwardenTest")
+            .await
+            .unwrap();
 
         // Ensure password is deleted
         match get_password("BitwardenTest", "BitwardenTest").await {

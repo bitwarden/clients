@@ -267,7 +267,7 @@ describe("ImportService", () => {
 function createCipher(options: Partial<CipherView> = {}) {
   const cipher = new CipherView();
 
-  cipher.name;
+  cipher.name = options.name;
   cipher.type = options.type;
   cipher.folderId = options.folderId;
   cipher.collectionIds = options.collectionIds;

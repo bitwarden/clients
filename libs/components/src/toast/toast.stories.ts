@@ -22,7 +22,7 @@ const toastServiceExampleTemplate = `
 })
 export class ToastServiceExampleComponent {
   @Input()
-  toastOptions: ToastOptions;
+  toastOptions?: ToastOptions;
 
   constructor(protected toastService: ToastService) {}
 }
@@ -38,7 +38,7 @@ export default {
     }),
     applicationConfig({
       providers: [
-        ToastModule.forRoot().providers,
+        ToastModule.forRoot().providers!,
         {
           provide: I18nService,
           useFactory: () => {
@@ -63,7 +63,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-41506&t=b5tDKylm5sWm2yKo-11",
     },
   },
 } as Meta;

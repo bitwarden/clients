@@ -2,6 +2,8 @@ export {
   BiometricStateService,
   DefaultBiometricStateService,
 } from "./biometrics/biometric-state.service";
+export { BiometricsStatus } from "./biometrics/biometrics-status";
+export { BiometricsCommands } from "./biometrics/biometrics-commands";
 export { BiometricsService } from "./biometrics/biometric.service";
 export * from "./biometrics/biometric.state";
 
@@ -17,3 +19,5 @@ export {
 export { KdfConfigService } from "./abstractions/kdf-config.service";
 export { DefaultKdfConfigService } from "./kdf-config.service";
 export { KdfType } from "./enums/kdf-type.enum";
+
+export * from "./user-asymmetric-key-regeneration";

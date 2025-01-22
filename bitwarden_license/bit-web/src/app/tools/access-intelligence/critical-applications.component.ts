@@ -1,17 +1,27 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime, map } from "rxjs";
+import { combineLatest, debounceTime, map } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { UnmarkCriticalApplicationApiService } from "@bitwarden/bit-common/tools/reports/risk-insights";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  CriticalAppsService,
+  RiskInsightsDataService,
+  RiskInsightsReportService,
+  UnmarkCriticalApplicationApiService,
+} from "@bitwarden/bit-common/tools/reports/risk-insights";
+import {
+  ApplicationHealthReportDetailWithCriticalFlag,
+  ApplicationHealthReportSummary,
+} from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+import {
+  DialogService,
+  Icons,
+  NoItemsModule,
   SearchModule,
   TableDataSource,
-  NoItemsModule,
-  Icons,
   ToastService,
 } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/tools-card";
@@ -19,7 +29,9 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { applicationTableMockData } from "./application-table.mock";
+import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
+import { OrgAtRiskAppsDialogComponent } from "./org-at-risk-apps-dialog.component";
+import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
@@ -30,30 +42,38 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   providers: [UnmarkCriticalApplicationApiService],
 })
 export class CriticalApplicationsComponent implements OnInit {
-  protected dataSource = new TableDataSource<any>();
+  protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
   protected selectedIds: Set<number> = new Set<number>();
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
   protected loading = false;
   protected organizationId: string;
+  protected applicationSummary = {} as ApplicationHealthReportSummary;
   noItemsIcon = Icons.Security;
-  // MOCK DATA
-  protected mockData = applicationTableMockData;
-  protected mockAtRiskMembersCount = 0;
-  protected mockAtRiskAppsCount = 0;
-  protected mockTotalMembersCount = 0;
-  protected mockTotalAppsCount = 0;
 
   ngOnInit() {
-    this.activatedRoute.paramMap
+    this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    combineLatest([
+      this.dataService.applications$,
+      this.criticalAppsService.getAppsListForOrg(this.organizationId),
+    ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        map(async (params) => {
-          this.organizationId = params.get("organizationId");
-          // TODO: use organizationId to fetch data
+        map(([applications, criticalApps]) => {
+          const criticalUrls = criticalApps.map((ca) => ca.uri);
+          const data = applications?.map((app) => ({
+            ...app,
+            isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+          })) as ApplicationHealthReportDetailWithCriticalFlag[];
+          return data?.filter((app) => app.isMarkedAsCritical);
         }),
       )
-      .subscribe();
+      .subscribe((applications) => {
+        if (applications) {
+          this.dataSource.data = applications;
+          this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
+        }
+      });
   }
 
   goToAllAppsTab = async () => {
@@ -77,19 +97,46 @@ export class CriticalApplicationsComponent implements OnInit {
       variant: "warning",
       message: "API not yet implemented",
     });
-    this.dataSource.data = this.dataSource.data.filter((app) => app.name !== hostname);
+    this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };
 
   constructor(
-    protected i18nService: I18nService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
     private unmarkCriticalApplicationApiService: UnmarkCriticalApplicationApiService,
     protected toastService: ToastService,
+    protected dataService: RiskInsightsDataService,
+    protected criticalAppsService: CriticalAppsService,
+    protected reportService: RiskInsightsReportService,
+    protected dialogService: DialogService,
   ) {
-    this.dataSource.data = applicationTableMockData;
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
       .subscribe((v) => (this.dataSource.filter = v));
+  }
+
+  showAppAtRiskMembers = async (applicationName: string) => {
+    openAppAtRiskMembersDialog(this.dialogService, {
+      members:
+        this.dataSource.data.find((app) => app.applicationName === applicationName)
+          ?.atRiskMemberDetails ?? [],
+      applicationName,
+    });
+  };
+
+  showOrgAtRiskMembers = async () => {
+    this.dialogService.open(OrgAtRiskMembersDialogComponent, {
+      data: this.reportService.generateAtRiskMemberList(this.dataSource.data),
+    });
+  };
+
+  showOrgAtRiskApps = async () => {
+    this.dialogService.open(OrgAtRiskAppsDialogComponent, {
+      data: this.reportService.generateAtRiskApplicationList(this.dataSource.data),
+    });
+  };
+
+  trackByFunction(_: number, item: ApplicationHealthReportDetailWithCriticalFlag) {
+    return item.applicationName;
   }
 }

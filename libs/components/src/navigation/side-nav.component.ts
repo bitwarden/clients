@@ -1,5 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CdkTrapFocus } from "@angular/cdk/a11y";
+import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BitIconButtonComponent } from "../icon-button/icon-button.component";
+
+import { NavDividerComponent } from "./nav-divider.component";
 import { SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
@@ -7,6 +16,8 @@ export type SideNavVariant = "primary" | "secondary";
 @Component({
   selector: "bit-side-nav",
   templateUrl: "side-nav.component.html",
+  standalone: true,
+  imports: [CommonModule, CdkTrapFocus, NavDividerComponent, BitIconButtonComponent, I18nPipe],
 })
 export class SideNavComponent {
   @Input() variant: SideNavVariant = "primary";

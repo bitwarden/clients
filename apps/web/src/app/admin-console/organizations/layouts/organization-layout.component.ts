@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
@@ -46,13 +48,16 @@ export class OrganizationLayoutComponent implements OnInit {
   protected readonly logo = AdminConsoleLogo;
 
   protected orgFilter = (org: Organization) => canAccessOrgAdmin(org);
+  protected domainVerificationNavigationTextKey: string;
+
+  protected integrationPageEnabled$: Observable<boolean>;
 
   organization$: Observable<Organization>;
   canAccessExport$: Observable<boolean>;
   showPaymentAndHistory$: Observable<boolean>;
   hideNewOrgButton$: Observable<boolean>;
   organizationIsUnmanaged$: Observable<boolean>;
-  isAccessIntelligenceFeatureEnabled = false;
+  enterpriseOrganization$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -66,20 +71,13 @@ export class OrganizationLayoutComponent implements OnInit {
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
-    this.isAccessIntelligenceFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.AccessIntelligence,
-    );
-
     this.organization$ = this.route.params.pipe(
       map((p) => p.organizationId),
       switchMap((id) => this.organizationService.organizations$.pipe(getById(id))),
       filter((org) => org != null),
     );
 
-    this.canAccessExport$ = combineLatest([
-      this.organization$,
-      this.configService.getFeatureFlag$(FeatureFlag.PM11360RemoveProviderExportPermission),
-    ]).pipe(map(([org, removeProviderExport]) => org.canAccessExport(removeProviderExport)));
+    this.canAccessExport$ = this.organization$.pipe(map((org) => org.canAccessExport));
 
     this.showPaymentAndHistory$ = this.organization$.pipe(
       map(
@@ -104,6 +102,17 @@ export class OrganizationLayoutComponent implements OnInit {
           provider.providerStatus !== ProviderStatusType.Billable,
       ),
     );
+
+    this.integrationPageEnabled$ = combineLatest(
+      this.organization$,
+      this.configService.getFeatureFlag$(FeatureFlag.PM14505AdminConsoleIntegrationPage),
+    ).pipe(map(([org, featureFlagEnabled]) => featureFlagEnabled && org.canAccessIntegrations));
+
+    this.domainVerificationNavigationTextKey = (await this.configService.getFeatureFlag(
+      FeatureFlag.AccountDeprovisioning,
+    ))
+      ? "claimedDomains"
+      : "domainVerification";
   }
 
   canShowVaultTab(organization: Organization): boolean {

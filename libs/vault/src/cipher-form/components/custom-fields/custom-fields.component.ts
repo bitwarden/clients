@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { DialogRef } from "@angular/cdk/dialog";
 import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
@@ -164,6 +166,10 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
         }),
       );
     });
+
+    if (!this.cipherFormContainer.originalCipherView?.viewPassword) {
+      this.customFieldsForm.disable();
+    }
 
     // Disable the form if in partial-edit mode
     // Must happen after the initial fields are populated

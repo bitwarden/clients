@@ -29,5 +29,5 @@ import {
   ],
 })
 export class AdditionalOptionsComponent {
-  @Input() notes: string;
+  @Input() notes: string = "";
 }

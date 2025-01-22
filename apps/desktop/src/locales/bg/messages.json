@@ -220,7 +220,7 @@
     "message": "Въведете паролата за SSH-ключа."
   },
   "enterSshKeyPassword": {
-    "message": "Въведете парола"
+    "message": "Въведете паролата"
   },
   "sshAgentUnlockRequired": {
     "message": "Отключете трезора си, за да одобрите заявката за SSH ключ."
@@ -248,6 +248,20 @@
   },
   "error": {
     "message": "Грешка"
+  },
+  "decryptionError": {
+    "message": "Грешка при дешифриране"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Свържете се с поддръжката",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "за да избегнете загубата на данни.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "януари"
@@ -918,6 +932,12 @@
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
+  },
+  "authenticationTimeout": {
+    "message": "Време на давност за удостоверяването"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Сесията за удостоверяване е изтекла. Моля, започнете отначало процеса по вписване."
   },
   "selfHostBaseUrl": {
     "message": "Адрес на собствения сървър",
@@ -1727,9 +1747,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Потвърждаване за Битуорден."
-  },
-  "polkitConsentMessage": {
-    "message": "Идентифицирайте се, за да отключите Битуорден."
   },
   "unlockWithTouchId": {
     "message": "Отключване с Touch ID"
@@ -2862,6 +2879,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Разпозната е слаба парола. Използвайте силна парола, за да защитете данните си. Наистина ли искате да използвате слаба парола?"
   },
+  "useThisPassword": {
+    "message": "Използване на тази парола"
+  },
+  "useThisUsername": {
+    "message": "Използване на това потребителско име"
+  },
   "checkForBreaches": {
     "message": "Проверяване в известните случаи на изтекли данни за тази парола"
   },
@@ -3359,6 +3382,30 @@
   "ssoError": {
     "message": "Не могат да бъдат открити свободни портове за еднократната идентификация."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Отключването с биометрични данни не е налично, тъй като първо се изисква отключване чрез ПИН или парола."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Отключването с биометрични данни не е налично в момента."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Отключването с биометрични данни не е налично, тъй като не е включено за $EMAIL$ в приложението на Битуорден за компютър.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Отключването с биометрични данни не е налично по неизвестна причина."
+  },
   "authorize": {
     "message": "Упълномощаване"
   },
@@ -3391,5 +3438,50 @@
   },
   "fileSavedToDevice": {
     "message": "Файлът е запазен на устройството. Можете да го намерите в мястото за сваляния на устройството."
+  },
+  "importantNotice": {
+    "message": "Важно съобщение"
+  },
+  "setupTwoStepLogin": {
+    "message": "Настройте двустепенно удостоверяване"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
+  },
+  "remindMeLater": {
+    "message": "Напомнете ми по-късно"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Не, нямам"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Да, имам достъп до е-пощата си"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Включване на двустепенното удостоверяване"
+  },
+  "changeAcctEmail": {
+    "message": "Промяна на е-пощата"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Необходимо е надграждане на организацията"
+  },
+  "upgradeOrganization": {
+    "message": "Надграждане на организацията"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Безплатните планове нямат достъп до тази функционалност. Преминете към платен план, за да се възползвате от тази и много други възможности."
   }
 }

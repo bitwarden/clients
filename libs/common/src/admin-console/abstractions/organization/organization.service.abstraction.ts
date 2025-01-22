@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { map, Observable } from "rxjs";
 
 import { UserId } from "../../../types/guid";
@@ -15,7 +17,7 @@ export function canAccessSettingsTab(org: Organization): boolean {
     org.canManageSso ||
     org.canManageScim ||
     org.canAccessImport ||
-    org.canAccessExport(false) || // Feature flag value doesn't matter here, providers will have access to this group anyway
+    org.canAccessExport ||
     org.canManageDeviceApprovals
   );
 }

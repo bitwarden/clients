@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   BehaviorSubject,
   combineLatest,
@@ -256,6 +258,7 @@ export class CredentialGeneratorService {
       generate: this.i18nService.t(generator.generateKey),
       generatedValue: this.i18nService.t(generator.generatedValueKey),
       copy: this.i18nService.t(generator.copyKey),
+      useGeneratedValue: this.i18nService.t(generator.useGeneratedValueKey),
       onlyOnRequest: generator.onlyOnRequest,
       request: generator.request,
     };

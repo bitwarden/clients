@@ -1,6 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { LocalData } from "@bitwarden/common/vault/models/data/local.data";
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
@@ -9,6 +10,7 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { UserKey } from "../../types/key";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
+import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { Field } from "../models/domain/field";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
@@ -24,6 +26,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    *  An observable monitoring the add/edit cipher info saved to memory.
    */
   addEditCipherInfo$: Observable<AddEditCipherInfo>;
+  /**
+   * Observable that emits an array of cipherViews that failed to decrypt. Does not emit until decryption has completed.
+   *
+   * An empty array indicates that all ciphers were successfully decrypted.
+   */
+  failedToDecryptCiphers$: Observable<CipherView[]>;
   clearCache: (userId?: string) => Promise<void>;
   encrypt: (
     model: CipherView,

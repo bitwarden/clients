@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -46,19 +48,18 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   loading = true;
   badToken = false;
 
-  token: string;
-  existingFamilyOrganizations: Organization[];
-  existingFamilyOrganizations$: Observable<Organization[]>;
+  token!: string;
+  existingFamilyOrganizations$!: Observable<Organization[]>;
 
   showNewOrganization = false;
-  _organizationPlansComponent: OrganizationPlansComponent;
-  preValidateSponsorshipResponse: PreValidateSponsorshipResponse;
+  preValidateSponsorshipResponse!: PreValidateSponsorshipResponse;
   _selectedFamilyOrganizationId = "";
 
   private _destroy = new Subject<void>();
   formGroup = this.formBuilder.group({
     selectedFamilyOrganizationId: ["", Validators.required],
   });
+
   constructor(
     private router: Router,
     private platformUtilsService: PlatformUtilsService,
@@ -168,6 +169,8 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       if (this.showNewOrganization) {
         const dialog = openDeleteOrganizationDialog(this.dialogService, {

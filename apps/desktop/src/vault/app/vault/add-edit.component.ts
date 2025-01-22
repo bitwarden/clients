@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, NgZone, OnChanges, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
@@ -17,10 +19,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SshKeyPasswordPromptComponent } from "@bitwarden/importer/ui";
@@ -52,12 +53,12 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     private ngZone: NgZone,
     logService: LogService,
     organizationService: OrganizationService,
-    sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
-    private toastService: ToastService,
+    toastService: ToastService,
     cipherAuthorizationService: CipherAuthorizationService,
+    sdkService: SdkService,
   ) {
     super(
       cipherService,
@@ -73,12 +74,13 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       logService,
       passwordRepromptService,
       organizationService,
-      sendApiService,
       dialogService,
       window,
       datePipe,
       configService,
       cipherAuthorizationService,
+      toastService,
+      sdkService,
     );
   }
 
@@ -115,17 +117,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     }
 
     await super.load();
-
-    if (!this.editMode || this.cloneMode) {
-      // Creating an ssh key directly while filtering to the ssh key category
-      // must force a key to be set. SSH keys must never be created with an empty private key field
-      if (
-        this.cipher.type === CipherType.SshKey &&
-        (this.cipher.sshKey.privateKey == null || this.cipher.sshKey.privateKey === "")
-      ) {
-        await this.generateSshKey(false);
-      }
-    }
   }
 
   onWindowHidden() {
@@ -155,21 +146,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     this.platformUtilsService.launchUri(
       "https://bitwarden.com/help/managing-items/#protect-individual-items",
     );
-  }
-
-  async generateSshKey(showNotification: boolean = true) {
-    const sshKey = await ipc.platform.sshAgent.generateKey("ed25519");
-    this.cipher.sshKey.privateKey = sshKey.privateKey;
-    this.cipher.sshKey.publicKey = sshKey.publicKey;
-    this.cipher.sshKey.keyFingerprint = sshKey.keyFingerprint;
-
-    if (showNotification) {
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("sshKeyGenerated"),
-      });
-    }
   }
 
   async importSshKeyFromClipboard(password: string = "") {
@@ -209,6 +185,9 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
           });
         } else {
           password = await this.getSshKeyPassword();
+          if (password === "") {
+            return;
+          }
           await this.importSshKeyFromClipboard(password);
         }
         return;
@@ -230,12 +209,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     });
 
     return await lastValueFrom(dialog.closed);
-  }
-
-  async typeChange() {
-    if (this.cipher.type === CipherType.SshKey) {
-      await this.generateSshKey();
-    }
   }
 
   truncateString(value: string, length: number) {

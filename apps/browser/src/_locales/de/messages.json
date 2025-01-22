@@ -192,6 +192,13 @@
   "autoFillIdentity": {
     "message": "Identität automatisch ausfüllen"
   },
+  "fillVerificationCode": {
+    "message": "Verifizierungscode ausfüllen"
+  },
+  "fillVerificationCodeAria": {
+    "message": "Verifizierungscode ausfüllen",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
+  },
   "generatePasswordCopied": {
     "message": "Passwort generieren (kopiert)"
   },
@@ -447,9 +454,6 @@
   "length": {
     "message": "Länge"
   },
-  "passwordMinLength": {
-    "message": "Minimale Passwortlänge"
-  },
   "uppercase": {
     "message": "Großbuchstaben (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
@@ -520,10 +524,6 @@
   },
   "minSpecial": {
     "message": "Mindestanzahl Sonderzeichen"
-  },
-  "avoidAmbChar": {
-    "message": "Mehrdeutige Zeichen vermeiden",
-    "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
     "message": "Mehrdeutige Zeichen vermeiden",
@@ -640,9 +640,6 @@
   },
   "rateExtension": {
     "message": "Erweiterung bewerten"
-  },
-  "rateExtensionDesc": {
-    "message": "Wir würden uns freuen, wenn du uns mit einer positiven Bewertung helfen könntest!"
   },
   "browserNotSupportClipboard": {
     "message": "Den Browser unterstützt das einfache Kopieren nicht. Bitte kopiere es manuell."
@@ -1007,6 +1004,9 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "Identitäten-Einträge auf der Tab Seite anzeigen, um das Auto-Ausfüllen zu vereinfachen."
   },
+  "clickToAutofillOnVault": {
+    "message": "Klicke auf Einträge zum automatischen Ausfüllen in der Tresor-Ansicht"
+  },
   "clearClipboard": {
     "message": "Zwischenablage leeren",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1152,9 +1152,6 @@
   },
   "moveToOrganization": {
     "message": "In Organisation verschieben"
-  },
-  "share": {
-    "message": "Teilen"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ verschoben nach $ORGNAME$",
@@ -1318,6 +1315,12 @@
   },
   "enterVerificationCodeApp": {
     "message": "Gib den 6-stelligen Verifizierungscode aus deiner Authenticator App ein."
+  },
+  "authenticationTimeout": {
+    "message": "Authentifizierungs-Timeout"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Die Authentifizierungssitzung ist abgelaufen. Bitte starte den Anmeldeprozess neu."
   },
   "enterVerificationCodeEmail": {
     "message": "Gib den 6-stelligen Bestätigungscode ein, der an $EMAIL$ gesendet wurde.",
@@ -2037,9 +2040,6 @@
   "clone": {
     "message": "Duplizieren"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Eine oder mehrere Organisationsrichtlinien beeinflussen deine Generator-Einstellungen."
-  },
   "passwordGenerator": {
     "message": "Passwort-Generator"
   },
@@ -2324,6 +2324,9 @@
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Gesperrte Domains"
+  },
   "excludedDomains": {
     "message": "Ausgeschlossene Domains"
   },
@@ -2332,6 +2335,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden wird für alle angemeldeten Konten nicht danach fragen Zugangsdaten für diese Domains speichern. Du musst die Seite neu laden, damit die Änderungen wirksam werden."
+  },
+  "blockedDomainsDesc": {
+    "message": "Automatisches Ausfüllen und andere zugehörige Funktionen werden für diese Webseiten nicht angeboten. Du musst die Seite neu laden, damit die Änderungen wirksam werden."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Automatisches Ausfüllen ist für diese Website gesperrt."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Dies in den Einstellungen ändern"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2350,6 +2362,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Änderungen gesperrter Domains gespeichert"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Änderungen der ausgeschlossenen Domain gespeichert"
@@ -2379,14 +2394,6 @@
     "message": "Send-Details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Sends suchen",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Send hinzufügen",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypeText": {
     "message": "Text"
   },
@@ -2403,15 +2410,8 @@
   "hideTextByDefault": {
     "message": "Text standardmäßig ausblenden"
   },
-  "maxAccessCountReached": {
-    "message": "Maximale Zugriffsanzahl erreicht",
-    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
-  },
   "expired": {
     "message": "Abgelaufen"
-  },
-  "pendingDeletion": {
-    "message": "Ausstehende Löschung"
   },
   "passwordProtected": {
     "message": "Passwortgeschützt"
@@ -2462,23 +2462,8 @@
     "message": "Send bearbeiten",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendTypeHeader": {
-    "message": "Welche Art von Send ist das?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "Ein eigener Name, um dieses Send zu beschreiben.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "Die Datei, die du senden möchtest."
-  },
   "deletionDate": {
     "message": "Löschdatum"
-  },
-  "deletionDateDesc": {
-    "message": "Das Send wird am angegebenen Datum zur angegebenen Uhrzeit dauerhaft gelöscht.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deletionDateDescV2": {
     "message": "Das Send wird an diesem Datum dauerhaft gelöscht.",
@@ -2486,10 +2471,6 @@
   },
   "expirationDate": {
     "message": "Ablaufdatum"
-  },
-  "expirationDateDesc": {
-    "message": "Falls aktiviert, verfällt der Zugriff auf dieses Send am angegebenen Datum zur angegebenen Uhrzeit.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
     "message": "1 Tag"
@@ -2506,42 +2487,9 @@
   "custom": {
     "message": "Benutzerdefiniert"
   },
-  "maximumAccessCount": {
-    "message": "Maximale Zugriffsanzahl"
-  },
-  "maximumAccessCountDesc": {
-    "message": "Falls aktiviert, können Benutzer nicht mehr auf dieses Send zugreifen, sobald die maximale Zugriffsanzahl erreicht ist.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Optional ein Passwort verlangen, damit Benutzer auf dieses Send zugreifen können.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendPasswordDescV3": {
     "message": "Füge ein optionales Passwort hinzu, mit dem Empfänger auf dieses Send zugreifen können.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Private Notizen zu diesem Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Dieses Send deaktivieren, damit niemand darauf zugreifen kann.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Kopiere den Send-Link beim Speichern in die Zwischenablage.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "Der Text, den du senden möchtest."
-  },
-  "sendHideText": {
-    "message": "Send-Text standardmäßig ausblenden.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Aktuelle Zugriffsanzahl"
   },
   "createSend": {
     "message": "Neues Send",
@@ -2625,18 +2573,6 @@
   "sendFileCalloutHeader": {
     "message": "Bevor du beginnst"
   },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "Um einen Kalender-Datumsauswahl zu verwenden",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "hier klicken",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "zum Öffnen in einem neuen Fenster.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
-  },
   "expirationDateIsInvalid": {
     "message": "Das angegebene Verfallsdatum ist nicht gültig."
   },
@@ -2652,14 +2588,8 @@
   "dateParsingError": {
     "message": "Es gab einen Fehler beim Speichern deiner Lösch- und Verfallsdaten."
   },
-  "hideEmail": {
-    "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
-  },
   "hideYourEmail": {
     "message": "Verberge deine E-Mail-Adresse vor Betrachtern."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "Eine oder mehrere Organisationsrichtlinien beeinflussen deine Send Einstellungen."
   },
   "passwordPrompt": {
     "message": "Master-Passwort erneut abfragen"
@@ -2874,8 +2804,19 @@
   "error": {
     "message": "Fehler"
   },
-  "regenerateUsername": {
-    "message": "Benutzername neu generieren"
+  "decryptionError": {
+    "message": "Entschlüsselungsfehler"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktiere den Kundensupport",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": ", um zusätzlichen Datenverlust zu vermeiden.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Benutzername generieren"
@@ -2917,9 +2858,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Benutzernamenstyp"
-  },
   "plusAddressedEmail": {
     "message": "Plus-adressierte E-Mail-Adresse",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -2941,12 +2879,6 @@
   },
   "websiteName": {
     "message": "Websitename"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Was möchtest du generieren?"
-  },
-  "passwordType": {
-    "message": "Passworttyp"
   },
   "service": {
     "message": "Dienst"
@@ -3167,7 +3099,7 @@
   "viewAllLogInOptions": {
     "message": "Alle Anmeldeoptionen anzeigen"
   },
-  "viewAllLoginOptions": {
+  "viewAllLoginOptionsV1": {
     "message": "Alle Anmeldeoptionen anzeigen"
   },
   "notificationSentDevice": {
@@ -3493,38 +3425,6 @@
     "message": "Ein-/ausklappen",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Deine Daten in Bitwarden importieren?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Deine LastPass-Daten schützen und in Bitwarden importieren?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Als unverschlüsselte Datei speichern",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "In Bitwarden importieren",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Wird importiert...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Daten erfolgreich importiert!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Fehler beim Importieren. Überprüfe die Konsole für Details.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Netzwerkfehler beim Importieren.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias-Domain"
   },
@@ -3573,6 +3473,14 @@
   "unlockAccountAria": {
     "message": "Dein Konto entsperren, öffnet sich in einem neuen Fenster",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "Zeitbasierter einmaliger Passwort-Verifizierungscode",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "Verbleibende Zeit bis zum Ablauf des aktuellen TOTP",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
     "message": "Zugangsdaten ausfüllen für",
@@ -4069,6 +3977,9 @@
   },
   "autofillSuggestions": {
     "message": "Vorschläge zum Auto-Ausfüllen"
+  },
+  "itemSuggestions": {
+    "message": "Vorgeschlagene Einträge"
   },
   "autofillSuggestionsTip": {
     "message": "Speichere einen Login-Eintrag für diese Seite zum automatischen Ausfüllen"
@@ -4646,17 +4557,14 @@
   "textSends": {
     "message": "Text-Sends"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden hat einen neuen Look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Auto-Ausfüllen und Suchen vom Tresor-Tab ist einfacher und intuitiver als je zuvor. Schau dich um!"
-  },
   "accountActions": {
     "message": "Konto-Aktionen"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Anzahl der Vorschläge zum Auto-Ausfüllen von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
+  },
+  "showQuickCopyActions": {
+    "message": "Schnellkopier-Aktionen im Tresor anzeigen"
   },
   "systemDefault": {
     "message": "Systemstandard"
@@ -4726,6 +4634,33 @@
   },
   "noEditPermissions": {
     "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da zuerst mit PIN oder Passwort entsperrt werden muss."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisches Entsperren ist derzeit nicht verfügbar."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisches Entsperren ist aufgrund falsch konfigurierter Systemdateien nicht verfügbar."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisches Entsperren ist aufgrund falsch konfigurierter Systemdateien nicht verfügbar."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da die Bitwarden Desktop-App geschlossen ist."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da es für $EMAIL$ in der Bitwarden Desktop-App nicht aktiviert ist.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisches Entsperren ist derzeit aus einem unbekannten Grund nicht verfügbar."
   },
   "authenticating": {
     "message": "Authentifizierung"
@@ -4888,6 +4823,42 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "importantNotice": {
+    "message": "Wichtiger Hinweis"
+  },
+  "setupTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung einrichten"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Du kannst die Zwei-Faktor-Authentifizierung als eine alternative Methode einrichten, um dein Konto zu schützen, oder deine E-Mail-Adresse zu einer anderen ändern, auf die du zugreifen kannst."
+  },
+  "remindMeLater": {
+    "message": "Erinnere mich später"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Hast du zuverlässigen Zugriff auf deine E-Mail-Adresse $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Nein, habe ich nicht"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Ja, ich kann zuverlässig auf meine E-Mails zugreifen"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung aktivieren"
+  },
+  "changeAcctEmail": {
+    "message": "E-Mail-Adresse des Kontos ändern"
   },
   "extensionWidth": {
     "message": "Breite der Erweiterung"
