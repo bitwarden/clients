@@ -2,10 +2,14 @@
 // @ts-strict-ignore
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  OrganizationService,
+  getOrganizationById,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ImportServiceAbstraction, ImportType } from "@bitwarden/importer/core";
 
@@ -24,16 +28,12 @@ export class ImportCommand {
   async run(format: ImportType, filepath: string, options: OptionValues): Promise<Response> {
     const organizationId = options.organizationid;
     if (organizationId != null) {
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       if (!userId) {
         return Response.badRequest("No user found.");
       }
       const organization = await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(map((organizations) => organizations.find((o) => o.id === organizationId))),
+        this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
       );
 
       if (organization == null) {
