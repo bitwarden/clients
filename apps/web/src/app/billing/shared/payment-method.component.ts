@@ -4,12 +4,16 @@ import { Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BillingPaymentResponse } from "@bitwarden/common/billing/models/response/billing-payment.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -73,6 +77,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private trialFlowService: TrialFlowService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     protected syncService: SyncService,
   ) {
     const state = this.router.getCurrentNavigation()?.extras?.state;
@@ -117,7 +122,14 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
       const organizationSubscriptionPromise = this.organizationApiService.getSubscription(
         this.organizationId,
       );
-      const organizationPromise = this.organizationService.get(this.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const organizationPromise = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.organizationId)),
+      );
 
       [this.billing, this.org, this.organization] = await Promise.all([
         billingPromise,

@@ -12,6 +12,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -188,7 +189,7 @@ export class ChangePasswordComponent
       await this.kdfConfigService.getKdfConfig(),
     );
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const newLocalKeyHash = await this.keyService.hashMasterKey(
       this.masterPassword,
       newMasterKey,

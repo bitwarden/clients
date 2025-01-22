@@ -25,7 +25,7 @@ import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/services/organization/organization.service";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
@@ -669,7 +669,7 @@ export default class MainBackground {
     this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
-    this.organizationService = new OrganizationService(this.stateProvider);
+    this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
 
     this.vaultTimeoutSettingsService = new VaultTimeoutSettingsService(
@@ -1248,6 +1248,7 @@ export default class MainBackground {
     this.cipherAuthorizationService = new DefaultCipherAuthorizationService(
       this.collectionService,
       this.organizationService,
+      this.accountService,
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
