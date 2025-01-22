@@ -2340,10 +2340,10 @@
     "message": "自動填入及其它相關的功能無法在這些網站上使用。您必須重新整理頁面來使變更生效。"
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "自動填入已於此網站封鎖"
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "您可以於設定中進行更改"
   },
   "websiteItemLabel": {
     "message": "網站 $number$ (URI)",
@@ -3425,38 +3425,6 @@
     "message": "切換至折疊狀態",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "匯入你的資料至 Bitwarden？",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "保護你的 LastPass 資料並匯入至 Bitwarden？",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "儲存為未加密的檔案",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "匯入至 Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "匯入中……",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "資料匯入成功！",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "匯入時發生錯誤。檢查控制台以了解詳細資訊。",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "匯入時遇到網路錯誤",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "別名網域"
   },
@@ -4008,10 +3976,10 @@
     "message": "密碼金鑰已移除"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "自動填入建議"
   },
   "itemSuggestions": {
-    "message": "Suggested items"
+    "message": "建議項目"
   },
   "autofillSuggestionsTip": {
     "message": "對此網站儲存登入項目為自動填入"

@@ -19,3 +19,5 @@ export { NewDeviceVerificationNoticePageTwoComponent } from "./components/new-de
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
 
 export * as VaultIcons from "./icons";
+
+export * from "./tasks";

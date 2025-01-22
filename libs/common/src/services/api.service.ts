@@ -3,9 +3,9 @@
 import { firstValueFrom } from "rxjs";
 
 import {
-  CollectionRequest,
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
+  CollectionRequest,
   CollectionResponse,
 } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
@@ -1846,7 +1846,7 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async send(
-    method: "GET" | "POST" | "PUT" | "DELETE",
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     path: string,
     body: any,
     authed: boolean,
@@ -1886,7 +1886,7 @@ export class ApiService implements ApiServiceAbstraction {
       return responseJson;
     } else if (hasResponse && response.status === 200 && responseIsCsv) {
       return await response.text();
-    } else if (response.status !== 200) {
+    } else if (response.status !== 200 && response.status !== 204) {
       const error = await this.handleError(response, false, authed);
       return Promise.reject(error);
     }
