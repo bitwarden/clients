@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"
+  },
+  "organizationUpgradeRequired": {
+    "message": "需要升级组织"
+  },
+  "upgradeOrganization": {
+    "message": "升级组织"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "此功能不适用于免费组织。请切换到付费计划以解锁更多功能。"
   }
 }

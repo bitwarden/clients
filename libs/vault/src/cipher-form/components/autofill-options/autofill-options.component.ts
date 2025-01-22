@@ -130,8 +130,9 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.cipherFormContainer.originalCipherView?.login) {
-      this.initFromExistingCipher(this.cipherFormContainer.originalCipherView.login);
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+    if (prefillCipher) {
+      this.initFromExistingCipher(prefillCipher.login);
     } else {
       this.initNewCipher();
     }
@@ -142,17 +143,29 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
+    // The `uris` control is a FormArray which needs to dynamically
+    // add controls to the form. Doing this will trigger the `valueChanges` observable on the form
+    // and overwrite the `autofillOnPageLoad` value before it is set in the following `patchValue` call.
+    // Pass `false` to `addUri` to stop events from emitting when adding the URIs.
     existingLogin.uris?.forEach((uri) => {
-      this.addUri({
-        uri: uri.uri,
-        matchDetection: uri.match,
-      });
+      this.addUri(
+        {
+          uri: uri.uri,
+          matchDetection: uri.match,
+        },
+        false,
+        false,
+      );
     });
     this.autofillOptionsForm.patchValue({
       autofillOnPageLoad: existingLogin.autofillOnPageLoad,
     });
 
-    if (this.cipherFormContainer.config.initialValues?.loginUri) {
+    // Only add the initial value when the cipher was not initialized from a cached state
+    if (
+      this.cipherFormContainer.config.initialValues?.loginUri &&
+      !this.cipherFormContainer.initializedWithCachedCipher()
+    ) {
       // Avoid adding the same uri again if it already exists
       if (
         existingLogin.uris?.findIndex(
@@ -197,9 +210,16 @@ export class AutofillOptionsComponent implements OnInit {
    * Adds a new URI input to the form.
    * @param uriFieldValue The initial value for the new URI input.
    * @param focusNewInput If true, the new URI input will be focused after being added.
+   * @param emitEvent When false, prevents the `valueChanges` & `statusChanges` observables from firing.
    */
-  addUri(uriFieldValue: UriField = { uri: null, matchDetection: null }, focusNewInput = false) {
-    this.autofillOptionsForm.controls.uris.push(this.formBuilder.control(uriFieldValue));
+  addUri(
+    uriFieldValue: UriField = { uri: null, matchDetection: null },
+    focusNewInput = false,
+    emitEvent = true,
+  ) {
+    this.autofillOptionsForm.controls.uris.push(this.formBuilder.control(uriFieldValue), {
+      emitEvent,
+    });
 
     if (focusNewInput) {
       this.focusOnNewInput$.next();

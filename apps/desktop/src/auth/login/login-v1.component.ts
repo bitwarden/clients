@@ -11,11 +11,9 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
-  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -77,8 +75,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     route: ActivatedRoute,
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
-    webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    registerRouteService: RegisterRouteService,
     toastService: ToastService,
     private configService: ConfigService,
   ) {
@@ -100,8 +96,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
       route,
       loginEmailService,
       ssoLoginService,
-      webAuthnLoginService,
-      registerRouteService,
       toastService,
     );
     this.onSuccessfulLogin = () => {
@@ -228,7 +222,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     }
 
     // Save off email for SSO
-    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
+    await this.ssoLoginService.setSsoEmail(this.formGroup.controls.email.value);
 
     // Generate necessary sso params
     const passwordOptions: any = {
@@ -247,6 +241,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     // Save sso params
     await this.ssoLoginService.setSsoState(state);
     await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
+
     try {
       await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
       // FIXME: Remove when updating file. Eslint update

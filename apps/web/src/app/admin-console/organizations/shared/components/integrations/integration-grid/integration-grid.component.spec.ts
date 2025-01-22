@@ -9,7 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { SharedModule } from "@bitwarden/components/src/shared";
-import { I18nPipe } from "@bitwarden/components/src/shared/i18n.pipe";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IntegrationCardComponent } from "../integration-card/integration-card.component";
 import { Integration } from "../models";
