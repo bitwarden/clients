@@ -1417,7 +1417,7 @@ jobs:
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
-        run: npm run pack:mac:masdev
+        run: npm run pack:mac:masdev:with-extension
 
       - name: Zip masdev asset
         run: |
