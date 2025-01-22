@@ -1,0 +1,9 @@
+{
+  "name": "eslint-plugin-custom-rules",
+  "version": "1.0.0",
+  "description": "Custom ESlint rules for the clients repository",
+  "main": "index.js",
+  "dependencies": {
+    "@typescript-eslint/utils": "^8.21.0"
+  }
+}
