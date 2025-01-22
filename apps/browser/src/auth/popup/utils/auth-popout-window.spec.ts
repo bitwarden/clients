@@ -7,8 +7,8 @@ import {
   openUnlockPopout,
   closeUnlockPopout,
   openSsoAuthResultPopout,
-  openTwoFactorAuthPopout,
-  closeTwoFactorAuthPopout,
+  openTwoFactorAuthWebAuthnPopout,
+  closeTwoFactorAuthWebAuthnPopout,
   closeSsoAuthResultPopout,
 } from "./auth-popout-window";
 
@@ -106,22 +106,22 @@ describe("AuthPopoutWindow", () => {
     });
   });
 
-  describe("openTwoFactorAuthPopout", () => {
-    it("opens a window that facilitates two factor authentication", async () => {
-      await openTwoFactorAuthPopout({ data: "data", remember: "remember" });
+  describe("openTwoFactorAuthWebAuthnPopout", () => {
+    it("opens a window that facilitates two factor authentication via WebAuthn", async () => {
+      await openTwoFactorAuthWebAuthnPopout({ data: "data", remember: "remember" });
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
         "popup/index.html#/2fa;webAuthnResponse=data;remember=remember",
-        { singleActionKey: AuthPopoutType.twoFactorAuth },
+        { singleActionKey: AuthPopoutType.twoFactorAuthWebAuthn },
       );
     });
   });
 
-  describe("closeTwoFactorAuthPopout", () => {
-    it("closes the two-factor authentication window", async () => {
-      await closeTwoFactorAuthPopout();
+  describe("closeTwoFactorAuthWebAuthnPopout", () => {
+    it("closes the two-factor authentication WebAuthn window", async () => {
+      await closeTwoFactorAuthWebAuthnPopout();
 
-      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuth);
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuthWebAuthn);
     });
   });
 });

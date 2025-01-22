@@ -6,7 +6,7 @@ import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 const AuthPopoutType = {
   unlockExtension: "auth_unlockExtension",
   ssoAuthResult: "auth_ssoAuthResult",
-  twoFactorAuth: "auth_twoFactorAuth",
+  twoFactorAuthWebAuthn: "auth_twoFactorAuthWebAuthn",
 } as const;
 const extensionUnlockUrls = new Set([
   chrome.runtime.getURL("popup/index.html#/lock"),
@@ -60,33 +60,37 @@ async function openSsoAuthResultPopout(resultData: { code: string; state: string
 }
 
 /**
- * Closes the two-factor authentication popout window.
+ * Closes the SSO authentication result popout window.
  */
 async function closeSsoAuthResultPopout() {
   await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.ssoAuthResult);
 }
 
 /**
- * Opens a window that facilitates two-factor authentication.
+ * Opens a popout that facilitates two-factor authentication via WebAuthn.
  *
- * @param twoFactorAuthData - The data from the two-factor authentication.
+ * @param twoFactorAuthWebAuthnData - The data to send ot the popout via query param.
+ * It includes the WebAuthn response and whether to save the 2FA remember me token or not.
  */
-async function openTwoFactorAuthPopout(twoFactorAuthData: { data: string; remember: string }) {
-  const { data, remember } = twoFactorAuthData;
+async function openTwoFactorAuthWebAuthnPopout(twoFactorAuthWebAuthnData: {
+  data: string;
+  remember: string;
+}) {
+  const { data, remember } = twoFactorAuthWebAuthnData;
   const params =
     `webAuthnResponse=${encodeURIComponent(data)};` + `remember=${encodeURIComponent(remember)}`;
   const twoFactorUrl = `popup/index.html#/2fa;${params}`;
 
   await BrowserPopupUtils.openPopout(twoFactorUrl, {
-    singleActionKey: AuthPopoutType.twoFactorAuth,
+    singleActionKey: AuthPopoutType.twoFactorAuthWebAuthn,
   });
 }
 
 /**
  * Closes the two-factor authentication popout window.
  */
-async function closeTwoFactorAuthPopout() {
-  await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.twoFactorAuth);
+async function closeTwoFactorAuthWebAuthnPopout() {
+  await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.twoFactorAuthWebAuthn);
 }
 
 export {
@@ -95,6 +99,6 @@ export {
   closeUnlockPopout,
   openSsoAuthResultPopout,
   closeSsoAuthResultPopout,
-  openTwoFactorAuthPopout,
-  closeTwoFactorAuthPopout,
+  openTwoFactorAuthWebAuthnPopout,
+  closeTwoFactorAuthWebAuthnPopout,
 };
