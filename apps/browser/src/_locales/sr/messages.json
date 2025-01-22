@@ -3425,38 +3425,6 @@
     "message": "Промени проширење",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Увезите своје податке у Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Заштитите своје LastPass податке и увезите у Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Сачувати као нешифровану датотеку",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Увоз у Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Увоз...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Подаци су успешно увезени!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Грешка при увозу. Проверите конзолу за детаље.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Дошло је до грешке на мрежи током увоза.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Домен алијаса"
   },

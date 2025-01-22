@@ -3425,38 +3425,6 @@
     "message": "Превключване на свиването",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Внасяне на данните Ви в Битуорден?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Защитаване на данните Ви от LastPass и внасяне в Битуорден?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Запазване като нешифрован файл",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Внасяне в Битуорден",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Внасяне…",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Данните бяха внесени успешно!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Грешка при внасянето. Вижте конзолата за подробности.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "По време на внасянето възникна мрежова грешка.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Псевдонимен домейн"
   },

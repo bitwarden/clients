@@ -35,7 +35,6 @@ import {
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
   LogoutReason,
-  RegisterRouteService,
   AuthRequestApiService,
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
@@ -1352,11 +1351,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DefaultServerSettingsService,
     useClass: DefaultServerSettingsService,
-    deps: [ConfigService],
-  }),
-  safeProvider({
-    provide: RegisterRouteService,
-    useClass: RegisterRouteService,
     deps: [ConfigService],
   }),
   safeProvider({

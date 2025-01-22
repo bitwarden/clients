@@ -3425,38 +3425,6 @@
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Import your data to Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Protect your LastPass data and import to Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Save as unencrypted file",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Import to Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Inportatzen...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Datuak zuzen inportatu dira!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Errorea gertatu da inportatzean. Begiratu xehetasunak kontsolan.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Sareko errorea gertatu da inportatzerakoan.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias domain"
   },

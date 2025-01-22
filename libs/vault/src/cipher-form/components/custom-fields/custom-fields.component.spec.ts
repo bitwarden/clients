@@ -113,7 +113,7 @@ describe("CustomFieldsComponent", () => {
       ]);
     });
 
-    it("forbids a user to view hidden fields when the cipher `viewPassword` is false", () => {
+    it("when `viewPassword` is false the user cannot see the view toggle option", () => {
       originalCipherView.viewPassword = false;
       originalCipherView.fields = mockFieldViews;
 
@@ -123,7 +123,20 @@ describe("CustomFieldsComponent", () => {
 
       const button = fixture.debugElement.query(By.directive(BitPasswordInputToggleDirective));
 
-      expect(button.nativeElement.disabled).toBe(true);
+      expect(button).toBeFalsy();
+    });
+
+    it("when `viewPassword` is true the user can see the view toggle option", () => {
+      originalCipherView.viewPassword = true;
+      originalCipherView.fields = mockFieldViews;
+
+      component.ngOnInit();
+
+      fixture.detectChanges();
+
+      const button = fixture.debugElement.query(By.directive(BitPasswordInputToggleDirective));
+
+      expect(button).toBeTruthy();
     });
 
     describe("linkedFieldOptions", () => {
