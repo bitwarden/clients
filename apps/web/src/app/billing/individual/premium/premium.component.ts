@@ -25,9 +25,9 @@ import { PaymentComponent } from "../../shared/payment/payment.component";
 import { TaxInfoComponent } from "../../shared/tax-info.component";
 
 @Component({
-  templateUrl: "./premium-v2.component.html",
+  templateUrl: "./premium.component.html",
 })
-export class PremiumV2Component {
+export class PremiumComponent {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(TaxInfoComponent) taxInfoComponent: TaxInfoComponent;
 

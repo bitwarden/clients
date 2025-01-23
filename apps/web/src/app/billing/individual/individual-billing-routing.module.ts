@@ -4,7 +4,7 @@ import { RouterModule, Routes } from "@angular/router";
 import { PaymentMethodComponent } from "../shared";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
-import { PremiumV2Component } from "./premium/premium-v2.component";
+import { PremiumComponent } from "./premium/premium.component";
 import { SubscriptionComponent } from "./subscription.component";
 import { UserSubscriptionComponent } from "./user-subscription.component";
 
@@ -22,7 +22,7 @@ const routes: Routes = [
       },
       {
         path: "premium",
-        component: PremiumV2Component,
+        component: PremiumComponent,
         data: { titleId: "goPremium" },
       },
       {
