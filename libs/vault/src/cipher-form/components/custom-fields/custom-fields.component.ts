@@ -167,8 +167,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
           linkedId: field.linkedId,
           newField: false,
           disabled:
-            field.type === FieldType.Hidden &&
-            !this.cipherFormContainer.originalCipherView?.viewPassword,
+            this.isPartialEdit ||
+            (field.type === FieldType.Hidden &&
+              !this.cipherFormContainer.originalCipherView?.viewPassword),
         }),
       );
     });
