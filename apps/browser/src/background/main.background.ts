@@ -25,7 +25,7 @@ import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/services/organization/organization.service";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
@@ -268,7 +268,6 @@ import { OffscreenStorageService } from "../platform/storage/offscreen-storage.s
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
-import FilelessImporterBackground from "../tools/background/fileless-importer.background";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
@@ -393,7 +392,6 @@ export default class MainBackground {
   private notificationBackground: NotificationBackground;
   private overlayBackground: OverlayBackgroundInterface;
   private overlayNotificationsBackground: OverlayNotificationsBackgroundInterface;
-  private filelessImporterBackground: FilelessImporterBackground;
   private runtimeBackground: RuntimeBackground;
   private tabsBackground: TabsBackground;
   private webRequestBackground: WebRequestBackground;
@@ -665,12 +663,13 @@ export default class MainBackground {
       this.logService,
       this.keyService,
       this.biometricStateService,
+      this.messagingService,
     );
 
     this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
-    this.organizationService = new OrganizationService(this.stateProvider);
+    this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
 
     this.vaultTimeoutSettingsService = new VaultTimeoutSettingsService(
@@ -1159,16 +1158,6 @@ export default class MainBackground {
       this.notificationBackground,
     );
 
-    this.filelessImporterBackground = new FilelessImporterBackground(
-      this.configService,
-      this.authService,
-      this.policyService,
-      this.notificationBackground,
-      this.importService,
-      this.syncService,
-      this.scriptInjectorService,
-    );
-
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
       this.logService,
       this.autofillService,
@@ -1259,6 +1248,7 @@ export default class MainBackground {
     this.cipherAuthorizationService = new DefaultCipherAuthorizationService(
       this.collectionService,
       this.organizationService,
+      this.accountService,
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
@@ -1295,7 +1285,6 @@ export default class MainBackground {
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
-    this.filelessImporterBackground.init();
     this.commandsBackground.init();
     this.contextMenusBackground?.init();
     this.idleBackground.init();

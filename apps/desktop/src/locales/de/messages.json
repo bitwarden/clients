@@ -260,7 +260,7 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "um zusätzlichen Datenverlust zu vermeiden.",
+    "message": ", um zusätzlichen Datenverlust zu vermeiden.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "E-Mail-Adresse des Kontos ändern"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Organisations-Upgrade erforderlich"
+  },
+  "upgradeOrganization": {
+    "message": "Organisation upgraden"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Diese Funktion ist für kostenlose Organisationen nicht verfügbar. Wechsle zu einem kostenpflichtigen Abonnement, um weitere Funktionen freizuschalten."
   }
 }

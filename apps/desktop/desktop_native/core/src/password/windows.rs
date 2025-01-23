@@ -13,7 +13,7 @@ use windows::{
 
 const CRED_FLAGS_NONE: u32 = 0;
 
-pub async fn get_password<'a>(service: &str, account: &str) -> Result<String> {
+pub async fn get_password(service: &str, account: &str) -> Result<String> {
     let target_name = U16CString::from_str(target_name(service, account))?;
 
     let mut credential: *mut CREDENTIALW = std::ptr::null_mut();

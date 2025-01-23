@@ -3,16 +3,20 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, takeUntil, map, lastValueFrom } from "rxjs";
+import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
 import { first, tap } from "rxjs/operators";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -38,7 +42,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
-    accountService: AccountService,
+    protected accountService: AccountService,
   ) {
     super(
       dialogService,
@@ -52,11 +56,13 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   }
 
   async ngOnInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.route.params
       .pipe(
         concatMap((params) =>
           this.organizationService
-            .get$(params.organizationId)
+            .organizations$(userId)
+            .pipe(getOrganizationById(params.organizationId))
             .pipe(map((organization) => ({ params, organization }))),
         ),
         tap(async (mapResponse) => {

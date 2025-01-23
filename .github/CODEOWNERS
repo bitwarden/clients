@@ -111,6 +111,7 @@ apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bit
 ## Component Library ##
 .storybook @bitwarden/team-design-system
 libs/components @bitwarden/team-design-system
+libs/ui @bitwarden/team-design-system
 apps/browser/src/platform/popup/layout @bitwarden/team-design-system
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-design-system
 apps/web/src/app/layouts @bitwarden/team-design-system

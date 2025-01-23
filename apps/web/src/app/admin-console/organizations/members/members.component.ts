@@ -28,7 +28,10 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { PolicyApiServiceAbstraction as PolicyApiService } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -40,6 +43,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -122,6 +126,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private route: ActivatedRoute,
     private syncService: SyncService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,
     private router: Router,
@@ -144,7 +149,15 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     );
 
     const organization$ = this.route.params.pipe(
-      concatMap((params) => this.organizationService.get$(params.organizationId)),
+      concatMap((params) =>
+        this.accountService.activeAccount$.pipe(
+          switchMap((account) =>
+            this.organizationService
+              .organizations$(account?.id)
+              .pipe(getOrganizationById(params.organizationId)),
+          ),
+        ),
+      ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 

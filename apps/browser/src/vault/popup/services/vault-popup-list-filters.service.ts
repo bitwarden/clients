@@ -208,7 +208,9 @@ export class VaultPopupListFiltersService {
    * Organization array structured to be directly passed to `ChipSelectComponent`
    */
   organizations$: Observable<ChipSelectOption<Organization>[]> = combineLatest([
-    this.organizationService.memberOrganizations$,
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) => this.organizationService.memberOrganizations$(account?.id)),
+    ),
     this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
   ]).pipe(
     map(([orgs, personalOwnershipApplies]): [Organization[], boolean] => [

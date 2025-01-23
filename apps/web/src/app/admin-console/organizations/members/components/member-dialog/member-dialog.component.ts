@@ -22,7 +22,10 @@ import {
   OrganizationUserApiService,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -156,9 +159,14 @@ export class MemberDialogComponent implements OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
   ) {
-    this.organization$ = organizationService
-      .get$(this.params.organizationId)
-      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+    this.organization$ = accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        organizationService
+          .organizations$(account?.id)
+          .pipe(getOrganizationById(this.params.organizationId))
+          .pipe(shareReplay({ refCount: true, bufferSize: 1 })),
+      ),
+    );
 
     this.editMode = this.params.organizationUserId != null;
     this.tabIndex = this.params.initialTab ?? MemberDialogTab.Role;
