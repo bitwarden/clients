@@ -209,11 +209,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get showCancel() {
-    return !this.isTrashFilter && !this.showCipherView && !this.showRestore;
+    return !this.isTrashFilter && !this.showCipherView;
   }
 
   protected get showClose() {
-    return this.isTrashFilter && !this.showCipherView && !this.showRestore;
+    return this.isTrashFilter && !this.showRestore;
   }
 
   /**
@@ -221,9 +221,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * A user may restore items if they have delete permissions and the item is in the trash.
    */
   protected async canUserRestore() {
-    return (
-      this.isTrashFilter && this.cipher?.isDeleted && (await firstValueFrom(this.canDeleteCipher$))
-    );
+    return this.isTrashFilter && this.cipher?.isDeleted && this.canDelete;
   }
 
   protected showRestore: boolean;
@@ -237,7 +235,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get showEdit() {
-    return this.showCipherView && this.canDelete && !this.showRestore;
+    return this.showCipherView && !this.isTrashFilter && !this.showRestore;
   }
 
   protected get showDelete() {
