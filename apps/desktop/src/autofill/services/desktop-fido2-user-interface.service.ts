@@ -1,4 +1,4 @@
-import { firstValueFrom, map } from "rxjs";
+import { filter, firstValueFrom, map, shareReplay, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -30,6 +30,21 @@ export class DesktopFido2UserInterfaceService
     private logService: LogService,
     private messagingService: MessagingService,
   ) {}
+
+  private currentSessionSubject = new Subject<DesktopFido2UserInterfaceSession | undefined>();
+  private currentSubject$ = this.currentSessionSubject.pipe(
+    shareReplay({ refCount: true, bufferSize: 1 }), 
+    filter(c => c !== undefined)
+  );
+
+  setCurrentSession(session: DesktopFido2UserInterfaceSession) {
+    this.currentSessionSubject.next(session);
+  }
+  
+  getCurrentSession(): Promise<DesktopFido2UserInterfaceSession> {
+    return firstValueFrom(this.currentSubject$);
+  }
+
 
   async newSession(
     fallbackSupported: boolean,
