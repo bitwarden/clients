@@ -18,7 +18,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { ToastService } from "@bitwarden/components";
 
 import { BillingSharedModule, TaxInfoComponent } from "../../shared";
-import { PaymentV2Component } from "../../shared/payment/payment-v2.component";
+import { PaymentComponent } from "../../shared/payment/payment.component";
 
 export type TrialOrganizationType = Exclude<ProductTierType, ProductTierType.Free>;
 
@@ -50,7 +50,7 @@ export enum SubscriptionProduct {
   standalone: true,
 })
 export class TrialBillingStepComponent implements OnInit {
-  @ViewChild(PaymentV2Component) paymentV2Component: PaymentV2Component;
+  @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(TaxInfoComponent) taxInfoComponent: TaxInfoComponent;
   @Input() organizationInfo: OrganizationInfo;
   @Input() subscriptionProduct: SubscriptionProduct = SubscriptionProduct.PasswordManager;
@@ -115,12 +115,12 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   protected changedCountry() {
-    this.paymentV2Component.showBankAccount = this.taxInfoComponent.country === "US";
+    this.paymentComponent.showBankAccount = this.taxInfoComponent.country === "US";
     if (
-      !this.paymentV2Component.showBankAccount &&
-      this.paymentV2Component.selected === PaymentMethodType.BankAccount
+      !this.paymentComponent.showBankAccount &&
+      this.paymentComponent.selected === PaymentMethodType.BankAccount
     ) {
-      this.paymentV2Component.select(PaymentMethodType.Card);
+      this.paymentComponent.select(PaymentMethodType.Card);
     }
   }
 
@@ -142,7 +142,7 @@ export class TrialBillingStepComponent implements OnInit {
   private async createOrganization(): Promise<string> {
     const planResponse = this.findPlanFor(this.formGroup.value.cadence);
 
-    const { type, token } = await this.paymentV2Component.tokenize();
+    const { type, token } = await this.paymentComponent.tokenize();
     const paymentMethod: [string, PaymentMethodType] = [token, type];
 
     const organization: OrganizationInformation = {

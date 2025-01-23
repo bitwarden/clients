@@ -21,14 +21,14 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
 
-import { PaymentV2Component } from "../../shared/payment/payment-v2.component";
+import { PaymentComponent } from "../../shared/payment/payment.component";
 import { TaxInfoComponent } from "../../shared/tax-info.component";
 
 @Component({
   templateUrl: "./premium-v2.component.html",
 })
 export class PremiumV2Component {
-  @ViewChild(PaymentV2Component) paymentComponent: PaymentV2Component;
+  @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(TaxInfoComponent) taxInfoComponent: TaxInfoComponent;
 
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;

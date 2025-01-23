@@ -353,7 +353,7 @@
           <a></a>
         </p>
         <ng-container *ngIf="canUpdatePaymentInformation()">
-          <app-payment-v2 [showAccountCredit]="false" />
+          <app-payment [showAccountCredit]="false" />
           <app-manage-tax-information
             [startWith]="taxInformation"
             (taxInformationChanged)="taxInformationChanged($event)"

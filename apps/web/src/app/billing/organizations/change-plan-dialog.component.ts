@@ -59,7 +59,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BillingSharedModule } from "../shared/billing-shared.module";
-import { PaymentV2Component } from "../shared/payment/payment-v2.component";
+import { PaymentComponent } from "../shared/payment/payment.component";
 
 type ChangePlanDialogParams = {
   organizationId: string;
@@ -102,7 +102,7 @@ interface OnSuccessArgs {
   imports: [BillingSharedModule],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
-  @ViewChild(PaymentV2Component) paymentV2Component: PaymentV2Component;
+  @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(ManageTaxInformationComponent) taxComponent: ManageTaxInformationComponent;
 
   @Input() acceptingSponsorship = false;
@@ -695,13 +695,13 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   changedCountry() {
-    this.paymentV2Component.showBankAccount = this.taxInformation.country === "US";
+    this.paymentComponent.showBankAccount = this.taxInformation.country === "US";
 
     if (
-      !this.paymentV2Component.showBankAccount &&
-      this.paymentV2Component.selected === PaymentMethodType.BankAccount
+      !this.paymentComponent.showBankAccount &&
+      this.paymentComponent.selected === PaymentMethodType.BankAccount
     ) {
-      this.paymentV2Component.select(PaymentMethodType.Card);
+      this.paymentComponent.select(PaymentMethodType.Card);
     }
   }
 
@@ -783,7 +783,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       plan.secretsManagerSeats = org.smSeats;
     }
 
-    const { type, token } = await this.paymentV2Component.tokenize();
+    const { type, token } = await this.paymentComponent.tokenize();
     const paymentMethod: [string, PaymentMethodType] = [token, type];
 
     const payment: PaymentInformation = {
@@ -820,7 +820,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.buildSecretsManagerRequest(request);
 
     if (this.upgradeRequiresPaymentMethod || this.showPayment || this.isPaymentSourceEmpty()) {
-      const tokenizedPaymentSource = await this.paymentV2Component.tokenize();
+      const tokenizedPaymentSource = await this.paymentComponent.tokenize();
       const updatePaymentMethodRequest = new UpdatePaymentMethodRequest();
       updatePaymentMethodRequest.paymentSource = tokenizedPaymentSource;
       updatePaymentMethodRequest.taxInformation = ExpandedTaxInfoUpdateRequest.From(

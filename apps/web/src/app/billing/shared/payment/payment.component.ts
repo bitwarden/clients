@@ -17,16 +17,14 @@ import { PaymentLabelComponent } from "./payment-label.component";
 /**
  * Render a form that allows the user to enter their payment method, tokenize it against one of our payment providers and,
  * optionally, submit it using the {@link onSubmit} function if it is provided.
- *
- * This component is meant to replace the existing {@link PaymentComponent} which is using the deprecated Stripe Sources API.
  */
 @Component({
-  selector: "app-payment-v2",
-  templateUrl: "./payment-v2.component.html",
+  selector: "app-payment",
+  templateUrl: "./payment.component.html",
   standalone: true,
   imports: [BillingServicesModule, SharedModule, PaymentLabelComponent],
 })
-export class PaymentV2Component implements OnInit, OnDestroy {
+export class PaymentComponent implements OnInit, OnDestroy {
   /** Show account credit as a payment option. */
   @Input() showAccountCredit: boolean = true;
   /** Show bank account as a payment option. */

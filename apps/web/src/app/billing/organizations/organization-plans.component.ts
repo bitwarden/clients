@@ -56,7 +56,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { BillingSharedModule, secretsManagerSubscribeFormFactory } from "../shared";
-import { PaymentV2Component } from "../shared/payment/payment-v2.component";
+import { PaymentComponent } from "../shared/payment/payment.component";
 
 interface OnSuccessArgs {
   organizationId: string;
@@ -76,7 +76,7 @@ const Allowed2020PlansForLegacyProviders = [
   imports: [BillingSharedModule, OrganizationCreateModule],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
-  @ViewChild(PaymentV2Component) paymentV2Component: PaymentV2Component;
+  @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(ManageTaxInformationComponent) taxComponent: ManageTaxInformationComponent;
 
   @Input() organizationId?: string;
@@ -572,12 +572,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   }
 
   protected changedCountry(): void {
-    this.paymentV2Component.showBankAccount = this.taxInformation?.country === "US";
+    this.paymentComponent.showBankAccount = this.taxInformation?.country === "US";
     if (
-      !this.paymentV2Component.showBankAccount &&
-      this.paymentV2Component.selected === PaymentMethodType.BankAccount
+      !this.paymentComponent.showBankAccount &&
+      this.paymentComponent.selected === PaymentMethodType.BankAccount
     ) {
-      this.paymentV2Component.select(PaymentMethodType.Card);
+      this.paymentComponent.select(PaymentMethodType.Card);
     }
   }
 
@@ -733,7 +733,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     if (this.upgradeRequiresPaymentMethod) {
       const updatePaymentMethodRequest = new UpdatePaymentMethodRequest();
-      updatePaymentMethodRequest.paymentSource = await this.paymentV2Component.tokenize();
+      updatePaymentMethodRequest.paymentSource = await this.paymentComponent.tokenize();
       updatePaymentMethodRequest.taxInformation = ExpandedTaxInfoUpdateRequest.From(
         this.taxInformation,
       );
@@ -771,7 +771,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.selectedPlan.type === PlanType.Free) {
       request.planType = PlanType.Free;
     } else {
-      const { type, token } = await this.paymentV2Component.tokenize();
+      const { type, token } = await this.paymentComponent.tokenize();
 
       request.paymentToken = token;
       request.paymentMethodType = type;

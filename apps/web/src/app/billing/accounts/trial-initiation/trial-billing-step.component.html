@@ -49,7 +49,7 @@
     </div>
     <div class="tw-mb-4">
       <h2 class="tw-mb-3 tw-text-base tw-font-semibold">{{ "paymentType" | i18n }}</h2>
-      <app-payment-v2 [showAccountCredit]="false"></app-payment-v2>
+      <app-payment [showAccountCredit]="false"></app-payment>
       <app-tax-info [trialFlow]="true" (countryChanged)="changedCountry()"></app-tax-info>
     </div>
     <div class="tw-flex tw-space-x-2">

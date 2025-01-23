@@ -16,7 +16,7 @@ import { TaxInfoResponse } from "@bitwarden/common/billing/models/response/tax-i
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { PaymentV2Component } from "../payment/payment-v2.component";
+import { PaymentComponent } from "../payment/payment.component";
 
 export interface AdjustPaymentDialogParams {
   initialPaymentMethod?: PaymentMethodType;
@@ -33,7 +33,7 @@ export enum AdjustPaymentDialogResultType {
   templateUrl: "./adjust-payment-dialog.component.html",
 })
 export class AdjustPaymentDialogComponent implements OnInit {
-  @ViewChild(PaymentV2Component) paymentComponent: PaymentV2Component;
+  @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(forwardRef(() => ManageTaxInformationComponent))
   taxInfoComponent: ManageTaxInformationComponent;
 

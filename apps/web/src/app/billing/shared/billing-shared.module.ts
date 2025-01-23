@@ -10,7 +10,7 @@ import { AdjustPaymentDialogComponent } from "./adjust-payment-dialog/adjust-pay
 import { AdjustStorageDialogComponent } from "./adjust-storage-dialog/adjust-storage-dialog.component";
 import { BillingHistoryComponent } from "./billing-history.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
-import { PaymentV2Component } from "./payment/payment-v2.component";
+import { PaymentComponent } from "./payment/payment.component";
 import { PaymentMethodComponent } from "./payment-method.component";
 import { IndividualSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/individual-self-hosting-license-uploader.component";
 import { OrganizationSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/organization-self-hosting-license-uploader.component";
@@ -26,7 +26,7 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
     TaxInfoComponent,
     HeaderModule,
     BannerModule,
-    PaymentV2Component,
+    PaymentComponent,
     VerifyBankAccountComponent,
   ],
   declarations: [
@@ -51,7 +51,7 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
     UpdateLicenseDialogComponent,
     OffboardingSurveyComponent,
     VerifyBankAccountComponent,
-    PaymentV2Component,
+    PaymentComponent,
     IndividualSelfHostingLicenseUploaderComponent,
     OrganizationSelfHostingLicenseUploaderComponent,
   ],
