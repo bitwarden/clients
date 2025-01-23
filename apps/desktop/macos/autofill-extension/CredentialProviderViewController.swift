@@ -153,8 +153,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     }
 
     override func prepareInterface(forPasskeyRegistration registrationRequest: ASCredentialRequest) {
+        logger.log("[autofill-extension] prepareInterface")
+
         if let request = registrationRequest as? ASPasskeyCredentialRequest {
             if let passkeyIdentity = registrationRequest.credentialIdentity as? ASPasskeyCredentialIdentity {
+                logger.log("[autofill-extension] prepareInterface(passkey) called \(request)")
+                
                 class CallbackImpl: PreparePasskeyRegistrationCallback {
                     let ctx: ASCredentialProviderExtensionContext
                     required init(_ ctx: ASCredentialProviderExtensionContext) {
@@ -192,10 +196,17 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     userVerification: userVerification,
                     supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) }
                 )
+                logger.log("[autofill-extension] prepareInterface(passkey) calling preparePasskeyRegistration")
+                // Log details of the request
+                logger.log("[autofill-extension]     rpId: \(req.rpId)")
+                logger.log("[autofill-extension]     rpId: \(req.userName)")
+
                 CredentialProviderViewController.client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext))
                 return
             }
         }
+
+        logger.log("[autofill-extension] We didn't get a passkey")
 
         // If we didn't get a passkey, return an error
         self.extensionContext.cancelRequest(withError: BitwardenError.Internal("Invalid registration request"))

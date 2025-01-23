@@ -79,7 +79,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       rpId,
     );
 
-    await this.messagingService.send("loadurl", { url: "/passkeys", modal: true });
+    this.messagingService.send("loadurl", { url: "/passkeys", modal: true });
 
     // Store the passkey on a new cipher to avoid replacing something important
     const cipher = new CipherView();
