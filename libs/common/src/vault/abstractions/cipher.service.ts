@@ -14,6 +14,7 @@ import { LocalData } from "../models/data/local.data";
 import { Cipher } from "../models/domain/cipher";
 import { Field } from "../models/domain/field";
 import { CipherWithIdRequest } from "../models/request/cipher-with-id.request";
+import { CipherResponse } from "../models/response/cipher.response";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
@@ -93,7 +94,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
-  ) => Promise<any>;
+  ) => Promise<CipherResponse>;
   shareManyWithServer: (
     ciphers: CipherView[],
     organizationId: string,

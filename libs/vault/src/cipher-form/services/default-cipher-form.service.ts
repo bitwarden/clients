@@ -67,6 +67,17 @@ export class DefaultCipherFormService implements CipherFormService {
     if (isSetEqual(originalCollectionIds, newCollectionIds)) {
       savedCipher = await this.cipherService.updateWithServer(encryptedCipher, config.admin);
     } else {
+      // Call shareWithServer if the owner is changing from a user to an organization
+      if (config.originalCipher.organizationId === null && cipher.organizationId != null) {
+        const sharedCipher = await this.cipherService.shareWithServer(
+          cipher,
+          cipher.organizationId,
+          cipher.collectionIds,
+          activeUserId,
+        );
+        encryptedCipher.revisionDate = new Date(sharedCipher.revisionDate);
+      }
+
       // Updating a cipher with collection changes is not supported with a single request currently
       // First update the cipher with the original collectionIds
       encryptedCipher.collectionIds = config.originalCipher.collectionIds;
