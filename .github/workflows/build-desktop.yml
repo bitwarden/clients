@@ -1441,12 +1441,9 @@ jobs:
 
       - name: Resign
         run: |
-          codesign -dvvv "./dist/mas-dev-universal/Bitwarden.app" 2>&1 | grep -iE "TeamIdentifier|flags|Format|Identifier|Authority"
-          
-          codesign -dvvv "./dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/autofill-extension.appex" 2>&1 | grep -iE "TeamIdentifier|flags|Format|Identifier|Authority"
-
-          security find-identity -v -p codesigning          
-          
+          # Resign the Electron Framework
+          codesign --force --deep --options=runtime --sign "Developer ID Application: 8bit Solutions LLC (LTZ2PFU5D6)" --timestamp --generate-entitlement-der --preserve-metadata=identifier,flags Bitwarden.app/Contents/Frameworks/Electron\ Framework.framework
+          # Resign the bundle 
           codesign --entitlements resources/entitlements.mas.plist --deep --verbose --options runtime --force --sign "Developer ID Application: 8bit Solutions LLC (LTZ2PFU5D6)" dist/mas-dev-universal/Bitwarden.app
 
       - name: Zip masdev asset
