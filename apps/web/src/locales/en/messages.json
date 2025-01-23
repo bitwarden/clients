@@ -1389,6 +1389,15 @@
   "areYouTryingToAccessYourAccount": {
     "message": "Are you trying to access your account?"
   },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "confirmAccess": {
     "message": "Confirm access"
   },
