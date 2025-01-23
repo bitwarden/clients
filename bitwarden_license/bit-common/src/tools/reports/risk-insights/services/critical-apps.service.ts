@@ -94,26 +94,24 @@ export class CriticalAppsService {
     this.orgId.next(orgId);
   }
 
-  // Drop a critical app for a given organization
-  // Only one record can be dropped at a time
-  async dropCriticalApp(orgId: OrganizationId, selectedUrl: string) {
-    const record = this.criticalAppsList.value
-      .filter((f) => f.organizationId === orgId && f.uri === selectedUrl)
-      .map((f) => ({
-        organizationId: f.organizationId,
-        passwordHealthReportApplicationIds: [f.id],
-      }));
+// Drop a critical app for a given organization
+// Only one app may be dropped at a time
+async dropCriticalApp(orgId: OrganizationId, selectedUrl: string) {
+  const app = this.criticalAppsList.value.find(
+    f => f.organizationId === orgId && f.uri === selectedUrl
+  );
 
-    if (record.length === 0) {
-      return;
-    }
+  if (!app) return;
 
-    // drop one record  - only one record can be dropped at a time
-    await this.criticalAppsApiService.dropCriticalApp(record[0]);
+  await this.criticalAppsApiService.dropCriticalApp({
+    organizationId: app.organizationId,
+    passwordHealthReportApplicationIds: [app.id],
+  });
 
-    const updatedList = this.criticalAppsList.value.filter((f) => f.uri !== selectedUrl);
-    this.criticalAppsList.next(updatedList);
-  }
+  this.criticalAppsList.next(
+    this.criticalAppsList.value.filter(f => f.uri !== selectedUrl)
+  );
+}
 
   private retrieveCriticalApps(
     orgId: OrganizationId | null,
