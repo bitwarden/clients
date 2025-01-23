@@ -4,6 +4,7 @@ import { BehaviorSubject } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -12,6 +13,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
+import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
@@ -76,8 +78,8 @@ const twoFactorToken = "TWO_FACTOR_TOKEN";
 const twoFactorRemember = true;
 
 export function identityTokenResponseFactory(
-  masterPasswordPolicyResponse: MasterPasswordPolicyResponse = null,
-  userDecryptionOptions: IUserDecryptionOptionsServerResponse = null,
+  masterPasswordPolicyResponse: MasterPasswordPolicyResponse | undefined = undefined,
+  userDecryptionOptions: IUserDecryptionOptionsServerResponse | undefined = undefined,
 ) {
   return new IdentityTokenResponse({
     ForcePasswordReset: false,
@@ -155,7 +157,7 @@ describe("LoginStrategy", () => {
       passwordStrengthService,
       policyService,
       loginStrategyService,
-      accountService,
+      accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
       encryptService,
@@ -286,13 +288,16 @@ describe("LoginStrategy", () => {
 
       const result = await passwordLoginStrategy.logIn(credentials);
 
-      expect(result).toEqual({
-        userId: userId,
-        forcePasswordReset: ForceSetPasswordReason.AdminForcePasswordReset,
-        resetMasterPassword: true,
-        twoFactorProviders: null,
-        captchaSiteKey: "",
-      } as AuthResult);
+      const expected = new AuthResult();
+      expected.userId = userId;
+      expected.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
+      expected.resetMasterPassword = true;
+      expected.twoFactorProviders = {} as Partial<
+        Record<TwoFactorProviderType, Record<string, string>>
+      >;
+      expected.captchaSiteKey = "";
+      expected.twoFactorProviders = null;
+      expect(result).toEqual(expected);
     });
 
     it("rejects login if CAPTCHA is required", async () => {
@@ -377,10 +382,11 @@ describe("LoginStrategy", () => {
       expect(tokenService.clearTwoFactorToken).toHaveBeenCalled();
 
       const expected = new AuthResult();
-      expected.twoFactorProviders = { 0: null } as Record<
-        TwoFactorProviderType,
-        Record<string, string>
+      expected.twoFactorProviders = { 0: null } as unknown as Partial<
+        Record<TwoFactorProviderType, Record<string, string>>
       >;
+      expected.email = "";
+      expected.ssoEmail2FaSessionToken = undefined;
       expect(result).toEqual(expected);
     });
 
@@ -460,14 +466,19 @@ describe("LoginStrategy", () => {
     it("sends 2FA token provided by user to server (two-step)", async () => {
       // Simulate a partially completed login
       cache = new PasswordLoginStrategyData();
-      cache.tokenRequest = new PasswordTokenRequest(email, masterPasswordHash, null, null);
+      cache.tokenRequest = new PasswordTokenRequest(
+        email,
+        masterPasswordHash,
+        "",
+        new TokenTwoFactorRequest(),
+      );
 
       passwordLoginStrategy = new PasswordLoginStrategy(
         cache,
         passwordStrengthService,
         policyService,
         loginStrategyService,
-        accountService,
+        accountService as AccountService,
         masterPasswordService,
         keyService,
         encryptService,
@@ -489,7 +500,7 @@ describe("LoginStrategy", () => {
 
       await passwordLoginStrategy.logInTwoFactor(
         new TokenTwoFactorRequest(twoFactorProviderType, twoFactorToken, twoFactorRemember),
-        null,
+        "",
       );
 
       expect(apiService.postIdentityToken).toHaveBeenCalledWith(
@@ -501,6 +512,56 @@ describe("LoginStrategy", () => {
           } as TokenTwoFactorRequest,
         }),
       );
+    });
+  });
+
+  describe("Device verification", () => {
+    it("processes device verification response", async () => {
+      const captchaToken = "test-captcha-token";
+      const deviceVerificationResponse = new IdentityDeviceVerificationResponse({
+        error: "invalid_grant",
+        error_description: "Device verification required.",
+        email: "test@bitwarden.com",
+        deviceVerificationRequest: true,
+        captchaToken: captchaToken,
+      });
+
+      apiService.postIdentityToken.mockResolvedValue(deviceVerificationResponse);
+
+      cache = new PasswordLoginStrategyData();
+      cache.tokenRequest = new PasswordTokenRequest(
+        email,
+        masterPasswordHash,
+        "",
+        new TokenTwoFactorRequest(),
+      );
+
+      passwordLoginStrategy = new PasswordLoginStrategy(
+        cache,
+        passwordStrengthService,
+        policyService,
+        loginStrategyService,
+        accountService as AccountService,
+        masterPasswordService,
+        keyService,
+        encryptService,
+        apiService,
+        tokenService,
+        appIdService,
+        platformUtilsService,
+        messagingService,
+        logService,
+        stateService,
+        twoFactorService,
+        userDecryptionOptionsService,
+        billingAccountProfileStateService,
+        vaultTimeoutSettingsService,
+        kdfConfigService,
+      );
+
+      const result = await passwordLoginStrategy.logIn(credentials);
+
+      expect(result.requiresDeviceVerification).toBe(true);
     });
   });
 });

@@ -68,6 +68,7 @@ import {
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
@@ -171,6 +172,7 @@ import {
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
+import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { ConsoleLogService } from "../platform/services/console-log.service";
 import { I18nService } from "../platform/services/i18n.service";
 import { LowdbStorageService } from "../platform/services/lowdb-storage.service";
@@ -270,6 +272,7 @@ export class ServiceContainer {
   kdfConfigService: KdfConfigService;
   taskSchedulerService: TaskSchedulerService;
   sdkService: SdkService;
+  sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
 
   constructor() {
@@ -570,6 +573,7 @@ export class ServiceContainer {
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
+    this.sdkLoadService = new CliSdkLoadService();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -859,6 +863,7 @@ export class ServiceContainer {
       return;
     }
 
+    await this.sdkLoadService.load();
     await this.storageService.init();
     await this.stateService.init();
     this.containerService.attachToGlobal(global);

@@ -26,7 +26,11 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { PremiumUpgradePromptService } from "../../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
 import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";

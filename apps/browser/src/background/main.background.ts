@@ -92,6 +92,7 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import {
@@ -125,6 +126,7 @@ import { FileUploadService } from "@bitwarden/common/platform/services/file-uplo
 import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
@@ -260,7 +262,7 @@ import { LocalBackedSessionStorageService } from "../platform/services/local-bac
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { PopupViewCacheBackgroundService } from "../platform/services/popup-view-cache-background.service";
-import { BrowserSdkClientFactory } from "../platform/services/sdk/browser-sdk-client-factory";
+import { BrowserSdkLoadService } from "../platform/services/sdk/browser-sdk-load.service";
 import { BackgroundTaskSchedulerService } from "../platform/services/task-scheduler/background-task-scheduler.service";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
@@ -379,6 +381,7 @@ export default class MainBackground {
   themeStateService: DefaultThemeStateService;
   autoSubmitLoginBackground: AutoSubmitLoginBackground;
   sdkService: SdkService;
+  sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
 
@@ -730,8 +733,9 @@ export default class MainBackground {
     );
 
     const sdkClientFactory = flagEnabled("sdk")
-      ? new BrowserSdkClientFactory(this.logService)
+      ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
+    this.sdkLoadService = new BrowserSdkLoadService(this.logService);
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -1257,6 +1261,7 @@ export default class MainBackground {
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
+    await this.sdkLoadService.load();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
 

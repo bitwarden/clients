@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
 
-import { TwoFactorTimeoutComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-expired.component";
+import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
@@ -9,7 +9,9 @@ import {
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
+  activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
 import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
@@ -37,7 +39,10 @@ import {
   SsoComponent,
   VaultIcon,
   LoginDecryptionOptionsComponent,
+  NewDeviceVerificationComponent,
+  DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management/angular";
 import {
   NewDeviceVerificationNoticePageOneComponent,
@@ -538,12 +543,12 @@ const routes: Routes = [
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
-        path: "2fa-timeout",
+        path: "authentication-timeout",
         canActivate: [unauthGuardFn()],
         children: [
           {
             path: "",
-            component: TwoFactorTimeoutComponent,
+            component: AuthenticationTimeoutComponent,
           },
           {
             path: "",
@@ -578,6 +583,29 @@ const routes: Routes = [
             key: "recoverAccountTwoStep",
           },
           titleId: "recoverAccountTwoStep",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
+      {
+        path: "device-verification",
+        canActivate: [
+          canAccessFeature(FeatureFlag.NewDeviceVerification),
+          unauthGuardFn(),
+          activeAuthGuard(),
+        ],
+        children: [
+          {
+            path: "",
+            component: NewDeviceVerificationComponent,
+          },
+        ],
+        data: {
+          pageIcon: DeviceVerificationIcon,
+          pageTitle: {
+            key: "verifyIdentity",
+          },
+          pageSubtitle: {
+            key: "weDontRecognizeThisDevice",
+          },
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {

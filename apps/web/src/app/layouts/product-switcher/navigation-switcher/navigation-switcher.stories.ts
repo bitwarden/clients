@@ -13,6 +13,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { LayoutComponent, NavigationModule } from "@bitwarden/components";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { I18nMockService } from "@bitwarden/components/src/utils/i18n-mock.service";
 
 import { ProductSwitcherService } from "../shared/product-switcher.service";
