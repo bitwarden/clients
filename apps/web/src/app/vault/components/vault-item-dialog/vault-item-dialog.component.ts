@@ -4,7 +4,7 @@ import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
+import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -209,11 +209,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * A user may restore items if they have delete permissions and the item is in the trash.
    */
   protected async canUserRestore() {
-    return (
-      this.filter?.type === "trash" &&
-      this.cipher?.isDeleted &&
-      (await firstValueFrom(this.canDeleteCipher$))
-    );
+    return this.filter?.type === "trash" && this.cipher?.isDeleted && this.canDelete;
   }
 
   protected showRestore: boolean;
@@ -226,8 +222,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.params.disableForm;
   }
 
-  protected get canDelete() {
-    return this.cipher?.edit ?? false;
+  protected get showEdit() {
+    return this.showCipherView && this.canDelete && !this.showRestore;
   }
 
   protected get showDelete() {
@@ -255,9 +251,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected formConfig: CipherFormConfig = this.params.formConfig;
 
-  protected canDeleteCipher$: Observable<boolean>;
-
   protected filter: RoutedVaultFilterModel;
+
+  protected canDelete = false;
 
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
@@ -299,10 +295,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         (o) => o.id === this.cipher.organizationId,
       );
 
-      this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
-        this.cipher,
-        [this.params.activeCollectionId],
-        this.params.isAdminConsoleAction,
+      this.canDelete = await firstValueFrom(
+        this.cipherAuthorizationService.canDeleteCipher$(
+          this.cipher,
+          [this.params.activeCollectionId],
+          this.params.isAdminConsoleAction,
+        ),
       );
 
       await this.eventCollectionService.collect(

@@ -39,7 +39,7 @@
     <button *ngIf="showRestore" [bitAction]="restore" bitButton buttonType="primary" type="button">
       {{ "restore" | i18n }}
     </button>
-    <ng-container *ngIf="showCipherView && !showRestore">
+    <ng-container *ngIf="showEdit">
       <button
         bitButton
         [bitAction]="switchToEdit"
@@ -65,7 +65,7 @@
       type="button"
       buttonType="secondary"
       (click)="cancel()"
-      *ngIf="!showCipherView && !showRestore"
+      *ngIf="!canDelete || !showRestore"
     >
       {{ "cancel" | i18n }}
     </button>
@@ -76,7 +76,7 @@
         buttonType="danger"
         [appA11yTitle]="'delete' | i18n"
         [bitAction]="delete"
-        [disabled]="!(canDeleteCipher$ | async)"
+        [disabled]="!canDelete"
         data-testid="delete-cipher-btn"
       ></button>
     </div>
