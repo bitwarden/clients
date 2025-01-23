@@ -60,14 +60,11 @@
     >
       {{ "save" | i18n }}
     </button>
-    <button
-      bitButton
-      type="button"
-      buttonType="secondary"
-      (click)="cancel()"
-      *ngIf="!canDelete || !showRestore"
-    >
+    <button bitButton type="button" buttonType="secondary" (click)="cancel()" *ngIf="showCancel">
       {{ "cancel" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" (click)="cancel()" *ngIf="showClose">
+      {{ "close" | i18n }}
     </button>
     <div class="tw-ml-auto" *ngIf="showDelete">
       <button

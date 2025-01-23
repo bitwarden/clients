@@ -204,12 +204,26 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ),
   );
 
+  protected get isTrashFilter() {
+    return this.filter?.type === "trash";
+  }
+
+  protected get showCancel() {
+    return !this.isTrashFilter && !this.showCipherView && !this.showRestore;
+  }
+
+  protected get showClose() {
+    return this.isTrashFilter && !this.showCipherView && !this.showRestore;
+  }
+
   /**
    * Determines if the user may restore the item.
    * A user may restore items if they have delete permissions and the item is in the trash.
    */
   protected async canUserRestore() {
-    return this.filter?.type === "trash" && this.cipher?.isDeleted && this.canDelete;
+    return (
+      this.isTrashFilter && this.cipher?.isDeleted && (await firstValueFrom(this.canDeleteCipher$))
+    );
   }
 
   protected showRestore: boolean;
