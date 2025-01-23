@@ -275,17 +275,17 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Redirect to device verification if this is an unknown device
+    if (authResult.requiresDeviceVerification) {
+      await this.router.navigate(["device-verification"]);
+      return;
+    }
+
     await this.loginSuccessHandlerService.run(authResult.userId);
 
     if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
       this.loginEmailService.clearValues();
       await this.router.navigate(["update-temp-password"]);
-      return;
-    }
-
-    // Redirect to device verification if this is an unknown device
-    if (authResult.requiresDeviceVerification) {
-      await this.router.navigate(["device-verification"]);
       return;
     }
 
