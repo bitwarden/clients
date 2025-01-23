@@ -12,13 +12,14 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
-import { CriticalAppsApiService } from "./critical-apps-api.service";
 import {
-  CriticalAppsService,
   PasswordHealthReportApplicationId,
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "./critical-apps.service";
+} from "../models/password-health";
+
+import { CriticalAppsApiService } from "./critical-apps-api.service";
+import { CriticalAppsService } from "./critical-apps.service";
 
 describe("CriticalAppsService", () => {
   let service: CriticalAppsService;

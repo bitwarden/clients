@@ -7,7 +7,7 @@ import {
   PasswordHealthReportApplicationDropRequest,
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "./critical-apps.service";
+} from "../models/password-health";
 
 export class CriticalAppsApiService {
   constructor(private apiService: ApiService) {}

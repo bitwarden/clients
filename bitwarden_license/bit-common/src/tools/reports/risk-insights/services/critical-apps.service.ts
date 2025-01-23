@@ -12,13 +12,17 @@ import {
   takeUntil,
   zip,
 } from "rxjs";
-import { Opaque } from "type-fest";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+
+import {
+  PasswordHealthReportApplicationsRequest,
+  PasswordHealthReportApplicationsResponse,
+} from "../models/password-health";
 
 import { CriticalAppsApiService } from "./critical-apps-api.service";
 
@@ -163,21 +167,3 @@ export class CriticalAppsService {
     return await Promise.all(criticalAppsPromises);
   }
 }
-
-export interface PasswordHealthReportApplicationsRequest {
-  organizationId: OrganizationId;
-  url: string;
-}
-
-export interface PasswordHealthReportApplicationsResponse {
-  id: PasswordHealthReportApplicationId;
-  organizationId: OrganizationId;
-  uri: string;
-}
-
-export interface PasswordHealthReportApplicationDropRequest {
-  organizationId: OrganizationId;
-  passwordHealthReportApplicationIds: string[];
-}
-
-export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;

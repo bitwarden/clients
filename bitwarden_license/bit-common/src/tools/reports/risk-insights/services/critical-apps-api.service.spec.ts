@@ -3,13 +3,14 @@ import { mock } from "jest-mock-extended";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { CriticalAppsApiService } from "./critical-apps-api.service";
 import {
   PasswordHealthReportApplicationDropRequest,
   PasswordHealthReportApplicationId,
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "./critical-apps.service";
+} from "../models/password-health";
+
+import { CriticalAppsApiService } from "./critical-apps-api.service";
 
 describe("CriticalAppsApiService", () => {
   let service: CriticalAppsApiService;
