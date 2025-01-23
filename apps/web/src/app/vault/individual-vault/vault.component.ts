@@ -607,13 +607,14 @@ export class VaultComponent implements OnInit, OnDestroy {
   };
 
   editFolder = async (folder: FolderFilter): Promise<void> => {
-    // If the filter has a fullName populated
-    if (folder.fullName) {
-      folder.name = folder.fullName;
-    }
-
     const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
-      editFolderConfig: { folder },
+      editFolderConfig: {
+        // Shallow copy is used so the original folder object is not modified
+        folder: {
+          ...folder,
+          name: folder.fullName ?? folder.name, // If the filter has a fullName populated, use that as the editable name
+        },
+      },
     });
 
     const result = await lastValueFrom(dialogRef.closed);
