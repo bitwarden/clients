@@ -1,7 +1,7 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventType } from "@bitwarden/common/enums";
@@ -42,7 +42,7 @@ describe("AddEditV2Component", () => {
 
   const buildConfigResponse = { originalCipher: {} } as CipherFormConfig;
   const buildConfig = jest.fn((mode: CipherFormMode) =>
-    Promise.resolve({ mode, ...buildConfigResponse }),
+    Promise.resolve({ ...buildConfigResponse, mode }),
   );
   const queryParams$ = new BehaviorSubject({});
   const disable = jest.fn();
@@ -57,9 +57,10 @@ describe("AddEditV2Component", () => {
     back.mockClear();
     collect.mockClear();
 
-    addEditCipherInfo$ = new BehaviorSubject(null);
+    addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);
     cipherServiceMock = mock<CipherService>();
-    cipherServiceMock.addEditCipherInfo$ = addEditCipherInfo$.asObservable();
+    cipherServiceMock.addEditCipherInfo$ =
+      addEditCipherInfo$.asObservable() as Observable<AddEditCipherInfo>;
 
     await TestBed.configureTestingModule({
       imports: [AddEditV2Component],
@@ -101,7 +102,7 @@ describe("AddEditV2Component", () => {
 
         tick();
 
-        expect(buildConfig.mock.lastCall[0]).toBe("add");
+        expect(buildConfig.mock.lastCall![0]).toBe("add");
         expect(component.config.mode).toBe("add");
       }));
 
@@ -110,7 +111,7 @@ describe("AddEditV2Component", () => {
 
         tick();
 
-        expect(buildConfig.mock.lastCall[0]).toBe("clone");
+        expect(buildConfig.mock.lastCall![0]).toBe("clone");
         expect(component.config.mode).toBe("clone");
       }));
 
@@ -120,7 +121,7 @@ describe("AddEditV2Component", () => {
 
         tick();
 
-        expect(buildConfig.mock.lastCall[0]).toBe("edit");
+        expect(buildConfig.mock.lastCall![0]).toBe("edit");
         expect(component.config.mode).toBe("edit");
       }));
 
@@ -130,7 +131,7 @@ describe("AddEditV2Component", () => {
 
         tick();
 
-        expect(buildConfig.mock.lastCall[0]).toBe("edit");
+        expect(buildConfig.mock.lastCall![0]).toBe("edit");
         expect(component.config.mode).toBe("partial-edit");
       }));
     });
@@ -227,7 +228,7 @@ describe("AddEditV2Component", () => {
 
       tick();
 
-      expect(component.config.initialValues.username).toBe("identity-username");
+      expect(component.config.initialValues!.username).toBe("identity-username");
     }));
 
     it("overrides query params with `addEditCipherInfo` values", fakeAsync(() => {
@@ -240,7 +241,7 @@ describe("AddEditV2Component", () => {
 
       tick();
 
-      expect(component.config.initialValues.name).toBe("AddEditCipherName");
+      expect(component.config.initialValues!.name).toBe("AddEditCipherName");
     }));
 
     it("clears `addEditCipherInfo` after initialization", fakeAsync(() => {
