@@ -29,9 +29,9 @@ import { TrialFlowService } from "../services/trial-flow.service";
 
 import { AddCreditDialogResult, openAddCreditDialog } from "./add-credit-dialog.component";
 import {
-  AdjustPaymentDialogResult,
-  openAdjustPaymentDialog,
-} from "./adjust-payment-dialog/adjust-payment-dialog.component";
+  AdjustPaymentDialogV2Component,
+  AdjustPaymentDialogV2ResultType,
+} from "./adjust-payment-dialog/adjust-payment-dialog-v2.component";
 
 @Component({
   templateUrl: "payment-method.component.html",
@@ -170,14 +170,16 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
   };
 
   changePayment = async () => {
-    const dialogRef = openAdjustPaymentDialog(this.dialogService, {
+    const dialogRef = AdjustPaymentDialogV2Component.open(this.dialogService, {
       data: {
         organizationId: this.organizationId,
-        currentType: this.paymentSource !== null ? this.paymentSource.type : null,
+        initialPaymentMethod: this.paymentSource !== null ? this.paymentSource.type : null,
       },
     });
+
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === AdjustPaymentDialogResult.Adjusted) {
+
+    if (result === AdjustPaymentDialogV2ResultType.Submitted) {
       this.location.replaceState(this.location.path(), "", {});
       if (this.launchPaymentModalAutomatically && !this.organization.enabled) {
         await this.syncService.fullSync(true);

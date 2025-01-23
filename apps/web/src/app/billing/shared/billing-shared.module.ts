@@ -7,13 +7,10 @@ import { SharedModule } from "../../shared";
 
 import { AddCreditDialogComponent } from "./add-credit-dialog.component";
 import { AdjustPaymentDialogV2Component } from "./adjust-payment-dialog/adjust-payment-dialog-v2.component";
-import { AdjustPaymentDialogComponent } from "./adjust-payment-dialog/adjust-payment-dialog.component";
 import { AdjustStorageDialogV2Component } from "./adjust-storage-dialog/adjust-storage-dialog-v2.component";
-import { AdjustStorageDialogComponent } from "./adjust-storage-dialog/adjust-storage-dialog.component";
 import { BillingHistoryComponent } from "./billing-history.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
 import { PaymentV2Component } from "./payment/payment-v2.component";
-import { PaymentComponent } from "./payment/payment.component";
 import { PaymentMethodComponent } from "./payment-method.component";
 import { IndividualSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/individual-self-hosting-license-uploader.component";
 import { OrganizationSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/organization-self-hosting-license-uploader.component";
@@ -26,7 +23,6 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
 @NgModule({
   imports: [
     SharedModule,
-    PaymentComponent,
     TaxInfoComponent,
     HeaderModule,
     BannerModule,
@@ -35,8 +31,6 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
   ],
   declarations: [
     AddCreditDialogComponent,
-    AdjustPaymentDialogComponent,
-    AdjustStorageDialogComponent,
     BillingHistoryComponent,
     PaymentMethodComponent,
     SecretsManagerSubscribeComponent,
@@ -50,9 +44,7 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
   ],
   exports: [
     SharedModule,
-    PaymentComponent,
     TaxInfoComponent,
-    AdjustStorageDialogComponent,
     BillingHistoryComponent,
     SecretsManagerSubscribeComponent,
     UpdateLicenseComponent,

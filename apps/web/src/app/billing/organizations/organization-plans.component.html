@@ -459,9 +459,6 @@
         }}
       </p>
     </div>
-    <ng-container *ngIf="!createOrganization">
-      <app-payment [showMethods]="false"></app-payment>
-    </ng-container>
   </bit-section>
   <bit-section *ngIf="singleOrgPolicyBlock">
     <bit-callout type="danger" [title]="'error' | i18n">
