@@ -35,7 +35,7 @@
         }
       },
       "rules": {
-        "custom-rules/enforce-using-for-rc-take": "error",
+        "custom-rules/required-using": "error",
         "@angular-eslint/component-class-suffix": 0,
         "@angular-eslint/contextual-lifecycle": 0,
         "@angular-eslint/directive-class-suffix": 0,

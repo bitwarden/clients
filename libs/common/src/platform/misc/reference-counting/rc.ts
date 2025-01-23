@@ -1,3 +1,5 @@
+import { UsingRequired } from "../using-required";
+
 export type Freeable = { free: () => void };
 
 /**
@@ -18,6 +20,8 @@ export class Rc<T extends Freeable> {
    * Use this function when you want to use the underlying object.
    * This will guarantee that you have a reference to the object
    * and that it won't be freed until your reference goes out of scope.
+   *
+   * This function must be used with the `using` keyword.
    *
    * @example
    * ```typescript
@@ -60,7 +64,7 @@ export class Rc<T extends Freeable> {
   }
 }
 
-export class Ref<T extends Freeable> {
+export class Ref<T extends Freeable> implements UsingRequired {
   constructor(
     private readonly release: () => void,
     readonly value: T,
