@@ -71,8 +71,8 @@ export class DefaultCipherFormService implements CipherFormService {
         cipher.collectionIds,
         activeUserId,
       );
-    } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
       // If the collectionIds are the same, update the cipher normally
+    } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
       savedCipher = await this.cipherService.updateWithServer(encryptedCipher, config.admin);
     } else {
       // Updating a cipher with collection changes is not supported with a single request currently
