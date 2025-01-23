@@ -10,22 +10,22 @@ import { StorageRequest } from "@bitwarden/common/models/request/storage.request
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-export interface AdjustStorageDialogV2Params {
+export interface AdjustStorageDialogParams {
   price: number;
   cadence: "month" | "year";
   type: "Add" | "Remove";
   organizationId?: string;
 }
 
-export enum AdjustStorageDialogV2ResultType {
+export enum AdjustStorageDialogResultType {
   Submitted = "submitted",
   Closed = "closed",
 }
 
 @Component({
-  templateUrl: "./adjust-storage-dialog-v2.component.html",
+  templateUrl: "./adjust-storage-dialog.component.html",
 })
-export class AdjustStorageDialogV2Component {
+export class AdjustStorageDialogComponent {
   protected formGroup = new FormGroup({
     storage: new FormControl<number>(0, [
       Validators.required,
@@ -42,12 +42,12 @@ export class AdjustStorageDialogV2Component {
   protected body: string;
   protected storageFieldLabel: string;
 
-  protected ResultType = AdjustStorageDialogV2ResultType;
+  protected ResultType = AdjustStorageDialogResultType;
 
   constructor(
     private apiService: ApiService,
-    @Inject(DIALOG_DATA) protected dialogParams: AdjustStorageDialogV2Params,
-    private dialogRef: DialogRef<AdjustStorageDialogV2ResultType>,
+    @Inject(DIALOG_DATA) protected dialogParams: AdjustStorageDialogParams,
+    private dialogRef: DialogRef<AdjustStorageDialogResultType>,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private toastService: ToastService,
@@ -97,10 +97,7 @@ export class AdjustStorageDialogV2Component {
 
   static open = (
     dialogService: DialogService,
-    dialogConfig: DialogConfig<AdjustStorageDialogV2Params>,
+    dialogConfig: DialogConfig<AdjustStorageDialogParams>,
   ) =>
-    dialogService.open<AdjustStorageDialogV2ResultType>(
-      AdjustStorageDialogV2Component,
-      dialogConfig,
-    );
+    dialogService.open<AdjustStorageDialogResultType>(AdjustStorageDialogComponent, dialogConfig);
 }

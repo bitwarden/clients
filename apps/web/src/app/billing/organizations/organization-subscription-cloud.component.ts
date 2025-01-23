@@ -25,9 +25,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
-  AdjustStorageDialogV2Component,
-  AdjustStorageDialogV2ResultType,
-} from "../shared/adjust-storage-dialog/adjust-storage-dialog-v2.component";
+  AdjustStorageDialogComponent,
+  AdjustStorageDialogResultType,
+} from "../shared/adjust-storage-dialog/adjust-storage-dialog.component";
 import {
   OffboardingSurveyDialogResultType,
   openOffboardingSurvey,
@@ -417,7 +417,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   adjustStorage = (add: boolean) => {
     return async () => {
-      const dialogRef = AdjustStorageDialogV2Component.open(this.dialogService, {
+      const dialogRef = AdjustStorageDialogComponent.open(this.dialogService, {
         data: {
           price: this.storageGbPrice,
           cadence: this.billingInterval,
@@ -428,7 +428,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
       const result = await lastValueFrom(dialogRef.closed);
 
-      if (result === AdjustStorageDialogV2ResultType.Submitted) {
+      if (result === AdjustStorageDialogResultType.Submitted) {
         await this.load();
       }
     };
