@@ -3,14 +3,28 @@
 import { Component, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, from, lastValueFrom, of, Subject, switchMap, takeUntil } from "rxjs";
+import {
+  combineLatest,
+  firstValueFrom,
+  from,
+  lastValueFrom,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationCollectionManagementUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-collection-management-update.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-update.request";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -74,6 +88,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private keyService: KeyService,
     private router: Router,
+    private accountService: AccountService,
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private dialogService: DialogService,
@@ -84,9 +99,14 @@ export class AccountComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.selfHosted = this.platformUtilsService.isSelfHost();
 
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.route.params
       .pipe(
-        switchMap((params) => this.organizationService.get$(params.organizationId)),
+        switchMap((params) =>
+          this.organizationService
+            .organizations$(userId)
+            .pipe(getOrganizationById(params.organizationId)),
+        ),
         switchMap((organization) => {
           return combineLatest([
             of(organization),

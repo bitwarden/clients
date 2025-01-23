@@ -3,7 +3,6 @@ import { firstValueFrom, of } from "rxjs";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { FakeActiveUserState } from "../../../../spec/fake-state";
-import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -18,6 +17,7 @@ import { Policy } from "../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../admin-console/models/domain/reset-password-policy-options";
 import { POLICIES, PolicyService } from "../../../admin-console/services/policy/policy.service";
 import { PolicyId, UserId } from "../../../types/guid";
+import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 
 describe("PolicyService", () => {
   const userId = "userId" as UserId;
@@ -56,9 +56,7 @@ describe("PolicyService", () => {
       organization("org6", true, true, OrganizationUserStatusType.Confirmed, true),
     ]);
 
-    organizationService.organizations$ = organizations$;
-
-    organizationService.getAll$.mockReturnValue(organizations$);
+    organizationService.organizations$.mockReturnValue(organizations$);
 
     policyService = new PolicyService(stateProvider, organizationService);
   });
@@ -196,7 +194,7 @@ describe("PolicyService", () => {
 
   describe("getResetPasswordPolicyOptions", () => {
     it("default", async () => {
-      const result = policyService.getResetPasswordPolicyOptions(null, null);
+      const result = policyService.getResetPasswordPolicyOptions([], "");
 
       expect(result).toEqual([new ResetPasswordPolicyOptions(), false]);
     });

@@ -31,7 +31,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -68,6 +68,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     datePipe: DatePipe,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     accountService: AccountService,
+    toastService: ToastService,
     cipherAuthorizationService: CipherAuthorizationService,
   ) {
     super(
@@ -94,6 +95,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       datePipe,
       accountService,
       billingAccountProfileStateService,
+      toastService,
       cipherAuthorizationService,
     );
   }

@@ -10,7 +10,12 @@ import { TableComponent } from "./table.component";
 @Component({
   selector: "th[bitSortable]",
   template: `
-    <button [ngClass]="classList" [attr.aria-pressed]="isActive" (click)="setActive()">
+    <button
+      type="button"
+      [ngClass]="classList"
+      [attr.aria-pressed]="isActive"
+      (click)="setActive()"
+    >
       <ng-content></ng-content>
       <i class="bwi tw-ml-2" [ngClass]="icon"></i>
     </button>

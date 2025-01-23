@@ -2339,11 +2339,11 @@
   "blockedDomainsDesc": {
     "message": "Az automatikus kitöltés és az egyéb kapcsolódó funkciók ezeken a webhelyeken nincsenek a kínálatban. A változtatások életbe lépéséhez frissíteni kell az oldalt."
   },
-  "autofillBlockedNotice": {
-    "message": "Az automatikus kitöltés le van tiltva ezen a webhelyen. Tekintsük át vagy módosítsuk ezt a beállításokban."
+  "autofillBlockedNoticeV2": {
+    "message": "Az automatikus kitöltés blokkolásra került ezen a webhelyen."
   },
-  "autofillBlockedTooltip": {
-    "message": "Az automatikus kitöltés le van tiltva ezen a webhelyen. Tekintsük át ezt a beállításokban."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Megváltoztatás a beállításokban"
   },
   "websiteItemLabel": {
     "message": "Webhely $number$ (URI)",
@@ -3425,38 +3425,6 @@
     "message": "Összezárás váltás",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Adatok importálása a Bitwardenbe?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "A LastPass adatok megvédése és importálása a Bitwardenbe?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Mentés titkosítatlan fájlként",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importálás a Bitwardenbe",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importálás...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Az adatok sikeresen importálásra kerültek.",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Hiba történt az importálás során. A részletekért ellenőrizzük a konzolt.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Hálózati hiba történt az importálás során.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Áldomain"
   },
@@ -4009,6 +3977,9 @@
   },
   "autofillSuggestions": {
     "message": "Automatikus kitöltés javaslatok"
+  },
+  "itemSuggestions": {
+    "message": "Javasolt elemek"
   },
   "autofillSuggestionsTip": {
     "message": "A bejelentkezési elem mentése ehhez a webhelyhez az automatikus kitöltéshez"
@@ -4585,12 +4556,6 @@
   },
   "textSends": {
     "message": "Szöveg küldés"
-  },
-  "bitwardenNewLook": {
-    "message": "Bitwarden has a new look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
   },
   "accountActions": {
     "message": "Fiókműveletek"

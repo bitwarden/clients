@@ -2801,7 +2801,7 @@
     "message": "Recusar início de sessão"
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Início de sessão confirmado para $EMAIL$ em $DEVICE$",
+    "message": "Início de sessão confirmado para $EMAIL$ no $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2814,7 +2814,7 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "Negou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
+    "message": "Recusou uma tentativa de início de sessão de outro dispositivo. Se foi realmente o caso, tente iniciar sessão com o dispositivo novamente."
   },
   "justNow": {
     "message": "Agora mesmo"
@@ -3474,5 +3474,14 @@
   },
   "changeAcctEmail": {
     "message": "Alterar o e-mail da conta"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Atualização da organização necessária"
+  },
+  "upgradeOrganization": {
+    "message": "Atualizar organização"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Esta funcionalidade não está disponível para organizações gratuitas. Mude para um plano pago para desbloquear mais funcionalidades."
   }
 }

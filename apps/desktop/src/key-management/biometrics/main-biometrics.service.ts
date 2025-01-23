@@ -60,6 +60,8 @@ export class MainBiometricsService extends DesktopBiometricsService {
    */
   async getBiometricsStatus(): Promise<BiometricsStatus> {
     if (!(await this.osBiometricsService.osSupportsBiometric())) {
+      return BiometricsStatus.HardwareUnavailable;
+    } else {
       if (await this.osBiometricsService.osBiometricsNeedsSetup()) {
         if (await this.osBiometricsService.osBiometricsCanAutoSetup()) {
           return BiometricsStatus.AutoSetupNeeded;
@@ -67,8 +69,6 @@ export class MainBiometricsService extends DesktopBiometricsService {
           return BiometricsStatus.ManualSetupNeeded;
         }
       }
-
-      return BiometricsStatus.HardwareUnavailable;
     }
     return BiometricsStatus.Available;
   }

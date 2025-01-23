@@ -24,6 +24,7 @@ import {
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -56,6 +57,9 @@ export class VaultPopupItemsService {
 
   latestSearchText$: Observable<string> = this._searchText$.asObservable();
 
+  private organizations$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => this.organizationService.organizations$(account?.id)),
+  );
   /**
    * Observable that contains the list of other cipher types that should be shown
    * in the autofill section of the Vault tab. Depends on vault settings.
@@ -97,10 +101,7 @@ export class VaultPopupItemsService {
 
   private _activeCipherList$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([
-        this.organizationService.organizations$,
-        this.collectionService.decryptedCollections$,
-      ]).pipe(
+      combineLatest([this.organizations$, this.collectionService.decryptedCollections$]).pipe(
         map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
@@ -232,7 +233,7 @@ export class VaultPopupItemsService {
   /** Observable that indicates when the user should see the deactivated org state */
   showDeactivatedOrg$: Observable<boolean> = combineLatest([
     this.vaultPopupListFiltersService.filters$.pipe(distinctUntilKeyChanged("organization")),
-    this.organizationService.organizations$,
+    this.organizations$,
   ]).pipe(
     map(([filters, orgs]) => {
       if (!filters.organization || filters.organization.id === MY_VAULT_ID) {
@@ -249,10 +250,7 @@ export class VaultPopupItemsService {
    */
   deletedCiphers$: Observable<PopupCipherView[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([
-        this.organizationService.organizations$,
-        this.collectionService.decryptedCollections$,
-      ]).pipe(
+      combineLatest([this.organizations$, this.collectionService.decryptedCollections$]).pipe(
         map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
@@ -281,6 +279,7 @@ export class VaultPopupItemsService {
     private collectionService: CollectionService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private syncService: SyncService,
+    private accountService: AccountService,
   ) {}
 
   applyFilter(newSearchText: string) {
