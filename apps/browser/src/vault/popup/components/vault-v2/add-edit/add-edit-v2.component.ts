@@ -377,7 +377,7 @@ export class AddEditV2Component implements OnInit {
       return false;
     }
 
-    await this.router.navigate([""]);
+    await this.router.navigate(["/tabs/vault"]);
 
     this.toastService.showToast({
       variant: "success",

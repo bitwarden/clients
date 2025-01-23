@@ -353,5 +353,12 @@ describe("AddEditV2Component", () => {
       await component.delete();
       expect(deleteCipherSpy).toHaveBeenCalled();
     });
+
+    it("navigates to vault tab after deletion", async () => {
+      jest.spyOn(component["dialogService"], "openSimpleDialog").mockResolvedValue(true);
+      await component.delete();
+
+      expect(navigate).toHaveBeenCalledWith(["/tabs/vault"]);
+    });
   });
 });
