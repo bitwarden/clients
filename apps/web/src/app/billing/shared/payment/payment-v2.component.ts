@@ -12,7 +12,7 @@ import { TokenizedPaymentSourceRequest } from "@bitwarden/common/billing/models/
 import { SharedModule } from "../../../shared";
 import { BillingServicesModule, BraintreeService, StripeService } from "../../services";
 
-import { PaymentLabelV2 } from "./payment-label-v2.component";
+import { PaymentLabelComponent } from "./payment-label.component";
 
 /**
  * Render a form that allows the user to enter their payment method, tokenize it against one of our payment providers and,
@@ -24,7 +24,7 @@ import { PaymentLabelV2 } from "./payment-label-v2.component";
   selector: "app-payment-v2",
   templateUrl: "./payment-v2.component.html",
   standalone: true,
-  imports: [BillingServicesModule, SharedModule, PaymentLabelV2],
+  imports: [BillingServicesModule, SharedModule, PaymentLabelComponent],
 })
 export class PaymentV2Component implements OnInit, OnDestroy {
   /** Show account credit as a payment option. */
