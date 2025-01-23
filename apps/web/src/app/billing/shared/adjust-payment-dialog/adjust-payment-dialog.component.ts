@@ -18,27 +18,27 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { PaymentV2Component } from "../payment/payment-v2.component";
 
-export interface AdjustPaymentDialogV2Params {
+export interface AdjustPaymentDialogParams {
   initialPaymentMethod?: PaymentMethodType;
   organizationId?: string;
   productTier?: ProductTierType;
 }
 
-export enum AdjustPaymentDialogV2ResultType {
+export enum AdjustPaymentDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
 }
 
 @Component({
-  templateUrl: "./adjust-payment-dialog-v2.component.html",
+  templateUrl: "./adjust-payment-dialog.component.html",
 })
-export class AdjustPaymentDialogV2Component implements OnInit {
+export class AdjustPaymentDialogComponent implements OnInit {
   @ViewChild(PaymentV2Component) paymentComponent: PaymentV2Component;
   @ViewChild(forwardRef(() => ManageTaxInformationComponent))
   taxInfoComponent: ManageTaxInformationComponent;
 
   protected readonly PaymentMethodType = PaymentMethodType;
-  protected readonly ResultType = AdjustPaymentDialogV2ResultType;
+  protected readonly ResultType = AdjustPaymentDialogResultType;
 
   protected dialogHeader: string;
   protected initialPaymentMethod: PaymentMethodType;
@@ -51,8 +51,8 @@ export class AdjustPaymentDialogV2Component implements OnInit {
     private apiService: ApiService,
     private billingApiService: BillingApiServiceAbstraction,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    @Inject(DIALOG_DATA) protected dialogParams: AdjustPaymentDialogV2Params,
-    private dialogRef: DialogRef<AdjustPaymentDialogV2ResultType>,
+    @Inject(DIALOG_DATA) protected dialogParams: AdjustPaymentDialogParams,
+    private dialogRef: DialogRef<AdjustPaymentDialogResultType>,
     private i18nService: I18nService,
     private toastService: ToastService,
   ) {
@@ -116,7 +116,7 @@ export class AdjustPaymentDialogV2Component implements OnInit {
         message: this.i18nService.t("updatedPaymentMethod"),
       });
 
-      this.dialogRef.close(AdjustPaymentDialogV2ResultType.Submitted);
+      this.dialogRef.close(AdjustPaymentDialogResultType.Submitted);
     } catch (error) {
       const msg = typeof error == "object" ? error.message : error;
       this.toastService.showToast({
@@ -170,10 +170,7 @@ export class AdjustPaymentDialogV2Component implements OnInit {
 
   static open = (
     dialogService: DialogService,
-    dialogConfig: DialogConfig<AdjustPaymentDialogV2Params>,
+    dialogConfig: DialogConfig<AdjustPaymentDialogParams>,
   ) =>
-    dialogService.open<AdjustPaymentDialogV2ResultType>(
-      AdjustPaymentDialogV2Component,
-      dialogConfig,
-    );
+    dialogService.open<AdjustPaymentDialogResultType>(AdjustPaymentDialogComponent, dialogConfig);
 }
