@@ -806,7 +806,7 @@ export class CipherService implements CipherServiceAbstraction {
     const response = await this.apiService.putShareCipher(cipher.id, request);
     const data = new CipherData(response, collectionIds);
     await this.upsert(data);
-    return new Cipher(data);
+    return new Cipher(data, cipher.localData);
   }
 
   async shareManyWithServer(
