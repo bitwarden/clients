@@ -1452,7 +1452,7 @@ jobs:
       - name: Zip masdev asset
         run: |
           cd dist/mas-dev-universal
-          zip -r Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip Bitwarden.app
+          zip -ry Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip Bitwarden.app
 
       - name: Upload masdev artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
