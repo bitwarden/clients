@@ -6,7 +6,6 @@ import { ActivatedRoute } from "@angular/router";
 import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
 import { first, tap } from "rxjs/operators";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   getOrganizationById,
@@ -36,7 +35,6 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
   constructor(
     dialogService: DialogService,
     apiService: ApiService,
-    modalService: ModalService,
     messagingService: MessagingService,
     policyService: PolicyService,
     private route: ActivatedRoute,
@@ -47,7 +45,6 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     super(
       dialogService,
       apiService,
-      modalService,
       messagingService,
       policyService,
       billingAccountProfileStateService,

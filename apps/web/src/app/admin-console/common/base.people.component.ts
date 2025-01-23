@@ -6,7 +6,6 @@ import { firstValueFrom, concatMap, map, lastValueFrom, startWith, debounceTime 
 
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
@@ -123,7 +122,6 @@ export abstract class BasePeopleComponent<
     protected platformUtilsService: PlatformUtilsService,
     protected keyService: KeyService,
     protected validationService: ValidationService,
-    protected modalService: ModalService,
     private logService: LogService,
     private searchPipe: SearchPipe,
     protected userNamePipe: UserNamePipe,
