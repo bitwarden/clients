@@ -16,7 +16,9 @@
               bitLink
               linkType="primary"
               class="tw-cursor-pointer"
-              (click)="openExternal(deviceManagementUrl)"
+      [href]="deviceManagementUrl"
+      target="_blank"
+      rel="noreferrer"
               >{{ "notificationSentDeviceAnchor" | i18n }}</a
             >. {{ "notificationSentDevicePart2" | i18n }}
           </p>
