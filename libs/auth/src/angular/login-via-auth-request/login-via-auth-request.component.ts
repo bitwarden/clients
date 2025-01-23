@@ -578,9 +578,4 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     await this.loginSuccessHandlerService.run(userId);
     await this.router.navigate(["vault"]);
   }
-
-  /** Open a URL in the user's default browser */
-  openExternal(url: string) {
-    this.platformUtilsService.launchUri(url);
-  }
 }

@@ -82,9 +82,4 @@ export class LoginViaAuthRequestComponentV1 extends BaseLoginViaAuthRequestCompo
   protected back() {
     this.location.back();
   }
-
-  /** Open a URL in the user's default browser */
-  openExternal(url: string) {
-    this.platformUtilsService.launchUri(url);
-  }
 }
