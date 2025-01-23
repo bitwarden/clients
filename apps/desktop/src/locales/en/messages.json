@@ -2852,15 +2852,6 @@
       }
     }
   },
-  "accountAccessRequestedConfirmAccessAttempt": {
-    "message": "Account access requested, confirm access attempt for $EMAIL$",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "logInRequested": {
     "message": "Log in requested"
   },
