@@ -8,6 +8,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -38,6 +40,7 @@ export class SponsoringOrgRowComponent implements OnInit {
     private toastService: ToastService,
     private configService: ConfigService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -53,9 +56,11 @@ export class SponsoringOrgRowComponent implements OnInit {
       FeatureFlag.DisableFreeFamiliesSponsorship,
     );
 
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     if (this.isFreeFamilyFlagEnabled) {
       this.isFreeFamilyPolicyEnabled$ = this.policyService
-        .getAll$(PolicyType.FreeFamiliesSponsorshipPolicy)
+        .getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId)
         .pipe(
           map(
             (policies) =>

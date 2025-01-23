@@ -16,6 +16,7 @@ import {
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -164,8 +165,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this.policyService
-      .getAll$(PolicyType.SendOptions)
+      .getAll$(PolicyType.SendOptions, userId)
       .pipe(
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntil(this.destroy$),
