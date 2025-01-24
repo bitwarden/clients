@@ -22,6 +22,7 @@ import {
   ACCOUNT_ACCOUNTS,
   ACCOUNT_ACTIVE_ACCOUNT_ID,
   ACCOUNT_ACTIVITY,
+  ACCOUNT_VERIFY_NEW_DEVICE_LOGIN,
   AccountServiceImplementation,
 } from "./account.service";
 
@@ -136,6 +137,22 @@ describe("accountService", () => {
     });
   });
 
+  describe("accountsVerifyNewDeviceLogin$", () => {
+    it("returns expected value", async () => {
+      // Arrange
+      const expected = true;
+      // we need to set this state since it is how we initialize the VerifyNewDeviceLogin$
+      activeAccountIdState.stateSubject.next(userId);
+      singleUserStateProvider.getFake(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).nextState(expected);
+
+      // Act
+      const result = await firstValueFrom(sut.accountVerifyNewDeviceLogin$);
+
+      // Assert
+      expect(result).toEqual(expected);
+    });
+  });
+
   describe("addAccount", () => {
     it("should emit the new account", async () => {
       await sut.addAccount(userId, userInfo);
@@ -229,6 +246,33 @@ describe("accountService", () => {
     it("should not update if the email is the same", async () => {
       await sut.setAccountEmailVerified(userId, false);
       const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual(initialState);
+    });
+  });
+
+  describe("setAccountVerifyNewDeviceLogin", () => {
+    const initialState = true;
+    beforeEach(() => {
+      activeAccountIdState.stateSubject.next(userId);
+      singleUserStateProvider
+        .getFake(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN)
+        .nextState(initialState);
+    });
+
+    it("should update the VerifyNewDeviceLogin", async () => {
+      const expected = false;
+      expect(await firstValueFrom(sut.accountVerifyNewDeviceLogin$)).toEqual(initialState);
+
+      await sut.setAccountVerifyNewDeviceLogin(userId, expected);
+      const currentState = await firstValueFrom(sut.accountVerifyNewDeviceLogin$);
+
+      expect(currentState).toEqual(expected);
+    });
+
+    it("should NOT update VerifyNewDeviceLogin when userId is null", async () => {
+      await sut.setAccountVerifyNewDeviceLogin(null, false);
+      const currentState = await firstValueFrom(sut.accountVerifyNewDeviceLogin$);
 
       expect(currentState).toEqual(initialState);
     });
