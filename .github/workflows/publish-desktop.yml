@@ -22,11 +22,6 @@ on:
         required: true
         default: '10'
         type: string
-      electron_publish:
-        description: 'Publish Electron blob to AWS'
-        required: true
-        default: true
-        type: boolean
       snap_publish:
         description: 'Publish to Snap store'
         required: true
@@ -111,7 +106,6 @@ jobs:
     name: Electron blob publish
     runs-on: ubuntu-22.04
     needs: setup
-    if: inputs.electron_publish
     env:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
@@ -168,7 +162,7 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           state: 'success'
-          deployment_id: ${{ needs.setup.outputs.deployment_id }}
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
 
       - name: Update deployment status to Failure
         if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
@@ -176,7 +170,7 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           state: 'failure'
-          deployment_id: ${{ needs.setup.outputs.deployment_id }}
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
 
   snap:
     name: Deploy Snap
@@ -289,7 +283,7 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           state: 'success'
-          deployment_id: ${{ needs.setup.outputs.deployment_id }}
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
 
       - name: Update deployment status to Failure
         if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
@@ -297,4 +291,4 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           state: 'failure'
-          deployment_id: ${{ needs.setup.outputs.deployment_id }}
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}

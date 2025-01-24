@@ -4,10 +4,12 @@ import { Directive, HostListener, Input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService, ToastVariant } from "@bitwarden/components";
+
+import { ToastService, ToastVariant } from "../";
 
 @Directive({
   selector: "[appCopyClick]",
+  standalone: true,
 })
 export class CopyClickDirective {
   private _showToast = false;

@@ -26,5 +26,15 @@
     <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
       {{ "save" | i18n }}
     </button>
+
+    <button
+      slot="end"
+      *ngIf="canDeleteCipher$ | async"
+      [bitAction]="delete"
+      type="button"
+      buttonType="danger"
+      bitIconButton="bwi-trash"
+      [appA11yTitle]="'delete' | i18n"
+    ></button>
   </popup-footer>
 </popup-page>

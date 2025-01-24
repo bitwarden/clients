@@ -6,6 +6,8 @@ import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-t
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SharedModule } from "@bitwarden/components/src/shared";
 import { I18nPipe } from "@bitwarden/ui-common";
 

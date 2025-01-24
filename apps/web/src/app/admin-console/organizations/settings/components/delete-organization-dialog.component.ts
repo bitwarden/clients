@@ -3,12 +3,17 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
-import { combineLatest, Subject, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -94,6 +99,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
     private userVerificationService: UserVerificationService,
     private cipherService: CipherService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
@@ -106,9 +112,12 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.deleteOrganizationRequestType = this.params.requestType;
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     combineLatest([
-      this.organizationService.get$(this.params.organizationId),
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.params.organizationId)),
       this.cipherService.getAllFromApiForOrganization(this.params.organizationId),
     ])
       .pipe(takeUntil(this.destroy$))

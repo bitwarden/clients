@@ -4,11 +4,15 @@ import { Location } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { from, lastValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, from, lastValueFrom, map, switchMap } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
@@ -60,6 +64,7 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     private location: Location,
     private trialFlowService: TrialFlowService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     protected syncService: SyncService,
   ) {
     this.activatedRoute.params
@@ -120,7 +125,14 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
       const organizationSubscriptionPromise = this.organizationApiService.getSubscription(
         this.organizationId,
       );
-      const organizationPromise = this.organizationService.get(this.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const organizationPromise = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.organizationId)),
+      );
 
       [this.organizationSubscriptionResponse, this.organization] = await Promise.all([
         organizationSubscriptionPromise,

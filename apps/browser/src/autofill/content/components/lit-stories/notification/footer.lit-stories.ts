@@ -23,6 +23,12 @@ export default {
     theme: ThemeTypes.Light,
     notificationType: "add",
   },
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=32-4949&m=dev",
+    },
+  },
 } as Meta<Args>;
 
 const Template = (args: Args) => NotificationFooter({ ...args });

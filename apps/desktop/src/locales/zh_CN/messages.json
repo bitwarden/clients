@@ -885,6 +885,15 @@
     "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全钥匙来进行验证。",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "此功能不适用于免费组织。请切换到付费计划以解锁更多功能。"
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "扩展需要更新"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "您正在使用的浏览器扩展已过时。请更新它或在桌面 App 的设置中禁用浏览器集成指纹验证。"
   }
 }

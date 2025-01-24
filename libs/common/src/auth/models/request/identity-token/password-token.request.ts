@@ -13,6 +13,7 @@ export class PasswordTokenRequest extends TokenRequest implements CaptchaProtect
     public captchaResponse: string,
     protected twoFactor: TokenTwoFactorRequest,
     device?: DeviceRequest,
+    public newDeviceOtp?: string,
   ) {
     super(twoFactor, device);
   }
@@ -26,6 +27,10 @@ export class PasswordTokenRequest extends TokenRequest implements CaptchaProtect
 
     if (this.captchaResponse != null) {
       obj.captchaResponse = this.captchaResponse;
+    }
+
+    if (this.newDeviceOtp) {
+      obj.newDeviceOtp = this.newDeviceOtp;
     }
 
     return obj;

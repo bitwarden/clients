@@ -68,6 +68,7 @@ export class ClientsComponent {
     private apiService: ApiService,
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
+    private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private dialogService: DialogService,
     private i18nService: I18nService,
@@ -136,13 +137,14 @@ export class ClientsComponent {
 
   async load() {
     const response = await this.apiService.getProviderClients(this.providerId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const clients = response.data != null && response.data.length > 0 ? response.data : [];
     this.dataSource.data = clients;
     this.manageOrganizations =
       (await this.providerService.get(this.providerId)).type === ProviderUserType.ProviderAdmin;
-    const candidateOrgs = (await this.organizationService.getAll()).filter(
-      (o) => o.isOwner && o.providerId == null,
-    );
+    const candidateOrgs = (
+      await firstValueFrom(this.organizationService.organizations$(userId))
+    ).filter((o) => o.isOwner && o.providerId == null);
     const allowedOrgsIds = await Promise.all(
       candidateOrgs.map((o) => this.organizationApiService.get(o.id)),
     ).then((orgs) =>
