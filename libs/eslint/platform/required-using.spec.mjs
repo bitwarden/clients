@@ -1,6 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-require-imports */
-
 import { RuleTester } from "@typescript-eslint/rule-tester";
 
 import rule, { errorMessage } from "./required-using.mjs";
@@ -28,7 +25,7 @@ const setup = `
   };
 `;
 
-ruleTester.run("required-using", rule, {
+ruleTester.run("required-using", rule.default, {
   valid: [
     {
       name: "Direct declaration with `using`",
