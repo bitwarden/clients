@@ -17,6 +17,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 
 @Injectable()
 export class WebProviderService {
@@ -28,6 +29,7 @@ export class WebProviderService {
     private encryptService: EncryptService,
     private billingApiService: BillingApiServiceAbstraction,
     private stateProvider: StateProvider,
+    private providerApiService: ProviderApiServiceAbstraction,
   ) {}
 
   async addOrganizationToProvider(providerId: string, organizationId: string) {
@@ -45,7 +47,7 @@ export class WebProviderService {
     return response;
   }
 
-  async addExistingOrganization(providerId: string, organizationId: string): Promise<void> {
+  async addOrganizationToProviderVNext(providerId: string, organizationId: string): Promise<void> {
     const orgKey = await firstValueFrom(
       this.stateProvider.activeUserId$.pipe(
         switchMap((userId) => this.keyService.orgKeys$(userId)),
@@ -54,7 +56,7 @@ export class WebProviderService {
     );
     const providerKey = await this.keyService.getProviderKey(providerId);
     const encryptedOrgKey = await this.encryptService.encrypt(orgKey.key, providerKey);
-    await this.billingApiService.addExistingOrganizationToProvider(providerId, {
+    await this.providerApiService.addOrganizationToProvider(providerId, {
       key: encryptedOrgKey.encryptedString,
       organizationId,
     });

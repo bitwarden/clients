@@ -1,9 +1,9 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { AddableOrganizationResponse } from "@bitwarden/common/billing/models/response/addable-organization.response";
+import { AddableOrganizationResponse } from "@bitwarden/common/admin-console/models/response/addable-organization.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -30,16 +30,16 @@ export class AddExistingOrganizationDialogComponent implements OnInit {
   protected readonly ResultType = AddExistingOrganizationDialogResultType;
 
   constructor(
-    private billingApiService: BillingApiServiceAbstraction,
     @Inject(DIALOG_DATA) protected dialogParams: AddExistingOrganizationDialogParams,
     private dialogRef: DialogRef<AddExistingOrganizationDialogResultType>,
     private i18nService: I18nService,
+    private providerApiService: ProviderApiServiceAbstraction,
     private toastService: ToastService,
     private webProviderService: WebProviderService,
   ) {}
 
   async ngOnInit() {
-    this.addableOrganizations = await this.billingApiService.getProviderAddableOrganizations(
+    this.addableOrganizations = await this.providerApiService.getProviderAddableOrganizations(
       this.dialogParams.provider.id,
     );
     this.loading = false;
@@ -47,7 +47,7 @@ export class AddExistingOrganizationDialogComponent implements OnInit {
 
   addExistingOrganization = async (): Promise<void> => {
     if (this.selectedOrganization) {
-      await this.webProviderService.addExistingOrganization(
+      await this.webProviderService.addOrganizationToProviderVNext(
         this.dialogParams.provider.id,
         this.selectedOrganization.id,
       );

@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { AddableOrganizationResponse } from "@bitwarden/common/billing/models/response/addable-organization.response";
 import { ToastService } from "@bitwarden/components";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -29,22 +28,6 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     private logService: LogService,
     private toastService: ToastService,
   ) {}
-
-  addExistingOrganizationToProvider(
-    providerId: string,
-    request: {
-      key: string;
-      organizationId: string;
-    },
-  ): Promise<void> {
-    return this.apiService.send(
-      "POST",
-      "/providers/" + providerId + "/clients/existing",
-      request,
-      true,
-      false,
-    );
-  }
 
   cancelOrganizationSubscription(
     organizationId: string,
@@ -121,20 +104,6 @@ export class BillingApiService implements BillingApiServiceAbstraction {
   async getPlans(): Promise<ListResponse<PlanResponse>> {
     const r = await this.apiService.send("GET", "/plans", null, false, true);
     return new ListResponse(r, PlanResponse);
-  }
-
-  async getProviderAddableOrganizations(
-    providerId: string,
-  ): Promise<AddableOrganizationResponse[]> {
-    const response = await this.apiService.send(
-      "GET",
-      "/providers/" + providerId + "/clients/addable",
-      null,
-      true,
-      true,
-    );
-
-    return response.map((data: any) => new AddableOrganizationResponse(data));
   }
 
   async getProviderClientInvoiceReport(providerId: string, invoiceId: string): Promise<string> {
