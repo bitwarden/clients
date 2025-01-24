@@ -3,14 +3,14 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, ElementRef, Inject, OnInit, ViewChild } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService, AccountInfo } from "@bitwarden/common/auth/abstractions/account.service";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BitPayInvoiceRequest } from "@bitwarden/common/billing/models/request/bit-pay-invoice.request";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -105,7 +105,16 @@ export class AddAccountCreditDialogComponent implements OnInit {
       this.formGroup.patchValue({
         creditAmount: 20.0,
       });
-      this.organization = await this.organizationService.get(this.dialogParams.organizationId);
+      this.user = await firstValueFrom(this.accountService.activeAccount$);
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(this.user.id)
+          .pipe(
+            map((organizations) =>
+              organizations.find((org) => org.id === this.dialogParams.organizationId),
+            ),
+          ),
+      );
       payPalCustomField = "organization_id:" + this.organization.id;
       this.payPalConfig.subject = this.organization.name;
     } else if (this.dialogParams.providerId) {
@@ -119,7 +128,6 @@ export class AddAccountCreditDialogComponent implements OnInit {
       this.formGroup.patchValue({
         creditAmount: 10.0,
       });
-      this.user = await firstValueFrom(this.accountService.activeAccount$);
       payPalCustomField = "user_id:" + this.user.id;
       this.payPalConfig.subject = this.user.email;
     }

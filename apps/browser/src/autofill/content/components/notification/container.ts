@@ -91,8 +91,6 @@ function getHeaderMessage(i18n: { [key: string]: string }, type?: NotificationTy
       return i18n.updateLoginPrompt;
     case NotificationTypes.Unlock:
       return "";
-    case NotificationTypes.FilelessImport:
-      return "";
     default:
       return undefined;
   }

@@ -15,6 +15,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { RouterService } from "../../../../../../../../apps/web/src/app/core";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 

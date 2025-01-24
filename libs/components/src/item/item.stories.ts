@@ -53,6 +53,12 @@ export default {
     }),
     componentWrapperDecorator((story) => `<div class="tw-bg-background-alt tw-p-2">${story}</div>`),
   ],
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-37011&t=b5tDKylm5sWm2yKo-11",
+    },
+  },
 } as Meta;
 
 type Story = StoryObj<ItemGroupComponent>;

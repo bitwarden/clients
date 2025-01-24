@@ -11,7 +11,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 @Directive()
@@ -43,6 +43,7 @@ export class FolderAddEditComponent implements OnInit {
     protected logService: LogService,
     protected dialogService: DialogService,
     protected formBuilder: FormBuilder,
+    protected toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -52,11 +53,11 @@ export class FolderAddEditComponent implements OnInit {
   async submit(): Promise<boolean> {
     this.folder.name = this.formGroup.controls.name.value;
     if (this.folder.name == null || this.folder.name === "") {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nameRequired"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("nameRequired"),
+      });
       return false;
     }
 
@@ -66,11 +67,11 @@ export class FolderAddEditComponent implements OnInit {
       const folder = await this.folderService.encrypt(this.folder, userKey);
       this.formPromise = this.folderApiService.save(folder, activeUserId);
       await this.formPromise;
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.editMode ? "editedFolder" : "addedFolder"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(this.editMode ? "editedFolder" : "addedFolder"),
+      });
       this.onSavedFolder.emit(this.folder);
       return true;
     } catch (e) {
@@ -95,7 +96,11 @@ export class FolderAddEditComponent implements OnInit {
       const activeUserId = await firstValueFrom(this.activeUserId$);
       this.deletePromise = this.folderApiService.delete(this.folder.id, activeUserId);
       await this.deletePromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("deletedFolder"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("deletedFolder"),
+      });
       this.onDeletedFolder.emit(this.folder);
     } catch (e) {
       this.logService.error(e);

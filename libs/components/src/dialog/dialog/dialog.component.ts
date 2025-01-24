@@ -4,8 +4,9 @@ import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CommonModule } from "@angular/common";
 import { Component, HostBinding, Input } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
-import { I18nPipe } from "../../shared/i18n.pipe";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { fadeIn } from "../animations";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";

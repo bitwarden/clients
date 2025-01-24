@@ -5,6 +5,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
@@ -25,15 +26,34 @@ export class FreeFamiliesPolicyService {
   constructor(
     private policyService: PolicyService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private configService: ConfigService,
   ) {}
+
+  canManageSponsorships$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => {
+      if (account?.id) {
+        return this.organizationService.canManageSponsorships$(account?.id);
+      } else {
+        return of();
+      }
+    }),
+  );
+
+  organizations$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) => {
+      if (account?.id) {
+        return this.organizationService.organizations$(account?.id);
+      } else {
+        return of();
+      }
+    }),
+  );
 
   get showFreeFamilies$(): Observable<boolean> {
     return this.isFreeFamilyFlagEnabled$.pipe(
       switchMap((isFreeFamilyFlagEnabled) =>
-        isFreeFamilyFlagEnabled
-          ? this.getFreeFamiliesVisibility$()
-          : this.organizationService.canManageSponsorships$,
+        isFreeFamilyFlagEnabled ? this.getFreeFamiliesVisibility$() : this.canManageSponsorships$,
       ),
     );
   }
@@ -41,7 +61,7 @@ export class FreeFamiliesPolicyService {
   private getFreeFamiliesVisibility$(): Observable<boolean> {
     return combineLatest([
       this.checkEnterpriseOrganizationsAndFetchPolicy(),
-      this.organizationService.canManageSponsorships$,
+      this.canManageSponsorships$,
     ]).pipe(
       map(([orgStatus, canManageSponsorships]) =>
         this.shouldShowFreeFamilyLink(orgStatus, canManageSponsorships),
@@ -61,7 +81,7 @@ export class FreeFamiliesPolicyService {
   }
 
   checkEnterpriseOrganizationsAndFetchPolicy(): Observable<EnterpriseOrgStatus> {
-    return this.organizationService.organizations$.pipe(
+    return this.organizations$.pipe(
       filter((organizations) => Array.isArray(organizations) && organizations.length > 0),
       switchMap((organizations) => this.fetchEnterpriseOrganizationPolicy(organizations)),
     );

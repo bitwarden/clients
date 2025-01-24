@@ -8,11 +8,16 @@ import {
   RouterStateSnapshot,
 } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
@@ -34,10 +39,13 @@ describe("Organization Permissions Guard", () => {
   let organizationService: MockProxy<OrganizationService>;
   let state: MockProxy<RouterStateSnapshot>;
   let route: MockProxy<ActivatedRouteSnapshot>;
+  let accountService: FakeAccountService;
+  const userId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
     router = mock<Router>();
     organizationService = mock<OrganizationService>();
+    accountService = mockAccountServiceWith(userId);
     state = mock<RouterStateSnapshot>();
     route = mock<ActivatedRouteSnapshot>({
       params: {
@@ -48,6 +56,7 @@ describe("Organization Permissions Guard", () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: router },
+        { provide: AccountService, useValue: accountService },
         { provide: OrganizationService, useValue: organizationService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
@@ -57,7 +66,7 @@ describe("Organization Permissions Guard", () => {
   });
 
   it("blocks navigation if organization does not exist", async () => {
-    organizationService.get.mockReturnValue(null);
+    organizationService.organizations$.mockReturnValue(of([]));
 
     const actual = await TestBed.runInInjectionContext(
       async () => await organizationPermissionsGuard()(route, state),
@@ -68,7 +77,7 @@ describe("Organization Permissions Guard", () => {
 
   it("permits navigation if no permissions are specified", async () => {
     const org = orgFactory();
-    organizationService.get.calledWith(org.id).mockResolvedValue(org);
+    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
     const actual = await TestBed.runInInjectionContext(async () =>
       organizationPermissionsGuard()(route, state),
@@ -81,7 +90,7 @@ describe("Organization Permissions Guard", () => {
     const permissionsCallback = jest.fn();
     permissionsCallback.mockImplementation((_org) => true);
     const org = orgFactory();
-    organizationService.get.calledWith(org.id).mockResolvedValue(org);
+    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
     const actual = await TestBed.runInInjectionContext(
       async () => await organizationPermissionsGuard(permissionsCallback)(route, state),
@@ -103,7 +112,7 @@ describe("Organization Permissions Guard", () => {
       });
 
       const org = orgFactory();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const actual = await TestBed.runInInjectionContext(
         async () => await organizationPermissionsGuard(permissionsCallback)(route, state),
@@ -122,7 +131,7 @@ describe("Organization Permissions Guard", () => {
         }),
       });
       const org = orgFactory();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const actual = await TestBed.runInInjectionContext(
         async () => await organizationPermissionsGuard((_org: Organization) => false)(route, state),
@@ -141,7 +150,7 @@ describe("Organization Permissions Guard", () => {
         type: OrganizationUserType.Admin,
         enabled: false,
       });
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const actual = await TestBed.runInInjectionContext(
         async () => await organizationPermissionsGuard()(route, state),
@@ -155,7 +164,7 @@ describe("Organization Permissions Guard", () => {
         type: OrganizationUserType.Owner,
         enabled: false,
       });
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const actual = await TestBed.runInInjectionContext(
         async () => await organizationPermissionsGuard()(route, state),
