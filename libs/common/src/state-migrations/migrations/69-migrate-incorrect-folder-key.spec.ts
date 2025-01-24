@@ -5,8 +5,8 @@ import { MigrateIncorrectFolderKey } from "./69-migrate-incorrect-folder-key";
 function exampleJSON() {
   return {
     global_account_accounts: {
-      user1: null,
-      user2: null,
+      user1: null as any,
+      user2: null as any,
     },
     user_user1_folder_folder: {
       // Incorrect "folder" key
