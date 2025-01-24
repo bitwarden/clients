@@ -7,11 +7,11 @@ const rule = require("./required-using");
 
 const errorMessage = rule.errorMessage;
 
-console.log(__dirname);
-
 const ruleTester = new RuleTester({
   languageOptions: {
     parserOptions: {
+      project: [__dirname + "/../tsconfig.spec.json"],
+      createDefaultProgram: true,
       projectService: {
         allowDefaultProject: ["*.ts*"],
       },
