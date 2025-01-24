@@ -280,10 +280,10 @@ describe("VaultPopupAutofillService", () => {
 
         it("should close popup after a timeout for chromium browsers", async () => {
           mockPlatformUtilsService.isFirefox.mockReturnValue(false);
-          jest.spyOn(global, "requestAnimationFrame");
+          jest.spyOn(global, "setTimeout");
           await service.doAutofill(mockCipher);
           jest.advanceTimersByTime(50);
-          expect(requestAnimationFrame).toHaveBeenCalled();
+          expect(setTimeout).toHaveBeenCalledTimes(1);
           expect(BrowserApi.closePopup).toHaveBeenCalled();
         });
 
