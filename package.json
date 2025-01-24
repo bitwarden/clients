@@ -36,6 +36,7 @@
     "libs/*"
   ],
   "devDependencies": {
+    "@typescript-eslint/rule-tester": "^8.21.0",
     "@angular-devkit/build-angular": "18.2.12",
     "@angular-eslint/eslint-plugin": "18.4.3",
     "@angular-eslint/eslint-plugin-template": "18.4.3",
@@ -103,6 +104,7 @@
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.0.1",
     "eslint-import-resolver-typescript": "3.7.0",
+    "eslint-plugin-custom-rules": "file:libs/eslint-plugin-custom-rules",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-rxjs": "5.0.3",
     "eslint-plugin-rxjs-angular": "2.0.1",
@@ -146,6 +148,7 @@
     "webpack-node-externals": "3.0.0"
   },
   "dependencies": {
+    "@typescript-eslint/utils": "^8.21.0",
     "@angular/animations": "18.2.13",
     "@angular/cdk": "18.2.14",
     "@angular/common": "18.2.13",
