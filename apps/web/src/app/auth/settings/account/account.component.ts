@@ -1,5 +1,14 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
-import { combineLatest, firstValueFrom, from, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import {
+  combineLatest,
+  firstValueFrom,
+  from,
+  lastValueFrom,
+  map,
+  Observable,
+  Subject,
+  takeUntil,
+} from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -35,12 +44,11 @@ export class AccountComponent implements OnInit, OnDestroy {
     private userVerificationService: UserVerificationService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
-    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    
+
     this.showSetNewDeviceLoginProtection$ = this.configService.getFeatureFlag$(
       FeatureFlag.NewDeviceVerification,
     );
