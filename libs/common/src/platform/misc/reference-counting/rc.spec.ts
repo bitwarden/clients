@@ -32,12 +32,14 @@ describe("Rc", () => {
   });
 
   it("should return value on take", () => {
+    // eslint-disable-next-line custom-rules/required-using
     const reference = rc.take();
 
     expect(reference.value).toBe(value);
   });
 
   it("should decrease refCount when disposing reference", () => {
+    // eslint-disable-next-line custom-rules/required-using
     const reference = rc.take();
 
     reference[Symbol.dispose]();
@@ -55,6 +57,7 @@ describe("Rc", () => {
   });
 
   it("should not free value when refCount reaches 0 if not marked for disposal", () => {
+    // eslint-disable-next-line custom-rules/required-using
     const reference = rc.take();
 
     reference[Symbol.dispose]();
@@ -63,6 +66,7 @@ describe("Rc", () => {
   });
 
   it("should free value when refCount reaches 0 and rc is marked for disposal", () => {
+    // eslint-disable-next-line custom-rules/required-using
     const reference = rc.take();
     rc.markForDisposal();
 
@@ -72,6 +76,7 @@ describe("Rc", () => {
   });
 
   it("should free value when marked for disposal if refCount is 0", () => {
+    // eslint-disable-next-line custom-rules/required-using
     const reference = rc.take();
     reference[Symbol.dispose]();
 
