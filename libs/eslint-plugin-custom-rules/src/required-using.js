@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 const { ESLintUtils } = require("@typescript-eslint/utils");
 
 const errorMessage = "'using' keyword is required but not used";
@@ -20,7 +23,9 @@ module.exports = {
     // Function to check if a type implements the `UsingRequired` interface
     function implementsUsingRequired(type) {
       const symbol = type.getSymbol();
-      if (!symbol) return false;
+      if (!symbol) {
+        return false;
+      }
 
       const declarations = symbol.getDeclarations() || [];
       for (const declaration of declarations) {

@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "Custom ESlint rules for the clients repository",
   "main": "src/index.js",
-  "dependencies": {
-    "@typescript-eslint/utils": "^8.21.0"
-  },
-  "devDependencies": {
-    "@typescript-eslint/rule-tester": "^8.21.0"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }

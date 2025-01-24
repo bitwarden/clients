@@ -1,7 +1,13 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 const { RuleTester } = require("@typescript-eslint/rule-tester");
+
 const rule = require("./required-using");
 
 const errorMessage = rule.errorMessage;
+
+console.log(__dirname);
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -9,7 +15,7 @@ const ruleTester = new RuleTester({
       projectService: {
         allowDefaultProject: ["*.ts*"],
       },
-      tsconfigRootDir: __dirname,
+      tsconfigRootDir: __dirname + "/..",
     },
   },
 });
