@@ -885,6 +885,15 @@
     "message": "Verificatie met Duo Security middels de Duo Mobile-app, sms, spraakoproep of een U2F-beveiligingssleutel.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Controleer je identiteit"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
+  },
+  "continueLoggingIn": {
+    "message": "Doorgaan met inloggen"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "Deze mogelijkheid is niet beschikbaar voor gratis organisaties. Schakel over naar een betaald abonnement om meer mogelijkheden te ontgrendelen."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Extensie-uupdate vereist"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "De browserextensie die je gebruikt is verouderd. Werk deze bij of schakel de vingerafdruk validatie van de browserintegratie uit in instellingen van de desktop-app."
   }
 }

@@ -885,6 +885,15 @@
     "message": "Təşkilatınızını Duo Security ilə doğrulamaq üçün Duo Mobile tətbiqi, SMS, telefon zəngi və ya U2F güvənlik açarını istifadə edin.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "Bu özəllik, ödənişsiz təşkilatlar üçün əlçatan deyil. Daha çox özəlliyin kilidini açmaq üçün ödənişli plana keçin."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Uzantını güncəlləmək tələb olunur"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "İstifadə etdiyiniz brauzer uzantısı köhnəlib. Lütfən onu güncəlləyin, ya da masaüstü tətbiq ayarlarında brauzer inteqrasiyası üzrə barmaq izi ilə doğrulamanı sıradan çıxardın."
   }
 }
