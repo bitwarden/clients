@@ -9833,6 +9833,15 @@
   "sshKeyAlgorithm": {
     "message": "Key algorithm"
   },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
+  },
   "sshKeyFingerprint": {
     "message": "Fingerprint"
   },
