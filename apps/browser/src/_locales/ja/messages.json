@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "本人確認を行う"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "保管庫がロックされています。続行するには本人確認を行ってください。"
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "保管庫にアイテムが見つからない場合は、アイテムを追加するよう要求します。ログインしているすべてのアカウントに適用されます。"
   },
-  "showCardsInVaultView": {
-    "message": "保管庫ビューに自動入力の候補としてカードを表示する"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "タブページにカードを表示"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "自動入力を簡単にするために、タブページにカードアイテムを表示します"
   },
-  "showIdentitiesInVaultView": {
-    "message": "保管庫ビューに自動入力の候補として ID を表示する"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "タブページに ID を表示"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "エクストラワイド"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

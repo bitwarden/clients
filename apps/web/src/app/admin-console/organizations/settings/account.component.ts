@@ -14,7 +14,6 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
@@ -26,7 +25,6 @@ import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/model
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -85,7 +83,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private modalService: ModalService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private platformUtilsService: PlatformUtilsService,
@@ -97,7 +94,6 @@ export class AccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {

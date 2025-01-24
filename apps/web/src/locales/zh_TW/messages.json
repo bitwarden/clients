@@ -1,6 +1,6 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "所有應用程式"
   },
   "criticalApplications": {
     "message": "重要應用程式"
@@ -108,7 +108,7 @@
     "message": "全部密碼"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "搜尋應用程式"
   },
   "atRiskMembers": {
     "message": "具有風險的成員"
@@ -123,7 +123,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "具有風險的應用程式 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -154,6 +154,12 @@
   },
   "totalApplications": {
     "message": "Total applications"
+  },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
   },
   "whatTypeOfItem": {
     "message": "這是什麼類型的項目？"
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "核實你的身份"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "whatIsADevice": {
     "message": "What is a device?"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "month per member"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
   },
   "seats": {
     "message": "席位"

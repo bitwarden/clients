@@ -885,6 +885,15 @@
     "message": "Kuruluşunuzun Duo Security doğrulaması için Duo Mobile uygulaması, SMS, telefon görüşmesi veya U2F güvenlik anahtarını kullanın.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Kimliğinizi doğrulayın"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin."
+  },
+  "continueLoggingIn": {
+    "message": "Giriş yapmaya devam et"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Uzantıyı güncellemeniz gerekiyor"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Kullandığınız tarayı uzantısı eskimiş. Lütfen uzantıyı güncelleyin veya masaüstü uygulamasının ayarlarından parmak izi doğrulaması için tarayıcı entegrasyonunu kapatın."
   }
 }

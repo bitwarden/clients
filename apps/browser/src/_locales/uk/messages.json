@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Виконати перевірку"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "Ваше сховище заблоковане. Для продовження виконайте перевірку."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Запитувати про додавання запису, якщо такого не знайдено у вашому сховищі. Застосовується для всіх облікових записів, до яких виконано вхід."
   },
-  "showCardsInVaultView": {
-    "message": "Показувати картки як пропозиції автозаповнення в режимі перегляду сховища"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Показувати картки на вкладці"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Показувати список карток на сторінці вкладки для легкого автозаповнення."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Показувати посвідчення як пропозиції автозаповнення в режимі перегляду сховища"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показувати посвідчення на вкладці"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Дуже широке"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

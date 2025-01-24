@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Cəmi tətbiq"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "Bu elementin növü nədir?"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Kimliyinizi doğrulayın"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "whatIsADevice": {
     "message": "Cihaz nədir?"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "üzv başına ay"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "üzv üzrə aylıq illik hesablama"
   },
   "seats": {
     "message": "Yer"

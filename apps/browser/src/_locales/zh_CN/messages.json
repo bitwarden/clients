@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "验证身份"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "您的密码库已锁定。请先验证您的身份。"
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "如果在密码库中找不到项目，询问添加一个。适用于所有已登录的账户。"
   },
-  "showCardsInVaultView": {
-    "message": "在密码库视图中将支付卡显示为自动填充建议"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "在标签页上显示支付卡"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "在标签页上列出支付卡项目，以便于自动填充。"
   },
-  "showIdentitiesInVaultView": {
-    "message": "在密码库视图中将身份显示为自动填充建议"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "在标签页上显示身份"
@@ -2325,7 +2331,7 @@
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "屏蔽域名"
+    "message": "屏蔽的域名"
   },
   "excludedDomains": {
     "message": "排除域名"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "超宽"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "请更新您的桌面应用程序"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "要使用生物识别解锁，请更新您的桌面应用程序，或在桌面设置中禁用指纹解锁。"
   }
 }

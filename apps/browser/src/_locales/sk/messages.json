@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Overiť identitu"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "Nespoznávame toto zariadenie. Pre overenie vašej identity zadajte kód ktorý bol zaslaný na váš email."
+  },
+  "continueLoggingIn": {
+    "message": "Pokračovať v prihlasovaní"
+  },
   "yourVaultIsLocked": {
     "message": "Váš trezor je uzamknutý. Ak chcete pokračovať, overte svoju identitu."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Požiada o pridanie položky, ak sa v trezore nenachádza. Platí pre všetky prihlásené účty."
   },
-  "showCardsInVaultView": {
-    "message": "Zobraziť karty ako návrhy automatického vypĺňania v zobrazení trezora"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Zobraziť karty na stránke \"Aktuálna karta\""
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Zoznam položiek karty na stránke \"Aktuálna karta\" na jednoduché automatické vyplnenie."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Zobraziť identity ako návrhy automatického vypĺňania v zobrazení trezora"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Zobraziť identity na stránke \"Aktuálna karta\""
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Aktualizujte desktopovú aplikáciu"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Ak chcete používať biometrické odomykanie, aktualizujte desktopovú aplikáciu alebo vypnite odomykanie odtlačkom prsta v nastaveniach desktopovej aplikácie."
   }
 }
