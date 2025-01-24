@@ -239,18 +239,6 @@ export default tseslint.config(
     },
   },
   {
-    files: ["apps/web/src/**/*.ts"],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        "**/app/core/*",
-        "**/reports/*",
-        "**/app/shared/*",
-        "**/organizations/settings/*",
-        "**/organizations/policies/*",
-      ]),
-    },
-  },
-  {
     files: ["bitwarden_license/bit-common/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports(["@bitwarden/bit-common/*"]),
@@ -264,6 +252,18 @@ export default tseslint.config(
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
         "@bitwarden/bit-web/*",
+      ]),
+    },
+  },
+  {
+    files: ["apps/web/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "**/app/core/*",
+        "**/reports/*",
+        "**/app/shared/*",
+        "**/organizations/settings/*",
+        "**/organizations/policies/*",
       ]),
     },
   },
