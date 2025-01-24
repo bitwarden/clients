@@ -1,9 +1,7 @@
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
-import {
-  Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction
-} from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
+import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -45,31 +43,35 @@ export class Fido2PlaceholderComponent {
   ) {}
 
   async confirmPasskey() {
-    // placeholder, actual api arguments needed here should be discussed
-    // just show casing we can call into the session to create the credential or change it.
+    const desktopUiService = this.fido2UserInterfaceService as DesktopFido2UserInterfaceService;
+    console.log("Got desktopService", desktopUiService.guid);
 
-    console.log("checking for session", this.fido2UserInterfaceService);
+    try {
+      console.log("checking for session", this.fido2UserInterfaceService);
+      // Add timeout to avoid infinite hanging
+      const session = desktopUiService.getCurrentSession();
+      if (!session) {
+        // todo: handle error
+        console.error("No session found");
+        return;
+      }
+      console.log("Got session", session.guid);
 
-    const desktopService = this.fido2UserInterfaceService as DesktopFido2UserInterfaceService;
+      // const cipher = await session.createCredential({
+      //   userHandle: "userHandle2",
+      //   userName: "username2",
+      //   credentialName: "zxsd2",
+      //   rpId: "webauthn.io",
+      //   userVerification: true,
+      // });
 
-    const session = await desktopService.getCurrentSession();
-
-    console.log("Got session", session);
-
-
-    await session.createCredential({
-      userHandle: "userHandle",
-      userName: "",
-      credentialName: "",
-      rpId: "",
-      userVerification: true,
-    });
-
-    console.log("Created credential, will notify complete");
-    session.notifyOperationCompleted();
-
-    await this.router.navigate(["/"]);
-    await this.desktopSettingsService.setInModalMode(false);
+      session.notifyOperationCompleted();
+      await this.router.navigate(["/"]);
+      await this.desktopSettingsService.setInModalMode(false);
+    } catch (error) {
+      console.error("Failed during confirmation:", error);
+      // Handle error appropriately
+    }
   }
 
   async closeModal() {

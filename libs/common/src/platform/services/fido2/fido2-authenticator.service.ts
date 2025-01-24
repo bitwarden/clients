@@ -132,6 +132,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         userVerification: params.requireUserVerification,
         rpId: params.rpEntity.id,
       });
+      console.log("rpid", params.rpEntity.id, response.cipherId);
       const cipherId = response.cipherId;
       userVerified = response.userVerified;
 
@@ -146,6 +147,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         keyPair = await createKeyPair();
         pubKeyDer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
         const encrypted = await this.cipherService.get(cipherId);
+        console.log("Encrypted", encrypted);
         const activeUserId = await firstValueFrom(
           this.accountService.activeAccount$.pipe(map((a) => a?.id)),
         );
@@ -153,6 +155,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         cipher = await encrypted.decrypt(
           await this.cipherService.getKeyForCipherKeyDecryption(encrypted, activeUserId),
         );
+        
 
         if (
           !userVerified &&
@@ -174,13 +177,15 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         await this.cipherService.updateWithServer(reencrypted);
         await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
+        console.log("rpid", params.rpEntity.id);
+
       } catch (error) {
         this.logService?.error(
           `[Fido2Authenticator] Aborting because of unknown error when creating credential: ${error}`,
         );
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
       }
-
+      console.log("authdata rpid", params.rpEntity.id);
       const authData = await generateAuthData({
         rpId: params.rpEntity.id,
         credentialId: parseCredentialId(credentialId),
