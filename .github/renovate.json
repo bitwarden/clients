@@ -71,12 +71,8 @@
     },
     {
       "matchPackageNames": [
-        "@angular-eslint/eslint-plugin-template",
-        "@angular-eslint/eslint-plugin",
         "@angular-eslint/schematics",
-        "@angular-eslint/template-parser",
-        "@typescript-eslint/eslint-plugin",
-        "@typescript-eslint/parser",
+        "angular-eslint",
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
         "eslint-plugin-import",
@@ -86,7 +82,8 @@
         "eslint-plugin-tailwindcss",
         "eslint",
         "husky",
-        "lint-staged"
+        "lint-staged",
+        "typescript-eslint"
       ],
       "description": "Architecture owned dependencies",
       "commitMessagePrefix": "[deps] Architecture:",
