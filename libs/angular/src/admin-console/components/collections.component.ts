@@ -63,7 +63,15 @@ export class CollectionsComponent implements OnInit {
     }
 
     if (this.organization == null) {
-      this.organization = await this.organizationService.get(this.cipher.organizationId);
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(activeUserId)
+          .pipe(
+            map((organizations) =>
+              organizations.find((org) => org.id === this.cipher.organizationId),
+            ),
+          ),
+      );
     }
   }
 

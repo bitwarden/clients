@@ -2,9 +2,11 @@
   <bit-dialog [disablePadding]="!loading" dialogSize="large">
     <span bitDialogTitle>
       {{ title }}
-      <span class="tw-text-sm tw-normal-case tw-text-muted" *ngIf="!loading && params.name">{{
-        params.name
-      }}</span>
+      <span
+        class="tw-text-sm tw-normal-case tw-text-muted"
+        *ngIf="!loading && editParams$ && (editParams$ | async)?.name"
+        >{{ (editParams$ | async)?.name }}</span
+      >
       <span bitBadge variant="secondary" *ngIf="isRevoked">{{ "revoked" | i18n }}</span>
     </span>
     <div bitDialogContent>
@@ -268,7 +270,9 @@
         </button>
         <button
           *ngIf="
-            editMode && (!(accountDeprovisioningEnabled$ | async) || !params.managedByOrganization)
+            this.editMode &&
+            (!(accountDeprovisioningEnabled$ | async) ||
+              !(editParams$ | async)?.managedByOrganization)
           "
           type="button"
           bitIconButton="bwi-close"
@@ -280,7 +284,9 @@
         ></button>
         <button
           *ngIf="
-            editMode && (accountDeprovisioningEnabled$ | async) && params.managedByOrganization
+            this.editMode &&
+            (accountDeprovisioningEnabled$ | async) &&
+            (editParams$ | async)?.managedByOrganization
           "
           type="button"
           bitIconButton="bwi-trash"

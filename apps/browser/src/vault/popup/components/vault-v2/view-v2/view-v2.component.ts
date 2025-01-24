@@ -235,7 +235,11 @@ export class ViewV2Component {
   }
 
   protected showFooter(): boolean {
-    return this.cipher && (!this.cipher.isDeleted || (this.cipher.isDeleted && this.cipher.edit));
+    return (
+      this.cipher &&
+      (!this.cipher.isDeleted ||
+        (this.cipher.isDeleted && this.cipher.edit && this.cipher.viewPassword))
+    );
   }
 
   /**

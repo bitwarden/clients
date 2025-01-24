@@ -176,6 +176,12 @@
   "totalApplications": {
     "message": "Total applications"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "What type of item is this?"
   },
@@ -1172,6 +1178,12 @@
   },
   "verifyIdentity": {
     "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "whatIsADevice": {
     "message": "What is a device?"
@@ -3779,6 +3791,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "unlinkedSso": {
+    "message": "Unlinked SSO."
   },
   "unlinkedSsoUser": {
     "message": "Unlinked SSO for user $ID$.",
@@ -9286,6 +9301,9 @@
   "monthPerMember": {
     "message": "month per member"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
+  },
   "seats": {
     "message": "Seats"
   },
@@ -9805,6 +9823,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Key algorithm"
+  },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
   },
   "sshKeyFingerprint": {
     "message": "Fingerprint"

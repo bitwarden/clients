@@ -34,6 +34,7 @@ jobs:
             ! -path "*/.DS_Store" \
             ! -path "*/*locales/*" \
             ! -path "./.github/*" \
+            ! -path "*/README.md" \
             ! -path "*/Cargo.toml" \
             ! -path "*/Cargo.lock" \
             ! -path "./apps/desktop/macos/*" \

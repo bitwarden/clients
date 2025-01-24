@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { BehaviorSubject, filter, firstValueFrom, timeout } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, timeout, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
@@ -18,6 +16,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/webauthn-login-token.request";
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
+import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -51,14 +50,19 @@ import {
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-type IdentityResponse = IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse;
+type IdentityResponse =
+  | IdentityTokenResponse
+  | IdentityTwoFactorResponse
+  | IdentityCaptchaResponse
+  | IdentityDeviceVerificationResponse;
 
 export abstract class LoginStrategyData {
   tokenRequest:
     | UserApiTokenRequest
     | PasswordTokenRequest
     | SsoTokenRequest
-    | WebAuthnLoginTokenRequest;
+    | WebAuthnLoginTokenRequest
+    | undefined;
   captchaBypassToken?: string;
 
   /** User's entered email obtained pre-login. */
@@ -67,6 +71,8 @@ export abstract class LoginStrategyData {
 
 export abstract class LoginStrategy {
   protected abstract cache: BehaviorSubject<LoginStrategyData>;
+  protected sessionTimeoutSubject = new BehaviorSubject<boolean>(false);
+  sessionTimeout$: Observable<boolean> = this.sessionTimeoutSubject.asObservable();
 
   constructor(
     protected accountService: AccountService,
@@ -100,9 +106,12 @@ export abstract class LoginStrategy {
 
   async logInTwoFactor(
     twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string = null,
+    captchaResponse: string | null = null,
   ): Promise<AuthResult> {
     const data = this.cache.value;
+    if (!data.tokenRequest) {
+      throw new Error("Token request is undefined");
+    }
     data.tokenRequest.setTwoFactor(twoFactor);
     this.cache.next(data);
     const [authResult] = await this.startLogIn();
@@ -113,6 +122,9 @@ export abstract class LoginStrategy {
     await this.twoFactorService.clearSelectedProvider();
 
     const tokenRequest = this.cache.value.tokenRequest;
+    if (!tokenRequest) {
+      throw new Error("Token request is undefined");
+    }
     const response = await this.apiService.postIdentityToken(tokenRequest);
 
     if (response instanceof IdentityTwoFactorResponse) {
@@ -121,6 +133,8 @@ export abstract class LoginStrategy {
       return [await this.processCaptchaResponse(response), response];
     } else if (response instanceof IdentityTokenResponse) {
       return [await this.processTokenResponse(response), response];
+    } else if (response instanceof IdentityDeviceVerificationResponse) {
+      return [await this.processDeviceVerificationResponse(response), response];
     }
 
     throw new Error("Invalid response object.");
@@ -176,8 +190,8 @@ export abstract class LoginStrategy {
 
     await this.accountService.addAccount(userId, {
       name: accountInformation.name,
-      email: accountInformation.email,
-      emailVerified: accountInformation.email_verified,
+      email: accountInformation.email ?? "",
+      emailVerified: accountInformation.email_verified ?? false,
     });
 
     await this.accountService.switchAccount(userId);
@@ -230,7 +244,7 @@ export abstract class LoginStrategy {
     );
 
     await this.billingAccountProfileStateService.setHasPremium(
-      accountInformation.premium,
+      accountInformation.premium ?? false,
       false,
       userId,
     );
@@ -291,6 +305,9 @@ export abstract class LoginStrategy {
     try {
       const userKey = await this.keyService.getUserKeyWithLegacySupport(userId);
       const [publicKey, privateKey] = await this.keyService.makeKeyPair(userKey);
+      if (!privateKey.encryptedString) {
+        throw new Error("Failed to create encrypted private key");
+      }
       await this.apiService.postAccountKeys(new KeysRequest(publicKey, privateKey.encryptedString));
       return privateKey.encryptedString;
     } catch (e) {
@@ -316,7 +333,8 @@ export abstract class LoginStrategy {
     await this.twoFactorService.setProviders(response);
     this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     result.ssoEmail2FaSessionToken = response.ssoEmail2faSessionToken;
-    result.email = response.email;
+
+    result.email = response.email ?? "";
     return result;
   }
 
@@ -354,5 +372,23 @@ export abstract class LoginStrategy {
         }),
       ),
     );
+  }
+
+  /**
+   * Handles the response from the server when a device verification is required.
+   * It sets the requiresDeviceVerification flag to true and caches the captcha token if it came back.
+   *
+   * @param {IdentityDeviceVerificationResponse} response - The response from the server indicating that device verification is required.
+   * @returns {Promise<AuthResult>} - A promise that resolves to an AuthResult object
+   */
+  protected async processDeviceVerificationResponse(
+    response: IdentityDeviceVerificationResponse,
+  ): Promise<AuthResult> {
+    const result = new AuthResult();
+    result.requiresDeviceVerification = true;
+
+    // Extend cached data with captcha bypass token if it came back.
+    this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
+    return result;
   }
 }

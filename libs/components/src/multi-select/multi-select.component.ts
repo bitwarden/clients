@@ -24,10 +24,10 @@ import {
 import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BadgeModule } from "../badge";
 import { BitFormFieldControl } from "../form-field/form-field-control";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 import { SelectItemView } from "./models/select-item-view";
 

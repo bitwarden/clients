@@ -91,6 +91,7 @@
           <span data-testid="item-name">{{ cipher.name }}</span>
           <i
             *ngIf="cipher.organizationId"
+            slot="default-trailing"
             appOrgIcon
             [tierType]="cipher.organization.productTierType"
             [size]="'small'"

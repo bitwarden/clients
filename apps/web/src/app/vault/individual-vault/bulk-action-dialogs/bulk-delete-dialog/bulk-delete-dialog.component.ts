@@ -10,7 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 export interface BulkDeleteDialogParams {
   cipherIds?: string[];
@@ -60,6 +60,7 @@ export class BulkDeleteDialogComponent {
     private i18nService: I18nService,
     private apiService: ApiService,
     private collectionService: CollectionService,
+    private toastService: ToastService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
     this.permanent = params.permanent;
@@ -95,19 +96,19 @@ export class BulkDeleteDialogComponent {
     await Promise.all(deletePromises);
 
     if (this.cipherIds.length || this.unassignedCiphers.length) {
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.permanent ? "permanentlyDeletedItems" : "deletedItems"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(this.permanent ? "permanentlyDeletedItems" : "deletedItems"),
+      });
     }
     if (this.collections.length) {
       await this.collectionService.delete(this.collections.map((c) => c.id));
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("deletedCollections"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("deletedCollections"),
+      });
     }
     this.close(BulkDeleteDialogResult.Deleted);
   };
@@ -134,11 +135,11 @@ export class BulkDeleteDialogComponent {
     // From org vault
     if (this.organization) {
       if (this.collections.some((c) => !c.canDelete(this.organization))) {
-        this.platformUtilsService.showToast(
-          "error",
-          this.i18nService.t("errorOccurred"),
-          this.i18nService.t("missingPermissions"),
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("missingPermissions"),
+        });
         return;
       }
       return await this.apiService.deleteManyCollections(
@@ -151,11 +152,11 @@ export class BulkDeleteDialogComponent {
       for (const organization of this.organizations) {
         const orgCollections = this.collections.filter((o) => o.organizationId === organization.id);
         if (orgCollections.some((c) => !c.canDelete(organization))) {
-          this.platformUtilsService.showToast(
-            "error",
-            this.i18nService.t("errorOccurred"),
-            this.i18nService.t("missingPermissions"),
-          );
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("missingPermissions"),
+          });
           return;
         }
         const orgCollectionIds = orgCollections.map((c) => c.id);
