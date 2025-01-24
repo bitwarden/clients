@@ -1357,6 +1357,9 @@ jobs:
           cp $HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
 
+          ls -l $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+
+
       - name: Increment version
         shell: pwsh
         env:
