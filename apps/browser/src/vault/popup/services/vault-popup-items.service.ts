@@ -159,8 +159,7 @@ export class VaultPopupItemsService {
       if (!tab) {
         return of([]);
       }
-      // return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
-      return of(ciphers);
+      return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
     }),
     map((ciphers) => ciphers.sort(this.sortCiphersForAutofill.bind(this))),
     shareReplay({ refCount: false, bufferSize: 1 }),
@@ -215,6 +214,7 @@ export class VaultPopupItemsService {
     map(([hasSearchText, filters]) => {
       return hasSearchText || Object.values(filters).some((filter) => filter !== null);
     }),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   /**

@@ -41,19 +41,6 @@ export class AutofillVaultListItemsComponent implements OnInit {
   protected autofillCiphers$: Observable<PopupCipherView[]> =
     this.vaultPopupItemsService.autoFillCiphers$;
 
-  // Break out each cipher type:
-  protected loginCiphers$ = this.autofillCiphers$.pipe(
-    map((ciphers) => ciphers.filter((c) => c.type === CipherType.Login)),
-  );
-
-  protected cardCiphers$ = this.autofillCiphers$.pipe(
-    map((ciphers) => ciphers.filter((c) => c.type === CipherType.Card)),
-  );
-
-  protected identityCiphers$ = this.autofillCiphers$.pipe(
-    map((ciphers) => ciphers.filter((c) => c.type === CipherType.Identity)),
-  );
-
   /**
    * Flag indicating whether the refresh button should be shown. Only shown when the popup is within the FF sidebar.
    * @protected

@@ -278,8 +278,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit, 
   }
 
   /**
-   * Re-group ciphers by type whenever ciphers or groupByType changes.
-   * This is a simple example grouping Logins, Cards, Identities.
+   * Re-group ciphers by type whenever ciphers or groupByType changes
    */
   private groupCiphersByType(): void {
     if (!this.ciphers) {
@@ -289,7 +288,6 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit, 
     const loginCiphers: PopupCipherView[] = [];
     const cardCiphers: PopupCipherView[] = [];
     const identityCiphers: PopupCipherView[] = [];
-    const otherCiphers: PopupCipherView[] = [];
 
     for (const cipher of this.ciphers) {
       switch (cipher.type) {
@@ -303,8 +301,6 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit, 
           identityCiphers.push(cipher);
           break;
         default:
-          // Or handle SecureNote, SSH Key, etc. if you want:
-          otherCiphers.push(cipher);
           break;
       }
     }
