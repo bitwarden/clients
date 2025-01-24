@@ -9808,6 +9808,15 @@
   "sshKeyAlgorithm": {
     "message": "Nøglealgoritme"
   },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
+  },
   "sshKeyFingerprint": {
     "message": "Fingeraftryk"
   },

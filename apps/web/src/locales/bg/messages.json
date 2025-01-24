@@ -156,10 +156,10 @@
     "message": "Общо приложения"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Премахване на приложението от важните"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Приложението е премахнато от важните"
   },
   "whatTypeOfItem": {
     "message": "Вид на елемента"
@@ -1168,10 +1168,10 @@
     "message": "Потвърдете самоличността си"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Продължаване с вписването"
   },
   "whatIsADevice": {
     "message": "Какво представлява едно устройство?"
@@ -9807,6 +9807,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Алгоритъм на ключа"
+  },
+  "sshPrivateKey": {
+    "message": "Частен ключ"
+  },
+  "sshPublicKey": {
+    "message": "Публичен ключ"
+  },
+  "sshFingerprint": {
+    "message": "Отпечатък"
   },
   "sshKeyFingerprint": {
     "message": "Отпечатък"
