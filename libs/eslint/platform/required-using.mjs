@@ -1,6 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-require-imports */
-
 import { ESLintUtils } from "@typescript-eslint/utils";
 
 export const errorMessage = "'using' keyword is required but not used";
