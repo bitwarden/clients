@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Xác minh danh tính"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "Kho của bạn đã bị khóa. Xác minh danh tính của bạn để mở khoá."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Đưa ra lựa chọn để thêm một mục nếu không tìm thấy mục đó trong hòm của bạn. Áp dụng với mọi tài khoản đăng nhập trên thiết bị."
   },
-  "showCardsInVaultView": {
-    "message": "Hiển thị các thẻ như các gợi ý tự động điền trên giao diện kho"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Hiển thị thẻ trên trang Tab"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Liệt kê các mục thẻ trên trang Tab để dễ dàng tự động điền."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Hiển thị các danh tính như các gợi ý tự động điền trên giao diện kho"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Hiển thị danh tính trên trang Tab"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

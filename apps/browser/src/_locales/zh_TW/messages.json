@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "驗證身份"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "您的密碼庫已鎖定。請驗證身分以繼續。"
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "如果在您的密碼庫中找不到項目，則詢問是否新增項目。適用於所有已登入的帳戶。"
   },
-  "showCardsInVaultView": {
-    "message": "在密碼庫介面中顯示支付卡自動填入建議"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "於分頁頁面顯示支付卡"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "於分頁頁面顯示信用卡以便於自動填入。"
   },
-  "showIdentitiesInVaultView": {
-    "message": "在密碼庫介面中顯示身分自動填入建議"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "於分頁頁面顯示身分"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "更寬"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "請更新您的桌面應用程式"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "為了使用生物辨識解鎖，請更新您的桌面應用程式，或在設定中停用指紋解鎖。"
   }
 }

@@ -6,9 +6,14 @@ import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationApiKeyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -76,6 +81,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private i18nService: I18nService,
     private logService: LogService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private route: ActivatedRoute,
     private dialogService: DialogService,
@@ -117,7 +123,12 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   async load() {
     this.loading = true;
     this.locale = await firstValueFrom(this.i18nService.locale$);
-    this.userOrg = await this.organizationService.get(this.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.userOrg = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
 
     const isIndependentOrganizationOwner = !this.userOrg.hasProvider && this.userOrg.isOwner;
     const isResoldOrganizationOwner = this.userOrg.hasReseller && this.userOrg.isOwner;

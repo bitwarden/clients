@@ -7,9 +7,11 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+import { Account } from "../../../../../../../libs/importer/src/importers/lastpass/access/models";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 
 import { AdminConsoleCipherFormConfigService } from "./admin-console-cipher-form-config.service";
@@ -50,8 +52,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     readOnly: false,
   } as CollectionAdminView;
 
-  const organization$ = new BehaviorSubject<Organization>(testOrg as Organization);
-  const organizations$ = new BehaviorSubject<Organization[]>([testOrg, testOrg2] as Organization[]);
+  const orgs$ = new BehaviorSubject<Organization[]>([testOrg, testOrg2] as Organization[]);
   const getCipherAdmin = jest.fn().mockResolvedValue(null);
   const getCipher = jest.fn().mockResolvedValue(null);
 
@@ -65,7 +66,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     TestBed.configureTestingModule({
       providers: [
         AdminConsoleCipherFormConfigService,
-        { provide: OrganizationService, useValue: { get$: () => organization$, organizations$ } },
+        { provide: OrganizationService, useValue: { organizations$: () => orgs$ } },
         {
           provide: CollectionAdminService,
           useValue: { getAll: () => Promise.resolve([collection, collection2]) },
@@ -80,6 +81,10 @@ describe("AdminConsoleCipherFormConfigService", () => {
         },
         { provide: ApiService, useValue: { getCipherAdmin } },
         { provide: CipherService, useValue: { get: getCipher } },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: new BehaviorSubject<Account>(new Account()) },
+        },
       ],
     });
     adminConsoleConfigService = TestBed.inject(AdminConsoleCipherFormConfigService);

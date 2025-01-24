@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Общо приложения"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "Вид на елемента"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Потвърдете самоличността си"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "whatIsADevice": {
     "message": "Какво представлява едно устройство?"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "на месец за член"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "месец, за всеки потребител, таксувано на годишна база"
   },
   "seats": {
     "message": "Места"

@@ -148,8 +148,10 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       value: id,
     }));
 
-    // Populate the form with the existing fields
-    this.cipherFormContainer.originalCipherView?.fields?.forEach((field) => {
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    // When available, populate the form with the existing fields
+    prefillCipher.fields?.forEach((field) => {
       let value: string | boolean = field.value;
 
       if (field.type === FieldType.Boolean) {

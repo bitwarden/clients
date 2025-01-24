@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Személyazonosság ellenőrzése"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "A széf zárolásra került. A folytatáshoz meg kell adni a mesterjelszót."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Egy elem hozzáadásának kérése, ha az nem található a széfben. Minden bejelentkezett fiókra vonatkozik."
   },
-  "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Kártyák megjelenítése a Fül oldalon"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Kártyaelemek listázása a Fül oldalon a könnyű automatikus kitöltéshez."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Show identities as Autofill suggestions on Vault view"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Azonosítások megjelenítése a Fül oldalon"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Extra széles"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Frissítsük az asztali alkalmazást."
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "A biometrikus feloldás használatához frissítsük az asztali alkalmazást vagy tiltsuk le az ujjlenyomatos feloldást az asztali beállításokban."
   }
 }

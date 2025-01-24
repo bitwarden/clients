@@ -8,6 +8,7 @@ import { CollectionService, CollectionView } from "@bitwarden/admin-console/comm
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Checkable, isChecked } from "@bitwarden/common/types/checkable";
@@ -76,7 +77,8 @@ export class BulkShareDialogComponent implements OnInit, OnDestroy {
     this.nonShareableCount = this.ciphers.length - this.shareableCiphers.length;
     const allCollections = await this.collectionService.getAllDecrypted();
     this.writeableCollections = allCollections.filter((c) => !c.readOnly);
-    this.organizations = await this.organizationService.getAll();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organizations = await firstValueFrom(this.organizationService.organizations$(userId));
     if (this.organizationId == null && this.organizations.length > 0) {
       this.organizationId = this.organizations[0].id;
     }

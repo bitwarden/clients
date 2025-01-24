@@ -1,11 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
-import { combineLatest, from, lastValueFrom, map, Observable } from "rxjs";
+import { combineLatest, firstValueFrom, from, lastValueFrom, map, Observable } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
@@ -33,16 +35,21 @@ export class AccountComponent implements OnInit {
     private userVerificationService: UserVerificationService,
     private configService: ConfigService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     const isAccountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.AccountDeprovisioning,
     );
 
-    const userIsManagedByOrganization$ = this.organizationService.organizations$.pipe(
-      map((organizations) => organizations.some((o) => o.userIsManagedByOrganization === true)),
-    );
+    const userIsManagedByOrganization$ = this.organizationService
+      .organizations$(userId)
+      .pipe(
+        map((organizations) => organizations.some((o) => o.userIsManagedByOrganization === true)),
+      );
 
     const hasMasterPassword$ = from(this.userVerificationService.hasMasterPassword());
 

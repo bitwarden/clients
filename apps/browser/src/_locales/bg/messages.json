@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Потвърждаване на самоличността"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "Трезорът е заключен — въведете главната си парола, за да продължите."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Питане за добавяне на елемент, ако такъв не бъде намерен в трезора. Прилага се за всички регистрации, в които сте вписан(а)."
   },
-  "showCardsInVaultView": {
-    "message": "Показване на картите като предложения за авт. попълване в изгледа на трезора"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Показване на карти в страницата с разделите"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Показване на картите в страницата с разделите, за лесно автоматично попълване."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Показване на самоличности като предложения за автоматично попълване в изгледа на трезора"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показване на самоличности в страницата с разделите"
@@ -2285,7 +2291,7 @@
     "message": "Потребителят е заключен или отписан"
   },
   "biometricsNotUnlockedDesc": {
-    "message": "Отключете потребителя в настолното приложение и опитайте отново."
+    "message": "Отключете потребителя в самостоятелното приложение и опитайте отново."
   },
   "biometricsNotAvailableTitle": {
     "message": "Отключването чрез биометрични данни не е налично"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Много широко"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Моля, обновете самостоятелното приложение"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "За да използвате отключването чрез биометрични данни, обновете самостоятелното приложение или изключете отключването чрез пръстов отпечатък в настройките му."
   }
 }

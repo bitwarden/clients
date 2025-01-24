@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Kopējais lietotņu skaits"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "Kāda veida vienums tas ir?"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Jāapliecina sava identitāte"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "whatIsADevice": {
     "message": "Kas ir ierīce?"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "mēnesī par dalībnieku"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "par dalībnieku mēnesī ar ikgadēju rēķinu"
   },
   "seats": {
     "message": "Vietas"

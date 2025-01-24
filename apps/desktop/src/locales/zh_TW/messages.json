@@ -885,6 +885,15 @@
     "message": "爲您的組織使用 Duo Security 的 Duo Mobile 程式、SMS、致電或 U2F 安全鑰匙進行驗證。",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -2740,13 +2749,13 @@
     "message": "已傳送通知至您的裝置。"
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "已傳送通知至您的裝置"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
     "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "需要另一個選項嗎？"
   },
   "fingerprintMatchInfo": {
     "message": "請確保您的密碼庫已解鎖，並且指紋短語與其他裝置的一致。"
@@ -2761,7 +2770,7 @@
     "message": "必須先在 Bitwarden 應用程式設定中開啟，才可以使用裝置登入。要改用其他選項嗎？"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "檢視所有登入選項"
   },
   "viewAllLoginOptions": {
     "message": "檢視所有登入選項"
@@ -2862,7 +2871,7 @@
     "message": "No email?"
   },
   "goBack": {
-    "message": "Go back"
+    "message": "返回"
   },
   "toEditYourEmailAddress": {
     "message": "to edit your email address."
@@ -2880,16 +2889,16 @@
     "message": "密碼強度不足，且該密碼已洩露。請使用一個強度足夠和獨特的密碼來保護您的帳戶。您確定要使用這個密碼嗎？"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "使用此密碼"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "使用此使用者名稱"
   },
   "checkForBreaches": {
     "message": "檢查外洩的密碼資料庫中是否包含此密碼"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "已登入！"
   },
   "important": {
     "message": "重要："
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Extension update required"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
   }
 }

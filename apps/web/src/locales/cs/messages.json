@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Celkem aplikací"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Zrušit označení jako kritické aplikace"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Kritická aplikace úspěšně odoznačena"
+  },
   "whatTypeOfItem": {
     "message": "O jaký typ položky se jedná?"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Ověřte svou totožnost"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Toto zařízení nepoznáváme. Zadejte kód zaslaný na Váš e-mail pro ověření Vaší totožnosti."
+  },
+  "continueLoggingIn": {
+    "message": "Pokračovat v přihlášení"
   },
   "whatIsADevice": {
     "message": "Co je to zařízení?"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "měsíčně za člena"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "měsíčně za člena a účtováno ročně"
   },
   "seats": {
     "message": "Počet"
