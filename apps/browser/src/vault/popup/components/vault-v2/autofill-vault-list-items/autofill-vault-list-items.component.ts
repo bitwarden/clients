@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -40,6 +41,19 @@ export class AutofillVaultListItemsComponent implements OnInit {
   protected autofillCiphers$: Observable<PopupCipherView[]> =
     this.vaultPopupItemsService.autoFillCiphers$;
 
+  // Break out each cipher type:
+  protected loginCiphers$ = this.autofillCiphers$.pipe(
+    map((ciphers) => ciphers.filter((c) => c.type === CipherType.Login)),
+  );
+
+  protected cardCiphers$ = this.autofillCiphers$.pipe(
+    map((ciphers) => ciphers.filter((c) => c.type === CipherType.Card)),
+  );
+
+  protected identityCiphers$ = this.autofillCiphers$.pipe(
+    map((ciphers) => ciphers.filter((c) => c.type === CipherType.Identity)),
+  );
+
   /**
    * Flag indicating whether the refresh button should be shown. Only shown when the popup is within the FF sidebar.
    * @protected
@@ -47,6 +61,10 @@ export class AutofillVaultListItemsComponent implements OnInit {
   protected showRefresh: boolean = BrowserPopupUtils.inSidebar(window);
 
   clickItemsToAutofillVaultView = false;
+
+  protected groupByType = toSignal(
+    this.vaultPopupItemsService.hasFilterApplied$.pipe(map((hasFilter) => !hasFilter)),
+  );
 
   /**
    * Observable that determines whether the empty autofill tip should be shown.

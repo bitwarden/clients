@@ -159,7 +159,8 @@ export class VaultPopupItemsService {
       if (!tab) {
         return of([]);
       }
-      return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
+      // return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
+      return of(ciphers);
     }),
     map((ciphers) => ciphers.sort(this.sortCiphersForAutofill.bind(this))),
     shareReplay({ refCount: false, bufferSize: 1 }),
