@@ -213,7 +213,6 @@ export default tseslint.config(
   },
   {
     files: ["**/src/**/*.ts"],
-    ignores: ["**/platform/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports(),
     },
