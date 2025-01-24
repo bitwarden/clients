@@ -115,7 +115,7 @@
           ></i>
           <span slot="secondary">{{ cipher.subTitle }}</span>
         </button>
-        <div slot="end" class="tw-flex tw-items-center gap-1">
+        <ng-container slot="end">
           <bit-item-action *ngIf="!(hideAutofillButton$ | async)">
             <button
               type="button"
@@ -144,7 +144,7 @@
             [hideAutofillOptions]="hideAutofillOptions$ | async"
             [showViewOption]="primaryActionAutofill"
           ></app-item-more-options>
-        </div>
+        </ng-container>
       </bit-item>
     </cdk-virtual-scroll-viewport>
   </bit-item-group>
