@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "合計アプリ数"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "このアイテムのタイプは何ですか？"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "本人確認"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "whatIsADevice": {
     "message": "What is a device?"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "月/メンバーあたり"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
   },
   "seats": {
     "message": "シート"
