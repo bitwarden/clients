@@ -15,7 +15,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
@@ -90,7 +89,6 @@ export class RegisterComponent extends CaptchaProtectedComponent implements OnIn
     i18nService: I18nService,
     protected keyService: KeyService,
     protected apiService: ApiService,
-    protected stateService: StateService,
     platformUtilsService: PlatformUtilsService,
     environmentService: EnvironmentService,
     protected logService: LogService,
