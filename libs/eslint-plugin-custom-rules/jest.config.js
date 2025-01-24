@@ -11,7 +11,4 @@ module.exports = {
   displayName: "libs/eslint-plugin-custom-rules tests",
   preset: "jest-preset-angular",
   setupFilesAfterEnv: ["<rootDir>/test.setup.js"],
-  // moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
-  //   prefix: "<rootDir>/",
-  // }),
 };
