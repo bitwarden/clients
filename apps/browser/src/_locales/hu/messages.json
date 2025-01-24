@@ -648,10 +648,10 @@
     "message": "Személyazonosság ellenőrzése"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Nem ismerhető fel ez az eszköz. Írjuk be az email címünkre küldött kódot a személyazonosság igazolásához."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "A bejelentkezés folytatása"
   },
   "yourVaultIsLocked": {
     "message": "A széf zárolásra került. A folytatáshoz meg kell adni a mesterjelszót."
@@ -993,7 +993,7 @@
     "message": "Egy elem hozzáadásának kérése, ha az nem található a széfben. Minden bejelentkezett fiókra vonatkozik."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Mindig jelenítse meg a kártyákat automatikus kitöltési javaslatként a Széf nézetben"
   },
   "showCardsCurrentTab": {
     "message": "Kártyák megjelenítése a Fül oldalon"
@@ -1002,7 +1002,7 @@
     "message": "Kártyaelemek listázása a Fül oldalon a könnyű automatikus kitöltéshez."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Mindig jelenítse meg a személyazonosságokat automatikus kitöltési javaslatként a Széf nézetben"
   },
   "showIdentitiesCurrentTab": {
     "message": "Azonosítások megjelenítése a Fül oldalon"

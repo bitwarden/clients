@@ -648,10 +648,10 @@
     "message": "Identitātes apliecināšana"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Mēs neatpazīstam šo ierīci. Jāievada kods, kas tika nosūtīts e-pastā, lai apliecinātu savu identitāti."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Turpināt pieteikšanos"
   },
   "yourVaultIsLocked": {
     "message": "Glabātava ir aizslēgta. Jāapliecina sava identitāte, lai turpinātu."
@@ -993,7 +993,7 @@
     "message": "Vaicāt, vai pievienot vienumu, ja glabātavā tāds nav atrodams. Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Glabātavas skatā vienmēr rādīt kartes kā automātiskās aizpildes ieteikumus"
   },
   "showCardsCurrentTab": {
     "message": "Rādīt kartes cilnes lapā"
@@ -1002,7 +1002,7 @@
     "message": "Attēlot kartes ciļņu lapā vieglākai aizpildīšanai."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Glabātavas skatā vienmēr rādīt identitātes kā automātiskās aizpildes ieteikumus"
   },
   "showIdentitiesCurrentTab": {
     "message": "Rādīt identitātes cilnes pārskatā"

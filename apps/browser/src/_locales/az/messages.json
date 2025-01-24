@@ -648,10 +648,10 @@
     "message": "Kimliyi doğrula"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Giriş etməyə davam"
   },
   "yourVaultIsLocked": {
     "message": "Seyfiniz kilidlənib. Davam etmək üçün kimliyinizi doğrulayın."
@@ -993,7 +993,7 @@
     "message": "Seyfinizdə tapılmayan elementin əlavə edilməsi soruşulsun. Giriş etmiş bütün hesablara aiddir."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Kartları, Seyf görünüşündə Avto-doldurma təklifləri olaraq həmişə göstər"
   },
   "showCardsCurrentTab": {
     "message": "Kartları Vərəq səhifəsində göstər"
@@ -1002,7 +1002,7 @@
     "message": "Asan avto-doldurma üçün Vərəq səhifəsində kart elementlərini sadalayın."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Kimlikləri, Seyf görünüşündə Avto-doldurma təklifləri olaraq həmişə göstər"
   },
   "showIdentitiesCurrentTab": {
     "message": "Vərəq səhifəsində kimlikləri göstər"

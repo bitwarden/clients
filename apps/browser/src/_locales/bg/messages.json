@@ -648,10 +648,10 @@
     "message": "Потвърждаване на самоличността"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Продължаване с вписването"
   },
   "yourVaultIsLocked": {
     "message": "Трезорът е заключен — въведете главната си парола, за да продължите."
@@ -993,7 +993,7 @@
     "message": "Питане за добавяне на елемент, ако такъв не бъде намерен в трезора. Прилага се за всички регистрации, в които сте вписан(а)."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Картите да се показват винаги като предложения за авт. попълване в изгледа на трезора"
   },
   "showCardsCurrentTab": {
     "message": "Показване на карти в страницата с разделите"
@@ -1002,7 +1002,7 @@
     "message": "Показване на картите в страницата с разделите, за лесно автоматично попълване."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Самоличностите да се показват винаги като предложения за автоматично попълване в изгледа на трезора"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показване на самоличности в страницата с разделите"
