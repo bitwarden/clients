@@ -30,6 +30,8 @@ const config: StorybookConfig = {
     getAbsolutePath("@storybook/addon-designs"),
     getAbsolutePath("@storybook/addon-interactions"),
     {
+      // @storybook/addon-docs is part of @storybook/addon-essentials
+      // eslint-disable-next-line storybook/no-uninstalled-addons
       name: "@storybook/addon-docs",
       options: {
         mdxPluginOptions: {

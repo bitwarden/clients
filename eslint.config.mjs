@@ -271,6 +271,12 @@ export default tseslint.config(
 
   /// Team overrides
   {
+    files: ["**/src/platform/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([], true),
+    },
+  },
+  {
     files: [
       "apps/cli/src/admin-console/**/*.ts",
       "apps/web/src/app/admin-console/**/*.ts",
@@ -356,14 +362,12 @@ export default tseslint.config(
  * @param {string[]} additionalForbiddenPatterns
  * @returns {any}
  */
-function buildNoRestrictedImports(additionalForbiddenPatterns = []) {
+function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform = false) {
   return [
     "error",
     {
       patterns: [
-        "**/platform/**/internal", // General internal pattern
-        // All features that have been converted to barrel files
-        "**/platform/messaging/**",
+        ...(skipPlatform ? [] : ["**/platform/**/internal", "**/platform/messaging/**"]),
         "**/src/**/*", // Prevent relative imports across libs.
       ].concat(additionalForbiddenPatterns),
     },
