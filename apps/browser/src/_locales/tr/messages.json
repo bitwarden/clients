@@ -385,7 +385,7 @@
     "message": "Hiç klasör eklenmedi"
   },
   "createFoldersToOrganize": {
-    "message": "Create folders to organize your vault items"
+    "message": "Kasanızdaki kayıtları organize etmek için klasörler oluşturun"
   },
   "deleteFolderPermanently": {
     "message": "Bu klasörü kalıcı olarak silmek istediğinizden emin misiniz?"
@@ -646,6 +646,12 @@
   },
   "verifyIdentity": {
     "message": "Kimliği doğrula"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "Kasanız kilitli. Devam etmek için kimliğinizi doğrulayın."
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Kasanızda bulunmayan kayıtların eklenmesini isteyip istemediğinizi sorar. Oturum açmış tüm hesaplar için geçerlidir."
   },
-  "showCardsInVaultView": {
-    "message": "Kasa görünümünde kartları otomatik doldurma önerisi olarak göster"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Sekme sayfasında kartları göster"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Kolay otomatik doldurma için sekme sayfasında kartları listele."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Kasa görünümünde kimlikleri otomatik doldurma önerisi olarak göster"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Sekme sayfasında kimlikleri göster"
@@ -1466,7 +1472,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Önerileri otomatik doldur"
+    "message": "Otomatik doldurma önerileri"
   },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
@@ -2337,7 +2343,7 @@
     "message": "Bitwarden, oturum açmış tüm hesaplar için bu alan adlarının hesap bilgilerini kaydetmeyi sormayacaktır. Değişikliklerin etkili olması için sayfayı yenilemeniz gerekir."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "Bu siteler için otomatik doldurma ve diğer ilgili özellikler önerilmeyecektir. Değişikliklerin devreye girmesi için sayfayı yenilemelisiniz."
   },
   "autofillBlockedNoticeV2": {
     "message": "Bu sitede otomatik doldurma engellenmiş."
@@ -3425,38 +3431,6 @@
     "message": "Daraltmayı aç/kapat",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Verileriniz Bitwarden'a aktarılsın mı?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "LastPass verileriniz korunsun ve Bitwarden'a aktarılsın mı?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Şifrelenmemiş dosya olarak kaydet",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Bitwarden'a aktar",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "İçe aktarılıyor...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Veriler başarıyla içe aktarıldı!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "İçe aktarma hatası. Ayrıntılar için konsolu kontrol edin.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "İçe aktarma sırasında ağ hatasıyla karşılaşıldı.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias alan adı"
   },
@@ -4008,7 +3982,7 @@
     "message": "Geçiş anahtarı kaldırıldı"
   },
   "autofillSuggestions": {
-    "message": "Önerileri otomatik doldur"
+    "message": "Otomatik doldurma önerileri"
   },
   "itemSuggestions": {
     "message": "Önerilen kayıtlar"
@@ -4900,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Ekstra geniş"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Lütfen masaüstü uygulamanızı güncelleyin"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

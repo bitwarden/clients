@@ -276,4 +276,24 @@ describe("PasswordLoginStrategy", () => {
     );
     expect(secondResult.forcePasswordReset).toEqual(ForceSetPasswordReason.WeakMasterPassword);
   });
+
+  it("handles new device verification login with OTP", async () => {
+    const deviceVerificationOtp = "123456";
+    const tokenResponse = identityTokenResponseFactory();
+    apiService.postIdentityToken.mockResolvedValueOnce(tokenResponse);
+    tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    await passwordLoginStrategy.logIn(credentials);
+
+    const result = await passwordLoginStrategy.logInNewDeviceVerification(deviceVerificationOtp);
+
+    expect(apiService.postIdentityToken).toHaveBeenCalledWith(
+      expect.objectContaining({
+        newDeviceOtp: deviceVerificationOtp,
+      }),
+    );
+    expect(result.forcePasswordReset).toBe(ForceSetPasswordReason.None);
+    expect(result.resetMasterPassword).toBe(false);
+    expect(result.userId).toBe(userId);
+  });
 });

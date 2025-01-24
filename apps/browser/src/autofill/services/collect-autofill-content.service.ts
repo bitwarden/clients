@@ -947,8 +947,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.mutationsQueue.length) {
-      // Collect all mutations and debounce the processing of those mutations by 100ms to ensure we don't process too many mutations at once.
-      debounce(this.processMutations, 100);
+      requestIdleCallbackPolyfill(debounce(this.processMutations, 100), { timeout: 500 });
     }
     this.mutationsQueue.push(mutations);
   };

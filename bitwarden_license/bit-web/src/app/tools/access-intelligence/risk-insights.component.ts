@@ -2,16 +2,18 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Observable, EMPTY } from "rxjs";
+import { EMPTY, Observable } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  RiskInsightsDataService,
   CriticalAppsService,
-  PasswordHealthReportApplicationsResponse,
+  RiskInsightsDataService,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
-import { ApplicationHealthReportDetail } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+import {
+  ApplicationHealthReportDetail,
+  PasswordHealthReportApplicationsResponse,
+} from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
 // eslint-disable-next-line no-restricted-imports -- used for dependency injection
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";

@@ -43,6 +43,7 @@ describe("EmergencyViewDialogComponent", () => {
       imports: [EmergencyViewDialogComponent, NoopAnimationsModule],
       providers: [
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
+        { provide: AccountService, useValue: accountService },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: FolderService, useValue: mock<FolderService>() },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },

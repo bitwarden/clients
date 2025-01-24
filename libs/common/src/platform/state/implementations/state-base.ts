@@ -28,7 +28,7 @@ import { getStoredValue } from "./util";
 
 // The parts of a KeyDefinition this class cares about to make it work
 type KeyDefinitionRequirements<T> = {
-  deserializer: (jsonState: Jsonify<T>) => T;
+  deserializer: (jsonState: Jsonify<T>) => T | null;
   cleanupDelayMs: number;
   debug: Required<DebugOptions>;
 };

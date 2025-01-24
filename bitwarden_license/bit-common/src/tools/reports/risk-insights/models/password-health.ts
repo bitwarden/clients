@@ -1,6 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
+import { Opaque } from "type-fest";
+
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
 
@@ -113,3 +116,31 @@ export type AtRiskApplicationDetail = {
   applicationName: string;
   atRiskPasswordCount: number;
 };
+
+/**
+ * Request to drop a password health report application
+ * Model is expected by the API endpoint
+ */
+export interface PasswordHealthReportApplicationDropRequest {
+  organizationId: OrganizationId;
+  passwordHealthReportApplicationIds: string[];
+}
+
+/**
+ * Response from the API after marking an app as critical
+ */
+export interface PasswordHealthReportApplicationsResponse {
+  id: PasswordHealthReportApplicationId;
+  organizationId: OrganizationId;
+  uri: string;
+}
+/*
+ * Request to save a password health report application
+ * Model is expected by the API endpoint
+ */
+export interface PasswordHealthReportApplicationsRequest {
+  organizationId: OrganizationId;
+  url: string;
+}
+
+export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;
