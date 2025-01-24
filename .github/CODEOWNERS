@@ -162,3 +162,7 @@ apps/web/src/locales/en/messages.json
 **/*.Dockerfile
 **/.dockerignore
 **/entrypoint.sh
+
+## Overrides
+# tsconfig files are potentially dangerous and will be reviewed by platform to prevent misconfigurations
+**/tsconfig.json @bitwarden/team-platform-dev

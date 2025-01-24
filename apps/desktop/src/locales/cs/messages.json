@@ -885,6 +885,15 @@
     "message": "Ověření pomocí Duo Security pro Vaši organizaci prostřednictvím aplikace Duo Mobile, SMS, telefonního hovoru nebo bezpečnostního klíče U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Ověřte svou totožnost"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Toto zařízení nepoznáváme. Zadejte kód zaslaný na Váš e-mail pro ověření Vaší totožnosti."
+  },
+  "continueLoggingIn": {
+    "message": "Pokračovat v přihlášení"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "Tato funkce není dostupná pro bezplatné organizace. Přepněte na placenou verzi a odemkněte další funkce."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Je vyžadována aktualiazce rozšíření"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Použité rozšíření prohlížeče je zastaralé. Aktualizujte jej nebo zakažte ověření otisků prstů při integraci prohlížeče v nastavení aplikace."
   }
 }

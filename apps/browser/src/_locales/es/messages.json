@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Verificar identidad"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "Tu caja fuerte está bloqueada. Verifica tu identidad para continuar."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Pide que se agregue un elemento si no se encuentra uno en su caja fuerte. Se aplica a todas las cuentas que hayan iniciado sesión."
   },
-  "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Mostrar las tarjetas en la pestaña"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Listar los elementos de tarjetas en la página para facilitar el auto-rellenado."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Show identities as Autofill suggestions on Vault view"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Mostrar las identidades en la página"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

@@ -47,6 +47,7 @@ export enum FeatureFlag {
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
+  NewDeviceVerification = "new-device-verification",
   PM15179_AddExistingOrgsFromProviderPortal = "PM-15179-add-existing-orgs-from-provider-portal",
 }
 
@@ -105,6 +106,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
+  [FeatureFlag.NewDeviceVerification]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 

@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Verifikasi Identitas Anda"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "Brankas Anda terkunci. Verifikasi kata sandi utama Anda untuk melanjutkan."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Tanyakan untuk menambah sebuah benda jika benda itu tidak ditemukan di brankas Anda. Diterapkan ke seluruh akun yang telah masuk."
   },
-  "showCardsInVaultView": {
-    "message": "Tampilkan kartu sebagai saran isi otomatis pada tampilan Brankas"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Tamplikan kartu pada halaman Tab"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Buat tampilan daftar benda dari kartu pada halaman Tab untuk isi otomatis yang mudah."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Tampilkan identitas sebagai saran isi otomatis pada tampilan Brankas"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Tampilkan identitas pada halaman Tab"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Ekstra lebar"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

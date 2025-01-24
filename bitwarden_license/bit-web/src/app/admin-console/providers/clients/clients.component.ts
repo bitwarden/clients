@@ -14,6 +14,8 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { ProviderStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -68,6 +70,7 @@ export class ClientsComponent {
     private apiService: ApiService,
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
+    private accountService: AccountService,
     private activatedRoute: ActivatedRoute,
     private dialogService: DialogService,
     private i18nService: I18nService,
@@ -136,13 +139,14 @@ export class ClientsComponent {
 
   async load() {
     const response = await this.apiService.getProviderClients(this.providerId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const clients = response.data != null && response.data.length > 0 ? response.data : [];
     this.dataSource.data = clients;
     this.manageOrganizations =
       (await this.providerService.get(this.providerId)).type === ProviderUserType.ProviderAdmin;
-    const candidateOrgs = (await this.organizationService.getAll()).filter(
-      (o) => o.isOwner && o.providerId == null,
-    );
+    const candidateOrgs = (
+      await firstValueFrom(this.organizationService.organizations$(userId))
+    ).filter((o) => o.isOwner && o.providerId == null);
     const allowedOrgsIds = await Promise.all(
       candidateOrgs.map((o) => this.organizationApiService.get(o.id)),
     ).then((orgs) =>

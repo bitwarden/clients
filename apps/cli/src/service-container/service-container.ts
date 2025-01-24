@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import * as jsdom from "jsdom";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -25,8 +25,8 @@ import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/services/organization/organization.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
@@ -36,7 +36,10 @@ import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/aut
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import {
+  AccountServiceImplementation,
+  getUserId,
+} from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DeviceTrustService } from "@bitwarden/common/auth/services/device-trust.service.implementation";
@@ -65,6 +68,7 @@ import {
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
@@ -168,6 +172,7 @@ import {
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
+import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { ConsoleLogService } from "../platform/services/console-log.service";
 import { I18nService } from "../platform/services/i18n.service";
 import { LowdbStorageService } from "../platform/services/lowdb-storage.service";
@@ -238,7 +243,8 @@ export class ServiceContainer {
   stateService: StateService;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
   domainSettingsService: DomainSettingsService;
-  organizationService: OrganizationService;
+  organizationService: DefaultOrganizationService;
+  DefaultOrganizationService: DefaultOrganizationService;
   providerService: ProviderService;
   twoFactorService: TwoFactorService;
   folderApiService: FolderApiService;
@@ -266,6 +272,7 @@ export class ServiceContainer {
   kdfConfigService: KdfConfigService;
   taskSchedulerService: TaskSchedulerService;
   sdkService: SdkService;
+  sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
 
   constructor() {
@@ -450,7 +457,7 @@ export class ServiceContainer {
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
 
-    this.organizationService = new OrganizationService(this.stateProvider);
+    this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
 
     this.vaultTimeoutSettingsService = new VaultTimeoutSettingsService(
@@ -566,6 +573,7 @@ export class ServiceContainer {
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
+    this.sdkLoadService = new CliSdkLoadService();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -824,6 +832,7 @@ export class ServiceContainer {
     this.cipherAuthorizationService = new DefaultCipherAuthorizationService(
       this.collectionService,
       this.organizationService,
+      this.accountService,
     );
   }
 
@@ -831,7 +840,7 @@ export class ServiceContainer {
     this.authService.logOut(() => {
       /* Do nothing */
     });
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await Promise.all([
       this.eventUploadService.uploadEvents(userId as UserId),
       this.keyService.clearKeys(),
@@ -854,6 +863,7 @@ export class ServiceContainer {
       return;
     }
 
+    await this.sdkLoadService.load();
     await this.storageService.init();
     await this.stateService.init();
     this.containerService.attachToGlobal(global);

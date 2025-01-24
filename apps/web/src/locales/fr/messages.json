@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Total des applications"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Ne plus marquer comme application critique"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Marquage d'application critique retiré avec succès"
+  },
   "whatTypeOfItem": {
     "message": "Quel type d'élément est-ce ?"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Vérifiez votre Identité"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Nous ne reconnaissons pas cet appareil. Entrez le code envoyé à votre courriel pour vérifier votre identité."
+  },
+  "continueLoggingIn": {
+    "message": "Continuer à vous connecter"
   },
   "whatIsADevice": {
     "message": "Qu'est-ce qu'un appareil ?"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "mois par membre"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "mois par membre facturés annuellement"
   },
   "seats": {
     "message": "Licences"

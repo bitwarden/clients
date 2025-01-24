@@ -10,7 +10,7 @@ import { ButtonModule } from "@bitwarden/components";
  * It provides a button to navigate to the login page.
  */
 @Component({
-  selector: "app-two-factor-expired",
+  selector: "app-authentication-timeout",
   standalone: true,
   imports: [CommonModule, JslibModule, ButtonModule, RouterModule],
   template: `
@@ -22,4 +22,4 @@ import { ButtonModule } from "@bitwarden/components";
     </a>
   `,
 })
-export class TwoFactorTimeoutComponent {}
+export class AuthenticationTimeoutComponent {}

@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -154,7 +155,7 @@ export class OrganizationUserResetPasswordService
       throw new Error("New user key is required for rotation.");
     }
 
-    const allOrgs = await this.organizationService.getAll();
+    const allOrgs = await firstValueFrom(this.organizationService.organizations$(userId));
 
     if (!allOrgs) {
       return;

@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Anwendungen insgesamt"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "Um welche Art von Eintrag handelt es sich hierbei?"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Verifiziere deine Identität"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren."
+  },
+  "continueLoggingIn": {
+    "message": "Anmeldung fortsetzen"
   },
   "whatIsADevice": {
     "message": "Was ist ein Gerät?"
@@ -5786,7 +5798,7 @@
     "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Kontaktiere den Kundensupport",
+    "message": "Kontaktiere unser Customer Success Team",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "Monat pro Mitglied"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
   },
   "seats": {
     "message": "Benutzerplätze"
