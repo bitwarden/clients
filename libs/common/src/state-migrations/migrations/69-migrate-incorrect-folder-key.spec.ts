@@ -1,4 +1,4 @@
-import { runMigrator } from "@bitwarden/common/state-migrations/migration-helper.spec";
+import { runMigrator } from "../migration-helper.spec";
 
 import { MigrateIncorrectFolderKey } from "./69-migrate-incorrect-folder-key";
 
