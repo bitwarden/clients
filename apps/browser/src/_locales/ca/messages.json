@@ -984,7 +984,7 @@
     "message": "Demana d'afegir els inicis de sessió"
   },
   "vaultSaveOptionsTitle": {
-    "message": "Save to vault options"
+    "message": "Opcions de guardar a la caixa forta"
   },
   "addLoginNotificationDesc": {
     "message": "La \"Notificació per afegir inicis de sessió\" demana automàticament que guardeu els nous inicis de sessió a la vostra caixa forta quan inicieu la sessió per primera vegada."
@@ -993,7 +993,7 @@
     "message": "Demana afegir un element si no se'n troba cap a la caixa forta. S'aplica a tots els comptes connectats."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Mostra sempre les targetes com a suggeriments d'emplenament automàtic a la vista de la caixa forta"
   },
   "showCardsCurrentTab": {
     "message": "Mostra les targetes a la pàgina de pestanya"
@@ -1002,7 +1002,7 @@
     "message": "Llista els elements de la targeta a la pàgina de pestanya per facilitar l'autoemplenat."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Mostra sempre les identitats com a suggeriments d'emplenament automàtic a la vista de la caixa forta"
   },
   "showIdentitiesCurrentTab": {
     "message": "Mostra les identitats a la pàgina de pestanya"
@@ -1011,7 +1011,7 @@
     "message": "Llista els elements d'identitat de la pestanya de la pàgina per facilitar l'autoemplenat."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Feu clic als elements per emplenar automàticament a la vista de la caixa forta"
   },
   "clearClipboard": {
     "message": "Buida el porta-retalls",
@@ -1128,11 +1128,11 @@
     "message": "\"Contrasenya del fitxer\" i \"Confirma contrasenya del fitxer\" no coincideixen."
   },
   "warning": {
-    "message": "ADVERTIMENT",
+    "message": "AVÍS",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Advertència",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
@@ -1472,10 +1472,10 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Suggeriments d'emplenament automàtic"
   },
   "showInlineMenuLabel": {
-    "message": "Show autofill suggestions on form fields"
+    "message": "Mostra suggeriments d'emplenament automàtic als camps del formulari"
   },
   "showInlineMenuIdentitiesLabel": {
     "message": "Display identities as suggestions"
@@ -1484,7 +1484,7 @@
     "message": "Display cards as suggestions"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "Display suggestions when icon is selected"
+    "message": "Mostra suggeriments quan la icona està seleccionada"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
     "message": "Applies to all logged in accounts."
@@ -1508,7 +1508,7 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Autofill on page load"
+    "message": "Emplenament automàtic a la càrrega de la pàgina"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Habilita l'emplenament automàtic en carregar la pàgina"
@@ -1520,7 +1520,7 @@
     "message": "Els llocs web compromesos o no fiables poden aprofitar-se de l'emplenament automàtic en carregar de la pàgina."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "Learn more about risks"
+    "message": "Més informació sobre riscs"
   },
   "learnMoreAboutAutofill": {
     "message": "Obteniu més informació sobre l'emplenament automàtic"
@@ -1774,7 +1774,7 @@
     "message": "Identitat"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Clau SSH"
   },
   "newItemHeader": {
     "message": "New $TYPE$",
@@ -1807,13 +1807,13 @@
     "message": "Historial de les contrasenyes"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Historial del generador"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Neteja l'historial del generador"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Si continueu, totes les entrades se suprimiran permanentment de l'historial del generador. Esteu segur que voleu continuar?"
   },
   "back": {
     "message": "Arrere"
@@ -1852,7 +1852,7 @@
     "message": "Notes segures"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "Claus SSH"
   },
   "clear": {
     "message": "Esborra",
@@ -1878,7 +1878,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Domini base (recomanat)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -2047,10 +2047,10 @@
     "message": "Clona"
   },
   "passwordGenerator": {
-    "message": "Password generator"
+    "message": "Generador de contrasenyes"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Generador de nom d'usuari"
   },
   "useThisPassword": {
     "message": "Use this password"
@@ -2114,7 +2114,7 @@
     "message": "Ompli automàticament i guarda"
   },
   "fillAndSave": {
-    "message": "Fill and save"
+    "message": "Ompli i guarda"
   },
   "autoFillSuccessAndSavedUri": {
     "message": "Element emplenat automàticament i URI guardat"
@@ -2831,7 +2831,7 @@
     "message": "Generate email"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "El valor ha d'estar entre $MIN$ i $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2845,7 +2845,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Utilitzeu $RECOMMENDED$ caràcters o més per generar una contrasenya segura.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2855,7 +2855,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Utilitzeu paraules $RECOMMENDED$ o més per generar una frase de pas segura.",
+    "message": " Utilitzeu $RECOMMENDED$ paraules o més per generar una frase de pas segura.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3181,13 +3181,13 @@
     "message": "Configuració d'emplenament automàtic"
   },
   "autofillKeyboardShortcutSectionTitle": {
-    "message": "Autofill shortcut"
+    "message": "Drecera d'emplenament automàtic"
   },
   "autofillKeyboardShortcutUpdateLabel": {
-    "message": "Change shortcut"
+    "message": "Canvia la drecera"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "Manage shortcuts"
+    "message": "Gestiona les dreceres"
   },
   "autofillShortcut": {
     "message": "Drecera de teclat d'emplenament automàtic"
@@ -3196,7 +3196,7 @@
     "message": "The autofill login shortcut is not set. Change this in the browser's settings."
   },
   "autofillLoginShortcutText": {
-    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
+    "message": "La drecera d'emplenament automàtic és $COMMAND$. Gestioneu totes les dreceres a la configuració del navegador.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -3308,11 +3308,11 @@
     "message": "Dispositiu de confiança"
   },
   "sendsNoItemsTitle": {
-    "message": "No active Sends",
+    "message": "No hi ha Sends actius",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+    "message": "Utilitzeu Send per compartir informació xifrada de manera segura amb qualsevol persona.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3982,7 +3982,7 @@
     "message": "Clau de pas suprimida"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Suggeriments d'emplenament automàtic"
   },
   "itemSuggestions": {
     "message": "Suggested items"
@@ -4000,7 +4000,7 @@
     "message": "Clear filters or try another search term"
   },
   "copyInfoTitle": {
-    "message": "Copy info - $ITEMNAME$",
+    "message": "Copia info - $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -4020,7 +4020,7 @@
     }
   },
   "moreOptionsLabel": {
-    "message": "More options, $ITEMNAME$",
+    "message": "Més opcions, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
     "placeholders": {
       "itemname": {
@@ -4030,7 +4030,7 @@
     }
   },
   "moreOptionsTitle": {
-    "message": "More options - $ITEMNAME$",
+    "message": "Més opcions - $ITEMNAME$",
     "description": "Title for a button that opens a menu with more options for an item.",
     "placeholders": {
       "itemname": {
@@ -4078,13 +4078,13 @@
     "message": "Consola d'administració"
   },
   "accountSecurity": {
-    "message": "Account security"
+    "message": "Seguretat del compte"
   },
   "notifications": {
-    "message": "Notifications"
+    "message": "Notificacions"
   },
   "appearance": {
-    "message": "Appearance"
+    "message": "Aparença"
   },
   "errorAssigningTargetCollection": {
     "message": "S'ha produït un error en assignar la col·lecció de destinació."
@@ -4214,7 +4214,7 @@
     "message": "Filtres"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "Filtra dades"
   },
   "filterApplied": {
     "message": "One filter applied"
@@ -4310,7 +4310,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Habilita l'emplenament automàtic en carregar la pàgina?"
   },
   "cardExpiredTitle": {
     "message": "Expired card"
@@ -4334,7 +4334,7 @@
     "message": "Enable animations"
   },
   "showAnimations": {
-    "message": "Show animations"
+    "message": "Mostra animacions"
   },
   "addAccount": {
     "message": "Afig compte"
@@ -4567,10 +4567,10 @@
     "message": "Account actions"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "Show number of login autofill suggestions on extension icon"
+    "message": "Mostra el nombre de suggeriments d'emplenament automàtic d'inici de sessió a la icona d'extensió"
   },
   "showQuickCopyActions": {
-    "message": "Show quick copy actions on Vault"
+    "message": "Mostra accions de còpia ràpida a la caixa forta"
   },
   "systemDefault": {
     "message": "System default"
@@ -4579,16 +4579,16 @@
     "message": "Enterprise policy requirements have been applied to this setting"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Clau privada"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Clau pública"
   },
   "sshFingerprint": {
     "message": "Fingerprint"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Tipus de clau"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -4825,7 +4825,7 @@
     "message": "Generated password"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Mode compacte"
   },
   "beta": {
     "message": "Beta"

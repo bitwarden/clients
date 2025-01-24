@@ -993,7 +993,7 @@
     "message": "Pedir para adicionar um item se não for encontrado um no seu cofre. Aplica-se a todas as contas com sessão iniciada."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Mostrar sempre cartões como sugestões de preenchimento automático na vista do cofre"
   },
   "showCardsCurrentTab": {
     "message": "Mostrar cartões na página Separador"
@@ -1002,7 +1002,7 @@
     "message": "Listar itens de cartões na página Separador para facilitar o preenchimento automático."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Mostrar sempre identidades como sugestões de preenchimento automático na vista do cofre"
   },
   "showIdentitiesCurrentTab": {
     "message": "Mostrar identidades na página Separador"

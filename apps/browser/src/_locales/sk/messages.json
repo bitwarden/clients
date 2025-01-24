@@ -648,7 +648,7 @@
     "message": "Overiť identitu"
   },
   "weDontRecognizeThisDevice": {
-    "message": "Nespoznávame toto zariadenie. Pre overenie vašej identity zadajte kód ktorý bol zaslaný na váš email."
+    "message": "Toto zariadenie nepoznáme. Na overenie vašej totožnosti zadajte kód, ktorý bol zaslaný na váš e-mail."
   },
   "continueLoggingIn": {
     "message": "Pokračovať v prihlasovaní"

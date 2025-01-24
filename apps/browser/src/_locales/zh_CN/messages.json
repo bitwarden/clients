@@ -648,10 +648,10 @@
     "message": "验证身份"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。"
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "继续登录"
   },
   "yourVaultIsLocked": {
     "message": "您的密码库已锁定。请先验证您的身份。"
@@ -993,7 +993,7 @@
     "message": "如果在密码库中找不到项目，询问添加一个。适用于所有已登录的账户。"
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "在密码库视图中将支付卡始终显示为自动填充建议"
   },
   "showCardsCurrentTab": {
     "message": "在标签页上显示支付卡"
@@ -1002,7 +1002,7 @@
     "message": "在标签页上列出支付卡项目，以便于自动填充。"
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "在密码库视图中将身份始终显示为自动填充建议"
   },
   "showIdentitiesCurrentTab": {
     "message": "在标签页上显示身份"

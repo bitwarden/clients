@@ -993,7 +993,7 @@
     "message": "Nach dem Hinzufügen eines Eintrags fragen, wenn er nicht in deinem Tresor gefunden wurde. Gilt für alle angemeldeten Konten."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Karten immer als Auto-Ausfüllen-Vorschläge in der Tresor-Ansicht anzeigen"
   },
   "showCardsCurrentTab": {
     "message": "Karten auf Tab Seite anzeigen"
@@ -1002,7 +1002,7 @@
     "message": "Karten-Einträge auf der Tab Seite anzeigen, um das Auto-Ausfüllen zu vereinfachen."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Identitäten immer als Auto-Ausfüllen-Vorschläge in der Tresor-Ansicht anzeigen"
   },
   "showIdentitiesCurrentTab": {
     "message": "Identitäten auf Tab Seite anzeigen"
