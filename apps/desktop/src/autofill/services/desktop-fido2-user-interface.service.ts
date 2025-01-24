@@ -147,9 +147,9 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
       // wait for 10ms to help RXJS catch up(?)
       // We sometimes get a race condition from this.createCredential not updating cipherService in time
-      console.log("waiting 10ms..");
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      console.log("Just waited 10ms");
+      //console.log("waiting 10ms..");
+      //await new Promise((resolve) => setTimeout(resolve, 10));
+      //console.log("Just waited 10ms");
       // Return the new cipher (this.createdCipher)
       return { cipherId: this.createdCipher.id, userVerified: userVerification };
     } finally {
