@@ -1,5 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { matches, mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 
@@ -74,15 +76,54 @@ describe("deviceTrustService", () => {
     userId: mockUserId,
   };
 
+  let userDecryptionOptions: UserDecryptionOptions;
+
   beforeEach(() => {
     jest.clearAllMocks();
     const supportsSecureStorage = false; // default to false; tests will override as needed
     // By default all the tests will have a mocked active user in state provider.
     deviceTrustService = createDeviceTrustService(mockUserId, supportsSecureStorage);
+
+    userDecryptionOptions = new UserDecryptionOptions();
   });
 
   it("instantiates", () => {
     expect(deviceTrustService).not.toBeFalsy();
+  });
+
+  describe("supportsDeviceTrustByUserId$", () => {
+    it("returns true when the user has a non-null trusted device decryption option", async () => {
+      // Arrange
+      userDecryptionOptions.trustedDeviceOption = {
+        hasAdminApproval: false,
+        hasLoginApprovingDevice: false,
+        hasManageResetPasswordPermission: false,
+        isTdeOffboarding: false,
+      };
+
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        new BehaviorSubject<UserDecryptionOptions>(userDecryptionOptions),
+      );
+
+      const result = await firstValueFrom(
+        deviceTrustService.supportsDeviceTrustByUserId$(mockUserId),
+      );
+      expect(result).toBe(true);
+    });
+
+    it("returns false when the user has a null trusted device decryption option", async () => {
+      // Arrange
+      userDecryptionOptions.trustedDeviceOption = null;
+
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        new BehaviorSubject<UserDecryptionOptions>(userDecryptionOptions),
+      );
+
+      const result = await firstValueFrom(
+        deviceTrustService.supportsDeviceTrustByUserId$(mockUserId),
+      );
+      expect(result).toBe(false);
+    });
   });
 
   describe("User Trust Device Choice For Decryption", () => {
