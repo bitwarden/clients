@@ -13,17 +13,21 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   BillingApiServiceAbstraction,
   BillingInformation,
@@ -49,6 +53,7 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -183,7 +188,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   focusedIndex: number | null = null;
   accountCredit: number;
   paymentSource?: PaymentSourceResponse;
-
+  plans: ListResponse<PlanResponse>;
   deprecateStripeSourcesAPI: boolean;
   isSubscriptionCanceled: boolean = false;
 
@@ -208,6 +213,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private billingApiService: BillingApiServiceAbstraction,
     private taxService: TaxServiceAbstraction,
+    private accountService: AccountService,
     private organizationBillingService: OrganizationBillingService,
   ) {}
 
@@ -225,7 +231,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       this.organizationId = this.dialogParams.organizationId;
       this.currentPlan = this.sub?.plan;
       this.selectedPlan = this.sub?.plan;
-      this.organization = await this.organizationService.get(this.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.organizationId)),
+      );
       if (this.deprecateStripeSourcesAPI) {
         const { accountCredit, paymentSource } =
           await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
@@ -237,9 +250,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     if (!this.selfHosted) {
-      const plans = await this.apiService.getPlans();
-      this.passwordManagerPlans = plans.data.filter((plan) => !!plan.PasswordManager);
-      this.secretsManagerPlans = plans.data.filter((plan) => !!plan.SecretsManager);
+      this.plans = await this.apiService.getPlans();
+      this.passwordManagerPlans = this.plans.data.filter((plan) => !!plan.PasswordManager);
+      this.secretsManagerPlans = this.plans.data.filter((plan) => !!plan.SecretsManager);
 
       if (
         this.productTier === ProductTierType.Enterprise ||
@@ -485,6 +498,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get selectedPlanInterval() {
+    if (this.isSubscriptionCanceled) {
+      return this.currentPlan.isAnnual ? "year" : "month";
+    }
     return this.selectedPlan.isAnnual ? "year" : "month";
   }
 
@@ -788,8 +804,15 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       billingEmail: org.billingEmail,
     };
 
+    const filteredPlan = this.plans.data
+      .filter((plan) => plan.productTier === this.selectedPlan.productTier && !plan.legacyYear)
+      .find((plan) => {
+        const isSameBillingCycle = plan.isAnnual === this.selectedPlan.isAnnual;
+        return isSameBillingCycle;
+      });
+
     const plan: PlanInformation = {
-      type: this.selectedPlan.type,
+      type: filteredPlan.type,
       passwordManagerSeats: org.seats,
     };
 
@@ -1062,7 +1085,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private refreshSalesTax(): void {
-    if (!this.taxInformation.country || !this.taxInformation.postalCode) {
+    if (
+      this.taxInformation === undefined ||
+      !this.taxInformation.country ||
+      !this.taxInformation.postalCode
+    ) {
       return;
     }
 

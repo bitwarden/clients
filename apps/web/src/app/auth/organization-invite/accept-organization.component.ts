@@ -2,9 +2,7 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
 
-import { RegisterRouteService } from "@bitwarden/auth/common";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -27,10 +25,9 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     i18nService: I18nService,
     route: ActivatedRoute,
     authService: AuthService,
-    registerRouteService: RegisterRouteService,
     private acceptOrganizationInviteService: AcceptOrganizationInviteService,
   ) {
-    super(router, platformUtilsService, i18nService, route, authService, registerRouteService);
+    super(router, platformUtilsService, i18nService, route, authService);
   }
 
   async authedHandler(qParams: Params): Promise<void> {
@@ -55,6 +52,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
 
   async unauthedHandler(qParams: Params): Promise<void> {
     const invite = OrganizationInvite.fromParams(qParams);
+
     await this.acceptOrganizationInviteService.setOrganizationInvitation(invite);
     await this.navigateInviteAcceptance(invite);
   }
@@ -86,25 +84,12 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     // if SSO is disabled OR if sso is enabled but the SSO login required policy is not enabled
     // then send user to create account
 
-    // TODO: update logic when email verification flag is removed
-    let queryParams: Params;
-    let registerRoute = await firstValueFrom(this.registerRoute$);
-    if (registerRoute === "/register") {
-      queryParams = {
-        fromOrgInvite: "true",
+    // We don't need users to complete email verification if they are coming directly from an emailed invite.
+    // Therefore, we skip /signup and navigate directly to /finish-signup.
+    await this.router.navigate(["/finish-signup"], {
+      queryParams: {
         email: invite.email,
-      };
-    } else if (registerRoute === "/signup") {
-      // We have to override the base component route as we don't need users to complete email verification
-      // if they are coming directly from an emailed org invite.
-      registerRoute = "/finish-signup";
-      queryParams = {
-        email: invite.email,
-      };
-    }
-
-    await this.router.navigate([registerRoute], {
-      queryParams: queryParams,
+      },
     });
     return;
   }

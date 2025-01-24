@@ -1,10 +1,14 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { firstValueFrom } from "rxjs";
-import { switchMap } from "rxjs/operators";
+import { combineLatest, firstValueFrom } from "rxjs";
 
+import { LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
+import {
+  DevicePendingAuthRequest,
+  DeviceResponse,
+} from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
 import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,7 +30,8 @@ interface DeviceTableData {
   loginStatus: string;
   firstLogin: Date;
   trusted: boolean;
-  devicePendingAuthRequest: object | null;
+  devicePendingAuthRequest: DevicePendingAuthRequest | null;
+  hasPendingAuthRequest: boolean;
 }
 
 /**
@@ -52,28 +57,25 @@ export class DeviceManagementComponent {
     private toastService: ToastService,
     private validationService: ValidationService,
   ) {
-    this.devicesService
-      .getCurrentDevice$()
-      .pipe(
-        takeUntilDestroyed(),
-        switchMap((currentDevice) => {
-          this.currentDevice = new DeviceView(currentDevice);
-          return this.devicesService.getDevices$();
-        }),
-      )
+    combineLatest([this.devicesService.getCurrentDevice$(), this.devicesService.getDevices$()])
+      .pipe(takeUntilDestroyed())
       .subscribe({
-        next: (devices) => {
-          this.dataSource.data = devices.map((device) => {
+        next: ([currentDevice, devices]: [DeviceResponse, Array<DeviceView>]) => {
+          this.currentDevice = new DeviceView(currentDevice);
+
+          this.dataSource.data = devices.map((device: DeviceView): DeviceTableData => {
             return {
               id: device.id,
               type: device.type,
               displayName: this.getHumanReadableDeviceType(device.type),
               loginStatus: this.getLoginStatus(device),
-              devicePendingAuthRequest: device.response.devicePendingAuthRequest,
               firstLogin: new Date(device.creationDate),
               trusted: device.response.isTrusted,
+              devicePendingAuthRequest: device.response.devicePendingAuthRequest,
+              hasPendingAuthRequest: this.hasPendingAuthRequest(device.response),
             };
           });
+
           this.loading = false;
         },
         error: () => {
@@ -176,13 +178,34 @@ export class DeviceManagementComponent {
 
   /**
    * Check if a device has a pending auth request
-   * @param device - The device
+   * @param device - The device response
    * @returns True if the device has a pending auth request, false otherwise
    */
-  protected hasPendingAuthRequest(device: DeviceTableData): boolean {
+  private hasPendingAuthRequest(device: DeviceResponse): boolean {
     return (
       device.devicePendingAuthRequest !== undefined && device.devicePendingAuthRequest !== null
     );
+  }
+
+  /**
+   * Open a dialog to approve or deny a pending auth request for a device
+   */
+  async managePendingAuthRequest(device: DeviceTableData) {
+    if (device.devicePendingAuthRequest === undefined || device.devicePendingAuthRequest === null) {
+      return;
+    }
+
+    const dialogRef = LoginApprovalComponent.open(this.dialogService, {
+      notificationId: device.devicePendingAuthRequest.id,
+    });
+
+    const result = await firstValueFrom(dialogRef.closed);
+
+    if (result !== undefined && typeof result === "boolean") {
+      // auth request approved or denied so reset
+      device.devicePendingAuthRequest = null;
+      device.hasPendingAuthRequest = false;
+    }
   }
 
   /**

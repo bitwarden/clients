@@ -1,8 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
@@ -13,12 +11,14 @@ import {
   mockAccountServiceWith,
 } from "../../../../spec";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
+import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
+import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendType } from "../enums/send-type";

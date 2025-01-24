@@ -66,6 +66,8 @@ export class CreateCommand {
         try {
           const reqJson = Buffer.from(requestJson, "base64").toString();
           req = JSON.parse(reqJson);
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           return Response.badRequest("Error parsing the encoded request data.");
         }
@@ -200,7 +202,17 @@ export class CreateCommand {
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
-      const organization = await this.organizationService.get(req.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      if (!userId) {
+        return Response.badRequest("No user found.");
+      }
+      const organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(map((organizations) => organizations.find((o) => o.id === req.organizationId))),
+      );
       const currentOrgUserId = organization.organizationUserId;
 
       const groups =

@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ApiService } from "../../../abstractions/api.service";
+import { I18nService } from "../../../platform/abstractions/i18n.service";
 
 import { IntegrationRequest } from "./integration-request";
 import { RestClient } from "./rest-client";

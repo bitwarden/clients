@@ -57,11 +57,12 @@
       -->
       <a
         bitLink
-        [routerLink]="registerRoute$ | async"
+        routerLink="/signup"
         [queryParams]="emailFormControl.valid ? { email: emailFormControl.value } : {}"
         (mousedown)="goToRegister()"
-        >{{ "createAccount" | i18n }}</a
       >
+        {{ "createAccount" | i18n }}
+      </a>
     </p>
   </ng-container>
 

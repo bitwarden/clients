@@ -113,8 +113,10 @@ export class IdentitySectionComponent implements OnInit {
       this.identityForm.disable();
     }
 
-    if (this.originalCipherView && this.originalCipherView.id) {
-      this.populateFormData();
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      this.populateFormData(prefillCipher);
     } else {
       this.identityForm.patchValue({
         username: this.cipherFormContainer.config.initialValues?.username || "",
@@ -122,8 +124,9 @@ export class IdentitySectionComponent implements OnInit {
     }
   }
 
-  populateFormData() {
-    const { identity } = this.originalCipherView;
+  populateFormData(cipherView: CipherView) {
+    const { identity } = cipherView;
+
     this.identityForm.setValue({
       title: identity.title,
       firstName: identity.firstName,

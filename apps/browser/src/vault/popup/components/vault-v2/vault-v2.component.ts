@@ -19,8 +19,8 @@ import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-he
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
-import { VaultUiOnboardingService } from "../../services/vault-ui-onboarding.service";
 
+import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
 import {
   NewItemDropdownV2Component,
   NewItemInitialValues,
@@ -40,6 +40,7 @@ enum VaultState {
   templateUrl: "vault-v2.component.html",
   standalone: true,
   imports: [
+    BlockedInjectionBanner,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
@@ -56,7 +57,6 @@ enum VaultState {
     VaultHeaderV2Component,
     DecryptionFailureDialogComponent,
   ],
-  providers: [VaultUiOnboardingService],
 })
 export class VaultV2Component implements OnInit, OnDestroy {
   cipherType = CipherType;
@@ -91,7 +91,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
-    private vaultUiOnboardingService: VaultUiOnboardingService,
     private destroyRef: DestroyRef,
     private cipherService: CipherService,
     private dialogService: DialogService,
@@ -121,8 +120,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    await this.vaultUiOnboardingService.showOnboardingDialog();
-
     this.cipherService.failedToDecryptCiphers$
       .pipe(
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),

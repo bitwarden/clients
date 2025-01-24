@@ -2,15 +2,23 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Observable, EMPTY } from "rxjs";
+import { EMPTY, Observable } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { RiskInsightsDataService } from "@bitwarden/bit-common/tools/reports/risk-insights";
-import { ApplicationHealthReportDetail } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+import {
+  CriticalAppsService,
+  RiskInsightsDataService,
+} from "@bitwarden/bit-common/tools/reports/risk-insights";
+import {
+  ApplicationHealthReportDetail,
+  PasswordHealthReportApplicationsResponse,
+} from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+// eslint-disable-next-line no-restricted-imports -- used for dependency injection
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { AsyncActionsModule, ButtonModule, TabsModule } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
@@ -51,6 +59,7 @@ export class RiskInsightsComponent implements OnInit {
   dataLastUpdated: Date = new Date();
 
   isCriticalAppsFeatureEnabled: boolean = false;
+  criticalApps$: Observable<PasswordHealthReportApplicationsResponse[]> = new Observable();
   showDebugTabs: boolean = false;
 
   appsCount: number = 0;
@@ -69,10 +78,13 @@ export class RiskInsightsComponent implements OnInit {
     private router: Router,
     private configService: ConfigService,
     private dataService: RiskInsightsDataService,
+    private criticalAppsService: CriticalAppsService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
     });
+    const orgId = this.route.snapshot.paramMap.get("organizationId") ?? "";
+    this.criticalApps$ = this.criticalAppsService.getAppsListForOrg(orgId);
   }
 
   async ngOnInit() {
@@ -104,6 +116,7 @@ export class RiskInsightsComponent implements OnInit {
           if (applications) {
             this.appsCount = applications.length;
           }
+          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId);
         },
       });
   }
