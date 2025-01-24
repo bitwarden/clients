@@ -95,14 +95,12 @@ export class SendOptionsComponent implements OnInit {
   ) {
     this.sendFormContainer.registerChildForm("sendOptionsForm", this.sendOptionsForm);
 
-    getUserId(this.accountService.activeAccount$)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.getAll$(PolicyType.SendOptions, userId)),
+        map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntilDestroyed(),
-        switchMap((userId) =>
-          this.policyService
-            .getAll$(PolicyType.SendOptions, userId)
-            .pipe(map((policies) => policies?.some((p) => p.data.disableHideEmail))),
-        ),
       )
       .subscribe((disableHideEmail) => {
         this.disableHideEmail = disableHideEmail;

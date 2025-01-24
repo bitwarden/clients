@@ -165,11 +165,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    this.policyService
-      .getAll$(PolicyType.SendOptions, userId)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.getAll$(PolicyType.SendOptions, userId)),
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntil(this.destroy$),
       )

@@ -111,18 +111,18 @@ export class FreeFamiliesPolicyService {
       });
     }
 
-    return getUserId(this.accountService.activeAccount$).pipe(
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
       switchMap((userId) =>
-        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId).pipe(
-          map((policies) => ({
-            isFreeFamilyPolicyEnabled: policies.some(
-              (policy) => policy.organizationId === organizationId && policy.enabled,
-            ),
-            belongToOneEnterpriseOrgs,
-            belongToMultipleEnterpriseOrgs,
-          })),
-        ),
+        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
       ),
+      map((policies) => ({
+        isFreeFamilyPolicyEnabled: policies.some(
+          (policy) => policy.organizationId === organizationId && policy.enabled,
+        ),
+        belongToOneEnterpriseOrgs,
+        belongToMultipleEnterpriseOrgs,
+      })),
     );
   }
 

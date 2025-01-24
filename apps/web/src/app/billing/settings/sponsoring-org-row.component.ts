@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { formatDate } from "@angular/common";
 import { Component, EventEmitter, Input, Output, OnInit } from "@angular/core";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -56,20 +56,20 @@ export class SponsoringOrgRowComponent implements OnInit {
       FeatureFlag.DisableFreeFamiliesSponsorship,
     );
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
     if (this.isFreeFamilyFlagEnabled) {
-      this.isFreeFamilyPolicyEnabled$ = this.policyService
-        .getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId)
-        .pipe(
-          map(
-            (policies) =>
-              Array.isArray(policies) &&
-              policies.some(
-                (policy) => policy.organizationId === this.sponsoringOrg.id && policy.enabled,
-              ),
-          ),
-        );
+      this.isFreeFamilyPolicyEnabled$ = this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+        ),
+        map(
+          (policies) =>
+            Array.isArray(policies) &&
+            policies.some(
+              (policy) => policy.organizationId === this.sponsoringOrg.id && policy.enabled,
+            ),
+        ),
+      );
     }
   }
 
