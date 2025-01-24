@@ -1,5 +1,5 @@
 import { Router } from "@angular/router";
-import { filter, lastValueFrom, firstValueFrom, map, shareReplay, Subject, tap } from "rxjs";
+import { lastValueFrom, firstValueFrom, map, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -21,7 +21,7 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
-import { UsernameAlgorithms } from "@bitwarden/generator-core";
+
 import { DesktopSettingsService } from "src/platform/services/desktop-settings.service";
 
 // import the angular router
@@ -37,10 +37,7 @@ export class DesktopFido2UserInterfaceService
     private messagingService: MessagingService,
     private router: Router,
     private desktopSettingsService: DesktopSettingsService,
-  ) {
-    this.guid = "PARENT" + Math.random().toString(36).substring(7);
-  }
-  guid: string;
+  ) {}
   private currentSession: any;
 
   getCurrentSession(): DesktopFido2UserInterfaceSession | undefined {
@@ -63,9 +60,6 @@ export class DesktopFido2UserInterfaceService
       this.desktopSettingsService,
     );
 
-    console.log("In parent", this.guid);
-    console.log("Setting current session", session.guid);
-
     this.currentSession = session;
     return session;
   }
@@ -80,11 +74,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private messagingService: MessagingService,
     private router: Router,
     private desktopSettingsService: DesktopSettingsService,
-  ) {
-    this.guid = "SESSION" + Math.random().toString(36).substring(7);
-  }
-
-  guid: string;
+  ) {}
 
   pickCredential: (
     params: PickCredentialParams,
@@ -130,7 +120,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     try {
       // Load the UI:
-      // maybe this modal mode thing shouldn't be done here?
+      // maybe toggling to modal mode shouldn't be done here?
       await this.desktopSettingsService.setInModalMode(true);
       await this.router.navigate(["/passkeys"]);
 
@@ -143,16 +133,17 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         userHandle: "",
         userVerification,
       });
-      console.log("Returning from confirmNewCredential, created cipher:", this.createdCipher);
 
       // wait for 10ms to help RXJS catch up(?)
       // We sometimes get a race condition from this.createCredential not updating cipherService in time
       //console.log("waiting 10ms..");
       //await new Promise((resolve) => setTimeout(resolve, 10));
       //console.log("Just waited 10ms");
+
       // Return the new cipher (this.createdCipher)
       return { cipherId: this.createdCipher.id, userVerified: userVerification };
     } finally {
+      // Make sure to clean up so the app is never stuck in modal mode?
       await this.desktopSettingsService.setInModalMode(false);
     }
   }

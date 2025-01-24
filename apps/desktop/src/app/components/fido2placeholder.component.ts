@@ -44,19 +44,16 @@ export class Fido2PlaceholderComponent {
 
   async confirmPasskey() {
     const desktopUiService = this.fido2UserInterfaceService as DesktopFido2UserInterfaceService;
-    console.log("Got desktopService", desktopUiService.guid);
 
     try {
-      console.log("checking for session", this.fido2UserInterfaceService);
-      // Add timeout to avoid infinite hanging
+      // Retrieve the current UI session to control the flow
       const session = desktopUiService.getCurrentSession();
       if (!session) {
         // todo: handle error
-        console.error("No session found");
-        return;
+        throw new Error("No session found");
       }
-      console.log("Got session", session.guid);
 
+      // If we want to we could submit information to the session in order to create the credential
       // const cipher = await session.createCredential({
       //   userHandle: "userHandle2",
       //   userName: "username2",
@@ -66,11 +63,14 @@ export class Fido2PlaceholderComponent {
       // });
 
       session.notifyOperationCompleted();
+
+      // Not sure this clean up should happen here or in session.
+      // The session currently toggles modal on and send us here
+      // But if this route is somehow opened outside of session we want to make sure we clean up?
       await this.router.navigate(["/"]);
       await this.desktopSettingsService.setInModalMode(false);
     } catch (error) {
-      console.error("Failed during confirmation:", error);
-      // Handle error appropriately
+      // TODO: Handle error appropriately
     }
   }
 
