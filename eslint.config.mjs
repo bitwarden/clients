@@ -259,6 +259,10 @@ export default tseslint.config(
     files: ["apps/web/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports([
+        "bitwarden_license/**",
+        "@bitwarden/bit-common/*",
+        "@bitwarden/bit-web/*",
+
         "**/app/core/*",
         "**/reports/*",
         "**/app/shared/*",
