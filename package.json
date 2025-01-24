@@ -100,7 +100,6 @@
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.0.1",
     "eslint-import-resolver-typescript": "3.7.0",
-    "eslint-plugin-custom-rules": "file:libs/eslint-plugin-custom-rules",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-rxjs": "5.0.3",
     "eslint-plugin-rxjs-angular": "2.0.1",
