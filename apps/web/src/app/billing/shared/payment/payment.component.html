@@ -120,13 +120,10 @@
       <bit-form-field class="tw-col-span-1" disableMargin>
         <bit-label>{{ "bankAccountType" | i18n }}</bit-label>
         <bit-select id="accountHolderType" formControlName="accountHolderType" required>
-          <bit-option [value]="''" label="-- {{ 'select' | i18n }} --"></bit-option>
+          <bit-option value="" label="-- {{ 'select' | i18n }} --"></bit-option>
+          <bit-option value="company" label="{{ 'bankAccountTypeCompany' | i18n }}"></bit-option>
           <bit-option
-            [value]="'company'"
-            label="{{ 'bankAccountTypeCompany' | i18n }}"
-          ></bit-option>
-          <bit-option
-            [value]="'individual'"
+            value="individual"
             label="{{ 'bankAccountTypeIndividual' | i18n }}"
           ></bit-option>
         </bit-select>
