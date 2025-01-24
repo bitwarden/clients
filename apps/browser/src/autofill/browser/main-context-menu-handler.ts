@@ -41,6 +41,7 @@ export class MainContextMenuHandler {
       id: AUTOFILL_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("autoFillLogin"),
+      checkUriIsBlocked: true,
     },
     {
       id: COPY_USERNAME_ID,
@@ -67,16 +68,19 @@ export class MainContextMenuHandler {
       id: AUTOFILL_IDENTITY_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("autoFillIdentity"),
+      checkUriIsBlocked: true,
     },
     {
       id: AUTOFILL_CARD_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("autoFillCard"),
+      checkUriIsBlocked: true,
     },
     {
       id: SEPARATOR_ID + 2,
       type: "separator",
       parentId: ROOT_ID,
+      checkUriIsBlocked: true,
     },
     {
       id: GENERATE_PASSWORD_ID,
@@ -87,6 +91,7 @@ export class MainContextMenuHandler {
       id: COPY_IDENTIFIER_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("copyElementIdentifier"),
+      checkUriIsBlocked: true,
     },
   ];
   private noCardsContextMenuItems: chrome.contextMenus.CreateProperties[] = [
@@ -157,7 +162,7 @@ export class MainContextMenuHandler {
    *
    * @returns a boolean showing whether or not items were created
    */
-  async init(): Promise<boolean> {
+  async init(currentUriIsBlocked?: boolean): Promise<boolean> {
     const menuEnabled = await firstValueFrom(this.autofillSettingsService.enableContextMenu$);
     if (!menuEnabled) {
       await MainContextMenuHandler.removeAll();
@@ -181,6 +186,13 @@ export class MainContextMenuHandler {
         }
 
         delete options.checkPremiumAccess;
+
+        if (options.checkUriIsBlocked && currentUriIsBlocked) {
+          continue;
+        }
+
+        delete options.checkUriIsBlocked;
+
         await MainContextMenuHandler.create({ ...options, contexts: ["all"] });
       }
     } catch (error) {
