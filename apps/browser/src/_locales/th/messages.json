@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "ยืนยันตัวตน"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "ตู้เซฟของคุณถูกล็อก ยืนยันตัวตนของคุณเพื่อดำเนินการต่อ"
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Ask to add an item if one isn't found in your vault. Applies to all logged in accounts."
   },
-  "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "แสดงการ์ดบนหน้าแท็บ"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "บัตรรายการในหน้าแท็บเพื่อให้ป้อนอัตโนมัติได้ง่าย"
   },
-  "showIdentitiesInVaultView": {
-    "message": "Show identities as Autofill suggestions on Vault view"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "แสดงตัวตนบนหน้าแท็บ"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

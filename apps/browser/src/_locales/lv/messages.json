@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Identitātes apliecināšana"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "Glabātava ir aizslēgta. Jāapliecina sava identitāte, lai turpinātu."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Vaicāt, vai pievienot vienumu, ja glabātavā tāds nav atrodams. Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
-  "showCardsInVaultView": {
-    "message": "Rādīt kartes kā automātiskās aizpildes ieteikumus glabātavas skatā"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Rādīt kartes cilnes lapā"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Attēlot kartes ciļņu lapā vieglākai aizpildīšanai."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Rādīt identitātes kā automātiskās aizpildes ieteikumus glabātavas skatā"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Rādīt identitātes cilnes pārskatā"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Ļoti plats"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Lūgums atjaunināt darbvirsmas lietotni"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Lai izmantotu atslēgšanu ar biometriju, lūgums atjaunināt darbvirsmas lietotni vai atspējot atslēgšanu ar pirkstu nospiedumu darbvirsmas iestatījumos."
   }
 }

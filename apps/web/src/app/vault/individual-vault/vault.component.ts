@@ -47,7 +47,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
@@ -193,7 +196,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   private hasSubscription$ = new BehaviorSubject<boolean>(false);
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
-  private readonly unpaidSubscriptionDialog$ = this.organizationService.organizations$.pipe(
+  private organizations$ = this.accountService.activeAccount$
+    .pipe(map((a) => a?.id))
+    .pipe(switchMap((id) => this.organizationService.organizations$(id)));
+
+  private readonly unpaidSubscriptionDialog$ = this.organizations$.pipe(
     filter((organizations) => organizations.length === 1),
     map(([organization]) => organization),
     switchMap((organization) =>
@@ -212,9 +219,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
     ),
   );
-
   protected organizationsPaymentStatus$: Observable<FreeTrial[]> = combineLatest([
-    this.organizationService.organizations$.pipe(
+    this.organizations$.pipe(
       map(
         (organizations) =>
           organizations?.filter((org) => org.isOwner && org.canViewBillingHistory) ?? [],
@@ -501,7 +507,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             filter$,
             this.billingAccountProfileStateService.hasPremiumFromAnySource$(this.activeUserId),
             allCollections$,
-            this.organizationService.organizations$,
+            this.organizations$,
             ciphers$,
             collections$,
             selectedCollection$,
@@ -646,7 +652,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.messagingService.send("premiumRequired");
       return;
     } else if (cipher.organizationId != null) {
-      const org = await this.organizationService.get(cipher.organizationId);
+      const org = await firstValueFrom(
+        this.organizations$.pipe(getOrganizationById(cipher.organizationId)),
+      );
       if (org != null && (org.maxStorageGb == null || org.maxStorageGb === 0)) {
         this.messagingService.send("upgradeOrganization", {
           organizationId: cipher.organizationId,
@@ -971,7 +979,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async deleteCollection(collection: CollectionView): Promise<void> {
-    const organization = await this.organizationService.get(collection.organizationId);
+    const organization = await firstValueFrom(
+      this.organizations$.pipe(getOrganizationById(collection.organizationId)),
+    );
     if (!collection.canDelete(organization)) {
       this.showMissingPermissionsError();
       return;
@@ -1136,9 +1146,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         .filter((i) => i.cipher === undefined)
         .map((i) => i.collection.organizationId);
       const orgs = await firstValueFrom(
-        this.organizationService.organizations$.pipe(
-          map((orgs) => orgs.filter((o) => orgIds.includes(o.id))),
-        ),
+        this.organizations$.pipe(map((orgs) => orgs.filter((o) => orgIds.includes(o.id)))),
       );
       await this.bulkDelete(ciphers, collections, orgs);
     }

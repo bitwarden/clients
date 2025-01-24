@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Ověřit identitu"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "Toto zařízení nepoznáváme. Zadejte kód zaslaný na Váš e-mail pro ověření Vaší totožnosti."
+  },
+  "continueLoggingIn": {
+    "message": "Pokračovat v přihlášení"
+  },
   "yourVaultIsLocked": {
     "message": "Váš trezor je uzamčen. Pro pokračování musíte zadat hlavní heslo."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Požádá o přidání položky, pokud nebyla nalezena v trezoru. Platí pro všechny přihlášené účty."
   },
-  "showCardsInVaultView": {
-    "message": "Zobrazit karty jako návrhy automatického vyplňování v zobrazení trezoru"
+  "showCardsInVaultViewV2": {
+    "message": "Vždy zobrazit karty jako návrhy automatického vyplňování v zobrazení trezoru"
   },
   "showCardsCurrentTab": {
     "message": "Zobrazit platební karty na obrazovce Karta"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Pro snadné vyplnění zobrazí platební karty na obrazovce Karta."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Zobrazit identity jako návrhy automatického vyplňování v zobrazení trezoru"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Vždy zobrazit identity jako návrhy automatického vyplňování v zobrazení trezoru"
   },
   "showIdentitiesCurrentTab": {
     "message": "Zobrazit identity na obrazovce Karta"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Extra široký"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Aktualizujte aplikaci pro stolní počítač"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Chcete-li použít biometrické odemknutí, aktualizujte aplikaci pro stolní počítač nebo v nastavení vypněte odemknutí otiskem prstů."
   }
 }

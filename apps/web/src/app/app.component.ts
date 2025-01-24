@@ -17,6 +17,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -219,7 +220,10 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           case "syncOrganizationStatusChanged": {
             const { organizationId, enabled } = message;
-            const organizations = await firstValueFrom(this.organizationService.organizations$);
+            const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+            const organizations = await firstValueFrom(
+              this.organizationService.organizations$(userId),
+            );
             const organization = organizations.find((org) => org.id === organizationId);
 
             if (organization) {
@@ -227,21 +231,27 @@ export class AppComponent implements OnDestroy, OnInit {
                 ...organization,
                 enabled: enabled,
               };
-              await this.organizationService.upsert(updatedOrganization);
+              await this.organizationService.upsert(updatedOrganization, userId);
             }
             break;
           }
           case "syncOrganizationCollectionSettingChanged": {
             const { organizationId, limitCollectionCreation, limitCollectionDeletion } = message;
-            const organizations = await firstValueFrom(this.organizationService.organizations$);
+            const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+            const organizations = await firstValueFrom(
+              this.organizationService.organizations$(userId),
+            );
             const organization = organizations.find((org) => org.id === organizationId);
 
             if (organization) {
-              await this.organizationService.upsert({
-                ...organization,
-                limitCollectionCreation: limitCollectionCreation,
-                limitCollectionDeletion: limitCollectionDeletion,
-              });
+              await this.organizationService.upsert(
+                {
+                  ...organization,
+                  limitCollectionCreation: limitCollectionCreation,
+                  limitCollectionDeletion: limitCollectionDeletion,
+                },
+                userId,
+              );
             }
             break;
           }
@@ -291,7 +301,7 @@ export class AppComponent implements OnDestroy, OnInit {
     // will prevent any toasts from being displayed long enough to be read
 
     await this.eventUploadService.uploadEvents();
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     const logoutPromise = firstValueFrom(
       this.authService.authStatusFor$(userId).pipe(

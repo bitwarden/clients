@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Todas de aplicações"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "Que tipo de item é este?"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Verifique a sua identidade"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Não reconhecemos este dispositivo. Introduza o código enviado para o seu e-mail para verificar a sua identidade."
+  },
+  "continueLoggingIn": {
+    "message": "Continuar a iniciar sessão"
   },
   "whatIsADevice": {
     "message": "O que é um dispositivo?"
@@ -8462,7 +8474,7 @@
     }
   },
   "next": {
-    "message": "Avançar"
+    "message": "Seguinte"
   },
   "ssoLoginIsRequired": {
     "message": "É necessário um início de sessão SSO"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "mês por membro"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "mês por membro faturado anualmente"
   },
   "seats": {
     "message": "Lugares"

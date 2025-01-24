@@ -99,6 +99,7 @@ export class AdjustPaymentDialogV2Component implements OnInit {
 
   submit = async (): Promise<void> => {
     if (!this.taxInfoComponent.validate()) {
+      this.taxInfoComponent.markAllAsTouched();
       return;
     }
 
@@ -117,10 +118,11 @@ export class AdjustPaymentDialogV2Component implements OnInit {
 
       this.dialogRef.close(AdjustPaymentDialogV2ResultType.Submitted);
     } catch (error) {
+      const msg = typeof error == "object" ? error.message : error;
       this.toastService.showToast({
         variant: "error",
         title: null,
-        message: this.i18nService.t(error.message) || error.message,
+        message: this.i18nService.t(msg) || msg,
       });
     }
   };

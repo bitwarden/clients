@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Vahvista henkilöllisyytesi"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "Holvisi on lukittu. Jatka vahvistamalla henkilöllisyytesi."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Ehdota kohteen tallennusta, jos holvistasi ei vielä löydy vastaavaa kohdetta. Koskee kaikkia kirjautuneita tilejä."
   },
-  "showCardsInVaultView": {
-    "message": "Näytä kortit automaattitäytön ehdotuksina Holvi-näkymässä"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Näytä kortit välilehtiosiossa"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Näytä kortit Välilehti-sivulla automaattitäytön helpottamiseksi."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Näytä henkilöllisyydet automaattitäytön ehdotuksina Holvi-sivulla."
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Näytä henkilöllisyydet välilehtiosiossa"
@@ -2325,7 +2331,7 @@
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "Blocked domains"
+    "message": "Estetyt verkkotunnukset"
   },
   "excludedDomains": {
     "message": "Ohitettavat verkkotunnukset"
@@ -2340,7 +2346,7 @@
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "Automaattitäyttö on estetty tällä sivustolla."
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Change this in settings"
@@ -2805,7 +2811,7 @@
     "message": "Virhe"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Salauksen purkuvirhe"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -3976,10 +3982,10 @@
     "message": "Pääsyavain poistettiin"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Automaattitäytön ehdotukset"
   },
   "itemSuggestions": {
-    "message": "Suggested items"
+    "message": "Ehdotetut kohteet"
   },
   "autofillSuggestionsTip": {
     "message": "Tallenna tälle sivustolle automaattisesti täytettävä kirjautumistieto."
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Erittäin leveä"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

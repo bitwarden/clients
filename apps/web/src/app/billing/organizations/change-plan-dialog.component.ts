@@ -13,17 +13,21 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   BillingApiServiceAbstraction,
   BillingInformation,
@@ -209,6 +213,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private billingApiService: BillingApiServiceAbstraction,
     private taxService: TaxServiceAbstraction,
+    private accountService: AccountService,
     private organizationBillingService: OrganizationBillingService,
   ) {}
 
@@ -226,7 +231,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       this.organizationId = this.dialogParams.organizationId;
       this.currentPlan = this.sub?.plan;
       this.selectedPlan = this.sub?.plan;
-      this.organization = await this.organizationService.get(this.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.organizationId)),
+      );
       if (this.deprecateStripeSourcesAPI) {
         const { accountCredit, paymentSource } =
           await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);

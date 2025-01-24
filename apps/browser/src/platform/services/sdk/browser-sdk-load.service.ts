@@ -1,10 +1,11 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
-import type { BitwardenClient } from "@bitwarden/sdk-internal";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 
 import { BrowserApi } from "../../browser/browser-api";
+
+export type GlobalWithWasmInit = typeof globalThis & {
+  initSdk: () => void;
+};
 
 // https://stackoverflow.com/a/47880734
 const supported = (() => {
@@ -17,9 +18,7 @@ const supported = (() => {
         return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
       }
     }
-    // FIXME: Remove when updating file. Eslint update
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
+  } catch {
     // ignore
   }
   return false;
@@ -33,54 +32,42 @@ let loadingPromise: Promise<any> | undefined;
 if (BrowserApi.isManifestVersion(3)) {
   if (supported) {
     // eslint-disable-next-line no-console
-    console.debug("WebAssembly is supported in this environment");
+    console.info("WebAssembly is supported in this environment");
     loadingPromise = import("./wasm");
   } else {
     // eslint-disable-next-line no-console
-    console.debug("WebAssembly is not supported in this environment");
+    console.info("WebAssembly is not supported in this environment");
     loadingPromise = import("./fallback");
   }
 }
 
 // Manifest v2 expects dynamic imports to prevent timing issues.
-async function load() {
+async function importModule(): Promise<GlobalWithWasmInit["initSdk"]> {
   if (BrowserApi.isManifestVersion(3)) {
     // Ensure we have loaded the module
     await loadingPromise;
-    return;
-  }
-
-  if (supported) {
+  } else if (supported) {
     // eslint-disable-next-line no-console
-    console.debug("WebAssembly is supported in this environment");
+    console.info("WebAssembly is supported in this environment");
     await import("./wasm");
   } else {
     // eslint-disable-next-line no-console
-    console.debug("WebAssembly is not supported in this environment");
+    console.info("WebAssembly is not supported in this environment");
     await import("./fallback");
   }
+
+  // the wasm and fallback imports mutate globalThis to add the initSdk function
+  return (globalThis as GlobalWithWasmInit).initSdk;
 }
 
-/**
- * SDK client factory with a js fallback for when WASM is not supported.
- *
- * Works both in popup and service worker.
- */
-export class BrowserSdkClientFactory implements SdkClientFactory {
-  constructor(private logService: LogService) {}
+export class BrowserSdkLoadService implements SdkLoadService {
+  constructor(readonly logService: LogService) {}
 
-  async createSdkClient(
-    ...args: ConstructorParameters<typeof BitwardenClient>
-  ): Promise<BitwardenClient> {
+  async load(): Promise<void> {
     const startTime = performance.now();
-    await load();
-
+    await importModule().then((initSdk) => initSdk());
     const endTime = performance.now();
 
-    const instance = (globalThis as any).init_sdk(...args);
-
-    this.logService.info("WASM SDK loaded in", Math.round(endTime - startTime), "ms");
-
-    return instance;
+    this.logService.info(`WASM SDK loaded in ${Math.round(endTime - startTime)}ms`);
   }
 }

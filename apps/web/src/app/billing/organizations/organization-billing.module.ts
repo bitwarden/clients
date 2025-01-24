@@ -1,5 +1,7 @@
 import { NgModule } from "@angular/core";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { BannerModule } from "../../../../../../libs/components/src/banner/banner.module";
 import { UserVerificationModule } from "../../auth/shared/components/user-verification";
 import { LooseComponentsModule } from "../../shared";

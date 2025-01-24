@@ -5,6 +5,7 @@ import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angula
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
+  firstValueFrom,
   map,
   Observable,
   of,
@@ -24,8 +25,13 @@ import {
   CollectionResponse,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -110,6 +116,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private organizationUserApiService: OrganizationUserApiService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
+    private accountService: AccountService,
     private toastService: ToastService,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
@@ -122,7 +129,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.controls.selectedOrg.valueChanges
         .pipe(takeUntil(this.destroy$))
         .subscribe((id) => this.loadOrg(id));
-      this.organizations$ = this.organizationService.organizations$.pipe(
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.organizations$ = this.organizationService.organizations$(userId).pipe(
         first(),
         map((orgs) =>
           orgs
@@ -140,8 +150,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   async loadOrg(orgId: string) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const organization$ = this.organizationService
-      .get$(orgId)
+      .organizations$(userId)
+      .pipe(getOrganizationById(orgId))
       .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
     const groups$ = organization$.pipe(
       switchMap((organization) => {

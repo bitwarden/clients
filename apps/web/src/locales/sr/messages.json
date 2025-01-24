@@ -114,7 +114,7 @@
     "message": "Чланови под ризиком"
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "Ризични чланови ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -123,7 +123,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "Ризичне апликације ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -135,7 +135,7 @@
     "message": "These members are logging into applications with weak, exposed, or reused passwords."
   },
   "atRiskApplicationsDescription": {
-    "message": "These applications have weak, exposed, or reused passwords."
+    "message": "Ове апликације имају слабу, проваљену или често коришћену лозинку."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
@@ -154,6 +154,12 @@
   },
   "totalApplications": {
     "message": "Укупно апликација"
+  },
+  "unmarkAsCriticalApp": {
+    "message": "Уклони ознаку критичне апликације"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Успешно уклоњена ознака са критичне апликације"
   },
   "whatTypeOfItem": {
     "message": "Који је ово тип елемента?"
@@ -1161,8 +1167,14 @@
   "verifyIdentity": {
     "message": "Потврдите идентитет"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Настави са пријављивањем"
+  },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Шта је уређај?"
   },
   "aDeviceIs": {
     "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
@@ -1755,10 +1767,10 @@
     "message": "Молимо да се поново пријавите."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Тренутна сесија"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Захтев је на чекању"
   },
   "logBackInOthersToo": {
     "message": "Молимо вас да се поново пријавите. Ако користите друге Bitwarden апликације, одјавите се и вратите се и на њих."
@@ -3312,10 +3324,10 @@
     }
   },
   "inviteSingleEmailDesc": {
-    "message": "You have 1 invite remaining."
+    "message": "Преостала вам је 1 позивница."
   },
   "inviteZeroEmailDesc": {
-    "message": "You have 0 invites remaining."
+    "message": "Преостало вам је 0 позивница."
   },
   "userUsingTwoStep": {
     "message": "Овај корисник користи пријаву у два корака за заштиту свог налога."
@@ -3769,7 +3781,7 @@
     }
   },
   "unlinkedSso": {
-    "message": "Unlinked SSO."
+    "message": "Неповезан SSO."
   },
   "unlinkedSsoUser": {
     "message": "Отповезај SSO за $ID$.",
@@ -3820,22 +3832,22 @@
     "message": "Уређај"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Статус пријаве"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Прва пријава"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Поуздан"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Потребно је одобрење"
   },
   "areYouTryingtoLogin": {
-    "message": "Are you trying to log in?"
+    "message": "Да ли покушавате да се пријавите?"
   },
   "logInAttemptBy": {
-    "message": "Login attempt by $EMAIL$",
+    "message": "Покушај пријаве од $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3844,22 +3856,22 @@
     }
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Тип уређаја"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "ИП адреса"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "Потврди пријављивање"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "Одбиј пријављивање"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Овај захтев више није важећи."
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Пријава потврђена за $EMAIL$ на $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3872,16 +3884,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Одбили сте покушај пријаве са другог уређаја. Ако сте то заиста били ви, покушајте поново да се пријавите помоћу уређаја."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Захтев за пријаву је већ истекао."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Управо сада"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Затражено пре $MINUTES$ минута",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4007,7 +4019,7 @@
     "message": "Ажурирајте Претраживач"
   },
   "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+    "message": "Генерисање прегледа вашег ризика..."
   },
   "updateBrowserDesc": {
     "message": "Користите неподржани веб прегледач. Веб сеф можда неће правилно функционисати."
@@ -4849,7 +4861,7 @@
     "message": "Пријавите се помоћу портала за јединствену пријаву ваше организације. Унесите идентификатор организације да бисте започели."
   },
   "singleSignOnEnterOrgIdentifier": {
-    "message": "Enter your organization's SSO identifier to begin"
+    "message": "За почетак унесите SSO идентификатор ваше организације"
   },
   "singleSignOnEnterOrgIdentifierText": {
     "message": "To log in with your SSO provider, enter your organization's SSO identifier to begin. You may need to enter this SSO identifier when you log in from a new device."
@@ -5780,7 +5792,7 @@
     "message": "Грешка"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Грешка при декрипцији"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -6124,10 +6136,10 @@
     "message": "Assertion consumer service (ACS) URL"
   },
   "spNameIdFormat": {
-    "message": "Name ID format"
+    "message": "Формат ИД назива"
   },
   "spOutboundSigningAlgorithm": {
-    "message": "Outbound signing algorithm"
+    "message": "Алгоритам за излазно потписивање"
   },
   "spSigningBehavior": {
     "message": "Понашање пријављања"
@@ -6169,7 +6181,7 @@
     "message": "Дозволи нежељени одговор на аутентификацију"
   },
   "idpAllowOutboundLogoutRequests": {
-    "message": "Allow outbound logout requests"
+    "message": "Дозволи одлазне захтеве за одјављивањем"
   },
   "idpSignAuthenticationRequests": {
     "message": "Sign authentication requests"
@@ -6265,7 +6277,7 @@
     }
   },
   "freeFamiliesPlan": {
-    "message": "Free Families plan"
+    "message": "Бесплатан породични план"
   },
   "redeemNow": {
     "message": "Откупи сада"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "месечно по члану"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
   },
   "seats": {
     "message": "Места"

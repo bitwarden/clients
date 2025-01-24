@@ -6,11 +6,11 @@ import { OrganizationId, UserId } from "../../../types/guid";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 
-import { DefaultvNextOrganizationService } from "./default-vnext-organization.service";
-import { ORGANIZATIONS } from "./vnext-organization.state";
+import { DefaultOrganizationService } from "./default-organization.service";
+import { ORGANIZATIONS } from "./organization.state";
 
 describe("OrganizationService", () => {
-  let organizationService: DefaultvNextOrganizationService;
+  let organizationService: DefaultOrganizationService;
 
   const fakeUserId = Utils.newGuid() as UserId;
   let fakeStateProvider: FakeStateProvider;
@@ -86,7 +86,7 @@ describe("OrganizationService", () => {
 
   beforeEach(async () => {
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(fakeUserId));
-    organizationService = new DefaultvNextOrganizationService(fakeStateProvider);
+    organizationService = new DefaultOrganizationService(fakeStateProvider);
   });
 
   describe("canManageSponsorships", () => {
