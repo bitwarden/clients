@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Potvrdi identitet"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "Tvoj trezor je zaključan. Potvrdi glavnu lozinku za nastavak."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Pitaj za dodavanje stavke ako nije pronađena u tvojem trezoru. Primjenjuje se na sve prijavljene račune."
   },
-  "showCardsInVaultView": {
-    "message": "Prikaži kartice kao prijedloge za auto-ispunu u prikazu trezora"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Prikaži platne kartice"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Prikazuj platne kartice za jednostavnu auto-ispunu."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Prikaži identitete kao prijedloge za auto-ispunu u prikazu trezora"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Prikaži identitete"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Ekstra široko"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

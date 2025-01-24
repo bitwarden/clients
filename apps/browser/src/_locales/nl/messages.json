@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Identiteit verifiëren"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
+  },
+  "continueLoggingIn": {
+    "message": "Doorgaan met inloggen"
+  },
   "yourVaultIsLocked": {
     "message": "Je kluis is vergrendeld. Bevestig je identiteit om door te gaan."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Vraag om een item toe te voegen als het niet is gevonden is je kluis. Dit geld voor alle ingelogde accounts."
   },
-  "showCardsInVaultView": {
-    "message": "Kaarten als Autofill-suggesties in de kluisweergave weergeven"
+  "showCardsInVaultViewV2": {
+    "message": "Kaarten altijd als Autofill-suggesties in de kluisweergave weergeven"
   },
   "showCardsCurrentTab": {
     "message": "Kaarten weergeven op tabpagina"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Kaartenitems weergeven op de tabpagina voor gemakkelijk automatisch invullen."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Identiteiten als Autofill-suggesties in de kluisweergave weergeven"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Identiteiten altijd als Autofill-suggesties in de kluisweergave weergeven"
   },
   "showIdentitiesCurrentTab": {
     "message": "Identiteiten weergeven op tabpagina"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Extra breed"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Werk je desktopapplicatie bij"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Als u biometrische gegevens wilt gebruiken, moet je de desktopapplicatie bijwerken of vingerafdrukontgrendeling uitschakelen in de instellingen van de desktopapplicatie."
   }
 }

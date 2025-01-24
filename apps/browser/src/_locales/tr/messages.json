@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Kimliği doğrula"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "Kasanız kilitli. Devam etmek için kimliğinizi doğrulayın."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Kasanızda bulunmayan kayıtların eklenmesini isteyip istemediğinizi sorar. Oturum açmış tüm hesaplar için geçerlidir."
   },
-  "showCardsInVaultView": {
-    "message": "Kasa görünümünde kartları otomatik doldurma önerisi olarak göster"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Sekme sayfasında kartları göster"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Kolay otomatik doldurma için sekme sayfasında kartları listele."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Kasa görünümünde kimlikleri otomatik doldurma önerisi olarak göster"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Sekme sayfasında kimlikleri göster"
@@ -1466,7 +1472,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Önerileri otomatik doldur"
+    "message": "Otomatik doldurma önerileri"
   },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
@@ -3976,7 +3982,7 @@
     "message": "Geçiş anahtarı kaldırıldı"
   },
   "autofillSuggestions": {
-    "message": "Önerileri otomatik doldur"
+    "message": "Otomatik doldurma önerileri"
   },
   "itemSuggestions": {
     "message": "Önerilen kayıtlar"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Ekstra geniş"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Lütfen masaüstü uygulamanızı güncelleyin"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }
