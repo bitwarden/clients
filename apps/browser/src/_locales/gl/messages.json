@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Verificar identidade"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "yourVaultIsLocked": {
     "message": "A túa caixa forte está bloqueada. Verifica a túa identidade para continuar."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Ofrecer gardar un elemento se non se atopa na caixa forte. Aplica a tódalas sesións iniciadas."
   },
-  "showCardsInVaultView": {
-    "message": "Na caixa forte, amosar tarxetas como suxestións de Autoenchido"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Amosar tarxetas na pestana"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Lista na pestana actual as tarxetas gardadas para autoenchido."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Na caixa forte, amosar identidades como suxestións de Autoenchido"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Amosar identidades na pestana"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Moi ancho"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

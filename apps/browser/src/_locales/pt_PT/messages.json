@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Verificar identidade"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "Não reconhecemos este dispositivo. Introduza o código enviado para o seu e-mail para verificar a sua identidade."
+  },
+  "continueLoggingIn": {
+    "message": "Continuar a iniciar sessão"
+  },
   "yourVaultIsLocked": {
     "message": "O seu cofre está bloqueado. Verifique a sua identidade para continuar."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Pedir para adicionar um item se não for encontrado um no seu cofre. Aplica-se a todas as contas com sessão iniciada."
   },
-  "showCardsInVaultView": {
-    "message": "Mostrar cartões como sugestões de preenchimento automático na vista do cofre"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Mostrar cartões na página Separador"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Listar itens de cartões na página Separador para facilitar o preenchimento automático."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Mostrar identidades como sugestões de preenchimento automático na vista do cofre"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Mostrar identidades na página Separador"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Muito ampla"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Por favor, atualize a sua aplicação para computador"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Para utilizar o desbloqueio biométrico, atualize a sua aplicação para computador ou desative o desbloqueio por impressão digital nas definições dessa mesma app."
   }
 }

@@ -71,9 +71,9 @@ export class VaultPopupItemsService {
     this.vaultPopupAutofillService.nonLoginCipherTypesOnPage$,
   ]).pipe(
     map(([showCardsSettingEnabled, showIdentitiesSettingEnabled, nonLoginCipherTypesOnPage]) => {
-      const showCards = showCardsSettingEnabled && nonLoginCipherTypesOnPage[CipherType.Card];
+      const showCards = showCardsSettingEnabled || nonLoginCipherTypesOnPage[CipherType.Card];
       const showIdentities =
-        showIdentitiesSettingEnabled && nonLoginCipherTypesOnPage[CipherType.Identity];
+        showIdentitiesSettingEnabled || nonLoginCipherTypesOnPage[CipherType.Identity];
 
       return [
         ...(showCards ? [CipherType.Card] : []),

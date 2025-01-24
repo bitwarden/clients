@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Applikationer i alt"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Afmarkér som kritisk app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Kritisk app afmarkeret"
+  },
   "whatTypeOfItem": {
     "message": "Hvilken emnetype er denne?"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Bekræft din identitet"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Denne enhed er ikke genkendt. Angiv koden i den tilsendte e-mail for at bekræfte identiteten."
+  },
+  "continueLoggingIn": {
+    "message": "Fortsæt med at logge ind"
   },
   "whatIsADevice": {
     "message": "Hvad er en enhed?"
@@ -9272,6 +9284,9 @@
   },
   "monthPerMember": {
     "message": "måned pr. medlem"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": "måned pr. medlem faktureret årligt"
   },
   "seats": {
     "message": "Pladser"

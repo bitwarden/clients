@@ -280,7 +280,7 @@ export class VaultPopupAutofillService {
     }
 
     // Slight delay to fix bug in Chromium browsers where popup closes without copying totp to clipboard
-    setTimeout(() => BrowserApi.closePopup(window), 50);
+    requestAnimationFrame(() => BrowserApi.closePopup(window));
   }
 
   /**

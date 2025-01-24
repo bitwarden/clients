@@ -13,6 +13,8 @@ import { Subject, takeUntil } from "rxjs";
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { FormSelectionList } from "@bitwarden/angular/utils/form-selection-list";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 
 import {

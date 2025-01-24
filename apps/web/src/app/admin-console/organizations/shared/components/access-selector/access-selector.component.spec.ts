@@ -17,6 +17,8 @@ import {
   TableModule,
   TabsModule,
 } from "@bitwarden/components";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";

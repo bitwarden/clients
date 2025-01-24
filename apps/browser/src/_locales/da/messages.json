@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Bekræft identitet"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "Denne enhed er ikke genkendt. Angiv koden i den tilsendte e-mail for at bekræfte identiteten."
+  },
+  "continueLoggingIn": {
+    "message": "Fortsæt med at logge ind"
+  },
   "yourVaultIsLocked": {
     "message": "Din boks er låst. Bekræft din identitet for at fortsætte."
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Anmod om at tilføje et emne, hvis intet ikke findes i boksen. Gælder alle indloggede konti."
   },
-  "showCardsInVaultView": {
-    "message": "Vis kort som Autoudfyldningsforslag ved Boks-visning"
+  "showCardsInVaultViewV2": {
+    "message": "Vis altid kort som Autoudfyldningsforslag ved Boks-visning"
   },
   "showCardsCurrentTab": {
     "message": "Vis kort på fanebladet"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Vis kortemner på siden Fane for nem autoudfyldning."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Vis identiteter som Autoudfyldningsforslag ved Boks-visning"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Vis altid identiteter som Autoudfyldningsforslag ved Boks-visning"
   },
   "showIdentitiesCurrentTab": {
     "message": "Vis identiteter på fanebladet"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Ekstra bred"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Opdatér venligst computerapplikationen"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "For brug af biometrisk oplåsning skal computerapplikationen opdateres eller fingeraftryksoplåsning deaktiveres i computerindstillingerne."
   }
 }

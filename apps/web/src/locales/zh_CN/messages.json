@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "总的应用程序"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "这是什么类型的项目？"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "验证您的身份"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "whatIsADevice": {
     "message": "什么是设备？"
@@ -3769,7 +3781,7 @@
     }
   },
   "unlinkedSso": {
-    "message": "Unlinked SSO."
+    "message": "未链接的 SSO。"
   },
   "unlinkedSsoUser": {
     "message": "为用户 $ID$ 取消链接 SSO。",
@@ -9271,7 +9283,10 @@
     "message": "35% 折扣"
   },
   "monthPerMember": {
-    "message": "每成员 /月"
+    "message": " /成员 /月"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": " /成员 /月（按年计费）"
   },
   "seats": {
     "message": "席位"

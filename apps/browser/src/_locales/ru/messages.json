@@ -647,6 +647,12 @@
   "verifyIdentity": {
     "message": "Подтвердить личность"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "Мы не распознали это устройство. Введите код, отправленный на ваш email, чтобы подтвердить вашу личность."
+  },
+  "continueLoggingIn": {
+    "message": "Продолжить вход"
+  },
   "yourVaultIsLocked": {
     "message": "Ваше хранилище заблокировано. Подтвердите свою личность, чтобы продолжить"
   },
@@ -986,8 +992,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Запрос на добавление элемента, если он отсутствует в вашем хранилище. Применяется ко всем авторизованным аккаунтам."
   },
-  "showCardsInVaultView": {
-    "message": "Показывать карты как предложение автозаполнения при просмотре Хранилище"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Показывать карты на вкладке"
@@ -995,8 +1001,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Карты будут отображены на вкладке для удобного автозаполнения."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Показывать личности как предложение автозаполнения при просмотре Хранилище"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показывать Личности на вкладке"
@@ -4868,5 +4874,11 @@
   },
   "extraWide": {
     "message": "Очень широкое"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Пожалуйста, обновите приложение для компьютера"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Чтобы использовать биометрическую разблокировку, обновите приложение для компьютера или отключите разблокировку по отпечатку пальца в настройках компьютера."
   }
 }

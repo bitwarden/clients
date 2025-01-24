@@ -256,7 +256,7 @@
     "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Kundensupport kontaktieren",
+    "message": "Kontaktiere unser Customer Success Team",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
@@ -884,6 +884,15 @@
   "duoOrganizationDesc": {
     "message": "Nutze Duo Security, um dich mit der Duo-Mobile-App, SMS, per Anruf oder U2F-Sicherheitsschlüssel bei deiner Organisation zu verifizieren.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+  },
+  "verifyIdentity": {
+    "message": "Verifiziere deine Identität"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren."
+  },
+  "continueLoggingIn": {
+    "message": "Anmeldung fortsetzen"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "Diese Funktion ist für kostenlose Organisationen nicht verfügbar. Wechsle zu einem kostenpflichtigen Abonnement, um weitere Funktionen freizuschalten."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Aktualisierung der Erweiterung notwendig"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Die von dir verwendete Browser-Erweiterung ist veraltet. Bitte aktualisiere sie oder deaktiviere die Fingerabdrucküberprüfung der Browser-Integration in den Einstellungen der Desktop-App."
   }
 }

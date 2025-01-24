@@ -16,6 +16,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import {
   CipherFormConfig,
   CipherFormConfigService,
