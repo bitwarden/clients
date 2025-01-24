@@ -15,7 +15,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService } from "@bitwarden/key-management";
 
 @Component({
@@ -36,7 +35,6 @@ export class RegisterComponent extends BaseRegisterComponent {
     apiService: ApiService,
     stateService: StateService,
     platformUtilsService: PlatformUtilsService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
     environmentService: EnvironmentService,
     logService: LogService,
     auditService: AuditService,
@@ -53,7 +51,6 @@ export class RegisterComponent extends BaseRegisterComponent {
       apiService,
       stateService,
       platformUtilsService,
-      passwordGenerationService,
       environmentService,
       logService,
       auditService,
