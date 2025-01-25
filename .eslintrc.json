@@ -253,6 +253,19 @@
           }
         ]
       }
+    },
+    {
+      "files": ["*.ts"],
+      "excludedFiles": ["**/*api.service.ts", "**/*api.service.implementation.ts"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          {
+            "message": "Calling `ApiService.send` is only allowed in ApiServices",
+            "selector": "CallExpression[callee.object.property.name='apiService'][callee.property.name='send']"
+          }
+        ]
+      }
     }
   ]
 }
