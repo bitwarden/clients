@@ -6,6 +6,10 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { FamiliesPolicyService } from "./families-policy.service"; // Adjust the import as necessary
 
@@ -13,16 +17,20 @@ describe("FamiliesPolicyService", () => {
   let service: FamiliesPolicyService;
   let organizationService: MockProxy<OrganizationService>;
   let policyService: MockProxy<PolicyService>;
+  let accountService: FakeAccountService;
+  const userId = Utils.newGuid() as UserId;
 
   beforeEach(() => {
     organizationService = mock<OrganizationService>();
     policyService = mock<PolicyService>();
+    accountService = mockAccountServiceWith(userId);
 
     TestBed.configureTestingModule({
       providers: [
         FamiliesPolicyService,
         { provide: OrganizationService, useValue: organizationService },
         { provide: PolicyService, useValue: policyService },
+        { provide: AccountService, useValue: accountService },
       ],
     });
 
@@ -40,7 +48,7 @@ describe("FamiliesPolicyService", () => {
     jest.spyOn(service, "hasSingleEnterpriseOrg$").mockReturnValue(of(true));
 
     const organizations = [{ id: "org1", canManageSponsorships: true }] as Organization[];
-    organizationService.getAll$.mockReturnValue(of(organizations));
+    organizationService.organizations$.mockReturnValue(of(organizations));
 
     const policies = [{ organizationId: "org1", enabled: true }] as Policy[];
     policyService.getAll$.mockReturnValue(of(policies));
@@ -53,7 +61,7 @@ describe("FamiliesPolicyService", () => {
     jest.spyOn(service, "hasSingleEnterpriseOrg$").mockReturnValue(of(true));
 
     const organizations = [{ id: "org1", canManageSponsorships: true }] as Organization[];
-    organizationService.getAll$.mockReturnValue(of(organizations));
+    organizationService.organizations$.mockReturnValue(of(organizations));
 
     const policies = [{ organizationId: "org1", enabled: false }] as Policy[];
     policyService.getAll$.mockReturnValue(of(policies));
@@ -64,7 +72,7 @@ describe("FamiliesPolicyService", () => {
 
   it("should return true when there is exactly one enterprise organization that can manage sponsorships", async () => {
     const organizations = [{ id: "org1", canManageSponsorships: true }] as Organization[];
-    organizationService.getAll$.mockReturnValue(of(organizations));
+    organizationService.organizations$.mockReturnValue(of(organizations));
 
     const result = await firstValueFrom(service.hasSingleEnterpriseOrg$());
     expect(result).toBe(true);
@@ -75,7 +83,7 @@ describe("FamiliesPolicyService", () => {
       { id: "org1", canManageSponsorships: true },
       { id: "org2", canManageSponsorships: true },
     ] as Organization[];
-    organizationService.getAll$.mockReturnValue(of(organizations));
+    organizationService.organizations$.mockReturnValue(of(organizations));
 
     const result = await firstValueFrom(service.hasSingleEnterpriseOrg$());
     expect(result).toBe(false);

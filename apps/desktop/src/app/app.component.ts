@@ -32,6 +32,7 @@ import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstrac
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -872,9 +873,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async deleteAccount() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.AccountDeprovisioning).pipe(
-        withLatestFrom(this.organizationService.organizations$),
+        withLatestFrom(this.organizationService.organizations$(userId)),
         map(async ([accountDeprovisioningEnabled, organization]) => {
           if (
             accountDeprovisioningEnabled &&

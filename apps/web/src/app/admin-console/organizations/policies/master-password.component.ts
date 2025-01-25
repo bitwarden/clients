@@ -2,11 +2,17 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -43,6 +49,7 @@ export class MasterPasswordPolicyComponent extends BasePolicyComponent implement
     private formBuilder: FormBuilder,
     i18nService: I18nService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {
     super();
 
@@ -58,7 +65,12 @@ export class MasterPasswordPolicyComponent extends BasePolicyComponent implement
 
   async ngOnInit() {
     super.ngOnInit();
-    const organization = await this.organizationService.get(this.policyResponse.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.policyResponse.organizationId)),
+    );
     this.showKeyConnectorInfo = organization.keyConnectorEnabled;
   }
 }
