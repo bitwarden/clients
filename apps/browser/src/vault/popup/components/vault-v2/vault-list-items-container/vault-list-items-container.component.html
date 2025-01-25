@@ -1,10 +1,32 @@
 <bit-section *ngIf="ciphers?.length > 0 || description" [disableMargin]="disableSectionMargin">
-  <div class="tw-pl-1">
-    <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
-  </div>
+  <ng-container *ngIf="collapsibleKey">
+    <button
+      class="tw-group/vault-section-header hover:tw-bg-secondary-100 tw-pl-1 tw-w-full tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid focus-visible:tw-outline-none focus-visible:tw-rounded-md focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
+      [ngClass]="{
+        'tw-border-b-secondary-300': !sectionOpenState(),
+        'tw-border-b-transparent': sectionOpenState(),
+      }"
+      type="button"
+      [bitDisclosureTriggerFor]="disclosureRef"
+      (click)="toggleSectionOpen()"
+    >
+      <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
+    </button>
+    <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
+    <bit-disclosure #disclosureRef [open]="sectionOpenState()" (openChange)="rerenderViewport()">
+      <ng-container *ngTemplateOutlet="mainContent"></ng-container>
+    </bit-disclosure>
+  </ng-container>
 
-  <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
-
+  <ng-container *ngIf="!collapsibleKey">
+    <div class="tw-pl-1">
+      <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
+    </div>
+    <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
+    <ng-container *ngTemplateOutlet="mainContent"></ng-container>
+  </ng-container>
+</bit-section>
+<ng-template #mainContent>
   <ng-container *ngIf="!groupByType; else groupedList">
     <ng-container *ngTemplateOutlet="itemList; context: { $implicit: ciphers }"></ng-container>
   </ng-container>
@@ -16,26 +38,23 @@
           *ngTemplateOutlet="itemList; context: { $implicit: grouped.loginCiphers }"
         ></ng-container>
       </ng-container>
+
       <ng-container *ngIf="grouped.cardCiphers.length">
-        <h3 class="tw-text-muted tw-text-sm tw-pl-1 tw-mb-1">
-          {{ "cards" | i18n }}
-        </h3>
+        <h3 class="tw-text-muted tw-text-sm tw-pl-1 tw-mb-1">{{ "cards" | i18n }}</h3>
         <ng-container
           *ngTemplateOutlet="itemList; context: { $implicit: grouped.cardCiphers }"
         ></ng-container>
       </ng-container>
+
       <ng-container *ngIf="grouped.identityCiphers.length">
-        <h3 class="tw-text-muted tw-text-sm tw-pl-1 tw-mb-1">
-          {{ "identities" | i18n }}
-        </h3>
+        <h3 class="tw-text-muted tw-text-sm tw-pl-1 tw-mb-1">{{ "identities" | i18n }}</h3>
         <ng-container
           *ngTemplateOutlet="itemList; context: { $implicit: grouped.identityCiphers }"
         ></ng-container>
       </ng-container>
     </ng-container>
   </ng-template>
-</bit-section>
-
+</ng-template>
 <ng-template #sectionHeader>
   <bit-section-header
     class="tw-p-0.5 -tw-mt-0.5 -tw-mx-0.5"
@@ -74,13 +93,11 @@
     </span>
   </bit-section-header>
 </ng-template>
-
 <ng-template #descriptionText>
   <div *ngIf="description" class="tw-text-muted tw-px-1 tw-mb-2" bitTypography="body2">
     {{ description }}
   </div>
 </ng-template>
-
 <ng-template #itemList let-list>
   <bit-item-group>
     <cdk-virtual-scroll-viewport
@@ -115,6 +132,7 @@
           ></i>
           <span slot="secondary">{{ cipher.subTitle }}</span>
         </button>
+
         <ng-container slot="end">
           <bit-item-action *ngIf="!(hideAutofillButton$ | async)">
             <button
