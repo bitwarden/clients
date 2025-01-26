@@ -648,10 +648,10 @@
     "message": "Verifica identità"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Non riconosciamo questo dispositivo. Inserisci il codice inviato alla tua e-mail per verificare la tua identità."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Continua l'accesso"
   },
   "yourVaultIsLocked": {
     "message": "La tua cassaforte è bloccata. Verifica la tua identità per continuare."
@@ -993,7 +993,7 @@
     "message": "Chiedi di creare un nuovo elemento se non ce n'è uno nella tua cassaforte. Si applica a tutti gli account sul dispositivo."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Mostra sempre le carte come suggerimenti di riempimento automatico nella vista cassaforte"
   },
   "showCardsCurrentTab": {
     "message": "Mostra le carte nella sezione Scheda"
@@ -1002,7 +1002,7 @@
     "message": "Mostra le carte nella sezione Scheda per riempirle automaticamente."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Mostra sempre le identità come suggerimenti di riempimento automatico nella vista cassaforte"
   },
   "showIdentitiesCurrentTab": {
     "message": "Mostra le identità nella sezione Scheda"

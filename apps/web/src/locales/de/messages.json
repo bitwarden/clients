@@ -156,10 +156,10 @@
     "message": "Anwendungen insgesamt"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Markierung als kritische Anwendung aufheben"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Markierung als kritische Anwendung erfolgreich aufgehoben"
   },
   "whatTypeOfItem": {
     "message": "Um welche Art von Eintrag handelt es sich hierbei?"
@@ -9807,6 +9807,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Schlüsselalgorithmus"
+  },
+  "sshPrivateKey": {
+    "message": "Privater Schlüssel"
+  },
+  "sshPublicKey": {
+    "message": "Öffentlicher Schlüssel"
+  },
+  "sshFingerprint": {
+    "message": "Fingerabdruck"
   },
   "sshKeyFingerprint": {
     "message": "Fingerabdruck"

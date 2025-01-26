@@ -648,10 +648,10 @@
     "message": "Виконати перевірку"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Продовжити вхід"
   },
   "yourVaultIsLocked": {
     "message": "Ваше сховище заблоковане. Для продовження виконайте перевірку."
@@ -993,7 +993,7 @@
     "message": "Запитувати про додавання запису, якщо такого не знайдено у вашому сховищі. Застосовується для всіх облікових записів, до яких виконано вхід."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Завжди показувати картки як пропозиції автозаповнення в режимі перегляду сховища"
   },
   "showCardsCurrentTab": {
     "message": "Показувати картки на вкладці"
@@ -1002,7 +1002,7 @@
     "message": "Показувати список карток на сторінці вкладки для легкого автозаповнення."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Завжди показувати посвідчення як пропозиції автозаповнення в режимі перегляду сховища"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показувати посвідчення на вкладці"
@@ -2397,7 +2397,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
-    "message": "Надіслати подробиці",
+    "message": "Подробиці відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
@@ -4876,9 +4876,9 @@
     "message": "Дуже широке"
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
+    "message": "Оновіть свою комп'ютерну програму"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "Щоб використовувати біометричне розблокування, оновіть комп'ютерну програму, або вимкніть розблокування відбитком пальця в налаштуваннях системи."
   }
 }
