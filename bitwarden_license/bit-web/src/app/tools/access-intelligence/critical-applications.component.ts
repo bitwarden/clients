@@ -15,6 +15,8 @@ import {
   ApplicationHealthReportDetailWithCriticalFlag,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -51,8 +53,12 @@ export class CriticalApplicationsComponent implements OnInit {
   protected organizationId: string;
   protected applicationSummary = {} as ApplicationHealthReportSummary;
   noItemsIcon = Icons.Security;
+  isNotificationsFeatureEnabled: boolean = false;
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.isNotificationsFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.EnableRiskInsightsNotifications,
+    );
     this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
     combineLatest([
       this.dataService.applications$,
@@ -116,6 +122,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     protected dialogService: DialogService,
     protected i18nService: I18nService,
+    private configService: ConfigService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
