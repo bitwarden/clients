@@ -270,6 +270,15 @@ export class ItemDetailsSectionComponent implements OnInit {
             c.readOnly &&
             this.originalCipherView.collectionIds.includes(c.id as CollectionId),
         );
+
+        // When Owners/Admins access setting is turned on.
+        // Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
+        if (
+          organization.allowAdminAccessToAllCollectionItems &&
+          (!this.originalCipherView.viewPassword || !this.originalCipherView.edit)
+        ) {
+          this.itemDetailsForm.controls.collectionIds.disable();
+        }
       }
     }
   }
