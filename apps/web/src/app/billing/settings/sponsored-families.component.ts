@@ -98,7 +98,7 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
 
       this.availableSponsorshipOrgs$ = combineLatest([
         this.organizationService.organizations$(userId),
-        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy),
+        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
       ]).pipe(
         map(([organizations, policies]) =>
           organizations

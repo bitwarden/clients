@@ -6,7 +6,7 @@ import { FolderView } from "../../models/view/folder.view";
 
 export const FOLDER_ENCRYPTED_FOLDERS = UserKeyDefinition.record<FolderData>(
   FOLDER_DISK,
-  "folder",
+  "folders",
   {
     deserializer: (obj: Jsonify<FolderData>) => FolderData.fromJSON(obj),
     clearOn: ["logout"],

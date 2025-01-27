@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generate passphrase"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Generuoti slaptažodį iš naujo"
   },
@@ -993,7 +1005,7 @@
     "message": "Paprašykite pridėti elementą, jei jo nerasta Jūsų saugykloje. Taikoma visoms prisijungusioms paskyroms."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Visada rodyti korteles kaip automatinio pildymo pasiūlymus saugyklos rodinyje"
   },
   "showCardsCurrentTab": {
     "message": "Rodyti korteles skirtuko puslapyje"
@@ -1002,7 +1014,7 @@
     "message": "Pateikti kortelių elementų skirtuko puslapyje sąrašą, kad būtų lengva automatiškai užpildyti."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Visada rodyti tapatybes kaip automatinio pildymo pasiūlymus saugyklos rodinyje"
   },
   "showIdentitiesCurrentTab": {
     "message": "Rodyti tapatybes skirtuko puslapyje"

@@ -156,10 +156,10 @@
     "message": "Cəmi tətbiq"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Kritik tətbiq kimi işarəni götür"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Kritik tətbiq işarəsi uğurla götürüldü"
   },
   "whatTypeOfItem": {
     "message": "Bu elementin növü nədir?"
@@ -1168,10 +1168,10 @@
     "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Giriş etməyə davam"
   },
   "whatIsADevice": {
     "message": "Cihaz nədir?"
@@ -9807,6 +9807,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Açar alqoritmi"
+  },
+  "sshPrivateKey": {
+    "message": "Private açar"
+  },
+  "sshPublicKey": {
+    "message": "Public açar"
+  },
+  "sshFingerprint": {
+    "message": "Barmaq izi"
   },
   "sshKeyFingerprint": {
     "message": "Barmaq izi"

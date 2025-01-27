@@ -4,7 +4,6 @@
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { InitiationPath } from "../../models/request/reference-event.request";
 import { PaymentMethodType, PlanType } from "../enums";
-import { BillingSourceResponse } from "../models/response/billing.response";
 import { PaymentSourceResponse } from "../models/response/payment-source.response";
 
 export type OrganizationInformation = {
@@ -46,9 +45,7 @@ export type SubscriptionInformation = {
 };
 
 export abstract class OrganizationBillingServiceAbstraction {
-  getPaymentSource: (
-    organizationId: string,
-  ) => Promise<BillingSourceResponse | PaymentSourceResponse>;
+  getPaymentSource: (organizationId: string) => Promise<PaymentSourceResponse>;
 
   purchaseSubscription: (subscription: SubscriptionInformation) => Promise<OrganizationResponse>;
 

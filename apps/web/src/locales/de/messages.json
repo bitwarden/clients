@@ -156,10 +156,10 @@
     "message": "Anwendungen insgesamt"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Markierung als kritische Anwendung aufheben"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Markierung als kritische Anwendung erfolgreich aufgehoben"
   },
   "whatTypeOfItem": {
     "message": "Um welche Art von Eintrag handelt es sich hierbei?"
@@ -9808,6 +9808,15 @@
   "sshKeyAlgorithm": {
     "message": "Schlüsselalgorithmus"
   },
+  "sshPrivateKey": {
+    "message": "Privater Schlüssel"
+  },
+  "sshPublicKey": {
+    "message": "Öffentlicher Schlüssel"
+  },
+  "sshFingerprint": {
+    "message": "Fingerabdruck"
+  },
   "sshKeyFingerprint": {
     "message": "Fingerabdruck"
   },
@@ -10107,7 +10116,7 @@
     "message": "Dein Konto ist bei jedem der folgenden Geräte angemeldet. Wenn du ein Gerät nicht wiedererkennst, entferne es jetzt."
   },
   "deviceListDescriptionTemp": {
-    "message": "Dein Konto wurde bei jedem der unter aufgeführten Geräte angemeldet."
+    "message": "Dein Konto wurde bei jedem der unten aufgeführten Geräte angemeldet."
   },
   "claimedDomains": {
     "message": "Beanspruchte Domains"
