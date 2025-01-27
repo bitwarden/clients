@@ -55,7 +55,6 @@ export type CustomField = {
   name: string;
   value: string | boolean | null;
   linkedId: LinkedIdType;
-  disabled?: boolean;
   /**
    * `newField` is set to true when the custom field is created.
    *
@@ -159,19 +158,23 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
         value = field.value === "true" ? true : false;
       }
 
-      this.fields.push(
-        this.formBuilder.group<CustomField>({
-          type: field.type,
-          name: field.name,
-          value: value,
-          linkedId: field.linkedId,
-          newField: false,
-          disabled:
-            this.cipherFormContainer.config.mode === "partial-edit" ||
-            (field.type === FieldType.Hidden &&
-              !this.cipherFormContainer.originalCipherView?.viewPassword),
-        }),
-      );
+      const customField = this.formBuilder.group<CustomField>({
+        type: field.type,
+        name: field.name,
+        value: value,
+        linkedId: field.linkedId,
+        newField: false,
+      });
+
+      if (
+        this.cipherFormContainer.config.mode === "partial-edit" ||
+        (field.type === FieldType.Hidden &&
+          !this.cipherFormContainer.originalCipherView?.viewPassword)
+      ) {
+        customField.controls.value.disable();
+      }
+
+      this.fields.push(customField);
     });
 
     // Disable the form if in partial-edit mode

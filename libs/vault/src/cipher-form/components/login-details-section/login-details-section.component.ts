@@ -77,8 +77,6 @@ export class LoginDetailsSectionComponent implements OnInit {
 
   private datePipe = inject(DatePipe);
 
-  protected isPartialEdit = false;
-
   /**
    * A local reference to the Fido2 credentials for an existing login being edited.
    * These cannot be created in the form and thus have no form control.
@@ -151,7 +149,6 @@ export class LoginDetailsSectionComponent implements OnInit {
     }
 
     if (this.cipherFormContainer.config.mode === "partial-edit") {
-      this.isPartialEdit = true;
       this.loginDetailsForm.disable();
     }
   }

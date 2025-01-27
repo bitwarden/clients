@@ -80,25 +80,6 @@ export class BitInputDirective implements BitFormFieldControl {
 
   @Input() showErrorsWhenDisabled? = false;
 
-  @Input()
-  set disabled(value: boolean | string) {
-    this._disabled = this.coerceBooleanProperty(value);
-  }
-
-  get disabled(): boolean {
-    return this._disabled;
-  }
-
-  private _disabled: boolean = false;
-
-  @HostBinding("disabled") get isDisabled(): boolean {
-    return this.disabled;
-  }
-
-  private coerceBooleanProperty(value: boolean | string): boolean {
-    return value != null && `${value}` !== "false";
-  }
-
   get labelForId(): string {
     return this.id;
   }
