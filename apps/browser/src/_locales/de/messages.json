@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Passphrase generieren"
   },
+  "passwordGenerated": {
+    "message": "Passwort generiert"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generiert"
+  },
+  "usernameGenerated": {
+    "message": "Benutzername generiert"
+  },
+  "emailGenerated": {
+    "message": "E-Mail-Adresse generiert"
+  },
   "regeneratePassword": {
     "message": "Passwort neu generieren"
   },
@@ -3988,7 +4000,7 @@
     "message": "Vorgeschlagene Einträge"
   },
   "autofillSuggestionsTip": {
-    "message": "Speichere einen Login-Eintrag für diese Seite zum automatischen Ausfüllen"
+    "message": "Speichere einen Zugangsdaten-Eintrag für diese Seite zum automatischen Ausfüllen"
   },
   "yourVaultIsEmpty": {
     "message": "Dein Tresor hat keine Einträge"

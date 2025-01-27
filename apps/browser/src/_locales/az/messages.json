@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Keçid ifadələri yarat"
   },
+  "passwordGenerated": {
+    "message": "Parol yaradıldı."
+  },
+  "passphraseGenerated": {
+    "message": "Keçid ifadəsi yaradıldı"
+  },
+  "usernameGenerated": {
+    "message": "İstifadəçi adı yaradıldı"
+  },
+  "emailGenerated": {
+    "message": "E-poçt yaradıldı"
+  },
   "regeneratePassword": {
     "message": "Parolu yenidən yarat"
   },

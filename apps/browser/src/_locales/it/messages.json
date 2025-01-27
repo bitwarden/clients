@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Genera passphrase"
   },
+  "passwordGenerated": {
+    "message": "Parola d'accesso generata"
+  },
+  "passphraseGenerated": {
+    "message": "Frase d'accesso generata"
+  },
+  "usernameGenerated": {
+    "message": "Nome utente generato"
+  },
+  "emailGenerated": {
+    "message": "E-mail generata"
+  },
   "regeneratePassword": {
     "message": "Rigenera password"
   },

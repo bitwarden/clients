@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Vygenerovat heslovou frázi"
   },
+  "passwordGenerated": {
+    "message": "Heslo bylo vygenerováno"
+  },
+  "passphraseGenerated": {
+    "message": "Heslová fráze byla vygenerována"
+  },
+  "usernameGenerated": {
+    "message": "Uživatelské jméno bylo vygenerováno"
+  },
+  "emailGenerated": {
+    "message": "E-mail byl vygenerován"
+  },
   "regeneratePassword": {
     "message": "Vygenerovat jiné heslo"
   },
