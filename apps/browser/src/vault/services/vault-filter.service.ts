@@ -38,7 +38,7 @@ export class VaultFilterService extends BaseVaultFilterService {
     this.vaultFilter.myVaultOnly = false;
     this.vaultFilter.selectedOrganizationId = null;
 
-    this.accountService.activeAccount$.subscribe((account) => {
+    accountService.activeAccount$.subscribe((account) => {
       this.setVaultFilter(this.allVaults);
     });
   }

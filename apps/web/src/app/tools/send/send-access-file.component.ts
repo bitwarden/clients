@@ -70,6 +70,8 @@ export class SendAccessFileComponent {
         blobData: decBuf,
         downloadMethod: "save",
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

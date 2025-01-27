@@ -20,6 +20,7 @@ import {
   DefaultLoginComponentService,
   LoginDecryptionOptionsService,
   DefaultLoginDecryptionOptionsService,
+  DefaultLoginApprovalComponentService,
 } from "@bitwarden/auth/angular";
 import {
   AuthRequestServiceAbstraction,
@@ -34,11 +35,13 @@ import {
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
   LogoutReason,
-  RegisterRouteService,
   AuthRequestApiService,
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
   LoginSuccessHandlerService,
+  PasswordLoginStrategy,
+  PasswordLoginStrategyData,
+  LoginApprovalComponentServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -66,8 +69,8 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/services/organization/organization.service";
 import { OrgDomainApiService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain-api.service";
 import { OrgDomainService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain.service";
 import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/services/organization-management-preferences/default-organization-management-preferences.service";
@@ -291,6 +294,7 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   DefaultUserAsymmetricKeysRegenerationApiService,
 } from "@bitwarden/key-management";
+import { SafeInjectionToken } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 import {
   VaultExportService,
@@ -301,6 +305,8 @@ import {
   IndividualVaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { NewDeviceVerificationNoticeService } from "../../../vault/src/services/new-device-verification-notice.service";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { ViewCacheService } from "../platform/abstractions/view-cache.service";
@@ -319,7 +325,6 @@ import {
   MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
-  SafeInjectionToken,
   SECURE_STORAGE,
   STATE_FACTORY,
   SUPPORTS_SECURE_STORAGE,
@@ -989,13 +994,14 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: InternalOrganizationServiceAbstraction,
-    useClass: OrganizationService,
+    useClass: DefaultOrganizationService,
     deps: [StateProvider],
   }),
   safeProvider({
     provide: OrganizationServiceAbstraction,
     useExisting: InternalOrganizationServiceAbstraction,
   }),
+
   safeProvider({
     provide: OrganizationUserApiService,
     useClass: DefaultOrganizationUserApiService,
@@ -1230,7 +1236,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       ApiServiceAbstraction,
       BillingApiServiceAbstraction,
-      ConfigService,
       KeyService,
       EncryptService,
       I18nServiceAbstraction,
@@ -1351,11 +1356,6 @@ const safeProviders: SafeProvider[] = [
     deps: [ConfigService],
   }),
   safeProvider({
-    provide: RegisterRouteService,
-    useClass: RegisterRouteService,
-    deps: [ConfigService],
-  }),
-  safeProvider({
     provide: AnonLayoutWrapperDataService,
     useClass: DefaultAnonLayoutWrapperDataService,
     deps: [],
@@ -1396,12 +1396,17 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherAuthorizationService,
     useClass: DefaultCipherAuthorizationService,
-    deps: [CollectionService, OrganizationServiceAbstraction],
+    deps: [CollectionService, OrganizationServiceAbstraction, AccountServiceAbstraction],
   }),
   safeProvider({
     provide: AuthRequestApiService,
     useClass: DefaultAuthRequestApiService,
     deps: [ApiServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: LoginApprovalComponentServiceAbstraction,
+    useClass: DefaultLoginApprovalComponentService,
+    deps: [],
   }),
   safeProvider({
     provide: LoginDecryptionOptionsService,
@@ -1431,6 +1436,37 @@ const safeProviders: SafeProvider[] = [
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
     deps: [SyncService, UserAsymmetricKeysRegenerationService],
+  }),
+  safeProvider({
+    provide: PasswordLoginStrategy,
+    useClass: PasswordLoginStrategy,
+    deps: [
+      PasswordLoginStrategyData,
+      PasswordStrengthServiceAbstraction,
+      PolicyServiceAbstraction,
+      LoginStrategyServiceAbstraction,
+      AccountServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+      KeyService,
+      EncryptService,
+      ApiServiceAbstraction,
+      TokenServiceAbstraction,
+      AppIdServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      MessagingServiceAbstraction,
+      LogService,
+      StateServiceAbstraction,
+      TwoFactorServiceAbstraction,
+      InternalUserDecryptionOptionsServiceAbstraction,
+      BillingAccountProfileStateService,
+      VaultTimeoutSettingsServiceAbstraction,
+      KdfConfigService,
+    ],
+  }),
+  safeProvider({
+    provide: PasswordLoginStrategyData,
+    useClass: PasswordLoginStrategyData,
+    deps: [],
   }),
 ];
 

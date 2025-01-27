@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generiraj frazu lozinke"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Ponovno generiraj lozinku"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Potvrdi identitet"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "Tvoj trezor je zaključan. Potvrdi glavnu lozinku za nastavak."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Pitaj za dodavanje stavke ako nije pronađena u tvojem trezoru. Primjenjuje se na sve prijavljene račune."
   },
-  "showCardsInVaultView": {
-    "message": "Prikaži kartice kao prijedloge za auto-ispunu u prikazu trezora"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Prikaži platne kartice"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Prikazuj platne kartice za jednostavnu auto-ispunu."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Prikaži identitete kao prijedloge za auto-ispunu u prikazu trezora"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Prikaži identitete"
@@ -2324,6 +2342,9 @@
     "message": "Domene",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Blocked domains"
+  },
   "excludedDomains": {
     "message": "Izuzete domene"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden neće nuditi spremanje podataka za prijavu za ove domene za sve prijavljene račune. Moraš osvježiti stranicu kako bi promjene stupile na snagu."
+  },
+  "blockedDomainsDesc": {
+    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "Web stranica $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Blocked domain changes saved"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Spremljene promjene izuzete domene"
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "Pogreška"
+  },
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Generiraj korisničko ime"
@@ -3396,38 +3443,6 @@
     "message": "Sažmi/Proširi",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Uvezi svoje podatke u Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Zaštititi svoje LastPass podatke i uvezi ih u Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Spremi kao nekriptiranu datoteku",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Uvezi u Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Uvoz...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Uvoz podataka u trezor uspješan!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Greška pri uvozu. Provjeri konzolu za detalje.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Došlo je do mrežne greške tijekom uvoza.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias domene"
   },
@@ -3979,7 +3994,10 @@
     "message": "Pristupni ključ uklonjen"
   },
   "autofillSuggestions": {
-    "message": "Prijedlozi auto-ispune"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "Spremi u auto-ispunu stavku prijave za ovu stranicu"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Send tekstovi"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden ima novi izgled!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Auto-ispuna i pretraga iz kartice Trezor je lakša i intuitivnija nego ikad prije. Razgledaj!"
-  },
   "accountActions": {
     "message": "Radnje na računu"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Nemaš prava za uređivanje ove stavke"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "authenticating": {
     "message": "Autentifikacija"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Ekstra široko"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

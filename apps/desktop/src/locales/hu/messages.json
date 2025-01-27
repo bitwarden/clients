@@ -249,6 +249,20 @@
   "error": {
     "message": "Hiba"
   },
+  "decryptionError": {
+    "message": "Visszafejtési hiba"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "A Bitwarden nem tudta visszafejteni az alább felsorolt ​​széf elemeket."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Ügyfélszolgálat elérés siker",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "további adatvesztés elkerülése érdekében.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "január"
   },
@@ -870,6 +884,15 @@
   "duoOrganizationDesc": {
     "message": "Ellenőrzés szervezeti Duo Security segítségével a Duo Mobile alkalmazás, SMS, telefonhívás vagy U2F biztonsági kulcs használatával.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+  },
+  "verifyIdentity": {
+    "message": "Személyazonosság ellenőrzése"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Nem ismerhető fel ez az eszköz. Írjuk be az email címünkre küldött kódot a személyazonosság igazolásához."
+  },
+  "continueLoggingIn": {
+    "message": "A bejelentkezés folytatása"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -2865,6 +2888,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Gyenge jelszó lett azonosítva és megtalálva egy adatvédelmi incidens során. A fók védelme érdekében használjunk erős és egyedi jelszót. Biztosan használni szeretnénk ezt a jelszót?"
   },
+  "useThisPassword": {
+    "message": "Jelszó használata"
+  },
+  "useThisUsername": {
+    "message": "Felhasználónév használata"
+  },
   "checkForBreaches": {
     "message": "Az ehhez a jelszóhoz tartozó ismert adatvédelmi incidensek ellenőrzése"
   },
@@ -3362,6 +3391,30 @@
   "ssoError": {
     "message": "Nem található szabad port az sso bejelentkezéshez."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "A biometrikus feloldás nem érhető el, mert először PIN kóddal vagy jelszóval kell feloldani."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "A biometrikus feloldás jelenleg nem érhető el."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "A biometrikus feloldás nem érhető el a rosszul konfigurált rendszerfájlok miatt."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "A biometrikus feloldás nem érhető el a rosszul konfigurált rendszerfájlok miatt."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "A biometrikus feloldás nem érhető el, mert nincs engedélyezve $EMAIL$ számára a Bitwarden asztali alkalmazásban.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "A biometrikus feloldás jelenleg ismeretlen okból nem érhető el."
+  },
   "authorize": {
     "message": "Hitelesítés"
   },
@@ -3430,5 +3483,20 @@
   },
   "changeAcctEmail": {
     "message": "Fiók email cím megváltoztatása"
+  },
+  "organizationUpgradeRequired": {
+    "message": "A szervezet felminősítése szükséges."
+  },
+  "upgradeOrganization": {
+    "message": "Szervezeti áttérés"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Ez a szolgáltatás nem elérhető ingyenes szervezeteknek. Váltás fizetős díjcsomagra a további funkciók feloldásához."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Kiterjesztés frissítés szükséges"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Al használt böngésző bővítmény elavult. Frissítsük vagy tiltsuk le a böngésző integráció ujjlenyomat ellenőrzését az asztali alkalmazás beállításainál."
   }
 }

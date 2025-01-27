@@ -10,6 +10,8 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { HashPurpose } from "../../../platform/enums";
@@ -161,6 +163,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     const request = new VerifyOTPRequest(verification.secret);
     try {
       await this.userVerificationApiService.postAccountVerifyOTP(request);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw new Error(this.i18nService.t("invalidVerificationCode"));
     }
@@ -219,6 +223,8 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       request.masterPasswordHash = serverKeyHash;
       try {
         policyOptions = await this.userVerificationApiService.postAccountVerifyPassword(request);
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         throw new Error(this.i18nService.t("invalidMasterPassword"));
       }

@@ -16,6 +16,7 @@ import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   AsyncActionsModule,
@@ -40,6 +41,8 @@ export interface LoginApprovalDialogParams {
   imports: [CommonModule, AsyncActionsModule, ButtonModule, DialogModule, JslibModule],
 })
 export class LoginApprovalComponent implements OnInit, OnDestroy {
+  loading = true;
+
   notificationId: string;
 
   private destroy$ = new Subject<void>();
@@ -62,25 +65,25 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     private dialogRef: DialogRef,
     private toastService: ToastService,
     private loginApprovalComponentService: LoginApprovalComponentService,
+    private validationService: ValidationService,
   ) {
     this.notificationId = params.notificationId;
   }
 
   async ngOnDestroy(): Promise<void> {
     clearInterval(this.interval);
-    const closedWithButton = await firstValueFrom(this.dialogRef.closed);
-    if (!closedWithButton) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.retrieveAuthRequestAndRespond(false);
-    }
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   async ngOnInit() {
     if (this.notificationId != null) {
-      this.authRequestResponse = await this.apiService.getAuthRequest(this.notificationId);
+      try {
+        this.authRequestResponse = await this.apiService.getAuthRequest(this.notificationId);
+      } catch (error) {
+        this.validationService.showError(error);
+      }
+
       const publicKey = Utils.fromB64ToArray(this.authRequestResponse.publicKey);
       this.email = await await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),
@@ -96,6 +99,8 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
       }, RequestTimeUpdate);
 
       this.loginApprovalComponentService.showLoginRequestedAlertIfWindowNotVisible(this.email);
+
+      this.loading = false;
     }
   }
 
@@ -131,6 +136,8 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
       );
       this.showResultToast(loginResponse);
     }
+
+    this.dialogRef.close(approve);
   }
 
   showResultToast(loginResponse: AuthRequestResponse) {

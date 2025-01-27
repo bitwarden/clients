@@ -385,7 +385,7 @@
     "message": "Hiç klasör eklenmedi"
   },
   "createFoldersToOrganize": {
-    "message": "Create folders to organize your vault items"
+    "message": "Kasanızdaki kayıtları organize etmek için klasörler oluşturun"
   },
   "deleteFolderPermanently": {
     "message": "Bu klasörü kalıcı olarak silmek istediğinizden emin misiniz?"
@@ -444,6 +444,18 @@
   },
   "generatePassphrase": {
     "message": "Parola üret"
+  },
+  "passwordGenerated": {
+    "message": "Parola üretildi"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Kullanıcı adı üretildi"
+  },
+  "emailGenerated": {
+    "message": "E-posta üretildi"
   },
   "regeneratePassword": {
     "message": "Yeni parola oluştur"
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Kimliği doğrula"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin."
+  },
+  "continueLoggingIn": {
+    "message": "Giriş yapmaya devam et"
   },
   "yourVaultIsLocked": {
     "message": "Kasanız kilitli. Devam etmek için kimliğinizi doğrulayın."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Kasanızda bulunmayan kayıtların eklenmesini isteyip istemediğinizi sorar. Oturum açmış tüm hesaplar için geçerlidir."
   },
-  "showCardsInVaultView": {
-    "message": "Kasa görünümünde kartları otomatik doldurma önerisi olarak göster"
+  "showCardsInVaultViewV2": {
+    "message": "Kasa görünümünde kartları her zaman otomatik doldurma önerisi olarak göster"
   },
   "showCardsCurrentTab": {
     "message": "Sekme sayfasında kartları göster"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Kolay otomatik doldurma için sekme sayfasında kartları listele."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Kasa görünümünde kimlikleri otomatik doldurma önerisi olarak göster"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Kasa görünümünde kimlikleri her zaman otomatik doldurma önerisi olarak göster"
   },
   "showIdentitiesCurrentTab": {
     "message": "Sekme sayfasında kimlikleri göster"
@@ -1275,7 +1293,7 @@
     "message": "Bitwarden'ı desteklediğiniz için teşekkür ederiz."
   },
   "premiumFeatures": {
-    "message": "Premium'a yükseltin ve şunları alın:"
+    "message": "Premium'a geçmenin avantajları:"
   },
   "premiumPrice": {
     "message": "Bunların hepsi sadece yılda $PRICE$!",
@@ -1466,7 +1484,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Önerileri otomatik doldur"
+    "message": "Otomatik doldurma önerileri"
   },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
@@ -1502,13 +1520,13 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Sayfa yüklendiğinde otomatik doldur"
+    "message": "Sayfa yüklenince otomatik doldur"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "Sayfa yüklendiğinde otomatik doldur"
+    "message": "Sayfa yüklenince otomatik doldur"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "Sayfa yüklendiğinde giriş formu tespit edilirse otomatik olarak formu doldur."
+    "message": "Sayfa yüklenince giriş formu tespit edilirse otomatik olarak formu doldur."
   },
   "experimentalFeature": {
     "message": "Ele geçirilmiş veya güvenilmeyen web siteleri sayfa yüklenirken otomatik doldurmayı suistimal edebilir."
@@ -1523,19 +1541,19 @@
     "message": "Hesaplar için varsayılan otomatik doldurma ayarı"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "\"Sayfa yüklendiğinde otomatik doldur\"u her hesabın \"Düzenle\" görünümünden ayrı ayrı kapatabilirsiniz."
+    "message": "\"Sayfa yüklenince otomatik doldur\"u her hesabın \"Düzenle\" görünümünden ayrı ayrı kapatabilirsiniz."
   },
   "itemAutoFillOnPageLoad": {
-    "message": "Sayfa yüklendiğinde otomatik doldur (Seçeneklerde ayarlanmışsa)"
+    "message": "Sayfa yüklenince otomatik doldur (Seçeneklerde ayarlanmışsa)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Varsayılan ayarı kullan"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Sayfa yüklendiğinde otomatik doldur"
+    "message": "Sayfa yüklenince otomatik doldur"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Sayfa yüklendiğinde otomatik doldurma"
+    "message": "Sayfa yüklenince otomatik doldurma"
   },
   "commandOpenPopup": {
     "message": "Kasayı açılır pencerede aç"
@@ -2324,6 +2342,9 @@
     "message": "Alan adları",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Engellenen alan adları"
+  },
   "excludedDomains": {
     "message": "Hariç tutulan alan adları"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden, oturum açmış tüm hesaplar için bu alan adlarının hesap bilgilerini kaydetmeyi sormayacaktır. Değişikliklerin etkili olması için sayfayı yenilemeniz gerekir."
+  },
+  "blockedDomainsDesc": {
+    "message": "Bu siteler için otomatik doldurma ve diğer ilgili özellikler önerilmeyecektir. Değişikliklerin devreye girmesi için sayfayı yenilemelisiniz."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Bu sitede otomatik doldurma engellenmiş."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Bunu ayarlardan değiştirebilirsiniz"
   },
   "websiteItemLabel": {
     "message": "Web sitesi $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Engelli alan adı değişiklikleri kaydedildi"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Alan adı istisnası değişiklikleri kaydedildi"
@@ -2789,6 +2822,20 @@
   "error": {
     "message": "Hata"
   },
+  "decryptionError": {
+    "message": "Şifre çözme sorunu"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "generateUsername": {
     "message": "Kullanıcı adı oluştur"
   },
@@ -3122,7 +3169,7 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "Kuruluş ilkeleriniz, sayfa yüklendiğinde otomatik doldurmayı etkinleştirdi."
+    "message": "Kuruluş ilkeleriniz, sayfa yüklenince otomatik doldurmayı etkinleştirdi."
   },
   "howToAutofill": {
     "message": "Otomatik doldurma nasıl yapılır?"
@@ -3396,47 +3443,15 @@
     "message": "Daraltmayı aç/kapat",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Verileriniz Bitwarden'a aktarılsın mı?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "LastPass verileriniz korunsun ve Bitwarden'a aktarılsın mı?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Şifrelenmemiş dosya olarak kaydet",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Bitwarden'a aktar",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "İçe aktarılıyor...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Veriler başarıyla içe aktarıldı!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "İçe aktarma hatası. Ayrıntılar için konsolu kontrol edin.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "İçe aktarma sırasında ağ hatasıyla karşılaşıldı.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias alan adı"
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Ana parolayı yeniden isteyen kayıtlar sayfa yüklendiğinde otomatik olarak doldurulamaz. Sayfa yüklendiğinde otomatik doldurma kapatıldı.",
+    "message": "Ana parolayı yeniden isteyen kayıtlar sayfa yüklenince otomatik olarak doldurulamaz. Sayfa yüklenince otomatik doldurma kapatıldı.",
     "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
-    "message": "Sayfa yüklendiğinde otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
+    "message": "Sayfa yüklenince otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
@@ -3711,7 +3726,7 @@
     "message": "Geçiş anahtarı"
   },
   "accessing": {
-    "message": "Erişim"
+    "message": "Erişilen konum:"
   },
   "loggedInExclamation": {
     "message": "Giriş yapıldı!"
@@ -3979,7 +3994,10 @@
     "message": "Geçiş anahtarı kaldırıldı"
   },
   "autofillSuggestions": {
-    "message": "Önerileri otomatik doldur"
+    "message": "Otomatik doldurma önerileri"
+  },
+  "itemSuggestions": {
+    "message": "Önerilen kayıtlar"
   },
   "autofillSuggestionsTip": {
     "message": "Otomatik doldurma için bu siteye ait bir hesap kaydededin"
@@ -4304,7 +4322,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Sayfa yüklendiğinde otomatik doldur"
+    "message": "Sayfa yüklenince otomatik doldur"
   },
   "cardExpiredTitle": {
     "message": "Kartın süresi dolmuş"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Metin Send'leri"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden'ın tasarımı güncellendi!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Otomatik doldurma ve kasanızda arama yapma artık eskisinden daha kolay. Yeni tasarıma göz atmayı unutmayın!"
-  },
   "accountActions": {
     "message": "Hesap işlemleri"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Bu kaydı düzenleme yetkisine sahip değilsiniz"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Ekstra geniş"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Lütfen masaüstü uygulamanızı güncelleyin"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

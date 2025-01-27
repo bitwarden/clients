@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "암호 생성"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "비밀번호 재생성"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "신원 확인"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "보관함이 잠겨 있습니다. 마스터 비밀번호를 입력하여 계속하세요."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "보관함에 항목이 없을 경우 추가하라는 메시지를 표시합니다. 모든 로그인된 계정에 적용됩니다."
   },
-  "showCardsInVaultView": {
-    "message": "보관함 보기에서 카드 자동완성 제안를 표시"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "탭 페이지에 카드 표시"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "간편한 자동완성을 위해 탭에 카드 항목들을 나열"
   },
-  "showIdentitiesInVaultView": {
-    "message": "보관함 보기에서 신원들의 자동완성 제안을 표시"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "탭 페이지에 신원들을 표시"
@@ -1005,7 +1023,7 @@
     "message": "간편한 자동완성을 위해 탭에 신원 항목들을 나열"
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "보관함 보기에서 항목을 클릭하여 자동 완성"
   },
   "clearClipboard": {
     "message": "클립보드 비우기",
@@ -1107,10 +1125,10 @@
     "message": "이 비밀번호는 이 파일을 파일 내보내거나, 가져오는데 사용됩니다."
   },
   "accountRestrictedOptionDescription": {
-    "message": "계정의 사용자 이름과 마스터 비밀번호에서 파생된 계정 암호화 키를 사용하여 내보내기를 암호화하고, 현재 Bitwarden계정으로 가져오기를 제한해보세요. "
+    "message": "계정의 사용자 이름과 마스터 비밀번호에서 파생된 계정 암호화 키를 사용하여 내보내기를 암호화하고, 현재 Bitwarden계정으만 가져오기를 제한합니다."
   },
   "passwordProtectedOptionDescription": {
-    "message": "파일 비밀번호를 설정하여, 내보내기를 암호화하고, 해독에 그 파일 비밀번호를 사용하는 Bitwarden계정에 가져오세요."
+    "message": "파일 비밀번호를 설정하여 내보내기를 암호화하고, 어느 Bitwarden 계정으로든 해독에 그 파일 비밀번호를 사용하여 가져오세요."
   },
   "exportTypeHeading": {
     "message": "내보내기 유형"
@@ -1478,7 +1496,7 @@
     "message": "카드를 제안으로 표시"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "아이콘을 선택하면 제안이 표시됩니다."
+    "message": "아이콘을 선택할 때 제안을 표시"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
     "message": "로그인한 모든 계정에 적용"
@@ -2324,6 +2342,9 @@
     "message": "도메인",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Blocked domains"
+  },
   "excludedDomains": {
     "message": "제외된 도메인"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "BItwarden은 로그인한 모든 계정에 대해 이러한 도메인에 대한 로그인 세부 정보를 저장하도록 요청하지 않습니다. 변경 사항을 적용하려면 페이지를 새로 고쳐야 합니다"
+  },
+  "blockedDomainsDesc": {
+    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "웹사이트 $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Blocked domain changes saved"
   },
   "excludedDomainsSavedSuccess": {
     "message": "제외된 도메인 변경 사항 저장됨"
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "오류"
+  },
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "아이디 생성"
@@ -3396,38 +3443,6 @@
     "message": "토글이 붕괴됨",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "데이터를 Bitwarden으로 가져오시겠습니까?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "LastPass 데이터를 보호하고 Bitwarden으로 가져오시겠습니까?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "암호화되지 않은 파일로 저장",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Bitwarden으로 가져오기",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "가져오는 중...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "데이터 가져오기 성공!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "가져오는 중 오류가 발생했습니다. 자세한 내용은 콘솔을 확인하세요.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "가져오기 중에 네트워크 오류가 발생했습니다.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "도메인 별칭"
   },
@@ -3979,7 +3994,10 @@
     "message": "패스키 제거됨"
   },
   "autofillSuggestions": {
-    "message": "자동 완성 제안"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "이 사이트에서 자동으로 작성할 로그인 항목 저장"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "텍스트 Send"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden이 새로운 모습으로 돌아왔습니다!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "보관함 탭에서 자동 완성하고 검색하는 것이 그 어느 때보다 쉽고 직관적입니다. 둘러보세요!"
-  },
   "accountActions": {
     "message": "계정 작업"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "아이템을 수정할 권한이 없습니다."
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "authenticating": {
     "message": "인증 중"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "매우 넓게"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

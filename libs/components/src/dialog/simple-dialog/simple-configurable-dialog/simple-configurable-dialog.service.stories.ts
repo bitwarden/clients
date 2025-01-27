@@ -17,7 +17,7 @@ import { DialogModule } from "../../dialog.module";
         <h2>{{ group.title }}</h2>
         <div class="tw-mb-4 tw-flex tw-flex-row tw-gap-2">
           @for (dialog of group.dialogs; track dialog) {
-            <button bitButton (click)="openSimpleConfigurableDialog(dialog)">
+            <button type="button" bitButton (click)="openSimpleConfigurableDialog(dialog)">
               {{ dialog.title }}
             </button>
           }
@@ -177,7 +177,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21514-19247&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;

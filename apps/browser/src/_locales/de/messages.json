@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Passphrase generieren"
   },
+  "passwordGenerated": {
+    "message": "Passwort generiert"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generiert"
+  },
+  "usernameGenerated": {
+    "message": "Benutzername generiert"
+  },
+  "emailGenerated": {
+    "message": "E-Mail-Adresse generiert"
+  },
   "regeneratePassword": {
     "message": "Passwort neu generieren"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Identität verifizieren"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Wir erkennen dieses Gerät nicht. Gib den an deine E-Mail-Adresse gesendeten Code ein, um deine Identität zu verifizieren."
+  },
+  "continueLoggingIn": {
+    "message": "Anmeldung fortsetzen"
   },
   "yourVaultIsLocked": {
     "message": "Dein Tresor ist gesperrt. Verifiziere deine Identität, um fortzufahren."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Nach dem Hinzufügen eines Eintrags fragen, wenn er nicht in deinem Tresor gefunden wurde. Gilt für alle angemeldeten Konten."
   },
-  "showCardsInVaultView": {
-    "message": "Karten als Vorschläge zum Auto-Ausfüllen in der Tresor-Ansicht anzeigen"
+  "showCardsInVaultViewV2": {
+    "message": "Karten immer als Auto-Ausfüllen-Vorschläge in der Tresor-Ansicht anzeigen"
   },
   "showCardsCurrentTab": {
     "message": "Karten auf Tab Seite anzeigen"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Karten-Einträge auf der Tab Seite anzeigen, um das Auto-Ausfüllen zu vereinfachen."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Identitäten als Vorschläge zum Auto-Ausfüllen in der Tresor-Ansicht anzeigen"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Identitäten immer als Auto-Ausfüllen-Vorschläge in der Tresor-Ansicht anzeigen"
   },
   "showIdentitiesCurrentTab": {
     "message": "Identitäten auf Tab Seite anzeigen"
@@ -2324,6 +2342,9 @@
     "message": "Domains",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Gesperrte Domains"
+  },
   "excludedDomains": {
     "message": "Ausgeschlossene Domains"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden wird für alle angemeldeten Konten nicht danach fragen Zugangsdaten für diese Domains speichern. Du musst die Seite neu laden, damit die Änderungen wirksam werden."
+  },
+  "blockedDomainsDesc": {
+    "message": "Automatisches Ausfüllen und andere zugehörige Funktionen werden für diese Webseiten nicht angeboten. Du musst die Seite neu laden, damit die Änderungen wirksam werden."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Automatisches Ausfüllen ist für diese Website gesperrt."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Dies in den Einstellungen ändern"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Änderungen gesperrter Domains gespeichert"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Änderungen der ausgeschlossenen Domain gespeichert"
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "Fehler"
+  },
+  "decryptionError": {
+    "message": "Entschlüsselungsfehler"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden konnte folgende(n) Tresor-Eintrag/Einträge nicht entschlüsseln."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Kontaktiere unser Customer Success Team",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": ", um zusätzlichen Datenverlust zu vermeiden.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Benutzername generieren"
@@ -3396,38 +3443,6 @@
     "message": "Ein-/ausklappen",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Deine Daten in Bitwarden importieren?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Deine LastPass-Daten schützen und in Bitwarden importieren?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Als unverschlüsselte Datei speichern",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "In Bitwarden importieren",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Wird importiert...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Daten erfolgreich importiert!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Fehler beim Importieren. Überprüfe die Konsole für Details.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Netzwerkfehler beim Importieren.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias-Domain"
   },
@@ -3981,8 +3996,11 @@
   "autofillSuggestions": {
     "message": "Vorschläge zum Auto-Ausfüllen"
   },
+  "itemSuggestions": {
+    "message": "Vorgeschlagene Einträge"
+  },
   "autofillSuggestionsTip": {
-    "message": "Speichere einen Login-Eintrag für diese Seite zum automatischen Ausfüllen"
+    "message": "Speichere einen Zugangsdaten-Eintrag für diese Seite zum automatischen Ausfüllen"
   },
   "yourVaultIsEmpty": {
     "message": "Dein Tresor hat keine Einträge"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Text-Sends"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden hat einen neuen Look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Auto-Ausfüllen und Suchen vom Tresor-Tab ist einfacher und intuitiver als je zuvor. Schau dich um!"
-  },
   "accountActions": {
     "message": "Konto-Aktionen"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da zuerst mit PIN oder Passwort entsperrt werden muss."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisches Entsperren ist derzeit nicht verfügbar."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisches Entsperren ist aufgrund falsch konfigurierter Systemdateien nicht verfügbar."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisches Entsperren ist aufgrund falsch konfigurierter Systemdateien nicht verfügbar."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da die Bitwarden Desktop-App geschlossen ist."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometrisches Entsperren ist nicht verfügbar, da es für $EMAIL$ in der Bitwarden Desktop-App nicht aktiviert ist.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisches Entsperren ist derzeit aus einem unbekannten Grund nicht verfügbar."
   },
   "authenticating": {
     "message": "Authentifizierung"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Extra breit"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Bitte aktualisiere deine Desktop-Anwendung"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Um biometrisches Entsperren zu verwenden, aktualisiere bitte deine Desktop-Anwendung oder deaktiviere die Entsperrung per Fingerabdruck in den Desktop-Einstellungen."
   }
 }

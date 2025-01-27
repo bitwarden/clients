@@ -22,7 +22,7 @@ import { BiometricsCommands } from "@bitwarden/key-management";
 import {
   closeUnlockPopout,
   openSsoAuthResultPopout,
-  openTwoFactorAuthPopout,
+  openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
@@ -259,9 +259,7 @@ export default class RuntimeBackground {
         await this.main.refreshBadge();
         await this.main.refreshMenu(false);
 
-        if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
-          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-        }
+        await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         break;
       }
       case "addToLockedVaultPendingNotifications":
@@ -288,9 +286,7 @@ export default class RuntimeBackground {
           await this.configService.ensureConfigFetched();
           await this.main.updateOverlayCiphers();
 
-          if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
-            await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-          }
+          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
       case "openPopup":
@@ -337,7 +333,7 @@ export default class RuntimeBackground {
           return;
         }
 
-        await openTwoFactorAuthPopout(msg);
+        await openTwoFactorAuthWebAuthnPopout(msg);
         break;
       }
       case "reloadPopup":

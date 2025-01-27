@@ -7,7 +7,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Thuis, op werk of onderweg. Bitwarden beveiligt makkelijk all je wachtwoorden, passkeys en gevoelige informatie",
+    "message": "Thuis, op werk of onderweg. Bitwarden beveiligt makkelijk al je wachtwoorden, passkeys en gevoelige informatie",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -38,7 +38,7 @@
     "message": "Rond het aanmaken van je account af met het instellen van een wachtwoord"
   },
   "enterpriseSingleSignOn": {
-    "message": "Single sign-on voor bedrijven"
+    "message": "Enterprise Single Sign-On"
   },
   "cancel": {
     "message": "Annuleren"
@@ -409,7 +409,7 @@
     "message": "Ontdek Bitwarden community-forums"
   },
   "contactSupport": {
-    "message": "Contacteer Bitwarden support"
+    "message": "Contacteer Bitwarden ondersteuning"
   },
   "sync": {
     "message": "Synchroniseren"
@@ -444,6 +444,18 @@
   },
   "generatePassphrase": {
     "message": "Wachtwoordzin genereren"
+  },
+  "passwordGenerated": {
+    "message": "Wachtwoord gegenereerd"
+  },
+  "passphraseGenerated": {
+    "message": "Wachtwoorden gegenereerd"
+  },
+  "usernameGenerated": {
+    "message": "Gebruikersnaam gegenereerd"
+  },
+  "emailGenerated": {
+    "message": "E-mail gegenereerd"
   },
   "regeneratePassword": {
     "message": "Wachtwoord opnieuw genereren"
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Identiteit verifiëren"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
+  },
+  "continueLoggingIn": {
+    "message": "Doorgaan met inloggen"
   },
   "yourVaultIsLocked": {
     "message": "Je kluis is vergrendeld. Bevestig je identiteit om door te gaan."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Vraag om een item toe te voegen als het niet is gevonden is je kluis. Dit geld voor alle ingelogde accounts."
   },
-  "showCardsInVaultView": {
-    "message": "Kaarten als Autofill-suggesties in de kluisweergave weergeven"
+  "showCardsInVaultViewV2": {
+    "message": "Kaarten altijd als Autofill-suggesties in de kluisweergave weergeven"
   },
   "showCardsCurrentTab": {
     "message": "Kaarten weergeven op tabpagina"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Kaartenitems weergeven op de tabpagina voor gemakkelijk automatisch invullen."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Identiteiten als Autofill-suggesties in de kluisweergave weergeven"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Identiteiten altijd als Autofill-suggesties in de kluisweergave weergeven"
   },
   "showIdentitiesCurrentTab": {
     "message": "Identiteiten weergeven op tabpagina"
@@ -2324,6 +2342,9 @@
     "message": "Domeinen",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Geblokkeerde domeinen"
+  },
   "excludedDomains": {
     "message": "Uitgesloten domeinen"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden zal voor deze domeinen niet vragen om de wachtwoorden op te slaan voor alle ingelogde accounts. Je moet de pagina verversen om de wijzigingen op te slaan."
+  },
+  "blockedDomainsDesc": {
+    "message": "Autofill en andere gerelateerde functies worden niet aangeboden voor deze websites. Vernieuw de pagina om de wijzigingen toe te passen."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is geblokkeerd voor deze website."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Dit aanpassen in instellingen"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Wijzigingen in geblokkeerde domeinen opgeslagen"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Uitgesloten domeinwijzigingen opgeslagen"
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "Fout"
+  },
+  "decryptionError": {
+    "message": "Ontsleutelingsfout"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kon de onderstaande kluisitem(s) niet ontsleutelen."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Neem contact op met de klantenservice",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "om extra dataverlies te voorkomen.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Gebruikersnamen genereren"
@@ -3396,38 +3443,6 @@
     "message": "In-/Uitklappen",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Gegevens importeren naar Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Je LastPass-gegevens beschermen en naar Bitwarden importeren?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Als niet-versleuteld bestand opslaan",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Naar Bitwarden importeren",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importeren…",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Gegevens succesvol geïmporteerd!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Fout bij importeren. Controleer console voor meer informatie.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Netwerkfout opgetreden tijdens het importeren.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Aliasdomein"
   },
@@ -3980,6 +3995,9 @@
   },
   "autofillSuggestions": {
     "message": "Suggesties automatisch invullen"
+  },
+  "itemSuggestions": {
+    "message": "Voorgestelde items"
   },
   "autofillSuggestionsTip": {
     "message": "Inlogitem opslaan voor automatisch invullen op deze site"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Tekst-Sends"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden heeft een nieuw uiterlijk!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Automatisch invullen en zoeken is makkelijker en intuïtiever dan ooit vanaf het tabblad Kluis. Kijk rond!"
-  },
   "accountActions": {
     "message": "Accountacties"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Je hebt geen toestemming om dit item te bewerken"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat pincode of wachtwoordontgrendeling eerst vereist is."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar vanwege verkeerd geconfigureerde systeembestanden."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar vanwege verkeerd geconfigureerde systeembestanden."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat de Bitwarden-desktopapp is afgesloten."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat het niet is ingeschakeld voor $EMAIL$ in de Bitwarden-desktopapp.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar om een onbekende reden."
   },
   "authenticating": {
     "message": "Aan het inloggen"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Extra breed"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Werk je desktopapplicatie bij"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Als u biometrische gegevens wilt gebruiken, moet je de desktopapplicatie bijwerken of vingerafdrukontgrendeling uitschakelen in de instellingen van de desktopapplicatie."
   }
 }

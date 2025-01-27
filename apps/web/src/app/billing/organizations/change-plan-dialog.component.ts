@@ -13,17 +13,21 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   BillingApiServiceAbstraction,
   BillingInformation,
@@ -41,15 +45,13 @@ import {
 } from "@bitwarden/common/billing/enums";
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
-import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment.request";
 import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -57,7 +59,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BillingSharedModule } from "../shared/billing-shared.module";
-import { PaymentV2Component } from "../shared/payment/payment-v2.component";
 import { PaymentComponent } from "../shared/payment/payment.component";
 
 type ChangePlanDialogParams = {
@@ -102,7 +103,6 @@ interface OnSuccessArgs {
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
-  @ViewChild(PaymentV2Component) paymentV2Component: PaymentV2Component;
   @ViewChild(ManageTaxInformationComponent) taxComponent: ManageTaxInformationComponent;
 
   @Input() acceptingSponsorship = false;
@@ -178,13 +178,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   showPayment: boolean = false;
   totalOpened: boolean = false;
   currentPlan: PlanResponse;
-  currentFocusIndex = 0;
   isCardStateDisabled = false;
   focusedIndex: number | null = null;
   accountCredit: number;
   paymentSource?: PaymentSourceResponse;
-
-  deprecateStripeSourcesAPI: boolean;
+  plans: ListResponse<PlanResponse>;
   isSubscriptionCanceled: boolean = false;
 
   private destroy$ = new Subject<void>();
@@ -205,17 +203,13 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private messagingService: MessagingService,
     private formBuilder: FormBuilder,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private configService: ConfigService,
     private billingApiService: BillingApiServiceAbstraction,
     private taxService: TaxServiceAbstraction,
+    private accountService: AccountService,
     private organizationBillingService: OrganizationBillingService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.deprecateStripeSourcesAPI = await this.configService.getFeatureFlag(
-      FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
-    );
-
     if (this.dialogParams.organizationId) {
       this.currentPlanName = this.resolvePlanName(this.dialogParams.productTierType);
       this.sub =
@@ -225,21 +219,24 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       this.organizationId = this.dialogParams.organizationId;
       this.currentPlan = this.sub?.plan;
       this.selectedPlan = this.sub?.plan;
-      this.organization = await this.organizationService.get(this.organizationId);
-      if (this.deprecateStripeSourcesAPI) {
-        const { accountCredit, paymentSource } =
-          await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
-        this.accountCredit = accountCredit;
-        this.paymentSource = paymentSource;
-      } else {
-        this.billing = await this.organizationApiService.getBilling(this.organizationId);
-      }
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.organizationId)),
+      );
+      const { accountCredit, paymentSource } =
+        await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
+      this.accountCredit = accountCredit;
+      this.paymentSource = paymentSource;
     }
 
     if (!this.selfHosted) {
-      const plans = await this.apiService.getPlans();
-      this.passwordManagerPlans = plans.data.filter((plan) => !!plan.PasswordManager);
-      this.secretsManagerPlans = plans.data.filter((plan) => !!plan.SecretsManager);
+      this.plans = await this.apiService.getPlans();
+      this.passwordManagerPlans = this.plans.data.filter((plan) => !!plan.PasswordManager);
+      this.secretsManagerPlans = this.plans.data.filter((plan) => !!plan.SecretsManager);
 
       if (
         this.productTier === ProductTierType.Enterprise ||
@@ -311,23 +308,17 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   setInitialPlanSelection() {
     this.focusedIndex = this.selectableProducts.length - 1;
-    this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    if (!this.isSubscriptionCanceled) {
+      this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    }
   }
 
   getPlanByType(productTier: ProductTierType) {
     return this.selectableProducts.find((product) => product.productTier === productTier);
   }
 
-  secretsManagerTrialDiscount() {
-    return this.sub?.customerDiscount?.appliesTo?.includes("sm-standalone")
-      ? this.discountPercentage
-      : this.discountPercentageFromSub + this.discountPercentage;
-  }
-
   isPaymentSourceEmpty() {
-    return this.deprecateStripeSourcesAPI
-      ? this.paymentSource === null || this.paymentSource === undefined
-      : this.billing?.paymentSource === null || this.billing?.paymentSource === undefined;
+    return this.paymentSource === null || this.paymentSource === undefined;
   }
 
   isSecretsManagerTrial(): boolean {
@@ -471,9 +462,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   get upgradeRequiresPaymentMethod() {
     const isFreeTier = this.organization?.productTierType === ProductTierType.Free;
     const shouldHideFree = !this.showFree;
-    const hasNoPaymentSource = this.deprecateStripeSourcesAPI
-      ? !this.paymentSource
-      : !this.billing?.paymentSource;
+    const hasNoPaymentSource = !this.paymentSource;
 
     return isFreeTier && shouldHideFree && hasNoPaymentSource;
   }
@@ -483,6 +472,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get selectedPlanInterval() {
+    if (this.isSubscriptionCanceled) {
+      return this.currentPlan.isAnnual ? "year" : "month";
+    }
     return this.selectedPlan.isAnnual ? "year" : "month";
   }
 
@@ -703,25 +695,13 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   changedCountry() {
-    if (this.deprecateStripeSourcesAPI && this.paymentV2Component) {
-      this.paymentV2Component.showBankAccount = this.taxInformation.country === "US";
+    this.paymentComponent.showBankAccount = this.taxInformation.country === "US";
 
-      if (
-        !this.paymentV2Component.showBankAccount &&
-        this.paymentV2Component.selected === PaymentMethodType.BankAccount
-      ) {
-        this.paymentV2Component.select(PaymentMethodType.Card);
-      }
-    } else if (this.paymentComponent && this.taxInformation) {
-      this.paymentComponent!.hideBank = this.taxInformation.country !== "US";
-      // Bank Account payments are only available for US customers
-      if (
-        this.paymentComponent.hideBank &&
-        this.paymentComponent.method === PaymentMethodType.BankAccount
-      ) {
-        this.paymentComponent.method = PaymentMethodType.Card;
-        this.paymentComponent.changeMethod();
-      }
+    if (
+      !this.paymentComponent.showBankAccount &&
+      this.paymentComponent.selected === PaymentMethodType.BankAccount
+    ) {
+      this.paymentComponent.select(PaymentMethodType.Card);
     }
   }
 
@@ -786,8 +766,15 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       billingEmail: org.billingEmail,
     };
 
+    const filteredPlan = this.plans.data
+      .filter((plan) => plan.productTier === this.selectedPlan.productTier && !plan.legacyYear)
+      .find((plan) => {
+        const isSameBillingCycle = plan.isAnnual === this.selectedPlan.isAnnual;
+        return isSameBillingCycle;
+      });
+
     const plan: PlanInformation = {
-      type: this.selectedPlan.type,
+      type: filteredPlan.type,
       passwordManagerSeats: org.seats,
     };
 
@@ -796,14 +783,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       plan.secretsManagerSeats = org.smSeats;
     }
 
-    let paymentMethod: [string, PaymentMethodType];
-
-    if (this.deprecateStripeSourcesAPI) {
-      const { type, token } = await this.paymentV2Component.tokenize();
-      paymentMethod = [token, type];
-    } else {
-      paymentMethod = await this.paymentComponent.createPaymentToken();
-    }
+    const { type, token } = await this.paymentComponent.tokenize();
+    const paymentMethod: [string, PaymentMethodType] = [token, type];
 
     const payment: PaymentInformation = {
       paymentMethod,
@@ -839,27 +820,17 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.buildSecretsManagerRequest(request);
 
     if (this.upgradeRequiresPaymentMethod || this.showPayment || this.isPaymentSourceEmpty()) {
-      if (this.deprecateStripeSourcesAPI) {
-        const tokenizedPaymentSource = await this.paymentV2Component.tokenize();
-        const updatePaymentMethodRequest = new UpdatePaymentMethodRequest();
-        updatePaymentMethodRequest.paymentSource = tokenizedPaymentSource;
-        updatePaymentMethodRequest.taxInformation = ExpandedTaxInfoUpdateRequest.From(
-          this.taxInformation,
-        );
+      const tokenizedPaymentSource = await this.paymentComponent.tokenize();
+      const updatePaymentMethodRequest = new UpdatePaymentMethodRequest();
+      updatePaymentMethodRequest.paymentSource = tokenizedPaymentSource;
+      updatePaymentMethodRequest.taxInformation = ExpandedTaxInfoUpdateRequest.From(
+        this.taxInformation,
+      );
 
-        await this.billingApiService.updateOrganizationPaymentMethod(
-          this.organizationId,
-          updatePaymentMethodRequest,
-        );
-      } else {
-        const tokenResult = await this.paymentComponent.createPaymentToken();
-        const paymentRequest = new PaymentRequest();
-        paymentRequest.paymentToken = tokenResult[0];
-        paymentRequest.paymentMethodType = tokenResult[1];
-        paymentRequest.country = this.taxInformation.country;
-        paymentRequest.postalCode = this.taxInformation.postalCode;
-        await this.organizationApiService.updatePayment(this.organizationId, paymentRequest);
-      }
+      await this.billingApiService.updateOrganizationPaymentMethod(
+        this.organizationId,
+        updatePaymentMethodRequest,
+      );
     }
 
     // Backfill pub/priv key if necessary
@@ -869,10 +840,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 
-    const result = await this.organizationApiService.upgrade(this.organizationId, request);
-    if (!result.success && result.paymentIntentClientSecret != null) {
-      await this.paymentComponent.handleStripeCardPayment(result.paymentIntentClientSecret, null);
-    }
+    await this.organizationApiService.upgrade(this.organizationId, request);
     return this.organizationId;
   }
 
@@ -969,38 +937,20 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get paymentSourceClasses() {
-    if (this.deprecateStripeSourcesAPI) {
-      if (this.paymentSource == null) {
+    if (this.paymentSource == null) {
+      return [];
+    }
+    switch (this.paymentSource.type) {
+      case PaymentMethodType.Card:
+        return ["bwi-credit-card"];
+      case PaymentMethodType.BankAccount:
+        return ["bwi-bank"];
+      case PaymentMethodType.Check:
+        return ["bwi-money"];
+      case PaymentMethodType.PayPal:
+        return ["bwi-paypal text-primary"];
+      default:
         return [];
-      }
-      switch (this.paymentSource.type) {
-        case PaymentMethodType.Card:
-          return ["bwi-credit-card"];
-        case PaymentMethodType.BankAccount:
-          return ["bwi-bank"];
-        case PaymentMethodType.Check:
-          return ["bwi-money"];
-        case PaymentMethodType.PayPal:
-          return ["bwi-paypal text-primary"];
-        default:
-          return [];
-      }
-    } else {
-      if (this.billing.paymentSource == null) {
-        return [];
-      }
-      switch (this.billing.paymentSource.type) {
-        case PaymentMethodType.Card:
-          return ["bwi-credit-card"];
-        case PaymentMethodType.BankAccount:
-          return ["bwi-bank"];
-        case PaymentMethodType.Check:
-          return ["bwi-money"];
-        case PaymentMethodType.PayPal:
-          return ["bwi-paypal text-primary"];
-        default:
-          return [];
-      }
     }
   }
 
@@ -1060,7 +1010,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   private refreshSalesTax(): void {
-    if (!this.taxInformation.country || !this.taxInformation.postalCode) {
+    if (
+      this.taxInformation === undefined ||
+      !this.taxInformation.country ||
+      !this.taxInformation.postalCode
+    ) {
       return;
     }
 

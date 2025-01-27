@@ -20,7 +20,7 @@
     "message": "Utwórz konto"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Nowy użytkownik Bitwarden?"
   },
   "logInWithPasskey": {
     "message": "Zaloguj się używając passkey"
@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Wygenruj frazę zabezpieczającą"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Wygeneruj ponownie hasło"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Zweryfikuj tożsamość"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "Sejf jest zablokowany. Zweryfikuj swoją tożsamość, aby kontynuować."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Poproś o dodanie elementu, jeśli nie zostanie znaleziony w Twoim sejfie. Dotyczy wszystkich zalogowanych kont."
   },
-  "showCardsInVaultView": {
-    "message": "Pokaż karty jako sugestie autouzupełniania w widoku sejfu"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Pokaż karty na stronie głównej"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Pokaż elementy karty na stronie głównej, aby ułatwić autouzupełnianie."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Pokaż tożsamości jako sugestie autouzupełniania w widoku sejfu"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Pokaż tożsamości na stronie głównej"
@@ -1320,7 +1338,7 @@
     "message": "Limit czasu uwierzytelniania"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "Upłynął limit czasu uwierzytelniania. Uruchom ponownie proces logowania."
   },
   "enterVerificationCodeEmail": {
     "message": "Wpisz 6-cyfrowy kod weryfikacyjny, który został przesłany na adres $EMAIL$.",
@@ -2324,6 +2342,9 @@
     "message": "Domeny",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Zablokowane domeny"
+  },
   "excludedDomains": {
     "message": "Wykluczone domeny"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Aplikacja Bitwarden nie będzie proponować zapisywania danych logowania dla tych domen dla wszystkich zalogowanych kont. Musisz odświeżyć stronę, aby zastosowywać zmiany."
+  },
+  "blockedDomainsDesc": {
+    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Autouzupełnianie jest zablokowane dla tej witryny."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Zmień to w ustawieniach"
   },
   "websiteItemLabel": {
     "message": "Strona internetowa $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Zmiany w zablokowanych domenach zapisane"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Zmiany w wykluczonych domenach zapisane"
@@ -2553,7 +2586,7 @@
     "message": "Aby wybrać plik za pomocą przeglądarki Safari, otwórz rozszerzenie w nowym oknie."
   },
   "popOut": {
-    "message": "Pop out"
+    "message": "Odepnij"
   },
   "sendFileCalloutHeader": {
     "message": "Zanim zaczniesz"
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "Błąd"
+  },
+  "decryptionError": {
+    "message": "Błąd odszyfrowywania"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nie mógł odszyfrować elementów sejfu wymienionych poniżej."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Wygeneruj nazwę użytkownika"
@@ -3080,10 +3127,10 @@
     "message": "Powiadomienie zostało wysłane na twoje urządzenie"
   },
   "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+    "message": "Upewnij się, że Twoje konto jest odblokowane, a unikalny identyfikator konta pasuje do drugiego urządzenia"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Zostaniesz powiadomiony po zatwierdzeniu prośby"
   },
   "needAnotherOptionV1": {
     "message": "Potrzebujesz innego sposobu?"
@@ -3395,38 +3442,6 @@
   "toggleCollapse": {
     "message": "Zwiń/rozwiń",
     "description": "Toggling an expand/collapse state."
-  },
-  "filelessImport": {
-    "message": "Zaimportować Twoje dane do Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Ochronić Twoje dane LastPass i zaimportować do Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Zapisz jako niezaszyfrowany plik",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importuj do Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importowanie...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Dane pomyślnie zaimportowane!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Błąd podczas importowania. Sprawdź konsolę, aby uzyskać szczegółowe informacje.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Wystąpił błąd sieci podczas importu.",
-    "description": "Notification message for when an import has failed due to a network error."
   },
   "aliasDomain": {
     "message": "Domena aliasu"
@@ -3979,7 +3994,10 @@
     "message": "Passkey został usunięty"
   },
   "autofillSuggestions": {
-    "message": "Sugestie autouzupełnienia"
+    "message": "Sugestie autouzupełniania"
+  },
+  "itemSuggestions": {
+    "message": "Sugerowane elementy"
   },
   "autofillSuggestionsTip": {
     "message": "Zapisz element logowania dla tej witryny, aby automatycznie wypełnić"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Text Sends"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden ma nowy wygląd!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Auto wypełnianie i szukanie na zakładce sejfu jest teraz prostsze i bardziej intuicyjne. Rozejrzyj się tam!"
-  },
   "accountActions": {
     "message": "Akcje konta"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Nie masz uprawnień do edycji tego elementu"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Odblokowanie odciskiem palca jest niedostępne, ponieważ najpierw wymagane jest odblokowanie kodem PIN lub hasłem."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Odblokowanie biometryczne jest obecnie niedostępne."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Odblokowanie biometryczne jest niedostępne z powodu nieprawidłowej konfiguracji plików systemowych."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Odblokowanie biometryczne jest niedostępne z powodu nieprawidłowej konfiguracji plików systemowych."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Odblokowanie odciskiem palca jest niedostępne, ponieważ aplikacja desktopowa Bitwarden jest zamknięta."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Odblokowanie biometryczne jest niedostępne, ponieważ nie jest włączone dla $EMAIL$ w aplikacji desktopowej Bitwarden.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Odblokowanie biometryczne jest obecnie niedostępne z nieznanego powodu."
   },
   "authenticating": {
     "message": "Uwierzytelnianie"
@@ -4804,22 +4843,22 @@
     "message": "Beta"
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Ważna informacja"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Skonfiguruj dwustopniowe logowanie"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "Bitwarden wyśle kod na Twój adres e-mail w celu zweryfikowania logowania z nowych urządzeń, począwszy od lutego 2025 r."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "Możesz skonfigurować dwustopniowe logowanie jako alternatywny sposób ochrony konta lub zmienić swój adres e-mail do którego masz dostęp."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Przypomnij mi później"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Czy masz pewny dostęp do swojego adresu e-mail, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4828,16 +4867,16 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Nie, nie mam"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Tak, mam pewny dostęp do mojego adresu e-mail"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Włącz dwustopniowe logowanie"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Zmień adres e-mail konta"
   },
   "extensionWidth": {
     "message": "Szerokość rozszerzenia"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Bardzo szerokie"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

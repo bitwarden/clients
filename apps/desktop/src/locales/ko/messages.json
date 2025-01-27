@@ -64,7 +64,7 @@
     }
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "돌아온 것을 환영합니다"
   },
   "moveToOrgDesc": {
     "message": "이 항목을 이동할 조직을 선택하십시오. 항목이 조직으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다."
@@ -181,16 +181,16 @@
     "message": "주소"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "비공개 키"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "공개 키"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "지문"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "키 유형"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -205,31 +205,31 @@
     "message": "RSA 4096-Bit"
   },
   "sshKeyGenerated": {
-    "message": "A new SSH key was generated"
+    "message": "새로운 SSH 키가 생성되었습니다."
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "입력된 비밀번호가 올바르지 않습니다."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "가져오기"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "비밀번호 확인"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "SSH 키의 비밀번호 입력"
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "비밀번호 입력"
   },
   "sshAgentUnlockRequired": {
-    "message": "Please unlock your vault to approve the SSH key request."
+    "message": "SSH 키 요청을 승인하려면 보관함을 해제하세요."
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "SSH 키 요청시간 만료"
   },
   "enableSshAgent": {
-    "message": "Enable SSH agent"
+    "message": "SSH 에이전트 활성화"
   },
   "enableSshAgentDesc": {
     "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
@@ -248,6 +248,20 @@
   },
   "error": {
     "message": "오류"
+  },
+  "decryptionError": {
+    "message": "Decryption error"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contact customer success",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "to avoid additional data loss.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "1월"
@@ -461,10 +475,10 @@
     "message": "비밀번호 복사"
   },
   "regenerateSshKey": {
-    "message": "Regenerate SSH key"
+    "message": "SSH 키 재생성"
   },
   "copySshPrivateKey": {
-    "message": "Copy SSH private key"
+    "message": "SSH 비공개 키 복사"
   },
   "copyPassphrase": {
     "message": "Copy passphrase",
@@ -498,11 +512,11 @@
     "message": "특수 문자 (!@#$%^&*)"
   },
   "include": {
-    "message": "Include",
+    "message": "포함",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "대문자 포함",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -510,7 +524,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "소문자 포함",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -518,7 +532,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "숫자 포함",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -526,7 +540,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "특수 문자 포함",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -565,7 +579,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "기업 정책에 따른 요구사항이 생성기 옵션에 적용되어 있습니다.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
@@ -603,7 +617,7 @@
     "message": "최대 파일 크기는 500MB입니다."
   },
   "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+    "message": "암호화 키 마이그레이션이 필요합니다. 웹 보관함에 로그인하여 암호화 키를 업데이트하세요."
   },
   "editedFolder": {
     "message": "폴더 편집함"
@@ -624,28 +638,28 @@
     "message": "계정 만들기"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Bitwarden이 처음 이신가요?"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "강력한 비밀번호 설정"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "비밀번호를 설정하여 계정 생성을 완료하세요"
   },
   "logIn": {
     "message": "로그인"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Bitwarden 로그인"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "패스키로 로그인"
   },
   "loginWithDevice": {
-    "message": "Log in with device"
+    "message": "기기로 로그인"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Single sign-on(SSO) 사용"
   },
   "submit": {
     "message": "보내기"
@@ -679,7 +693,7 @@
     }
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "마스터 비밀번호"
   },
   "masterPassImportant": {
     "message": "Your master password cannot be recovered if you forget it!"
@@ -870,6 +884,15 @@
   "duoOrganizationDesc": {
     "message": "Duo Mobile 앱, SMS, 전화 통화를 사용한 조직용 Duo Security 또는 U2F 보안 키를 사용하여 인증하세요.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+  },
+  "verifyIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -2865,6 +2888,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Weak password identified and found in a data breach. Use a strong and unique password to protect your account. Are you sure you want to use this password?"
   },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "checkForBreaches": {
     "message": "Check known data breaches for this password"
   },
@@ -3362,6 +3391,30 @@
   "ssoError": {
     "message": "No free ports could be found for the sso login."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
+  },
   "authorize": {
     "message": "Authorize"
   },
@@ -3430,5 +3483,20 @@
   },
   "changeAcctEmail": {
     "message": "Change account email"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Organization upgrade required"
+  },
+  "upgradeOrganization": {
+    "message": "Upgrade organization"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Extension update required"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
   }
 }

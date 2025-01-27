@@ -2,13 +2,18 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, firstValueFrom, lastValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationApiKeyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -20,12 +25,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
-  AdjustStorageDialogV2Component,
-  AdjustStorageDialogV2ResultType,
-} from "../shared/adjust-storage-dialog/adjust-storage-dialog-v2.component";
-import {
-  AdjustStorageDialogResult,
-  openAdjustStorageDialog,
+  AdjustStorageDialogComponent,
+  AdjustStorageDialogResultType,
 } from "../shared/adjust-storage-dialog/adjust-storage-dialog.component";
 import {
   OffboardingSurveyDialogResultType,
@@ -42,12 +43,14 @@ import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.comp
   templateUrl: "organization-subscription-cloud.component.html",
 })
 export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy {
+  static readonly QUERY_PARAM_UPGRADE: string = "upgrade";
+  static readonly ROUTE_PARAM_ORGANIZATION_ID: string = "organizationId";
+
   sub: OrganizationSubscriptionResponse;
   lineItems: BillingSubscriptionItemResponse[] = [];
   organizationId: string;
   userOrg: Organization;
   showChangePlan = false;
-  showDownloadLicense = false;
   hasBillingSyncToken: boolean;
   showAdjustSecretsManager = false;
   showSecretsManagerSubscribe = false;
@@ -62,10 +65,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   protected readonly subscriptionHiddenIcon = SubscriptionHiddenIcon;
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
 
-  protected deprecateStripeSourcesAPI$ = this.configService.getFeatureFlag$(
-    FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
-  );
-
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -73,6 +72,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private i18nService: I18nService,
     private logService: LogService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private route: ActivatedRoute,
     private dialogService: DialogService,
@@ -82,7 +82,19 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   ) {}
 
   async ngOnInit() {
-    if (this.route.snapshot.queryParamMap.get("upgrade")) {
+    this.organizationId =
+      this.route.snapshot.params[
+        OrganizationSubscriptionCloudComponent.ROUTE_PARAM_ORGANIZATION_ID
+      ];
+    await this.load();
+
+    this.showUpdatedSubscriptionStatusSection$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AC1795_UpdatedSubscriptionStatusSection,
+    );
+
+    if (
+      this.route.snapshot.queryParams[OrganizationSubscriptionCloudComponent.QUERY_PARAM_UPGRADE]
+    ) {
       await this.changePlan();
       const productTierTypeStr = this.route.snapshot.queryParamMap.get("productTierType");
       if (productTierTypeStr != null) {
@@ -92,20 +104,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         }
       }
     }
-
-    this.route.params
-      .pipe(
-        concatMap(async (params) => {
-          this.organizationId = params.organizationId;
-          await this.load();
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
-    this.showUpdatedSubscriptionStatusSection$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AC1795_UpdatedSubscriptionStatusSection,
-    );
   }
 
   ngOnDestroy() {
@@ -116,7 +114,12 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   async load() {
     this.loading = true;
     this.locale = await firstValueFrom(this.i18nService.locale$);
-    this.userOrg = await this.organizationService.get(this.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.userOrg = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
 
     const isIndependentOrganizationOwner = !this.userOrg.hasProvider && this.userOrg.isOwner;
     const isResoldOrganizationOwner = this.userOrg.hasReseller && this.userOrg.isOwner;
@@ -414,36 +417,19 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   adjustStorage = (add: boolean) => {
     return async () => {
-      const deprecateStripeSourcesAPI = await firstValueFrom(this.deprecateStripeSourcesAPI$);
+      const dialogRef = AdjustStorageDialogComponent.open(this.dialogService, {
+        data: {
+          price: this.storageGbPrice,
+          cadence: this.billingInterval,
+          type: add ? "Add" : "Remove",
+          organizationId: this.organizationId,
+        },
+      });
 
-      if (deprecateStripeSourcesAPI) {
-        const dialogRef = AdjustStorageDialogV2Component.open(this.dialogService, {
-          data: {
-            price: this.storageGbPrice,
-            cadence: this.billingInterval,
-            type: add ? "Add" : "Remove",
-            organizationId: this.organizationId,
-          },
-        });
+      const result = await lastValueFrom(dialogRef.closed);
 
-        const result = await lastValueFrom(dialogRef.closed);
-
-        if (result === AdjustStorageDialogV2ResultType.Submitted) {
-          await this.load();
-        }
-      } else {
-        const dialogRef = openAdjustStorageDialog(this.dialogService, {
-          data: {
-            storageGbPrice: this.storageGbPrice,
-            add: add,
-            organizationId: this.organizationId,
-            interval: this.billingInterval,
-          },
-        });
-        const result = await lastValueFrom(dialogRef.closed);
-        if (result === AdjustStorageDialogResult.Adjusted) {
-          await this.load();
-        }
+      if (result === AdjustStorageDialogResultType.Submitted) {
+        await this.load();
       }
     };
   };

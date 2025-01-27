@@ -1,6 +1,5 @@
-import { UserId } from "@bitwarden/common/types/guid";
-
 import { ApiService } from "../../../abstractions/api.service";
+import { UserId } from "../../../types/guid";
 import { FolderApiServiceAbstraction } from "../../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { FolderData } from "../../../vault/models/data/folder.data";
@@ -14,7 +13,7 @@ export class FolderApiService implements FolderApiServiceAbstraction {
     private apiService: ApiService,
   ) {}
 
-  async save(folder: Folder, userId: UserId): Promise<any> {
+  async save(folder: Folder, userId: UserId): Promise<FolderData> {
     const request = new FolderRequest(folder);
 
     let response: FolderResponse;
@@ -27,6 +26,7 @@ export class FolderApiService implements FolderApiServiceAbstraction {
 
     const data = new FolderData(response);
     await this.folderService.upsert(data, userId);
+    return data;
   }
 
   async delete(id: string, userId: UserId): Promise<any> {

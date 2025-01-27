@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Генерувати парольну фразу"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Генерувати новий"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Виконати перевірку"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
+  },
+  "continueLoggingIn": {
+    "message": "Продовжити вхід"
   },
   "yourVaultIsLocked": {
     "message": "Ваше сховище заблоковане. Для продовження виконайте перевірку."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Запитувати про додавання запису, якщо такого не знайдено у вашому сховищі. Застосовується для всіх облікових записів, до яких виконано вхід."
   },
-  "showCardsInVaultView": {
-    "message": "Показувати картки як пропозиції автозаповнення в режимі перегляду сховища"
+  "showCardsInVaultViewV2": {
+    "message": "Завжди показувати картки як пропозиції автозаповнення в режимі перегляду сховища"
   },
   "showCardsCurrentTab": {
     "message": "Показувати картки на вкладці"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Показувати список карток на сторінці вкладки для легкого автозаповнення."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Показувати посвідчення як пропозиції автозаповнення в режимі перегляду сховища"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Завжди показувати посвідчення як пропозиції автозаповнення в режимі перегляду сховища"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показувати посвідчення на вкладці"
@@ -2324,6 +2342,9 @@
     "message": "Домени",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Заблоковані домени"
+  },
   "excludedDomains": {
     "message": "Виключені домени"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden не запитуватиме про збереження даних входу для цих доменів для всіх облікових записів, до яких виконано вхід. Потрібно оновити сторінку для застосування змін."
+  },
+  "blockedDomainsDesc": {
+    "message": "Автозаповнення та інші пов'язані функції не пропонуватимуться для цих вебсайтів. Вам слід оновити сторінку для застосування змін."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Автозаповнення для цього вебсайту заблоковано."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Змінити в налаштуваннях"
   },
   "websiteItemLabel": {
     "message": "Вебсайт $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Зміни заблокованих доменів збережено"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Виняток для домену збережено"
@@ -2376,7 +2409,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
-    "message": "Надіслати подробиці",
+    "message": "Подробиці відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "Помилка"
+  },
+  "decryptionError": {
+    "message": "Помилка розшифрування"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Зверніться до служби підтримки клієнтів,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "щоб уникнути втрати даних.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Генерувати ім'я користувача"
@@ -3396,38 +3443,6 @@
     "message": "Згорнути/розгорнути",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Імпортувати ваші дані до Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Захистити ваші дані LastPass та імпортувати до Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Зберегти незашифрований файл",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Імпортувати до Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Триває імпортування...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Дані успішно імпортовано!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Помилка імпортування. Перевірте консоль для перегляду подробиць.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Під час імпортування сталася мережева помилка.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Псевдонім домену"
   },
@@ -3980,6 +3995,9 @@
   },
   "autofillSuggestions": {
     "message": "Пропозиції автозаповнення"
+  },
+  "itemSuggestions": {
+    "message": "Запропоновані записи"
   },
   "autofillSuggestionsTip": {
     "message": "Зберегти дані входу цього сайту для автозаповнення"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Відправлення тексту"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden має новий вигляд!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Ще простіше автозаповнення та інтуїтивніший пошук у сховищі. Ознайомтеся!"
-  },
   "accountActions": {
     "message": "Дії з обліковим записом"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Вам не дозволено редагувати цей запис"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Біометричне розблокування недоступне, оскільки спочатку потрібно ввести PIN-код або пароль."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Біометричне розблокування наразі недоступне."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Біометричне розблокування недоступне через неправильно налаштовані системні файли."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Біометричне розблокування недоступне через неправильно налаштовані системні файли."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Біометричне розблокування недоступне, оскільки програму Bitwarden для комп'ютера закрито."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Біометричне розблокування недоступне, оскільки воно не увімкнене для $EMAIL$ у програмі Bitwarden для комп'ютера.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Біометричне розблокування зараз недоступне з невідомої причини."
   },
   "authenticating": {
     "message": "Аутентифікація"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Дуже широке"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Оновіть свою комп'ютерну програму"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Щоб використовувати біометричне розблокування, оновіть комп'ютерну програму, або вимкніть розблокування відбитком пальця в налаштуваннях системи."
   }
 }

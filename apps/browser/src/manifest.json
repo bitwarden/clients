@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "short_name": "__MSG_appName__",
-  "version": "2025.1.0",
+  "version": "2025.1.4",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
   "author": "Bitwarden Inc.",
@@ -28,12 +28,6 @@
       "js": ["content/trigger-autofill-script-injection.js"],
       "matches": ["*://*/*", "file:///*"],
       "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
-      "run_at": "document_start"
-    },
-    {
-      "all_frames": false,
-      "js": ["content/lp-fileless-importer.js"],
-      "matches": ["https://lastpass.com/export.php"],
       "run_at": "document_start"
     }
   ],
@@ -140,7 +134,6 @@
   },
   "web_accessible_resources": [
     "content/fido2-page-script.js",
-    "content/lp-suppress-import-download.js",
     "notification/bar.html",
     "images/icon38.png",
     "images/icon38_locked.png",

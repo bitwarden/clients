@@ -7,7 +7,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "无论是在家里、工作中还是在外出时，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。",
+    "message": "无论是在家中、工作中还是在旅途中，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -290,7 +290,7 @@
     "message": "前往帮助中心吗？"
   },
   "continueToHelpCenterDesc": {
-    "message": "访问帮助中心了解更多如何使用 Bitwarden 的信息。"
+    "message": "在帮助中心进一步了解如何使用 Bitwarden。"
   },
   "continueToBrowserExtensionStore": {
     "message": "前往浏览器扩展商店吗？"
@@ -444,6 +444,18 @@
   },
   "generatePassphrase": {
     "message": "生成密码短语"
+  },
+  "passwordGenerated": {
+    "message": "密码已生成"
+  },
+  "passphraseGenerated": {
+    "message": "密码短语已生成"
+  },
+  "usernameGenerated": {
+    "message": "用户名已生成"
+  },
+  "emailGenerated": {
+    "message": "电子邮箱已生成"
   },
   "regeneratePassword": {
     "message": "重新生成密码"
@@ -647,6 +659,12 @@
   "verifyIdentity": {
     "message": "验证身份"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。"
+  },
+  "continueLoggingIn": {
+    "message": "继续登录"
+  },
   "yourVaultIsLocked": {
     "message": "您的密码库已锁定。请先验证您的身份。"
   },
@@ -834,7 +852,7 @@
     "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来截取此网站的验证器二维码，或者手动复制并粘贴密钥到此字段。"
   },
   "learnMoreAboutAuthenticators": {
-    "message": "了解更多关于验证器的信息"
+    "message": "进一步了解验证器"
   },
   "copyTOTP": {
     "message": "复制验证器密钥 (TOTP)"
@@ -855,13 +873,13 @@
     "message": "登录到 Bitwarden"
   },
   "restartRegistration": {
-    "message": "重新开始注册"
+    "message": "重启注册"
   },
   "expiredLink": {
     "message": "失效链接"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "请重新注册或尝试登录。"
+    "message": "请重启注册或尝试登录。"
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "您可能已经有一个账户了"
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "如果在密码库中找不到项目，询问添加一个。适用于所有已登录的账户。"
   },
-  "showCardsInVaultView": {
-    "message": "在密码库视图中将支付卡显示为自动填充建议"
+  "showCardsInVaultViewV2": {
+    "message": "在密码库视图中将支付卡始终显示为自动填充建议"
   },
   "showCardsCurrentTab": {
     "message": "在标签页上显示支付卡"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "在标签页上列出支付卡项目，以便于自动填充。"
   },
-  "showIdentitiesInVaultView": {
-    "message": "在密码库视图中将身份显示为自动填充建议"
+  "showIdentitiesInVaultViewV2": {
+    "message": "在密码库视图中将身份始终显示为自动填充建议"
   },
   "showIdentitiesCurrentTab": {
     "message": "在标签页上显示身份"
@@ -1514,10 +1532,10 @@
     "message": "不完整或不信任的网站可以利用页面加载时的自动填充功能。"
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "了解更多关于风险的信息"
+    "message": "进一步了解风险"
   },
   "learnMoreAboutAutofill": {
-    "message": "了解更多关于自动填充的信息"
+    "message": "进一步了解自动填充"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "登录项目的默认自动填充设置"
@@ -1744,7 +1762,7 @@
     "message": "州 / 省"
   },
   "zipPostalCode": {
-    "message": "邮编 / 邮政代码"
+    "message": "邮政编码"
   },
   "country": {
     "message": "国家"
@@ -2318,11 +2336,14 @@
     "message": "一个组织策略正影响您的所有权选项。"
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "组织策略已阻止将项目导入您的个人密码库。"
+    "message": "某个组织策略已阻止将项目导入您的个人密码库。"
   },
   "domainsTitle": {
     "message": "域名",
     "description": "A category title describing the concept of web domains"
+  },
+  "blockedDomains": {
+    "message": "屏蔽的域名"
   },
   "excludedDomains": {
     "message": "排除域名"
@@ -2331,7 +2352,16 @@
     "message": "Bitwarden 将不会询问是否为这些域名保存登录信息。您必须刷新页面才能使更改生效。"
   },
   "excludedDomainsDescAlt": {
-    "message": "Bitwarden 不会询问保存所有已登录的账户的这些域名的登录信息。必须刷新页面才能使更改生效。"
+    "message": "Bitwarden 将不会询问是否为所有已登录账户的这些域名保存登录信息。您必须刷新页面才能使更改生效。"
+  },
+  "blockedDomainsDesc": {
+    "message": "将不会为这些网站提供自动填充和其他相关功能。您必须刷新页面才能使更改生效。"
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "该网站的自动填充已被屏蔽。"
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "在设置中更改它"
   },
   "websiteItemLabel": {
     "message": "网站 $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "屏蔽域名更改已保存"
   },
   "excludedDomainsSavedSuccess": {
     "message": "排除域名更改已保存"
@@ -2601,7 +2634,7 @@
     "message": "更新主密码"
   },
   "updateMasterPasswordWarning": {
-    "message": "您的主密码最近被您组织的管理员更改过。要访问密码库，您必须立即更新它。继续操作将使您退出当前会话并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
+    "message": "您的主密码最近被您组织的管理员更改过。要访问密码库，您必须立即更新它。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "updateWeakMasterPasswordWarning": {
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
@@ -2789,6 +2822,20 @@
   "error": {
     "message": "错误"
   },
+  "decryptionError": {
+    "message": "解密错误"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden 无法解密下列密码库项目。"
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "联系客户成功团队",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "以避免额外的数据丢失。",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "generateUsername": {
     "message": "生成用户名"
   },
@@ -2810,7 +2857,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多个字符生成强大的密码。",
+    "message": " 使用 $RECOMMENDED$ 个或更多字符生成强大的密码。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2820,7 +2867,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多个单词生成强大的密码短语。",
+    "message": " 使用 $RECOMMENDED$ 个或更多单词生成强大的密码短语。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3396,38 +3443,6 @@
     "message": "切换折叠",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "导入您的数据到 Bitwarden 吗？",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "保护您的 LastPass 数据并导入到 Bitwarden 吗？",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "保存为未加密的文件",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "导入到 Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "导入中...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "数据导入成功！",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "导入时出错。检查控制台以获取详细信息。",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "导入过程中遇到网络错误。",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "别名域"
   },
@@ -3926,7 +3941,7 @@
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
-    "message": "将 Bitwarden 设置为您的默认密码管理器吗？",
+    "message": "将 Bitwarden 设置为默认密码管理器吗？",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
@@ -3934,7 +3949,7 @@
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutoFillSettings": {
-    "message": "将 Bitwarden 设置为您的默认密码管理器",
+    "message": "将 Bitwarden 设置为默认密码管理器",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
   "privacyPermissionAdditionNotGrantedTitle": {
@@ -3981,6 +3996,9 @@
   "autofillSuggestions": {
     "message": "自动填充建议"
   },
+  "itemSuggestions": {
+    "message": "建议的项目"
+  },
   "autofillSuggestionsTip": {
     "message": "将此站点保存为登录项目以用于自动填充"
   },
@@ -3991,7 +4009,7 @@
     "message": "没有搜索到匹配的项目"
   },
   "clearFiltersOrTryAnother": {
-    "message": "清除筛选器或尝试另一个搜索词"
+    "message": "清除筛选或尝试另一个搜索词"
   },
   "copyInfoTitle": {
     "message": "复制信息 - $ITEMNAME$",
@@ -4557,17 +4575,11 @@
   "textSends": {
     "message": "文本 Send"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden 拥有一个新的外观！"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "从密码库标签页自动填充和搜索比以往任何时候都更简单直观。来看看吧！"
-  },
   "accountActions": {
     "message": "账户操作"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "在扩展图标上显示自动填充建议的登录的数量"
+    "message": "在扩展图标上显示自动填充建议的登录数量"
   },
   "showQuickCopyActions": {
     "message": "在密码库上显示快速复制操作"
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "您没有编辑此项目的权限"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "生物识别解锁不可用，因为需要先使用 PIN 或密码解锁。"
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "生物识别解锁当前不可用。"
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "由于系统文件配置错误，生物识别解锁不可用。"
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "由于系统文件配置错误，生物识别解锁不可用。"
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "生物识别解锁不可用，因为 Bitwarden 桌面 App 已关闭。"
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "生物识别解锁不可用，因为在 Bitwarden 桌面 App 中没有为 $EMAIL$ 启用生物识别解锁。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "由于某个未知的原因，生物识别解锁当前不可用。"
   },
   "authenticating": {
     "message": "正在验证"
@@ -4819,7 +4858,7 @@
     "message": "稍后提醒我"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能可正常访问您的电子邮箱 $EMAIL$ 吗？",
+    "message": "您可以正常访问您的电子邮箱 $EMAIL$ 吗？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "超宽"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "请更新您的桌面应用程序"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "要使用生物识别解锁，请更新您的桌面应用程序，或在桌面设置中禁用指纹解锁。"
   }
 }

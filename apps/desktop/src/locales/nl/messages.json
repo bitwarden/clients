@@ -249,6 +249,20 @@
   "error": {
     "message": "Fout"
   },
+  "decryptionError": {
+    "message": "Ontsleutelingsfout"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden kon de onderstaande kluisitem(s) niet ontsleutelen."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Neem contact op met de klantenservice",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "om extra dataverlies te voorkomen.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "january": {
     "message": "januari"
   },
@@ -870,6 +884,15 @@
   "duoOrganizationDesc": {
     "message": "Verificatie met Duo Security middels de Duo Mobile-app, sms, spraakoproep of een U2F-beveiligingssleutel.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+  },
+  "verifyIdentity": {
+    "message": "Controleer je identiteit"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
+  },
+  "continueLoggingIn": {
+    "message": "Doorgaan met inloggen"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -2865,6 +2888,12 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Zwak wachtwoord geïdentificeerd en gevonden in een datalek. Gebruik een sterk en uniek wachtwoord om je account te beschermen. Weet je zeker dat je dit wachtwoord wilt gebruiken?"
   },
+  "useThisPassword": {
+    "message": "Dit wachtwoord gebruiken"
+  },
+  "useThisUsername": {
+    "message": "Deze gebruikersnaam gebruiken"
+  },
   "checkForBreaches": {
     "message": "Bekende datalekken voor dit wachtwoord controleren"
   },
@@ -3362,6 +3391,30 @@
   "ssoError": {
     "message": "Er zijn geen vrije poorten gevonden voor de sso-login."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat pincode of wachtwoordontgrendeling eerst vereist is."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar vanwege verkeerd geconfigureerde systeembestanden."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar vanwege verkeerd geconfigureerde systeembestanden."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometrisch ontgrendelen is niet beschikbaar omdat het niet is ingeschakeld voor $EMAIL$ in de Bitwarden-desktopapp.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar om een onbekende reden."
+  },
   "authorize": {
     "message": "Autoriseren"
   },
@@ -3430,5 +3483,20 @@
   },
   "changeAcctEmail": {
     "message": "E-mailadres van het account veranderen"
+  },
+  "organizationUpgradeRequired": {
+    "message": "Organisatie-upgrade vereist"
+  },
+  "upgradeOrganization": {
+    "message": "Organisatie upgraden"
+  },
+  "upgradeOrganizationDesc": {
+    "message": "Deze mogelijkheid is niet beschikbaar voor gratis organisaties. Schakel over naar een betaald abonnement om meer mogelijkheden te ontgrendelen."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Extensie-uupdate vereist"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "De browserextensie die je gebruikt is verouderd. Werk deze bij of schakel de vingerafdruk validatie van de browserintegratie uit in instellingen van de desktop-app."
   }
 }

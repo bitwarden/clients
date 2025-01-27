@@ -45,6 +45,9 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.SyncOrganizationStatusChanged:
         this.payload = new OrganizationStatusPushNotification(payload);
         break;
+      case NotificationType.SyncOrganizationCollectionSettingChanged:
+        this.payload = new OrganizationCollectionSettingChangedPushNotification(payload);
+        break;
       default:
         break;
     }
@@ -124,5 +127,19 @@ export class OrganizationStatusPushNotification extends BaseResponse {
     super(response);
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.enabled = this.getResponseProperty("Enabled");
+  }
+}
+
+export class OrganizationCollectionSettingChangedPushNotification extends BaseResponse {
+  organizationId: string;
+  limitCollectionCreation: boolean;
+  limitCollectionDeletion: boolean;
+
+  constructor(response: any) {
+    super(response);
+
+    this.organizationId = this.getResponseProperty("OrganizationId");
+    this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
+    this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
   }
 }

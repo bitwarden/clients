@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Xerar frase de contrasinal"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Volver xerar contrasinal"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Verificar identidade"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "A túa caixa forte está bloqueada. Verifica a túa identidade para continuar."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Ofrecer gardar un elemento se non se atopa na caixa forte. Aplica a tódalas sesións iniciadas."
   },
-  "showCardsInVaultView": {
-    "message": "Na caixa forte, amosar tarxetas como suxestións de Autoenchido"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Amosar tarxetas na pestana"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Lista na pestana actual as tarxetas gardadas para autoenchido."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Na caixa forte, amosar identidades como suxestións de Autoenchido"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Amosar identidades na pestana"
@@ -2324,6 +2342,9 @@
     "message": "Dominios",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Dominios bloqueados"
+  },
   "excludedDomains": {
     "message": "Dominios excluídos"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden non ofrecerá gardar contas para estes dominios en ningunha das sesións iniciadas. Recarga a páxina para que os cambios fornezan efecto."
+  },
+  "blockedDomainsDesc": {
+    "message": "O autoenchido e outras funcións relacionadas non estarán dispoñibles para estas webs. Debes recargar a páxina para que os cambios teñan efecto."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "O autoenchido está bloqueado para esta web."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Cambia isto en axustes"
   },
   "websiteItemLabel": {
     "message": "Web $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Dominios bloqueados gardados"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Dominios excluídos gardados"
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "Erro"
+  },
+  "decryptionError": {
+    "message": "Erro de descifrado"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden non puido descifrar os seguintes elementos."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Contacto co cliente exitoso",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "para evitar a perda de datos.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Xerar nome de usuario"
@@ -3396,38 +3443,6 @@
     "message": "Colapsar/Expandir",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Importar os teus datos a Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Protexer os teus datos de LastPass e importar a Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Gardar como arquivo sen cifrar",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importar a Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importando...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Datos importados con éxito!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Erro importando. Comproba a consola para máis detalle.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Aconteceu un erro de rede durante a importación.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias do dominio"
   },
@@ -3979,7 +3994,10 @@
     "message": "Clave de acceso eliminada"
   },
   "autofillSuggestions": {
-    "message": "Suxestións de autoenchido"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Entradas suxeridas"
   },
   "autofillSuggestionsTip": {
     "message": "Gardar unha credencial como suxestión para este sitio"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Textos Send"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden ten un novo look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "É máis fácil e intuitivo que nunca autoencher e buscar dende a caixa forte. Bota un ollo!"
-  },
   "accountActions": {
     "message": "Accións da conta"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Non tes permiso para modificar esta entrada"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "O desbloqueo biométrico non está dispoñible porque se require o PIN ou contrasinal primeiro."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "O desbloqueo biométrico non está dispoñible."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "O desbloqueo biométrico non está dispoñible por arquivos do sistema desconfigurados."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "O desbloqueo biométrico non está dispoñible por arquivos do sistema desconfigurados."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "O desbloqueo biométrico non está dispoñible porque a aplicación de escritorio está pechada."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "O desbloqueo biométrico non está dispoñible porque non está activada para $EMAIL$ na aplicación de escritorio.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "O desbloqueo biométrico non está dispoñible por algunha razón non prevista."
   },
   "authenticating": {
     "message": "Autenticando"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Moi ancho"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

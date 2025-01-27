@@ -4,15 +4,18 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { lastValueFrom, Observable, firstValueFrom, switchMap } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { EmergencyAccessService } from "../../emergency-access";
@@ -70,6 +73,7 @@ export class EmergencyAccessComponent implements OnInit {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
     private toastService: ToastService,
+    private apiService: ApiService,
     private accountService: AccountService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
@@ -80,7 +84,8 @@ export class EmergencyAccessComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const orgs = await this.organizationService.getAll();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
     this.isOrganizationOwner = orgs.some((o) => o.isOwner);
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -147,6 +152,9 @@ export class EmergencyAccessComponent implements OnInit {
       return;
     }
 
+    const publicKeyResponse = await this.apiService.getUserPublicKey(contact.granteeId);
+    const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
+
     const autoConfirm = await firstValueFrom(
       this.organizationManagementPreferencesService.autoConfirmFingerPrints.state$,
     );
@@ -156,11 +164,12 @@ export class EmergencyAccessComponent implements OnInit {
           name: this.userNamePipe.transform(contact),
           emergencyAccessId: contact.id,
           userId: contact?.granteeId,
+          publicKey,
         },
       });
       const result = await lastValueFrom(dialogRef.closed);
       if (result === EmergencyAccessConfirmDialogResult.Confirmed) {
-        await this.emergencyAccessService.confirm(contact.id, contact.granteeId);
+        await this.emergencyAccessService.confirm(contact.id, contact.granteeId, publicKey);
         updateUser();
         this.toastService.showToast({
           variant: "success",
@@ -171,7 +180,11 @@ export class EmergencyAccessComponent implements OnInit {
       return;
     }
 
-    this.actionPromise = this.emergencyAccessService.confirm(contact.id, contact.granteeId);
+    this.actionPromise = this.emergencyAccessService.confirm(
+      contact.id,
+      contact.granteeId,
+      publicKey,
+    );
     await this.actionPromise;
     updateUser();
 

@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Izveidot paroles vārdkopu"
   },
+  "passwordGenerated": {
+    "message": "Parole izveidota"
+  },
+  "passphraseGenerated": {
+    "message": "Paroles vārdkopa izveidota"
+  },
+  "usernameGenerated": {
+    "message": "Lietotājvārds izveidots"
+  },
+  "emailGenerated": {
+    "message": "E-pasta adrese izveidota"
+  },
   "regeneratePassword": {
     "message": "Pārizveidot paroli"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Identitātes apliecināšana"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Mēs neatpazīstam šo ierīci. Jāievada kods, kas tika nosūtīts e-pastā, lai apliecinātu savu identitāti."
+  },
+  "continueLoggingIn": {
+    "message": "Turpināt pieteikšanos"
   },
   "yourVaultIsLocked": {
     "message": "Glabātava ir aizslēgta. Jāapliecina sava identitāte, lai turpinātu."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Vaicāt, vai pievienot vienumu, ja glabātavā tāds nav atrodams. Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
-  "showCardsInVaultView": {
-    "message": "Rādīt kartes kā automātiskās aizpildes ieteikumus glabātavas skatā"
+  "showCardsInVaultViewV2": {
+    "message": "Glabātavas skatā vienmēr rādīt kartes kā automātiskās aizpildes ieteikumus"
   },
   "showCardsCurrentTab": {
     "message": "Rādīt kartes cilnes lapā"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Attēlot kartes ciļņu lapā vieglākai aizpildīšanai."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Rādīt identitātes kā automātiskās aizpildes ieteikumus glabātavas skatā"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Glabātavas skatā vienmēr rādīt identitātes kā automātiskās aizpildes ieteikumus"
   },
   "showIdentitiesCurrentTab": {
     "message": "Rādīt identitātes cilnes pārskatā"
@@ -2324,6 +2342,9 @@
     "message": "Domēna vārdi",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Liegtie domēna vārdi"
+  },
   "excludedDomains": {
     "message": "Izņēmuma domēni"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden nevaicās saglabāt pieteikšanās datus visiem šī domēna kontiem, kuri ir pieteikušies. Ir jāpārlādē lapa, lai iedarbotos izmaiņas."
+  },
+  "blockedDomainsDesc": {
+    "message": "Automātiskā aizpilde un citas saistītās iespējas šajās tīmekļvietnēs netiks piedāvātas. Ir jāatsvaidzina lapa, lai izmaiņas iedarbotos."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Automātiskā aizpilde šajā tīmekļvietnē ir liegta."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "To var mainīt iestatījumos"
   },
   "websiteItemLabel": {
     "message": "Tīmekļvietne $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Liegtā domēna vārda izmaiņas sglabātas"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Saglabātas vērā neņemto domēna vārdu izmaiņas"
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "Kļūda"
+  },
+  "decryptionError": {
+    "message": "Atšifrēšanas kļūda"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden nevarēja atšifrēt zemāk uzskaitītos glabātavas vienumus."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Jāsazinās ar klientu atbalstu,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "lai izvairītos no papildu datu zaudējumiem.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Izveidot lietotājvārdu"
@@ -3396,38 +3443,6 @@
     "message": "Pārslēgt sakļaušanu",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Ievietot datus Bitwarden?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Aizsargāt LastPass datus un ievietot tos Bitwarden?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Saglabāt kā nešifrētu datni",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Ievietot Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Ievieto...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Dati veiksmīgi ievietoti.",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Kļūda ievietošanā. Jāpārbauda konsole, lai iegūtu vairāk informācijas.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Ievietošanas laikā atgadījās tīkla kļūda.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Aizstājdomēns"
   },
@@ -3979,7 +3994,10 @@
     "message": "Piekļuves atslēga noņemta"
   },
   "autofillSuggestions": {
-    "message": "Ieteikumi automātiskajai aizpildei"
+    "message": "Automātiskās aizpildes ieteikumi"
+  },
+  "itemSuggestions": {
+    "message": "Ieteiktie vienumi"
   },
   "autofillSuggestionsTip": {
     "message": "Saglabāt pieteikšanās vienumi, ko automātiski aizpildīt šajā vietnē"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Teksta Send"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden ir jauns izskats."
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Veikt automātisko aizpildi un meklēšanu glabātavas cilnē ir vienkāršāk un izprotamāk kā jebkad. Apskati izmaiņas!"
-  },
   "accountActions": {
     "message": "Konta darbības"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Nav nepieciešamo atļauju, lai labotu šo vienumu"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Atslēgšana ar biometriju nav pieejama, jo vispirms ir nepieciešama atslēgšana ar PIN vai paroli."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Atslēgšana ar biometriju pašlaik nav pieejama."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Atslēgšana ar biometriju nav pieejama nepareizi konfigurētu sistēmas datņu dēļ."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Atslēgšana ar biometriju nav pieejama nepareizi konfigurētu sistēmas datņu dēļ."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Atslēgšana ar biometriju nav pieejama, jo Bitwarden darbvirsmas lietotne ir aizvērta."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Atslēgšana ar biometriju nav pieejama, jo tā nav iespējota $EMAIL$ Bitwarden darbvirsmas lietotnē.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Atslēgšana ar biometriju pašlaik nav pieejama nezināma iemesla dēļ."
   },
   "authenticating": {
     "message": "Autentificē"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Ļoti plats"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Lūgums atjaunināt darbvirsmas lietotni"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Lai izmantotu atslēgšanu ar biometriju, lūgums atjaunināt darbvirsmas lietotni vai atspējot atslēgšanu ar pirkstu nospiedumu darbvirsmas iestatījumos."
   }
 }

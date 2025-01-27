@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Keçid ifadələri yarat"
   },
+  "passwordGenerated": {
+    "message": "Parol yaradıldı."
+  },
+  "passphraseGenerated": {
+    "message": "Keçid ifadəsi yaradıldı"
+  },
+  "usernameGenerated": {
+    "message": "İstifadəçi adı yaradıldı"
+  },
+  "emailGenerated": {
+    "message": "E-poçt yaradıldı"
+  },
   "regeneratePassword": {
     "message": "Parolu yenidən yarat"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Kimliyi doğrula"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
+  },
+  "continueLoggingIn": {
+    "message": "Giriş etməyə davam"
   },
   "yourVaultIsLocked": {
     "message": "Seyfiniz kilidlənib. Davam etmək üçün kimliyinizi doğrulayın."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Seyfinizdə tapılmayan elementin əlavə edilməsi soruşulsun. Giriş etmiş bütün hesablara aiddir."
   },
-  "showCardsInVaultView": {
-    "message": "Kartları, Seyf görünüşündə Avto-doldurma təklifləri olaraq göstər"
+  "showCardsInVaultViewV2": {
+    "message": "Kartları, Seyf görünüşündə Avto-doldurma təklifləri olaraq həmişə göstər"
   },
   "showCardsCurrentTab": {
     "message": "Kartları Vərəq səhifəsində göstər"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Asan avto-doldurma üçün Vərəq səhifəsində kart elementlərini sadalayın."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Kimlikləri, Seyf görünüşündə Avto-doldurma təklifləri olaraq göstər"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Kimlikləri, Seyf görünüşündə Avto-doldurma təklifləri olaraq həmişə göstər"
   },
   "showIdentitiesCurrentTab": {
     "message": "Vərəq səhifəsində kimlikləri göstər"
@@ -2324,6 +2342,9 @@
     "message": "Domenlər",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Əngəllənmiş domenlər"
+  },
   "excludedDomains": {
     "message": "İstisna edilən domenlər"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Bitwarden, giriş etmiş bütün hesablar üçün bu domenlərin giriş detallarını saxlamağı soruşmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
+  },
+  "blockedDomainsDesc": {
+    "message": "Bu veb saytlar üçün avto-doldurma və digər əlaqəli özəlliklər təklif olunmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Bu veb sayt üçün avto-doldurma əngəllənib."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Bunu ayarlarda dəyişdir"
   },
   "websiteItemLabel": {
     "message": "Veb sayt $number$ (URI)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Əngəllənmiş domen dəyişiklikləri saxlanıldı"
   },
   "excludedDomainsSavedSuccess": {
     "message": "İstisna domen dəyişikliyi saxlanıldı"
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "Xəta"
+  },
+  "decryptionError": {
+    "message": "Şifrə açma xətası"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden, aşağıda sadalanan seyf element(lər)inin şifrəsini aça bilmədi."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Əlavə data itkisini önləmək üçün",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "müştəri dəstəyi ilə əlaqə saxlayın.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "İstifadəçi adı yarat"
@@ -3396,38 +3443,6 @@
     "message": "Yığcamlaşdırmanı aç/bağla",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Datanız Bitwarden-ə köçürülsün?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "LastPass datanızı qoruyub Bitwarden-ə köçürürsünüz?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Şifrələnməmiş fayl olaraq saxla",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Bitwarden-ə köçür",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Daxilə köçürülür...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Data uğurla daxilə köçürüldü!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Daxilə köçürmə xətası. Detallar üçün konsolu yoxlayın.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Daxilə köçürmə zamanı şəbəkə xətası baş verdi.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Domen ləqəbi"
   },
@@ -3980,6 +3995,9 @@
   },
   "autofillSuggestions": {
     "message": "Avto-doldurma təklifləri"
+  },
+  "itemSuggestions": {
+    "message": "Təklif olunan elementlər"
   },
   "autofillSuggestionsTip": {
     "message": "Bu saytın avto-doldurması üçün giriş elementini saxlayın"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Mətn \"Send\"ləri"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden-in yeni bir görünüşü var!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Seyf vərəqindən avto-doldurma və axtarış etmə artıq daha asan və intuitivdir. Nəzər salın!"
-  },
   "accountActions": {
     "message": "Hesab fəaliyyətləri"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Əvvəlcə PIN və ya parol ilə kilid açma tələb olunduğu üçün biometrik ilə kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometrik kilid açma indi əlçatmazdır."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Yanlış konfiqurasiya edilmiş sistem fayllarına görə biometrik kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Yanlış konfiqurasiya edilmiş sistem fayllarına görə biometrik kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Bitwarden masaüstü tətbiqi bağlı olduğu üçün biometrik kilid açma əlçatmazdır."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Bitwarden masaüstü tətbiqində $EMAIL$ üçün fəal olmadığına görə biometrik kilid açma əlçatmazdır.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Bilinməyən bilinməyən bir səbəbə görə biometrik kilid açma əlçatmazdır."
   },
   "authenticating": {
     "message": "Kimlik doğrulama"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Ekstra enli"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Lütfən masaüstü tətbiqinizi güncəlləyin"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Biometrik kilid açmanı istifadə etmək üçün lütfən masaüstü tətbiqinizi güncəlləyin, ya da masaüstü ayarlarında barmaq izi ilə kilid açmanı sıradan çıxardın."
   }
 }

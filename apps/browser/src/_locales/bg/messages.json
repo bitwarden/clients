@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Генериране на парола-фраза"
   },
+  "passwordGenerated": {
+    "message": "Паролата е генерирана"
+  },
+  "passphraseGenerated": {
+    "message": "Паролата-фраза е генерирана"
+  },
+  "usernameGenerated": {
+    "message": "Потребителското име е генерирано"
+  },
+  "emailGenerated": {
+    "message": "Е-пощата е генерирана"
+  },
   "regeneratePassword": {
     "message": "Регенериране на паролата"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Потвърждаване на самоличността"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си."
+  },
+  "continueLoggingIn": {
+    "message": "Продължаване с вписването"
   },
   "yourVaultIsLocked": {
     "message": "Трезорът е заключен — въведете главната си парола, за да продължите."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Питане за добавяне на елемент, ако такъв не бъде намерен в трезора. Прилага се за всички регистрации, в които сте вписан(а)."
   },
-  "showCardsInVaultView": {
-    "message": "Показване на картите като предложения за авт. попълване в изгледа на трезора"
+  "showCardsInVaultViewV2": {
+    "message": "Картите да се показват винаги като предложения за авт. попълване в изгледа на трезора"
   },
   "showCardsCurrentTab": {
     "message": "Показване на карти в страницата с разделите"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Показване на картите в страницата с разделите, за лесно автоматично попълване."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Показване на самоличности като предложения за автоматично попълване в изгледа на трезора"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Самоличностите да се показват винаги като предложения за автоматично попълване в изгледа на трезора"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показване на самоличности в страницата с разделите"
@@ -2285,7 +2303,7 @@
     "message": "Потребителят е заключен или отписан"
   },
   "biometricsNotUnlockedDesc": {
-    "message": "Отключете потребителя в настолното приложение и опитайте отново."
+    "message": "Отключете потребителя в самостоятелното приложение и опитайте отново."
   },
   "biometricsNotAvailableTitle": {
     "message": "Отключването чрез биометрични данни не е налично"
@@ -2324,6 +2342,9 @@
     "message": "Домейни",
     "description": "A category title describing the concept of web domains"
   },
+  "blockedDomains": {
+    "message": "Блокирани домейни"
+  },
   "excludedDomains": {
     "message": "Изключени домейни"
   },
@@ -2332,6 +2353,15 @@
   },
   "excludedDomainsDescAlt": {
     "message": "Битуорден няма да пита дали да запазва данните за вход в тези сайтове за всички регистрации, в които сте вписан(а). За да влезе правилото в сила, презаредете страницата."
+  },
+  "blockedDomainsDesc": {
+    "message": "Автоматичното попълване и други свързани функции няма да бъдат предлагани за тези уеб сайтове. Трябва да презаредите страницата, за да влязат в сила промените."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "Автоматичното попълване е блокирано за този уеб сайт."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "Променете това в настройките"
   },
   "websiteItemLabel": {
     "message": "Уеб сайт $number$ (адрес)",
@@ -2350,6 +2380,9 @@
         "example": "duckduckgo.com"
       }
     }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "Промените на блокираните домейни са запазени"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Промените на изключените домейни са запазени"
@@ -2788,6 +2821,20 @@
   },
   "error": {
     "message": "Грешка"
+  },
+  "decryptionError": {
+    "message": "Грешка при дешифриране"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Битоурден не може да дешифрира елементите от трезора посочени по-долу."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Свържете се с поддръжката",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "за да избегнете загубата на данни.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Генериране на потр. име"
@@ -3396,38 +3443,6 @@
     "message": "Превключване на свиването",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Внасяне на данните Ви в Битуорден?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Защитаване на данните Ви от LastPass и внасяне в Битуорден?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Запазване като нешифрован файл",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Внасяне в Битуорден",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Внасяне…",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Данните бяха внесени успешно!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Грешка при внасянето. Вижте конзолата за подробности.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "По време на внасянето възникна мрежова грешка.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Псевдонимен домейн"
   },
@@ -3979,7 +3994,10 @@
     "message": "Секретният ключ е премахнат"
   },
   "autofillSuggestions": {
-    "message": "Автоматично попълване на предложения"
+    "message": "Предложения за авт. попълване"
+  },
+  "itemSuggestions": {
+    "message": "Препоръчани елементи"
   },
   "autofillSuggestionsTip": {
     "message": "Запазване на елемент за вписване за този уеб сайт, за авт. попълване"
@@ -4557,12 +4575,6 @@
   "textSends": {
     "message": "Текстови изпращания"
   },
-  "bitwardenNewLook": {
-    "message": "Биуорден има нов облик!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Сега е по-лесно и интуитивно от всякога да използвате автоматичното попълване и да търсите в раздела на трезора. Разгледайте!"
-  },
   "accountActions": {
     "message": "Действия по регистрацията"
   },
@@ -4640,6 +4652,33 @@
   },
   "noEditPermissions": {
     "message": "Нямате право за редактиране на този елемент"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Отключването с биометрични данни не е налично, тъй като първо се изисква отключване чрез ПИН или парола."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Отключването с биометрични данни не е налично в момента."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Отключването с биометрични данни не е налично поради неправилно настроени системни файлове."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Отключването с биометрични данни не е налично, тъй като приложението на Биуорден за компютър не работи."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Отключването с биометрични данни не е налично, тъй като не е включено за $EMAIL$ в приложението на Битуорден за компютър.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Отключването с биометрични данни не е налично по неизвестна причина."
   },
   "authenticating": {
     "message": "Удостоверяване"
@@ -4847,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Много широко"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Моля, обновете самостоятелното приложение"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "За да използвате отключването чрез биометрични данни, обновете самостоятелното приложение или изключете отключването чрез пръстов отпечатък в настройките му."
   }
 }
