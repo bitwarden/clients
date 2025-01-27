@@ -368,6 +368,7 @@ describe("KeyConnectorService", () => {
           accessSecretsManager: false,
           limitCollectionCreation: true,
           limitCollectionDeletion: true,
+          LimitItemDeletion: true,
           allowAdminAccessToAllCollectionItems: true,
           flexibleCollections: false,
           object: "profileOrganization",

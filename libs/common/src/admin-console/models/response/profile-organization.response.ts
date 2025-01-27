@@ -51,6 +51,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   accessSecretsManager: boolean;
   limitCollectionCreation: boolean;
   limitCollectionDeletion: boolean;
+  LimitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
@@ -114,6 +115,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager");
     this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
     this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
+    this.LimitItemDeletion = this.getResponseProperty("LimitItemDeletion");
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );

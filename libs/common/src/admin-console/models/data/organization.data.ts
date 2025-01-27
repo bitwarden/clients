@@ -56,6 +56,7 @@ export class OrganizationData {
   accessSecretsManager: boolean;
   limitCollectionCreation: boolean;
   limitCollectionDeletion: boolean;
+  LimitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
@@ -117,6 +118,7 @@ export class OrganizationData {
     this.accessSecretsManager = response.accessSecretsManager;
     this.limitCollectionCreation = response.limitCollectionCreation;
     this.limitCollectionDeletion = response.limitCollectionDeletion;
+    this.LimitItemDeletion = response.LimitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = response.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = response.userIsManagedByOrganization;
     this.useRiskInsights = response.useRiskInsights;
