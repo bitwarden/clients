@@ -1,0 +1,12 @@
+{
+  "extends": "../shared/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@bitwarden/common/*": ["../common/src/*"],
+      "@bitwarden/components": ["../components/src/index.ts"],
+      "@bitwarden/key-management": ["../key-management/src/index.ts"]
+    }
+  },
+  "include": ["src", "spec"],
+  "exclude": ["node_modules", "dist"]
+}
