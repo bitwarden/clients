@@ -117,6 +117,11 @@ export type AtRiskApplicationDetail = {
   atRiskPasswordCount: number;
 };
 
+export type AppAtRiskMembersDialogParams = {
+  members: MemberDetailsFlat[];
+  applicationName: string;
+};
+
 /**
  * Request to drop a password health report application
  * Model is expected by the API endpoint
@@ -141,6 +146,13 @@ export interface PasswordHealthReportApplicationsResponse {
 export interface PasswordHealthReportApplicationsRequest {
   organizationId: OrganizationId;
   url: string;
+}
+
+export enum DrawerType {
+  None = 0,
+  AppAtRiskMembers = 1,
+  OrgAtRiskMembers = 2,
+  OrgAtRiskApps = 3,
 }
 
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;
