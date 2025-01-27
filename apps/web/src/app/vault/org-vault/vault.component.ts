@@ -92,7 +92,7 @@ import {
   ResellerWarningService,
 } from "../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../core/types/free-trial";
+import { FreeTrial } from "../../billing/types/free-trial";
 import { SharedModule } from "../../shared";
 import { VaultFilterService } from "../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import { VaultFilter } from "../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
