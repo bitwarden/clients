@@ -167,9 +167,8 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       });
 
       if (
-        this.cipherFormContainer.config.mode === "partial-edit" ||
-        (field.type === FieldType.Hidden &&
-          !this.cipherFormContainer.originalCipherView?.viewPassword)
+        field.type === FieldType.Hidden &&
+        !this.cipherFormContainer.originalCipherView?.viewPassword
       ) {
         customField.controls.value.disable();
       }
