@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Δημιουργία φράσης πρόσβασης"
   },
+  "passwordGenerated": {
+    "message": "Ο κωδικός δημιουργήθηκε"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Επαναδημιουργία κωδικού πρόσβασης"
   },

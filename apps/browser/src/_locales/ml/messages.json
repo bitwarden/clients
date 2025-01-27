@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generate passphrase"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "പാസ്സ്‌വേഡ് വീണ്ടും സൃഷ്ടിക്കുക"
   },

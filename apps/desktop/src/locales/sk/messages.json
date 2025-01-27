@@ -889,7 +889,7 @@
     "message": "Overte svoju totožnosť"
   },
   "weDontRecognizeThisDevice": {
-    "message": "Nespoznávame toto zariadenie. Pre overenie vašej totožnosti zadajte kód ktorý bol zaslaný na váš email."
+    "message": "Toto zariadenie nepoznáme. Na overenie vašej totožnosti zadajte kód, ktorý bol zaslaný na váš e-mail."
   },
   "continueLoggingIn": {
     "message": "Pokračovať v prihlasovaní"

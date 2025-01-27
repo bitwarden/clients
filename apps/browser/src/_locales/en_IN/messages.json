@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generate passphrase"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Regenerate password"
   },
@@ -648,7 +660,7 @@
     "message": "Verify Identity"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "We don't recognise this device. Enter the code sent to your email to verify your identity."
   },
   "continueLoggingIn": {
     "message": "Continue logging in"
