@@ -111,7 +111,7 @@
         "husky",
         "lint-staged"
       ],
-      "groupSlug": "lint-minor-patch",
+      "groupName": "Linting minor-patch",
       "matchUpdateTypes": ["minor", "patch"]
     },
     {
