@@ -65,6 +65,12 @@ export class AutofillVaultListItemsComponent implements OnInit {
     ),
   );
 
+  /**
+   * Flag indicating that the current tab location is blocked
+   */
+  currentURIIsBlocked$: Observable<boolean> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$;
+
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupAutofillService: VaultPopupAutofillService,

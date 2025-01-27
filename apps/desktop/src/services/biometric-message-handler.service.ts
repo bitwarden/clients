@@ -1,13 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable, NgZone } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { combineLatest, concatMap, firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -31,6 +32,50 @@ import { DesktopSettingsService } from "../platform/services/desktop-settings.se
 const MessageValidTimeout = 10 * 1000;
 const HashAlgorithmForAsymmetricEncryption = "sha1";
 
+type ConnectedApp = {
+  publicKey: string;
+  sessionSecret: string;
+  trusted: boolean;
+};
+
+const ConnectedAppPrefix = "connectedApp_";
+
+class ConnectedApps {
+  async get(appId: string): Promise<ConnectedApp> {
+    if (!(await this.has(appId))) {
+      return null;
+    }
+
+    return JSON.parse(
+      await ipc.platform.ephemeralStore.getEphemeralValue(`${ConnectedAppPrefix}${appId}`),
+    );
+  }
+
+  async list(): Promise<string[]> {
+    return (await ipc.platform.ephemeralStore.listEphemeralValueKeys())
+      .filter((key) => key.startsWith(ConnectedAppPrefix))
+      .map((key) => key.replace(ConnectedAppPrefix, ""));
+  }
+
+  async set(appId: string, value: ConnectedApp) {
+    await ipc.platform.ephemeralStore.setEphemeralValue(
+      `${ConnectedAppPrefix}${appId}`,
+      JSON.stringify(value),
+    );
+  }
+
+  async has(appId: string) {
+    return (await this.list()).find((id) => id === appId) != null;
+  }
+
+  async clear() {
+    const connected = await this.list();
+    for (const appId of connected) {
+      await ipc.platform.ephemeralStore.removeEphemeralValue(`${ConnectedAppPrefix}${appId}`);
+    }
+  }
+}
+
 @Injectable()
 export class BiometricMessageHandlerService {
   constructor(
@@ -46,7 +91,21 @@ export class BiometricMessageHandlerService {
     private accountService: AccountService,
     private authService: AuthService,
     private ngZone: NgZone,
-  ) {}
+    private i18nService: I18nService,
+  ) {
+    combineLatest([
+      this.desktopSettingService.browserIntegrationFingerprintEnabled$,
+      this.desktopSettingService.browserIntegrationEnabled$,
+    ])
+      .pipe(
+        concatMap(async () => {
+          await this.connectedApps.clear();
+        }),
+      )
+      .subscribe();
+  }
+
+  private connectedApps: ConnectedApps = new ConnectedApps();
 
   async handleMessage(msg: LegacyMessageWrapper) {
     const { appId, message: rawMessage } = msg as LegacyMessageWrapper;
@@ -69,39 +128,24 @@ export class BiometricMessageHandlerService {
         return;
       }
 
-      if (await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)) {
-        this.logService.info("[Native Messaging IPC] Requesting fingerprint verification.");
-        ipc.platform.nativeMessaging.sendMessage({
-          command: "verifyFingerprint",
-          appId: appId,
-        });
-
-        const fingerprint = await this.keyService.getFingerprint(
-          rawMessage.userId,
-          remotePublicKey,
+      if (await this.connectedApps.has(appId)) {
+        this.logService.info(
+          "[Native Messaging IPC] Public key for app id changed. Invalidating trust",
         );
-
-        this.messagingService.send("setFocus");
-
-        const dialogRef = this.ngZone.run(() =>
-          BrowserSyncVerificationDialogComponent.open(this.dialogService, { fingerprint }),
-        );
-
-        const browserSyncVerified = await firstValueFrom(dialogRef.closed);
-
-        if (browserSyncVerified !== true) {
-          this.logService.info("[Native Messaging IPC] Fingerprint verification failed.");
-          return;
-        }
       }
 
+      await this.connectedApps.set(appId, {
+        publicKey: Utils.fromBufferToB64(remotePublicKey),
+        sessionSecret: null,
+        trusted: false,
+      });
       await this.secureCommunication(remotePublicKey, appId);
       return;
     }
 
-    if ((await ipc.platform.ephemeralStore.getEphemeralValue(appId)) == null) {
+    if ((await this.connectedApps.get(appId))?.sessionSecret == null) {
       this.logService.info(
-        "[Native Messaging IPC] Epheremal secret for secure channel is missing. Invalidating encryption...",
+        "[Native Messaging IPC] Session secret for secure channel is missing. Invalidating encryption...",
       );
       ipc.platform.nativeMessaging.sendMessage({
         command: "invalidateEncryption",
@@ -113,7 +157,7 @@ export class BiometricMessageHandlerService {
     const message: LegacyMessage = JSON.parse(
       await this.encryptService.decryptToUtf8(
         rawMessage as EncString,
-        SymmetricCryptoKey.fromString(await ipc.platform.ephemeralStore.getEphemeralValue(appId)),
+        SymmetricCryptoKey.fromString((await this.connectedApps.get(appId)).sessionSecret),
       ),
     );
 
@@ -202,6 +246,18 @@ export class BiometricMessageHandlerService {
       }
       // TODO: legacy, remove after 2025.3
       case BiometricsCommands.Unlock: {
+        if (
+          await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)
+        ) {
+          await this.send({ command: "biometricUnlock", response: "not available" }, appId);
+          await this.dialogService.openSimpleDialog({
+            title: this.i18nService.t("updateBrowserOrDisableFingerprintDialogTitle"),
+            content: this.i18nService.t("updateBrowserOrDisableFingerprintDialogMessage"),
+            type: "warning",
+          });
+          return;
+        }
+
         const isTemporarilyDisabled =
           (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
           !((await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available);
@@ -283,7 +339,7 @@ export class BiometricMessageHandlerService {
 
     const encrypted = await this.encryptService.encrypt(
       JSON.stringify(message),
-      SymmetricCryptoKey.fromString(await ipc.platform.ephemeralStore.getEphemeralValue(appId)),
+      SymmetricCryptoKey.fromString((await this.connectedApps.get(appId)).sessionSecret),
     );
 
     ipc.platform.nativeMessaging.sendMessage({
@@ -295,10 +351,9 @@ export class BiometricMessageHandlerService {
 
   private async secureCommunication(remotePublicKey: Uint8Array, appId: string) {
     const secret = await this.cryptoFunctionService.randomBytes(64);
-    await ipc.platform.ephemeralStore.setEphemeralValue(
-      appId,
-      new SymmetricCryptoKey(secret).keyB64,
-    );
+    const connectedApp = await this.connectedApps.get(appId);
+    connectedApp.sessionSecret = new SymmetricCryptoKey(secret).keyB64;
+    await this.connectedApps.set(appId, connectedApp);
 
     this.logService.info("[Native Messaging IPC] Setting up secure channel");
     const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
@@ -320,6 +375,18 @@ export class BiometricMessageHandlerService {
     appId: string,
   ) {
     const messageUserId = message.userId as UserId;
+    if (!(await this.validateFingerprint(appId))) {
+      await this.send(
+        {
+          command: BiometricsCommands.UnlockWithBiometricsForUser,
+          messageId,
+          response: false,
+        },
+        appId,
+      );
+      return;
+    }
+
     try {
       const userKey = await this.biometricsService.unlockWithBiometricsForUser(messageUserId);
       if (userKey != null) {
@@ -368,5 +435,55 @@ export class BiometricMessageHandlerService {
         ipc.platform.reloadProcess();
       }
     }
+  }
+
+  async validateFingerprint(appId: string): Promise<boolean> {
+    if (await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)) {
+      const appToValidate = await this.connectedApps.get(appId);
+      if (appToValidate == null) {
+        return false;
+      }
+
+      if (appToValidate.trusted) {
+        return true;
+      }
+
+      ipc.platform.nativeMessaging.sendMessage({
+        command: "verifyDesktopIPCFingerprint",
+        appId: appId,
+      });
+
+      const fingerprint = await this.keyService.getFingerprint(
+        appId,
+        Utils.fromB64ToArray(appToValidate.publicKey),
+      );
+
+      this.messagingService.send("setFocus");
+
+      const dialogRef = this.ngZone.run(() =>
+        BrowserSyncVerificationDialogComponent.open(this.dialogService, { fingerprint }),
+      );
+
+      const browserSyncVerified = await firstValueFrom(dialogRef.closed);
+      if (browserSyncVerified !== true) {
+        this.logService.info("[Native Messaging IPC] Fingerprint verification failed.");
+        ipc.platform.nativeMessaging.sendMessage({
+          command: "rejectedDesktopIPCFingerprint",
+          appId: appId,
+        });
+        return false;
+      } else {
+        this.logService.info("[Native Messaging IPC] Fingerprint verified.");
+        ipc.platform.nativeMessaging.sendMessage({
+          command: "verifiedDesktopIPCFingerprint",
+          appId: appId,
+        });
+      }
+
+      appToValidate.trusted = true;
+      await this.connectedApps.set(appId, appToValidate);
+    }
+
+    return true;
   }
 }

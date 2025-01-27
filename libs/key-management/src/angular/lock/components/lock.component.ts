@@ -30,7 +30,7 @@ import {
   MasterPasswordVerification,
   MasterPasswordVerificationResponse,
 } from "@bitwarden/common/auth/types/verification";
-import { ClientType } from "@bitwarden/common/enums";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -244,6 +244,10 @@ export class LockComponent implements OnInit, OnDestroy {
     if (activeAccount == null) {
       return;
     }
+    // this account may be unlocked, prevent any prompts so we can redirect to vault
+    if (await this.keyService.hasUserKeyInMemory(activeAccount.id)) {
+      return;
+    }
 
     this.setEmailAsPageSubtitle(activeAccount.email);
 
@@ -301,6 +305,11 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     if (this.clientType === "browser") {
+      // Firefox closes the popup when unfocused, so this would block all unlock methods
+      if (this.platformUtilsService.getDevice() === DeviceType.FirefoxExtension) {
+        return;
+      }
+
       if (
         this.unlockOptions.biometrics.enabled &&
         autoPromptBiometrics &&
