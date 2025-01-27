@@ -72,7 +72,12 @@
 
     <bit-form-field *ngIf="hasPasskey">
       <bit-label>{{ "typePasskey" | i18n }}</bit-label>
-      <input bitInput [value]="fido2CredentialCreationDateValue" data-testid="passkey-field" />
+      <input
+        bitInput
+        disabled
+        [value]="fido2CredentialCreationDateValue"
+        data-testid="passkey-field"
+      />
       <button
         type="button"
         bitIconButton="bwi-minus-circle"

@@ -263,21 +263,6 @@ export const Disabled: Story = {
   args: {},
 };
 
-export const DisabledWithArgs: Story = {
-  render: (args) => ({
-    props: {
-      disabled: true,
-    },
-    template: /*html*/ `
-      <bit-form-field>
-        <bit-label>Label</bit-label>
-        <input bitInput placeholder="Placeholder" [disabled]="disabled" />
-      </bit-form-field>
-    `,
-  }),
-  args: {},
-};
-
 export const Readonly: Story = {
   render: (args) => ({
     props: args,
