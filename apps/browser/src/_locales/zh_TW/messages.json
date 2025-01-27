@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "產生密碼短語"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "重新產生密碼"
   },

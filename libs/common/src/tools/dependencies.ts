@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 
-import { Policy } from "../admin-console/models/domain/policy";
-import { OrganizationId, UserId } from "../types/guid";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import { OrganizationEncryptor } from "./cryptography/organization-encryptor.abstraction";
 import { UserEncryptor } from "./cryptography/user-encryptor.abstraction";
@@ -152,7 +152,8 @@ export type SingleUserDependency = {
 };
 
 /** A pattern for types that emit values exclusively when the dependency
- *  emits a message.
+ *  emits a message. Set a type parameter when your method requires contextual
+ *  information when the request is issued.
  *
  *  Consumers of this dependency should emit when `on$` emits. If `on$`
  *  completes, the consumer should also complete. If `on$`
@@ -161,10 +162,10 @@ export type SingleUserDependency = {
  *  @remarks This dependency is useful when you have a nondeterministic
  *  or stateful algorithm that you would like to run when an event occurs.
  */
-export type OnDependency = {
+export type OnDependency<T = any> = {
   /** The stream that controls emissions
    */
-  on$: Observable<any>;
+  on$: Observable<T>;
 };
 
 /** A pattern for types that emit when a dependency is `true`.

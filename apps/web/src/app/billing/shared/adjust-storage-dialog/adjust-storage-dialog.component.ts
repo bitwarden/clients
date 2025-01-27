@@ -1,132 +1,103 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
-import { Component, Inject, ViewChild } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { PaymentResponse } from "@bitwarden/common/billing/models/response/payment.response";
 import { StorageRequest } from "@bitwarden/common/models/request/storage.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { PaymentComponent } from "../payment/payment.component";
-
-export interface AdjustStorageDialogData {
-  storageGbPrice: number;
-  add: boolean;
+export interface AdjustStorageDialogParams {
+  price: number;
+  cadence: "month" | "year";
+  type: "Add" | "Remove";
   organizationId?: string;
-  interval?: string;
 }
 
-export enum AdjustStorageDialogResult {
-  Adjusted = "adjusted",
-  Cancelled = "cancelled",
+export enum AdjustStorageDialogResultType {
+  Submitted = "submitted",
+  Closed = "closed",
 }
 
 @Component({
-  templateUrl: "adjust-storage-dialog.component.html",
+  templateUrl: "./adjust-storage-dialog.component.html",
 })
 export class AdjustStorageDialogComponent {
-  storageGbPrice: number;
-  add: boolean;
-  organizationId: string;
-  interval: string;
-
-  @ViewChild(PaymentComponent, { static: true }) paymentComponent: PaymentComponent;
-
-  protected DialogResult = AdjustStorageDialogResult;
   protected formGroup = new FormGroup({
-    storageAdjustment: new FormControl(0, [
+    storage: new FormControl<number>(0, [
       Validators.required,
       Validators.min(0),
       Validators.max(99),
     ]),
   });
 
+  protected organizationId?: string;
+  protected price: number;
+  protected cadence: "month" | "year";
+
+  protected title: string;
+  protected body: string;
+  protected storageFieldLabel: string;
+
+  protected ResultType = AdjustStorageDialogResultType;
+
   constructor(
-    private dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) protected data: AdjustStorageDialogData,
     private apiService: ApiService,
+    @Inject(DIALOG_DATA) protected dialogParams: AdjustStorageDialogParams,
+    private dialogRef: DialogRef<AdjustStorageDialogResultType>,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private logService: LogService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private toastService: ToastService,
   ) {
-    this.storageGbPrice = data.storageGbPrice;
-    this.add = data.add;
-    this.organizationId = data.organizationId;
-    this.interval = data.interval || "year";
+    this.price = this.dialogParams.price;
+    this.cadence = this.dialogParams.cadence;
+    this.organizationId = this.dialogParams.organizationId;
+    switch (this.dialogParams.type) {
+      case "Add":
+        this.title = this.i18nService.t("addStorage");
+        this.body = this.i18nService.t("storageAddNote");
+        this.storageFieldLabel = this.i18nService.t("gbStorageAdd");
+        break;
+      case "Remove":
+        this.title = this.i18nService.t("removeStorage");
+        this.body = this.i18nService.t("storageRemoveNote");
+        this.storageFieldLabel = this.i18nService.t("gbStorageRemove");
+        break;
+    }
   }
 
   submit = async () => {
     const request = new StorageRequest();
-    request.storageGbAdjustment = this.formGroup.value.storageAdjustment;
-    if (!this.add) {
-      request.storageGbAdjustment *= -1;
+    switch (this.dialogParams.type) {
+      case "Add":
+        request.storageGbAdjustment = this.formGroup.value.storage;
+        break;
+      case "Remove":
+        request.storageGbAdjustment = this.formGroup.value.storage * -1;
+        break;
     }
 
-    let paymentFailed = false;
-    const action = async () => {
-      let response: Promise<PaymentResponse>;
-      if (this.organizationId == null) {
-        response = this.apiService.postAccountStorage(request);
-      } else {
-        response = this.organizationApiService.updateStorage(this.organizationId, request);
-      }
-      const result = await response;
-      if (result != null && result.paymentIntentClientSecret != null) {
-        try {
-          await this.paymentComponent.handleStripeCardPayment(
-            result.paymentIntentClientSecret,
-            null,
-          );
-        } catch {
-          paymentFailed = true;
-        }
-      }
-    };
-    await action();
-    this.dialogRef.close(AdjustStorageDialogResult.Adjusted);
-    if (paymentFailed) {
-      this.toastService.showToast({
-        variant: "warning",
-        title: null,
-        message: this.i18nService.t("couldNotChargeCardPayInvoice"),
-        timeout: 10000,
-      });
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["../billing"], { relativeTo: this.activatedRoute });
+    if (this.organizationId) {
+      await this.organizationApiService.updateStorage(this.organizationId, request);
     } else {
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("adjustedStorage", request.storageGbAdjustment.toString()),
-      });
+      await this.apiService.postAccountStorage(request);
     }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("adjustedStorage", request.storageGbAdjustment.toString()),
+    });
+
+    this.dialogRef.close(this.ResultType.Submitted);
   };
 
-  get adjustedStorageTotal(): number {
-    return this.storageGbPrice * this.formGroup.value.storageAdjustment;
-  }
-}
-
-/**
- * Strongly typed helper to open an AdjustStorageDialog
- * @param dialogService Instance of the dialog service that will be used to open the dialog
- * @param config Configuration for the dialog
- */
-export function openAdjustStorageDialog(
-  dialogService: DialogService,
-  config: DialogConfig<AdjustStorageDialogData>,
-) {
-  return dialogService.open<AdjustStorageDialogResult>(AdjustStorageDialogComponent, config);
+  static open = (
+    dialogService: DialogService,
+    dialogConfig: DialogConfig<AdjustStorageDialogParams>,
+  ) =>
+    dialogService.open<AdjustStorageDialogResultType>(AdjustStorageDialogComponent, dialogConfig);
 }

@@ -886,13 +886,13 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyIdentity": {
-    "message": "Verify your Identity"
+    "message": "Kimliyinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Giriş etməyə davam"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"

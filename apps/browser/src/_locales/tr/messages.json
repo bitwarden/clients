@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Parola üret"
   },
+  "passwordGenerated": {
+    "message": "Parola üretildi"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Kullanıcı adı üretildi"
+  },
+  "emailGenerated": {
+    "message": "E-posta üretildi"
+  },
   "regeneratePassword": {
     "message": "Yeni parola oluştur"
   },
@@ -648,10 +660,10 @@
     "message": "Kimliği doğrula"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Giriş yapmaya devam et"
   },
   "yourVaultIsLocked": {
     "message": "Kasanız kilitli. Devam etmek için kimliğinizi doğrulayın."
@@ -993,7 +1005,7 @@
     "message": "Kasanızda bulunmayan kayıtların eklenmesini isteyip istemediğinizi sorar. Oturum açmış tüm hesaplar için geçerlidir."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Kasa görünümünde kartları her zaman otomatik doldurma önerisi olarak göster"
   },
   "showCardsCurrentTab": {
     "message": "Sekme sayfasında kartları göster"
@@ -1002,7 +1014,7 @@
     "message": "Kolay otomatik doldurma için sekme sayfasında kartları listele."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Kasa görünümünde kimlikleri her zaman otomatik doldurma önerisi olarak göster"
   },
   "showIdentitiesCurrentTab": {
     "message": "Sekme sayfasında kimlikleri göster"
