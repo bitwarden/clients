@@ -4570,7 +4570,7 @@
     "description": "ex. A strong password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "good": {
-    "message": "良好",
+    "message": "良",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "weak": {
@@ -9809,13 +9809,13 @@
     "message": "密钥算法"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "私钥"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "公钥"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "指纹"
   },
   "sshKeyFingerprint": {
     "message": "指纹"

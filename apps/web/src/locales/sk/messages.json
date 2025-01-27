@@ -156,10 +156,10 @@
     "message": "Všetkých aplikácii"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Zrušiť označenie aplikácie za kritickú"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Označenie aplikácie za kritickú úspešne zrušené"
   },
   "whatTypeOfItem": {
     "message": "Aký typ položky to je?"
@@ -9809,13 +9809,13 @@
     "message": "Algoritmus kľúča"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Súkromný kľúč"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Verejný kľúč"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Odtlačok"
   },
   "sshKeyFingerprint": {
     "message": "Odtlačok"
