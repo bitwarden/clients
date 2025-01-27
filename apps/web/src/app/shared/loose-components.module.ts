@@ -20,7 +20,6 @@ import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from 
 import { HintComponent } from "../auth/hint.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
-import { RegisterFormModule } from "../auth/register-form/register-form.module";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { AccountComponent } from "../auth/settings/account/account.component";
@@ -90,7 +89,6 @@ import { SharedModule } from "./shared.module";
 @NgModule({
   imports: [
     SharedModule,
-    RegisterFormModule,
     ProductSwitcherModule,
     UserVerificationModule,
     ChangeKdfModule,
