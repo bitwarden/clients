@@ -91,6 +91,27 @@
     },
     {
       "matchPackageNames": [
+        "@angular-eslint/eslint-plugin-template",
+        "@angular-eslint/eslint-plugin",
+        "@angular-eslint/schematics",
+        "angular-eslint",
+        "eslint-config-prettier",
+        "eslint-import-resolver-typescript",
+        "eslint-plugin-import",
+        "eslint-plugin-rxjs-angular",
+        "eslint-plugin-rxjs",
+        "eslint-plugin-storybook",
+        "eslint-plugin-tailwindcss",
+        "eslint",
+        "husky",
+        "lint-staged",
+        "typescript-eslint"
+      ],
+      "groupName": "Linting minor-patch",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "matchPackageNames": [
         "@emotion/css",
         "@webcomponents/custom-elements",
         "concurrently",

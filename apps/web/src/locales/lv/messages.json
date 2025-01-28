@@ -156,10 +156,10 @@
     "message": "Kopējais lietotņu skaits"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Noņemt kritiskas lietontes atzīmi"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Kritiskas lietotnes atzīme sekmīgi noņemta"
   },
   "whatTypeOfItem": {
     "message": "Kāda veida vienums tas ir?"
@@ -1168,10 +1168,10 @@
     "message": "Jāapliecina sava identitāte"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Mēs neatpazīstam šo ierīci. Jāievada kods, kas tika nosūtīts e-pastā, lai apliecinātu savu identitāti."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Turpināt pieteikšanos"
   },
   "whatIsADevice": {
     "message": "Kas ir ierīce?"
@@ -9807,6 +9807,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Atslēgas algoritms"
+  },
+  "sshPrivateKey": {
+    "message": "Privātā atslēga"
+  },
+  "sshPublicKey": {
+    "message": "Publiskā atslēga"
+  },
+  "sshFingerprint": {
+    "message": "Pirkstu nospiedums"
   },
   "sshKeyFingerprint": {
     "message": "Pirkstu nospiedums"

@@ -158,6 +158,7 @@ export class ApiService implements ApiServiceAbstraction {
   private deviceType: string;
   private isWebClient = false;
   private isDesktopClient = false;
+  private refreshTokenPromise: Promise<string> | undefined;
 
   /**
    * The message (responseJson.ErrorModel.Message) that comes back from the server when a new device verification is required.
@@ -1733,7 +1734,18 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  protected async refreshToken(): Promise<string> {
+  // Keep the running refreshTokenPromise to prevent parallel calls.
+  protected refreshToken(): Promise<string> {
+    if (this.refreshTokenPromise === undefined) {
+      this.refreshTokenPromise = this.internalRefreshToken();
+      void this.refreshTokenPromise.finally(() => {
+        this.refreshTokenPromise = undefined;
+      });
+    }
+    return this.refreshTokenPromise;
+  }
+
+  private async internalRefreshToken(): Promise<string> {
     const refreshToken = await this.tokenService.getRefreshToken();
     if (refreshToken != null && refreshToken !== "") {
       return this.refreshAccessToken();

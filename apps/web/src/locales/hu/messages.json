@@ -156,10 +156,10 @@
     "message": "Összes alkalmazás"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Ktritkus alkalmazás jelölés eltávolítása"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "A ktritkus alkalmazás jelölés eltávolítása sikeres volt."
   },
   "whatTypeOfItem": {
     "message": "Milyen típusú elem ez?"
@@ -1168,10 +1168,10 @@
     "message": "Személyazonosság ellenőrzése"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Nem ismerhető fel ez az eszköz. Írjuk be az email címünkre küldött kódot a személyazonosság igazolásához."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "A bejelentkezés folytatása"
   },
   "whatIsADevice": {
     "message": "Mi az eszköz?"
@@ -9807,6 +9807,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Kulcs algoritmus"
+  },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
   },
   "sshKeyFingerprint": {
     "message": "Ujjlenyomat"

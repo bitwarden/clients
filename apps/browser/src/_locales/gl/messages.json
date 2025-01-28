@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Xerar frase de contrasinal"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Volver xerar contrasinal"
   },

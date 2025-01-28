@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Создать парольную фразу"
   },
+  "passwordGenerated": {
+    "message": "Пароль создан"
+  },
+  "passphraseGenerated": {
+    "message": "Парольная фраза создана"
+  },
+  "usernameGenerated": {
+    "message": "Имя пользователя создано"
+  },
+  "emailGenerated": {
+    "message": "Email создан"
+  },
   "regeneratePassword": {
     "message": "Создать новый пароль"
   },
@@ -993,7 +1005,7 @@
     "message": "Запрос на добавление элемента, если он отсутствует в вашем хранилище. Применяется ко всем авторизованным аккаунтам."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Всегда показывать карты как предложения автозаполнения при просмотре хранилища"
   },
   "showCardsCurrentTab": {
     "message": "Показывать карты на вкладке"
@@ -1002,7 +1014,7 @@
     "message": "Карты будут отображены на вкладке для удобного автозаполнения."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Всегда показывать личности как предложения автозаполнения при просмотре хранилища"
   },
   "showIdentitiesCurrentTab": {
     "message": "Показывать Личности на вкладке"

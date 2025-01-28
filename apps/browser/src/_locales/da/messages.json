@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generér adgangssætning"
   },
+  "passwordGenerated": {
+    "message": "Adgangskode genereret"
+  },
+  "passphraseGenerated": {
+    "message": "Adgangssætning genereret"
+  },
+  "usernameGenerated": {
+    "message": "Brugernavn genereret"
+  },
+  "emailGenerated": {
+    "message": "E-mail genereret"
+  },
   "regeneratePassword": {
     "message": "Regenerér adgangskode"
   },

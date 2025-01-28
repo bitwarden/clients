@@ -69,9 +69,7 @@ export default tseslint.config(
       "@angular-eslint/no-outputs-metadata-property": 0,
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
-
       "@bitwarden/platform/required-using": "error",
-
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
       "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
       "@typescript-eslint/no-floating-promises": "error",
@@ -244,18 +242,6 @@ export default tseslint.config(
     },
   },
   {
-    files: ["apps/web/src/**/*.ts"],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        "**/app/core/*",
-        "**/reports/*",
-        "**/app/shared/*",
-        "**/organizations/settings/*",
-        "**/organizations/policies/*",
-      ]),
-    },
-  },
-  {
     files: ["bitwarden_license/bit-common/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports(["@bitwarden/bit-common/*"]),
@@ -269,6 +255,22 @@ export default tseslint.config(
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
         "@bitwarden/bit-web/*",
+      ]),
+    },
+  },
+  {
+    files: ["apps/web/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "bitwarden_license/**",
+        "@bitwarden/bit-common/*",
+        "@bitwarden/bit-web/*",
+
+        "**/app/core/*",
+        "**/reports/*",
+        "**/app/shared/*",
+        "**/organizations/settings/*",
+        "**/organizations/policies/*",
       ]),
     },
   },
