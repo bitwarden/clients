@@ -1,11 +1,12 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -44,11 +45,12 @@ import {
     UserVerificationFormInputComponent,
   ],
 })
-export class SetAccountVerifyDevicesDialogComponent implements OnDestroy {
+export class SetAccountVerifyDevicesDialogComponent implements OnInit, OnDestroy {
   // use this subject for all subscriptions to ensure all subscripts are completed
   private destroy$ = new Subject<void>();
   // the default for new device verification is true
   verifyNewDeviceLogin: boolean = true;
+  has2faConfigured: boolean = false;
 
   setVerifyDevicesForm = this.formBuilder.group({
     verification: undefined as Verification | undefined,
@@ -63,12 +65,18 @@ export class SetAccountVerifyDevicesDialogComponent implements OnDestroy {
     private userVerificationService: UserVerificationService,
     private dialogRef: DialogRef,
     private toastService: ToastService,
+    private apiService: ApiService,
   ) {
     this.accountService.accountVerifyNewDeviceLogin$
       .pipe(takeUntil(this.destroy$))
       .subscribe((verifyDevices: boolean) => {
         this.verifyNewDeviceLogin = verifyDevices;
       });
+  }
+
+  async ngOnInit() {
+    const twoFactorProviders = await this.apiService.getTwoFactorProviders();
+    this.has2faConfigured = twoFactorProviders.data.length > 0;
   }
 
   submit = async () => {

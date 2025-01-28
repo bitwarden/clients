@@ -7,7 +7,7 @@
       <p *ngIf="!verifyNewDeviceLogin" bitTypography="body1">
         {{ "turnOnNewDeviceLoginProtectionModalDesc" | i18n }}
       </p>
-      <bit-callout *ngIf="verifyNewDeviceLogin" type="warning">{{
+      <bit-callout *ngIf="verifyNewDeviceLogin && !has2faConfigured" type="warning">{{
         "turnOffNewDeviceLoginProtectionWarning" | i18n
       }}</bit-callout>
       <app-user-verification-form-input
