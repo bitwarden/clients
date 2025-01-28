@@ -167,7 +167,7 @@ jobs:
 
       - name: Generate coverage
         working-directory: ./apps/desktop/desktop_native
-        run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --exclude wayland-data-control
+        run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --exclude arboard
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # v5.1.1
