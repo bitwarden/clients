@@ -2,10 +2,13 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
+
 import {
-  ActiveUserState,
   GlobalState,
   KeyDefinition,
+  SingleUserState,
   SSO_DISK,
   StateProvider,
   UserKeyDefinition,
@@ -61,16 +64,15 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
   private ssoState: GlobalState<string>;
   private orgSsoIdentifierState: GlobalState<string>;
   private ssoEmailState: GlobalState<string>;
-  private activeUserOrgSsoIdentifierState: ActiveUserState<string>;
 
-  constructor(private stateProvider: StateProvider) {
+  constructor(
+    private stateProvider: StateProvider,
+    private logService: LogService,
+  ) {
     this.codeVerifierState = this.stateProvider.getGlobal(CODE_VERIFIER);
     this.ssoState = this.stateProvider.getGlobal(SSO_STATE);
     this.orgSsoIdentifierState = this.stateProvider.getGlobal(GLOBAL_ORGANIZATION_SSO_IDENTIFIER);
     this.ssoEmailState = this.stateProvider.getGlobal(SSO_EMAIL);
-    this.activeUserOrgSsoIdentifierState = this.stateProvider.getActive(
-      USER_ORGANIZATION_SSO_IDENTIFIER,
-    );
   }
 
   getCodeVerifier(): Promise<string> {
@@ -105,11 +107,24 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.ssoEmailState.update((_) => email);
   }
 
-  getActiveUserOrganizationSsoIdentifier(): Promise<string> {
-    return firstValueFrom(this.activeUserOrgSsoIdentifierState.state$);
+  getActiveUserOrganizationSsoIdentifier(userId: UserId): Promise<string> {
+    return firstValueFrom(this.userOrgSsoIdentifierState(userId).state$);
   }
 
-  async setActiveUserOrganizationSsoIdentifier(organizationIdentifier: string): Promise<void> {
-    await this.activeUserOrgSsoIdentifierState.update((_) => organizationIdentifier);
+  async setActiveUserOrganizationSsoIdentifier(
+    organizationIdentifier: string,
+    userId: UserId | undefined,
+  ): Promise<void> {
+    if (userId !== undefined) {
+      await this.userOrgSsoIdentifierState(userId).update((_) => organizationIdentifier);
+    } else {
+      this.logService.error(
+        "Tried to set a new user organization sso identifier with an undefined user id.",
+      );
+    }
+  }
+
+  private userOrgSsoIdentifierState(userId: UserId): SingleUserState<string> {
+    return this.stateProvider.getUser(userId, USER_ORGANIZATION_SSO_IDENTIFIER);
   }
 }
