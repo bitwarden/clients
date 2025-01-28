@@ -9809,13 +9809,13 @@
     "message": "Nøglealgoritme"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Privat nøgle"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Offentlig nøgle"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Fingeraftryk"
   },
   "sshKeyFingerprint": {
     "message": "Fingeraftryk"

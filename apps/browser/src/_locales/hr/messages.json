@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generiraj frazu lozinke"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Ponovno generiraj lozinku"
   },

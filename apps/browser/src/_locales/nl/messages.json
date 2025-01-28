@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Wachtwoordzin genereren"
   },
+  "passwordGenerated": {
+    "message": "Wachtwoord gegenereerd"
+  },
+  "passphraseGenerated": {
+    "message": "Wachtwoorden gegenereerd"
+  },
+  "usernameGenerated": {
+    "message": "Gebruikersnaam gegenereerd"
+  },
+  "emailGenerated": {
+    "message": "E-mail gegenereerd"
+  },
   "regeneratePassword": {
     "message": "Wachtwoord opnieuw genereren"
   },

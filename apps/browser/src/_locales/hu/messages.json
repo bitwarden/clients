@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Jelmondat generálás"
   },
+  "passwordGenerated": {
+    "message": "A jelszó generálásra került."
+  },
+  "passphraseGenerated": {
+    "message": "A jelmondat generálásra került."
+  },
+  "usernameGenerated": {
+    "message": "A felhasználónév generálásra került."
+  },
+  "emailGenerated": {
+    "message": "Az email generálásra került."
+  },
   "regeneratePassword": {
     "message": "Jelszó újragenerálása"
   },

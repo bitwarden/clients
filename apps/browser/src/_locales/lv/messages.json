@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Izveidot paroles vārdkopu"
   },
+  "passwordGenerated": {
+    "message": "Parole izveidota"
+  },
+  "passphraseGenerated": {
+    "message": "Paroles vārdkopa izveidota"
+  },
+  "usernameGenerated": {
+    "message": "Lietotājvārds izveidots"
+  },
+  "emailGenerated": {
+    "message": "E-pasta adrese izveidota"
+  },
   "regeneratePassword": {
     "message": "Pārizveidot paroli"
   },

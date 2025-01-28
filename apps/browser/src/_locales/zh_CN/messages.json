@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "生成密码短语"
   },
+  "passwordGenerated": {
+    "message": "密码已生成"
+  },
+  "passphraseGenerated": {
+    "message": "密码短语已生成"
+  },
+  "usernameGenerated": {
+    "message": "用户名已生成"
+  },
+  "emailGenerated": {
+    "message": "电子邮箱已生成"
+  },
   "regeneratePassword": {
     "message": "重新生成密码"
   },
@@ -1750,7 +1762,7 @@
     "message": "州 / 省"
   },
   "zipPostalCode": {
-    "message": "邮编 / 邮政代码"
+    "message": "邮政编码"
   },
   "country": {
     "message": "国家"

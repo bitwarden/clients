@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Генериране на парола-фраза"
   },
+  "passwordGenerated": {
+    "message": "Паролата е генерирана"
+  },
+  "passphraseGenerated": {
+    "message": "Паролата-фраза е генерирана"
+  },
+  "usernameGenerated": {
+    "message": "Потребителското име е генерирано"
+  },
+  "emailGenerated": {
+    "message": "Е-пощата е генерирана"
+  },
   "regeneratePassword": {
     "message": "Регенериране на паролата"
   },

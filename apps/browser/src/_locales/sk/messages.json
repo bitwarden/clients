@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generovať prístupovú frázu"
   },
+  "passwordGenerated": {
+    "message": "Heslo vygenerované"
+  },
+  "passphraseGenerated": {
+    "message": "Prístupová fráza vygenerovaná"
+  },
+  "usernameGenerated": {
+    "message": "Používateľské meno vygenerované"
+  },
+  "emailGenerated": {
+    "message": "E-mail vygenoravný"
+  },
   "regeneratePassword": {
     "message": "Vygenerovať nové heslo"
   },
@@ -993,7 +1005,7 @@
     "message": "Požiada o pridanie položky, ak sa v trezore nenachádza. Platí pre všetky prihlásené účty."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Vždy zobraziť karty ako návrhy automatického vypĺňania v zobrazení trezora"
   },
   "showCardsCurrentTab": {
     "message": "Zobraziť karty na stránke \"Aktuálna karta\""
@@ -1002,7 +1014,7 @@
     "message": "Zoznam položiek karty na stránke \"Aktuálna karta\" na jednoduché automatické vyplnenie."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Vždy zobraziť identity ako návrhy automatického vypĺňania v zobrazení trezora"
   },
   "showIdentitiesCurrentTab": {
     "message": "Zobraziť identity na stránke \"Aktuálna karta\""

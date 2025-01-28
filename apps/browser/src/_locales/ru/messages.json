@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Создать парольную фразу"
   },
+  "passwordGenerated": {
+    "message": "Пароль создан"
+  },
+  "passphraseGenerated": {
+    "message": "Парольная фраза создана"
+  },
+  "usernameGenerated": {
+    "message": "Имя пользователя создано"
+  },
+  "emailGenerated": {
+    "message": "Email создан"
+  },
   "regeneratePassword": {
     "message": "Создать новый пароль"
   },

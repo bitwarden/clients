@@ -114,7 +114,7 @@
     "message": "Ризиковані учасники"
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "Учасники з ризиком ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -123,7 +123,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "Програми з ризиком ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -132,13 +132,13 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+    "message": "Ці учасники використовують у програмах слабкі, викриті, або повторювані паролі."
   },
   "atRiskApplicationsDescription": {
-    "message": "These applications have weak, exposed, or reused passwords."
+    "message": "Ці програми мають слабкі, викриті, або повторювані паролі."
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "message": "Ці учасники використовують у $APPNAME$ слабкі, викриті, або повторювані паролі.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -156,10 +156,10 @@
     "message": "Всього програм"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Зняти позначку критичної програми"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Позначку критичної програми знято"
   },
   "whatTypeOfItem": {
     "message": "Який це тип запису?"
@@ -1168,16 +1168,16 @@
     "message": "Підтвердьте свою особу"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Продовжити вхід"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Що таке пристрій?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Пристрій – це унікальне встановлення програми Bitwarden, де ви увійшли в систему. Перевстановлення, очищення даних програми або очищення файлів cookie може призвести до того, що пристрій з'являтиметься кілька разів."
   },
   "logInInitiated": {
     "message": "Ініційовано вхід"
@@ -1767,10 +1767,10 @@
     "message": "Повторно виконайте вхід."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Поточний сеанс"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Запит в очікуванні"
   },
   "logBackInOthersToo": {
     "message": "Будь ласка, повторно виконайте вхід. Якщо ви користуєтесь іншими програмами Bitwarden, також вийдіть із них, і знову увійдіть."
@@ -3324,10 +3324,10 @@
     }
   },
   "inviteSingleEmailDesc": {
-    "message": "You have 1 invite remaining."
+    "message": "У вас залишилось 1 запрошення."
   },
   "inviteZeroEmailDesc": {
-    "message": "You have 0 invites remaining."
+    "message": "У вас залишилося 0 запрошень."
   },
   "userUsingTwoStep": {
     "message": "Цей користувач використовує двоетапну перевірку для захисту свого облікового запису."
@@ -3781,7 +3781,7 @@
     }
   },
   "unlinkedSso": {
-    "message": "Unlinked SSO."
+    "message": "Від'єднаний SSO."
   },
   "unlinkedSsoUser": {
     "message": "Користувач $ID$ не має пов'язаного SSO.",
@@ -3832,22 +3832,22 @@
     "message": "Пристрій"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Стан входу в систему"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Перший вхід"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Надійний"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Потребує підтвердження"
   },
   "areYouTryingtoLogin": {
-    "message": "Are you trying to log in?"
+    "message": "Ви намагаєтесь увійти?"
   },
   "logInAttemptBy": {
-    "message": "Login attempt by $EMAIL$",
+    "message": "Спроба входу з $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3856,22 +3856,22 @@
     }
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Тип пристрою"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "IP-адреса"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "Підтвердити вхід"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "Заборонити вхід"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Цей запит більше недійсний."
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3884,16 +3884,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте увійти з пристроєм знову."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Термін дії запиту на вхід завершився."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Щойно"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Запитано $MINUTES$ хвилин тому",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -5792,17 +5792,17 @@
     "message": "Помилка"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Помилка розшифрування"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Зверніться до служби підтримки клієнтів,",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "щоб уникнути втрати даних.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {

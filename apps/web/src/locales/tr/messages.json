@@ -1168,10 +1168,10 @@
     "message": "Kimliğinizi doğrulayın"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Giriş yapmaya devam et"
   },
   "whatIsADevice": {
     "message": "What is a device?"
