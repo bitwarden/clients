@@ -36,6 +36,7 @@ import {
 } from "@bitwarden/components";
 import {
   CipherAttachmentsComponent,
+  CipherFormComponent,
   CipherFormConfig,
   CipherFormGenerationService,
   CipherFormModule,
@@ -43,7 +44,6 @@ import {
   DecryptionFailureDialogComponent,
 } from "@bitwarden/vault";
 
-import { CipherFormComponent } from "../../../../../../../libs/vault/src/cipher-form/components/cipher-form.component";
 import { SharedModule } from "../../../shared/shared.module";
 import {
   AttachmentDialogCloseResult,
