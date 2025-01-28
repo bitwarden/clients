@@ -772,6 +772,7 @@ export class ServiceContainer {
       this.encryptService,
       this.pinService,
       this.accountService,
+      this.sdkService,
     );
 
     this.individualExportService = new IndividualVaultExportService(

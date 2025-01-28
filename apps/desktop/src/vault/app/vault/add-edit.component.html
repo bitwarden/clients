@@ -512,6 +512,15 @@
                     [ngClass]="{ 'bwi-eye': !showPrivateKey, 'bwi-eye-slash': showPrivateKey }"
                   ></i>
                 </button>
+                <button
+                  type="button"
+                  class="row-btn"
+                  appStopClick
+                  appA11yTitle="{{ 'importSshKeyFromClipboard' | i18n }}"
+                  (click)="importSshKeyFromClipboard()"
+                >
+                  <i class="bwi bwi-lg bwi-paste" aria-hidden="true"></i>
+                </button>
               </div>
             </div>
             <div class="box-content-row box-content-row-flex" appBoxRow>
@@ -558,16 +567,6 @@
                   <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
                 </button>
               </div>
-            </div>
-            <div class="box-content-row box-content-row-flex" appBoxRow>
-              <button
-                type="button"
-                class="row-btn"
-                appStopClick
-                (click)="importSshKeyFromClipboard()"
-              >
-                {{ "importSshKeyFromClipboard" | i18n }}
-              </button>
             </div>
           </div>
         </div>

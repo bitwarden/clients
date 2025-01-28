@@ -837,6 +837,7 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       PinServiceAbstraction,
       AccountServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({
