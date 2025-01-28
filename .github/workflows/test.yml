@@ -163,11 +163,11 @@ jobs:
           workspaces: "apps/desktop/desktop_native -> target"
 
       - name: Install cargo-llvm-cov
-        run: cargo install cargo-llvm-cov --version 0.5.38
+        run: cargo install cargo-llvm-cov --version 0.6.16
 
       - name: Generate coverage
         working-directory: ./apps/desktop/desktop_native
-        run: cargo llvm-cov --all-features --lcov --output-path lcov.info
+        run: cargo llvm-cov --all-features --lcov --output-path lcov.info --exclude wayland-backend
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # v5.1.1
