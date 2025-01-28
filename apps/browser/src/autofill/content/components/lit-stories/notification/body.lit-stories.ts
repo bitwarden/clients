@@ -44,6 +44,12 @@ export default {
     theme: ThemeTypes.Light,
     notificationType: "change",
   },
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=217-6841&m=dev",
+    },
+  },
 } as Meta<Args>;
 
 const Template = (args: Args) => NotificationBody({ ...args });

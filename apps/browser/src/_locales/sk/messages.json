@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generovať prístupovú frázu"
   },
+  "passwordGenerated": {
+    "message": "Heslo vygenerované"
+  },
+  "passphraseGenerated": {
+    "message": "Prístupová fráza vygenerovaná"
+  },
+  "usernameGenerated": {
+    "message": "Používateľské meno vygenerované"
+  },
+  "emailGenerated": {
+    "message": "E-mail vygenoravný"
+  },
   "regeneratePassword": {
     "message": "Vygenerovať nové heslo"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Overiť identitu"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Toto zariadenie nepoznáme. Na overenie vašej totožnosti zadajte kód, ktorý bol zaslaný na váš e-mail."
+  },
+  "continueLoggingIn": {
+    "message": "Pokračovať v prihlasovaní"
   },
   "yourVaultIsLocked": {
     "message": "Váš trezor je uzamknutý. Ak chcete pokračovať, overte svoju identitu."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Požiada o pridanie položky, ak sa v trezore nenachádza. Platí pre všetky prihlásené účty."
   },
-  "showCardsInVaultView": {
-    "message": "Zobraziť karty ako návrhy automatického vypĺňania v zobrazení trezora"
+  "showCardsInVaultViewV2": {
+    "message": "Vždy zobraziť karty ako návrhy automatického vypĺňania v zobrazení trezora"
   },
   "showCardsCurrentTab": {
     "message": "Zobraziť karty na stránke \"Aktuálna karta\""
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Zoznam položiek karty na stránke \"Aktuálna karta\" na jednoduché automatické vyplnenie."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Zobraziť identity ako návrhy automatického vypĺňania v zobrazení trezora"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Vždy zobraziť identity ako návrhy automatického vypĺňania v zobrazení trezora"
   },
   "showIdentitiesCurrentTab": {
     "message": "Zobraziť identity na stránke \"Aktuálna karta\""
@@ -4868,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Aktualizujte desktopovú aplikáciu"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Ak chcete používať biometrické odomykanie, aktualizujte desktopovú aplikáciu alebo vypnite odomykanie odtlačkom prsta v nastaveniach desktopovej aplikácie."
   }
 }

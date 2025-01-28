@@ -10,6 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
@@ -35,11 +36,13 @@ export class InitService {
     private userAutoUnlockKeyService: UserAutoUnlockKeyService,
     private accountService: AccountService,
     private versionService: VersionService,
+    private sdkLoadService: SdkLoadService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
+      await this.sdkLoadService.load();
       await this.stateService.init();
 
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);

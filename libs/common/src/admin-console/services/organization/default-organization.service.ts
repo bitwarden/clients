@@ -4,11 +4,11 @@ import { map, Observable } from "rxjs";
 
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { vNextInternalOrganizationServiceAbstraction } from "../../abstractions/organization/vnext.organization.service";
+import { InternalOrganizationServiceAbstraction } from "../../abstractions/organization/organization.service.abstraction";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 
-import { ORGANIZATIONS } from "./vnext-organization.state";
+import { ORGANIZATIONS } from "./organization.state";
 
 /**
  * Filter out organizations from an observable that __do not__ offer a
@@ -41,9 +41,7 @@ function mapToBooleanHasAnyOrganizations() {
   return map<Organization[], boolean>((orgs) => orgs.length > 0);
 }
 
-export class DefaultvNextOrganizationService
-  implements vNextInternalOrganizationServiceAbstraction
-{
+export class DefaultOrganizationService implements InternalOrganizationServiceAbstraction {
   memberOrganizations$(userId: UserId): Observable<Organization[]> {
     return this.organizations$(userId).pipe(mapToExcludeProviderOrganizations());
   }

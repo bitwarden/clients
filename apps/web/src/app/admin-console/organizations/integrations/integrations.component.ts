@@ -4,8 +4,12 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Observable, switchMap } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -34,13 +38,22 @@ export class AdminConsoleIntegrationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.organization$ = this.route.params.pipe(
-      switchMap((params) => this.organizationService.get$(params.organizationId)),
+      switchMap((params) =>
+        this.accountService.activeAccount$.pipe(
+          switchMap((account) =>
+            this.organizationService
+              .organizations$(account?.id)
+              .pipe(getOrganizationById(params.organizationId)),
+          ),
+        ),
+      ),
     );
   }
 
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {
     this.integrationsList = [
       {

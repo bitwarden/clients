@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -164,10 +165,9 @@ describe("OrganizationUserResetPasswordService", () => {
 
   describe("getRotatedData", () => {
     beforeEach(() => {
-      organizationService.getAll.mockResolvedValue([
-        createOrganization("1", "org1"),
-        createOrganization("2", "org2"),
-      ]);
+      organizationService.organizations$.mockReturnValue(
+        of([createOrganization("1", "org1"), createOrganization("2", "org2")]),
+      );
       organizationApiService.getKeys.mockResolvedValue(
         new OrganizationKeysResponse({
           privateKey: "test-private-key",

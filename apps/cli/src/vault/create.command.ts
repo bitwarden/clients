@@ -202,7 +202,17 @@ export class CreateCommand {
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
-      const organization = await this.organizationService.get(req.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      if (!userId) {
+        return Response.badRequest("No user found.");
+      }
+      const organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(map((organizations) => organizations.find((o) => o.id === req.organizationId))),
+      );
       const currentOrgUserId = organization.organizationUserId;
 
       const groups =

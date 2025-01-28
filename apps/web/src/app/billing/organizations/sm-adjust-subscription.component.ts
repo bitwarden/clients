@@ -2,11 +2,16 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, takeUntil } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  InternalOrganizationServiceAbstraction,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationSmSubscriptionUpdateRequest } from "@bitwarden/common/billing/models/request/organization-sm-subscription-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -107,6 +112,7 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
     private internalOrganizationService: InternalOrganizationServiceAbstraction,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
@@ -165,14 +171,19 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
       request,
     );
 
-    const organization = await this.internalOrganizationService.get(this.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const organization = await firstValueFrom(
+      this.internalOrganizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
 
     const organizationData = new OrganizationData(response, {
       isMember: organization.isMember,
       isProviderUser: organization.isProviderUser,
     });
 
-    await this.internalOrganizationService.upsert(organizationData);
+    await this.internalOrganizationService.upsert(organizationData, userId);
 
     this.toastService.showToast({
       variant: "success",

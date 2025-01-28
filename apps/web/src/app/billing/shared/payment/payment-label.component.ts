@@ -15,12 +15,12 @@ import { SharedModule } from "../../../shared";
  * the `ExtensionRefresh` flag is set.
  */
 @Component({
-  selector: "app-payment-label-v2",
-  templateUrl: "./payment-label-v2.component.html",
+  selector: "app-payment-label",
+  templateUrl: "./payment-label.component.html",
   standalone: true,
   imports: [FormFieldModule, SharedModule],
 })
-export class PaymentLabelV2 implements OnInit {
+export class PaymentLabelComponent implements OnInit {
   /** `id` of the associated input */
   @Input({ required: true }) for: string;
   /** Displays required text on the label */

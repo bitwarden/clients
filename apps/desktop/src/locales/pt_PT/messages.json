@@ -885,6 +885,15 @@
     "message": "Proteja a sua organização com a Duo Security utilizando a aplicação Duo Mobile, SMS, chamada telefónica ou uma chave de segurança U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Verifique a sua identidade"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Não reconhecemos este dispositivo. Introduza o código enviado para o seu e-mail para verificar a sua identidade."
+  },
+  "continueLoggingIn": {
+    "message": "Continuar a iniciar sessão"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "Esta funcionalidade não está disponível para organizações gratuitas. Mude para um plano pago para desbloquear mais funcionalidades."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Atualização da extensão necessária"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "A extensão do navegador que está a utilizar está desatualizada. Atualize-a ou desative a validação de impressões digitais da integração do navegador nas definições da aplicação para computador."
   }
 }
