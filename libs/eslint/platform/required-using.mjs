@@ -1,12 +1,8 @@
-/* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-require-imports */
+import { ESLintUtils } from "@typescript-eslint/utils";
 
-const { ESLintUtils } = require("@typescript-eslint/utils");
+export const errorMessage = "'using' keyword is required but not used";
 
-const errorMessage = "'using' keyword is required but not used";
-
-module.exports = {
-  errorMessage,
+export default {
   meta: {
     type: "problem",
     docs: {

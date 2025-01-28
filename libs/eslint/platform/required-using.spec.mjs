@@ -1,11 +1,6 @@
-/* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-require-imports */
+import { RuleTester } from "@typescript-eslint/rule-tester";
 
-const { RuleTester } = require("@typescript-eslint/rule-tester");
-
-const rule = require("./required-using");
-
-const errorMessage = rule.errorMessage;
+import rule, { errorMessage } from "./required-using.mjs";
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -30,7 +25,7 @@ const setup = `
   };
 `;
 
-ruleTester.run("required-using", rule, {
+ruleTester.run("required-using", rule.default, {
   valid: [
     {
       name: "Direct declaration with `using`",
