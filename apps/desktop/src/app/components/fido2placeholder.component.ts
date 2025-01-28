@@ -1,9 +1,10 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
-
-import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
+import {
+  DesktopFido2UserInterfaceService,
+  DesktopFido2UserInterfaceSession,
+} from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
 @Component({
@@ -35,20 +36,22 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
     </div>
   `,
 })
-export class Fido2PlaceholderComponent {
+export class Fido2PlaceholderComponent implements OnInit {
+  session?: DesktopFido2UserInterfaceSession = null;
   constructor(
     private readonly desktopSettingsService: DesktopSettingsService,
-    private readonly fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction<void>,
+    private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
     private readonly router: Router,
   ) {}
 
-  async confirmPasskey() {
-    const desktopUiService = this.fido2UserInterfaceService as DesktopFido2UserInterfaceService;
+  ngOnInit(): void {
+    this.session = this.fido2UserInterfaceService.getCurrentSession();
+  }
 
+  async confirmPasskey() {
     try {
       // Retrieve the current UI session to control the flow
-      const session = desktopUiService.getCurrentSession();
-      if (!session) {
+      if (!this.session) {
         // todo: handle error
         throw new Error("No session found");
       }
@@ -62,7 +65,7 @@ export class Fido2PlaceholderComponent {
       //   userVerification: true,
       // });
 
-      session.notifyOperationCompleted();
+      this.session.notifyConfirmCredential();
 
       // Not sure this clean up should happen here or in session.
       // The session currently toggles modal on and send us here

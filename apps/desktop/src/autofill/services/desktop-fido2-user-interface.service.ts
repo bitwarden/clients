@@ -80,23 +80,23 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     params: PickCredentialParams,
   ) => Promise<{ cipherId: string; userVerified: boolean }>;
 
-  private operationSubject = new Subject<void>();
+  private confirmCredentialSubject = new Subject<void>();
   private createdCipher: Cipher;
 
   /**
    * Notifies the Fido2UserInterfaceSession that the UI operations has completed and it can return to the OS.
    */
-  notifyOperationCompleted() {
-    this.operationSubject.next();
-    this.operationSubject.complete();
+  notifyConfirmCredential() {
+    this.confirmCredentialSubject.next();
+    this.confirmCredentialSubject.complete();
   }
 
   /**
    * Returns once the UI has confirmed and completed the operation
    * @returns
    */
-  private async waitForUICompletion(): Promise<void> {
-    return lastValueFrom(this.operationSubject);
+  private async waitForUiCredentialConfirmation(): Promise<void> {
+    return lastValueFrom(this.confirmCredentialSubject);
   }
 
   /**
@@ -119,13 +119,12 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     );
 
     try {
-      // Load the UI:
-      // maybe toggling to modal mode shouldn't be done here?
-      await this.desktopSettingsService.setInModalMode(true);
-      await this.router.navigate(["/passkeys"]);
+      await this.showUi();
 
       // Wait for the UI to wrap up
-      await this.waitForUICompletion();
+      await this.waitForUiCredentialConfirmation();
+
+      // Create the credential
       await this.createCredential({
         credentialName,
         userName,
@@ -146,6 +145,13 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       // Make sure to clean up so the app is never stuck in modal mode?
       await this.desktopSettingsService.setInModalMode(false);
     }
+  }
+
+  private async showUi() {
+    // Load the UI:
+    // maybe toggling to modal mode shouldn't be done here?
+    await this.desktopSettingsService.setInModalMode(true);
+    await this.router.navigate(["/passkeys"]);
   }
 
   /**
