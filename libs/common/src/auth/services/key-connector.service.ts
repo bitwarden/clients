@@ -16,11 +16,11 @@ import {
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationUserType } from "../../admin-console/enums";
 import { Organization } from "../../admin-console/models/domain/organization";
+import { KeyGenerationService } from "../../key-management/crypto/abstractions/key-generation.service";
+import { SymmetricCryptoKey } from "../../key-management/crypto/models/domain/symmetric-crypto-key";
 import { KeysRequest } from "../../models/request/keys.request";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import {
   ActiveUserState,
   KEY_CONNECTOR_DISK,

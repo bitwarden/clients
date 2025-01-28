@@ -1,4 +1,4 @@
-import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
 import { KeyDefinition, UserKeyDefinition } from "@bitwarden/common/platform/state";
 
 import {

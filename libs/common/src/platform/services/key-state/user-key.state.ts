@@ -1,6 +1,7 @@
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/key-management/crypto/models/domain/symmetric-crypto-key";
+
 import { UserKey } from "../../../types/key";
-import { EncryptedString } from "../../models/domain/enc-string";
-import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 import { CRYPTO_DISK, CRYPTO_MEMORY, UserKeyDefinition } from "../../state";
 
 export const USER_EVER_HAD_USER_KEY = new UserKeyDefinition<boolean>(

@@ -1,6 +1,6 @@
+import { EcbDecryptParameters } from "@bitwarden/common/key-management/crypto/models/domain/decrypt-parameters";
+import { SymmetricCryptoKey } from "@bitwarden/common/key-management/crypto/models/domain/symmetric-crypto-key";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EcbDecryptParameters } from "@bitwarden/common/platform/models/domain/decrypt-parameters";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
 import { NodeCryptoFunctionService } from "./node-crypto-function.service";
 

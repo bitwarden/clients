@@ -1,8 +1,9 @@
 import * as argon2 from "argon2-browser";
 import * as forge from "node-forge";
 
-import { Utils } from "../../platform/misc/utils";
-import { CsprngArray } from "../../types/csprng";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CsprngArray } from "@bitwarden/common/types/csprng";
+
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { CbcDecryptParameters, EcbDecryptParameters } from "../models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";

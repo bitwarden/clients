@@ -3,6 +3,7 @@
 import { firstValueFrom, map } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { HashPurpose } from "@bitwarden/common/key-management/crypto/enums";
 import {
   BiometricsService,
   BiometricsStatus,
@@ -14,7 +15,6 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { HashPurpose } from "../../../platform/enums";
 import { UserId } from "../../../types/guid";
 import { AccountService } from "../../abstractions/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../abstractions/master-password.service.abstraction";

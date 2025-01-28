@@ -3,8 +3,8 @@ import { BehaviorSubject, Subject } from "rxjs";
 
 import { KeyService } from "@bitwarden/key-management";
 
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { SymmetricCryptoKey } from "../../key-management/crypto/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../types/csprng";
 import { OrganizationId, UserId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";

@@ -1,17 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Utils } from "../../../platform/misc/utils";
-import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
-import { EncryptService } from "../../abstractions/encrypt.service";
-import { LogService } from "../../abstractions/log.service";
-import { EncryptionType, encryptionTypeToString as encryptionTypeName } from "../../enums";
-import { Decryptable } from "../../interfaces/decryptable.interface";
-import { Encrypted } from "../../interfaces/encrypted";
-import { InitializerMetadata } from "../../interfaces/initializer-metadata.interface";
-import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
-import { EncString } from "../../models/domain/enc-string";
-import { EncryptedObject } from "../../models/domain/encrypted-object";
-import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
+import {
+  EncryptionType,
+  encryptionTypeToString as encryptionTypeName,
+} from "@bitwarden/common/key-management/crypto/enums";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
+import { CryptoFunctionService } from "../abstractions/crypto-function.service";
+import { EncryptService } from "../abstractions/encrypt.service";
+import { Decryptable } from "../interfaces/decryptable.interface";
+import { Encrypted } from "../interfaces/encrypted";
+import { EncArrayBuffer } from "../models/domain/enc-array-buffer";
+import { EncString } from "../models/domain/enc-string";
+import { EncryptedObject } from "../models/domain/encrypted-object";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export class EncryptServiceImplementation implements EncryptService {
   constructor(

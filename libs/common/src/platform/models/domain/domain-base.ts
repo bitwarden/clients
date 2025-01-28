@@ -2,11 +2,11 @@
 // @ts-strict-ignore
 import { ConditionalExcept, ConditionalKeys, Constructor } from "type-fest";
 
-import { View } from "../../../models/view/view";
-import { EncryptService } from "../../abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/key-management/crypto/models/domain/symmetric-crypto-key";
 
-import { EncString } from "./enc-string";
-import { SymmetricCryptoKey } from "./symmetric-crypto-key";
+import { View } from "../../../models/view/view";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type EncStringKeys<T> = ConditionalKeys<ConditionalExcept<T, Function>, EncString>;

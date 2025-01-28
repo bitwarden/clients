@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../key-management/crypto/models/domain/enc-string";
 import { OrganizationId } from "../../types/guid";
 import { OrgKey } from "../../types/key";
 import { DataPacker } from "../state/data-packer.abstraction";

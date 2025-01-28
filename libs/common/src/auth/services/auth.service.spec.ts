@@ -11,10 +11,10 @@ import {
   trackEmissions,
 } from "../../../spec";
 import { ApiService } from "../../abstractions/api.service";
+import { SymmetricCryptoKey } from "../../key-management/crypto/models/domain/symmetric-crypto-key";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 import { TokenService } from "../abstractions/token.service";

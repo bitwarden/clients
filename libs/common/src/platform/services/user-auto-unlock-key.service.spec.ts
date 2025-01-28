@@ -1,14 +1,13 @@
 import { mock } from "jest-mock-extended";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { DefaultKeyService } from "../../../../key-management/src/key.service";
+import { KeySuffixOptions } from "@bitwarden/common/key-management/crypto/enums";
+import { SymmetricCryptoKey } from "@bitwarden/common/key-management/crypto/models/domain/symmetric-crypto-key";
+import { DefaultKeyService } from "@bitwarden/key-management";
+
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
-import { KeySuffixOptions } from "../enums";
 import { Utils } from "../misc/utils";
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 import { UserAutoUnlockKeyService } from "./user-auto-unlock-key.service";
 

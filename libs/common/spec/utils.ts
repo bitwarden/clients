@@ -3,11 +3,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { Observable } from "rxjs";
 
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptionType } from "@bitwarden/common/key-management/crypto/enums";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
 
-import { EncryptionType } from "../src/platform/enums";
+import { SymmetricCryptoKey } from "../src/key-management/crypto/models/domain/symmetric-crypto-key";
 import { Utils } from "../src/platform/misc/utils";
-import { SymmetricCryptoKey } from "../src/platform/models/domain/symmetric-crypto-key";
 
 function newGuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {

@@ -2,6 +2,15 @@ import { mock } from "jest-mock-extended";
 import { bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
 
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto/abstractions/key-generation.service";
+import { Encrypted } from "@bitwarden/common/key-management/crypto/interfaces/encrypted";
+import {
+  EncString,
+  EncryptedString,
+} from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/key-management/crypto/models/domain/symmetric-crypto-key";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -20,15 +29,6 @@ import { FakeStateProvider } from "../../common/spec/fake-state-provider";
 import { FakeMasterPasswordService } from "../../common/src/auth/services/master-password/fake-master-password.service";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
-import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { EncryptService } from "../../common/src/platform/abstractions/encrypt.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService } from "../../common/src/platform/abstractions/key-generation.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
 import { LogService } from "../../common/src/platform/abstractions/log.service";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -38,16 +38,7 @@ import { PlatformUtilsService } from "../../common/src/platform/abstractions/pla
 import { StateService } from "../../common/src/platform/abstractions/state.service";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
-import { Encrypted } from "../../common/src/platform/interfaces/encrypted";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
 import { Utils } from "../../common/src/platform/misc/utils";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { EncString, EncryptedString } from "../../common/src/platform/models/domain/enc-string";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SymmetricCryptoKey } from "../../common/src/platform/models/domain/symmetric-crypto-key";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "../../common/src/platform/services/key-state/org-keys.state";

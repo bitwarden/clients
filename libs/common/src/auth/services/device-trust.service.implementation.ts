@@ -7,19 +7,19 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { KeyGenerationService } from "../../key-management/crypto/abstractions/key-generation.service";
+import { EncString } from "../../key-management/crypto/models/domain/enc-string";
+import { SymmetricCryptoKey } from "../../key-management/crypto/models/domain/symmetric-crypto-key";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
-import { EncString } from "../../platform/models/domain/enc-string";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { UserKey, DeviceKey } from "../../types/key";

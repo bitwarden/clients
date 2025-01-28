@@ -1,4 +1,4 @@
-import { InitializerKey } from "../services/cryptography/initializer-key";
+import { InitializerKey } from "@bitwarden/common/key-management/crypto/enums/initializer-key";
 
 /**
  * This interface enables deserialization of arbitrary objects by recording their class name as an enum, which

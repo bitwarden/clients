@@ -1,11 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
+
 import { makeEncString, makeSymmetricCryptoKey } from "../../../../spec";
-import { EncryptService } from "../../abstractions/encrypt.service";
 import { Utils } from "../../misc/utils";
 
 import Domain from "./domain-base";
-import { EncString } from "./enc-string";
 
 class TestDomain extends Domain {
   plainText: string;

@@ -1,6 +1,6 @@
+import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { KdfConfig } from "@bitwarden/key-management";
 
-import { CsprngArray } from "../../types/csprng";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export abstract class KeyGenerationService {

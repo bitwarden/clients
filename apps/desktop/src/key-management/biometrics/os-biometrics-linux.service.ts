@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { spawn } from "child_process";
 
+import { EncString } from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../main/window.main";

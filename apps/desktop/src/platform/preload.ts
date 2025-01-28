@@ -2,8 +2,8 @@ import { sshagent as ssh } from "desktop_native/napi";
 import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 import {
   EncryptedMessageResponse,

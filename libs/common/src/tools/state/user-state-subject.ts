@@ -26,7 +26,7 @@ import {
   skip,
 } from "rxjs";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/domain/enc-string";
 import { SingleUserState, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";

@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { BulkEncryptService } from "../../abstractions/bulk-encrypt.service";
-import { EncryptService } from "../../abstractions/encrypt.service";
-import { Decryptable } from "../../interfaces/decryptable.interface";
-import { InitializerMetadata } from "../../interfaces/initializer-metadata.interface";
-import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
+import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
+import { BulkEncryptService } from "../abstractions/bulk-encrypt.service";
+import { EncryptService } from "../abstractions/encrypt.service";
+import { Decryptable } from "../interfaces/decryptable.interface";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 /**
  * @deprecated For the feature flag from PM-4154, remove once feature is rolled out

@@ -4,7 +4,11 @@ import { Observable, firstValueFrom, map, combineLatest } from "rxjs";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
-import { EncryptedString, EncString } from "../../../common/src/platform/models/domain/enc-string";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
+
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { ActiveUserState, GlobalState, StateProvider } from "../../../common/src/platform/state";

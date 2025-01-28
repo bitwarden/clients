@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/domain/enc-string";
 import { UserId } from "../../types/guid";
 import { DeviceKey, UserKey } from "../../types/key";
 

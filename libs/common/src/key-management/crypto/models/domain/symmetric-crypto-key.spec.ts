@@ -1,5 +1,6 @@
-import { makeStaticByteArray } from "../../../../spec";
-import { EncryptionType } from "../../enums";
+import { EncryptionType } from "@bitwarden/common/key-management/crypto/enums";
+
+import { makeStaticByteArray } from "../../../../../spec";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 

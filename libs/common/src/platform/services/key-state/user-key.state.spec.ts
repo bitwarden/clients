@@ -1,6 +1,7 @@
-import { EncryptionType } from "../../enums";
+import { EncryptionType } from "@bitwarden/common/key-management/crypto/enums";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
+
 import { Utils } from "../../misc/utils";
-import { EncString } from "../../models/domain/enc-string";
 
 import { USER_ENCRYPTED_PRIVATE_KEY, USER_EVER_HAD_USER_KEY } from "./user-key.state";
 

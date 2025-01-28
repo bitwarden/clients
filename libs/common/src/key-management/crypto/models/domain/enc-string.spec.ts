@@ -1,17 +1,16 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
-import { makeEncString, makeStaticByteArray } from "../../../../spec";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { UserKey, OrgKey } from "../../../types/key";
-import { EncryptionType } from "../../enums";
-import { Utils } from "../../misc/utils";
-import { ContainerService } from "../../services/container.service";
+import { EncryptionType } from "@bitwarden/common/key-management/crypto/enums";
+import { KeyService } from "@bitwarden/key-management";
+
+import { makeEncString, makeStaticByteArray } from "../../../../../spec";
+import { Utils } from "../../../../platform/misc/utils";
+import { ContainerService } from "../../../../platform/services/container.service";
+import { UserKey, OrgKey } from "../../../../types/key";
+import { EncryptService } from "../../abstractions/encrypt.service";
 
 import { EncString } from "./enc-string";
+import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 describe("EncString", () => {
   afterEach(() => {

@@ -1,6 +1,7 @@
+import { EncryptionType } from "@bitwarden/common/key-management/crypto/enums";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
+
 import { mockEnc } from "../../../../spec";
-import { EncryptionType } from "../../../platform/enums";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 
 import { Fido2Credential } from "./fido2-credential";

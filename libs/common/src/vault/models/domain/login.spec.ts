@@ -1,8 +1,12 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
+
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";

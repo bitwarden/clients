@@ -1,8 +1,8 @@
 import { Jsonify } from "type-fest";
 
+import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { Cipher } from "../../../vault/models/domain/cipher";
 import { CipherView } from "../../../vault/models/view/cipher.view";
-import { InitializerMetadata } from "../../interfaces/initializer-metadata.interface";
 
 import { InitializerKey } from "./initializer-key";
 

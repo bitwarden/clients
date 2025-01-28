@@ -1,4 +1,4 @@
-import { CsprngArray } from "../../types/csprng";
+import { CsprngArray } from "../../../types/csprng";
 import { CbcDecryptParameters, EcbDecryptParameters } from "../models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 

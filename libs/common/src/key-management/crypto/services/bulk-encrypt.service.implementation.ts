@@ -3,15 +3,15 @@
 import { firstValueFrom, fromEvent, filter, map, takeUntil, defaultIfEmpty, Subject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { BulkEncryptService } from "../../abstractions/bulk-encrypt.service";
-import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
-import { LogService } from "../../abstractions/log.service";
-import { Decryptable } from "../../interfaces/decryptable.interface";
-import { InitializerMetadata } from "../../interfaces/initializer-metadata.interface";
-import { Utils } from "../../misc/utils";
-import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { getClassInitializer } from "./get-class-initializer";
+import { BulkEncryptService } from "../abstractions/bulk-encrypt.service";
+import { CryptoFunctionService } from "../abstractions/crypto-function.service";
+import { getClassInitializer } from "../enums/get-class-initializer";
+import { Decryptable } from "../interfaces/decryptable.interface";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 // TTL (time to live) is not strictly required but avoids tying up memory resources if inactive
 const workerTTL = 60000; // 1 minute
@@ -88,7 +88,7 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
           new Worker(
             new URL(
               /* webpackChunkName: 'encrypt-worker' */
-              "@bitwarden/common/platform/services/cryptography/encrypt.worker.ts",
+              "@bitwarden/common/key-management/crypto/services/encrypt.worker.ts",
               import.meta.url,
             ),
           ),

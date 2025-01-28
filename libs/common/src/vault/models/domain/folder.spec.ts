@@ -1,8 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/domain/enc-string";
+
 import { makeEncString, makeSymmetricCryptoKey, mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
-import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
 
@@ -43,7 +47,7 @@ describe("Folder", () => {
   });
 
   describe("fromJSON", () => {
-    jest.mock("../../../platform/models/domain/enc-string");
+    jest.mock("@bitwarden/common/key-management/crypto/models/domain/enc-string");
     jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
     it("initializes nested objects", () => {
