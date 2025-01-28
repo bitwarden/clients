@@ -34,10 +34,7 @@
         [ngClass]="[data.open ? 'tw-bg-opacity-30 md:tw-bg-opacity-0' : 'tw-bg-opacity-0']"
       >
         @if (data.open) {
-          <div
-            (click)="sideNavService.toggle()"
-            class="tw-pointer-events-auto tw-h-full tw-w-full"
-          ></div>
+          <div (click)="sideNavService.toggle()" class="tw-pointer-events-auto tw-size-full"></div>
         }
       </div>
     }

@@ -11,6 +11,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { Account } from "../../../../../../../libs/importer/src/importers/lastpass/access/models";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 
