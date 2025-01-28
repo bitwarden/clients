@@ -1450,7 +1450,7 @@ jobs:
 
           security find-identity -v -p codesigning          
           
-          codesign --entitlements resources/entitlements.mas.plist --deep --verbose --options runtime --force --sign "E7C9978F6FBCE0553429185C405E61F5380BE8EB" dist/mas-dev-universal/Bitwarden.app
+          codesign --entitlements resources/entitlements.mas.plist --deep --verbose --options runtime --force --sign "E7C9978F6FBCE0553429185C405E61F5380BE8EB" --preserve-metadata=embedded.provisionprofile dist/mas-dev-universal/Bitwarden.app
           #codesign --entitlements resources/entitlements.mas.plist --deep --verbose --options runtime --force --sign "Developer ID Application: 8bit Solutions LLC (LTZ2PFU5D6)" dist/mas-dev-universal/Bitwarden.app
 
       - name: Zip masdev asset
