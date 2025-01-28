@@ -111,7 +111,7 @@ jobs:
         run: rustup --version
 
       - name: Install gnome-keyring
-        if: ${{ matrix.os=='ubuntu-latest' }}
+        if: ${{ matrix.os=='ubuntu-22.04' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y gnome-keyring dbus-x11
@@ -124,7 +124,7 @@ jobs:
         run: cargo build
 
       - name: Test Ubuntu
-        if: ${{ matrix.os=='ubuntu-latest' }}
+        if: ${{ matrix.os=='ubuntu-22.04' }}
         working-directory: ./apps/desktop/desktop_native
         run: |
           eval "$(dbus-launch --sh-syntax)"
@@ -135,12 +135,12 @@ jobs:
           cargo test -- --test-threads=1
 
       - name: Test macOS
-        if: ${{ matrix.os=='macos-latest' }}
+        if: ${{ matrix.os=='macos-14' }}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test -- --test-threads=1
 
       - name: Test Windows
-        if: ${{ matrix.os=='windows-latest'}}
+        if: ${{ matrix.os=='windows-2022'}}
         working-directory: ./apps/desktop/desktop_native/core
         run: cargo test -- --test-threads=1
 
