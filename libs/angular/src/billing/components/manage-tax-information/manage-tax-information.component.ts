@@ -72,6 +72,10 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy {
     }
   }
 
+  markAllAsTouched() {
+    this.formGroup.markAllAsTouched();
+  }
+
   async ngOnInit() {
     if (this.startWith) {
       this.formGroup.controls.country.setValue(this.startWith.country);

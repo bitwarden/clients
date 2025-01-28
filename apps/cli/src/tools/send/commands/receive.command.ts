@@ -47,6 +47,8 @@ export class SendReceiveCommand extends DownloadCommand {
     let urlObject: URL;
     try {
       urlObject = new URL(url);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return Response.badRequest("Failed to parse the provided Send url");
     }

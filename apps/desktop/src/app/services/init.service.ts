@@ -11,6 +11,7 @@ import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/comm
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
@@ -47,11 +48,13 @@ export class InitService {
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
+    private sdkLoadService: SdkLoadService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
+      await this.sdkLoadService.load();
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.stateService.init({ runMigrations: false }); // Desktop will run them in main process

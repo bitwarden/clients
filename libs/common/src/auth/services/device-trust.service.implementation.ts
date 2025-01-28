@@ -81,7 +81,17 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     private configService: ConfigService,
   ) {
     this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
-      map((options) => options?.trustedDeviceOption != null ?? false),
+      map((options) => {
+        return options?.trustedDeviceOption != null ?? false;
+      }),
+    );
+  }
+
+  supportsDeviceTrustByUserId$(userId: UserId): Observable<boolean> {
+    return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId).pipe(
+      map((options) => {
+        return options?.trustedDeviceOption != null ?? false;
+      }),
     );
   }
 
@@ -337,6 +347,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       );
 
       return new SymmetricCryptoKey(userKey) as UserKey;
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // If either decryption effort fails, we want to remove the device key
       this.logService.error("Failed to decrypt using device key. Removing device key.");

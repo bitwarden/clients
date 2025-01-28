@@ -14,21 +14,20 @@ import {
 } from "rxjs";
 import { SemVer } from "semver";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
-
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
+import { BulkEncryptService } from "../../platform/abstractions/bulk-encrypt.service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -787,7 +786,7 @@ export class CipherService implements CipherServiceAbstraction {
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
-  ): Promise<any> {
+  ): Promise<Cipher> {
     const attachmentPromises: Promise<any>[] = [];
     if (cipher.attachments != null) {
       cipher.attachments.forEach((attachment) => {
@@ -807,6 +806,7 @@ export class CipherService implements CipherServiceAbstraction {
     const response = await this.apiService.putShareCipher(cipher.id, request);
     const data = new CipherData(response, collectionIds);
     await this.upsert(data);
+    return new Cipher(data, cipher.localData);
   }
 
   async shareManyWithServer(

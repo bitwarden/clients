@@ -7,19 +7,18 @@ on:
       publish_type:
         description: 'Publish Options'
         required: true
-        default: 'Initial Publish'
+        default: 'Publish'
         type: choice
         options:
-          - Initial Publish
-          - Republish
+          - Publish
           - Dry Run
       version:
         description: 'Version to publish (default: latest desktop release)'
         required: true
         type: string
         default: latest
-      rollout_percentage:
-        description: 'Staged Rollout Percentage'
+      electron_rollout_percentage:
+        description: 'Staged Rollout Percentage for Electron'
         required: true
         default: '10'
         type: string
@@ -137,7 +136,7 @@ jobs:
       - name: Set staged rollout percentage
         env:
           RELEASE_CHANNEL: ${{ needs.setup.outputs.release_channel }}
-          ROLLOUT_PCT: ${{ inputs.rollout_percentage }}
+          ROLLOUT_PCT: ${{ inputs.electron_rollout_percentage }}
         run: |
           echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}.yml
           echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}-linux.yml
@@ -163,7 +162,7 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           state: 'success'
-          deployment_id: ${{ needs.setup.outputs.deployment_id }}
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
 
       - name: Update deployment status to Failure
         if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
@@ -171,7 +170,7 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           state: 'failure'
-          deployment_id: ${{ needs.setup.outputs.deployment_id }}
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
 
   snap:
     name: Deploy Snap
@@ -284,7 +283,7 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           state: 'success'
-          deployment_id: ${{ needs.setup.outputs.deployment_id }}
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
 
       - name: Update deployment status to Failure
         if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
@@ -292,4 +291,4 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           state: 'failure'
-          deployment_id: ${{ needs.setup.outputs.deployment_id }}
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}

@@ -113,6 +113,39 @@
   "atRiskMembers": {
     "message": "有风险的成员"
   },
+  "atRiskMembersWithCount": {
+    "message": "有风险的成员 ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "有风险的应用程序 ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到应用程序。"
+  },
+  "atRiskApplicationsDescription": {
+    "message": "这些应用程序具有弱的、暴露的或重复使用的密码。"
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到 $APPNAME$。",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "总的成员"
   },
@@ -121,6 +154,12 @@
   },
   "totalApplications": {
     "message": "总的应用程序"
+  },
+  "unmarkAsCriticalApp": {
+    "message": "取消标记为关键应用程序"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "关键应用程序已成功取消标记"
   },
   "whatTypeOfItem": {
     "message": "这是什么类型的项目？"
@@ -816,7 +855,7 @@
     "message": "筛选"
   },
   "moveSelectedToOrg": {
-    "message": "移动所选项目到组织"
+    "message": "移动所选到组织"
   },
   "deleteSelected": {
     "message": "删除所选"
@@ -1128,6 +1167,12 @@
   "verifyIdentity": {
     "message": "验证您的身份"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。"
+  },
+  "continueLoggingIn": {
+    "message": "继续登录"
+  },
   "whatIsADevice": {
     "message": "什么是设备？"
   },
@@ -1423,7 +1468,7 @@
     "message": "FIDO U2F 安全钥匙"
   },
   "webAuthnTitle": {
-    "message": "FIDO2 WebAuthn"
+    "message": "通行密钥"
   },
   "webAuthnDesc": {
     "message": "使用您设备的生物识别或 WebAuthn 兼容的安全钥匙。"
@@ -2831,10 +2876,10 @@
     "message": "账单"
   },
   "noUnpaidInvoices": {
-    "message": "没有未支付的账单。"
+    "message": "无未支付的账单。"
   },
   "noPaidInvoices": {
-    "message": "没有已支付的账单。"
+    "message": "无已支付的账单。"
   },
   "paid": {
     "message": "已支付",
@@ -3280,6 +3325,9 @@
   },
   "inviteSingleEmailDesc": {
     "message": "您还剩下 1 个邀请。"
+  },
+  "inviteZeroEmailDesc": {
+    "message": "您还剩下 0 个邀请。"
   },
   "userUsingTwoStep": {
     "message": "此用户正在使用两步登录来保护他们的账户。"
@@ -3732,6 +3780,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "未链接 SSO。"
+  },
   "unlinkedSsoUser": {
     "message": "为用户 $ID$ 取消链接 SSO。",
     "placeholders": {
@@ -3788,6 +3839,67 @@
   },
   "trusted": {
     "message": "信任"
+  },
+  "needsApproval": {
+    "message": "需要批准"
+  },
+  "areYouTryingtoLogin": {
+    "message": "您正在尝试登录吗？"
+  },
+  "logInAttemptBy": {
+    "message": "$EMAIL$ 的登录尝试",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "设备类型"
+  },
+  "ipAddress": {
+    "message": "IP 地址"
+  },
+  "confirmLogIn": {
+    "message": "确认登录"
+  },
+  "denyLogIn": {
+    "message": "拒绝登录"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "此请求已失效。"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "已确认 $EMAIL$ 在 $DEVICE$ 上的登录",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "您拒绝了一个来自其他设备的登录尝试。若确实是您本人，请尝试再次发起设备登录。"
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "登录请求已过期。"
+  },
+  "justNow": {
+    "message": "刚刚"
+  },
+  "requestedXMinutesAgo": {
+    "message": "$MINUTES$ 分钟前已请求",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "创建账户至"
@@ -4458,7 +4570,7 @@
     "description": "ex. A strong password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "good": {
-    "message": "良好",
+    "message": "良",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "weak": {
@@ -4951,7 +5063,7 @@
     "message": "对收件人隐藏我的电子邮箱地址。"
   },
   "disableThisSend": {
-    "message": "停用此 Send 则任何人无法访问它。",
+    "message": "停用此 Send 确保无人能访问它。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
@@ -5300,10 +5412,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
-    "message": "您想要发送的文本。"
+    "message": "您想在此 Send 中附加的文本。"
   },
   "sendFileDesc": {
-    "message": "您想要发送的文件。"
+    "message": "您想在此 Send 中附加的文件。"
   },
   "copySendLinkOnSave": {
     "message": "保存时复制链接到剪贴板以便分享此 Send。"
@@ -8171,33 +8283,33 @@
   "trustedDevices": {
     "message": "受信任设备"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "验证后，成员将使用存储在他们设备上的密钥解密密码库数据。使用此选项后，",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "使用 SSO 登录时，成员无需主密码。主密码将被存储在设备上的加密密钥所取代，从而使该设备成为受信任设备。成员创建账户并登录的第一个设备将受到信任。新设备需要由现有受信任设备或管理员批准。",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
+  "memberDecryptionOptionTdeDescLink1": {
     "message": "单一组织",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
+  "memberDecryptionOptionTdeDescPart2": {
     "message": "策略，",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+  "memberDecryptionOptionTdeDescLink2": {
     "message": "要求 SSO",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
-    "message": "策略以及具有自动注册的",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart3": {
+    "message": "策略，以及",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
+  "memberDecryptionOptionTdeDescLink3": {
     "message": "账户恢复管理",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "策略将被开启。",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "策略将在使用此选项时开启。",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "您的组织权限已更新，要求您设置主密码。",
@@ -9086,7 +9198,7 @@
     "description": "This represents the beginning of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "scimIntegrationDescEnd": {
-    "message": "（跨域身份管理系统）（使用您的身份提供程序的实施指南）以自动向 Bitwarden 配置用户和群组。",
+    "message": "（跨域身份管理系统）以自动向 Bitwarden 配置用户和群组（使用您的身份提供程序的实施指南）。",
     "description": "This represents the end of a sentence, broken up to include links. The full sentence will be 'Configure SCIM (System for Cross-domain Identity Management) to automatically provision users and groups to Bitwarden using the implementation guide for your Identity Provider"
   },
   "bwdc": {
@@ -9171,7 +9283,10 @@
     "message": "35% 折扣"
   },
   "monthPerMember": {
-    "message": "每成员 /月"
+    "message": " /成员 /月"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": " /成员 /月（按年计费）"
   },
   "seats": {
     "message": "席位"
@@ -9693,6 +9808,15 @@
   "sshKeyAlgorithm": {
     "message": "密钥算法"
   },
+  "sshPrivateKey": {
+    "message": "私钥"
+  },
+  "sshPublicKey": {
+    "message": "公钥"
+  },
+  "sshFingerprint": {
+    "message": "指纹"
+  },
   "sshKeyFingerprint": {
     "message": "指纹"
   },
@@ -10079,8 +10203,8 @@
   "organizationNameMaxLength": {
     "message": "组织名称不能超过 50 个字符。"
   },
-  "resellerRenewalWarning": {
-    "message": "您的订阅即将续订。为确保服务不中断，请在 $RENEWAL_DATE$ 之前联系 $RESELLER$ 确认您的续订。",
+  "resellerRenewalWarningMsg": {
+    "message": "您的订阅即将续期。为确保服务不会中断，请在 $RENEWAL_DATE$ 之前联系 $RESELLER$ 确认您的续订。",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10092,8 +10216,8 @@
       }
     }
   },
-  "resellerOpenInvoiceWarning": {
-    "message": "您的订阅账单已于 $ISSUED_DATE$ 开具。为确保服务不中断，请在 $DUE_DATE$ 之前联系 $RESELLER$ 确认您的续订。",
+  "resellerOpenInvoiceWarningMgs": {
+    "message": "您的订阅账单已于 $ISSUED_DATE$ 开具。为确保服务不会中断，请在 $DUE_DATE$ 之前联系 $RESELLER$ 确认您的续订。",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10109,8 +10233,8 @@
       }
     }
   },
-  "resellerPastDueWarning": {
-    "message": "您的订阅账单尚未支付。为确保服务不中断，请在 $GRACE_PERIOD_END$ 之前联系 $RESELLER$ 确认您的续订。",
+  "resellerPastDueWarningMsg": {
+    "message": "您的订阅账单尚未支付。为确保服务不会中断，请在 $GRACE_PERIOD_END$ 之前联系 $RESELLER$ 确认您的续订。",
     "placeholders": {
       "reseller": {
         "content": "$1",

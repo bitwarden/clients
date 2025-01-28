@@ -1,187 +1,197 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import { combineLatest, concatMap, from, Observable, of, switchMap } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PreviewIndividualInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-individual-invoice.request";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
 
-import { PaymentComponent, TaxInfoComponent } from "../../shared";
+import { PaymentComponent } from "../../shared/payment/payment.component";
+import { TaxInfoComponent } from "../../shared/tax-info.component";
 
 @Component({
-  templateUrl: "premium.component.html",
+  templateUrl: "./premium.component.html",
 })
-export class PremiumComponent implements OnInit {
+export class PremiumComponent {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
   @ViewChild(TaxInfoComponent) taxInfoComponent: TaxInfoComponent;
 
-  canAccessPremium$: Observable<boolean>;
-  selfHosted = false;
-  premiumPrice = 10;
-  familyPlanMaxUserCount = 6;
-  storageGbPrice = 4;
-  cloudWebVaultUrl: string;
-  licenseFile: File = null;
+  protected hasPremiumFromAnyOrganization$: Observable<boolean>;
 
-  formPromise: Promise<any>;
-  protected licenseForm = new FormGroup({
-    file: new FormControl(null, [Validators.required]),
-  });
-  protected addonForm = new FormGroup({
-    additionalStorage: new FormControl(0, [Validators.max(99), Validators.min(0)]),
+  protected addOnFormGroup = new FormGroup({
+    additionalStorage: new FormControl<number>(0, [Validators.min(0), Validators.max(99)]),
   });
 
-  private estimatedTax: number = 0;
+  protected licenseFormGroup = new FormGroup({
+    file: new FormControl<File>(null, [Validators.required]),
+  });
+
+  protected cloudWebVaultURL: string;
+  protected isSelfHost = false;
+
+  protected useLicenseUploaderComponent$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader,
+  );
+
+  protected estimatedTax: number = 0;
+  protected readonly familyPlanMaxUserCount = 6;
+  protected readonly premiumPrice = 10;
+  protected readonly storageGBPrice = 4;
 
   constructor(
+    private activatedRoute: ActivatedRoute,
     private apiService: ApiService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private configService: ConfigService,
+    private environmentService: EnvironmentService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private tokenService: TokenService,
     private router: Router,
-    private messagingService: MessagingService,
     private syncService: SyncService,
-    private environmentService: EnvironmentService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
+    private tokenService: TokenService,
     private taxService: TaxServiceAbstraction,
     private accountService: AccountService,
   ) {
-    this.selfHosted = platformUtilsService.isSelfHost();
-    this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
+    this.isSelfHost = this.platformUtilsService.isSelfHost();
+
+    this.hasPremiumFromAnyOrganization$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(account.id),
       ),
     );
 
-    this.addonForm.controls.additionalStorage.valueChanges
+    combineLatest([
+      this.accountService.activeAccount$.pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumPersonally$(account.id),
+        ),
+      ),
+      this.environmentService.cloudWebVaultUrl$,
+    ])
+      .pipe(
+        takeUntilDestroyed(),
+        concatMap(([hasPremiumPersonally, cloudWebVaultURL]) => {
+          if (hasPremiumPersonally) {
+            return from(this.navigateToSubscriptionPage());
+          }
+
+          this.cloudWebVaultURL = cloudWebVaultURL;
+          return of(true);
+        }),
+      )
+      .subscribe();
+
+    this.addOnFormGroup.controls.additionalStorage.valueChanges
       .pipe(debounceTime(1000), takeUntilDestroyed())
       .subscribe(() => {
         this.refreshSalesTax();
       });
   }
-  protected setSelectedFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    const file: File = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
-    this.licenseFile = file;
-  }
-  async ngOnInit() {
-    this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    if (
-      await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$(account.id))
-    ) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/settings/subscription/user-subscription"]);
-      return;
-    }
-  }
-  submit = async () => {
-    if (this.taxInfoComponent) {
-      if (!this.taxInfoComponent?.taxFormGroup.valid) {
-        this.taxInfoComponent.taxFormGroup.markAllAsTouched();
-        return;
-      }
-    }
-    this.licenseForm.markAllAsTouched();
-    this.addonForm.markAllAsTouched();
-    if (this.selfHosted) {
-      if (this.licenseFile == null) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("selectFile"),
-        });
-        return;
-      }
-    }
 
-    if (this.selfHosted) {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      if (!this.tokenService.getEmailVerified()) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("verifyEmailFirst"),
-        });
-        return;
-      }
-
-      const fd = new FormData();
-      fd.append("license", this.licenseFile);
-      await this.apiService.postAccountLicense(fd).then(() => {
-        return this.finalizePremium();
-      });
-    } else {
-      await this.paymentComponent
-        .createPaymentToken()
-        .then((result) => {
-          const fd = new FormData();
-          fd.append("paymentMethodType", result[1].toString());
-          if (result[0] != null) {
-            fd.append("paymentToken", result[0]);
-          }
-          fd.append("additionalStorageGb", (this.additionalStorage || 0).toString());
-          fd.append("country", this.taxInfoComponent?.taxFormGroup?.value.country);
-          fd.append("postalCode", this.taxInfoComponent?.taxFormGroup?.value.postalCode);
-          return this.apiService.postPremium(fd);
-        })
-        .then((paymentResponse) => {
-          if (!paymentResponse.success && paymentResponse.paymentIntentClientSecret != null) {
-            return this.paymentComponent.handleStripeCardPayment(
-              paymentResponse.paymentIntentClientSecret,
-              () => this.finalizePremium(),
-            );
-          } else {
-            return this.finalizePremium();
-          }
-        });
-    }
-  };
-
-  async finalizePremium() {
+  finalizeUpgrade = async () => {
     await this.apiService.refreshIdentityToken();
     await this.syncService.fullSync(true);
+  };
+
+  postFinalizeUpgrade = async () => {
     this.toastService.showToast({
       variant: "success",
       title: null,
       message: this.i18nService.t("premiumUpdated"),
     });
-    await this.router.navigate(["/settings/subscription/user-subscription"]);
+    await this.navigateToSubscriptionPage();
+  };
+
+  navigateToSubscriptionPage = (): Promise<boolean> =>
+    this.router.navigate(["../user-subscription"], { relativeTo: this.activatedRoute });
+
+  onLicenseFileSelected = (event: Event): void => {
+    const element = event.target as HTMLInputElement;
+    this.licenseFormGroup.value.file = element.files.length > 0 ? element.files[0] : null;
+  };
+
+  submitPremiumLicense = async (): Promise<void> => {
+    this.licenseFormGroup.markAllAsTouched();
+
+    if (this.licenseFormGroup.invalid) {
+      return this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
+    }
+
+    const emailVerified = await this.tokenService.getEmailVerified();
+    if (!emailVerified) {
+      return this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("verifyEmailFirst"),
+      });
+    }
+
+    const formData = new FormData();
+    formData.append("license", this.licenseFormGroup.value.file);
+
+    await this.apiService.postAccountLicense(formData);
+    await this.finalizeUpgrade();
+    await this.postFinalizeUpgrade();
+  };
+
+  submitPayment = async (): Promise<void> => {
+    this.taxInfoComponent.taxFormGroup.markAllAsTouched();
+    if (this.taxInfoComponent.taxFormGroup.invalid) {
+      return;
+    }
+
+    const { type, token } = await this.paymentComponent.tokenize();
+
+    const formData = new FormData();
+    formData.append("paymentMethodType", type.toString());
+    formData.append("paymentToken", token);
+    formData.append("additionalStorageGb", this.addOnFormGroup.value.additionalStorage.toString());
+    formData.append("country", this.taxInfoComponent.country);
+    formData.append("postalCode", this.taxInfoComponent.postalCode);
+
+    await this.apiService.postPremium(formData);
+    await this.finalizeUpgrade();
+    await this.postFinalizeUpgrade();
+  };
+
+  protected get additionalStorageCost(): number {
+    return this.storageGBPrice * this.addOnFormGroup.value.additionalStorage;
   }
 
-  get additionalStorage(): number {
-    return this.addonForm.get("additionalStorage").value;
-  }
-  get additionalStorageTotal(): number {
-    return this.storageGbPrice * Math.abs(this.additionalStorage || 0);
+  protected get premiumURL(): string {
+    return `${this.cloudWebVaultURL}/#/settings/subscription/premium`;
   }
 
-  get subtotal(): number {
-    return this.premiumPrice + this.additionalStorageTotal;
+  protected get subtotal(): number {
+    return this.premiumPrice + this.additionalStorageCost;
   }
 
-  get taxCharges(): number {
-    return this.estimatedTax;
+  protected get total(): number {
+    return this.subtotal + this.estimatedTax;
   }
 
-  get total(): number {
-    return this.subtotal + this.taxCharges || 0;
+  protected async onLicenseFileSelectedChanged(): Promise<void> {
+    await this.postFinalizeUpgrade();
   }
 
   private refreshSalesTax(): void {
@@ -190,7 +200,7 @@ export class PremiumComponent implements OnInit {
     }
     const request: PreviewIndividualInvoiceRequest = {
       passwordManager: {
-        additionalStorage: this.addonForm.value.additionalStorage,
+        additionalStorage: this.addOnFormGroup.value.additionalStorage,
       },
       taxInformation: {
         postalCode: this.taxInfoComponent.postalCode,

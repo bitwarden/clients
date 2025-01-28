@@ -5,7 +5,7 @@
       <button
         [bitPopoverTriggerFor]="infoPopover"
         type="button"
-        class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-flex tw-items-center tw-h-4 tw-w-4"
+        class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-flex tw-items-center tw-size-4"
         [position]="'right-start'"
       >
         <i class="bwi bwi-question-circle" aria-hidden="true"></i>
@@ -15,7 +15,7 @@
       </bit-popover>
       <i
         *ngIf="asyncActionLoading"
-        class="bwi bwi-spinner bwi-spin tw-flex tw-items-center tw-h-4 tw-w-4"
+        class="bwi bwi-spinner bwi-spin tw-flex tw-items-center tw-size-4"
         aria-hidden="true"
       ></i>
     </div>
@@ -48,17 +48,31 @@
           <i [class]="getDeviceIcon(row.type)" class="bwi-lg" aria-hidden="true"></i>
         </div>
         <div>
-          {{ row.displayName }}
-          <span *ngIf="row.trusted" class="tw-text-sm tw-text-muted tw-block">
-            {{ "trusted" | i18n }}
-          </span>
+          <ng-container *ngIf="row.hasPendingAuthRequest">
+            <a bitLink href="#" appStopClick (click)="managePendingAuthRequest(row)">
+              {{ row.displayName }}
+            </a>
+
+            <span class="tw-text-sm tw-text-muted tw-block">
+              {{ "needsApproval" | i18n }}
+            </span>
+          </ng-container>
+          <ng-container *ngIf="!row.hasPendingAuthRequest">
+            {{ row.displayName }}
+            <span
+              *ngIf="row.trusted && !row.hasPendingAuthRequest"
+              class="tw-text-sm tw-text-muted tw-block"
+            >
+              {{ "trusted" | i18n }}
+            </span>
+          </ng-container>
         </div>
       </td>
       <td bitCell>
         <span *ngIf="isCurrentDevice(row)" bitBadge variant="primary">{{
           "currentSession" | i18n
         }}</span>
-        <span *ngIf="hasPendingAuthRequest(row)" bitBadge variant="warning">{{
+        <span *ngIf="row.hasPendingAuthRequest" bitBadge variant="warning">{{
           "requestPending" | i18n
         }}</span>
       </td>
