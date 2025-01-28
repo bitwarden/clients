@@ -11,11 +11,11 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { DialogService, ItemModule } from "@bitwarden/components";
 
+import { FamiliesPolicyService } from "../../../../billing/services/families-policy.service";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
-import { FamiliesPolicyService } from "../../../../services/families-policy.service";
 
 @Component({
   templateUrl: "more-from-bitwarden-page-v2.component.html",
