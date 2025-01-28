@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import {
   combineLatest,
   firstValueFrom,
@@ -29,7 +29,6 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
   templateUrl: "account.component.html",
 })
 export class AccountComponent implements OnInit, OnDestroy {
-  @ViewChild("deauthorizeSessionsTemplate", { read: ViewContainerRef, static: true })
   private destroy$ = new Subject<void>();
 
   showChangeEmail$: Observable<boolean> = new Observable();
@@ -52,7 +51,6 @@ export class AccountComponent implements OnInit, OnDestroy {
     this.showSetNewDeviceLoginProtection$ = this.configService.getFeatureFlag$(
       FeatureFlag.NewDeviceVerification,
     );
-
     const isAccountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.AccountDeprovisioning,
     );
