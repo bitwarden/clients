@@ -146,8 +146,10 @@ jobs:
 
   rust-coverage:
     name: Rust Coverage
-    runs-on: ubuntu-22.04
-
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ./apps/desktop/desktop_native
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -165,7 +167,6 @@ jobs:
         run: cargo install cargo-llvm-cov --version 0.5.38
 
       - name: Generate coverage
-        working-directory: ./apps/desktop/desktop_native
         run: cargo llvm-cov --all-features --lcov --output-path lcov.info
 
       - name: Upload to codecov.io
