@@ -23,13 +23,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
+import { AcceptOrganizationInviteService } from "../../auth/organization-invite/accept-organization.service";
+import { OrganizationInvite } from "../../auth/organization-invite/organization-invite";
 import {
   OrganizationCreatedEvent,
   SubscriptionProduct,
   TrialOrganizationType,
 } from "../../billing/accounts/trial-initiation/trial-billing-step.component";
-import { AcceptOrganizationInviteService } from "../organization-invite/accept-organization.service";
-import { OrganizationInvite } from "../organization-invite/organization-invite";
 
 import { RouterService } from "./../../core/router.service";
 import { VerticalStepperComponent } from "./vertical-stepper/vertical-stepper.component";

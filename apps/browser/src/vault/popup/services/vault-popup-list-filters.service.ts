@@ -370,6 +370,9 @@ export class VaultPopupListFiltersService {
     ),
   );
 
+  /** Organizations, collection, folders filters. */
+  allFilters$ = combineLatest([this.organizations$, this.collections$, this.folders$]);
+
   /** Updates the stored state for filter visibility. */
   async updateFilterVisibility(isVisible: boolean): Promise<void> {
     await this.filterVisibilityState.update(() => isVisible);

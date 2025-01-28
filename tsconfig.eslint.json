@@ -47,6 +47,11 @@
       }
     ]
   },
+  "files": [
+    ".storybook/main.ts",
+    ".storybook/manager.js",
+    "apps/browser/src/autofill/content/components/.lit-storybook/main.ts"
+  ],
   "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],
   "exclude": ["**/build", "**/dist"]
 }

@@ -28,7 +28,7 @@
             '!tw-outline-[3px] tw-outline-primary-600 hover:tw-outline-[3px] hover:tw-outline-primary-600':
               customColorSelected,
           }"
-          class="tw-relative tw-flex tw-h-24 tw-w-24 tw-cursor-pointer tw-place-content-center tw-content-center tw-justify-center tw-rounded-full tw-border tw-border-solid tw-border-secondary-600 tw-outline tw-outline-0 tw-outline-offset-1 hover:tw-outline-1 hover:tw-outline-primary-300 focus:tw-outline-2 focus:tw-outline-primary-600"
+          class="tw-relative tw-flex tw-size-24 tw-cursor-pointer tw-place-content-center tw-rounded-full tw-border tw-border-solid tw-border-secondary-600 tw-outline tw-outline-0 tw-outline-offset-1 hover:tw-outline-1 hover:tw-outline-primary-300 focus:tw-outline-2 focus:tw-outline-primary-600"
           [style.background-color]="customColor$ | async"
         >
           <i
@@ -37,7 +37,7 @@
           ></i>
           <input
             tabindex="-1"
-            class="tw-absolute tw-bottom-0 tw-right-0 tw-h-px tw-w-px tw-border-none tw-bg-transparent tw-opacity-0"
+            class="tw-absolute tw-bottom-0 tw-right-0 tw-size-px tw-border-none tw-bg-transparent tw-opacity-0"
             #colorPicker
             type="color"
             [ngModel]="customColor$ | async"
