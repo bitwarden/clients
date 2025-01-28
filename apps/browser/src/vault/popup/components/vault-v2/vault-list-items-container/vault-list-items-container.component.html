@@ -40,14 +40,18 @@
       </ng-container>
 
       <ng-container *ngIf="grouped.cardCiphers.length">
-        <h3 class="tw-text-muted tw-text-sm tw-pl-1 tw-mb-1">{{ "cards" | i18n }}</h3>
+        <ng-container
+          *ngTemplateOutlet="groupedListHeader; context: { $implicit: 'cards' | i18n }"
+        ></ng-container>
         <ng-container
           *ngTemplateOutlet="itemList; context: { $implicit: grouped.cardCiphers }"
         ></ng-container>
       </ng-container>
 
       <ng-container *ngIf="grouped.identityCiphers.length">
-        <h3 class="tw-text-muted tw-text-sm tw-pl-1 tw-mb-1">{{ "identities" | i18n }}</h3>
+        <ng-container
+          *ngTemplateOutlet="groupedListHeader; context: { $implicit: 'identities' | i18n }"
+        ></ng-container>
         <ng-container
           *ngTemplateOutlet="itemList; context: { $implicit: grouped.identityCiphers }"
         ></ng-container>
@@ -55,11 +59,14 @@
     </ng-container>
   </ng-template>
 </ng-template>
+<ng-template #groupedListHeader let-subHeaderTitle>
+  <h3 class="tw-text-muted tw-text-xs tw-font-bold tw-pl-1 tw-mb-1 bit-compact:tw-mb-0">
+    {{ subHeaderTitle }}
+  </h3>
+  <ng-content></ng-content>
+</ng-template>
 <ng-template #sectionHeader>
-  <bit-section-header
-    class="tw-p-0.5 -tw-mt-0.5 -tw-mx-0.5"
-    [ngClass]="{ 'tw-text-muted': groupByType }"
-  >
+  <bit-section-header class="tw-p-0.5 -tw-mt-0.5 -tw-mx-0.5">
     <h2 bitTypography="h6">{{ title }}</h2>
     <button
       *ngIf="showRefresh"
