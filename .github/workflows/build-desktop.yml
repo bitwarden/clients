@@ -1444,12 +1444,19 @@ jobs:
 
       - name: Resign
         run: |
-          codesign -dvvv "./dist/mas-dev-universal/Bitwarden.app" 2>&1 | grep -iE "TeamIdentifier|flags|Format|Identifier|Authority"
-          
-          codesign -dvvv "./dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/autofill-extension.appex" 2>&1 | grep -iE "TeamIdentifier|flags|Format|Identifier|Authority"
+          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            dist/mas-dev-universal/Bitwarden.app/Contents/embedded.provisionprofile
 
-          security find-identity -v -p codesigning          
+          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/safari.appex/Contents/embedded.provisionprofile
+
+          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/autofill-extension.appex/Contents/embedded.provisionprofile
           
+          ls -l dist/mas-dev-universal/Bitwarden.app/Contents/embedded.provisionprofile
+          ls -l dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/safari.appex/Contents/embedded.provisionprofile
+          ls -l dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/autofill-extension.appex/Contents/embedded.provisionprofile
+
           codesign --entitlements resources/entitlements.mas.plist --deep --verbose --options runtime --force --sign "E7C9978F6FBCE0553429185C405E61F5380BE8EB" --preserve-metadata=embedded.provisionprofile dist/mas-dev-universal/Bitwarden.app
           #codesign --entitlements resources/entitlements.mas.plist --deep --verbose --options runtime --force --sign "Developer ID Application: 8bit Solutions LLC (LTZ2PFU5D6)" dist/mas-dev-universal/Bitwarden.app
 
