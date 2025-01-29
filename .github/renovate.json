@@ -94,7 +94,9 @@
         "@angular-eslint/eslint-plugin-template",
         "@angular-eslint/eslint-plugin",
         "@angular-eslint/schematics",
-        "angular-eslint",
+        "@angular-eslint/template-parser",
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser",
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
         "eslint-plugin-import",
@@ -104,8 +106,7 @@
         "eslint-plugin-tailwindcss",
         "eslint",
         "husky",
-        "lint-staged",
-        "typescript-eslint"
+        "lint-staged"
       ],
       "groupName": "Linting minor-patch",
       "matchUpdateTypes": ["minor", "patch"]
@@ -217,7 +218,6 @@
         "autoprefixer",
         "bootstrap",
         "chromatic",
-        "eslint-plugin-custom-rules",
         "jquery",
         "ngx-toastr",
         "popper.js",
