@@ -11,6 +11,8 @@ import rxjs from "eslint-plugin-rxjs";
 import angularRxjs from "eslint-plugin-rxjs-angular";
 import storybook from "eslint-plugin-storybook";
 
+import platformPlugins from "./libs/eslint/platform/index.mjs";
+
 export default tseslint.config(
   ...storybook.configs["flat/recommended"],
   {
@@ -28,6 +30,7 @@ export default tseslint.config(
     plugins: {
       rxjs: rxjs,
       "rxjs-angular": angularRxjs,
+      "@bitwarden/platform": platformPlugins,
     },
     languageOptions: {
       parserOptions: {
@@ -66,7 +69,7 @@ export default tseslint.config(
       "@angular-eslint/no-outputs-metadata-property": 0,
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
-
+      "@bitwarden/platform/required-using": "error",
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
       "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
       "@typescript-eslint/no-floating-promises": "error",

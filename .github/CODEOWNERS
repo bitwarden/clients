@@ -97,6 +97,8 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/scan.yml @bitwarden/team-platform-dev
 .github/workflows/test.yml @bitwarden/team-platform-dev
 .github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
+# ESLint custom rules
+libs/eslint @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
