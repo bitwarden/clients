@@ -911,6 +911,21 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.userPrivateKeyHelper$(userId, false).pipe(map((keys) => keys?.userPrivateKey));
   }
 
+  userEncryptionKeyPair$(
+    userId: UserId,
+  ): Observable<{ privateKey: UserPrivateKey; publicKey: UserPublicKey } | null> {
+    return this.userPrivateKey$(userId).pipe(
+      switchMap(async (privateKey) => {
+        if (privateKey == null) {
+          return null;
+        }
+
+        const publicKey = await this.derivePublicKey(privateKey);
+        return { privateKey, publicKey };
+      }),
+    );
+  }
+
   userEncryptedPrivateKey$(userId: UserId): Observable<EncryptedString> {
     return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$;
   }
