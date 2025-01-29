@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import "module-alias/register";
 
 import { v4 as uuidv4 } from "uuid";

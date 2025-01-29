@@ -72,8 +72,6 @@ import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emerg
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { SsoComponentV1 } from "./auth/sso-v1.component";
-import { CompleteTrialInitiationComponent } from "./auth/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
-import { freeTrialTextResolver } from "./auth/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { TwoFactorAuthComponent } from "./auth/two-factor-auth.component";
 import { TwoFactorComponent } from "./auth/two-factor.component";
 import { UpdatePasswordComponent } from "./auth/update-password.component";
@@ -81,6 +79,8 @@ import { UpdateTempPasswordComponent } from "./auth/update-temp-password.compone
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
+import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
+import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";

@@ -7,11 +7,11 @@ import { FormFieldModule } from "@bitwarden/components";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
 import { RegisterFormModule } from "../../auth/register-form/register-form.module";
-import { SecretsManagerTrialFreeStepperComponent } from "../../auth/trial-initiation/secrets-manager/secrets-manager-trial-free-stepper.component";
-import { SecretsManagerTrialPaidStepperComponent } from "../../auth/trial-initiation/secrets-manager/secrets-manager-trial-paid-stepper.component";
-import { SecretsManagerTrialComponent } from "../../auth/trial-initiation/secrets-manager/secrets-manager-trial.component";
 import { TaxInfoComponent } from "../../billing";
 import { TrialBillingStepComponent } from "../../billing/accounts/trial-initiation/trial-billing-step.component";
+import { SecretsManagerTrialFreeStepperComponent } from "../../billing/trial-initiation/secrets-manager/secrets-manager-trial-free-stepper.component";
+import { SecretsManagerTrialPaidStepperComponent } from "../../billing/trial-initiation/secrets-manager/secrets-manager-trial-paid-stepper.component";
+import { SecretsManagerTrialComponent } from "../../billing/trial-initiation/secrets-manager/secrets-manager-trial.component";
 import { EnvironmentSelectorModule } from "../../components/environment-selector/environment-selector.module";
 import { SharedModule } from "../../shared";
 
