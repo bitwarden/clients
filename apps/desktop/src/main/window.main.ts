@@ -198,6 +198,7 @@ export class WindowMain {
       show: false,
       backgroundColor: await this.getBackgroundColor(),
       alwaysOnTop: this.enableAlwaysOnTop,
+      autoHideMenuBar: true,
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
         spellcheck: false,
