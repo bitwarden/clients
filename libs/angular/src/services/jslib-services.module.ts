@@ -906,6 +906,7 @@ const safeProviders: SafeProvider[] = [
       ? NoopNotificationsService
       : DefaultNotificationsService,
     deps: [
+      LogService,
       SyncService,
       AppIdServiceAbstraction,
       EnvironmentService,
@@ -915,7 +916,6 @@ const safeProviders: SafeProvider[] = [
       SignalRConnectionService,
       AuthServiceAbstraction,
       WebPushConnectionService,
-      LogService,
     ],
   }),
   safeProvider({

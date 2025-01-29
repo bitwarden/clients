@@ -26,7 +26,6 @@ import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -34,7 +33,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "./change-password.component";
@@ -60,7 +58,6 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     i18nService: I18nService,
     keyService: KeyService,
     messagingService: MessagingService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
     platformUtilsService: PlatformUtilsService,
     private policyApiService: PolicyApiServiceAbstraction,
     policyService: PolicyService,
@@ -68,7 +65,6 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     private apiService: ApiService,
     private syncService: SyncService,
     private route: ActivatedRoute,
-    stateService: StateService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,
     private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
@@ -82,10 +78,8 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
       i18nService,
       keyService,
       messagingService,
-      passwordGenerationService,
       platformUtilsService,
       policyService,
-      stateService,
       dialogService,
       kdfConfigService,
       masterPasswordService,
