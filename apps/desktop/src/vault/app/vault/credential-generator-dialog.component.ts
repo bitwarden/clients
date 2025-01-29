@@ -46,8 +46,13 @@ export class CredentialGeneratorDialogComponent {
     private dialogService: DialogService,
   ) {}
 
-  algorithm = (selected: AlgorithmInfo) => {
-    this.buttonLabel = selected.useGeneratedValue;
+  onAlgorithmSelected = (selected?: AlgorithmInfo) => {
+    if (selected) {
+      this.buttonLabel = selected.useGeneratedValue;
+    } else {
+      // clear the credential value if we don't currently have an algorithm
+      this.credentialValue = undefined;
+    }
   };
 
   applyCredentials = () => {
