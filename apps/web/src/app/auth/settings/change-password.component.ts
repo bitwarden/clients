@@ -24,7 +24,6 @@ import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { UserKeyRotationService } from "../../key-management/key-rotation/user-key-rotation.service";
@@ -48,7 +47,6 @@ export class ChangePasswordComponent
     keyService: KeyService,
     messagingService: MessagingService,
     stateService: StateService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
     platformUtilsService: PlatformUtilsService,
     policyService: PolicyService,
     private auditService: AuditService,
@@ -68,7 +66,6 @@ export class ChangePasswordComponent
       i18nService,
       keyService,
       messagingService,
-      passwordGenerationService,
       platformUtilsService,
       policyService,
       stateService,
