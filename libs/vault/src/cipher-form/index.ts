@@ -10,3 +10,4 @@ export { CipherFormGenerationService } from "./abstractions/cipher-form-generati
 export { DefaultCipherFormConfigService } from "./services/default-cipher-form-config.service";
 export { CipherFormGeneratorComponent } from "./components/cipher-generator/cipher-form-generator.component";
 export { CipherFormContainer } from "../cipher-form/cipher-form-container";
+export { CipherFormComponent } from "./components/cipher-form.component";
