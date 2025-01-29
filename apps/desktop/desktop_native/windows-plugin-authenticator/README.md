@@ -9,13 +9,9 @@ You can find more information about the Windows WebAuthn API's [here](https://gi
 To build this crate, set the following environment variables:
 
 - `LIBCLANG_PATH` -> the path to `clang.dll` or `libclang.dll` for `bindgen`
-- `PA_OUT_DIR` -> the directory the generated plugin authenticator bindings should be put
-  - Should be: `path\to\repo\...\clients\apps\desktop\desktop_native\plugin-authenticator`
 
 ### PowerShell Example
 
 ```
 $env:LIBCLANG_PATH = 'C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin'
-
-$env:PA_OUT_DIR = 'path\to\repo\...\clients\apps\desktop\windows-plugin-authenticator'
 ```

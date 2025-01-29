@@ -1,3 +1,5 @@
+#![cfg(target_os = "windows")]
+
 /*
     The 'pa' (plugin authenticator) module will contain the generated
     bindgen code.
@@ -12,6 +14,6 @@
 #![allow(unused_imports)]
 
 include!(concat!(
-    env!("PA_OUT_DIR"),
+    env!("OUT_DIR"),
     "/windows_pluginauthenticator_bindings.rs"
 ));
