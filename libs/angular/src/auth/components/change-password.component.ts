@@ -10,7 +10,6 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
@@ -42,7 +41,6 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
     protected messagingService: MessagingService,
     protected platformUtilsService: PlatformUtilsService,
     protected policyService: PolicyService,
-    protected stateService: StateService,
     protected dialogService: DialogService,
     protected kdfConfigService: KdfConfigService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,

@@ -20,7 +20,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -54,7 +53,6 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     keyService: KeyService,
     messagingService: MessagingService,
     private apiService: ApiService,
-    stateService: StateService,
     private syncService: SyncService,
     private logService: LogService,
     private userVerificationService: UserVerificationService,
@@ -71,7 +69,6 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
       messagingService,
       platformUtilsService,
       policyService,
-      stateService,
       dialogService,
       kdfConfigService,
       masterPasswordService,
