@@ -3,6 +3,6 @@
 export class OrganizationCollectionManagementUpdateRequest {
   limitCollectionCreation: boolean;
   limitCollectionDeletion: boolean;
-  LimitItemDeletion: boolean;
+  limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
 }
