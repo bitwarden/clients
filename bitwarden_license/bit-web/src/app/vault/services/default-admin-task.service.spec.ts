@@ -2,7 +2,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
-import { SecurityTaskStatus } from "@bitwarden/vault";
+import { SecurityTaskStatus, SecurityTaskType } from "@bitwarden/vault";
 
 import { CreateTasksRequest } from "./abstractions/admin-task.abstraction";
 import { DefaultAdminTaskService } from "./default-admin-task.service";
@@ -43,11 +43,11 @@ describe("DefaultAdminTaskService", () => {
       const tasks: CreateTasksRequest[] = [
         {
           cipherId: "cipherId-1" as CipherId,
-          type: "updateAtRiskCredential",
+          type: SecurityTaskType.UpdateAtRiskCredential,
         },
         {
           cipherId: "cipherId-2" as CipherId,
-          type: "updateAtRiskCredential",
+          type: SecurityTaskType.UpdateAtRiskCredential,
         },
       ];
 
