@@ -1792,7 +1792,7 @@
   },
   "requestPending": {
     "message": "Request pending"
-  },  
+  },
   "logBackInOthersToo": {
     "message": "Please log back in. If you are using other Bitwarden applications log out and back in to those as well."
   },
@@ -1860,12 +1860,6 @@
   "dangerZone": {
     "message": "Danger zone"
   },
-  "dangerZoneDesc": {
-    "message": "Careful, these actions are not reversible!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "Deauthorize sessions"
   },
@@ -1874,6 +1868,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Proceeding will also log you out of your current session, requiring you to log back in. You will also be prompted for two-step login again, if set up. Active sessions on other devices may continue to remain active for up to one hour."
+  },
+  "newDeviceLoginProtection": {
+    "message":"New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message":"Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message":"Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message":"Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message":"Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message":"With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "All sessions deauthorized"

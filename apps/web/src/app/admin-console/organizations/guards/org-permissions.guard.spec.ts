@@ -23,16 +23,26 @@ import { ToastService } from "@bitwarden/components";
 
 import { organizationPermissionsGuard } from "./org-permissions.guard";
 
+// Returns a test organization with the specified props.
 const orgFactory = (props: Partial<Organization> = {}) =>
   Object.assign(
     new Organization(),
     {
-      id: "myOrgId",
       enabled: true,
       type: OrganizationUserType.Admin,
     },
     props,
   );
+
+const targetOrgId = "myOrgId";
+
+// Returns an array of test organizations with the target organization in the middle.
+// This more accurately tests the return value of OrganizationService.
+const orgStateFactory = (targetOrgProps: Partial<Organization> = {}) => [
+  orgFactory({ id: "anotherOrg" }),
+  orgFactory({ id: targetOrgId, ...targetOrgProps }), // target org intentionally nestled in the middle
+  orgFactory({ id: "andAnotherOrg" }),
+];
 
 describe("Organization Permissions Guard", () => {
   let router: MockProxy<Router>;
@@ -49,7 +59,7 @@ describe("Organization Permissions Guard", () => {
     state = mock<RouterStateSnapshot>();
     route = mock<ActivatedRouteSnapshot>({
       params: {
-        organizationId: orgFactory().id,
+        organizationId: targetOrgId,
       },
     });
 
@@ -75,82 +85,79 @@ describe("Organization Permissions Guard", () => {
     expect(actual).not.toBe(true);
   });
 
-  it("permits navigation if no permissions are specified", async () => {
-    const org = orgFactory();
-    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
+  describe("given an enabled organization", () => {
+    beforeEach(() => {
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of(orgStateFactory()));
+    });
 
-    const actual = await TestBed.runInInjectionContext(async () =>
-      organizationPermissionsGuard()(route, state),
-    );
+    it("permits navigation if no permissions are specified", async () => {
+      const actual = await TestBed.runInInjectionContext(async () =>
+        organizationPermissionsGuard()(route, state),
+      );
 
-    expect(actual).toBe(true);
-  });
+      expect(actual).toBe(true);
+    });
 
-  it("permits navigation if the user has permissions", async () => {
-    const permissionsCallback = jest.fn();
-    permissionsCallback.mockImplementation((_org) => true);
-    const org = orgFactory();
-    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
-
-    const actual = await TestBed.runInInjectionContext(
-      async () => await organizationPermissionsGuard(permissionsCallback)(route, state),
-    );
-
-    expect(permissionsCallback).toHaveBeenCalled();
-    expect(actual).toBe(true);
-  });
-
-  describe("if the user does not have permissions", () => {
-    it("and there is no Item ID, block navigation", async () => {
+    it("permits navigation if the user has permissions", async () => {
       const permissionsCallback = jest.fn();
-      permissionsCallback.mockImplementation((_org) => false);
-
-      state = mock<RouterStateSnapshot>({
-        root: mock<ActivatedRouteSnapshot>({
-          queryParamMap: convertToParamMap({}),
-        }),
-      });
-
-      const org = orgFactory();
-      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
+      permissionsCallback.mockImplementation((_org) => true);
 
       const actual = await TestBed.runInInjectionContext(
         async () => await organizationPermissionsGuard(permissionsCallback)(route, state),
       );
 
-      expect(permissionsCallback).toHaveBeenCalled();
-      expect(actual).not.toBe(true);
+      expect(permissionsCallback).toHaveBeenCalledWith(orgFactory({ id: targetOrgId }));
+      expect(actual).toBe(true);
     });
 
-    it("and there is an Item ID, redirect to the item in the individual vault", async () => {
-      state = mock<RouterStateSnapshot>({
-        root: mock<ActivatedRouteSnapshot>({
-          queryParamMap: convertToParamMap({
-            itemId: "myItemId",
+    describe("if the user does not have permissions", () => {
+      it("and there is no Item ID, block navigation", async () => {
+        const permissionsCallback = jest.fn();
+        permissionsCallback.mockImplementation((_org) => false);
+
+        state = mock<RouterStateSnapshot>({
+          root: mock<ActivatedRouteSnapshot>({
+            queryParamMap: convertToParamMap({}),
           }),
-        }),
-      });
-      const org = orgFactory();
-      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
+        });
 
-      const actual = await TestBed.runInInjectionContext(
-        async () => await organizationPermissionsGuard((_org: Organization) => false)(route, state),
-      );
+        const actual = await TestBed.runInInjectionContext(
+          async () => await organizationPermissionsGuard(permissionsCallback)(route, state),
+        );
 
-      expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"], {
-        queryParams: { itemId: "myItemId" },
+        expect(permissionsCallback).toHaveBeenCalledWith(orgFactory({ id: targetOrgId }));
+        expect(actual).not.toBe(true);
       });
-      expect(actual).not.toBe(true);
+
+      it("and there is an Item ID, redirect to the item in the individual vault", async () => {
+        state = mock<RouterStateSnapshot>({
+          root: mock<ActivatedRouteSnapshot>({
+            queryParamMap: convertToParamMap({
+              itemId: "myItemId",
+            }),
+          }),
+        });
+
+        const actual = await TestBed.runInInjectionContext(
+          async () =>
+            await organizationPermissionsGuard((_org: Organization) => false)(route, state),
+        );
+
+        expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"], {
+          queryParams: { itemId: "myItemId" },
+        });
+        expect(actual).not.toBe(true);
+      });
     });
   });
 
   describe("given a disabled organization", () => {
     it("blocks navigation if user is not an owner", async () => {
-      const org = orgFactory({
+      const orgs = orgStateFactory({
         type: OrganizationUserType.Admin,
         enabled: false,
       });
-      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of(orgs));
 
       const actual = await TestBed.runInInjectionContext(
         async () => await organizationPermissionsGuard()(route, state),
@@ -160,11 +167,12 @@ describe("Organization Permissions Guard", () => {
     });
 
     it("permits navigation if user is an owner", async () => {
-      const org = orgFactory({
+      const orgs = orgStateFactory({
         type: OrganizationUserType.Owner,
         enabled: false,
       });
-      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
+
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of(orgs));
 
       const actual = await TestBed.runInInjectionContext(
         async () => await organizationPermissionsGuard()(route, state),
