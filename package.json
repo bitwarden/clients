@@ -36,7 +36,6 @@
     "libs/*"
   ],
   "devDependencies": {
-    "@typescript-eslint/rule-tester": "^8.21.0",
     "@angular-devkit/build-angular": "18.2.12",
     "@angular-eslint/schematics": "18.4.3",
     "@angular/cli": "18.2.12",
@@ -79,6 +78,8 @@
     "@types/proper-lockfile": "4.1.4",
     "@types/retry": "0.12.5",
     "@types/zxcvbn": "4.4.5",
+    "@typescript-eslint/rule-tester": "8.22.0",
+    "@typescript-eslint/utils": "8.22.0",
     "@webcomponents/custom-elements": "1.6.0",
     "@yao-pkg/pkg": "5.16.1",
     "angular-eslint": "18.4.3",
@@ -144,7 +145,6 @@
     "webpack-node-externals": "3.0.0"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "^8.21.0",
     "@angular/animations": "18.2.13",
     "@angular/cdk": "18.2.14",
     "@angular/common": "18.2.13",
