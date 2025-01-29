@@ -50,7 +50,8 @@ export class CredentialGeneratorDialogComponent {
     if (selected) {
       this.buttonLabel = selected.useGeneratedValue;
     } else {
-      // clear the credential value if we don't currently have an algorithm
+      // clear the credential value when the user is
+      // selecting the credential generation algorithm
       this.credentialValue = undefined;
     }
   };
