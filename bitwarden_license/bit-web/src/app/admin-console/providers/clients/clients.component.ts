@@ -139,7 +139,7 @@ export class ClientsComponent {
 
   async load() {
     const response = await this.apiService.getProviderClients(this.providerId);
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const clients = response.data != null && response.data.length > 0 ? response.data : [];
     this.dataSource.data = clients;
     this.manageOrganizations =
