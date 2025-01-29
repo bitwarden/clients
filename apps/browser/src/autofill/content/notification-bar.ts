@@ -852,10 +852,10 @@ async function loadNotificationBar() {
     }
 
     closeBar(false);
-    openBar(type, notificationBarUrl, notificationBarInitData);
+    void openBar(type, notificationBarUrl, notificationBarInitData);
   }
 
-  function openBar(
+  async function openBar(
     type: string,
     barPage: string,
     notificationBarInitData: NotificationBarIframeInitData,
@@ -865,22 +865,38 @@ async function loadNotificationBar() {
     if (document.body == null) {
       return;
     }
+    const useComponentBar: boolean = await sendExtensionMessage("notificationRefreshFlagValue");
 
     setupInitNotificationBarMessageListener(notificationBarInitData);
     const barPageUrl: string = chrome.runtime.getURL(barPage);
 
+    function getIframeStyle(useComponentBar: boolean): string {
+      return (
+        (useComponentBar
+          ? "height: calc(276px + 25px); width: 450px; right: 0;"
+          : "height: 42px; width: 100%;") + " border: 0; min-height: initial;"
+      );
+    }
+
     notificationBarIframe = document.createElement("iframe");
-    notificationBarIframe.style.cssText =
-      "height: 42px; width: 100%; border: 0; min-height: initial;";
+    notificationBarIframe.style.cssText = getIframeStyle(useComponentBar);
     notificationBarIframe.id = "bit-notification-bar-iframe";
     notificationBarIframe.src = barPageUrl;
+
+    function getFrameStyle(useComponentBar: boolean): string {
+      return (
+        (useComponentBar
+          ? "height: calc(276px + 25px); width: 450px; right: 0;"
+          : "height: 42px; width: 100%; left: 0;") +
+        " top: 0; padding: 0; position: fixed;" +
+        " z-index: 2147483647; visibility: visible;"
+      );
+    }
 
     const frameDiv = document.createElement("div");
     frameDiv.setAttribute("aria-live", "polite");
     frameDiv.id = "bit-notification-bar";
-    frameDiv.style.cssText =
-      "height: 42px; width: 100%; top: 0; left: 0; padding: 0; position: fixed; " +
-      "z-index: 2147483647; visibility: visible;";
+    frameDiv.style.cssText = getFrameStyle(useComponentBar);
     frameDiv.appendChild(notificationBarIframe);
     document.body.appendChild(frameDiv);
 
