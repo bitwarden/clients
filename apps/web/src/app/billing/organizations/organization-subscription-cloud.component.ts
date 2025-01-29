@@ -65,6 +65,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   showSubscription = true;
   showSelfHost = false;
   organizationIsManagedByConsolidatedBillingMSP = false;
+  resellerSeatsRemainingMessage: string;
 
   protected readonly subscriptionHiddenIcon = SubscriptionHiddenIcon;
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
@@ -111,7 +112,28 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         }
       }
     }
-    await this.getAllUsers();
+
+    if (this.userOrg.hasReseller) {
+      const allUsers = await this.organizationUserApiService.getAllUsers(this.userOrg.id);
+
+      const userCount = allUsers.data.filter((user) =>
+        [
+          OrganizationUserStatusType.Invited,
+          OrganizationUserStatusType.Accepted,
+          OrganizationUserStatusType.Confirmed,
+        ].includes(user.status),
+      ).length;
+
+      const remainingSeats = this.userOrg.seats - userCount;
+
+      const seatsRemaining = this.i18nService.t(
+        "seatsRemaining",
+        remainingSeats.toString(),
+        this.userOrg.seats.toString(),
+      );
+
+      this.resellerSeatsRemainingMessage = seatsRemaining;
+    }
   }
 
   ngOnDestroy() {
@@ -485,40 +507,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   get canUseBillingSync() {
     return this.userOrg.productTierType === ProductTierType.Enterprise;
-  }
-
-  async getAllUsers(): Promise<void> {
-    if (!this.sub?.seats) {
-      this.seatsRemainingMessage = "";
-    }
-
-    if (this.userOrg.hasReseller) {
-      const allUsers = await this.organizationUserApiService.getAllUsers(this.userOrg.id);
-
-      const userCount = allUsers.data.filter((user) =>
-        [
-          OrganizationUserStatusType.Invited,
-          OrganizationUserStatusType.Accepted,
-          OrganizationUserStatusType.Confirmed,
-        ].includes(user.status),
-      ).length;
-
-      const remainingSeats = this.userOrg.seats - userCount;
-
-      const seatsRemaining = this.i18nService.t(
-        "seatsRemaining",
-        remainingSeats.toString(),
-        this.userOrg.seats.toString(),
-      );
-
-      this.seatsRemainingMessage = seatsRemaining;
-    } else {
-      this.seatsRemainingMessage = this.subscriptionDesc;
-    }
-  }
-
-  get seatUsageMessage(): string {
-    return this.seatsRemainingMessage;
   }
 }
 
