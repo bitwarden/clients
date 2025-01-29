@@ -3,8 +3,10 @@
 
     Source: https://github.com/microsoft/webauthn/blob/master/experimental/pluginauthenticator.h
 
-    This is a C++ header file, so the extension has been changed from `.h` to `.hpp`,
-    so bindgen will automatically generate the correct C++ bindings.
+    This is a C++ header file, so the extension has been manually
+    changed from `.h` to `.hpp`, so bindgen will automatically
+    generate the correct C++ bindings.
+
     More Info: https://rust-lang.github.io/rust-bindgen/cpp.html
 */
 

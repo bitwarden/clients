@@ -1,3 +1,5 @@
+#![cfg(target_os = "windows")]
+
 mod pa;
 
 pub fn get_version_number() -> u64 {
