@@ -3,6 +3,7 @@ fn main() {
     windows();
 }
 
+#[cfg(target_os = "windows")]
 #[allow(dead_code)]
 fn windows() {
     // TODO: Use .allowlist_x() to specify needed items
