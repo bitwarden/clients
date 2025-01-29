@@ -2,15 +2,19 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationApiKeyType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationApiKeyType,
+  OrganizationUserStatusType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -67,6 +71,8 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   private destroy$ = new Subject<void>();
 
+  private seatsRemainingMessage$ = new BehaviorSubject<string>("");
+
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -79,6 +85,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private configService: ConfigService,
     private toastService: ToastService,
     private billingApiService: BillingApiServiceAbstraction,
+    private organizationUserApiService: OrganizationUserApiService,
   ) {}
 
   async ngOnInit() {
@@ -103,6 +110,9 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
           this.preSelectedProductTier = productTier;
         }
       }
+    }
+    if (this.userOrg.hasReseller) {
+      await this.getAllUsers();
     }
   }
 
@@ -483,22 +493,38 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return this.userOrg.hasReseller;
   }
 
-  get seatUsageMessage(): string {
+  async getAllUsers(): Promise<void> {
     if (!this.sub?.seats) {
-      return "";
+      this.seatsRemainingMessage$.next("");
     }
 
-    const remainingSeats = this.userOrg.seats - this.sub.seats;
+    const allUsers = await this.organizationUserApiService.getAllUsers(this.userOrg.id);
+
+    const userCount = allUsers.data.filter((user) =>
+      [
+        OrganizationUserStatusType.Invited,
+        OrganizationUserStatusType.Accepted,
+        OrganizationUserStatusType.Confirmed,
+      ].includes(user.status),
+    ).length;
+
+    const remainingSeats = this.userOrg.seats - userCount;
 
     if (this.userOrg.hasReseller) {
-      return this.i18nService.t(
+      const seatsRemaining = this.i18nService.t(
         "seatsRemaining",
         remainingSeats.toString(),
         this.userOrg.seats.toString(),
       );
-    }
 
-    return this.subscriptionDesc;
+      this.seatsRemainingMessage$.next(seatsRemaining);
+    } else {
+      this.seatsRemainingMessage$.next(this.subscriptionDesc);
+    }
+  }
+
+  get seatUsageMessage(): string {
+    return this.seatsRemainingMessage$.value;
   }
 }
 
