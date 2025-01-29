@@ -48,6 +48,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         let passwordCredential = ASPasswordCredential(user: "j_appleseed", password: "apple1234")
         self.extensionContext.completeRequest(withSelectedCredential: passwordCredential, completionHandler: nil)
     }
+
+    override func loadView() {
+        let view = NSView()
+        view.isHidden = true
+        //view.backgroundColor = .clear
+        self.view = view
+    }
     
     /*
      Implement this method if your extension supports showing credentials in the QuickType bar.
@@ -77,6 +84,8 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     }
     
     override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
+      
+        
         if let request = credentialRequest as? ASPasskeyCredentialRequest {
             if let passkeyIdentity = request.credentialIdentity as? ASPasskeyCredentialIdentity {
                 
@@ -155,6 +164,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     override func prepareInterface(forPasskeyRegistration registrationRequest: ASCredentialRequest) {
         logger.log("[autofill-extension] prepareInterface")
 
+          // Create a timer to show UI after 10 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in
+            guard let self = self else { return }
+            // Configure and show UI elements for manual cancellation
+            self.configureTimeoutUI()
+        }
+
         if let request = registrationRequest as? ASPasskeyCredentialRequest {
             if let passkeyIdentity = registrationRequest.credentialIdentity as? ASPasskeyCredentialIdentity {
                 logger.log("[autofill-extension] prepareInterface(passkey) called \(request)")
@@ -232,6 +248,10 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         for serviceIdentifier in serviceIdentifiers {
             logger.log("     service: \(serviceIdentifier.identifier)")
         }
+    }
+
+    private func configureTimeoutUI() {
+        self.view.isHidden = false;
     }
 
 }

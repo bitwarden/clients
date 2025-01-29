@@ -80,14 +80,14 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     params: PickCredentialParams,
   ) => Promise<{ cipherId: string; userVerified: boolean }>;
 
-  private confirmCredentialSubject = new Subject<void>();
+  private confirmCredentialSubject = new Subject<boolean>();
   private createdCipher: Cipher;
 
   /**
    * Notifies the Fido2UserInterfaceSession that the UI operations has completed and it can return to the OS.
    */
-  notifyConfirmCredential() {
-    this.confirmCredentialSubject.next();
+  notifyConfirmCredential(confirmed: boolean): void {
+    this.confirmCredentialSubject.next(confirmed);
     this.confirmCredentialSubject.complete();
   }
 
@@ -95,7 +95,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * Returns once the UI has confirmed and completed the operation
    * @returns
    */
-  private async waitForUiCredentialConfirmation(): Promise<void> {
+  private async waitForUiCredentialConfirmation(): Promise<boolean> {
     return lastValueFrom(this.confirmCredentialSubject);
   }
 
@@ -122,8 +122,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       await this.showUi();
 
       // Wait for the UI to wrap up
-      await this.waitForUiCredentialConfirmation();
-
+      const confirmation = await this.waitForUiCredentialConfirmation();
+      if (!confirmation) {
+        throw new Error("User cancelled");
+      }
       // Create the credential
       await this.createCredential({
         credentialName,

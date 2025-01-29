@@ -65,7 +65,7 @@ export class Fido2PlaceholderComponent implements OnInit {
       //   userVerification: true,
       // });
 
-      this.session.notifyConfirmCredential();
+      this.session.notifyConfirmCredential(true);
 
       // Not sure this clean up should happen here or in session.
       // The session currently toggles modal on and send us here
@@ -80,5 +80,7 @@ export class Fido2PlaceholderComponent implements OnInit {
   async closeModal() {
     await this.router.navigate(["/"]);
     await this.desktopSettingsService.setInModalMode(false);
+
+    this.session.notifyConfirmCredential(false);
   }
 }
