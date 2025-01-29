@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
+import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -71,7 +71,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   private destroy$ = new Subject<void>();
 
-  private seatsRemainingMessage$ = new BehaviorSubject<string>("");
+  private seatsRemainingMessage: string;
 
   constructor(
     private apiService: ApiService,
@@ -111,9 +111,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         }
       }
     }
-    if (this.userOrg.hasReseller) {
-      await this.getAllUsers();
-    }
+    await this.getAllUsers();
   }
 
   ngOnDestroy() {
@@ -489,42 +487,38 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return this.userOrg.productTierType === ProductTierType.Enterprise;
   }
 
-  get canShowResellerSeatInfo(): boolean {
-    return this.userOrg.hasReseller;
-  }
-
   async getAllUsers(): Promise<void> {
     if (!this.sub?.seats) {
-      this.seatsRemainingMessage$.next("");
+      this.seatsRemainingMessage = "";
     }
 
-    const allUsers = await this.organizationUserApiService.getAllUsers(this.userOrg.id);
-
-    const userCount = allUsers.data.filter((user) =>
-      [
-        OrganizationUserStatusType.Invited,
-        OrganizationUserStatusType.Accepted,
-        OrganizationUserStatusType.Confirmed,
-      ].includes(user.status),
-    ).length;
-
-    const remainingSeats = this.userOrg.seats - userCount;
-
     if (this.userOrg.hasReseller) {
+      const allUsers = await this.organizationUserApiService.getAllUsers(this.userOrg.id);
+
+      const userCount = allUsers.data.filter((user) =>
+        [
+          OrganizationUserStatusType.Invited,
+          OrganizationUserStatusType.Accepted,
+          OrganizationUserStatusType.Confirmed,
+        ].includes(user.status),
+      ).length;
+
+      const remainingSeats = this.userOrg.seats - userCount;
+
       const seatsRemaining = this.i18nService.t(
         "seatsRemaining",
         remainingSeats.toString(),
         this.userOrg.seats.toString(),
       );
 
-      this.seatsRemainingMessage$.next(seatsRemaining);
+      this.seatsRemainingMessage = seatsRemaining;
     } else {
-      this.seatsRemainingMessage$.next(this.subscriptionDesc);
+      this.seatsRemainingMessage = this.subscriptionDesc;
     }
   }
 
   get seatUsageMessage(): string {
-    return this.seatsRemainingMessage$.value;
+    return this.seatsRemainingMessage;
   }
 }
 

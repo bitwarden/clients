@@ -294,7 +294,7 @@
 </ng-template>
 
 <ng-template #setupSelfHost>
-  <ng-container *ngIf="canShowResellerSeatInfo">
+  <ng-container *ngIf="userOrg.hasReseller">
     <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
     <p bitTypography="body1">{{ seatUsageMessage }}</p>
   </ng-container>
