@@ -25,13 +25,13 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 
+import { AcceptOrganizationInviteService } from "../../../auth/organization-invite/accept-organization.service";
 import {
   OrganizationCreatedEvent,
   SubscriptionProduct,
   TrialOrganizationType,
 } from "../../../billing/accounts/trial-initiation/trial-billing-step.component";
 import { RouterService } from "../../../core/router.service";
-import { AcceptOrganizationInviteService } from "../../organization-invite/accept-organization.service";
 import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.component";
 
 export type InitiationPath =
