@@ -14,6 +14,9 @@ fn windows() {
         .expect("Unable to generate bindings.");
 
     bindings
-        .write_to_file("windows_pluginauthenticator_bindings.rs")
+        .write_to_file(concat!(
+            env!("OUT_DIR"),
+            "windows_pluginauthenticator_bindings.rs"
+        ))
         .expect("Couldn't write bindings.");
 }
