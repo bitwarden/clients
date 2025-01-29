@@ -16,12 +16,10 @@ import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 const BroadcasterSubscriptionId = "SetPasswordComponent";
@@ -38,7 +36,6 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
     i18nService: I18nService,
     keyService: KeyService,
     messagingService: MessagingService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
     platformUtilsService: PlatformUtilsService,
     policyApiService: PolicyApiServiceAbstraction,
     policyService: PolicyService,
@@ -47,7 +44,6 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
     route: ActivatedRoute,
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
-    stateService: StateService,
     organizationApiService: OrganizationApiServiceAbstraction,
     organizationUserApiService: OrganizationUserApiService,
     userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
@@ -63,7 +59,6 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
       i18nService,
       keyService,
       messagingService,
-      passwordGenerationService,
       platformUtilsService,
       policyApiService,
       policyService,
@@ -71,7 +66,6 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
       apiService,
       syncService,
       route,
-      stateService,
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
