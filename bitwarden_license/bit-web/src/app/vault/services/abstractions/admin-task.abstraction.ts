@@ -1,14 +1,14 @@
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
-import { SecurityTask, SecurityTaskStatus } from "@bitwarden/vault";
+import { SecurityTask, SecurityTaskStatus, SecurityTaskType } from "@bitwarden/vault";
 
 /**
  * Request type for creating tasks.
- * @property cipherId - The ID of the cipher to create the task for.
+ * @property cipherId - Optional. The ID of the cipher to create the task for.
  * @property type - The type of task to create. Currently defined as "updateAtRiskCredential".
  */
 export type CreateTasksRequest = Readonly<{
-  cipherId: CipherId;
-  type: "updateAtRiskCredential";
+  cipherId?: CipherId;
+  type: SecurityTaskType.UpdateAtRiskCredential;
 }>;
 
 export abstract class AdminTaskService {
