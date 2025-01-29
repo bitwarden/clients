@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Subject, filter, firstValueFrom, map, merge, timeout } from "rxjs";
+import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -112,10 +112,10 @@ import { NotificationsService } from "@bitwarden/common/platform/notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
   DefaultNotificationsService,
-  WorkerWebPushConnectionService,
   SignalRConnectionService,
   UnsupportedWebPushConnectionService,
   WebPushNotificationsApiService,
+  WorkerWebPushConnectionService,
 } from "@bitwarden/common/platform/notifications/internal";
 import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
@@ -198,10 +198,10 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import {
-  PasswordGenerationServiceAbstraction,
-  UsernameGenerationServiceAbstraction,
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
+  PasswordGenerationServiceAbstraction,
+  UsernameGenerationServiceAbstraction,
 } from "@bitwarden/generator-legacy";
 import {
   ImportApiService,
@@ -210,11 +210,11 @@ import {
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
 import {
-  BiometricStateService,
   BiometricsService,
+  BiometricStateService,
   DefaultBiometricStateService,
-  DefaultKeyService,
   DefaultKdfConfigService,
+  DefaultKeyService,
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
@@ -1057,6 +1057,7 @@ export default class MainBackground {
     }
 
     this.notificationsService = new DefaultNotificationsService(
+      this.logService,
       this.syncService,
       this.appIdService,
       this.environmentService,
@@ -1066,7 +1067,6 @@ export default class MainBackground {
       new SignalRConnectionService(this.apiService, this.logService),
       this.authService,
       this.webPushConnectionService,
-      this.logService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
