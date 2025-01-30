@@ -36,7 +36,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
 
     return Promise.resolve(false);
   });
-  const isSelfHost = jest.fn().mockResolvedValue(false);
+  const isSelfHost = jest.fn().mockReturnValue(false);
   const getProfileTwoFactorEnabled = jest.fn().mockResolvedValue(false);
   const policyAppliesToActiveUser$ = jest.fn().mockReturnValue(new BehaviorSubject<boolean>(false));
   const noticeState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
@@ -135,6 +135,12 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
 
     getProfileCreationDate.mockResolvedValueOnce(sixDaysAgo);
+
+    expect(await newDeviceGuard()).toBe(true);
+  });
+
+  it("returns `true` when the profile service throws an error", async () => {
+    getProfileCreationDate.mockRejectedValueOnce(new Error("test"));
 
     expect(await newDeviceGuard()).toBe(true);
   });
