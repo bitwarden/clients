@@ -7,15 +7,14 @@
     <i aria-hidden="true" class="bwi tw-text-xl tw-py-1.5 tw-px-2.5 {{ iconClass }}"></i>
     <div>
       <span class="tw-sr-only">{{ variant | i18n }}</span>
-      <p *ngIf="title" data-testid="toast-title" class="tw-font-semibold tw-mb-0">{{ title }}</p>
-      <p
-        bitTypography="body2"
-        *ngFor="let m of messageArray"
-        data-testid="toast-message"
-        class="tw-mb-2 last:tw-mb-0"
-      >
-        {{ m }}
-      </p>
+      @if (title) {
+        <p data-testid="toast-title" class="tw-font-semibold tw-mb-0">{{ title }}</p>
+      }
+      @for (m of messageArray; track m) {
+        <p bitTypography="body2" data-testid="toast-message" class="tw-mb-2 last:tw-mb-0">
+          {{ m }}
+        </p>
+      }
     </div>
     <!-- Overriding hover and focus-visible colors for a11y against colored background -->
     <button
