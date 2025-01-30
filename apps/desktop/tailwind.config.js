@@ -5,7 +5,7 @@ config.content = [
   "./src/**/*.{html,ts}",
   "../../libs/components/src/**/*.{html,ts}",
   "../../libs/auth/src/**/*.{html,ts}",
-  "../../libs/key-management/src/**/*.{html,ts}",
+  "../../libs/key-management-ui/src/**/*.{html,ts}",
   "../../libs/angular/src/**/*.{html,ts}",
   "../../libs/vault/src/**/*.{html,ts,mdx}",
 ];

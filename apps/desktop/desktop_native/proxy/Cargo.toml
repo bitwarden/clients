@@ -12,7 +12,7 @@ desktop_core = { path = "../core" }
 futures = "=0.3.31"
 log = "=0.4.25"
 simplelog = "=0.12.2"
-tokio = { version = "=1.41.1", features = ["io-std", "io-util", "macros", "rt"] }
+tokio = { version = "=1.43.0", features = ["io-std", "io-util", "macros", "rt"] }
 tokio-util = { version = "=0.7.12", features = ["codec"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
