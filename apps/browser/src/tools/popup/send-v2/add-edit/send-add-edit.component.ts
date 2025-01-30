@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Input, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
@@ -15,6 +15,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
+  FunctionReturningAwaitable,
   ButtonModule,
   DialogService,
   IconButtonModule,
@@ -32,6 +33,7 @@ import {
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { PopupRouterCacheService } from "../../../../platform/popup/view-cache/popup-router-cache.service";
 import { SendFilePopoutDialogContainerComponent } from "../send-file-popout-dialog/send-file-popout-dialog-container.component";
 
 /**
@@ -89,6 +91,8 @@ export class SendAddEditComponent {
    * The configuration for the send form.
    */
   config: SendFormConfig;
+
+  private popupRouterCacheService = inject(PopupRouterCacheService);
 
   constructor(
     private route: ActivatedRoute,
@@ -197,4 +201,14 @@ export class SendAddEditComponent {
         return this.i18nService.t(headerKey, this.i18nService.t("fileSend"));
     }
   }
+
+  /**
+   * Async action that occurs when clicking the cancel button
+   *
+   * If unset, will call `location.back()`
+   **/
+  @Input()
+  cancelAction: FunctionReturningAwaitable = async () => {
+    return this.popupRouterCacheService.back();
+  };
 }
