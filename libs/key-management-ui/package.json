@@ -1,5 +1,5 @@
 {
-  "name": "@bitwarden/key-management",
+  "name": "@bitwarden/key-management-ui",
   "version": "0.0.0",
   "description": "Common code used across Bitwarden JavaScript projects.",
   "keywords": [

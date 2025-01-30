@@ -2061,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Username generator"
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "useThisPassword": {
     "message": "Use this password"
   },
