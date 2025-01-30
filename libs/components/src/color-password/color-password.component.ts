@@ -23,7 +23,6 @@ enum CharacterType {
       i + 1
     }}</span>
   </span>`,
-  preserveWhitespaces: false,
   standalone: true,
   imports: [NgFor, NgIf],
 })
