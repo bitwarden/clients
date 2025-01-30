@@ -15,7 +15,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
 
 describe("SSOLoginService ", () => {
-  let ssoLoginService: SsoLoginService;
+  let sut: SsoLoginService;
 
   let accountService: FakeAccountService;
   let mockSingleUserStateProvider: FakeStateProvider;
@@ -30,64 +30,64 @@ describe("SSOLoginService ", () => {
     mockSingleUserStateProvider = new FakeStateProvider(accountService);
     mockLogService = mock<LogService>();
 
-    ssoLoginService = new SsoLoginService(mockSingleUserStateProvider, mockLogService);
+    sut = new SsoLoginService(mockSingleUserStateProvider, mockLogService);
   });
 
   it("instantiates", () => {
-    expect(ssoLoginService).not.toBeFalsy();
+    expect(sut).not.toBeFalsy();
   });
 
   it("gets and sets code verifier", async () => {
     const codeVerifier = "test-code-verifier";
-    await ssoLoginService.setCodeVerifier(codeVerifier);
+    await sut.setCodeVerifier(codeVerifier);
     mockSingleUserStateProvider.getGlobal(CODE_VERIFIER);
 
-    const result = await ssoLoginService.getCodeVerifier();
+    const result = await sut.getCodeVerifier();
     expect(result).toBe(codeVerifier);
   });
 
   it("gets and sets SSO state", async () => {
     const ssoState = "test-sso-state";
-    await ssoLoginService.setSsoState(ssoState);
+    await sut.setSsoState(ssoState);
     mockSingleUserStateProvider.getGlobal(SSO_STATE);
 
-    const result = await ssoLoginService.getSsoState();
+    const result = await sut.getSsoState();
     expect(result).toBe(ssoState);
   });
 
   it("gets and sets organization SSO identifier", async () => {
     const orgIdentifier = "test-org-identifier";
-    await ssoLoginService.setOrganizationSsoIdentifier(orgIdentifier);
+    await sut.setOrganizationSsoIdentifier(orgIdentifier);
     mockSingleUserStateProvider.getGlobal(GLOBAL_ORGANIZATION_SSO_IDENTIFIER);
 
-    const result = await ssoLoginService.getOrganizationSsoIdentifier();
+    const result = await sut.getOrganizationSsoIdentifier();
     expect(result).toBe(orgIdentifier);
   });
 
   it("gets and sets SSO email", async () => {
     const email = "test@example.com";
-    await ssoLoginService.setSsoEmail(email);
+    await sut.setSsoEmail(email);
     mockSingleUserStateProvider.getGlobal(SSO_EMAIL);
 
-    const result = await ssoLoginService.getSsoEmail();
+    const result = await sut.getSsoEmail();
     expect(result).toBe(email);
   });
 
   it("gets and sets active user organization SSO identifier", async () => {
     const userId = Utils.newGuid() as UserId;
     const orgIdentifier = "test-active-org-identifier";
-    await ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgIdentifier, userId);
+    await sut.setActiveUserOrganizationSsoIdentifier(orgIdentifier, userId);
     mockSingleUserStateProvider.getUser(userId, USER_ORGANIZATION_SSO_IDENTIFIER);
 
-    const result = await ssoLoginService.getActiveUserOrganizationSsoIdentifier(userId);
+    const result = await sut.getActiveUserOrganizationSsoIdentifier(userId);
     expect(result).toBe(orgIdentifier);
   });
 
   it("logs error when setting active user organization SSO identifier with undefined userId", async () => {
     const orgIdentifier = "test-active-org-identifier";
-    await ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgIdentifier, undefined);
+    await sut.setActiveUserOrganizationSsoIdentifier(orgIdentifier, undefined);
 
-    expect(mockLogService.error).toHaveBeenCalledWith(
+    expect(mockLogService.warning).toHaveBeenCalledWith(
       "Tried to set a new user organization sso identifier with an undefined user id.",
     );
   });

@@ -118,7 +118,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     if (userId !== undefined) {
       await this.userOrgSsoIdentifierState(userId).update((_) => organizationIdentifier);
     } else {
-      this.logService.error(
+      this.logService.warning(
         "Tried to set a new user organization sso identifier with an undefined user id.",
       );
     }
