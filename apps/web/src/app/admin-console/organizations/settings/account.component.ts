@@ -25,6 +25,8 @@ import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/model
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -53,6 +55,8 @@ export class AccountComponent implements OnInit, OnDestroy {
   org: OrganizationResponse;
   taxFormPromise: Promise<unknown>;
 
+  limitItemDeletionFeatureFlagIsEnabled: boolean;
+
   // FormGroup validators taken from server Organization domain object
   protected formGroup = this.formBuilder.group({
     orgName: this.formBuilder.control(
@@ -71,6 +75,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   protected collectionManagementFormGroup = this.formBuilder.group({
     limitCollectionCreation: this.formBuilder.control({ value: false, disabled: false }),
     limitCollectionDeletion: this.formBuilder.control({ value: false, disabled: false }),
+    limitItemDeletion: this.formBuilder.control({ value: false, disabled: false }),
     allowAdminAccessToAllCollectionItems: this.formBuilder.control({
       value: false,
       disabled: false,
@@ -94,10 +99,16 @@ export class AccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
     this.selfHosted = this.platformUtilsService.isSelfHost();
+
+    this.configService
+      .getFeatureFlag$(FeatureFlag.limitItemDeletion)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isAble) => (this.limitItemDeletionFeatureFlagIsEnabled = isAble));
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.route.params
@@ -143,9 +154,11 @@ export class AccountComponent implements OnInit, OnDestroy {
           orgName: this.org.name,
           billingEmail: this.org.billingEmail,
         });
+
         this.collectionManagementFormGroup.patchValue({
           limitCollectionCreation: this.org.limitCollectionCreation,
           limitCollectionDeletion: this.org.limitCollectionDeletion,
+          limitItemDeletion: this.org.limitItemDeletion,
           allowAdminAccessToAllCollectionItems: this.org.allowAdminAccessToAllCollectionItems,
         });
 
@@ -202,6 +215,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       this.collectionManagementFormGroup.value.limitCollectionDeletion;
     request.allowAdminAccessToAllCollectionItems =
       this.collectionManagementFormGroup.value.allowAdminAccessToAllCollectionItems;
+    request.limitItemDeletion = this.collectionManagementFormGroup.value.limitItemDeletion;
 
     await this.organizationApiService.updateCollectionManagement(this.organizationId, request);
 
