@@ -1,4 +1,5 @@
 #![cfg(target_os = "windows")]
+#![allow(clippy::all)]
 
 mod pa;
 

@@ -17,7 +17,7 @@ fn windows() {
 
     bindings
         .write_to_file(format!(
-            "{}/windows_pluginauthenticator_bindings.rs",
+            "{}\\windows_pluginauthenticator_bindings.rs",
             out_dir
         ))
         .expect("Couldn't write bindings.");

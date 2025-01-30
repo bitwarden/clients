@@ -10,6 +10,12 @@ To build this crate, set the following environment variables:
 
 - `LIBCLANG_PATH` -> the path to `clang.dll` or `libclang.dll` for `bindgen`
 
+### Bash Example
+
+```
+export LIBCLANG_PATH='C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin'
+```
+
 ### PowerShell Example
 
 ```
