@@ -36,7 +36,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
 
     return Promise.resolve(false);
   });
-  const isSelfHost = jest.fn().mockResolvedValue(false);
+  const isSelfHost = jest.fn().mockReturnValue(false);
   const getProfileTwoFactorEnabled = jest.fn().mockResolvedValue(false);
   const policyAppliesToActiveUser$ = jest.fn().mockReturnValue(new BehaviorSubject<boolean>(false));
   const noticeState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
