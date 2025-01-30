@@ -6,6 +6,8 @@ fn main() {
 #[cfg(target_os = "windows")]
 #[allow(dead_code)]
 fn windows() {
+    let out_dir = std::env::var("OUT_DIR").expect("OUT_DIR not set");
+
     // TODO: Use .allowlist_x() to specify needed items
     let bindings = bindgen::Builder::default()
         .header("pluginauthenticator.hpp")
@@ -14,9 +16,9 @@ fn windows() {
         .expect("Unable to generate bindings.");
 
     bindings
-        .write_to_file(concat!(
-            env!("OUT_DIR"),
-            "windows_pluginauthenticator_bindings.rs"
+        .write_to_file(format!(
+            "{}/windows_pluginauthenticator_bindings.rs",
+            out_dir
         ))
         .expect("Couldn't write bindings.");
 }
