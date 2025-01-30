@@ -79,7 +79,7 @@
     "@types/retry": "0.12.5",
     "@types/zxcvbn": "4.4.5",
     "@webcomponents/custom-elements": "1.6.0",
-    "@yao-pkg/pkg": "5.16.1",
+    "@yao-pkg/pkg": "6.3.0",
     "angular-eslint": "18.4.3",
     "autoprefixer": "10.4.20",
     "babel-loader": "9.2.1",
