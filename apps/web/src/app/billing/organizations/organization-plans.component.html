@@ -433,13 +433,7 @@
     <p class="tw-text-muted tw-italic tw-mb-3 tw-block" bitTypography="body2">
       {{ paymentDesc }}
     </p>
-    <app-payment
-      *ngIf="!deprecateStripeSourcesAPI && (createOrganization || upgradeRequiresPaymentMethod)"
-      [hideCredit]="true"
-    ></app-payment>
-    <app-payment-v2
-      *ngIf="deprecateStripeSourcesAPI && (createOrganization || upgradeRequiresPaymentMethod)"
-    ></app-payment-v2>
+    <app-payment *ngIf="createOrganization || upgradeRequiresPaymentMethod"></app-payment>
     <app-manage-tax-information
       class="tw-my-4"
       [showTaxIdField]="showTaxIdField"
@@ -465,9 +459,6 @@
         }}
       </p>
     </div>
-    <ng-container *ngIf="!createOrganization">
-      <app-payment [showMethods]="false"></app-payment>
-    </ng-container>
   </bit-section>
   <bit-section *ngIf="singleOrgPolicyBlock">
     <bit-callout type="danger" [title]="'error' | i18n">

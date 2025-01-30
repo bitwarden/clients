@@ -157,8 +157,11 @@ describe("ItemDetailsSectionComponent", () => {
   });
 
   describe("allowOwnershipChange", () => {
-    it("should not allow ownership change in edit mode", () => {
+    it("should not allow ownership change if in edit mode and the cipher is owned by an organization", () => {
       component.config.mode = "edit";
+      component.originalCipherView = {
+        organizationId: "org1",
+      } as CipherView;
       expect(component.allowOwnershipChange).toBe(false);
     });
 
@@ -195,6 +198,7 @@ describe("ItemDetailsSectionComponent", () => {
     it("should show personal ownership when the configuration allows", () => {
       component.config.mode = "edit";
       component.config.allowPersonalOwnership = true;
+      component.originalCipherView = {} as CipherView;
       component.config.organizations = [{ id: "134-433-22" } as Organization];
       fixture.detectChanges();
 
@@ -208,6 +212,7 @@ describe("ItemDetailsSectionComponent", () => {
     it("should show personal ownership when the control is disabled", async () => {
       component.config.mode = "edit";
       component.config.allowPersonalOwnership = false;
+      component.originalCipherView = {} as CipherView;
       component.config.organizations = [{ id: "134-433-22" } as Organization];
       await component.ngOnInit();
       fixture.detectChanges();

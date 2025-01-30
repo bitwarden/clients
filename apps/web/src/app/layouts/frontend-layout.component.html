@@ -1,6 +1,8 @@
 <router-outlet></router-outlet>
-<div class="container my-5 text-muted text-center">
+
+<footer class="tw-text-center tw-my-12">
   <environment-selector></environment-selector>
-  &copy; {{ year }} Bitwarden Inc. <br />
-  {{ "versionNumber" | i18n: version }}
-</div>
+
+  <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
+  <div bitTypography="body2">{{ version }}</div>
+</footer>

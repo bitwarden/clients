@@ -6,6 +6,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
@@ -110,7 +111,11 @@ export class FreeFamiliesPolicyService {
       });
     }
 
-    return this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy).pipe(
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+      ),
       map((policies) => ({
         isFreeFamilyPolicyEnabled: policies.some(
           (policy) => policy.organizationId === organizationId && policy.enabled,

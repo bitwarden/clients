@@ -3,7 +3,7 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { authGuard } from "@bitwarden/angular/auth/guards";
 
-import { hasPremiumGuard } from "../../core/guards/has-premium.guard";
+import { hasPremiumGuard } from "../../billing/guards/has-premium.guard";
 
 import { BreachReportComponent } from "./pages/breach-report.component";
 import { ExposedPasswordsReportComponent } from "./pages/exposed-passwords-report.component";

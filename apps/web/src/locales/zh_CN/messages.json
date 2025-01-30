@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "总的应用程序"
   },
+  "unmarkAsCriticalApp": {
+    "message": "取消标记为关键应用程序"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "关键应用程序已成功取消标记"
+  },
   "whatTypeOfItem": {
     "message": "这是什么类型的项目？"
   },
@@ -1161,6 +1167,12 @@
   "verifyIdentity": {
     "message": "验证您的身份"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。"
+  },
+  "continueLoggingIn": {
+    "message": "继续登录"
+  },
   "whatIsADevice": {
     "message": "什么是设备？"
   },
@@ -1456,7 +1468,7 @@
     "message": "FIDO U2F 安全钥匙"
   },
   "webAuthnTitle": {
-    "message": "FIDO2 WebAuthn"
+    "message": "通行密钥"
   },
   "webAuthnDesc": {
     "message": "使用您设备的生物识别或 WebAuthn 兼容的安全钥匙。"
@@ -3769,7 +3781,7 @@
     }
   },
   "unlinkedSso": {
-    "message": "Unlinked SSO."
+    "message": "未链接 SSO。"
   },
   "unlinkedSsoUser": {
     "message": "为用户 $ID$ 取消链接 SSO。",
@@ -3881,7 +3893,7 @@
     "message": "刚刚"
   },
   "requestedXMinutesAgo": {
-    "message": "$MINUTES$ 分钟前已发出请求",
+    "message": "$MINUTES$ 分钟前已请求",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4558,7 +4570,7 @@
     "description": "ex. A strong password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "good": {
-    "message": "良好",
+    "message": "良",
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "weak": {
@@ -5051,7 +5063,7 @@
     "message": "对收件人隐藏我的电子邮箱地址。"
   },
   "disableThisSend": {
-    "message": "停用此 Send 则任何人无法访问它。",
+    "message": "停用此 Send 确保无人能访问它。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
@@ -5400,10 +5412,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
-    "message": "您想要发送的文本。"
+    "message": "您想在此 Send 中附加的文本。"
   },
   "sendFileDesc": {
-    "message": "您想要发送的文件。"
+    "message": "您想在此 Send 中附加的文件。"
   },
   "copySendLinkOnSave": {
     "message": "保存时复制链接到剪贴板以便分享此 Send。"
@@ -9271,7 +9283,10 @@
     "message": "35% 折扣"
   },
   "monthPerMember": {
-    "message": "每成员 /月"
+    "message": " /成员 /月"
+  },
+  "monthPerMemberBilledAnnually": {
+    "message": " /成员 /月（按年计费）"
   },
   "seats": {
     "message": "席位"
@@ -9792,6 +9807,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "密钥算法"
+  },
+  "sshPrivateKey": {
+    "message": "私钥"
+  },
+  "sshPublicKey": {
+    "message": "公钥"
+  },
+  "sshFingerprint": {
+    "message": "指纹"
   },
   "sshKeyFingerprint": {
     "message": "指纹"

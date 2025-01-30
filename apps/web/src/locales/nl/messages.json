@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Totaal applicaties"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Markeren als belangrijke applicatie ongedaan maken"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Markering als belangrijke applicatie ongedaan gemaakt"
+  },
   "whatTypeOfItem": {
     "message": "Van welke categorie is dit item?"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Controleer je identiteit"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
+  },
+  "continueLoggingIn": {
+    "message": "Doorgaan met inloggen"
   },
   "whatIsADevice": {
     "message": "Wat is een apparaat?"
@@ -9273,6 +9285,9 @@
   "monthPerMember": {
     "message": "maand per lid"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "maand per lid jaarlijks gefactureerd"
+  },
   "seats": {
     "message": "Personen"
   },
@@ -9792,6 +9807,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Sleutelalgoritme"
+  },
+  "sshPrivateKey": {
+    "message": "Privésleutel"
+  },
+  "sshPublicKey": {
+    "message": "Publieke sleutel"
+  },
+  "sshFingerprint": {
+    "message": "Vingerafdruk"
   },
   "sshKeyFingerprint": {
     "message": "Vingerafdruk"
