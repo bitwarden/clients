@@ -1,35 +1,37 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, concatMap, from, Observable, of, switchMap } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 
+import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
+import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { PreviewIndividualInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-individual-invoice.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
 
 import { PaymentComponent } from "../../shared/payment/payment.component";
-import { TaxInfoComponent } from "../../shared/tax-info.component";
 
 @Component({
   templateUrl: "./premium.component.html",
 })
-export class PremiumComponent {
+export class PremiumComponent implements OnInit {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
-  @ViewChild(TaxInfoComponent) taxInfoComponent: TaxInfoComponent;
+  @ViewChild(ManageTaxInformationComponent) taxInfoComponent: ManageTaxInformationComponent;
 
   protected hasPremiumFromAnyOrganization$: Observable<boolean>;
 
@@ -53,6 +55,8 @@ export class PremiumComponent {
   protected readonly premiumPrice = 10;
   protected readonly storageGBPrice = 4;
 
+  protected taxInformation: TaxInformation;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private apiService: ApiService,
@@ -67,6 +71,7 @@ export class PremiumComponent {
     private tokenService: TokenService,
     private taxService: TaxServiceAbstraction,
     private accountService: AccountService,
+    private logService: LogService,
   ) {
     this.isSelfHost = this.platformUtilsService.isSelfHost();
 
@@ -102,6 +107,15 @@ export class PremiumComponent {
       .subscribe(() => {
         this.refreshSalesTax();
       });
+  }
+
+  async ngOnInit(): Promise<void> {
+    try {
+      const taxInfo = await this.apiService.getTaxInfo();
+      this.taxInformation = TaxInformation.from(taxInfo) || new TaxInformation();
+    } catch (e) {
+      this.logService.error(e);
+    }
   }
 
   finalizeUpgrade = async () => {
@@ -155,8 +169,7 @@ export class PremiumComponent {
   };
 
   submitPayment = async (): Promise<void> => {
-    this.taxInfoComponent.taxFormGroup.markAllAsTouched();
-    if (this.taxInfoComponent.taxFormGroup.invalid) {
+    if (!this.taxInfoComponent.validate()) {
       return;
     }
 
@@ -166,8 +179,14 @@ export class PremiumComponent {
     formData.append("paymentMethodType", type.toString());
     formData.append("paymentToken", token);
     formData.append("additionalStorageGb", this.addOnFormGroup.value.additionalStorage.toString());
-    formData.append("country", this.taxInfoComponent.country);
-    formData.append("postalCode", this.taxInfoComponent.postalCode);
+
+    const taxInformation = this.taxInfoComponent.getTaxInformation();
+    formData.append("country", taxInformation.country);
+    formData.append("postalCode", taxInformation.postalCode);
+    formData.append("line1", taxInformation.line1);
+    formData.append("line2", taxInformation.line2);
+    formData.append("city", taxInformation.city);
+    formData.append("state", taxInformation.state);
 
     await this.apiService.postPremium(formData);
     await this.finalizeUpgrade();
@@ -195,16 +214,17 @@ export class PremiumComponent {
   }
 
   private refreshSalesTax(): void {
-    if (!this.taxInfoComponent.country || !this.taxInfoComponent.postalCode) {
+    if (!this.taxInfoComponent.validate()) {
       return;
     }
+
     const request: PreviewIndividualInvoiceRequest = {
       passwordManager: {
         additionalStorage: this.addOnFormGroup.value.additionalStorage,
       },
       taxInformation: {
-        postalCode: this.taxInfoComponent.postalCode,
-        country: this.taxInfoComponent.country,
+        postalCode: this.taxInfoComponent.getTaxInformation().postalCode,
+        country: this.taxInfoComponent.getTaxInformation().country,
       },
     };
 
@@ -222,7 +242,8 @@ export class PremiumComponent {
       });
   }
 
-  protected onTaxInformationChanged(): void {
+  protected onTaxInformationChanged(event: TaxInformation): void {
+    this.taxInformation = event;
     this.refreshSalesTax();
   }
 }
