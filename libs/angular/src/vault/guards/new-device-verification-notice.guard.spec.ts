@@ -139,6 +139,12 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     expect(await newDeviceGuard()).toBe(true);
   });
 
+  it("returns `true` when the profile service throws an error", async () => {
+    getProfileCreationDate.mockRejectedValueOnce(new Error("test"));
+
+    expect(await newDeviceGuard()).toBe(true);
+  });
+
   describe("temp flag", () => {
     beforeEach(() => {
       getFeatureFlag.mockImplementation((key) => {
