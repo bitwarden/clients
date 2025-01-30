@@ -10,13 +10,14 @@
         'tw-border-b-transparent': sectionOpenState(),
       }"
       type="button"
+      [bitDisclosureTriggerFor]="disclosureRef"
       (click)="toggleSectionOpen()"
     >
       <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
     </button>
     <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
-    <bit-disclosure [open]="sectionOpenState()" (openChange)="rerenderViewport()">
-      <ng-container *ngTemplateOutlet="mainContent"></ng-container>
+    <bit-disclosure #disclosureRef [open]="sectionOpenState()" (openChange)="rerenderViewport()">
+      <ng-container *ngTemplateOutlet="itemGroup"></ng-container>
     </bit-disclosure>
   </ng-container>
 
@@ -25,7 +26,7 @@
       <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
     </div>
     <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
-    <ng-container *ngTemplateOutlet="mainContent"></ng-container>
+    <ng-container *ngTemplateOutlet="itemGroup"></ng-container>
   </ng-container>
 </bit-section>
 
@@ -43,7 +44,7 @@
     <span bitTypography="body2" slot="end">
       <span
         [ngClass]="{
-          'tw-hidden group-hover/vault-section-header:tw-hidden group-focus-visible/vault-section-header:tw-hidden':
+          'group-hover/vault-section-header:tw-hidden group-focus-visible/vault-section-header:tw-hidden':
             collapsibleKey && sectionOpenState(),
           'tw-hidden': collapsibleKey && !sectionOpenState(),
         }"
@@ -65,11 +66,17 @@
   </bit-section-header>
 </ng-template>
 
-<ng-template #mainContent>
+<ng-template #descriptionText>
+  <div *ngIf="description" class="tw-text-muted tw-px-1 tw-mb-2" bitTypography="body2">
+    {{ description }}
+  </div>
+</ng-template>
+
+<ng-template #itemGroup>
   <bit-item-group>
     <ng-container *ngFor="let group of cipherGroups$()">
       <ng-container *ngIf="group.subHeaderKey">
-        <h3 class="tw-text-muted tw-text-xs tw-font-semibold tw-pl-1 tw-mb-1">
+        <h3 class="tw-text-muted tw-text-xs tw-font-semibold tw-pl-1 tw-mb-1 bit-compact:tw-m-0">
           {{ group.subHeaderKey | i18n }}
         </h3>
       </ng-container>
@@ -78,75 +85,67 @@
         [itemSize]="itemHeight$ | async"
         class="tw-overflow-visible [&>.cdk-virtual-scroll-content-wrapper]:[contain:layout_style]"
       >
-        <ng-container *cdkVirtualFor="let cipher of group.ciphers">
-          <bit-item>
-            <button
-              bit-item-content
-              type="button"
-              class="tw-flex tw-items-center tw-h-[52px]"
-              (click)="primaryActionOnSelect(cipher)"
-              (dblclick)="launchCipher(cipher)"
-              [appA11yTitle]="cipherItemTitleKey | async | i18n: cipher.name"
-            >
-              <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
-                <app-vault-icon [cipher]="cipher"></app-vault-icon>
-              </div>
-              <span data-testid="item-name">{{ cipher.name }}</span>
-              <i
-                *ngIf="cipher.organizationId"
-                slot="default-trailing"
-                appOrgIcon
-                [tierType]="cipher.organization.productTierType"
-                [size]="'small'"
-                [appA11yTitle]="orgIconTooltip(cipher)"
-              ></i>
-              <i
-                *ngIf="cipher.hasAttachments"
-                class="bwi bwi-paperclip bwi-sm"
-                [appA11yTitle]="'attachments' | i18n"
-              ></i>
-              <span slot="secondary">{{ cipher.subTitle }}</span>
-            </button>
+        <bit-item *cdkVirtualFor="let cipher of group.ciphers">
+          <button
+            bit-item-content
+            type="button"
+            (click)="primaryActionOnSelect(cipher)"
+            (dblclick)="launchCipher(cipher)"
+            [appA11yTitle]="cipherItemTitleKey | async | i18n: cipher.name"
+            class="{{ itemHeightClass }}"
+          >
+            <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
+              <app-vault-icon [cipher]="cipher"></app-vault-icon>
+            </div>
+            <span data-testid="item-name">{{ cipher.name }}</span>
+            <i
+              *ngIf="cipher.organizationId"
+              slot="default-trailing"
+              appOrgIcon
+              [tierType]="cipher.organization.productTierType"
+              [size]="'small'"
+              [appA11yTitle]="orgIconTooltip(cipher)"
+            ></i>
+            <i
+              *ngIf="cipher.hasAttachments"
+              class="bwi bwi-paperclip bwi-sm"
+              [appA11yTitle]="'attachments' | i18n"
+            ></i>
+            <span slot="secondary">{{ cipher.subTitle }}</span>
+          </button>
 
-            <ng-container slot="end">
-              <bit-item-action *ngIf="!(hideAutofillButton$ | async)">
-                <button
-                  type="button"
-                  bitBadge
-                  variant="primary"
-                  (click)="doAutofill(cipher)"
-                  [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
-                  [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
-                >
-                  {{ "fill" | i18n }}
-                </button>
-              </bit-item-action>
-              <bit-item-action *ngIf="!showAutofillButton && cipher.canLaunch">
-                <button
-                  type="button"
-                  bitIconButton="bwi-external-link"
-                  size="small"
-                  (click)="launchCipher(cipher)"
-                  [attr.aria-label]="'launchWebsiteName' | i18n: cipher.name"
-                  [title]="'launchWebsiteName' | i18n: cipher.name"
-                ></button>
-              </bit-item-action>
-              <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
-              <app-item-more-options
-                [cipher]="cipher"
-                [hideAutofillOptions]="hideAutofillOptions$ | async"
-                [showViewOption]="primaryActionAutofill"
-              ></app-item-more-options>
-            </ng-container>
-          </bit-item>
-        </ng-container>
+          <ng-container slot="end">
+            <bit-item-action *ngIf="!(hideAutofillButton$ | async)">
+              <button
+                type="button"
+                bitBadge
+                variant="primary"
+                (click)="doAutofill(cipher)"
+                [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
+                [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
+              >
+                {{ "fill" | i18n }}
+              </button>
+            </bit-item-action>
+            <bit-item-action *ngIf="!showAutofillButton && cipher.canLaunch">
+              <button
+                type="button"
+                bitIconButton="bwi-external-link"
+                size="small"
+                (click)="launchCipher(cipher)"
+                [attr.aria-label]="'launchWebsiteName' | i18n: cipher.name"
+                [title]="'launchWebsiteName' | i18n: cipher.name"
+              ></button>
+            </bit-item-action>
+            <app-item-copy-actions [cipher]="cipher"></app-item-copy-actions>
+            <app-item-more-options
+              [cipher]="cipher"
+              [hideAutofillOptions]="hideAutofillOptions$ | async"
+              [showViewOption]="primaryActionAutofill"
+            ></app-item-more-options>
+          </ng-container>
+        </bit-item>
       </cdk-virtual-scroll-viewport>
     </ng-container>
   </bit-item-group>
-</ng-template>
-
-<ng-template #descriptionText>
-  <div *ngIf="description" class="tw-text-muted tw-px-1 tw-mb-2" bitTypography="body2">
-    {{ description }}
-  </div>
 </ng-template>
