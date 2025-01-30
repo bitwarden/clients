@@ -48,7 +48,6 @@
         "css-loader",
         "html-loader",
         "mini-css-extract-plugin",
-        "ngx-infinite-scroll",
         "postcss",
         "postcss-loader",
         "process",
