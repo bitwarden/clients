@@ -18,21 +18,21 @@ import { SsoLoginServiceAbstraction } from "../abstractions/sso-login.service.ab
 /**
  * Uses disk storage so that the code verifier can be persisted across sso redirects.
  */
-const CODE_VERIFIER = new KeyDefinition<string>(SSO_DISK, "ssoCodeVerifier", {
+export const CODE_VERIFIER = new KeyDefinition<string>(SSO_DISK, "ssoCodeVerifier", {
   deserializer: (codeVerifier) => codeVerifier,
 });
 
 /**
  * Uses disk storage so that the sso state can be persisted across sso redirects.
  */
-const SSO_STATE = new KeyDefinition<string>(SSO_DISK, "ssoState", {
+export const SSO_STATE = new KeyDefinition<string>(SSO_DISK, "ssoState", {
   deserializer: (state) => state,
 });
 
 /**
  * Uses disk storage so that the organization sso identifier can be persisted across sso redirects.
  */
-const USER_ORGANIZATION_SSO_IDENTIFIER = new UserKeyDefinition<string>(
+export const USER_ORGANIZATION_SSO_IDENTIFIER = new UserKeyDefinition<string>(
   SSO_DISK,
   "organizationSsoIdentifier",
   {
@@ -44,7 +44,7 @@ const USER_ORGANIZATION_SSO_IDENTIFIER = new UserKeyDefinition<string>(
 /**
  * Uses disk storage so that the organization sso identifier can be persisted across sso redirects.
  */
-const GLOBAL_ORGANIZATION_SSO_IDENTIFIER = new KeyDefinition<string>(
+export const GLOBAL_ORGANIZATION_SSO_IDENTIFIER = new KeyDefinition<string>(
   SSO_DISK,
   "organizationSsoIdentifier",
   {
@@ -55,7 +55,7 @@ const GLOBAL_ORGANIZATION_SSO_IDENTIFIER = new KeyDefinition<string>(
 /**
  * Uses disk storage so that the user's email can be persisted across sso redirects.
  */
-const SSO_EMAIL = new KeyDefinition<string>(SSO_DISK, "ssoEmail", {
+export const SSO_EMAIL = new KeyDefinition<string>(SSO_DISK, "ssoEmail", {
   deserializer: (state) => state,
 });
 
