@@ -9,13 +9,13 @@ import {
   EventEmitter,
   inject,
   Input,
-  OnChanges,
-  OnInit,
   Output,
   Signal,
-  SimpleChanges,
   signal,
   ViewChild,
+  computed,
+  OnInit,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, map } from "rxjs";
@@ -76,8 +76,9 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultListItemsContainerComponent implements OnInit, AfterViewInit, OnChanges {
+export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
 
@@ -113,11 +114,67 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit, 
    */
   private viewCipherTimeout: number | null;
 
-  /**
-   * The list of ciphers to display.
-   */
+  private _ciphers = signal<PopupCipherView[]>([]);
+
   @Input()
-  ciphers: PopupCipherView[] = [];
+  set ciphers(value: PopupCipherView[]) {
+    this._ciphers.set(value);
+  }
+
+  get ciphers(): PopupCipherView[] {
+    return this._ciphers();
+  }
+
+  /**
+   * If true, we will group ciphers by type (Login, Card, Identity)
+   * within subheadings in a single container, converted to a WritableSignal.
+   */
+  private _groupByType = signal(false);
+  @Input()
+  set groupByType(value: boolean) {
+    this._groupByType.set(value);
+  }
+  get groupByType(): boolean {
+    return this._groupByType();
+  }
+
+  /**
+   * Computed signal for a grouped list of ciphers with an optional header
+   */
+  cipherGroups$ = computed<
+    {
+      subHeaderKey?: string | null;
+      ciphers: PopupCipherView[];
+    }[]
+  >(() => {
+    const groups: { [key: string]: CipherView[] } = {};
+
+    this.ciphers.forEach((cipher) => {
+      let groupKey;
+
+      if (this.groupByType) {
+        switch (cipher.type) {
+          case CipherType.Card:
+            groupKey = "cards";
+            break;
+          case CipherType.Identity:
+            groupKey = "identities";
+            break;
+        }
+      }
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+
+      groups[groupKey].push(cipher);
+    });
+
+    return Object.keys(groups).map((key) => ({
+      subHeaderKey: this.groupByType ? key : "",
+      ciphers: groups[key],
+    }));
+  });
 
   /**
    * Title for the vault list item section.
@@ -146,26 +203,6 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit, 
    */
   @Input({ transform: booleanAttribute })
   showRefresh: boolean;
-
-  /**
-   * If true, we will group ciphers by type (Login, Card, Identity)
-   * within subheadings in a single container.
-   */
-  @Input({ transform: booleanAttribute })
-  groupByType = false;
-
-  /**
-   * Data structure for grouped ciphers, if `groupByType` is true.
-   */
-  groupedCiphers$ = signal<{
-    loginCiphers: PopupCipherView[];
-    cardCiphers: PopupCipherView[];
-    identityCiphers: PopupCipherView[];
-  }>({
-    loginCiphers: [],
-    cardCiphers: [],
-    identityCiphers: [],
-  });
 
   /**
    * Event emitted when the refresh button is clicked.
@@ -246,10 +283,6 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit, 
   ) {}
 
   ngOnInit(): void {
-    if (this.groupByType) {
-      this.groupCiphersByType();
-    }
-
     if (!this.collapsibleKey) {
       return;
     }
@@ -269,47 +302,6 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit, 
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes["ciphers"] && !changes["ciphers"].firstChange && this.groupByType) {
-      this.groupCiphersByType();
-    }
-  }
-
-  /**
-   * Re-group ciphers by type whenever ciphers or groupByType changes
-   */
-  private groupCiphersByType(): void {
-    if (!this.ciphers) {
-      return;
-    }
-
-    const loginCiphers: PopupCipherView[] = [];
-    const cardCiphers: PopupCipherView[] = [];
-    const identityCiphers: PopupCipherView[] = [];
-
-    for (const cipher of this.ciphers) {
-      switch (cipher.type) {
-        case CipherType.Login:
-          loginCiphers.push(cipher);
-          break;
-        case CipherType.Card:
-          cardCiphers.push(cipher);
-          break;
-        case CipherType.Identity:
-          identityCiphers.push(cipher);
-          break;
-        default:
-          break;
-      }
-    }
-
-    this.groupedCiphers$.set({
-      loginCiphers,
-      cardCiphers,
-      identityCiphers,
-    });
   }
 
   async primaryActionOnSelect(cipher: CipherView) {
