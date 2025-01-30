@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Общо приложения"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Премахване на приложението от важните"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Приложението е премахнато от важните"
+  },
   "whatTypeOfItem": {
     "message": "Вид на елемента"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Потвърдете самоличността си"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си."
+  },
+  "continueLoggingIn": {
+    "message": "Продължаване с вписването"
   },
   "whatIsADevice": {
     "message": "Какво представлява едно устройство?"
@@ -9273,6 +9285,9 @@
   "monthPerMember": {
     "message": "на месец за член"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "месец, за всеки потребител, таксувано на годишна база"
+  },
   "seats": {
     "message": "Места"
   },
@@ -9792,6 +9807,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Алгоритъм на ключа"
+  },
+  "sshPrivateKey": {
+    "message": "Частен ключ"
+  },
+  "sshPublicKey": {
+    "message": "Публичен ключ"
+  },
+  "sshFingerprint": {
+    "message": "Отпечатък"
   },
   "sshKeyFingerprint": {
     "message": "Отпечатък"

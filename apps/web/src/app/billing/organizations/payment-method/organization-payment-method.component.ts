@@ -23,16 +23,16 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { FreeTrial } from "../../../core/types/free-trial";
 import { TrialFlowService } from "../../services/trial-flow.service";
 import {
   AddCreditDialogResult,
   openAddCreditDialog,
 } from "../../shared/add-credit-dialog.component";
 import {
-  AdjustPaymentDialogV2Component,
-  AdjustPaymentDialogV2ResultType,
-} from "../../shared/adjust-payment-dialog/adjust-payment-dialog-v2.component";
+  AdjustPaymentDialogComponent,
+  AdjustPaymentDialogResultType,
+} from "../../shared/adjust-payment-dialog/adjust-payment-dialog.component";
+import { FreeTrial } from "../../types/free-trial";
 
 @Component({
   templateUrl: "./organization-payment-method.component.html",
@@ -159,7 +159,7 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   };
 
   protected updatePaymentMethod = async (): Promise<void> => {
-    const dialogRef = AdjustPaymentDialogV2Component.open(this.dialogService, {
+    const dialogRef = AdjustPaymentDialogComponent.open(this.dialogService, {
       data: {
         initialPaymentMethod: this.paymentSource?.type,
         organizationId: this.organizationId,
@@ -169,13 +169,13 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
 
     const result = await lastValueFrom(dialogRef.closed);
 
-    if (result === AdjustPaymentDialogV2ResultType.Submitted) {
+    if (result === AdjustPaymentDialogResultType.Submitted) {
       await this.load();
     }
   };
 
   changePayment = async () => {
-    const dialogRef = AdjustPaymentDialogV2Component.open(this.dialogService, {
+    const dialogRef = AdjustPaymentDialogComponent.open(this.dialogService, {
       data: {
         initialPaymentMethod: this.paymentSource?.type,
         organizationId: this.organizationId,
@@ -183,7 +183,7 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
       },
     });
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === AdjustPaymentDialogV2ResultType.Submitted) {
+    if (result === AdjustPaymentDialogResultType.Submitted) {
       this.location.replaceState(this.location.path(), "", {});
       if (this.launchPaymentModalAutomatically && !this.organization.enabled) {
         await this.syncService.fullSync(true);

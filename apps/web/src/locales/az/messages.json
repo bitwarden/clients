@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Cəmi tətbiq"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Kritik tətbiq kimi işarəni götür"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Kritik tətbiq işarəsi uğurla götürüldü"
+  },
   "whatTypeOfItem": {
     "message": "Bu elementin növü nədir?"
   },
@@ -1160,6 +1166,12 @@
   },
   "verifyIdentity": {
     "message": "Kimliyinizi doğrulayın"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
+  },
+  "continueLoggingIn": {
+    "message": "Giriş etməyə davam"
   },
   "whatIsADevice": {
     "message": "Cihaz nədir?"
@@ -9273,6 +9285,9 @@
   "monthPerMember": {
     "message": "üzv başına ay"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "üzv üzrə aylıq illik hesablama"
+  },
   "seats": {
     "message": "Yer"
   },
@@ -9792,6 +9807,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Açar alqoritmi"
+  },
+  "sshPrivateKey": {
+    "message": "Private açar"
+  },
+  "sshPublicKey": {
+    "message": "Public açar"
+  },
+  "sshFingerprint": {
+    "message": "Barmaq izi"
   },
   "sshKeyFingerprint": {
     "message": "Barmaq izi"

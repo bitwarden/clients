@@ -7,5 +7,6 @@
     "**/_locales/*[^n]/messages.json": true
   },
   "rust-analyzer.linkedProjects": ["apps/desktop/desktop_native/Cargo.toml"],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.useFlatConfig": true
 }

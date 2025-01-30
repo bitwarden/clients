@@ -885,6 +885,15 @@
     "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全钥匙来进行验证。",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "验证您的身份"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。"
+  },
+  "continueLoggingIn": {
+    "message": "继续登录"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -1767,7 +1776,7 @@
     "message": "应用程序启动时要求使用触控 ID"
   },
   "requirePasswordOnStart": {
-    "message": "App 启动时要求输入密码或 PIN 码"
+    "message": "应用程序启动时要求输入密码或 PIN 码"
   },
   "recommendedForSecurity": {
     "message": "安全起见，推荐设置。"
@@ -2125,11 +2134,11 @@
     "message": "当前访问次数"
   },
   "disableSend": {
-    "message": "停用此 Send 则任何人无法访问它。",
+    "message": "停用此 Send 确保无人能访问它。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDesc": {
-    "message": "可选，用户需要提供密码才能访问此 Send。",
+    "message": "可选。用户需要提供密码才能访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2172,10 +2181,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
-    "message": "您想要发送的文本。"
+    "message": "您想在此 Send 中附加的文本。"
   },
   "sendFileDesc": {
-    "message": "您想要发送的文件。"
+    "message": "您想在此 Send 中附加的文件。"
   },
   "days": {
     "message": "$DAYS$ 天",
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "此功能不适用于免费组织。请切换到付费计划以解锁更多功能。"
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "扩展需要更新"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "您正在使用的浏览器扩展已过时。请更新它或在桌面 App 的设置中禁用浏览器集成指纹验证。"
   }
 }
