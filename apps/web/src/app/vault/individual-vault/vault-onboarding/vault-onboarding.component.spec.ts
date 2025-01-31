@@ -7,10 +7,18 @@ import { Subject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import {
+  FakeAccountService,
+  FakeStateProvider,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
 
@@ -25,10 +33,11 @@ describe("VaultOnboardingComponent", () => {
   let mockPolicyService: MockProxy<PolicyService>;
   let mockI18nService: MockProxy<I18nService>;
   let mockVaultOnboardingService: MockProxy<VaultOnboardingServiceAbstraction>;
-  let mockStateProvider: Partial<StateProvider>;
   let setInstallExtLinkSpy: any;
   let individualVaultPolicyCheckSpy: any;
   let mockConfigService: MockProxy<ConfigService>;
+  const mockAccountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
+  const fakeStateProvider = new FakeStateProvider(mockAccountService);
 
   beforeEach(() => {
     mockPolicyService = mock<PolicyService>();
@@ -38,15 +47,6 @@ describe("VaultOnboardingComponent", () => {
       getProfile: jest.fn(),
     };
     mockVaultOnboardingService = mock<VaultOnboardingServiceAbstraction>();
-    mockStateProvider = {
-      getActive: jest.fn().mockReturnValue(
-        of({
-          createAccount: true,
-          importData: false,
-          installExtension: false,
-        }),
-      ),
-    };
     mockConfigService = mock<ConfigService>();
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -59,8 +59,9 @@ describe("VaultOnboardingComponent", () => {
         { provide: VaultOnboardingServiceAbstraction, useValue: mockVaultOnboardingService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ApiService, useValue: mockApiService },
-        { provide: StateProvider, useValue: mockStateProvider },
+        { provide: StateProvider, useValue: fakeStateProvider },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: AccountService, useValue: mockAccountService },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(VaultOnboardingComponent);
@@ -71,11 +72,15 @@ describe("VaultOnboardingComponent", () => {
       .mockReturnValue(undefined);
     jest.spyOn(component, "checkCreationDate").mockReturnValue(null);
     jest.spyOn(window, "postMessage").mockImplementation(jest.fn());
-    (component as any).vaultOnboardingService.vaultOnboardingState$ = of({
-      createAccount: true,
-      importData: false,
-      installExtension: false,
-    });
+    (component as any).vaultOnboardingService.vaultOnboardingState$ = jest
+      .fn()
+      .mockImplementation(() => {
+        return of({
+          createAccount: true,
+          importData: false,
+          installExtension: false,
+        });
+      });
   });
 
   it("should create", () => {
@@ -169,12 +174,15 @@ describe("VaultOnboardingComponent", () => {
         .spyOn((component as any).vaultOnboardingService, "setVaultOnboardingTasks")
         .mockReturnValue(Promise.resolve());
 
-      (component as any).vaultOnboardingService.vaultOnboardingState$ = of({
-        createAccount: true,
-        importData: false,
-        installExtension: false,
-      });
-
+      (component as any).vaultOnboardingService.vaultOnboardingState$ = jest
+        .fn()
+        .mockImplementation(() => {
+          return of({
+            createAccount: true,
+            importData: false,
+            installExtension: false,
+          });
+        });
       const eventData = { data: { command: VaultOnboardingMessages.HasBwInstalled } };
 
       (component as any).showOnboarding = true;
