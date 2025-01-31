@@ -1,8 +1,7 @@
 import { mock } from "jest-mock-extended";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { DefaultKeyService } from "../../../../key-management/src/key.service";
+import { DefaultKeyService } from "@bitwarden/key-management";
+
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
