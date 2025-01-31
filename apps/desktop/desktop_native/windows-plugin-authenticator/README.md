@@ -8,7 +8,7 @@ You can find more information about the Windows WebAuthn API's [here](https://gi
 
 To build this crate, set the following environment variables:
 
-- `LIBCLANG_PATH` -> the path to `clang.dll` or `libclang.dll` for `bindgen`
+- `LIBCLANG_PATH` -> the path to the `bin` directory of your LLVM install ([more info](https://rust-lang.github.io/rust-bindgen/requirements.html?highlight=libclang_path#installing-clang))
 
 ### Bash Example
 
