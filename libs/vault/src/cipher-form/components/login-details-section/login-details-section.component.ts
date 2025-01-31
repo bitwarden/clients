@@ -243,7 +243,9 @@ export class LoginDetailsSectionComponent implements OnInit {
    * TODO: Browser extension needs a means to cache the current form so values are not lost upon navigating to the generator.
    */
   generateUsername = async () => {
-    const newUsername = await this.generationService.generateUsername();
+    const cipherView = this.cipherFormContainer.getCipherView;
+    const uri = cipherView?.login.uris[0]?.uri;
+    const newUsername = await this.generationService.generateUsername(uri);
     if (newUsername) {
       this.loginDetailsForm.controls.username.patchValue(newUsername);
     }

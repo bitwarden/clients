@@ -52,6 +52,12 @@ export abstract class CipherFormContainer {
   ): void;
 
   /**
+   * Returns the current cipherView
+   * If config.originalCipher is not settled before getCipherView(), it returns null
+   */
+  abstract get getCipherView(): CipherView | null;
+
+  /**
    * Method to update the cipherView with the new values. This method should be called by the child form components
    * @param updateFn - A function that takes the current cipherView and returns the updated cipherView
    */
