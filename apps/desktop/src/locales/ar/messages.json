@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "شراء العضوية المميزة"
   },
-  "premiumPurchaseAlert": {
-    "message": "يمكنك شراء العضوية المتميزة على bitwarden.com على خزانة الويب. هل تريد زيارة الموقع الآن؟"
-  },
   "premiumPurchaseAlertV2": {
     "message": "يمكنك شراء Premium من إعدادات حسابك على تطبيق Bitwarden على شبكة الإنترنت."
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "استخدم علبة البريد الإلكتروني الشاملة التي تم تكوينها في نطاقك."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "عشوائي"

@@ -7,13 +7,13 @@ version = "0.0.0"
 publish = false
 
 [dependencies]
-anyhow = "=1.0.94"
+anyhow.workspace = true
 desktop_core = { path = "../core" }
 futures = "=0.3.31"
-log = "=0.4.25"
+log.workspace = true
 simplelog = "=0.12.2"
-tokio = { version = "=1.43.0", features = ["io-std", "io-util", "macros", "rt"] }
-tokio-util = { version = "=0.7.13", features = ["codec"] }
+tokio = { workspace = true, features = ["io-std", "io-util", "macros", "rt"] }
+tokio-util = { workspace = true, features = ["codec"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 embed_plist = "=1.2.2"

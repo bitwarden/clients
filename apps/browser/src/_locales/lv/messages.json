@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Iegādāties Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Premium dalību ir iespējams iegādāties bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Premium var iegādāties Bitwarden tīmekļa lietotnē sava konta iestatījumos."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Lietotājvārdu veidotājs"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Izmantot šo paroli"

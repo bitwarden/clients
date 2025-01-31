@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "ಅಪಾಯ ವಲಯ"
   },
-  "dangerZoneDesc": {
-    "message": "ಎಚ್ಚರಿಕೆಯಿಂದ, ಈ ಕ್ರಿಯೆಗಳು ಹಿಂತಿರುಗಿಸಲಾಗುವುದಿಲ್ಲ!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "ಸೆಷನ್‌ಗಳನ್ನು ಅನಧಿಕೃತಗೊಳಿಸಿ"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "ಮುಂದುವರಿಯುವುದರಿಂದ ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಸೆಷನ್‌ನಿಂದ ನಿಮ್ಮನ್ನು ಲಾಗ್ಔಟ್ ಮಾಡುತ್ತದೆ, ನಿಮಗೆ ಮತ್ತೆ ಲಾಗ್ ಇನ್ ಆಗುವ ಅಗತ್ಯವಿರುತ್ತದೆ. ಸಕ್ರಿಯಗೊಳಿಸಿದ್ದರೆ ಮತ್ತೆ ಎರಡು-ಹಂತದ ಲಾಗಿನ್‌ಗೆ ನಿಮ್ಮನ್ನು ಕೇಳಲಾಗುತ್ತದೆ. ಇತರ ಸಾಧನಗಳಲ್ಲಿ ಸಕ್ರಿಯ ಸೆಷನ್‌ಗಳು ಒಂದು ಗಂಟೆಯವರೆಗೆ ಸಕ್ರಿಯವಾಗಿ ಮುಂದುವರಿಯಬಹುದು."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "ಎಲ್ಲಾ ಸೆಷನ್‌ಗಳು ಅನಧಿಕೃತವಾಗಿವೆ"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Use your domain's configured catch-all inbox."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Random",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"

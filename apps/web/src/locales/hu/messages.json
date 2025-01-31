@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Veszélyes terület"
   },
-  "dangerZoneDesc": {
-    "message": "Óvatosan! Ezeket a műveleteket nem lehet visszaállítani."
-  },
-  "dangerZoneDescSingular": {
-    "message": "Óvatosan! Ezeket a műveleteket nem lehet visszaállítani."
-  },
   "deauthorizeSessions": {
     "message": "Munkamenetek hitelesítésének eldobása"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "A folytatásban s felhasználó kiléptetésre kerül az aktuális munkamenetből, szükséges az ismételt bejelentkezés. Ismételten megjelenik a kétlépcsős bejelentkezés, ha az engedélyezett.  Más eszközök aktív munkamenetei akár egy óráig is aktívak maradhatnak."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Új eszköz bejelentkezés"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Az új eszköz bejelentkezési védelmének kikapcsolása"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Az új eszköz bejelentkezési védelmének bekapcsolása"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Folytassuk az alábbiakkal a Bitwarden által küldendő ellenőrző emailek kikapcsolásához, amikor új eszközről jelentkezünk be."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Folytassuk az alábbiakkal a Bitwarden által küldendő ellenőrző emailek bekapcsolásához, amikor új eszközről jelentkezünk be."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Ha az új eszköz bejelentkezési védelme ki van kapcsolva, a mesterjelszó birtokában bárki hozzáférhet fiókhoz bármilyen eszközről. Ha meg szeretnénk védeni fiókot ellenőrző emailek nélkül, állítsunk be kétlépcsős bejelentkezést."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Az új eszköz bejelentkezés védelmi módosítások mentésre kerültek."
   },
   "sessionsDeauthorized": {
     "message": "Az összes munkamenet hitelesítése eldobásra került."
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Használjuk a tartomány konfigurált összes befogási bejövő postaládát."
   },
+  "useThisEmail": {
+    "message": "Ezen email használata"
+  },
   "random": {
     "message": "Véletlen",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "A gyűjtemény törlésének korlátozása tulajdonosokra és adminisztrátorokra"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
