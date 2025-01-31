@@ -2,12 +2,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CipherTypes = {
   Login: 1,
-  SecureNote: 2,
-  Card: 3,
-  Identity: 4,
 } as const;
 
-type CipherType = (typeof CipherTypes)[keyof typeof CipherTypes];
+type NotificationCipherType = (typeof CipherTypes)[keyof typeof CipherTypes];
 
 // FIXME: Remove when updating file. Eslint update
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -25,24 +22,14 @@ export type WebsiteIconData = {
   icon: string;
 };
 
-export type CipherData = {
+export type NotificationCipherData = {
   id: string;
   name: string;
-  type: CipherType;
+  type: NotificationCipherType;
   reprompt: CipherRepromptType;
   favorite: boolean;
   icon: WebsiteIconData;
-  accountCreationFieldType?: string;
   login?: {
     username: string;
-    passkey: {
-      rpName: string;
-      userName: string;
-    } | null;
-  };
-  card?: string;
-  identity?: {
-    fullName: string;
-    username?: string;
   };
 };

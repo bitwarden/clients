@@ -12,7 +12,7 @@ import {
 import { CipherAction } from "./cipher-action";
 import { CipherIcon } from "./cipher-icon";
 import { CipherInfo } from "./cipher-info";
-import { CipherData } from "./types";
+import { NotificationCipherData } from "./types";
 
 const cipherIconWidth = "24px";
 
@@ -22,7 +22,7 @@ export function CipherItem({
   notificationType,
   theme = ThemeTypes.Light,
 }: {
-  cipher: CipherData;
+  cipher: NotificationCipherData;
   handleAction?: (e: Event) => void;
   notificationType?: NotificationType;
   theme: Theme;
