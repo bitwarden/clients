@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
@@ -846,12 +855,22 @@
   "rememberMe": {
     "message": "Remember me"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Send verification code email again"
   },
   "useAnotherTwoStepMethod": {
     "message": "Use another two-step login method"
   },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "desccription": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
+  }, 
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
   },
@@ -917,6 +936,9 @@
   },
   "twoStepOptions": {
     "message": "Two-step login options"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "Self-hosted environment"
@@ -2244,6 +2266,9 @@
   "webAuthnAuthenticate": {
     "message": "Authenticate WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
   "hideEmail": {
     "message": "Hide my email address from recipients."
   },
@@ -3178,6 +3203,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Launch Duo in Browser"

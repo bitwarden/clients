@@ -33,6 +33,8 @@ import {
   SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
+  TwoFactorAuthComponentService,
+  TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -108,6 +110,8 @@ import {
   WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
+  WebTwoFactorAuthComponentService,
+  WebTwoFactorAuthDuoComponentService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
@@ -262,6 +266,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: TwoFactorAuthComponentService,
+    useClass: WebTwoFactorAuthComponentService,
+    deps: [],
+  }),
+  safeProvider({
     provide: SetPasswordJitService,
     useClass: WebSetPasswordJitService,
     deps: [
@@ -326,6 +335,11 @@ const safeProviders: SafeProvider[] = [
     provide: SsoComponentService,
     useClass: WebSsoComponentService,
     deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthDuoComponentService,
+    useClass: WebTwoFactorAuthDuoComponentService,
+    deps: [PlatformUtilsService],
   }),
   safeProvider({
     provide: LoginDecryptionOptionsService,

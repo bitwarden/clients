@@ -1,0 +1,12 @@
+<bit-form-field>
+  <bit-label class="">{{ "verificationCode" | i18n }}</bit-label>
+  <input
+    type="password"
+    bitInput
+    required
+    appAutofocus
+    appInputVerbatim
+    [(ngModel)]="tokenValue"
+    (input)="token.emit(tokenValue)"
+  />
+</bit-form-field>

@@ -18,7 +18,6 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -41,6 +40,8 @@ import {
   DevicesIcon,
   SsoComponent,
   TwoFactorTimeoutIcon,
+  TwoFactorAuthComponent,
+  TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
@@ -69,9 +70,8 @@ import { RemovePasswordComponent } from "../auth/popup/remove-password.component
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
-import { TwoFactorAuthComponent } from "../auth/popup/two-factor-auth.component";
-import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/popup/two-factor.component";
+import { TwoFactorOptionsComponentV1 } from "../auth/popup/two-factor-options-v1.component";
+import { TwoFactorComponentV1 } from "../auth/popup/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
@@ -152,9 +152,9 @@ const routes: Routes = [
     canActivate: [fido2AuthGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
-  ...twofactorRefactorSwap(
-    TwoFactorComponent,
-    AnonLayoutWrapperComponent,
+  ...unauthUiRefreshSwap(
+    TwoFactorComponentV1,
+    ExtensionAnonLayoutWrapperComponent,
     {
       path: "2fa",
       canActivate: [unauthGuardFn(unauthRouteOverrides)],
@@ -162,7 +162,7 @@ const routes: Routes = [
     },
     {
       path: "2fa",
-      canActivate: [unauthGuardFn(unauthRouteOverrides)],
+      canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
       data: { elevation: 1 } satisfies RouteDataProperties,
       children: [
         {
@@ -197,7 +197,7 @@ const routes: Routes = [
   },
   {
     path: "2fa-options",
-    component: TwoFactorOptionsComponent,
+    component: TwoFactorOptionsComponentV1,
     canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
