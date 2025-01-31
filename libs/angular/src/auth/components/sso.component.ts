@@ -27,6 +27,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
@@ -55,6 +56,7 @@ export class SsoComponent implements OnInit {
   protected redirectUri: string;
   protected state: string;
   protected codeChallenge: string;
+  protected activeUserId: UserId;
 
   constructor(
     protected ssoLoginService: SsoLoginServiceAbstraction,
@@ -77,6 +79,8 @@ export class SsoComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+
     // eslint-disable-next-line rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
       if (qParams.code != null && qParams.state != null) {
@@ -226,7 +230,10 @@ export class SsoComponent implements OnInit {
       // - TDE login decryption options component
       // - Browser SSO on extension open
       // Note: you cannot set this in state before 2FA b/c there won't be an account in state.
-      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgSsoIdentifier);
+      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(
+        orgSsoIdentifier,
+        this.activeUserId,
+      );
 
       // Users enrolled in admin acct recovery can be forced to set a new password after
       // having the admin set a temp password for them (affects TDE & standard users)

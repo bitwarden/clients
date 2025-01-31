@@ -9,7 +9,7 @@ import { StateUpdateOptions } from "./state-update-options";
 export interface GlobalState<T> {
   /**
    * Method for allowing you to manipulate state in an additive way.
-   * @param configureState callback for how you want manipulate this section of state
+   * @param configureState callback for how you want to manipulate this section of state
    * @param options Defaults given by @see {module:state-update-options#DEFAULT_OPTIONS}
    * @param options.shouldUpdate A callback for determining if you want to update state. Defaults to () => true
    * @param options.combineLatestWith An observable that you want to combine with the current state for callbacks. Defaults to null
