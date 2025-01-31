@@ -1,7 +1,7 @@
 name: Build Desktop
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
@@ -218,7 +218,7 @@ jobs:
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
+        # if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         env:
           PKG_CONFIG_ALLOW_CROSS: true
@@ -1278,8 +1278,13 @@ jobs:
           mkdir -p $HOME/secrets
 
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --output none
+            
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
+            --file $HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
             --output none
 
       - name: Get certificates
@@ -1335,8 +1340,25 @@ jobs:
 
       - name: Set up provisioning profiles
         run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+          AUTOFILL_PROFILE_PATH=$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile
+          PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
+          
+          mkdir -p "$PROFILES_DIR_PATH"
+
+          AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.provisionprofile"
+          
+          desktop_profile_path="$HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile"
+          
+          DESKTOP_UUID=$(grep UUID -A1 -a $desktop_profile_path | grep -io "[-A-F0-9]\{36\}")
+          
+          cp $desktop_profile_path "$PROFILES_DIR_PATH/$DESKTOP_UUID.provisionprofile"
+          
+          cp $HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+
+          ls -l $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+
 
       - name: Increment version
         shell: pwsh
@@ -1382,9 +1404,10 @@ jobs:
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        working-directory: apps/desktop/desktop_native        
+        run: |
+          rustup target add aarch64-apple-darwin
+          node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1417,12 +1440,33 @@ jobs:
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
-        run: npm run pack:mac:masdev
+        run: npm run pack:mac:masdev:with-extension
+
+      - name: Resign
+        run: |
+
+          ls -l $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+
+          cp $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile \
+            dist/mas-dev-universal/Bitwarden.app/Contents/embedded.provisionprofile
+
+          cp $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile \
+            dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/safari.appex/Contents/embedded.provisionprofile
+
+          cp $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile \
+            dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/autofill-extension.appex/Contents/embedded.provisionprofile
+          
+          ls -l dist/mas-dev-universal/Bitwarden.app/Contents/embedded.provisionprofile
+          ls -l dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/safari.appex/Contents/embedded.provisionprofile
+          ls -l dist/mas-dev-universal/Bitwarden.app/Contents/PlugIns/autofill-extension.appex/Contents/embedded.provisionprofile
+
+          codesign --entitlements resources/entitlements.mas.plist --deep --verbose --options runtime --force --sign "E7C9978F6FBCE0553429185C405E61F5380BE8EB" dist/mas-dev-universal/Bitwarden.app
+          #codesign --entitlements resources/entitlements.mas.plist --deep --verbose --options runtime --force --sign "Developer ID Application: 8bit Solutions LLC (LTZ2PFU5D6)" dist/mas-dev-universal/Bitwarden.app
 
       - name: Zip masdev asset
         run: |
           cd dist/mas-dev-universal
-          zip -r Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip Bitwarden.app
+          zip -ry Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip Bitwarden.app
 
       - name: Upload masdev artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
