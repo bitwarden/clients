@@ -13,6 +13,11 @@ describe("VaultProfileService", () => {
     creationDate: hardcodedDateString,
     twoFactorEnabled: true,
     id: "new-user-id",
+    organizations: [
+      {
+        ssoBound: true,
+      },
+    ],
   });
 
   beforeEach(() => {
@@ -88,6 +93,36 @@ describe("VaultProfileService", () => {
       const twoFactorEnabled = await service.getProfileTwoFactorEnabled(userId);
 
       expect(twoFactorEnabled).toBe(false);
+      expect(getProfile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getUserSSOBound", () => {
+    it("calls `getProfile` when stored ssoBound property is not stored", async () => {
+      expect(service["userIsSsoBound"]).toBeNull();
+
+      const userIsSsoBound = await service.getUserSSOBound(userId);
+
+      expect(userIsSsoBound).toBe(true);
+      expect(getProfile).toHaveBeenCalled();
+    });
+
+    it("calls `getProfile` when stored profile id does not match", async () => {
+      service["userIsSsoBound"] = false;
+      service["userId"] = "old-user-id";
+
+      const userIsSsoBound = await service.getUserSSOBound(userId);
+
+      expect(userIsSsoBound).toBe(true);
+      expect(getProfile).toHaveBeenCalled();
+    });
+
+    it("does not call `getProfile` when ssoBound property is already stored", async () => {
+      service["userIsSsoBound"] = false;
+
+      const userIsSsoBound = await service.getUserSSOBound(userId);
+
+      expect(userIsSsoBound).toBe(false);
       expect(getProfile).not.toHaveBeenCalled();
     });
   });

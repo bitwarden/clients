@@ -2,8 +2,6 @@ import { TestBed } from "@angular/core/testing";
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -38,16 +36,16 @@ describe("NewDeviceVerificationNoticeGuard", () => {
   });
   const isSelfHost = jest.fn().mockReturnValue(false);
   const getProfileTwoFactorEnabled = jest.fn().mockResolvedValue(false);
-  const policyAppliesToActiveUser$ = jest.fn().mockReturnValue(new BehaviorSubject<boolean>(false));
   const noticeState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
   const getProfileCreationDate = jest.fn().mockResolvedValue(eightDaysAgo);
+  const getUserSSOBound = jest.fn().mockResolvedValue(false);
 
   beforeEach(() => {
     getFeatureFlag.mockClear();
     isSelfHost.mockClear();
     getProfileCreationDate.mockClear();
+    getUserSSOBound.mockClear();
     getProfileTwoFactorEnabled.mockClear();
-    policyAppliesToActiveUser$.mockClear();
     createUrlTree.mockClear();
 
     TestBed.configureTestingModule({
@@ -57,10 +55,9 @@ describe("NewDeviceVerificationNoticeGuard", () => {
         { provide: NewDeviceVerificationNoticeService, useValue: { noticeState$ } },
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: PlatformUtilsService, useValue: { isSelfHost } },
-        { provide: PolicyService, useValue: { policyAppliesToActiveUser$ } },
         {
           provide: VaultProfileService,
-          useValue: { getProfileCreationDate, getProfileTwoFactorEnabled },
+          useValue: { getProfileCreationDate, getProfileTwoFactorEnabled, getUserSSOBound },
         },
       ],
     });
@@ -92,7 +89,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
       expect(isSelfHost).not.toHaveBeenCalled();
       expect(getProfileTwoFactorEnabled).not.toHaveBeenCalled();
       expect(getProfileCreationDate).not.toHaveBeenCalled();
-      expect(policyAppliesToActiveUser$).not.toHaveBeenCalled();
+      expect(getUserSSOBound).not.toHaveBeenCalled();
     });
   });
 
@@ -124,10 +121,10 @@ describe("NewDeviceVerificationNoticeGuard", () => {
   });
 
   it("returns `true` SSO is required", async () => {
-    policyAppliesToActiveUser$.mockReturnValueOnce(new BehaviorSubject(true));
+    getUserSSOBound.mockReturnValueOnce(new BehaviorSubject(true));
 
     expect(await newDeviceGuard()).toBe(true);
-    expect(policyAppliesToActiveUser$).toHaveBeenCalledWith(PolicyType.RequireSso);
+    expect(getUserSSOBound).toHaveBeenCalledWith(account.id);
   });
 
   it("returns `true` when the profile was created less than a week ago", async () => {

@@ -24,6 +24,9 @@ export class VaultProfileService {
   /** True when 2FA is enabled on the profile. */
   private profile2FAEnabled: boolean | null = null;
 
+  /** True when ssoBound is true for any of the users organizations */
+  private userIsSsoBound: boolean | null = null;
+
   /**
    * Returns the creation date of the profile.
    * Note: `Date`s are mutable in JS, creating a new
@@ -52,12 +55,26 @@ export class VaultProfileService {
     return profile.twoFactorEnabled;
   }
 
+  /**
+   * Returns whether the user logs in with SSO for any organization.
+   */
+  async getUserSSOBound(userId: string): Promise<boolean> {
+    if (this.userIsSsoBound !== null && userId === this.userId) {
+      return Promise.resolve(this.userIsSsoBound);
+    }
+
+    await this.fetchAndCacheProfile();
+
+    return !!this.userIsSsoBound;
+  }
+
   private async fetchAndCacheProfile(): Promise<ProfileResponse> {
     const profile = await this.apiService.getProfile();
 
     this.userId = profile.id;
     this.profileCreatedDate = profile.creationDate;
     this.profile2FAEnabled = profile.twoFactorEnabled;
+    this.userIsSsoBound = profile.organizations.find((org) => org.ssoBound) !== undefined;
 
     return profile;
   }
