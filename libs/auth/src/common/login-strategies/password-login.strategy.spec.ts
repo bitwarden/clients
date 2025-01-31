@@ -242,7 +242,6 @@ describe("PasswordLoginStrategy", () => {
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
 
     const token2FAResponse = new IdentityTwoFactorResponse({
-      TwoFactorProviders: ["0"],
       TwoFactorProviders2: { 0: null },
       error: "invalid_grant",
       error_description: "Two factor required.",
