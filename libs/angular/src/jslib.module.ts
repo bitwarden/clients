@@ -27,6 +27,7 @@ import {
   TypographyModule,
   CopyClickDirective,
   A11yTitleDirective,
+  ToastContainerDirective,
 } from "@bitwarden/components";
 
 import { TwoFactorIconComponent } from "./auth/components/two-factor-icon.component";
@@ -64,6 +65,7 @@ import { IconComponent } from "./vault/components/icon.component";
       autoDismiss: true,
       closeButton: true,
     }),
+    ToastContainerDirective,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -124,6 +126,7 @@ import { IconComponent } from "./vault/components/icon.component";
     ApiActionDirective,
     AutofocusDirective,
     ToastModule,
+    ToastContainerDirective,
     BoxRowDirective,
     DeprecatedCalloutComponent,
     CopyTextDirective,

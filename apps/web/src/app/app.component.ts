@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DOCUMENT } from "@angular/common";
-import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, Inject, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import * as jq from "jquery";
 import { Subject, filter, firstValueFrom, map, takeUntil, timeout } from "rxjs";
@@ -30,7 +30,7 @@ import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, ToastService, ToastContainerDirective } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
@@ -61,6 +61,9 @@ export class AppComponent implements OnDestroy, OnInit {
   private destroy$ = new Subject<void>();
 
   loading = false;
+
+  @ViewChild(ToastContainerDirective, { static: true })
+  toastContainer: ToastContainerDirective;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -97,6 +100,8 @@ export class AppComponent implements OnDestroy, OnInit {
   ) {}
 
   ngOnInit() {
+    this.toastService.overlayContainer = this.toastContainer;
+
     this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {
       this.document.documentElement.lang = locale;
     });

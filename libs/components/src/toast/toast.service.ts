@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { IndividualConfig, ToastrService } from "ngx-toastr";
+import { IndividualConfig, ToastContainerDirective, ToastrService } from "ngx-toastr";
 
 import type { ToastComponent } from "./toast.component";
 import { calculateToastTimeout } from "./utils";
@@ -34,6 +34,10 @@ export class ToastService {
     };
 
     this.toastrService.show(null, options.title, toastrConfig);
+  }
+
+  set overlayContainer(container: ToastContainerDirective) {
+    this.toastrService.overlayContainer = container;
   }
 
   /**
