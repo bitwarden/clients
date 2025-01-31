@@ -170,6 +170,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   }
 
   @Input() loading = false;
+  @Input() showLoadingSpinner = false;
   @Input() disabled = false;
 
   getFocusTarget() {

@@ -98,5 +98,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
 
   @Input() loading = false;
 
+  @Input() showLoadingSpinner = false;
+
   @Input() disabled = false;
 }
