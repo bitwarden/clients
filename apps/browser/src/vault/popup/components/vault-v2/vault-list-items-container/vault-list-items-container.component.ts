@@ -9,11 +9,13 @@ import {
   EventEmitter,
   inject,
   Input,
-  OnInit,
   Output,
   Signal,
   signal,
   ViewChild,
+  computed,
+  OnInit,
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, map } from "rxjs";
@@ -23,6 +25,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
@@ -73,6 +76,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   private compactModeService = inject(CompactModeService);
@@ -110,11 +114,67 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
    */
   private viewCipherTimeout: number | null;
 
-  /**
-   * The list of ciphers to display.
-   */
+  private _ciphers = signal<PopupCipherView[]>([]);
+
   @Input()
-  ciphers: PopupCipherView[] = [];
+  set ciphers(value: PopupCipherView[]) {
+    this._ciphers.set(value);
+  }
+
+  get ciphers(): PopupCipherView[] {
+    return this._ciphers();
+  }
+
+  /**
+   * If true, we will group ciphers by type (Login, Card, Identity)
+   * within subheadings in a single container, converted to a WritableSignal.
+   */
+  private _groupByType = signal(false);
+  @Input()
+  set groupByType(value: boolean) {
+    this._groupByType.set(value);
+  }
+  get groupByType(): boolean {
+    return this._groupByType();
+  }
+
+  /**
+   * Computed signal for a grouped list of ciphers with an optional header
+   */
+  cipherGroups$ = computed<
+    {
+      subHeaderKey?: string | null;
+      ciphers: PopupCipherView[];
+    }[]
+  >(() => {
+    const groups: { [key: string]: CipherView[] } = {};
+
+    this.ciphers.forEach((cipher) => {
+      let groupKey;
+
+      if (this.groupByType) {
+        switch (cipher.type) {
+          case CipherType.Card:
+            groupKey = "cards";
+            break;
+          case CipherType.Identity:
+            groupKey = "identities";
+            break;
+        }
+      }
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+
+      groups[groupKey].push(cipher);
+    });
+
+    return Object.keys(groups).map((key) => ({
+      subHeaderKey: this.groupByType ? key : "",
+      ciphers: groups[key],
+    }));
+  });
 
   /**
    * Title for the vault list item section.
