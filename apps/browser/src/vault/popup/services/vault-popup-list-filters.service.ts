@@ -208,7 +208,9 @@ export class VaultPopupListFiltersService {
    * Organization array structured to be directly passed to `ChipSelectComponent`
    */
   organizations$: Observable<ChipSelectOption<Organization>[]> = combineLatest([
-    this.organizationService.memberOrganizations$,
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) => this.organizationService.memberOrganizations$(account?.id)),
+    ),
     this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
   ]).pipe(
     map(([orgs, personalOwnershipApplies]): [Organization[], boolean] => [
@@ -367,6 +369,9 @@ export class VaultPopupListFiltersService {
       collections.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection")),
     ),
   );
+
+  /** Organizations, collection, folders filters. */
+  allFilters$ = combineLatest([this.organizations$, this.collections$, this.folders$]);
 
   /** Updates the stored state for filter visibility. */
   async updateFilterVisibility(isVisible: boolean): Promise<void> {

@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
@@ -80,6 +81,7 @@ export default class NotificationBackground {
     bgGetExcludedDomains: () => this.getExcludedDomains(),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
+    notificationRefreshFlagValue: () => this.getNotificationFlag(),
   };
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
@@ -135,6 +137,15 @@ export default class NotificationBackground {
    */
   async getActiveUserServerConfig(): Promise<ServerConfig> {
     return await firstValueFrom(this.configService.serverConfig$);
+  }
+
+  /**
+   * Gets the current value of the notification refresh feature flag
+   * @returns Promise<boolean> indicating if the feature is enabled
+   */
+  async getNotificationFlag(): Promise<boolean> {
+    const flagValue = await this.configService.getFeatureFlag(FeatureFlag.NotificationRefresh);
+    return flagValue;
   }
 
   private async getAuthStatus() {

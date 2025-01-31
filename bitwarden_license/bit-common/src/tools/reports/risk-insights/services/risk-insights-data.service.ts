@@ -1,10 +1,15 @@
 import { BehaviorSubject } from "rxjs";
 import { finalize } from "rxjs/operators";
 
-import { ApplicationHealthReportDetail } from "../models/password-health";
+import {
+  AppAtRiskMembersDialogParams,
+  ApplicationHealthReportDetail,
+  AtRiskApplicationDetail,
+  AtRiskMemberDetail,
+  DrawerType,
+} from "../models/password-health";
 
 import { RiskInsightsReportService } from "./risk-insights-report.service";
-
 export class RiskInsightsDataService {
   private applicationsSubject = new BehaviorSubject<ApplicationHealthReportDetail[] | null>(null);
 
@@ -21,6 +26,12 @@ export class RiskInsightsDataService {
 
   private dataLastUpdatedSubject = new BehaviorSubject<Date | null>(null);
   dataLastUpdated$ = this.dataLastUpdatedSubject.asObservable();
+
+  openDrawer = false;
+  activeDrawerType: DrawerType = DrawerType.None;
+  atRiskMemberDetails: AtRiskMemberDetail[] = [];
+  appAtRiskMembers: AppAtRiskMembersDialogParams | null = null;
+  atRiskAppDetails: AtRiskApplicationDetail[] | null = null;
 
   constructor(private reportService: RiskInsightsReportService) {}
 
@@ -57,4 +68,46 @@ export class RiskInsightsDataService {
   refreshApplicationsReport(organizationId: string): void {
     this.fetchApplicationsReport(organizationId, true);
   }
+
+  isActiveDrawerType = (drawerType: DrawerType): boolean => {
+    return this.activeDrawerType === drawerType;
+  };
+
+  setDrawerForOrgAtRiskMembers = (atRiskMemberDetails: AtRiskMemberDetail[]): void => {
+    this.resetDrawer(DrawerType.OrgAtRiskMembers);
+    this.activeDrawerType = DrawerType.OrgAtRiskMembers;
+    this.atRiskMemberDetails = atRiskMemberDetails;
+    this.openDrawer = !this.openDrawer;
+  };
+
+  setDrawerForAppAtRiskMembers = (
+    atRiskMembersDialogParams: AppAtRiskMembersDialogParams,
+  ): void => {
+    this.resetDrawer(DrawerType.None);
+    this.activeDrawerType = DrawerType.AppAtRiskMembers;
+    this.appAtRiskMembers = atRiskMembersDialogParams;
+    this.openDrawer = !this.openDrawer;
+  };
+
+  setDrawerForOrgAtRiskApps = (atRiskApps: AtRiskApplicationDetail[]): void => {
+    this.resetDrawer(DrawerType.OrgAtRiskApps);
+    this.activeDrawerType = DrawerType.OrgAtRiskApps;
+    this.atRiskAppDetails = atRiskApps;
+    this.openDrawer = !this.openDrawer;
+  };
+
+  closeDrawer = (): void => {
+    this.resetDrawer(DrawerType.None);
+  };
+
+  private resetDrawer = (drawerType: DrawerType): void => {
+    if (this.activeDrawerType !== drawerType) {
+      this.openDrawer = false;
+    }
+
+    this.activeDrawerType = DrawerType.None;
+    this.atRiskMemberDetails = [];
+    this.appAtRiskMembers = null;
+    this.atRiskAppDetails = null;
+  };
 }

@@ -40,7 +40,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release_version-check@main
+        uses: bitwarden/gh-actions/release-version-check@main
         with:
           release-type: ${{ inputs.release_type }}
           project-type: ts

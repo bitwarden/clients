@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Xerar frase de contrasinal"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Volver xerar contrasinal"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Verificar identidade"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "A túa caixa forte está bloqueada. Verifica a túa identidade para continuar."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Ofrecer gardar un elemento se non se atopa na caixa forte. Aplica a tódalas sesións iniciadas."
   },
-  "showCardsInVaultView": {
-    "message": "Na caixa forte, amosar tarxetas como suxestións de Autoenchido"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Amosar tarxetas na pestana"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Lista na pestana actual as tarxetas gardadas para autoenchido."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Na caixa forte, amosar identidades como suxestións de Autoenchido"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Amosar identidades na pestana"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Adquirir Prémium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Podes adquirir o plan Prémium na aplicación web de bitwarden.com. Queres visitala agora mesmo?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Podes adquirir o plan Prémium dende os axustes de conta da aplicación web de Bitwarden."
@@ -2045,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Xerador de nomes de usuario"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Usar este contrasinal"
@@ -4868,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Moi ancho"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

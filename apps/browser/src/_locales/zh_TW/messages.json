@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "產生密碼短語"
   },
+  "passwordGenerated": {
+    "message": "已產生密碼"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "重新產生密碼"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "驗證身份"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "我們無法識別此裝置。請輸入已傳送到您電子郵件的驗證碼以驗證您的身分。"
+  },
+  "continueLoggingIn": {
+    "message": "繼續登入"
   },
   "yourVaultIsLocked": {
     "message": "您的密碼庫已鎖定。請驗證身分以繼續。"
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "如果在您的密碼庫中找不到項目，則詢問是否新增項目。適用於所有已登入的帳戶。"
   },
-  "showCardsInVaultView": {
-    "message": "在密碼庫介面中顯示支付卡自動填入建議"
+  "showCardsInVaultViewV2": {
+    "message": "一律在密碼庫介面中顯示支付卡自動填入建議"
   },
   "showCardsCurrentTab": {
     "message": "於分頁頁面顯示支付卡"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "於分頁頁面顯示信用卡以便於自動填入。"
   },
-  "showIdentitiesInVaultView": {
-    "message": "在密碼庫介面中顯示身分自動填入建議"
+  "showIdentitiesInVaultViewV2": {
+    "message": "一律在密碼庫介面中顯示身分自動填入建議"
   },
   "showIdentitiesCurrentTab": {
     "message": "於分頁頁面顯示身分"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "升級為進階會員"
-  },
-  "premiumPurchaseAlert": {
-    "message": "您可以在 bitwarden.com 網頁版密碼庫購買進階會員資格。現在要前往嗎？"
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 網頁 App 的帳號設定中購買進階版。"
@@ -2045,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "使用者名稱產生器"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "使用此密碼"
@@ -4868,5 +4886,11 @@
   },
   "extraWide": {
     "message": "更寬"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "請更新您的桌面應用程式"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "為了使用生物辨識解鎖，請更新您的桌面應用程式，或在設定中停用指紋解鎖。"
   }
 }

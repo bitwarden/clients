@@ -9,6 +9,26 @@
   </div>
 
   <app-danger-zone>
+    <ng-container *ngIf="showSetNewDeviceLoginProtection$ | async">
+      <button
+        *ngIf="verifyNewDeviceLogin"
+        type="button"
+        bitButton
+        buttonType="danger"
+        [bitAction]="setNewDeviceLoginProtection"
+      >
+        {{ "turnOffNewDeviceLoginProtection" | i18n }}
+      </button>
+      <button
+        *ngIf="!verifyNewDeviceLogin"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [bitAction]="setNewDeviceLoginProtection"
+      >
+        {{ "turnOnNewDeviceLoginProtection" | i18n }}
+      </button>
+    </ng-container>
     <button type="button" bitButton buttonType="danger" (click)="deauthorizeSessions()">
       {{ "deauthorizeSessions" | i18n }}
     </button>
@@ -32,7 +52,6 @@
     </button>
   </app-danger-zone>
 
-  <ng-template #deauthorizeSessionsTemplate></ng-template>
   <ng-template #viewUserApiKeyTemplate></ng-template>
   <ng-template #rotateUserApiKeyTemplate></ng-template>
 </bit-container>

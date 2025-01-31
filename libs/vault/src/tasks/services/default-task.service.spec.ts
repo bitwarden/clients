@@ -43,7 +43,7 @@ describe("Default task service", () => {
         {
           provide: OrganizationService,
           useValue: {
-            getAll$: mockGetAllOrgs$,
+            organizations$: mockGetAllOrgs$,
           },
         },
       ],

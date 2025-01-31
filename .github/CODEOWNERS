@@ -58,6 +58,7 @@ libs/admin-console @bitwarden/team-admin-console-dev
 
 ## Billing team files ##
 apps/browser/src/billing @bitwarden/team-billing-dev
+apps/desktop/src/billing @bitwarden/team-billing-dev
 apps/web/src/app/billing @bitwarden/team-billing-dev
 libs/angular/src/billing @bitwarden/team-billing-dev
 libs/common/src/billing @bitwarden/team-billing-dev
@@ -108,13 +109,13 @@ apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-
 # SSH Agent
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
 
-## Component Library ##
-.storybook @bitwarden/team-design-system
-libs/components @bitwarden/team-design-system
-libs/ui @bitwarden/team-design-system
-apps/browser/src/platform/popup/layout @bitwarden/team-design-system
-apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-design-system
-apps/web/src/app/layouts @bitwarden/team-design-system
+## UI Foundation ##
+.storybook @bitwarden/team-ui-foundation
+libs/components @bitwarden/team-ui-foundation
+libs/ui @bitwarden/team-ui-foundation
+apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
+apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation
+apps/web/src/app/layouts @bitwarden/team-ui-foundation
 
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
@@ -162,3 +163,7 @@ apps/web/src/locales/en/messages.json
 **/*.Dockerfile
 **/.dockerignore
 **/entrypoint.sh
+
+## Overrides
+# tsconfig files are potentially dangerous and will be reviewed by platform to prevent misconfigurations
+**/tsconfig.json @bitwarden/team-platform-dev

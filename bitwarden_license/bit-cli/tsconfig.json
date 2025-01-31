@@ -24,7 +24,6 @@
       "@bitwarden/generator-history": ["../../libs/tools/generator/extensions/history/src"],
       "@bitwarden/generator-navigation": ["../../libs/tools/generator/extensions/navigation/src"],
       "@bitwarden/key-management": ["../../libs/key-management/src"],
-      "@bitwarden/key-management/angular": ["../../libs/key-management/src/angular"],
       "@bitwarden/vault-export-core": [
         "../../libs/tools/export/vault-export/vault-export-core/src"
       ],

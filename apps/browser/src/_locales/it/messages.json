@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Genera passphrase"
   },
+  "passwordGenerated": {
+    "message": "Parola d'accesso generata"
+  },
+  "passphraseGenerated": {
+    "message": "Frase d'accesso generata"
+  },
+  "usernameGenerated": {
+    "message": "Nome utente generato"
+  },
+  "emailGenerated": {
+    "message": "E-mail generata"
+  },
   "regeneratePassword": {
     "message": "Rigenera password"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Verifica identità"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Non riconosciamo questo dispositivo. Inserisci il codice inviato alla tua e-mail per verificare la tua identità."
+  },
+  "continueLoggingIn": {
+    "message": "Continua l'accesso"
   },
   "yourVaultIsLocked": {
     "message": "La tua cassaforte è bloccata. Verifica la tua identità per continuare."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Chiedi di creare un nuovo elemento se non ce n'è uno nella tua cassaforte. Si applica a tutti gli account sul dispositivo."
   },
-  "showCardsInVaultView": {
-    "message": "Mostra le carte come suggerimenti di riempimento automatico nella vista cassaforte"
+  "showCardsInVaultViewV2": {
+    "message": "Mostra sempre le carte come suggerimenti di riempimento automatico nella vista cassaforte"
   },
   "showCardsCurrentTab": {
     "message": "Mostra le carte nella sezione Scheda"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Mostra le carte nella sezione Scheda per riempirle automaticamente."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Mostra le identità come suggerimenti di riempimento automatico nella vista cassaforte"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Mostra sempre le identità come suggerimenti di riempimento automatico nella vista cassaforte"
   },
   "showIdentitiesCurrentTab": {
     "message": "Mostra le identità nella sezione Scheda"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Passa a Premium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Puoi acquistare il un abbonamento Premium dalla cassaforte web su bitwarden.com. Vuoi visitare il sito?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Puoi acquistare Premium dalle impostazioni del tuo account sull'app web Bitwarden."
@@ -2045,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Generatore di nomi utente"
+  },
+  "useThisEmail": {
+    "message": "Usa questa e-mail"
   },
   "useThisPassword": {
     "message": "Usa questa password"
@@ -4868,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Molto larga"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Aggiornare l'applicazione desktop"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Per usare lo sblocco biometrico, aggiornare l'applicazione desktop o disabilitare lo sblocco dell'impronta digitale nelle impostazioni del desktop."
   }
 }

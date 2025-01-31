@@ -12,13 +12,17 @@ import {
   takeUntil,
   zip,
 } from "rxjs";
-import { Opaque } from "type-fest";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+
+import {
+  PasswordHealthReportApplicationsRequest,
+  PasswordHealthReportApplicationsResponse,
+} from "../models/password-health";
 
 import { CriticalAppsApiService } from "./critical-apps-api.service";
 
@@ -94,6 +98,25 @@ export class CriticalAppsService {
     this.orgId.next(orgId);
   }
 
+  // Drop a critical app for a given organization
+  // Only one app may be dropped at a time
+  async dropCriticalApp(orgId: OrganizationId, selectedUrl: string) {
+    const app = this.criticalAppsList.value.find(
+      (f) => f.organizationId === orgId && f.uri === selectedUrl,
+    );
+
+    if (!app) {
+      return;
+    }
+
+    await this.criticalAppsApiService.dropCriticalApp({
+      organizationId: app.organizationId,
+      passwordHealthReportApplicationIds: [app.id],
+    });
+
+    this.criticalAppsList.next(this.criticalAppsList.value.filter((f) => f.uri !== selectedUrl));
+  }
+
   private retrieveCriticalApps(
     orgId: OrganizationId | null,
   ): Observable<PasswordHealthReportApplicationsResponse[]> {
@@ -144,16 +167,3 @@ export class CriticalAppsService {
     return await Promise.all(criticalAppsPromises);
   }
 }
-
-export interface PasswordHealthReportApplicationsRequest {
-  organizationId: OrganizationId;
-  url: string;
-}
-
-export interface PasswordHealthReportApplicationsResponse {
-  id: PasswordHealthReportApplicationId;
-  organizationId: OrganizationId;
-  uri: string;
-}
-
-export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;

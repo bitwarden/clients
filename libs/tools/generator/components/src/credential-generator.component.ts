@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import {
@@ -28,6 +29,7 @@ import {
   CredentialAlgorithm,
   CredentialCategory,
   CredentialGeneratorService,
+  GenerateRequest,
   GeneratedCredential,
   Generators,
   getForwarderConfiguration,
@@ -60,6 +62,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private zone: NgZone,
     private formBuilder: FormBuilder,
+    private ariaLive: LiveAnnouncer,
   ) {}
 
   /** Binds the component to a specific user's settings. When this input is not provided,
@@ -185,10 +188,10 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$),
+        withLatestFrom(this.userId$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId]) => {
+      .subscribe(([generated, userId, algorithm]) => {
         this.generatorHistoryService
           .track(userId, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
@@ -198,8 +201,12 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
+          if (generated.source === this.USER_REQUEST) {
+            this.announce(algorithm.onGeneratedMessage);
+          }
+
+          this.generatedCredential$.next(generated);
           this.onGenerated.next(generated);
-          this.value$.next(generated.credential);
         });
       });
 
@@ -383,12 +390,16 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
     this.algorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
       this.zone.run(() => {
         if (!a || a.onlyOnRequest) {
-          this.value$.next("-");
+          this.generatedCredential$.next(null);
         } else {
           this.generate("autogenerate").catch((e: unknown) => this.logService.error(e));
         }
       });
     });
+  }
+
+  private announce(message: string) {
+    this.ariaLive.announce(message).catch((e) => this.logService.error(e));
   }
 
   private typeToGenerator$(type: CredentialAlgorithm) {
@@ -473,7 +484,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
    */
   protected credentialTypeLabel$ = this.algorithm$.pipe(
     filter((algorithm) => !!algorithm),
-    map(({ generatedValue }) => generatedValue),
+    map(({ credentialType }) => credentialType),
   );
 
   /** Emits hint key for the currently selected credential type */
@@ -482,21 +493,28 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
   /** tracks the currently selected credential category */
   protected category$ = new ReplaySubject<string>(1);
 
+  private readonly generatedCredential$ = new BehaviorSubject<GeneratedCredential>(null);
+
   /** Emits the last generated value. */
-  protected readonly value$ = new BehaviorSubject<string>("");
+  protected readonly value$ = this.generatedCredential$.pipe(
+    map((generated) => generated?.credential ?? "-"),
+  );
 
   /** Emits when the userId changes */
   protected readonly userId$ = new BehaviorSubject<UserId>(null);
 
+  /** Identifies generator requests that were requested by the user */
+  protected readonly USER_REQUEST = "user request";
+
   /** Emits when a new credential is requested */
-  private readonly generate$ = new Subject<string>();
+  private readonly generate$ = new Subject<GenerateRequest>();
 
   /** Request a new value from the generator
    * @param requestor a label used to trace generation request
    *  origin in the debugger.
    */
   protected async generate(requestor: string) {
-    this.generate$.next(requestor);
+    this.generate$.next({ source: requestor });
   }
 
   private toOptions(algorithms: AlgorithmInfo[]) {
@@ -515,7 +533,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
 
     // finalize subjects
     this.generate$.complete();
-    this.value$.complete();
+    this.generatedCredential$.complete();
 
     // finalize component bindings
     this.onGenerated.complete();
