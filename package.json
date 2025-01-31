@@ -187,6 +187,7 @@
     "lowdb": "1.0.0",
     "lunr": "2.3.9",
     "multer": "1.4.5-lts.1",
+    "nearley": "^2.20.1",
     "ngx-infinite-scroll": "16.0.0",
     "ngx-toastr": "17.0.2",
     "node-fetch": "2.6.12",
