@@ -89,7 +89,7 @@ export interface VaultItemDialogParams {
   /**
    * Function to restore a cipher from the trash.
    */
-  restore: (c: CipherView) => Promise<boolean>;
+  restore?: (c: CipherView) => Promise<boolean>;
 }
 
 export enum VaultItemDialogResult {
@@ -383,7 +383,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   restore = async () => {
-    await this.params.restore(this.cipher);
+    await this.params.restore?.(this.cipher);
     this.dialogRef.close(VaultItemDialogResult.Restored);
   };
 
