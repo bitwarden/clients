@@ -32,7 +32,6 @@ import { ConfigService } from "../../platform/abstractions/config/config.service
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { sequentialize } from "../../platform/misc/sequentialize";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
@@ -399,7 +398,6 @@ export class CipherService implements CipherServiceAbstraction {
    * cached, the cached ciphers are returned.
    * @deprecated Use `cipherViews$` observable instead
    */
-  @sequentialize(() => "getAllDecrypted")
   async getAllDecrypted(): Promise<CipherView[]> {
     const decCiphers = await this.getDecryptedCiphers();
     if (decCiphers != null && decCiphers.length !== 0) {
