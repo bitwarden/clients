@@ -12,6 +12,8 @@ import {
   switchMap,
 } from "rxjs";
 
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "../../auth/src/common/abstractions";
@@ -33,9 +35,6 @@ import { ProfileProviderResponse } from "../../common/src/admin-console/models/r
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { AccountService } from "../../common/src/auth/abstractions/account.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { InternalMasterPasswordServiceAbstraction } from "../../common/src/auth/abstractions/master-password.service.abstraction";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
