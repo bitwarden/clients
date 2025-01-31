@@ -1,6 +1,5 @@
 import { NgModule } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { SafeInjectionToken } from "@bitwarden/angular/services/injection-tokens";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -22,7 +21,6 @@ export const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
 
 /** Shared module containing generator component dependencies */
 @NgModule({
-  imports: [JslibModule],
   providers: [
     safeProvider({
       provide: RANDOMIZER,
