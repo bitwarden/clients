@@ -23,6 +23,7 @@ import {
   FeatureFlagValueType,
 } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { ServerConfig } from "../../abstractions/config/server-config";
@@ -70,6 +71,7 @@ export class DefaultConfigService implements ConfigService {
     private logService: LogService,
     private stateProvider: StateProvider,
     private authService: AuthService,
+    private appIdService: AppIdService,
   ) {
     const userId$ = this.stateProvider.activeUserId$;
     const authStatus$ = userId$.pipe(
@@ -186,7 +188,8 @@ export class DefaultConfigService implements ConfigService {
         );
         this.failedFetchFallbackSubject.next(existingConfig);
       }, SLOW_EMISSION_GUARD);
-      const response = await this.configApiService.get(userId);
+      const appId = await this.appIdService.getAppId();
+      const response = await this.configApiService.get(userId, appId);
       clearTimeout(handle);
       const newConfig = new ServerConfig(new ServerConfigData(response));
 

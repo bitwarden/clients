@@ -18,6 +18,7 @@ import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
+import { AppIdService } from "../../abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -46,6 +47,7 @@ describe("ConfigService", () => {
   const authService = mock<AuthService>({
     authStatusFor$: (userId) => of(AuthenticationStatus.Unlocked),
   });
+  const appIdService = mock<AppIdService>();
   let stateProvider: FakeStateProvider;
   let globalState: FakeGlobalState<Record<ApiUrl, ServerConfig>>;
   let userState: FakeSingleUserState<ServerConfig>;
@@ -81,6 +83,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        appIdService,
       );
     });
 
@@ -218,6 +221,7 @@ describe("ConfigService", () => {
       mock<AuthService>({
         authStatusFor$: () => of(AuthenticationStatus.Locked),
       }),
+      appIdService,
     );
 
     const config = await firstValueFrom(sut.serverConfig$);
@@ -243,6 +247,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        appIdService,
       );
     });
 
@@ -296,6 +301,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        appIdService,
       );
 
       userState.nextState(null);
@@ -349,6 +355,7 @@ describe("ConfigService", () => {
         logService,
         stateProvider,
         authService,
+        appIdService,
       );
     });
 
