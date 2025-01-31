@@ -747,7 +747,7 @@ describe("AutofillService", () => {
       jest.spyOn(autofillService as any, "generateFillScript");
       jest.spyOn(autofillService as any, "generateLoginFillScript");
       jest.spyOn(logService, "info");
-      jest.spyOn(cipherService, "updateLastUsedDate");
+      jest.spyOn(chrome.runtime, "sendMessage");
       jest.spyOn(eventCollectionService, "collect");
 
       const autofillResult = await autofillService.doAutoFill(autofillOptions);
@@ -769,7 +769,10 @@ describe("AutofillService", () => {
       );
       expect(autofillService["generateLoginFillScript"]).toHaveBeenCalled();
       expect(logService.info).not.toHaveBeenCalled();
-      expect(cipherService.updateLastUsedDate).toHaveBeenCalledWith(autofillOptions.cipher.id);
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+        cipherId: autofillOptions.cipher.id,
+        command: "updateLastUsedDate",
+      });
       expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
         autofillOptions.pageDetails[0].tab.id,
         {
@@ -890,11 +893,11 @@ describe("AutofillService", () => {
 
     it("skips updating the cipher's last used date if the passed options indicate that we should skip the last used cipher", async () => {
       autofillOptions.skipLastUsed = true;
-      jest.spyOn(cipherService, "updateLastUsedDate");
+      jest.spyOn(chrome.runtime, "sendMessage");
 
       await autofillService.doAutoFill(autofillOptions);
 
-      expect(cipherService.updateLastUsedDate).not.toHaveBeenCalled();
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
     });
 
     it("returns early if the fillScript cannot be generated", async () => {
