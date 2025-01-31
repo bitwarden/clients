@@ -190,7 +190,9 @@ describe("OverlayBackground", () => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
-    totpService = mock<TotpService>();
+    totpService = mock<TotpService>({
+      getCode$: jest.fn().mockReturnValue(of(undefined)),
+    });
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,

@@ -135,12 +135,15 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
 
     if (this.showTotp()) {
       await this.totpUpdateCode();
-      const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
-      await this.totpTick(interval);
-
-      this.totpInterval = window.setInterval(async () => {
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(this.cipher.login.totp));
+      if (totpResponse) {
+        const interval = totpResponse.period;
         await this.totpTick(interval);
-      }, 1000);
+
+        this.totpInterval = window.setInterval(async () => {
+          await this.totpTick(interval);
+        }, 1000);
+      }
     }
 
     const extensionRefreshEnabled = await firstValueFrom(
@@ -277,7 +280,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       return;
     }
 
-    this.totpCode = await this.totpService.getCode(this.cipher.login.totp);
+    this.totpCode = (await firstValueFrom(this.totpService.getCode$(this.cipher.login.totp))).code;
     if (this.totpCode != null) {
       if (this.totpCode.length > 4) {
         const half = Math.floor(this.totpCode.length / 2);

@@ -493,7 +493,7 @@ export default class AutofillService implements AutofillServiceInterface {
         const shouldAutoCopyTotp = await this.getShouldAutoCopyTotp();
 
         totp = shouldAutoCopyTotp
-          ? await this.totpService.getCode(options.cipher.login.totp)
+          ? (await firstValueFrom(this.totpService.getCode$(options.cipher.login.totp))).code
           : null;
       }),
     );
@@ -972,7 +972,9 @@ export default class AutofillService implements AutofillServiceInterface {
           }
 
           filledFields[t.opid] = t;
-          let totpValue = await this.totpService.getCode(login.totp);
+          let totpValue = (
+            await firstValueFrom(this.totpService.getCode$(options.cipher.login.totp))
+          ).code;
           if (totpValue.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
