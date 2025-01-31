@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Zona pericolosa"
   },
-  "dangerZoneDesc": {
-    "message": "Attento, queste azioni non sono reversibili!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "Annulla autorizzazione sessioni"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Inoltre, procedere ti farà uscire dalla sessione corrente, richiedendoti di accedere. Se attivata, dovrai completare la verifica in due passaggi di nuovo. Le sessioni attive su altri dispositivi potrebbero continuare a rimanere attive per un massimo di un'ora."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Accesso nuovo dispositivo"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Disattiva la nuova protezione di accesso del dispositivo"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Attiva la nuova protezione di accesso del dispositivo"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Procedi qui sotto per disattivare le e-mail di verifica che Bitwarden invia quando accedi da un nuovo dispositivo."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Procedi qui sotto per far sì che Bitwarden invii e-mail di verifica quando accedi da un nuovo dispositivo."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Con la nuova protezione di accesso del dispositivo disattivata, chiunque con la tua parola d'accesso principale può accedere al tuo account da qualsiasi dispositivo. Per proteggere il tuo account senza e-mail di verifica, imposta l'accesso in due passaggi."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Modifiche alla protezione del nuovo dispositivo salvate"
   },
   "sessionsDeauthorized": {
     "message": "Tutte le sessioni revocate"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Usa la casella di posta catch-all di dominio."
   },
+  "useThisEmail": {
+    "message": "Usa questa e-mail"
+  },
   "random": {
     "message": "Casuale",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Proprietari e amministratori possono gestire tutte le raccolte e gli elementi"
