@@ -51,7 +51,7 @@ tokio-util = { workspace = true, features = ["codec"] }
 thiserror.workspace = true
 typenum = "=1.17.0"
 pkcs8 = { version = "=0.10.2", features = ["alloc", "encryption", "pem"] }
-rsa = "=0.9.6"
+rsa = "=0.9.7"
 ed25519 = { version = "=2.2.3", features = ["pkcs8"] }
 sysinfo = { version = "=0.33.1", features = ["windows"] }
 
