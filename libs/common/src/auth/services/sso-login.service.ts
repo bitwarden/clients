@@ -115,13 +115,13 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     organizationIdentifier: string,
     userId: UserId | undefined,
   ): Promise<void> {
-    if (userId !== undefined) {
-      await this.userOrgSsoIdentifierState(userId).update((_) => organizationIdentifier);
-    } else {
+    if (userId === undefined) {
       this.logService.warning(
         "Tried to set a new user organization sso identifier with an undefined user id.",
       );
+      return;
     }
+    await this.userOrgSsoIdentifierState(userId).update((_) => organizationIdentifier);
   }
 
   private userOrgSsoIdentifierState(userId: UserId): SingleUserState<string> {

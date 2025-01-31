@@ -76,7 +76,7 @@ export abstract class SsoLoginServiceAbstraction {
    * Gets the value of the active user's organization sso identifier.
    *
    * This should only be used post successful SSO login once the user is initialized.
-   * @param userId The user id for the current
+   * @param userId The user id for retrieving the org identifier state.
    */
   getActiveUserOrganizationSsoIdentifier: (userId: UserId) => Promise<string>;
   /**
