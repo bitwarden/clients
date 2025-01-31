@@ -206,7 +206,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     await this.initializeItems(this.selectedOrgId);
 
     if (this.selectedOrgId && this.selectedOrgId !== MY_VAULT_ID) {
-      await this.handleOrganizationCiphers();
+      await this.handleOrganizationCiphers(this.selectedOrgId);
     }
 
     this.setupFormSubscriptions();
@@ -283,7 +283,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private sortItems = (a: SelectItemView, b: SelectItemView) =>
     this.i18nService.collator.compare(a.labelName, b.labelName);
 
-  private async handleOrganizationCiphers() {
+  private async handleOrganizationCiphers(organizationId: OrganizationId) {
     // If no ciphers are editable, cancel the operation
     if (this.editableItemCount == 0) {
       this.toastService.showToast({
@@ -296,12 +296,21 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       return;
     }
 
-    this.availableCollections = this.params.availableCollections.map((c) => ({
-      icon: "bwi-collection",
-      id: c.id,
-      labelName: c.name,
-      listName: c.name,
-    }));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const org = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+    );
+
+    this.availableCollections = this.params.availableCollections
+      .filter((collection) => {
+        return collection.canEditItems(org);
+      })
+      .map((c) => ({
+        icon: "bwi-collection",
+        id: c.id,
+        labelName: c.name,
+        listName: c.name,
+      }));
 
     // Select assigned collections for a single cipher.
     this.selectCollectionsAssignedToSingleCipher();
