@@ -5,3 +5,4 @@ index.node
 npm-debug.log*
 *.node
 dist
+windows_pluginauthenticator_bindings.rs
