@@ -99,7 +99,7 @@ import {
   KeyService as KeyServiceAbstraction,
   BiometricsService,
 } from "@bitwarden/key-management";
-import { LockComponentService } from "@bitwarden/key-management/angular";
+import { LockComponentService } from "@bitwarden/key-management-ui";
 
 import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";

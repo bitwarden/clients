@@ -62,7 +62,7 @@
     "message": "Uma dica da palavra-passe mestra pode ajudá-lo a lembrar-se da sua palavra-passe, caso se esqueça dela."
   },
   "masterPassHintText": {
-    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ caracteres.",
+    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ carateres.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -479,7 +479,7 @@
     "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Caracteres especiais (!@#$%^&*)",
+    "message": "Carateres especiais (!@#$%^&*)",
     "description": "deprecated. Use specialCharactersLabel instead."
   },
   "include": {
@@ -487,7 +487,7 @@
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Incluir caracteres em maiúsculas",
+    "message": "Incluir carateres em maiúsculas",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -495,7 +495,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Incluir caracteres em minúsculas",
+    "message": "Incluir carateres em minúsculas",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -511,7 +511,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Incluir caracteres especiais",
+    "message": "Incluir carateres especiais",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -535,10 +535,10 @@
     "message": "Mínimo de números"
   },
   "minSpecial": {
-    "message": "Mínimo de caracteres especiais"
+    "message": "Mínimo de carateres especiais"
   },
   "avoidAmbiguous": {
-    "message": "Evitar caracteres ambíguos",
+    "message": "Evitar carateres ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -781,7 +781,7 @@
     "message": "É necessário reescrever a palavra-passe mestra."
   },
   "masterPasswordMinlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ caracteres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ carateres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1279,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Adquirir Premium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Pode adquirir uma subscrição Premium no cofre web em bitwarden.com. Pretende visitar o site agora?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação Web Bitwarden."
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Gerador de nomes de utilizador"
   },
+  "useThisEmail": {
+    "message": "Utilizar este e-mail"
+  },
   "useThisPassword": {
     "message": "Utilizar esta palavra-passe"
   },
@@ -2186,16 +2186,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais caracteres em maiúsculas"
+    "message": "Contém um ou mais carateres em maiúsculas"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais caracteres em minúsculas"
+    "message": "Contém um ou mais carateres em minúsculas"
   },
   "policyInEffectNumbers": {
     "message": "Contém um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
+    "message": "Contém um ou mais dos seguintes carateres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -2790,7 +2790,7 @@
     "message": "Saiu da organização."
   },
   "toggleCharacterCount": {
-    "message": "Mostrar/ocultar contagem de caracteres"
+    "message": "Mostrar/ocultar contagem de carateres"
   },
   "sessionTimeout": {
     "message": "A sua sessão expirou. Por favor, volte atrás e tente iniciar sessão novamente."
@@ -2857,7 +2857,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Utilize $RECOMMENDED$ caracteres ou mais para gerar uma palavra-passe forte.",
+    "message": " Utilize $RECOMMENDED$ carateres ou mais para gerar uma palavra-passe forte.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3160,7 +3160,7 @@
     "message": "A sua palavra-passe mestra não pode ser recuperada se a esquecer!"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ caracteres no mínimo",
+    "message": "$LENGTH$ carateres no mínimo",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -3337,7 +3337,7 @@
     "message": "Procurar"
   },
   "inputMinLength": {
-    "message": "O campo deve ter pelo menos $COUNT$ caracteres.",
+    "message": "O campo deve ter pelo menos $COUNT$ carateres.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3346,7 +3346,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "O campo não pode exceder os $COUNT$ caracteres de comprimento.",
+    "message": "O campo não pode exceder os $COUNT$ carateres de comprimento.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3355,7 +3355,7 @@
     }
   },
   "inputForbiddenCharacters": {
-    "message": "Não são permitidos os seguintes caracteres: $CHARACTERS$",
+    "message": "Não são permitidos os seguintes carateres: $CHARACTERS$",
     "placeholders": {
       "characters": {
         "content": "$1",
@@ -3364,7 +3364,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "message": "O valor do campo tem de ser, pelo menos, $MIN$ carateres.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -3373,7 +3373,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "O valor do campo não pode exceder os $MAX$ caracteres.",
+    "message": "O valor do campo não pode exceder os $MAX$ carateres.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -4096,7 +4096,7 @@
     "message": "Notificações"
   },
   "appearance": {
-    "message": "Aparência"
+    "message": "Aspeto"
   },
   "errorAssigningTargetCollection": {
     "message": "Erro ao atribuir a coleção de destino."
@@ -4627,10 +4627,10 @@
     "message": "Ficheiro guardado no dispositivo. Gira-o a partir das transferências do seu dispositivo."
   },
   "showCharacterCount": {
-    "message": "Mostrar contagem de caracteres"
+    "message": "Mostrar contagem de carateres"
   },
   "hideCharacterCount": {
-    "message": "Ocultar contagem de caracteres"
+    "message": "Ocultar contagem de carateres"
   },
   "itemsInTrash": {
     "message": "Itens no lixo"

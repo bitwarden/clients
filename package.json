@@ -85,7 +85,7 @@
     "babel-loader": "9.2.1",
     "base64-loader": "1.0.0",
     "browserslist": "4.23.2",
-    "chromatic": "11.20.2",
+    "chromatic": "11.25.2",
     "concurrently": "9.1.2",
     "copy-webpack-plugin": "12.0.2",
     "cross-env": "7.0.3",
@@ -133,7 +133,7 @@
     "type-fest": "2.19.0",
     "typescript": "5.4.2",
     "typescript-eslint": "8.20.0",
-    "typescript-strict-plugin": "^2.4.4",
+    "typescript-strict-plugin": "2.4.4",
     "url": "0.11.4",
     "util": "0.12.5",
     "wait-on": "8.0.2",
@@ -207,6 +207,9 @@
     "@storybook/angular": {
       "zone.js": "$zone.js"
     },
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@types/react": "18.3.1",
     "replacestream": "4.0.3"
   },
   "lint-staged": {

@@ -283,12 +283,6 @@ import {
   UsernameGenerationServiceAbstraction,
 } from "@bitwarden/generator-legacy";
 import {
-  ImportApiService,
-  ImportApiServiceAbstraction,
-  ImportService,
-  ImportServiceAbstraction,
-} from "@bitwarden/importer/core";
-import {
   KeyService,
   DefaultKeyService,
   BiometricStateService,
@@ -824,26 +818,6 @@ const safeProviders: SafeProvider[] = [
       EnvironmentService,
       TokenServiceAbstraction,
       MigrationRunner,
-    ],
-  }),
-  safeProvider({
-    provide: ImportApiServiceAbstraction,
-    useClass: ImportApiService,
-    deps: [ApiServiceAbstraction],
-  }),
-  safeProvider({
-    provide: ImportServiceAbstraction,
-    useClass: ImportService,
-    deps: [
-      CipherServiceAbstraction,
-      FolderServiceAbstraction,
-      ImportApiServiceAbstraction,
-      I18nServiceAbstraction,
-      CollectionService,
-      KeyService,
-      EncryptService,
-      PinServiceAbstraction,
-      AccountServiceAbstraction,
     ],
   }),
   safeProvider({

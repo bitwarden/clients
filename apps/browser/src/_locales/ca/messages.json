@@ -542,7 +542,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "Els requisits de la política empresarial s'han aplicat a les opcions del generador.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
@@ -612,7 +612,7 @@
     "message": "Obri la web"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "Inicia el lloc web $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -660,7 +660,7 @@
     "message": "Verifica identitat"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "No reconeixem aquest dispositiu. Introduïu el codi que us hem enviat al correu electrònic per verificar la identitat."
   },
   "continueLoggingIn": {
     "message": "Continua l'inici de sessió"
@@ -797,7 +797,7 @@
     "message": "El vostre compte s'ha creat correctament. Ara ja podeu iniciar sessió."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "S'ha creat el vostre compte nou!"
   },
   "youHaveBeenLoggedIn": {
     "message": "Heu iniciat sessió!"
@@ -849,10 +849,10 @@
     "message": "Bitwarden pot emmagatzemar i omplir codis de verificació en dos passos. Copieu i enganxeu la clau en aquest camp."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden pot emmagatzemar i omplir codis de verificació en dos passos. Seleccioneu la icona de la càmera per fer una captura de pantalla del codi QR de l'autenticador d'aquest lloc web o copieu i enganxeu la clau en aquest camp."
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Més informació sobre els autenticadors"
   },
   "copyTOTP": {
     "message": "Copia la clau de l'autenticador (TOTP)"
@@ -861,7 +861,7 @@
     "message": "Sessió tancada"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Heu tancat la sessió del compte."
   },
   "loginExpired": {
     "message": "La vostra sessió ha caducat."
@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Compra Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Podeu comprar la vostra subscripció a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -1338,7 +1335,7 @@
     "message": "Temps d'espera d'autenticació"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "La sessió d'autenticació s'ha esgotat. Reinicieu el procés d'inici de sessió."
   },
   "enterVerificationCodeEmail": {
     "message": "Introduïu el codi de verificació de 6 dígits que s'ha enviat per correu electrònic a $EMAIL$.",
@@ -2064,11 +2061,14 @@
   "usernameGenerator": {
     "message": "Generador de nom d'usuari"
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "useThisPassword": {
     "message": "Utilitzeu aquesta contrasenya"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Utilitzeu aquest nom d'usuari"
   },
   "securePasswordGenerated": {
     "message": "Secure password generated! Don't forget to also update your password on the website."
@@ -3130,7 +3130,7 @@
     "message": "Assegureu-vos que la vostra caixa forta estiga desbloquejada i que la frase d'empremta digital coincidisca en l'altre dispositiu"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Se us notificarà un vegada s'haja aprovat la sol·licitud"
   },
   "needAnotherOptionV1": {
     "message": "Necessiteu una altra opció?"
@@ -3268,7 +3268,7 @@
     "message": "Seguiu l'enllaç del correu electrònic enviat a"
   },
   "andContinueCreatingYourAccount": {
-    "message": "and continue creating your account."
+    "message": "i continua creant el compte."
   },
   "noEmail": {
     "message": "Sense correu electrònic?"
@@ -3277,7 +3277,7 @@
     "message": "Torna arrere"
   },
   "toEditYourEmailAddress": {
-    "message": "to edit your email address."
+    "message": "per editar l'adreça de correu electrònic."
   },
   "eu": {
     "message": "UE",
@@ -3459,7 +3459,7 @@
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Canvia a la navegació lateral"
   },
   "skipToContent": {
     "message": "Vés al contingut"
@@ -3537,7 +3537,7 @@
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
-    "message": "New identity",
+    "message": "Identitat nova",
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
@@ -3631,7 +3631,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+    "message": "S'ha produït un error en connectar amb el servei Duo. Utilitzeu un mètode d'inici de sessió en dos passos diferent o poseu-vos en contacte amb Duo per obtenir ajuda."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Inicieu DUO i seguiu els passos per finalitzar la sessió."
@@ -3726,7 +3726,7 @@
     "message": "Clau de pas"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Accedint a"
   },
   "loggedInExclamation": {
     "message": "Connectat!"
@@ -3741,7 +3741,7 @@
     "message": "Verificació requerida pel lloc iniciador. Aquesta funció encara no s'ha implementat per als comptes sense contrasenya mestra."
   },
   "logInWithPasskeyQuestion": {
-    "message": "Log in with passkey?"
+    "message": "Inici de sessió amb clau de pas?"
   },
   "passkeyAlreadyExists": {
     "message": "Ja hi ha una clau de pas per a aquesta aplicació."
@@ -3756,7 +3756,7 @@
     "message": "No matching logins for this site"
   },
   "searchSavePasskeyNewLogin": {
-    "message": "Search or save passkey as new login"
+    "message": "Cerca o guarda la clau de pas com a nou inici de sessió"
   },
   "confirm": {
     "message": "Confirma-ho"
@@ -3768,7 +3768,7 @@
     "message": "Guarda la clau de pas com a nou inici de sessió"
   },
   "chooseCipherForPasskeySave": {
-    "message": "Choose a login to save this passkey to"
+    "message": "Trieu un inici de sessió per guardar aquesta clau de pas"
   },
   "chooseCipherForPasskeyAuth": {
     "message": "Choose a passkey to log in with"
@@ -3921,7 +3921,7 @@
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
   },
   "confirmContinueToHelpCenter": {
-    "message": "Continue to Help Center?",
+    "message": "Voleu continuar cap al Centre d'ajuda?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
   },
   "confirmContinueToHelpCenterPasswordManagementContent": {
@@ -4075,13 +4075,13 @@
     "message": "No values to copy"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Assigna a col·leccions"
   },
   "copyEmail": {
     "message": "Copia el correu electrònic"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Copia telèfon"
   },
   "copyAddress": {
     "message": "Copia l'adreça"
@@ -4105,7 +4105,7 @@
     "message": "S'ha produït un error en assignar la carpeta de destinació."
   },
   "viewItemsIn": {
-    "message": "View items in $NAME$",
+    "message": "Mostra elements en $NAME$",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -4115,7 +4115,7 @@
     }
   },
   "backTo": {
-    "message": "Back to $NAME$",
+    "message": "Torna a $NAME$",
     "description": "Navigate back to a previous folder or collection",
     "placeholders": {
       "name": {
@@ -4128,7 +4128,7 @@
     "message": "Nou"
   },
   "removeItem": {
-    "message": "Remove $NAME$",
+    "message": "Suprimeix $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -4172,7 +4172,7 @@
     "message": "Informació addicional"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Historial d'elements"
   },
   "lastEdited": {
     "message": "Última edició"
@@ -4597,7 +4597,7 @@
     "message": "Clau pública"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Empremta digital"
   },
   "sshKeyAlgorithm": {
     "message": "Tipus de clau"
@@ -4645,7 +4645,7 @@
     "message": "Items that have been in trash more than 30 days will automatically be deleted"
   },
   "restore": {
-    "message": "Restore"
+    "message": "Restaura"
   },
   "deleteForever": {
     "message": "Suprimeix per sempre"
@@ -4681,7 +4681,7 @@
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "authenticating": {
-    "message": "Authenticating"
+    "message": "S'està autenticant"
   },
   "fillGeneratedPassword": {
     "message": "Fill generated password",
