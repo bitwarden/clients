@@ -115,7 +115,13 @@ describe("CustomFieldsComponent", () => {
           value: true,
           newField: false,
         },
-        { linkedId: 1, name: "linked label", type: FieldType.Linked, value: null, newField: false },
+        {
+          linkedId: 1,
+          name: "linked label",
+          type: FieldType.Linked,
+          value: null,
+          newField: false,
+        },
       ]);
     });
 
@@ -130,6 +136,19 @@ describe("CustomFieldsComponent", () => {
       const button = fixture.debugElement.query(By.directive(BitPasswordInputToggleDirective));
 
       expect(button).toBeFalsy();
+    });
+
+    it("should disable the hidden field input when `viewPassword` is false", () => {
+      originalCipherView.viewPassword = false;
+      originalCipherView.fields = mockFieldViews;
+
+      component.ngOnInit();
+
+      fixture.detectChanges();
+
+      const input = fixture.debugElement.query(By.css('[data-testid="custom-hidden-field"]'));
+
+      expect(input.nativeElement.disabled).toBe(true);
     });
 
     it("when `viewPassword` is true the user can see the view toggle option", () => {
