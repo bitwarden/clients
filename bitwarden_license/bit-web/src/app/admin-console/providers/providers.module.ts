@@ -17,6 +17,7 @@ import {
   ProviderSubscriptionComponent,
   ProviderSubscriptionStatusComponent,
 } from "../../billing/providers";
+import { AddExistingOrganizationDialogComponent } from "../../billing/providers/clients/add-existing-organization-dialog.component";
 
 import { AddOrganizationComponent } from "./clients/add-organization.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
@@ -63,6 +64,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     SetupProviderComponent,
     UserAddEditComponent,
     AddEditMemberDialogComponent,
+    AddExistingOrganizationDialogComponent,
     CreateClientDialogComponent,
     ManageClientNameDialogComponent,
     ManageClientSubscriptionDialogComponent,
