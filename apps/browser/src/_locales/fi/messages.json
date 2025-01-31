@@ -120,7 +120,7 @@
     "message": "Kopioi salasana"
   },
   "copyPassphrase": {
-    "message": "Kopioi salalause"
+    "message": "Kopioi salauslauseke"
   },
   "copyNote": {
     "message": "Kopioi merkinnät"
@@ -443,19 +443,19 @@
     "message": "Luo salasana"
   },
   "generatePassphrase": {
-    "message": "Luo salalause"
+    "message": "Luo salauslauseke"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Salasana luotiin"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Salauslauseke luotiin"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Käyttäjätunnus luotiin"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Sähköpostiosoite luotu"
   },
   "regeneratePassword": {
     "message": "Luo uusi salasana"
@@ -660,10 +660,10 @@
     "message": "Vahvista henkilöllisyytesi"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Emme tunnista tätä laitetta. Anna sähköpostiisi lähetetty koodi henkilöllisyytesi vahvistamiseksi."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Jatka kirjautumista"
   },
   "yourVaultIsLocked": {
     "message": "Holvisi on lukittu. Jatka vahvistamalla henkilöllisyytesi."
@@ -1005,7 +1005,7 @@
     "message": "Ehdota kohteen tallennusta, jos holvistasi ei vielä löydy vastaavaa kohdetta. Koskee kaikkia kirjautuneita tilejä."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Näytä aina kortit automaattisen täytön ehdotuksina Holvi-näkymässä"
   },
   "showCardsCurrentTab": {
     "message": "Näytä kortit välilehtiosiossa"
@@ -1014,7 +1014,7 @@
     "message": "Näytä kortit Välilehti-sivulla automaattitäytön helpottamiseksi."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Näytä aina identiteetit automaattisen täytön ehdotuksina Holvi-näkymässä"
   },
   "showIdentitiesCurrentTab": {
     "message": "Näytä henkilöllisyydet välilehtiosiossa"
@@ -1023,7 +1023,7 @@
     "message": "Näytä henkilöllisyydet Välilehti-sivulla automaattitäytön helpottamiseksi."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Valitse kohteita täyttääksesi tiedot automaattisesti Holvi-näkymässä"
   },
   "clearClipboard": {
     "message": "Tyhjennä leikepöytä",
@@ -1279,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Osta Premium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Voit ostaa Premium-jäsenyyden bitwarden.com-verkkoholvista. Haluatko avata sivuston nyt?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Voit ostaa Premiumin tiliasetuksistasi Bitwardenin verkkosovelluksen kautta."
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Käyttäjätunnusgeneraattori"
   },
+  "useThisEmail": {
+    "message": "Käytä tätä sähköpostia"
+  },
   "useThisPassword": {
     "message": "Käytä tätä salasanaa"
   },
@@ -2355,13 +2355,13 @@
     "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näillä verkkotunnuksilla. Koskee kaikkia kirjautuneita tilejä. Ota muutokset käyttöön päivittämällä sivu."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "Näille sivustoille ei tarjota automaattista täyttöä eikä muita siihen liittyviä ominaisuuksia. Sinun on päivitettävä sivu, jotta muutokset tulevat voimaan."
   },
   "autofillBlockedNoticeV2": {
     "message": "Automaattitäyttö on estetty tällä sivustolla."
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "Muuta tätä asetuksissa"
   },
   "websiteItemLabel": {
     "message": "Verkkotunnus $number$ (URI)",
@@ -2382,7 +2382,7 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "Blocked domain changes saved"
+    "message": "Estetyn verkkotunnuksen muutokset tallennettu"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Rajoitettujen verkkotunnusten muutokset tallennettiin"
@@ -2826,14 +2826,14 @@
     "message": "Salauksen purkuvirhe"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden ei pystynyt purkamaan alla lueteltuja holvin kohteita."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Ota yhteyttä asiakkaaseen",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "lisätietojen menettämisen välttämiseksi.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
@@ -2867,7 +2867,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Käytä $RECOMMENDED$ tai useampaa sanaa vahvan salalauseen luomiseen.",
+    "message": " Käytä $RECOMMENDED$ tai useampaa sanaa vahvan salauslausekkeen luomiseen.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -4654,22 +4654,22 @@
     "message": "Sinulla ei ole oikeutta muokata tätä kohdetta"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "Biometrinen avaus ei ole käytettävissä, koska PIN-koodi tai salasanan lukituksen avaus vaaditaan ensin."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "Biometrinen avaus ei tällä hetkellä ole käytettävissä."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrinen avaus ei ole käytettävissä, koska järjestelmätiedostoja ei ole määritetty."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrinen avaus ei ole käytettävissä, koska järjestelmätiedostoja ei ole määritetty."
   },
   "biometricsStatusHelptextDesktopDisconnected": {
-    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+    "message": "Biometrinen avaus ei ole käytettävissä, koska Bitwardenin työpöytäsovellus on suljettu."
   },
   "biometricsStatusHelptextNotEnabledInDesktop": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "Biometrinen avaus ei ole käytettävissä, koska sitä ei ole otettu käyttöön osoitteelle $EMAIL$ Bitwardenin työpöytäsovelluksessa.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4678,7 +4678,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "Biometrinen avaus ei ole tällä hetkellä käytettävissä tuntemattomasta syystä."
   },
   "authenticating": {
     "message": "Todennetaan"
@@ -4852,13 +4852,13 @@
     "message": "Bitwarden lähettää tilisi sähköpostiosoitteeseen koodin, jolla voit vahvistaa kirjautumiset uusista laitteista helmikuusta 2025 alkaen."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "Voit ottaa käyttöön kaksivaiheisen kirjautumisen vaihtoehtoisena tapana suojata tilisi, tai vaihtaa sähköpostisi sellaiseen, johon sinulla on pääsy."
   },
   "remindMeLater": {
     "message": "Muistuta myöhemmin"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Onko sinulla luotettava pääsy sähköpostiisi, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4867,10 +4867,10 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Ei ole"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Kyllä on"
   },
   "turnOnTwoStepLogin": {
     "message": "Ota kaksivaiheinen kirjautuminen käyttöön"
@@ -4888,9 +4888,9 @@
     "message": "Erittäin leveä"
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
+    "message": "Päivitä työpöytäsovellus"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "Käyttääksesi biometristä avausta, päivitä työpöytäsovelluksesi tai poista tunnistelauseke käytöstä työpöydän asetuksista."
   }
 }

@@ -1839,20 +1839,35 @@
   "dangerZone": {
     "message": "Gefahrenzone"
   },
-  "dangerZoneDesc": {
-    "message": "Vorsicht, diese Aktionen sind nicht umkehrbar!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Vorsicht, diese Aktion ist nicht mehr rückgängig zu machen!"
-  },
   "deauthorizeSessions": {
     "message": "Sitzungen abmelden"
   },
   "deauthorizeSessionsDesc": {
-    "message": "Bist du besorgt, dass dein Konto auf einem anderen Gerät angemeldet ist? Fahre unten fort, um alle Computer oder Geräte, die du zuvor verwendet hast, zu deaktivieren. Dieser Sicherheitsschritt wird empfohlen, wenn du zuvor einen öffentlichen Computer verwendet oder dein Passwort versehentlich auf einem Gerät gespeichert hast, das dir nicht gehört. Dieser Schritt löscht auch alle zuvor gespeicherten zweistufigen Anmeldesitzungen."
+    "message": "Bist du besorgt, dass dein Konto auf einem anderen Gerät angemeldet ist? Fahre unten fort, um dich von allen Computern oder Geräten, die du zuvor verwendet hast, abzumelden. Dieser Sicherheitsschritt wird empfohlen, wenn du zuvor einen öffentlichen Computer verwendet oder dein Passwort versehentlich auf einem Gerät gespeichert hast, das dir nicht gehört. Dieser Schritt löscht auch alle zuvor gespeicherten zweistufigen Anmeldesitzungen."
   },
   "deauthorizeSessionsWarning": {
     "message": "Wenn du fortfährst, wirst du auch von deiner aktuellen Sitzung abgemeldet, so dass du dich erneut anmelden musst. Du wirst auch aufgefordert, dich erneut in zwei Schritten anzumelden, falls dies eingerichtet ist. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Neue Geräteanmeldung"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Neuen Geräte-Anmeldeschutz deaktivieren"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Neuen Geräte-Anmeldeschutz aktivieren"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Fahre unten fort, um die Verifizierungs-E-Mails von Bitwarden zu deaktivieren, wenn du dich von einem neuen Gerät aus anmeldest."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Fahre unten fort, um Verifizierungs-E-Mails von Bitwarden zu erhalten, wenn du dich von einem neuen Gerät aus anmeldest."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Wenn der neue Geräte-Anmeldeschutz ausgeschaltet ist, kann jeder mit deinem Master-Passwort von jedem Gerät aus auf dein Konto zugreifen. Um dein Konto ohne Verifizierungs-E-Mails zu schützen, richte die Zwei-Faktor-Authentifizierung ein."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Änderungen am neuen Geräte-Anmeldeschutz gespeichert"
   },
   "sessionsDeauthorized": {
     "message": "Alle Sitzungen wurden abgemeldet"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Verwende den konfigurierten Catch-All-Posteingang deiner Domain."
   },
+  "useThisEmail": {
+    "message": "Diese E-Mail-Adresse verwenden"
+  },
   "random": {
     "message": "Zufällig",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Das Löschen von Sammlungen auf Eigentümer und Administratoren beschränken"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Löschung von Einträgen auf Mitglieder mit der \"Darf verwalten\"-Berechtigung beschränken"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Besitzer und Administratoren können alle Sammlungen und Einträge verwalten"
