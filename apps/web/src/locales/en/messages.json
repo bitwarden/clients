@@ -10333,5 +10333,8 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification" : {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
   }
 }

@@ -29,9 +29,13 @@ export const ORGANIZATION_MANAGEMENT_PREFERENCES_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
-export const AC_BANNERS_DISMISSED_DISK = new StateDefinition("acBannersDismissed", "disk", {
-  web: "disk-local",
-});
+export const ACCOUNT_DEPROVISIONING_BANNER_DISK = new StateDefinition(
+  "showAccountDeprovisioningBanner",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");

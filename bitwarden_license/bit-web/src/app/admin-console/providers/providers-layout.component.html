@@ -37,25 +37,5 @@
     ></bit-nav-item>
   </app-side-nav>
 
-  <bit-banner
-    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    (onClose)="(true)"
-    *ngIf="
-      (showProviderClientVaultPrivacyWarningBanner$ | async) &&
-      (providerClientVaultPrivacyBannerService.showBanner$ | async) != false
-    "
-    (onClose)="providerClientVaultPrivacyBannerService.hideBanner()"
-  >
-    {{ "providerClientVaultPrivacyNotification" | i18n }}
-    <a
-      href="https://bitwarden.com/contact/"
-      bitLink
-      linkType="secondary"
-      target="_blank"
-      rel="noreferrer"
-    >
-      {{ "contactBitwardenSupport" | i18n }} </a
-    >.
-  </bit-banner>
   <router-outlet></router-outlet>
 </app-layout>
