@@ -199,6 +199,7 @@
     "tabbable": "6.2.0",
     "tldts": "6.1.74",
     "utf-8-validate": "6.0.5",
+    "webpack-subresource-integrity": "^5.1.0",
     "zone.js": "0.14.10",
     "zxcvbn": "4.4.2"
   },
