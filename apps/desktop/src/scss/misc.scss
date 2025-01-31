@@ -188,44 +188,6 @@ p.lead {
   }
 }
 
-.generated-block {
-  font-size: $font-size-large;
-  font-family: $font-family-monospace;
-  padding: 8px 10px 8px 0;
-  display: flex;
-  border-radius: $border-radius;
-  border: 1px solid;
-
-  @include themify($themes) {
-    background-color: transparent;
-    border-color: themed("borderColorAlt");
-  }
-
-  .modal-body & {
-    margin-top: 10px;
-  }
-
-  .generated-wrapper {
-    text-align: left;
-    width: 100%;
-    min-width: 0;
-    white-space: pre-wrap;
-    word-break: break-all;
-    padding: 15px;
-  }
-
-  .action-buttons {
-    display: flex;
-    align-self: center;
-    height: 100%;
-    margin-left: 10px;
-
-    button {
-      margin-left: 10px;
-    }
-  }
-}
-
 .password-wrapper {
   overflow-wrap: break-word;
   white-space: pre-wrap;
