@@ -1,2 +1,34 @@
 ignore:
   - "**/*.spec.ts" # Tests
+
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+  individual_components:
+    - component_id: key-management-lib
+      name: Key Management - Library
+      paths:
+        - libs/key-management/**
+        - libs/common/src/key-management/**
+    - component_id: key-management-browser
+      name: Key Management - Browser Extension
+      paths:
+        - apps/browser/src/key-management/**
+        - apps/browser/src/background/nativeMessaging.background.ts
+    - component_id: key-management-cli
+      name: Key Management - CLI
+      paths:
+        - apps/cli/src/key-management/**
+    - component_id: key-management-web
+      name: Key Management - Web Vault
+      paths:
+        - apps/web/src/app/key-management/**
+    - component_id: key-management-desktop
+      name: Key Management - Desktop App
+      paths:
+        - apps/desktop/src/key-management/**
+        - apps/desktop/destkop_native/core/src/biometric/**
+        - apps/desktop/src/services/native-messaging.service.ts
+        - apps/desktop/src/services/biometric-message-handler.service.ts
