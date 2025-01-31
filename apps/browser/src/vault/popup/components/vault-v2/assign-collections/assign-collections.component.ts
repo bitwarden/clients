@@ -5,12 +5,13 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, combineLatest, first, map, switchMap } from "rxjs";
+import { Observable, combineLatest, filter, first, map, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -58,16 +59,19 @@ export class AssignCollections {
     private accountService: AccountService,
     route: ActivatedRoute,
   ) {
-    const cipher$: Observable<CipherView> = route.queryParams.pipe(
-      switchMap(({ cipherId }) => this.cipherService.get(cipherId)),
-      switchMap((cipherDomain) =>
-        this.accountService.activeAccount$.pipe(
-          map((account) => account?.id),
-          switchMap((userId) =>
-            this.cipherService
-              .getKeyForCipherKeyDecryption(cipherDomain, userId)
-              .then(cipherDomain.decrypt.bind(cipherDomain)),
-          ),
+    const cipher$: Observable<CipherView> = this.accountService.activeAccount$.pipe(
+      map((account) => account?.id),
+      filter((userId) => userId != null),
+      switchMap((userId) =>
+        route.queryParams.pipe(
+          switchMap(async ({ cipherId }) => {
+            const cipherDomain = await this.cipherService.get(cipherId, userId);
+            const key: UserKey | OrgKey = await this.cipherService.getKeyForCipherKeyDecryption(
+              cipherDomain,
+              userId,
+            );
+            return cipherDomain.decrypt(key);
+          }),
         ),
       ),
     );

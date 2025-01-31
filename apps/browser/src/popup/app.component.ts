@@ -179,7 +179,7 @@ export class AppComponent implements OnInit, OnDestroy {
           await this.clearComponentStates();
         }
         if (url.startsWith("/tabs/")) {
-          await this.cipherService.setAddEditCipherInfo(null);
+          await this.cipherService.setAddEditCipherInfo(null, this.activeUserId);
         }
         (window as any).previousPopupUrl = url;
 

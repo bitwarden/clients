@@ -60,8 +60,6 @@ export class PasswordHistoryV2Component implements OnInit {
 
   /** Load the cipher based on the given Id */
   private async loadCipher(cipherId: string) {
-    const cipher = await this.cipherService.get(cipherId);
-
     const activeAccount = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a: { id: string | undefined }) => a)),
     );
@@ -71,6 +69,8 @@ export class PasswordHistoryV2Component implements OnInit {
     }
 
     const activeUserId = activeAccount.id as UserId;
+
+    const cipher = await this.cipherService.get(cipherId, activeUserId);
     this.cipher = await cipher.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
     );

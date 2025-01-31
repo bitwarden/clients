@@ -33,8 +33,6 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   private readonly collapsedGroupings$: Observable<Set<string>> =
     this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
 
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
-
   constructor(
     protected organizationService: OrganizationService,
     protected folderService: FolderService,
@@ -73,8 +71,9 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
       if (organizationId == null || organizationId == "MyVault") {
         folders = storedFolders;
       } else {
+        const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         // Otherwise, show only folders that have ciphers from the selected org and the "no folder" folder
-        const ciphers = await this.cipherService.getAllDecrypted();
+        const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
         const orgCiphers = ciphers.filter((c) => c.organizationId == organizationId);
         folders = storedFolders.filter(
           (f) => orgCiphers.some((oc) => oc.folderId == f.id) || f.id == null,
@@ -88,7 +87,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
       });
     };
 
-    return this.activeUserId$.pipe(
+    return getUserId(this.accountService.activeAccount$).pipe(
       switchMap((userId) => this.folderService.folderViews$(userId)),
       mergeMap((folders) => from(transformation(folders))),
     );
@@ -134,7 +133,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   async getFolderNested(id: string): Promise<TreeNode<FolderView>> {
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const folders = await this.getAllFoldersNested(
       await firstValueFrom(this.folderService.folderViews$(activeUserId)),
     );

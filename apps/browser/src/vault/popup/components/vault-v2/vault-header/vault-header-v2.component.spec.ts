@@ -59,7 +59,9 @@ describe("VaultHeaderV2Component", () => {
       providers: [
         {
           provide: CipherService,
-          useValue: mock<CipherService>({ cipherViews$: new BehaviorSubject([]) }),
+          useValue: mock<CipherService>({
+            cipherViews$: jest.fn().mockReturnValue(new BehaviorSubject([])),
+          }),
         },
         { provide: VaultSettingsService, useValue: mock<VaultSettingsService>() },
         { provide: FolderService, useValue: mock<FolderService>() },

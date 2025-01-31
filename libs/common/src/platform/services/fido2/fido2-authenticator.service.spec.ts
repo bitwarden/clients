@@ -3,7 +3,8 @@ import { TextEncoder } from "util";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { Account, AccountService } from "../../../auth/abstractions/account.service";
+import { mockAccountServiceWith } from "../../../../spec";
+import { Account } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
@@ -46,7 +47,6 @@ describe("FidoAuthenticatorService", () => {
   let userInterface!: MockProxy<Fido2UserInterfaceService<ParentWindowReference>>;
   let userInterfaceSession!: MockProxy<Fido2UserInterfaceSession>;
   let syncService!: MockProxy<SyncService>;
-  let accountService!: MockProxy<AccountService>;
   let authenticator!: Fido2AuthenticatorService<ParentWindowReference>;
   let windowReference!: ParentWindowReference;
 
@@ -58,7 +58,7 @@ describe("FidoAuthenticatorService", () => {
     syncService = mock<SyncService>({
       activeUserLastSync$: () => of(new Date()),
     });
-    accountService = mock<AccountService>();
+    const accountService = mockAccountServiceWith("testId" as UserId);
     authenticator = new Fido2AuthenticatorService(
       cipherService,
       userInterface,

@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { SHOW_AUTOFILL_BUTTON } from "@bitwarden/common/autofill/constants";
@@ -106,6 +107,7 @@ class LegacyOverlayBackground implements OverlayBackgroundInterface {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private themeStateService: ThemeStateService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -152,9 +154,13 @@ class LegacyOverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.overlayLoginCiphers = new Map();
-    const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
-      (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
+    const ciphersViews = (
+      await this.cipherService.getAllDecryptedForUrl(currentTab.url, activeUserId)
+    ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
       this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
@@ -660,10 +666,16 @@ class LegacyOverlayBackground implements OverlayBackgroundInterface {
     cipherView.type = CipherType.Login;
     cipherView.login = loginView;
 
-    await this.cipherService.setAddEditCipherInfo({
-      cipher: cipherView,
-      collectionIds: cipherView.collectionIds,
-    });
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    await this.cipherService.setAddEditCipherInfo(
+      {
+        cipher: cipherView,
+        collectionIds: cipherView.collectionIds,
+      },
+      activeUserId,
+    );
 
     await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
     await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");

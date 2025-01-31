@@ -169,10 +169,11 @@ export class ViewComponent implements OnInit {
    */
   protected async deleteCipher(): Promise<void> {
     const asAdmin = this.organization?.canEditAllCiphers;
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (this.cipher.isDeleted) {
-      await this.cipherService.deleteWithServer(this.cipher.id, asAdmin);
+      await this.cipherService.deleteWithServer(this.cipher.id, userId, asAdmin);
     } else {
-      await this.cipherService.softDeleteWithServer(this.cipher.id, asAdmin);
+      await this.cipherService.softDeleteWithServer(this.cipher.id, userId, asAdmin);
     }
   }
 

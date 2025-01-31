@@ -1,12 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
-import { BehaviorSubject, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { BehaviorSubject, Observable, Subject, firstValueFrom, switchMap, takeUntil } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -50,8 +51,8 @@ export class CipherReportComponent implements OnDestroy {
     protected i18nService: I18nService,
     private syncService: SyncService,
   ) {
-    this.organizations$ = this.accountService.activeAccount$.pipe(
-      switchMap((account) => this.organizationService.organizations$(account?.id)),
+    this.organizations$ = getUserId(this.accountService.activeAccount$).pipe(
+      switchMap((userId) => this.organizationService.organizations$(userId)),
     );
     this.organizations$.pipe(takeUntil(this.destroyed$)).subscribe((orgs) => {
       this.organizations = orgs;
@@ -182,7 +183,8 @@ export class CipherReportComponent implements OnDestroy {
   }
 
   protected async getAllCiphers(): Promise<CipherView[]> {
-    return await this.cipherService.getAllDecrypted();
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    return await this.cipherService.getAllDecrypted(activeUserId);
   }
 
   protected filterCiphersByOrg(ciphersList: CipherView[]) {
