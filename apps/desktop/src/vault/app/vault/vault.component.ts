@@ -35,7 +35,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
@@ -113,6 +113,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private toastService: ToastService,
     private configService: ConfigService,
     private accountService: AccountService,
     private cipherService: CipherService,
@@ -157,11 +158,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             await this.vaultItemsComponent.reload(this.activeFilter.buildFilter());
             await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
             await this.vaultFilterComponent.reloadOrganizations();
-            break;
-          case "refreshCiphers":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.vaultItemsComponent.refresh();
             break;
           case "modalShown":
             this.showingModal = true;
@@ -534,9 +530,19 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     let madeAttachmentChanges = false;
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onUploadedAttachment.subscribe(() => (madeAttachmentChanges = true));
+    childComponent.onUploadedAttachment.subscribe((cipher) => {
+      madeAttachmentChanges = true;
+      // Update the edit component cipher with the updated cipher,
+      // which is needed because the revision date is updated when an attachment is altered
+      this.addEditComponent.patchCipherAttachments(cipher);
+    });
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onDeletedAttachment.subscribe(() => (madeAttachmentChanges = true));
+    childComponent.onDeletedAttachment.subscribe((cipher) => {
+      madeAttachmentChanges = true;
+      // Update the edit component cipher with the updated cipher,
+      // which is needed because the revision date is updated when an attachment is altered
+      this.addEditComponent.patchCipherAttachments(cipher);
+    });
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.modal.onClosed.subscribe(async () => {
@@ -809,11 +815,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
 
       this.platformUtilsService.copyToClipboard(value);
-      this.platformUtilsService.showToast(
-        "info",
-        null,
-        this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
-      );
+      this.toastService.showToast({
+        variant: "info",
+        title: null,
+        message: this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
+      });
       if (this.action === "view") {
         this.messagingService.send("minimizeOnCopy");
       }

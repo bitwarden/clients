@@ -4,8 +4,9 @@ import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 import { NavDividerComponent } from "./nav-divider.component";
 import { SideNavService } from "./side-nav.service";

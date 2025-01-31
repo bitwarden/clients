@@ -72,6 +72,6 @@ export class CredentialGeneratorHistoryComponent {
 
   protected getGeneratedValueText(credential: GeneratedCredential) {
     const info = this.generatorService.algorithm(credential.category);
-    return info.generatedValue;
+    return info.credentialType;
   }
 }

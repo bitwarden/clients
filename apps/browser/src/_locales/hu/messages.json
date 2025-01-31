@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Jelmondat generálás"
   },
+  "passwordGenerated": {
+    "message": "A jelszó generálásra került."
+  },
+  "passphraseGenerated": {
+    "message": "A jelmondat generálásra került."
+  },
+  "usernameGenerated": {
+    "message": "A felhasználónév generálásra került."
+  },
+  "emailGenerated": {
+    "message": "Az email generálásra került."
+  },
   "regeneratePassword": {
     "message": "Jelszó újragenerálása"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Személyazonosság ellenőrzése"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Nem ismerhető fel ez az eszköz. Írjuk be az email címünkre küldött kódot a személyazonosság igazolásához."
+  },
+  "continueLoggingIn": {
+    "message": "A bejelentkezés folytatása"
   },
   "yourVaultIsLocked": {
     "message": "A széf zárolásra került. A folytatáshoz meg kell adni a mesterjelszót."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Egy elem hozzáadásának kérése, ha az nem található a széfben. Minden bejelentkezett fiókra vonatkozik."
   },
-  "showCardsInVaultView": {
-    "message": "Show cards as Autofill suggestions on Vault view"
+  "showCardsInVaultViewV2": {
+    "message": "Mindig jelenítse meg a kártyákat automatikus kitöltési javaslatként a Széf nézetben"
   },
   "showCardsCurrentTab": {
     "message": "Kártyák megjelenítése a Fül oldalon"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Kártyaelemek listázása a Fül oldalon a könnyű automatikus kitöltéshez."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Show identities as Autofill suggestions on Vault view"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Mindig jelenítse meg a személyazonosságokat automatikus kitöltési javaslatként a Széf nézetben"
   },
   "showIdentitiesCurrentTab": {
     "message": "Azonosítások megjelenítése a Fül oldalon"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Prémium funkció megvásárlása"
-  },
-  "premiumPurchaseAlert": {
-    "message": "A prémium tagság megvásárolható a bitwarden.com webes széfben. Szeretnénk felkeresni a webhelyet most?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Prémium szolgáltatást vásárolhatunk a Bitwarden webalkalmazás fiókbeállításai között."
@@ -2046,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Felhasználónév generátor"
   },
+  "useThisEmail": {
+    "message": "Ezen email használata"
+  },
   "useThisPassword": {
     "message": "Jelszó használata"
   },
@@ -2339,11 +2357,11 @@
   "blockedDomainsDesc": {
     "message": "Az automatikus kitöltés és az egyéb kapcsolódó funkciók ezeken a webhelyeken nincsenek a kínálatban. A változtatások életbe lépéséhez frissíteni kell az oldalt."
   },
-  "autofillBlockedNotice": {
-    "message": "Az automatikus kitöltés le van tiltva ezen a webhelyen. Tekintsük át vagy módosítsuk ezt a beállításokban."
+  "autofillBlockedNoticeV2": {
+    "message": "Az automatikus kitöltés blokkolásra került ezen a webhelyen."
   },
-  "autofillBlockedTooltip": {
-    "message": "Az automatikus kitöltés le van tiltva ezen a webhelyen. Tekintsük át ezt a beállításokban."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Megváltoztatás a beállításokban"
   },
   "websiteItemLabel": {
     "message": "Webhely $number$ (URI)",
@@ -3425,38 +3443,6 @@
     "message": "Összezárás váltás",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Adatok importálása a Bitwardenbe?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "A LastPass adatok megvédése és importálása a Bitwardenbe?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Mentés titkosítatlan fájlként",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importálás a Bitwardenbe",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importálás...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Az adatok sikeresen importálásra kerültek.",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Hiba történt az importálás során. A részletekért ellenőrizzük a konzolt.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Hálózati hiba történt az importálás során.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Áldomain"
   },
@@ -4009,6 +3995,9 @@
   },
   "autofillSuggestions": {
     "message": "Automatikus kitöltés javaslatok"
+  },
+  "itemSuggestions": {
+    "message": "Javasolt elemek"
   },
   "autofillSuggestionsTip": {
     "message": "A bejelentkezési elem mentése ehhez a webhelyhez az automatikus kitöltéshez"
@@ -4586,12 +4575,6 @@
   "textSends": {
     "message": "Szöveg küldés"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden has a new look!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
-  },
   "accountActions": {
     "message": "Fiókműveletek"
   },
@@ -4903,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Extra széles"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Frissítsük az asztali alkalmazást."
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "A biometrikus feloldás használatához frissítsük az asztali alkalmazást vagy tiltsuk le az ujjlenyomatos feloldást az asztali beállításokban."
   }
 }

@@ -8,11 +8,23 @@ import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TwoFactorAuthDuoComponent as TwoFactorAuthDuoBaseComponent } from "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-duo.component";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { AsyncActionsModule } from "../../../../../libs/components/src/async-actions";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ButtonModule } from "../../../../../libs/components/src/button";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { FormFieldModule } from "../../../../../libs/components/src/form-field";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { LinkModule } from "../../../../../libs/components/src/link";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TypographyModule } from "../../../../../libs/components/src/typography";
 
 @Component({

@@ -136,8 +136,10 @@ export class CardDetailsSectionComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.originalCipherView?.card) {
-      this.setInitialValues();
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      this.setInitialValues(prefillCipher);
     }
 
     if (this.disabled) {
@@ -172,8 +174,8 @@ export class CardDetailsSectionComponent implements OnInit {
   }
 
   /** Set form initial form values from the current cipher */
-  private setInitialValues() {
-    const { cardholderName, number, brand, expMonth, expYear, code } = this.originalCipherView.card;
+  private setInitialValues(cipherView: CipherView) {
+    const { cardholderName, number, brand, expMonth, expYear, code } = cipherView.card;
 
     this.cardDetailsForm.setValue({
       cardholderName: cardholderName,

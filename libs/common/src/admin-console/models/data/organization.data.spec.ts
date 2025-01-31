@@ -1,6 +1,6 @@
 import { ProductTierType } from "../../../billing/enums/product-tier-type.enum";
 import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
-import { ORGANIZATIONS } from "../../services/organization/organization.service";
+import { ORGANIZATIONS } from "../../services/organization/organization.state";
 
 import { OrganizationData } from "./organization.data";
 
@@ -53,6 +53,7 @@ describe("ORGANIZATIONS state", () => {
         accessSecretsManager: false,
         limitCollectionCreation: false,
         limitCollectionDeletion: false,
+        limitItemDeletion: false,
         allowAdminAccessToAllCollectionItems: false,
         familySponsorshipLastSyncDate: new Date(),
         userIsManagedByOrganization: false,

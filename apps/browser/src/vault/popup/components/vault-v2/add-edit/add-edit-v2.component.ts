@@ -5,18 +5,27 @@ import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { firstValueFrom, map, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
-import { AsyncActionsModule, ButtonModule, SearchModule } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  SearchModule,
+  IconButtonModule,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,
@@ -131,11 +140,13 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     CipherFormModule,
     AsyncActionsModule,
     PopOutComponent,
+    IconButtonModule,
   ],
 })
 export class AddEditV2Component implements OnInit {
   headerText: string;
   config: CipherFormConfig;
+  canDeleteCipher$: Observable<boolean>;
 
   get loading() {
     return this.config == null;
@@ -165,6 +176,10 @@ export class AddEditV2Component implements OnInit {
     private router: Router,
     private cipherService: CipherService,
     private eventCollectionService: EventCollectionService,
+    private logService: LogService,
+    private toastService: ToastService,
+    private dialogService: DialogService,
+    protected cipherAuthorizationService: CipherAuthorizationService,
   ) {
     this.subscribeToParams();
   }
@@ -281,6 +296,10 @@ export class AddEditV2Component implements OnInit {
           }
 
           if (["edit", "partial-edit"].includes(config.mode) && config.originalCipher?.id) {
+            this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
+              config.originalCipher,
+            );
+
             await this.eventCollectionService.collect(
               EventType.Cipher_ClientViewed,
               config.originalCipher.id,
@@ -336,6 +355,43 @@ export class AddEditV2Component implements OnInit {
       case CipherType.SshKey:
         return this.i18nService.t(partOne, this.i18nService.t("typeSshKey"));
     }
+  }
+
+  delete = async () => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteItem" },
+      content: {
+        key: "deleteItemConfirmation",
+      },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    try {
+      await this.deleteCipher();
+    } catch (e) {
+      this.logService.error(e);
+      return false;
+    }
+
+    await this.router.navigate(["/tabs/vault"]);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("deletedItem"),
+    });
+
+    return true;
+  };
+
+  protected deleteCipher() {
+    return this.config.originalCipher.deletedDate
+      ? this.cipherService.deleteWithServer(this.config.originalCipher.id)
+      : this.cipherService.softDeleteWithServer(this.config.originalCipher.id);
   }
 }
 
