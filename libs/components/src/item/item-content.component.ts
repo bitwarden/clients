@@ -6,6 +6,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  Input,
   signal,
   ViewChild,
 } from "@angular/core";
@@ -31,6 +32,13 @@ export class ItemContentComponent implements AfterContentChecked {
   @ViewChild("endSlot") endSlot: ElementRef<HTMLDivElement>;
 
   protected endSlotHasChildren = signal(false);
+
+  /**
+   * Determines whether text will truncate or wrap.
+   *
+   * Default behavior is truncation.
+   */
+  @Input() truncate = true;
 
   ngAfterContentChecked(): void {
     this.endSlotHasChildren.set(this.endSlot?.nativeElement.childElementCount > 0);

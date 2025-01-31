@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
+import { combineLatest, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ChipSelectComponent } from "@bitwarden/components";
@@ -19,6 +20,21 @@ export class VaultListFiltersComponent {
   protected collections$ = this.vaultPopupListFiltersService.collections$;
   protected folders$ = this.vaultPopupListFiltersService.folders$;
   protected cipherTypes = this.vaultPopupListFiltersService.cipherTypes;
+
+  // Combine all filters into a single observable to eliminate the filters from loading separately in the UI.
+  protected allFilters$ = combineLatest([
+    this.organizations$,
+    this.collections$,
+    this.folders$,
+  ]).pipe(
+    map(([organizations, collections, folders]) => {
+      return {
+        organizations,
+        collections,
+        folders,
+      };
+    }),
+  );
 
   constructor(private vaultPopupListFiltersService: VaultPopupListFiltersService) {}
 }

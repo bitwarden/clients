@@ -184,7 +184,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       singleUserId$.complete();
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
 
     it("completes when `userKey$` emits a falsy value after emitting a truthy value", () => {
@@ -199,7 +199,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       userKey$.next(null);
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
 
     it("completes once `dependencies.singleUserId$` emits and `userKey$` completes", () => {
@@ -214,7 +214,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       userKey$.complete();
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
   });
 
@@ -445,7 +445,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       singleOrganizationId$.complete();
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
 
     it("completes when `orgKeys$` emits a falsy value after emitting a truthy value", () => {
@@ -466,7 +466,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
       orgKey$.next(OrgRecords);
       orgKey$.next(null);
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
 
     it("completes once `dependencies.singleOrganizationId$` emits and `userKey$` completes", () => {
@@ -486,7 +486,7 @@ describe("KeyServiceLegacyEncryptorProvider", () => {
 
       orgKey$.complete();
 
-      expect(completed).toBeTrue();
+      expect(completed).toBe(true);
     });
   });
 });

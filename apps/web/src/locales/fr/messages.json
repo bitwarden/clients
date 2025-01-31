@@ -113,6 +113,39 @@
   "atRiskMembers": {
     "message": "Membres à risque"
   },
+  "atRiskMembersWithCount": {
+    "message": "At-risk members ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "Applications à risque ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "Ces applications ont des mots de passe faibles, exposés ou réutilisés."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "Total des membres"
   },
@@ -121,6 +154,12 @@
   },
   "totalApplications": {
     "message": "Total des applications"
+  },
+  "unmarkAsCriticalApp": {
+    "message": "Ne plus marquer comme application critique"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Marquage d'application critique retiré avec succès"
   },
   "whatTypeOfItem": {
     "message": "Quel type d'élément est-ce ?"
@@ -1128,6 +1167,12 @@
   "verifyIdentity": {
     "message": "Vérifiez votre Identité"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "Nous ne reconnaissons pas cet appareil. Entrez le code envoyé à votre courriel pour vérifier votre identité."
+  },
+  "continueLoggingIn": {
+    "message": "Continuer à vous connecter"
+  },
   "whatIsADevice": {
     "message": "Qu'est-ce qu'un appareil ?"
   },
@@ -1794,12 +1839,6 @@
   "dangerZone": {
     "message": "Zone de danger"
   },
-  "dangerZoneDesc": {
-    "message": "Attention, ces actions sont irréversibles !"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Attention, cette action est irréversible!"
-  },
   "deauthorizeSessions": {
     "message": "Révoquer les sessions"
   },
@@ -1808,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "En poursuivant, vous serez également déconnecté de votre session en cours, ce qui vous obligera à vous reconnecter. Vous serez également invité à vous reconnecter via l'authentification à deux facteurs, si elle est configurée. Les sessions actives sur d'autres appareils peuvent rester actives pendant encore une heure."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Connexion à un nouvel appareil"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Désactivez la protection de connexion du nouvel appareil"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Activez la protection de connexion du nouvel appareil"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Procédez ci-dessous pour désactiver les courriels de vérification envoyés par Bitwarden lorsque vous vous connectez à partir d'un nouvel appareil."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Procédez ci-dessous pour que Bitwarden vous envoie des courriels de vérification lorsque vous vous connectez à partir d'un nouvel appareil."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Avec la protection de connexion d'un nouvel appareil désactivée, toute personne ayant votre mot de passe maître peut accéder à votre compte depuis n'importe quel appareil. Pour protéger votre compte sans courriel de vérification, configurez la connexion en deux étapes."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Modifications de la protection de connexion de l'appareil enregistrées"
   },
   "sessionsDeauthorized": {
     "message": "Toutes les sessions ont été révoquées"
@@ -3281,6 +3341,9 @@
   "inviteSingleEmailDesc": {
     "message": "You have 1 invite remaining."
   },
+  "inviteZeroEmailDesc": {
+    "message": "Il vous reste 0 invitations."
+  },
   "userUsingTwoStep": {
     "message": "Cet utilisateur utilise l'authentification à deux facteurs pour protéger son compte."
   },
@@ -3732,6 +3795,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "SSO non lié."
+  },
   "unlinkedSsoUser": {
     "message": "SSO dissocié pour l'utilisateur $ID$.",
     "placeholders": {
@@ -3788,6 +3854,67 @@
   },
   "trusted": {
     "message": "Approuvé"
+  },
+  "needsApproval": {
+    "message": "Requiert une approbation"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Essayez-vous de vous connecter ?"
+  },
+  "logInAttemptBy": {
+    "message": "Tentative de connexion par $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Type d'appareil"
+  },
+  "ipAddress": {
+    "message": "Adresse IP"
+  },
+  "confirmLogIn": {
+    "message": "Confirmer la connexion"
+  },
+  "denyLogIn": {
+    "message": "Refuser la connexion"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Cette demande n'est plus valide."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Connexion confirmée pour $EMAIL$ sur $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Vous avez refusé une tentative de connexion depuis un autre appareil. Si c'était vraiment vous, essayez de vous connecter à nouveau avec l'appareil."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "La demande de connexion a déjà expiré."
+  },
+  "justNow": {
+    "message": "À l’instant"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Demandé il y a $MINUTES$ minutes",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Création du compte sur"
@@ -6619,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Utilisez la boîte de réception du collecteur (catch-all) configurée de votre domaine."
   },
+  "useThisEmail": {
+    "message": "Utiliser ce courriel"
+  },
   "random": {
     "message": "Aléatoire",
     "description": "Generates domain-based username using random letters"
@@ -8171,33 +8301,33 @@
   "trustedDevices": {
     "message": "Appareils de confiance"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Une fois authentifiés, les membres déchiffreront les données du coffre à l'aide d'une clé enregistrée sur leur appareil. La",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "Les membres n'auront pas besoin d'un mot de passe maître lors de la connexion avec SSO. Le mot de passe principal est remplacé par une clé de chiffrement stockée sur le périphérique, ce qui rend ce périphérique fiable. Le premier appareil avec lequel un membre créera son compte et se connectera sera fiable. Les nouveaux appareils devront être approuvés par un périphérique de confiance existant ou par un administrateur. La",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
-    "message": "d'organisation unique,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
-  },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
+  "memberDecryptionOptionTdeDescLink1": {
     "message": "politique",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "SSO requise et",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart2": {
+    "message": "d'organisation unique,",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
+  "memberDecryptionOptionTdeDescLink2": {
     "message": "la politique",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
-    "message": "la politique d'administration de la restauration du compte",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart3": {
+    "message": "SSO requise et",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "avec inscription automatique sera activée quand cette option est utilisée.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescLink3": {
+    "message": "la politique",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "d'administration de récupération de compte seront activées si cette option est utilisée.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Les autorisations de votre organisation ont été mises à jour, vous obligeant à définir un mot de passe principal.",
@@ -8494,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limiter la suppression de collections aux propriétaires et administrateurs"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limite la suppression de l'élément aux membres avc l'autorisation Peut gérer"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Les propriétaires et les administrateurs peuvent gérer toutes les collections et tous les éléments"
@@ -9173,6 +9306,9 @@
   "monthPerMember": {
     "message": "mois par membre"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "mois par membre facturés annuellement"
+  },
   "seats": {
     "message": "Licences"
   },
@@ -9693,6 +9829,15 @@
   "sshKeyAlgorithm": {
     "message": "Algorithme de clé"
   },
+  "sshPrivateKey": {
+    "message": "Clé privée"
+  },
+  "sshPublicKey": {
+    "message": "Clé publique"
+  },
+  "sshFingerprint": {
+    "message": "Empreinte digitale"
+  },
   "sshKeyFingerprint": {
     "message": "Empreinte digitale"
   },
@@ -10079,8 +10224,8 @@
   "organizationNameMaxLength": {
     "message": "Le nom de l'organisation ne doit pas dépasser 50 caractères."
   },
-  "resellerRenewalWarning": {
-    "message": "Votre abonnement sera renouvelé bientôt. Pour assurer un service sans interruption, contactez $RESELLER$ pour confirmer votre renouvellement avant $RENEWAL_DATE$.",
+  "resellerRenewalWarningMsg": {
+    "message": "Votre abonnement sera renouvelé bientôt. Pour assurer un service ininterrompu, contactez $RESELLER$ pour confirmer votre renouvellement avant le $RENEWAL_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10092,8 +10237,8 @@
       }
     }
   },
-  "resellerOpenInvoiceWarning": {
-    "message": "Une facture pour votre abonnement a été émise sur $ISSUED_DATE$. Pour assurer un service sans interruption, contactez $RESELLER$ pour confirmer votre renouvellement avant $DUE_DATE$.",
+  "resellerOpenInvoiceWarningMgs": {
+    "message": "Une facture pour votre abonnement a été émise le $ISSUED_DATE$. Pour assurer un service ininterrompu, contactez $RESELLER$ pour confirmer votre renouvellement avant le $DUE_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10109,8 +10254,8 @@
       }
     }
   },
-  "resellerPastDueWarning": {
-    "message": "La facture de votre abonnement n'a pas été payée. Pour assurer un service sans interruption, contactez $RESELLER$ pour confirmer votre renouvellement avant $GRACE_PERIOD_END$.",
+  "resellerPastDueWarningMsg": {
+    "message": "La facture de votre abonnement n'a pas été payée. Pour assurer un service ininterrompu, contactez $RESELLER$ pour confirmer votre renouvellement avant $GRACE_PERIOD_END$.",
     "placeholders": {
       "reseller": {
         "content": "$1",

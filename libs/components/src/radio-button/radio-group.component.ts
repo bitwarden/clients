@@ -4,8 +4,9 @@ import { NgIf, NgTemplateOutlet } from "@angular/common";
 import { Component, ContentChild, HostBinding, Input, Optional, Self } from "@angular/core";
 import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { BitLabel } from "../form-control/label.component";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 let nextId = 0;
 

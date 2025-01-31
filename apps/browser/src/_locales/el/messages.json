@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Δημιουργία φράσης πρόσβασης"
   },
+  "passwordGenerated": {
+    "message": "Ο κωδικός δημιουργήθηκε"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Επαναδημιουργία κωδικού πρόσβασης"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Επιβεβαίωση ταυτότητας"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "Το vault σας είναι κλειδωμένο. Επαληθεύστε τον κύριο κωδικό πρόσβασης για να συνεχίσετε."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Ζητήστε να προσθέσετε ένα αντικείμενο αν δε βρεθεί στο θησαυ/κιό σας. Ισχύει για όλους τους συνδεδεμένους λογαριασμούς."
   },
-  "showCardsInVaultView": {
-    "message": "Εμφάνιση καρτών ως προτάσεις αυτόματης συμπλήρωσης στην προβολή Θησαυ/κίου"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Εμφάνιση καρτών στη σελίδα Καρτέλας"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Εμφάνισε τα αντικείμενα κάρτες στη σελίδα Καρτέλα για εύκολη αυτόματη συμπλήρωση."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Εμφάνιση ταυτοτήτων ως προτάσεις αυτόματης συμπλήρωσης στην προβολή Θησαυ/κίου"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Εμφάνιση ταυτοτήτων στη σελίδα καρτέλας"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Αγορά Premium έκδοσης"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Μπορείτε να αγοράσετε συνδρομή Premium στο διαδικτυακό θησαυ/κιο του bitwarden.com. Θέλετε να επισκεφθείτε την ιστοσελίδα τώρα;"
   },
   "premiumPurchaseAlertV2": {
     "message": "Μπορείτε να αγοράσετε το Premium από τις ρυθμίσεις του λογαριασμού σας στην διαδικτυακή εφαρμογή Bitwarden."
@@ -2046,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Γεννήτρια ονόματος χρήστη"
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "useThisPassword": {
     "message": "Χρήση αυτού του κωδικού πρόσβασης"
   },
@@ -2339,11 +2357,11 @@
   "blockedDomainsDesc": {
     "message": "Η αυτόματη συμπλήρωση και άλλες σχετικές λειτουργίες δεν θα προσφερθούν για αυτούς τους ιστότοπους. Πρέπει να ανανεώσετε τη σελίδα για να τεθούν σε ισχύ οι αλλαγές."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "Ιστοσελίδα $number$ (URI)",
@@ -3425,38 +3443,6 @@
     "message": "Εναλλαγή σύμπτυξης",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Εισαγωγή των δεδομένων σας στο Bitwarden;",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Προστατέψτε τα δεδομένα LastPass και εισαγάγετε στο Bitwarden;",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Αποθήκευση ως μη κρυπτογραφημένο αρχείο",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Εισαγωγή στο Bitwarden",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Εισαγωγή...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Επιτυχής εισαγωγή δεδομένων!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Σφάλμα εισαγωγής. Ελέγξτε την κονσόλα για λεπτομέρειες.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Εμφανίστηκε σφάλμα δικτύου κατά την εισαγωγή.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Ψευδώνυμο τομέα"
   },
@@ -4008,7 +3994,10 @@
     "message": "Το κλειδί πρόσβασης αφαιρέθηκε"
   },
   "autofillSuggestions": {
-    "message": "Προτάσεις αυτόματης συμπλήρωσης"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "Αποθηκεύστε ένα αντικείμενο σύνδεσης για την αυτόματη συμπλήρωση αυτού του ιστοτόπου"
@@ -4586,12 +4575,6 @@
   "textSends": {
     "message": "Send κειμένων"
   },
-  "bitwardenNewLook": {
-    "message": "Το Bitwarden έχει μια νέα εμφάνιση!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Είναι πιο ευκολότερο και πιο διαισθητικό από ποτέ στην αυτόματη συμπλήρωση και αναζήτηση από την καρτέλα Θησαυ/κιο. Ρίξτε μια ματιά τριγύρω!"
-  },
   "accountActions": {
     "message": "Ενέργειες λογαριασμού"
   },
@@ -4903,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Εξαιρετικά φαρδύ"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

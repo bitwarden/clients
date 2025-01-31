@@ -48,8 +48,12 @@ const NestingDelimiter = "/";
 export class VaultFilterService implements VaultFilterServiceAbstraction {
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
+  memberOrganizations$ = this.activeUserId$.pipe(
+    switchMap((id) => this.organizationService.memberOrganizations$(id)),
+  );
+
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
-    this.organizationService.memberOrganizations$,
+    this.memberOrganizations$,
     this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
     this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
   ]).pipe(

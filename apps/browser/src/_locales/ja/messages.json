@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "パスフレーズを生成"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "パスワードの再生成"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "本人確認を行う"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "保管庫がロックされています。続行するには本人確認を行ってください。"
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "保管庫にアイテムが見つからない場合は、アイテムを追加するよう要求します。ログインしているすべてのアカウントに適用されます。"
   },
-  "showCardsInVaultView": {
-    "message": "保管庫ビューに自動入力の候補としてカードを表示する"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "タブページにカードを表示"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "自動入力を簡単にするために、タブページにカードアイテムを表示します"
   },
-  "showIdentitiesInVaultView": {
-    "message": "保管庫ビューに自動入力の候補として ID を表示する"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "タブページに ID を表示"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "プレミアム会員に加入"
-  },
-  "premiumPurchaseAlert": {
-    "message": "プレミアム会員権は bitwarden.com ウェブ保管庫で購入できます。ウェブサイトを開きますか？"
   },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden ウェブアプリでアカウント設定からプレミアムを購入できます。"
@@ -2046,6 +2061,9 @@
   "usernameGenerator": {
     "message": "ユーザー名生成ツール"
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "useThisPassword": {
     "message": "このパスワードを使用する"
   },
@@ -2339,11 +2357,11 @@
   "blockedDomainsDesc": {
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
-  "autofillBlockedNotice": {
-    "message": "Autofill is blocked for this website. Review or change this in settings."
+  "autofillBlockedNoticeV2": {
+    "message": "Autofill is blocked for this website."
   },
-  "autofillBlockedTooltip": {
-    "message": "Autofill is blocked on this website. Review in settings."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Change this in settings"
   },
   "websiteItemLabel": {
     "message": "ウェブサイト $number$ (URI)",
@@ -3425,38 +3443,6 @@
     "message": "開く/閉じる",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Bitwarden にデータをインポートしますか？",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "LastPass データを Bitwarden にインポートしますか？",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "暗号化されていないファイルとして保存",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Bitwarden にインポート",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "インポート中...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "データをインポートしました！",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "インポート中にエラーが発生しました。詳細はコンソールを確認してください。",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "インポート中にネットワークエラーが発生しました。",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "エイリアスドメイン"
   },
@@ -4008,7 +3994,10 @@
     "message": "パスキーを削除しました"
   },
   "autofillSuggestions": {
-    "message": "候補を自動入力する"
+    "message": "Autofill suggestions"
+  },
+  "itemSuggestions": {
+    "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
     "message": "自動入力するためにこのサイトのログインアイテムを保存します"
@@ -4586,12 +4575,6 @@
   "textSends": {
     "message": "テキスト Send"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden が新しい外観になりました。"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "保管庫タブからの自動入力と検索がこれまで以上に簡単で直感的になりました。"
-  },
   "accountActions": {
     "message": "アカウントの操作"
   },
@@ -4903,5 +4886,11 @@
   },
   "extraWide": {
     "message": "エクストラワイド"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

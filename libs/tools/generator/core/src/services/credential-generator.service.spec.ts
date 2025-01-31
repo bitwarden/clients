@@ -1,5 +1,7 @@
+// FIXME: remove ts-strict-ignore once `FakeAccountService` implements ts strict support
+// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, filter, firstValueFrom, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -23,6 +25,7 @@ import { Generators } from "../data";
 import {
   CredentialGeneratorConfiguration,
   GeneratedCredential,
+  GenerateRequest,
   GeneratorConstraints,
 } from "../types";
 
@@ -72,7 +75,8 @@ const SomeAlgorithm = "passphrase";
 const SomeCategory = "password";
 const SomeNameKey = "passphraseKey";
 const SomeGenerateKey = "generateKey";
-const SomeGeneratedValueKey = "generatedValueKey";
+const SomeCredentialTypeKey = "credentialTypeKey";
+const SomeOnGeneratedMessageKey = "onGeneratedMessageKey";
 const SomeCopyKey = "copyKey";
 const SomeUseGeneratedValueKey = "useGeneratedValueKey";
 
@@ -82,7 +86,8 @@ const SomeConfiguration: CredentialGeneratorConfiguration<SomeSettings, SomePoli
   category: SomeCategory,
   nameKey: SomeNameKey,
   generateKey: SomeGenerateKey,
-  generatedValueKey: SomeGeneratedValueKey,
+  onGeneratedMessageKey: SomeOnGeneratedMessageKey,
+  credentialTypeKey: SomeCredentialTypeKey,
   copyKey: SomeCopyKey,
   useGeneratedValueKey: SomeUseGeneratedValueKey,
   onlyOnRequest: false,
@@ -91,8 +96,13 @@ const SomeConfiguration: CredentialGeneratorConfiguration<SomeSettings, SomePoli
     create: (_randomizer) => {
       return {
         generate: (request, settings) => {
-          const credential = request.website ? `${request.website}|${settings.foo}` : settings.foo;
-          const result = new GeneratedCredential(credential, SomeAlgorithm, SomeTime);
+          const result = new GeneratedCredential(
+            settings.foo,
+            SomeAlgorithm,
+            SomeTime,
+            request.source,
+            request.website,
+          );
           return Promise.resolve(result);
         },
       };
@@ -191,7 +201,33 @@ describe("CredentialGeneratorService", () => {
   });
 
   describe("generate$", () => {
-    it("emits a generation for the active user when subscribed", async () => {
+    it("completes when `on$` completes", async () => {
+      await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        apiService,
+        i18nService,
+        encryptorProvider,
+        accountService,
+      );
+      const on$ = new Subject<GenerateRequest>();
+      let complete = false;
+
+      // confirm no emission during subscription
+      generator.generate$(SomeConfiguration, { on$ }).subscribe({
+        complete: () => {
+          complete = true;
+        },
+      });
+      on$.complete();
+      await awaitAsync();
+
+      expect(complete).toBeTruthy();
+    });
+
+    it("includes request.source in the generated credential", async () => {
       const settings = { foo: "value" };
       await stateProvider.setUserState(SettingsKey, settings, SomeUser);
       const generator = new CredentialGeneratorService(
@@ -203,14 +239,35 @@ describe("CredentialGeneratorService", () => {
         encryptorProvider,
         accountService,
       );
-      const generated = new ObservableTracker(generator.generate$(SomeConfiguration));
+      const on$ = new BehaviorSubject<GenerateRequest>({ source: "some source" });
+      const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { on$ }));
 
       const result = await generated.expectEmission();
 
-      expect(result).toEqual(new GeneratedCredential("value", SomeAlgorithm, SomeTime));
+      expect(result.source).toEqual("some source");
     });
 
-    it("follows the active user", async () => {
+    it("includes request.website in the generated credential", async () => {
+      const settings = { foo: "value" };
+      await stateProvider.setUserState(SettingsKey, settings, SomeUser);
+      const generator = new CredentialGeneratorService(
+        randomizer,
+        stateProvider,
+        policyService,
+        apiService,
+        i18nService,
+        encryptorProvider,
+        accountService,
+      );
+      const on$ = new BehaviorSubject({ website: "some website" });
+      const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { on$ }));
+
+      const result = await generated.expectEmission();
+
+      expect(result.website).toEqual("some website");
+    });
+
+    it("uses the active user's settings", async () => {
       const someSettings = { foo: "some value" };
       const anotherSettings = { foo: "another value" };
       await stateProvider.setUserState(SettingsKey, someSettings, SomeUser);
@@ -224,34 +281,11 @@ describe("CredentialGeneratorService", () => {
         encryptorProvider,
         accountService,
       );
-      const generated = new ObservableTracker(generator.generate$(SomeConfiguration));
+      const on$ = new BehaviorSubject({});
+      const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { on$ }));
 
       await accountService.switchAccount(AnotherUser);
-      await generated.pauseUntilReceived(2);
-      generated.unsubscribe();
-
-      expect(generated.emissions).toEqual([
-        new GeneratedCredential("some value", SomeAlgorithm, SomeTime),
-        new GeneratedCredential("another value", SomeAlgorithm, SomeTime),
-      ]);
-    });
-
-    it("emits a generation when the settings change", async () => {
-      const someSettings = { foo: "some value" };
-      const anotherSettings = { foo: "another value" };
-      await stateProvider.setUserState(SettingsKey, someSettings, SomeUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const generated = new ObservableTracker(generator.generate$(SomeConfiguration));
-
-      await stateProvider.setUserState(SettingsKey, anotherSettings, SomeUser);
+      on$.next({});
       await generated.pauseUntilReceived(2);
       generated.unsubscribe();
 
@@ -264,78 +298,6 @@ describe("CredentialGeneratorService", () => {
     // FIXME: test these when the fake state provider can create the required emissions
     it.todo("errors when the settings error");
     it.todo("completes when the settings complete");
-
-    it("includes `website$`'s last emitted value", async () => {
-      const settings = { foo: "value" };
-      await stateProvider.setUserState(SettingsKey, settings, SomeUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const website$ = new BehaviorSubject("some website");
-      const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { website$ }));
-
-      const result = await generated.expectEmission();
-
-      expect(result).toEqual(
-        new GeneratedCredential("some website|value", SomeAlgorithm, SomeTime),
-      );
-    });
-
-    it("errors when `website$` errors", async () => {
-      await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const website$ = new BehaviorSubject("some website");
-      let error = null;
-
-      generator.generate$(SomeConfiguration, { website$ }).subscribe({
-        error: (e: unknown) => {
-          error = e;
-        },
-      });
-      website$.error({ some: "error" });
-      await awaitAsync();
-
-      expect(error).toEqual({ some: "error" });
-    });
-
-    it("completes when `website$` completes", async () => {
-      await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const website$ = new BehaviorSubject("some website");
-      let completed = false;
-
-      generator.generate$(SomeConfiguration, { website$ }).subscribe({
-        complete: () => {
-          completed = true;
-        },
-      });
-      website$.complete();
-      await awaitAsync();
-
-      expect(completed).toBeTruthy();
-    });
 
     it("emits a generation for a specific user when `user$` supplied", async () => {
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
@@ -350,36 +312,15 @@ describe("CredentialGeneratorService", () => {
         accountService,
       );
       const userId$ = new BehaviorSubject(AnotherUser).asObservable();
-      const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { userId$ }));
+      const on$ = new Subject<GenerateRequest>();
+      const generated = new ObservableTracker(
+        generator.generate$(SomeConfiguration, { on$, userId$ }),
+      );
+      on$.next({});
 
       const result = await generated.expectEmission();
 
       expect(result).toEqual(new GeneratedCredential("another", SomeAlgorithm, SomeTime));
-    });
-
-    it("emits a generation for a specific user when `user$` emits", async () => {
-      await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
-      await stateProvider.setUserState(SettingsKey, { foo: "another" }, AnotherUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.pipe(filter((u) => !!u));
-      const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { userId$ }));
-
-      userId.next(AnotherUser);
-      const result = await generated.pauseUntilReceived(2);
-
-      expect(result).toEqual([
-        new GeneratedCredential("value", SomeAlgorithm, SomeTime),
-        new GeneratedCredential("another", SomeAlgorithm, SomeTime),
-      ]);
     });
 
     it("errors when `user$` errors", async () => {
@@ -393,10 +334,11 @@ describe("CredentialGeneratorService", () => {
         encryptorProvider,
         accountService,
       );
+      const on$ = new Subject<GenerateRequest>();
       const userId$ = new BehaviorSubject(SomeUser);
       let error = null;
 
-      generator.generate$(SomeConfiguration, { userId$ }).subscribe({
+      generator.generate$(SomeConfiguration, { on$, userId$ }).subscribe({
         error: (e: unknown) => {
           error = e;
         },
@@ -418,10 +360,11 @@ describe("CredentialGeneratorService", () => {
         encryptorProvider,
         accountService,
       );
+      const on$ = new Subject<GenerateRequest>();
       const userId$ = new BehaviorSubject(SomeUser);
       let completed = false;
 
-      generator.generate$(SomeConfiguration, { userId$ }).subscribe({
+      generator.generate$(SomeConfiguration, { on$, userId$ }).subscribe({
         complete: () => {
           completed = true;
         },
@@ -444,7 +387,7 @@ describe("CredentialGeneratorService", () => {
         encryptorProvider,
         accountService,
       );
-      const on$ = new Subject<void>();
+      const on$ = new Subject<GenerateRequest>();
       const results: any[] = [];
 
       // confirm no emission during subscription
@@ -455,7 +398,7 @@ describe("CredentialGeneratorService", () => {
       expect(results.length).toEqual(0);
 
       // confirm forwarded emission
-      on$.next();
+      on$.next({});
       await awaitAsync();
       expect(results).toEqual([new GeneratedCredential("value", SomeAlgorithm, SomeTime)]);
 
@@ -465,7 +408,7 @@ describe("CredentialGeneratorService", () => {
       expect(results.length).toBe(1);
 
       // confirm forwarded emission takes latest value
-      on$.next();
+      on$.next({});
       await awaitAsync();
       sub.unsubscribe();
 
@@ -486,7 +429,7 @@ describe("CredentialGeneratorService", () => {
         encryptorProvider,
         accountService,
       );
-      const on$ = new Subject<void>();
+      const on$ = new Subject<GenerateRequest>();
       let error: any = null;
 
       // confirm no emission during subscription
@@ -501,35 +444,8 @@ describe("CredentialGeneratorService", () => {
       expect(error).toEqual({ some: "error" });
     });
 
-    it("completes when `on$` completes", async () => {
-      await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const on$ = new Subject<void>();
-      let complete = false;
-
-      // confirm no emission during subscription
-      generator.generate$(SomeConfiguration, { on$ }).subscribe({
-        complete: () => {
-          complete = true;
-        },
-      });
-      on$.complete();
-      await awaitAsync();
-
-      expect(complete).toBeTruthy();
-    });
-
     // FIXME: test these when the fake state provider can delay its first emission
     it.todo("emits when settings$ become available if on$ is called before they're ready.");
-    it.todo("emits when website$ become available if on$ is called before they're ready.");
   });
 
   describe("algorithms", () => {

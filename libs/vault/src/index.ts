@@ -20,3 +20,5 @@ export { DecryptionFailureDialogComponent } from "./components/decryption-failur
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 export * as VaultIcons from "./icons";
+
+export * from "./tasks";

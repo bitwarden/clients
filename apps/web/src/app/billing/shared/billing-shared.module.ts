@@ -6,13 +6,10 @@ import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 import { AddCreditDialogComponent } from "./add-credit-dialog.component";
-import { AdjustPaymentDialogV2Component } from "./adjust-payment-dialog/adjust-payment-dialog-v2.component";
 import { AdjustPaymentDialogComponent } from "./adjust-payment-dialog/adjust-payment-dialog.component";
-import { AdjustStorageDialogV2Component } from "./adjust-storage-dialog/adjust-storage-dialog-v2.component";
 import { AdjustStorageDialogComponent } from "./adjust-storage-dialog/adjust-storage-dialog.component";
 import { BillingHistoryComponent } from "./billing-history.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
-import { PaymentV2Component } from "./payment/payment-v2.component";
 import { PaymentComponent } from "./payment/payment.component";
 import { PaymentMethodComponent } from "./payment-method.component";
 import { IndividualSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/individual-self-hosting-license-uploader.component";
@@ -26,40 +23,35 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
 @NgModule({
   imports: [
     SharedModule,
-    PaymentComponent,
     TaxInfoComponent,
     HeaderModule,
     BannerModule,
-    PaymentV2Component,
+    PaymentComponent,
     VerifyBankAccountComponent,
   ],
   declarations: [
     AddCreditDialogComponent,
-    AdjustPaymentDialogComponent,
-    AdjustStorageDialogComponent,
     BillingHistoryComponent,
     PaymentMethodComponent,
     SecretsManagerSubscribeComponent,
     UpdateLicenseComponent,
     UpdateLicenseDialogComponent,
     OffboardingSurveyComponent,
-    AdjustPaymentDialogV2Component,
-    AdjustStorageDialogV2Component,
+    AdjustPaymentDialogComponent,
+    AdjustStorageDialogComponent,
     IndividualSelfHostingLicenseUploaderComponent,
     OrganizationSelfHostingLicenseUploaderComponent,
   ],
   exports: [
     SharedModule,
-    PaymentComponent,
     TaxInfoComponent,
-    AdjustStorageDialogComponent,
     BillingHistoryComponent,
     SecretsManagerSubscribeComponent,
     UpdateLicenseComponent,
     UpdateLicenseDialogComponent,
     OffboardingSurveyComponent,
     VerifyBankAccountComponent,
-    PaymentV2Component,
+    PaymentComponent,
     IndividualSelfHostingLicenseUploaderComponent,
     OrganizationSelfHostingLicenseUploaderComponent,
   ],

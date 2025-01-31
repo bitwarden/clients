@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generovať prístupovú frázu"
   },
+  "passwordGenerated": {
+    "message": "Heslo vygenerované"
+  },
+  "passphraseGenerated": {
+    "message": "Prístupová fráza vygenerovaná"
+  },
+  "usernameGenerated": {
+    "message": "Používateľské meno vygenerované"
+  },
+  "emailGenerated": {
+    "message": "E-mail vygenoravný"
+  },
   "regeneratePassword": {
     "message": "Vygenerovať nové heslo"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Overiť identitu"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Toto zariadenie nepoznáme. Na overenie vašej totožnosti zadajte kód, ktorý bol zaslaný na váš e-mail."
+  },
+  "continueLoggingIn": {
+    "message": "Pokračovať v prihlasovaní"
   },
   "yourVaultIsLocked": {
     "message": "Váš trezor je uzamknutý. Ak chcete pokračovať, overte svoju identitu."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Požiada o pridanie položky, ak sa v trezore nenachádza. Platí pre všetky prihlásené účty."
   },
-  "showCardsInVaultView": {
-    "message": "Zobraziť karty ako návrhy automatického vypĺňania v zobrazení trezora"
+  "showCardsInVaultViewV2": {
+    "message": "Vždy zobraziť karty ako návrhy automatického vypĺňania v zobrazení trezora"
   },
   "showCardsCurrentTab": {
     "message": "Zobraziť karty na stránke \"Aktuálna karta\""
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Zoznam položiek karty na stránke \"Aktuálna karta\" na jednoduché automatické vyplnenie."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Zobraziť identity ako návrhy automatického vypĺňania v zobrazení trezora"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Vždy zobraziť identity ako návrhy automatického vypĺňania v zobrazení trezora"
   },
   "showIdentitiesCurrentTab": {
     "message": "Zobraziť identity na stránke \"Aktuálna karta\""
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Zakúpiť Prémiový účet"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Svoje prémiové členstvo si môžete zakúpiť vo webovom trezore bitwarden.com. Chcete navštíviť túto stránku teraz?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Prémiové členstvo si môžete zakúpiť v nastaveniach svojho účtu vo webovej aplikácii Bitwarden."
@@ -2046,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Generátor používateľského mena"
   },
+  "useThisEmail": {
+    "message": "Použiť tento e-mail"
+  },
   "useThisPassword": {
     "message": "Použiť toto heslo"
   },
@@ -2339,11 +2357,11 @@
   "blockedDomainsDesc": {
     "message": "Automatické vypĺňanie a ďalšie súvisiace funkcie sa na týchto webových stránkach nebudú ponúkať. Aby sa zmeny prejavili, musíte stránku obnoviť."
   },
-  "autofillBlockedNotice": {
-    "message": "Automatické vypĺňanie je pre túto webovú stránku zablokované. Skontrolujte alebo zmeňte to v nastaveniach."
+  "autofillBlockedNoticeV2": {
+    "message": "Automatické vypĺňanie je pre túto webovú stránku zablokované."
   },
-  "autofillBlockedTooltip": {
-    "message": "Automatické vypĺňanie je na tejto webovej stránke zablokované. Pozrite v nastaveniach."
+  "autofillBlockedNoticeGuidance": {
+    "message": "Zmeňte to v nastaveniach"
   },
   "websiteItemLabel": {
     "message": "Webstránka $number$ (URI)",
@@ -3425,38 +3443,6 @@
     "message": "Prepnúť zbalenie",
     "description": "Toggling an expand/collapse state."
   },
-  "filelessImport": {
-    "message": "Importovať údaje do Bitwardenu?",
-    "description": "Default notification title for triggering a fileless import."
-  },
-  "lpFilelessImport": {
-    "message": "Ochrániť údaje z LastPassu a importovať ich do Bitwardenu?",
-    "description": "LastPass specific notification title for triggering a fileless import."
-  },
-  "lpCancelFilelessImport": {
-    "message": "Uložiť ako nezašifrovaný súbor",
-    "description": "LastPass specific notification button text for cancelling a fileless import."
-  },
-  "startFilelessImport": {
-    "message": "Importovať do Bitwardenu",
-    "description": "Notification button text for starting a fileless import."
-  },
-  "importing": {
-    "message": "Importovanie...",
-    "description": "Notification message for when an import is in progress."
-  },
-  "dataSuccessfullyImported": {
-    "message": "Import údajov prebehol úspešne!",
-    "description": "Notification message for when an import has completed successfully."
-  },
-  "dataImportFailed": {
-    "message": "Chyba pri importovaní. Podrobnosti nájdete v konzole.",
-    "description": "Notification message for when an import has failed."
-  },
-  "importNetworkError": {
-    "message": "Počas importu sa vyskytla chyba siete.",
-    "description": "Notification message for when an import has failed due to a network error."
-  },
   "aliasDomain": {
     "message": "Alias doména"
   },
@@ -4009,6 +3995,9 @@
   },
   "autofillSuggestions": {
     "message": "Návrhy automatického vypĺňania"
+  },
+  "itemSuggestions": {
+    "message": "Navrhované položky"
   },
   "autofillSuggestionsTip": {
     "message": "Uložte položku prihlásenia pre tento web na automatické vyplnenie"
@@ -4586,12 +4575,6 @@
   "textSends": {
     "message": "Textové Sendy"
   },
-  "bitwardenNewLook": {
-    "message": "Bitwarden má nový vzhľad!"
-  },
-  "bitwardenNewLookDesc": {
-    "message": "Automatické vypĺňanie a vyhľadávanie na karte Trezor je jednoduchšie a intuitívnejšie ako kedykoľvek predtým. Poobzerajte sa!"
-  },
   "accountActions": {
     "message": "Operácie s účtom"
   },
@@ -4875,7 +4858,7 @@
     "message": "Pripomenúť neskôr"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "message": "Máte zaručený prístup k e-mailu $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4887,7 +4870,7 @@
     "message": "Nie, nemám"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+    "message": "Áno, mám zaručený prístup k e-mailu"
   },
   "turnOnTwoStepLogin": {
     "message": "Zapnúť dvojstupňové prihlásenie"
@@ -4903,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Aktualizujte desktopovú aplikáciu"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Ak chcete používať biometrické odomykanie, aktualizujte desktopovú aplikáciu alebo vypnite odomykanie odtlačkom prsta v nastaveniach desktopovej aplikácie."
   }
 }

@@ -9,6 +9,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UpdateProfileRequest } from "@bitwarden/common/auth/models/request/update-profile.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -49,16 +50,21 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.fingerprintMaterial = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
+
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this.managingOrganization$ = this.configService
       .getFeatureFlag$(FeatureFlag.AccountDeprovisioning)
       .pipe(
         switchMap((isAccountDeprovisioningEnabled) =>
           isAccountDeprovisioningEnabled
-            ? this.organizationService.organizations$.pipe(
-                map((organizations) =>
-                  organizations.find((o) => o.userIsManagedByOrganization === true),
-                ),
-              )
+            ? this.organizationService
+                .organizations$(userId)
+                .pipe(
+                  map((organizations) =>
+                    organizations.find((o) => o.userIsManagedByOrganization === true),
+                  ),
+                )
             : of(null),
         ),
       );
