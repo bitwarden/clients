@@ -32,6 +32,13 @@ export const ORGANIZATION_MANAGEMENT_PREFERENCES_DISK = new StateDefinition(
 export const AC_BANNERS_DISMISSED_DISK = new StateDefinition("acBannersDismissed", "disk", {
   web: "disk-local",
 });
+export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
+  "showDeleteManagedUserWarning",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
