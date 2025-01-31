@@ -115,6 +115,8 @@ export class FilterService {
       this.field("login.passwordRevisionDate");
       this.field("login.passwordHistory");
       this.field("login.passwordHistory.password");
+
+      ciphers.forEach((c) => this.add(c));
     });
   }
 
