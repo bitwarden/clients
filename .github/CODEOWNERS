@@ -109,7 +109,7 @@ apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-
 # SSH Agent
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
 
-## Component Library ##
+## UI Foundation ##
 .storybook @bitwarden/team-ui-foundation
 libs/components @bitwarden/team-ui-foundation
 libs/ui @bitwarden/team-ui-foundation

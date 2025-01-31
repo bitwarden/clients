@@ -225,8 +225,8 @@
         "tailwindcss",
         "zone.js"
       ],
-      "description": "Component library owned dependencies",
-      "commitMessagePrefix": "[deps] Design System:",
+      "description": "UI Foundation owned dependencies",
+      "commitMessagePrefix": "[deps] UI Foundation:",
       "reviewers": ["team:team-ui-foundation"]
     },
     {
