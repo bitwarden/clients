@@ -3,8 +3,6 @@
 import { Injectable } from "@angular/core";
 
 import { BankAccount } from "@bitwarden/common/billing/models/domain";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BillingServicesModule } from "./billing-services.module";
@@ -19,10 +17,7 @@ export class StripeService {
     cardCvc: string;
   };
 
-  constructor(
-    private logService: LogService,
-    private configService: ConfigService,
-  ) {}
+  constructor(private logService: LogService) {}
 
   /**
    * Loads [Stripe JS]{@link https://docs.stripe.com/js} in the <head> element of the current page and mounts
@@ -43,19 +38,10 @@ export class StripeService {
       const window$ = window as any;
       this.stripe = window$.Stripe(process.env.STRIPE_KEY);
       this.elements = this.stripe.elements();
-      const isExtensionRefresh = await this.configService.getFeatureFlag(
-        FeatureFlag.ExtensionRefresh,
-      );
       setTimeout(() => {
-        this.elements.create(
-          "cardNumber",
-          this.getElementOptions("cardNumber", isExtensionRefresh),
-        );
-        this.elements.create(
-          "cardExpiry",
-          this.getElementOptions("cardExpiry", isExtensionRefresh),
-        );
-        this.elements.create("cardCvc", this.getElementOptions("cardCvc", isExtensionRefresh));
+        this.elements.create("cardNumber", this.getElementOptions("cardNumber"));
+        this.elements.create("cardExpiry", this.getElementOptions("cardExpiry"));
+        this.elements.create("cardCvc", this.getElementOptions("cardCvc"));
         if (autoMount) {
           this.mountElements();
         }
@@ -150,10 +136,7 @@ export class StripeService {
     }, 500);
   }
 
-  private getElementOptions(
-    element: "cardNumber" | "cardExpiry" | "cardCvc",
-    isExtensionRefresh: boolean,
-  ): any {
+  private getElementOptions(element: "cardNumber" | "cardExpiry" | "cardCvc"): any {
     const options: any = {
       style: {
         base: {
@@ -178,15 +161,12 @@ export class StripeService {
       },
     };
 
-    // Unique settings that should only be applied when the extension refresh flag is active
-    if (isExtensionRefresh) {
-      options.style.base.fontWeight = "500";
-      options.classes.base = "v2";
+    options.style.base.fontWeight = "500";
+    options.classes.base = "v2";
 
-      // Remove the placeholder for number and CVC fields
-      if (["cardNumber", "cardCvc"].includes(element)) {
-        options.placeholder = "";
-      }
+    // Remove the placeholder for number and CVC fields
+    if (["cardNumber", "cardCvc"].includes(element)) {
+      options.placeholder = "";
     }
 
     const style = getComputedStyle(document.documentElement);
