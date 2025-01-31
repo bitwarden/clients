@@ -334,8 +334,18 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     orgIdentifier: string,
     userDecryptionOpts: UserDecryptionOptions,
   ): Promise<void> {
-    // If user doesn't have a MP, but has reset password permission, they must set a MP
+    // Tde offboarding takes precedence
     if (
+      !userDecryptionOpts.hasMasterPassword &&
+      userDecryptionOpts.trustedDeviceOption.isTdeOffboarding
+    ) {
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeOffboarding,
+        userId,
+      );
+    } else if (
+      // If user doesn't have a MP, but has reset password permission, they must set a MP
       !userDecryptionOpts.hasMasterPassword &&
       userDecryptionOpts.trustedDeviceOption.hasManageResetPasswordPermission
     ) {
