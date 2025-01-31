@@ -36,7 +36,6 @@ import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-acce
 import { EmergencyAccessComponent } from "../auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessTakeoverComponent } from "../auth/settings/emergency-access/takeover/emergency-access-takeover.component";
 import { EmergencyAccessViewComponent } from "../auth/settings/emergency-access/view/emergency-access-view.component";
-import { EmergencyAddEditCipherComponent } from "../auth/settings/emergency-access/view/emergency-add-edit-cipher.component";
 import { ApiKeyComponent } from "../auth/settings/security/api-key.component";
 import { ChangeKdfModule } from "../auth/settings/security/change-kdf/change-kdf.module";
 import { SecurityKeysComponent } from "../auth/settings/security/security-keys.component";
@@ -128,7 +127,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessConfirmComponent,
     EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
-    EmergencyAddEditCipherComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
     HintComponent,
@@ -194,7 +192,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessConfirmComponent,
     EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
-    EmergencyAddEditCipherComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
     HintComponent,
