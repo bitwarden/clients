@@ -13,7 +13,7 @@ import {
  * {@link VaultSettingsServiceAbstraction}
  */
 export class VaultSettingsService implements VaultSettingsServiceAbstraction {
-  private enablePasskeysState: GlobalState<boolean> =
+  private enablePasskeysState: GlobalState<boolean | null> =
     this.stateProvider.getGlobal(USER_ENABLE_PASSKEYS);
   /**
    * {@link VaultSettingsServiceAbstraction.enablePasskeys$}

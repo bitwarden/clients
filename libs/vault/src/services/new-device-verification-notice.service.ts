@@ -46,7 +46,7 @@ export const NEW_DEVICE_VERIFICATION_NOTICE_KEY =
 export class NewDeviceVerificationNoticeService {
   constructor(private stateProvider: StateProvider) {}
 
-  private noticeState(userId: UserId): SingleUserState<NewDeviceVerificationNotice> {
+  private noticeState(userId: UserId): SingleUserState<NewDeviceVerificationNotice | null> {
     return this.stateProvider.getUser(userId, NEW_DEVICE_VERIFICATION_NOTICE_KEY);
   }
 

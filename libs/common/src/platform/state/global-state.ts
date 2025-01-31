@@ -18,13 +18,13 @@ export interface GlobalState<T> {
    * Resolves to the new state. If `shouldUpdate` returns false, the promise will resolve to the current state.
    */
   update: <TCombine>(
-    configureState: (state: T, dependency: TCombine) => T,
+    configureState: (state: T | null, dependency: TCombine) => T | null,
     options?: StateUpdateOptions<T, TCombine>,
-  ) => Promise<T>;
+  ) => Promise<T | null>;
 
   /**
    * An observable stream of this state, the first emission of this will be the current state on disk
    * and subsequent updates will be from an update to that state.
    */
-  state$: Observable<T>;
+  state$: Observable<T | null>;
 }
