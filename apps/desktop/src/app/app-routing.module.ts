@@ -56,7 +56,6 @@ import { HintComponent } from "../auth/hint.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/login/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/login/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/login/login-via-auth-request-v1.component";
-import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
@@ -136,7 +135,6 @@ const routes: Routes = [
       },
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
   },
-  { path: "register", component: RegisterComponent },
   {
     path: "new-device-notice",
     component: AnonLayoutWrapperComponent,

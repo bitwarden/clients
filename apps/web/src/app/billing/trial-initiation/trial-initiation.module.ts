@@ -6,7 +6,6 @@ import { InputPasswordComponent } from "@bitwarden/auth/angular";
 import { FormFieldModule } from "@bitwarden/components";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
-import { RegisterFormModule } from "../../auth/register-form/register-form.module";
 import { TaxInfoComponent } from "../../billing";
 import { TrialBillingStepComponent } from "../../billing/accounts/trial-initiation/trial-billing-step.component";
 import { SecretsManagerTrialFreeStepperComponent } from "../../billing/trial-initiation/secrets-manager/secrets-manager-trial-free-stepper.component";
@@ -39,7 +38,6 @@ import { TeamsContentComponent } from "./content/teams-content.component";
 import { Teams1ContentComponent } from "./content/teams1-content.component";
 import { Teams2ContentComponent } from "./content/teams2-content.component";
 import { Teams3ContentComponent } from "./content/teams3-content.component";
-import { TrialInitiationComponent } from "./trial-initiation.component";
 import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.module";
 
 @NgModule({
@@ -48,7 +46,6 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     CdkStepperModule,
     VerticalStepperModule,
     FormFieldModule,
-    RegisterFormModule,
     OrganizationCreateModule,
     EnvironmentSelectorModule,
     TaxInfoComponent,
@@ -56,7 +53,6 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     InputPasswordComponent,
   ],
   declarations: [
-    TrialInitiationComponent,
     CompleteTrialInitiationComponent,
     EnterpriseContentComponent,
     TeamsContentComponent,
@@ -87,7 +83,7 @@ import { VerticalStepperModule } from "./vertical-stepper/vertical-stepper.modul
     SecretsManagerTrialFreeStepperComponent,
     SecretsManagerTrialPaidStepperComponent,
   ],
-  exports: [TrialInitiationComponent, CompleteTrialInitiationComponent],
+  exports: [CompleteTrialInitiationComponent],
   providers: [TitleCasePipe],
 })
 export class TrialInitiationModule {}
