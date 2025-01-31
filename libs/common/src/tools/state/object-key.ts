@@ -34,6 +34,7 @@ export type ObjectKey<State, Secret = State, Disclosed = Record<string, never>> 
   format: ObjectStorageFormat;
   options: UserKeyDefinitionOptions<State>;
   initial?: State;
+  frame?: number;
 };
 
 export function isObjectKey(key: any): key is ObjectKey<unknown> {

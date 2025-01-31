@@ -19,6 +19,7 @@ import {
   concatMap,
   startWith,
   pairwise,
+  MonoTypeOperatorFunction,
 } from "rxjs";
 
 /** Returns its input. */
@@ -210,6 +211,22 @@ export function on<T>(watch$: Observable<any>) {
           concatMap(() => source.pipe(first())),
         )
         .pipe(takeUntil(anyComplete(source)));
+    }),
+  );
+}
+
+export function pin<T>(options?: {
+  name?: () => string;
+  distinct?: (previous: T, current: T) => boolean;
+}): MonoTypeOperatorFunction<T> {
+  return pipe(
+    options?.distinct ? distinctUntilChanged(options.distinct) : (i) => i,
+    map((value, index) => {
+      if (index > 0) {
+        throw new Error(`${options?.name?.() ?? "unknown"} observable should only emit one value.`);
+      } else {
+        return value;
+      }
     }),
   );
 }

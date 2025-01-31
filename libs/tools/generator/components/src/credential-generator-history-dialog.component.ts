@@ -2,13 +2,12 @@
 // @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, distinctUntilChanged, firstValueFrom, map, switchMap } from "rxjs";
+import { BehaviorSubject, ReplaySubject, firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -27,9 +26,8 @@ import { EmptyCredentialHistoryComponent } from "./empty-credential-history.comp
     EmptyCredentialHistoryComponent,
   ],
 })
-export class CredentialGeneratorHistoryDialogComponent {
+export class CredentialGeneratorHistoryDialogComponent implements OnChanges {
   protected readonly hasHistory$ = new BehaviorSubject<boolean>(false);
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
 
   constructor(
     private accountService: AccountService,
@@ -37,21 +35,27 @@ export class CredentialGeneratorHistoryDialogComponent {
     private dialogService: DialogService,
     private dialogRef: DialogRef,
   ) {
-    this.accountService.activeAccount$
+    this.account$
       .pipe(
-        takeUntilDestroyed(),
-        map(({ id }) => id),
-        distinctUntilChanged(),
-      )
-      .subscribe(this.userId$);
-
-    this.userId$
-      .pipe(
-        takeUntilDestroyed(),
-        switchMap((id) => id && this.history.credentials$(id)),
+        switchMap((account) => account.id && this.history.credentials$(account.id)),
         map((credentials) => credentials.length > 0),
+        takeUntilDestroyed(),
       )
       .subscribe(this.hasHistory$);
+  }
+
+  @Input()
+  account: Account | null;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ("account" in changes && changes.account) {
+      this.account$.next(this.account);
+    } else if (!changes.account) {
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      this.account$.next(account);
+    }
   }
 
   /** closes the dialog */
@@ -70,7 +74,7 @@ export class CredentialGeneratorHistoryDialogComponent {
     });
 
     if (confirmed) {
-      await this.history.clear(await firstValueFrom(this.userId$));
+      await this.history.clear((await firstValueFrom(this.account$)).id);
     }
   }
 }

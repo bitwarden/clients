@@ -1,14 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { BehaviorSubject, distinctUntilChanged, map, switchMap } from "rxjs";
+import { BehaviorSubject, ReplaySubject, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   ColorPasswordModule,
   IconButtonModule,
@@ -39,30 +38,31 @@ import { GeneratorModule } from "./generator.module";
     GeneratorModule,
   ],
 })
-export class CredentialGeneratorHistoryComponent {
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
+export class CredentialGeneratorHistoryComponent implements OnChanges {
   protected readonly credentials$ = new BehaviorSubject<GeneratedCredential[]>([]);
 
   constructor(
-    private accountService: AccountService,
     private generatorService: CredentialGeneratorService,
     private history: GeneratorHistoryService,
   ) {
-    this.accountService.activeAccount$
+    this.account$
       .pipe(
-        takeUntilDestroyed(),
-        map(({ id }) => id),
-        distinctUntilChanged(),
-      )
-      .subscribe(this.userId$);
-
-    this.userId$
-      .pipe(
-        takeUntilDestroyed(),
-        switchMap((id) => id && this.history.credentials$(id)),
+        switchMap((account) => this.history.credentials$(account.id)),
         map((credentials) => credentials.filter((c) => (c.credential ?? "") !== "")),
+        takeUntilDestroyed(),
       )
       .subscribe(this.credentials$);
+  }
+
+  @Input({ required: true })
+  account: Account;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ("account" in changes) {
+      this.account$.next(this.account);
+    }
   }
 
   protected getCopyText(credential: GeneratedCredential) {

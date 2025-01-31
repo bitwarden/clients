@@ -60,6 +60,7 @@ const forwarder = Object.freeze({
       key: "firefoxRelayForwarder",
       target: "object",
       format: "secret-state",
+      frame: 512,
       classifier: new PrivateClassifier<FirefoxRelaySettings>(),
       state: GENERATOR_DISK,
       initial: defaultSettings,

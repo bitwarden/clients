@@ -2,12 +2,23 @@
 // @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import {
   BehaviorSubject,
   catchError,
   distinctUntilChanged,
   filter,
+  firstValueFrom,
   map,
   ReplaySubject,
   Subject,
@@ -16,9 +27,8 @@ import {
   withLatestFrom,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService, Option } from "@bitwarden/components";
 import {
   CredentialGeneratorService,
@@ -37,7 +47,7 @@ import { GeneratorHistoryService } from "@bitwarden/generator-history";
   selector: "tools-password-generator",
   templateUrl: "password-generator.component.html",
 })
-export class PasswordGeneratorComponent implements OnInit, OnDestroy {
+export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private generatorService: CredentialGeneratorService,
     private generatorHistoryService: GeneratorHistoryService,
@@ -48,12 +58,22 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     private ariaLive: LiveAnnouncer,
   ) {}
 
-  /** Binds the component to a specific user's settings.
-   *  When this input is not provided, the form binds to the active
-   *  user
+  /** Binds the component to a specific user's settings. When this input is not provided,
+   * the form binds to the active user
    */
   @Input()
-  userId: UserId | null;
+  account: Account | null;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ("account" in changes && changes.account) {
+      this.account$.next(this.account);
+    } else if (!changes.account) {
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      this.account$.next(account);
+    }
+  }
 
   /** Removes bottom margin, passed to downstream components */
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
@@ -63,9 +83,6 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
 
   /** Emits the last generated value. */
   protected readonly value$ = new BehaviorSubject<string>("");
-
-  /** Emits when the userId changes */
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
 
   /** Emits when a new credential is requested */
   private readonly generate$ = new Subject<GenerateRequest>();
@@ -102,20 +119,8 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   readonly onAlgorithm = new EventEmitter<AlgorithmInfo>();
 
   async ngOnInit() {
-    if (this.userId) {
-      this.userId$.next(this.userId);
-    } else {
-      this.accountService.activeAccount$
-        .pipe(
-          map((acct) => acct.id),
-          distinctUntilChanged(),
-          takeUntil(this.destroyed),
-        )
-        .subscribe(this.userId$);
-    }
-
     this.generatorService
-      .algorithms$("password", { userId$: this.userId$ })
+      .algorithms$("password", { account$: this.account$ })
       .pipe(
         map((algorithms) => this.toOptions(algorithms)),
         takeUntil(this.destroyed),
@@ -141,12 +146,12 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$, this.algorithm$),
+        withLatestFrom(this.account$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId, algorithm]) => {
+      .subscribe(([generated, account, algorithm]) => {
         this.generatorHistoryService
-          .track(userId, generated.credential, generated.category, generated.generationDate)
+          .track(account.id, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
             this.logService.error(e);
           });
@@ -164,7 +169,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
       });
 
     // assume the last-visible generator algorithm is the user's preferred one
-    const preferences = await this.generatorService.preferences({ singleUserId$: this.userId$ });
+    const preferences = await this.generatorService.preferences({ account$: this.account$ });
     this.credentialType$
       .pipe(
         filter((type) => !!type),
@@ -220,7 +225,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   private typeToGenerator$(type: CredentialAlgorithm) {
     const dependencies = {
       on$: this.generate$,
-      userId$: this.userId$,
+      account$: this.account$,
     };
 
     switch (type) {

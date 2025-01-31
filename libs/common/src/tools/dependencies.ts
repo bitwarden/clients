@@ -40,6 +40,29 @@ export type PolicyDependency = {
   policy$: Observable<Policy[]>;
 };
 
+/** A pattern for types that depend upon the lifetime of a fixed dependency.
+ *  The dependency's lifetime is tracked through the observable. The observable
+ *  emits the dependency once it becomes available and completes when the
+ *  dependency becomes unavailable.
+ *
+ *  Consumers of this dependency should emit a `SequenceError` if the dependency emits
+ *  multiple times. When the dependency completes, the consumer should also
+ *  complete. When the dependency errors, the consumer should also error.
+ */
+export type BoundDependency<Name extends string, T> = {
+  /** A stream that emits a dependency once it becomes available
+   *  and completes when the dependency becomes unavailable. The stream emits
+   *  only once per subscription and never emits null or undefined.
+   */
+  [K in `${Name}$`]: Observable<T>;
+};
+
+/** Tags a type with metadata describing the dependency it's bound to. */
+export type Bound<Name extends string, T> = {
+  /** The bound dependency tag */
+  [K in `&${Name}`]: T;
+};
+
 /** A pattern for types that depend upon a dynamic userid and return
  *  an observable.
  *
