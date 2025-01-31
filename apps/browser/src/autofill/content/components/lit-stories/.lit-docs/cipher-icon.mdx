@@ -1,0 +1,90 @@
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
+
+import * as stories from "./cipher-icon.lit-stories";
+
+<Meta title="Components/Ciphers/Cipher Icon" of={stories} />
+
+## Cipher Icon
+
+The `CipherIcon` component is a versatile icon renderer designed for secure environments. It
+dynamically supports custom icons provided via URIs or displays a default icon (`Globe`) styled
+based on the theme and provided properties.
+
+<Primary />
+<Controls />
+
+## Props
+
+| **Prop** | **Type**            | **Required** | **Description**                                                                                                                                                 |
+| -------- | ------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `color`  | `string`            | Yes          | A contextual color override applied when the `uri` is not provided, ensuring consistent styling of the default icon.                                            |
+| `size`   | `string`            | Yes          | A valid CSS `width` value representing the width basis of the graphic. The height adjusts to maintain the original aspect ratio of the graphic.                 |
+| `theme`  | `Theme`             | Yes          | The styling theme for the icon, matching the `Theme` enum.                                                                                                      |
+| `uri`    | `string` (optional) | No           | A URL to an external graphic. If provided, the component displays this icon. If omitted, a default icon (`Globe`) styled with the provided `color` and `theme`. |
+
+## Installation and Setup
+
+1. Ensure the necessary dependencies are installed:
+
+   - `lit`: Renders the component.
+   - `@emotion/css`: Styles the component.
+
+2. Pass the necessary props when using the component:
+   - `color`: Used when no `uri` is provided to style the default icon.
+   - `size`: Defines the width of the icon. Height maintains aspect ratio.
+   - `theme`: Specifies the theme for styling.
+   - `uri` (optional): If provided, this URI is used to display a custom icon.
+
+## Accessibility (WCAG) Compliance
+
+The `CipherIcon` component ensures accessible and user-friendly interactions through thoughtful
+design:
+
+### Semantic Rendering
+
+- When the `uri` is provided, the component renders an `<img>` element, which is semantically
+  appropriate for external graphics.
+- If no `uri` is provided, the default icon is wrapped in a `<span>`, ensuring proper context for
+  screen readers.
+
+### Visual Feedback
+
+- The component visually adjusts based on the `size`, `color`, and `theme`, ensuring the icon
+  remains clear and legible across different environments.
+
+### Keyboard and Screen Reader Support
+
+- Ensure that any container or parent component provides appropriate `alt` text or labeling when
+  `uri` is used with an `<img>` tag for additional accessibility.
+
+## Usage Example
+
+Here's an example of how to integrate the `CipherIcon` component:
+
+```ts
+import { CipherIcon } from "./cipher-icon";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+
+<CipherIcon
+  color="blue"
+  size="32px"
+  theme={ThemeTypes.Light}
+  uri="https://example.com/icon.png"
+/>;
+```
+
+This configuration displays a custom icon from the provided URI with a width of 32px, styled for the
+light theme. If the URI is omitted, the Globe icon is used as the fallback, colored in blue.
+
+### Default Styles
+
+- The default styles ensure responsive and clean design:
+
+- Width: Defined by the size prop.
+- Height: Automatically adjusts to maintain the aspect ratio.
+- Fit Content: Ensures the icon does not overflow or distort its container.
+
+### Notes
+
+- Always validate the uri provided to ensure it points to a secure and accessible location.
+- Use the color and theme props for consistent fallback styling when uri is not provided.
