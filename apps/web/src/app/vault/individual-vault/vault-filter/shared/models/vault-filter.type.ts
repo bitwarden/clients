@@ -12,5 +12,13 @@ export type CipherTypeFilter = ITreeNodeObject & { type: CipherStatus; icon: str
 export type CollectionFilter = CollectionAdminView & {
   icon: string;
 };
-export type FolderFilter = FolderView & { icon: string };
+export type FolderFilter = FolderView & {
+  icon: string;
+  /**
+   * Full folder name.
+   *
+   * Used for when the folder `name` property is be separated into parts.
+   */
+  fullName?: string;
+};
 export type OrganizationFilter = Organization & { icon: string; hideOptions?: boolean };

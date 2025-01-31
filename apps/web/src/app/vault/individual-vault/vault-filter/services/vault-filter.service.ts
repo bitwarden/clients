@@ -274,6 +274,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       folderCopy.id = f.id;
       folderCopy.revisionDate = f.revisionDate;
       folderCopy.icon = "bwi-folder";
+      folderCopy.fullName = f.name; // save full folder name before separating it into parts
       const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
       ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, null, NestingDelimiter);
     });
