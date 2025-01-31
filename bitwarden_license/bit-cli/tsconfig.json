@@ -18,7 +18,7 @@
       "@bitwarden/auth/common": ["../../libs/auth/src/common"],
       "@bitwarden/auth/angular": ["../../libs/auth/src/angular"],
       "@bitwarden/common/*": ["../../libs/common/src/*"],
-      "@bitwarden/importer/core": ["../../libs/importer/src"],
+      "@bitwarden/importer-core": ["../../libs/importer/src"],
       "@bitwarden/generator-core": ["../../libs/tools/generator/core/src"],
       "@bitwarden/generator-legacy": ["../../libs/tools/generator/extensions/legacy/src"],
       "@bitwarden/generator-history": ["../../libs/tools/generator/extensions/history/src"],

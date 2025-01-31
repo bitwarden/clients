@@ -15,7 +15,7 @@
       "@bitwarden/generator-history": ["../tools/generator/extensions/history/src"],
       "@bitwarden/generator-legacy": ["../tools/generator/extensions/legacy/src"],
       "@bitwarden/generator-navigation": ["../tools/generator/extensions/navigation/src"],
-      "@bitwarden/importer/core": ["../importer/src"],
+      "@bitwarden/importer-core": ["../importer/src"],
       "@bitwarden/importer/ui": ["../importer/src/components"],
       "@bitwarden/key-management": ["../key-management/src"],
       "@bitwarden/key-management-ui": ["../key-management-ui/src/index.ts"],
