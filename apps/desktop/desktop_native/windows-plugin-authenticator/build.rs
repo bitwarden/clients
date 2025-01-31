@@ -4,7 +4,6 @@ fn main() {
 }
 
 #[cfg(target_os = "windows")]
-#[allow(dead_code)]
 fn windows() {
     let out_dir = std::env::var("OUT_DIR").expect("OUT_DIR not set");
 
