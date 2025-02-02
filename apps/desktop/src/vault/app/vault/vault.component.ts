@@ -500,6 +500,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.action = "view";
     this.go();
     await this.vaultItemsComponent.refresh();
+
+    // FIXME: workaround for https://github.com/bitwarden/clients/issues/12022
+    await this.syncService.fullSync(true, true);
   }
 
   async deletedCipher(cipher: CipherView) {
