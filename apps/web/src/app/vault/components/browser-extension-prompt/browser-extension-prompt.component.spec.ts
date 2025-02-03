@@ -1,21 +1,30 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import mock from "jest-mock-extended/lib/Mock";
+import { By } from "@angular/platform-browser";
+import { BehaviorSubject } from "rxjs";
 
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import {
+  BrowserExtensionPromptService,
+  BrowserPromptState,
+} from "../../services/browser-extension-prompt.service";
 
 import { BrowserExtensionPromptComponent } from "./browser-extension-prompt.component";
 
 describe("BrowserExtensionPromptComponent", () => {
   let fixture: ComponentFixture<BrowserExtensionPromptComponent>;
-  let component: BrowserExtensionPromptComponent;
+
+  const start = jest.fn();
+  const pageState$ = new BehaviorSubject(BrowserPromptState.Loading);
 
   beforeEach(async () => {
+    start.mockClear();
+
     await TestBed.configureTestingModule({
       providers: [
         {
-          provide: AnonLayoutWrapperDataService,
-          useValue: mock<AnonLayoutWrapperDataService>(),
+          provide: BrowserExtensionPromptService,
+          useValue: { start, pageState$ },
         },
         {
           provide: I18nService,
@@ -25,11 +34,34 @@ describe("BrowserExtensionPromptComponent", () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(BrowserExtensionPromptComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it("should have initial state as loading", () => {
-    expect(component["pageState$"].value).toBe("loading");
+  it("calls start on initialization", () => {
+    expect(start).toHaveBeenCalledTimes(1);
+  });
+
+  describe("loading state", () => {
+    beforeEach(() => {
+      pageState$.next(BrowserPromptState.Loading);
+      fixture.detectChanges();
+    });
+
+    it("shows loading text", () => {
+      const element = fixture.nativeElement;
+      expect(element.textContent).toBe("openingExtension");
+    });
+  });
+
+  describe("error state", () => {
+    beforeEach(() => {
+      pageState$.next(BrowserPromptState.Error);
+      fixture.detectChanges();
+    });
+
+    it("shows error text", () => {
+      const errorText = fixture.debugElement.query(By.css("p")).nativeElement;
+      expect(errorText.textContent).toBe("openingExtensionError");
+    });
   });
 });

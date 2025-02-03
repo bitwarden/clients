@@ -1,6 +1,14 @@
 <div class="tw-text-center" *ngIf="pageState$ | async as pageState">
-  <div *ngIf="pageState === BrowserPromptState.Loading">
+  <ng-container *ngIf="pageState === BrowserPromptState.Loading">
     <i class="bwi bwi-spinner bwi-spin bwi-3x tw-text-primary-600" aria-hidden="true"></i>
     <p bitTypography="body1" class="tw-mb-0 tw-mt-2">{{ "openingExtension" | i18n }}</p>
-  </div>
+  </ng-container>
+
+  <ng-container *ngIf="pageState === BrowserPromptState.Error">
+    <p bitTypography="body1" class="tw-mb-4 tw-text-xl">{{ "openingExtensionError" | i18n }}</p>
+    <button bitButton buttonType="primary" type="button">
+      {{ "openExtension" | i18n }}
+      <i class="bwi bwi-external-link tw-ml-2" aria-hidden="true"></i>
+    </button>
+  </ng-container>
 </div>
