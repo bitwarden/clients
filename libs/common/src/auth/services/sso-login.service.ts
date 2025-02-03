@@ -117,7 +117,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
   ): Promise<void> {
     if (userId === undefined) {
       this.logService.warning(
-        "Tried to set a new user organization sso identifier with an undefined user id.",
+        "Tried to set a user organization sso identifier with an undefined user id.",
       );
       return;
     }

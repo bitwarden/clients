@@ -105,7 +105,12 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     protected toastService: ToastService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
+
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
+
+    this.accountService.activeAccount$.pipe(takeUntilDestroyed()).subscribe((account) => {
+      this.activeUserId = account?.id;
+    });
 
     // Add subscription to authenticationSessionTimeout$ and navigate to twoFactorTimeoutRoute if expired
     this.loginStrategyService.authenticationSessionTimeout$
@@ -124,8 +129,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   }
 
   async ngOnInit() {
-    this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
     if (!(await this.authing()) || (await this.twoFactorService.getProviders()) == null) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

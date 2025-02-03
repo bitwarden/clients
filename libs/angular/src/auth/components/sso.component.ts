@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
@@ -76,11 +77,13 @@ export class SsoComponent implements OnInit {
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected accountService: AccountService,
     protected toastService: ToastService,
-  ) {}
+  ) {
+    this.accountService.activeAccount$.pipe(takeUntilDestroyed()).subscribe((account) => {
+      this.activeUserId = account?.id;
+    });
+  }
 
   async ngOnInit() {
-    this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
     // eslint-disable-next-line rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
       if (qParams.code != null && qParams.state != null) {

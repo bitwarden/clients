@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, NavigationExtras, Router, RouterLink } from "@angular/router";
 import { Subject, takeUntil, lastValueFrom, first, firstValueFrom } from "rxjs";
@@ -150,11 +151,13 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     protected toastService: ToastService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
+
+    this.accountService.activeAccount$.pipe(takeUntilDestroyed()).subscribe((account) => {
+      this.activeUserId = account?.id;
+    });
   }
 
   async ngOnInit() {
-    this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
     if (!(await this.authing()) || (await this.twoFactorService.getProviders()) == null) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -218,7 +221,7 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     }
   }
 
-  async selectOtherTwofactorMethod() {
+  async selectOtherTwoFactorMethod() {
     const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
     const response: TwoFactorOptionsDialogResultType = await lastValueFrom(dialogRef.closed);
     if (response.result === TwoFactorOptionsDialogResult.Provider) {
