@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule, NgClass } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -8,6 +8,7 @@ import { concatMap, map } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -43,7 +44,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
     SelectModule,
     SectionHeaderComponent,
     IconButtonModule,
-    NgClass,
     JslibModule,
     CommonModule,
   ],
@@ -273,9 +273,12 @@ export class ItemDetailsSectionComponent implements OnInit {
 
         // When Owners/Admins access setting is turned on.
         // Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
+        // Disable Collections Options if Custom user does not have Edit/Manage permissions on item
         if (
-          organization.allowAdminAccessToAllCollectionItems &&
-          (!this.originalCipherView.viewPassword || !this.originalCipherView.edit)
+          (organization.allowAdminAccessToAllCollectionItems &&
+            (!this.originalCipherView.viewPassword || !this.originalCipherView.edit)) ||
+          (organization.type === OrganizationUserType.Custom &&
+            !this.originalCipherView.viewPassword)
         ) {
           this.itemDetailsForm.controls.collectionIds.disable();
         }
