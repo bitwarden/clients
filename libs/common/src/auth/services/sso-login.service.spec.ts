@@ -88,7 +88,7 @@ describe("SSOLoginService ", () => {
     await sut.setActiveUserOrganizationSsoIdentifier(orgIdentifier, undefined);
 
     expect(mockLogService.warning).toHaveBeenCalledWith(
-      "Tried to set a new user organization sso identifier with an undefined user id.",
+      "Tried to set a user organization sso identifier with an undefined user id.",
     );
   });
 });
