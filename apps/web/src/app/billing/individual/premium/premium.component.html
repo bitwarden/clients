@@ -1,8 +1,8 @@
 <bit-section>
-  <h2 *ngIf="!selfHosted" bitTypography="h2">{{ "goPremium" | i18n }}</h2>
+  <h2 *ngIf="!isSelfHost" bitTypography="h2">{{ "goPremium" | i18n }}</h2>
   <bit-callout
     type="info"
-    *ngIf="canAccessPremium$ | async"
+    *ngIf="hasPremiumFromAnyOrganization$ | async"
     title="{{ 'youHavePremiumAccess' | i18n }}"
     icon="bwi bwi-star-f"
   >
@@ -40,7 +40,7 @@
         {{ "premiumSignUpFuture" | i18n }}
       </li>
     </ul>
-    <p bitTypography="body1" [ngClass]="{ 'tw-mb-0': !selfHosted }">
+    <p bitTypography="body1" [ngClass]="{ 'tw-mb-0': !isSelfHost }">
       {{
         "premiumPriceWithFamilyPlan" | i18n: (premiumPrice | currency: "$") : familyPlanMaxUserCount
       }}
@@ -49,49 +49,58 @@
         linkType="primary"
         routerLink="/create-organization"
         [queryParams]="{ plan: 'families' }"
-        >{{ "bitwardenFamiliesPlan" | i18n }}</a
       >
+        {{ "bitwardenFamiliesPlan" | i18n }}
+      </a>
     </p>
     <a
       bitButton
-      href="{{ this.cloudWebVaultUrl }}/#/settings/subscription/premium"
+      href="{{ premiumURL }}}"
       target="_blank"
       rel="noreferrer"
       buttonType="secondary"
-      *ngIf="selfHosted"
+      *ngIf="isSelfHost"
     >
       {{ "purchasePremium" | i18n }}
     </a>
   </bit-callout>
 </bit-section>
-<bit-section *ngIf="selfHosted">
-  <p bitTypography="body1">{{ "uploadLicenseFilePremium" | i18n }}</p>
-  <form [formGroup]="licenseForm" [bitSubmit]="submit">
-    <bit-form-field>
-      <bit-label>{{ "licenseFile" | i18n }}</bit-label>
-      <div class="tw-pt-2 tw-pb-1">
-        <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
-          {{ "chooseFile" | i18n }}
-        </button>
-        {{ this.licenseFile ? this.licenseFile.name : ("noFileChosen" | i18n) }}
-      </div>
-      <input
-        bitInput
-        #fileSelector
-        type="file"
-        formControlName="file"
-        (change)="setSelectedFile($event)"
-        hidden
-        class="tw-hidden"
-      />
-      <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_premium_license.json" }}</bit-hint>
-    </bit-form-field>
-    <button type="submit" buttonType="primary" bitButton bitFormButton>
-      {{ "submit" | i18n }}
-    </button>
-  </form>
+<bit-section *ngIf="isSelfHost">
+  <ng-container *ngIf="!(useLicenseUploaderComponent$ | async)">
+    <p bitTypography="body1">{{ "uploadLicenseFilePremium" | i18n }}</p>
+    <form [formGroup]="licenseFormGroup" [bitSubmit]="submitPremiumLicense">
+      <bit-form-field>
+        <bit-label>{{ "licenseFile" | i18n }}</bit-label>
+        <div>
+          <button type="button" bitButton buttonType="secondary" (click)="fileSelector.click()">
+            {{ "chooseFile" | i18n }}
+          </button>
+          {{
+            licenseFormGroup.value.file ? licenseFormGroup.value.file.name : ("noFileChosen" | i18n)
+          }}
+        </div>
+        <input
+          bitInput
+          #fileSelector
+          type="file"
+          formControlName="file"
+          (change)="onLicenseFileSelected($event)"
+          hidden
+          class="tw-hidden"
+        />
+        <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_premium_license.json" }}</bit-hint>
+      </bit-form-field>
+      <button type="submit" buttonType="primary" bitButton bitFormButton>
+        {{ "submit" | i18n }}
+      </button>
+    </form>
+  </ng-container>
+  <individual-self-hosting-license-uploader
+    *ngIf="useLicenseUploaderComponent$ | async"
+    (onLicenseFileUploaded)="onLicenseFileSelectedChanged()"
+  />
 </bit-section>
-<form [formGroup]="addonForm" [bitSubmit]="submit" *ngIf="!selfHosted">
+<form *ngIf="!isSelfHost" [formGroup]="addOnFormGroup" [bitSubmit]="submitPayment">
   <bit-section>
     <h2 bitTypography="h2">{{ "addons" | i18n }}</h2>
     <div class="tw-grid tw-grid-cols-12 tw-gap-4">
@@ -106,7 +115,7 @@
         />
         <bit-hint>{{
           "additionalStorageIntervalDesc"
-            | i18n: "1 GB" : (storageGbPrice | currency: "$") : ("year" | i18n)
+            | i18n: "1 GB" : (storageGBPrice | currency: "$") : ("year" | i18n)
         }}</bit-hint>
       </bit-form-field>
     </div>
@@ -114,30 +123,26 @@
   <bit-section>
     <h2 bitTypography="h2">{{ "summary" | i18n }}</h2>
     {{ "premiumMembership" | i18n }}: {{ premiumPrice | currency: "$" }} <br />
-    {{ "additionalStorageGb" | i18n }}: {{ additionalStorage || 0 }} GB &times;
-    {{ storageGbPrice | currency: "$" }} =
-    {{ additionalStorageTotal | currency: "$" }}
+    {{ "additionalStorageGb" | i18n }}: {{ addOnFormGroup.value.additionalStorage || 0 }} GB &times;
+    {{ storageGBPrice | currency: "$" }} =
+    {{ additionalStorageCost | currency: "$" }}
     <hr class="tw-my-3" />
   </bit-section>
   <bit-section>
     <h3 bitTypography="h2">{{ "paymentInformation" | i18n }}</h3>
-    <app-payment [hideBank]="true"></app-payment>
-    <app-tax-info (taxInformationChanged)="onTaxInformationChanged()" />
-    <div id="price" class="tw-my-4">
-      <div class="tw-text-muted tw-text-sm">
-        {{ "planPrice" | i18n }}: {{ subtotal | currency: "USD $" }}
-        <br />
-        <ng-container>
-          {{ "estimatedTax" | i18n }}: {{ taxCharges | currency: "USD $" }}
-        </ng-container>
+    <app-payment [showBankAccount]="false"></app-payment>
+    <app-tax-info (taxInformationChanged)="onTaxInformationChanged()"></app-tax-info>
+    <div class="tw-mb-4">
+      <div class="tw-text-muted tw-text-sm tw-flex tw-flex-col">
+        <span>{{ "planPrice" | i18n }}: {{ subtotal | currency: "USD $" }}</span>
+        <span>{{ "estimatedTax" | i18n }}: {{ estimatedTax | currency: "USD $" }}</span>
       </div>
-      <hr class="tw-my-1 tw-w-1/4 tw-ml-0" />
-      <p bitTypography="body1">
-        <strong>{{ "total" | i18n }}:</strong> {{ total | currency: "USD $" }}/{{ "year" | i18n }}
-      </p>
     </div>
-    <p bitTypography="body2">{{ "paymentChargedAnnually" | i18n }}</p>
-    <button type="submit" bitButton bitFormButton>
+    <hr class="tw-my-1 tw-w-1/4 tw-ml-0" />
+    <p bitTypography="body1">
+      <strong>{{ "total" | i18n }}:</strong> {{ total | currency: "USD $" }}/{{ "year" | i18n }}
+    </p>
+    <button type="submit" buttonType="primary" bitButton bitFormButton>
       {{ "submit" | i18n }}
     </button>
   </bit-section>

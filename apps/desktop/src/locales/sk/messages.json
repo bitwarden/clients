@@ -885,6 +885,15 @@
     "message": "Overiť sa prostredníctvom Duo Security vašej organizácie použitím Duo Mobile aplikácie, SMS, telefonátu alebo U2F bezpečnostným kľúčom.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Overte svoju totožnosť"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Toto zariadenie nepoznáme. Na overenie vašej totožnosti zadajte kód, ktorý bol zaslaný na váš e-mail."
+  },
+  "continueLoggingIn": {
+    "message": "Pokračovať v prihlasovaní"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -1378,9 +1387,6 @@
   },
   "premiumPurchase": {
     "message": "Zakúpiť Prémium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Svoje prémiové členstvo môžete zakúpiť vo webovom trezore bitwarden.com. Chcete navštíviť túto stránku teraz?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Prémiové členstvo si môžete zakúpiť v nastaveniach svojho účtu vo webovej aplikácii Bitwarden."
@@ -2544,6 +2550,9 @@
   "catchallEmailDesc": {
     "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
   },
+  "useThisEmail": {
+    "message": "Použiť tento e-mail"
+  },
   "random": {
     "message": "Náhodné"
   },
@@ -3455,7 +3464,7 @@
     "message": "Pripomenúť neskôr"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "message": "Máte zaručený prístup k e-mailu $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3467,7 +3476,7 @@
     "message": "Nie, nemám"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+    "message": "Áno, mám zaručený prístup k e-mailu"
   },
   "turnOnTwoStepLogin": {
     "message": "Zapnúť dvojstupňové prihlásenie"
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "Táto funkcia nie je k dispozícii pre bezplatné organizácie. Ak chcete odomknúť ďalšie funkcie, prejdite na platený plán."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Rozšírenie musíte aktualizovať"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Rozšírenie prehliadača, ktoré používate, je zastarané. Aktualizujte ho alebo zakážte overenie odtlačkov integrácie prehliadača v nastaveniach desktopovej aplikácie."
   }
 }

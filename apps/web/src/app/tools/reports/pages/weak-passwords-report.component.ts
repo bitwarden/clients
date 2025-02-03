@@ -4,6 +4,7 @@ import { Component, OnInit } from "@angular/core";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -32,6 +33,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     protected cipherService: CipherService,
     protected passwordStrengthService: PasswordStrengthServiceAbstraction,
     protected organizationService: OrganizationService,
+    protected accountService: AccountService,
     modalService: ModalService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
@@ -42,6 +44,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       modalService,
       passwordRepromptService,
       organizationService,
+      accountService,
       i18nService,
       syncService,
     );
@@ -56,6 +59,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     this.weakPasswordCiphers = [];
     this.filterStatus = [0];
     this.findWeakPasswords(allCiphers);
+    this.weakPasswordCiphers = this.sortCiphers(this.weakPasswordCiphers, "score", false);
   }
 
   protected findWeakPasswords(ciphers: CipherView[]): void {
@@ -107,6 +111,29 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       }
     });
     this.filterCiphersByOrg(this.weakPasswordCiphers);
+  }
+
+  onSortChange(field: string, event: Event) {
+    const target = event.target as HTMLInputElement;
+    const ascending = target.checked;
+    this.weakPasswordCiphers = this.sortCiphers(this.weakPasswordCiphers, field, ascending);
+  }
+
+  protected sortCiphers(
+    ciphers: ReportResult[],
+    field: string,
+    ascending: boolean,
+  ): ReportResult[] {
+    return ciphers.sort((a, b) => {
+      const aValue = a[field as keyof ReportResult];
+      const bValue = b[field as keyof ReportResult];
+
+      if (aValue === bValue) {
+        return 0;
+      }
+      const comparison = aValue > bValue ? 1 : -1;
+      return ascending ? comparison : -comparison;
+    });
   }
 
   protected canManageCipher(c: CipherView): boolean {

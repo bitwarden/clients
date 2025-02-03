@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generér adgangssætning"
   },
+  "passwordGenerated": {
+    "message": "Adgangskode genereret"
+  },
+  "passphraseGenerated": {
+    "message": "Adgangssætning genereret"
+  },
+  "usernameGenerated": {
+    "message": "Brugernavn genereret"
+  },
+  "emailGenerated": {
+    "message": "E-mail genereret"
+  },
   "regeneratePassword": {
     "message": "Regenerér adgangskode"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Bekræft identitet"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Denne enhed er ikke genkendt. Angiv koden i den tilsendte e-mail for at bekræfte identiteten."
+  },
+  "continueLoggingIn": {
+    "message": "Fortsæt med at logge ind"
   },
   "yourVaultIsLocked": {
     "message": "Din boks er låst. Bekræft din identitet for at fortsætte."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Anmod om at tilføje et emne, hvis intet ikke findes i boksen. Gælder alle indloggede konti."
   },
-  "showCardsInVaultView": {
-    "message": "Vis kort som Autoudfyldningsforslag ved Boks-visning"
+  "showCardsInVaultViewV2": {
+    "message": "Vis altid kort som Autoudfyldningsforslag ved Boks-visning"
   },
   "showCardsCurrentTab": {
     "message": "Vis kort på fanebladet"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Vis kortemner på siden Fane for nem autoudfyldning."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Vis identiteter som Autoudfyldningsforslag ved Boks-visning"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Vis altid identiteter som Autoudfyldningsforslag ved Boks-visning"
   },
   "showIdentitiesCurrentTab": {
     "message": "Vis identiteter på fanebladet"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Køb premium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Du kan købe premium-medlemskab i bitwarden.com web-boksen. Vil du besøge hjemmesiden nu?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Der kan købes Premium fra kontoindstillingerne via Bitwarden web-appen."
@@ -2045,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Brugernavngenerator"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Anvend denne adgangskode"
@@ -4868,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Ekstra bred"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Opdatér venligst computerapplikationen"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "For brug af biometrisk oplåsning skal computerapplikationen opdateres eller fingeraftryksoplåsning deaktiveres i computerindstillingerne."
   }
 }

@@ -56,7 +56,7 @@
     "message": "主密码"
   },
   "masterPassDesc": {
-    "message": "主密码是您访问密码库的唯一密码。它非常重要，请您不要忘记。一旦忘记，无任何办法恢复此密码。"
+    "message": "主密码是用于访问您的密码库的密码。不要忘记您的主密码，这一点非常重要。一旦忘记，无任何办法恢复此密码。"
   },
   "masterPassHintDesc": {
     "message": "主密码提示可以在您忘记密码时帮您回忆起来。"
@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "生成密码短语"
   },
+  "passwordGenerated": {
+    "message": "密码已生成"
+  },
+  "passphraseGenerated": {
+    "message": "密码短语已生成"
+  },
+  "usernameGenerated": {
+    "message": "用户名已生成"
+  },
+  "emailGenerated": {
+    "message": "电子邮箱已生成"
+  },
   "regeneratePassword": {
     "message": "重新生成密码"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "验证身份"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。"
+  },
+  "continueLoggingIn": {
+    "message": "继续登录"
   },
   "yourVaultIsLocked": {
     "message": "您的密码库已锁定。请先验证您的身份。"
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "如果在密码库中找不到项目，询问添加一个。适用于所有已登录的账户。"
   },
-  "showCardsInVaultView": {
-    "message": "在密码库视图中将支付卡显示为自动填充建议"
+  "showCardsInVaultViewV2": {
+    "message": "在密码库视图中将支付卡始终显示为自动填充建议"
   },
   "showCardsCurrentTab": {
     "message": "在标签页上显示支付卡"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "在标签页上列出支付卡项目，以便于自动填充。"
   },
-  "showIdentitiesInVaultView": {
-    "message": "在密码库视图中将身份显示为自动填充建议"
+  "showIdentitiesInVaultViewV2": {
+    "message": "在密码库视图中将身份始终显示为自动填充建议"
   },
   "showIdentitiesCurrentTab": {
     "message": "在标签页上显示身份"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "购买高级版"
-  },
-  "premiumPurchaseAlert": {
-    "message": "您可以在 bitwarden.com 网页版密码库购买高级会员。现在要访问吗？"
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 网页 App 的账户设置中购买高级版。"
@@ -1744,7 +1759,7 @@
     "message": "州 / 省"
   },
   "zipPostalCode": {
-    "message": "邮编 / 邮政代码"
+    "message": "邮政编码"
   },
   "country": {
     "message": "国家"
@@ -1856,7 +1871,7 @@
     "message": "检查密码是否已经被公开。"
   },
   "passwordExposed": {
-    "message": "此密码在泄露数据中已被公开 $VALUE$ 次。请立即修改。",
+    "message": "此密码在数据泄露中已被暴露 $VALUE$ 次。请立即修改。",
     "placeholders": {
       "value": {
         "content": "$1",
@@ -2045,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "用户名生成器"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "使用此密码"
@@ -2325,7 +2343,7 @@
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "屏蔽域名"
+    "message": "屏蔽的域名"
   },
   "excludedDomains": {
     "message": "排除域名"
@@ -2488,7 +2506,7 @@
     "message": "自定义"
   },
   "sendPasswordDescV3": {
-    "message": "添加一个用于收件人访问此 Send 的可选密码。",
+    "message": "添加一个用于接收者访问此 Send 的可选密码。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -4868,5 +4886,11 @@
   },
   "extraWide": {
     "message": "超宽"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "请更新您的桌面应用程序"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "要使用生物识别解锁，请更新您的桌面应用程序，或在桌面设置中禁用指纹解锁。"
   }
 }

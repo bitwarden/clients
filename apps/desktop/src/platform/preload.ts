@@ -123,6 +123,7 @@ const ephemeralStore = {
   getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
   removeEphemeralValue: (key: string): Promise<void> =>
     ipcRenderer.invoke("deleteEphemeralValue", key),
+  listEphemeralValueKeys: (): Promise<string[]> => ipcRenderer.invoke("listEphemeralValueKeys"),
 };
 
 const localhostCallbackService = {

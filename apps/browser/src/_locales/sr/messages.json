@@ -159,7 +159,7 @@
     "message": "Копирај јавни кључ"
   },
   "copyFingerprint": {
-    "message": "Копирати отисак"
+    "message": "Копирај отисак прста"
   },
   "copyCustomField": {
     "message": "Копирати $FIELD$",
@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Генеришите приступну фразу"
   },
+  "passwordGenerated": {
+    "message": "Лозинка генерисана"
+  },
+  "passphraseGenerated": {
+    "message": "Приступна фраза је генерисана"
+  },
+  "usernameGenerated": {
+    "message": "Корисничко име генерисано"
+  },
+  "emailGenerated": {
+    "message": "Имејл генерисан"
+  },
   "regeneratePassword": {
     "message": "Поново генериши лозинку"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Потврдите идентитет"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет."
+  },
+  "continueLoggingIn": {
+    "message": "Настави са пријављивањем"
   },
   "yourVaultIsLocked": {
     "message": "Сеф је закључан. Унесите главну лозинку за наставак."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Затражите да додате ставку ако она није пронађена у вашем сефу. Односи се на све пријављене налоге."
   },
-  "showCardsInVaultView": {
-    "message": "Прикажите картице као предлоге за ауто-попуњавање у приказу сефа"
+  "showCardsInVaultViewV2": {
+    "message": "Увек приказуј картице као препоруке аутоматског попуњавања на приказу трезора"
   },
   "showCardsCurrentTab": {
     "message": "Прикажи кредитне картице на страници картице"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Прикажи ставке кредитних картица на страници картице за лакше аутоматско допуњавање."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Прикажите идентитете као предлоге за ауто-попуњавање у приказу сефа"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Увек приказуј идентитете као препоруке аутоматског попуњавања на приказу трезора"
   },
   "showIdentitiesCurrentTab": {
     "message": "Прикажи идентитете на страници"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Купити премијум"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Можете купити премијум претплату на bitwarden.com. Да ли желите да посетите веб сајт сада?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Можете да купите Премиум у подешавањима налога у веб апликацији Bitwarden."
@@ -2046,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Генератор корисничког имена"
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "useThisPassword": {
     "message": "Употреби ову лозинку"
   },
@@ -2325,7 +2343,7 @@
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "Blocked domains"
+    "message": "Блокирани домени"
   },
   "excludedDomains": {
     "message": "Изузети домени"
@@ -2337,13 +2355,13 @@
     "message": "Bitwarden неће тражити да сачува податке за пријављивање за ове домене за све пријављене налоге. Морате освежити страницу да би промене ступиле на снагу."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "Аутоматско попуњавање и сродне функције неће бити понуђене за ове веб сајтове. Морате освежити страницу да би се измене примениле."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "Аутоматско попуњавање је блокирано за овај веб сајт."
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "Промените ово у подешавањима"
   },
   "websiteItemLabel": {
     "message": "Сајт $number$ (УРЛ)",
@@ -2364,7 +2382,7 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "Blocked domain changes saved"
+    "message": "Измене блокираних домена су сачуване"
   },
   "excludedDomainsSavedSuccess": {
     "message": "Изузете промене домена су сачуване"
@@ -2805,17 +2823,17 @@
     "message": "Грешка"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Грешка при декрипцији"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden није могао да декриптује ставке из трезора наведене испод."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Обратите се корисничкој подршци",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "да бисте избегли додатни губитак података.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
@@ -3976,10 +3994,10 @@
     "message": "Приступни кључ је уклоњен"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Предлози аутоматског попуњавања"
   },
   "itemSuggestions": {
-    "message": "Suggested items"
+    "message": "Предложене ставке"
   },
   "autofillSuggestionsTip": {
     "message": "Сачувајте ставку за пријаву за ову локацију за ауто-попуњавање"
@@ -4636,22 +4654,22 @@
     "message": "Немате дозволу да уређујете ову ставку"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "Биометријско откључавање није доступно јер је пре тога потребно унети ПИН или лозинку за откључавање."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "Биометријско откључавање тренутно није доступно."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Биометријско откључавање није доступно због лоше подешених системских датотека."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Биометријско откључавање није доступно због лоше подешених системских датотека."
   },
   "biometricsStatusHelptextDesktopDisconnected": {
-    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+    "message": "Биометријско откључавање није доступно јер је Bitwarden апликација на рачунару угашена."
   },
   "biometricsStatusHelptextNotEnabledInDesktop": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "Биометријско откључавање није доступно јер није омогућено за $EMAIL$ у Bitwarden апликацији на рачунару.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4660,7 +4678,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "Биометријско откључавање није доступно из непознатог разлога."
   },
   "authenticating": {
     "message": "Аутентификација"
@@ -4868,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Врло широко"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Молим вас надоградите вашу апликацију на рачунару"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Да би сте користили биометријско откључавање, надоградите вашу апликацију на рачунару, или онемогућите откључавање отиском прста у подешавањима на рачунару."
   }
 }

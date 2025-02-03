@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
 
-import { TwoFactorTimeoutComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-expired.component";
+import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
@@ -9,9 +9,11 @@ import {
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
+  activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
+import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -37,16 +39,17 @@ import {
   SsoComponent,
   VaultIcon,
   LoginDecryptionOptionsComponent,
+  NewDeviceVerificationComponent,
+  DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { LockComponent } from "@bitwarden/key-management/angular";
+import { LockComponent } from "@bitwarden/key-management-ui";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
   VaultIcons,
 } from "@bitwarden/vault";
 
-import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { flagEnabled, Flags } from "../utils/flags";
 
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
@@ -78,6 +81,8 @@ import { UpdateTempPasswordComponent } from "./auth/update-temp-password.compone
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
+import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
+import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
@@ -184,7 +189,7 @@ const routes: Routes = [
       data: {
         pageIcon: DevicesIcon,
         pageTitle: {
-          key: "loginInitiated",
+          key: "logInRequestSent",
         },
         pageSubtitle: {
           key: "aNotificationWasSentToYourDevice",
@@ -344,7 +349,7 @@ const routes: Routes = [
     children: [
       {
         path: "signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationUserAddIcon,
           pageTitle: {
@@ -369,7 +374,7 @@ const routes: Routes = [
       },
       {
         path: "finish-signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationLockAltIcon,
           titleId: "setAStrongPassword",
@@ -403,7 +408,6 @@ const routes: Routes = [
       },
       {
         path: "set-password-jit",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification)],
         component: SetPasswordJitComponent,
         data: {
           pageTitle: {
@@ -416,7 +420,7 @@ const routes: Routes = [
       },
       {
         path: "signup-link-expired",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationExpiredLinkIcon,
           pageTitle: {
@@ -541,12 +545,12 @@ const routes: Routes = [
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
-        path: "2fa-timeout",
+        path: "authentication-timeout",
         canActivate: [unauthGuardFn()],
         children: [
           {
             path: "",
-            component: TwoFactorTimeoutComponent,
+            component: AuthenticationTimeoutComponent,
           },
           {
             path: "",
@@ -581,6 +585,29 @@ const routes: Routes = [
             key: "recoverAccountTwoStep",
           },
           titleId: "recoverAccountTwoStep",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
+      {
+        path: "device-verification",
+        canActivate: [
+          canAccessFeature(FeatureFlag.NewDeviceVerification),
+          unauthGuardFn(),
+          activeAuthGuard(),
+        ],
+        children: [
+          {
+            path: "",
+            component: NewDeviceVerificationComponent,
+          },
+        ],
+        data: {
+          pageIcon: DeviceVerificationIcon,
+          pageTitle: {
+            key: "verifyIdentity",
+          },
+          pageSubtitle: {
+            key: "weDontRecognizeThisDevice",
+          },
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -653,7 +680,7 @@ const routes: Routes = [
       },
       {
         path: "trial-initiation",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         component: CompleteTrialInitiationComponent,
         resolve: {
           pageTitle: freeTrialTextResolver,
@@ -664,7 +691,7 @@ const routes: Routes = [
       },
       {
         path: "secrets-manager-trial-initiation",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         component: CompleteTrialInitiationComponent,
         resolve: {
           pageTitle: freeTrialTextResolver,

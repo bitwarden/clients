@@ -885,6 +885,15 @@
     "message": "Kinnita organisatsiooni jaoks Duo Security abil, kasutades selleks Duo Mobile rakendust, SMS-i, telefonikõnet või U2F turvavõtit.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -1378,9 +1387,6 @@
   },
   "premiumPurchase": {
     "message": "Osta Preemium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Saad Preemium versiooni osta bitwarden.com veebihoidlas. Soovid seda kohe teha?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Sa saad hankida Preemiumi oma konto seadetes veebibrauseris."
@@ -2544,6 +2550,9 @@
   "catchallEmailDesc": {
     "message": "Kasuta domeenipõhist kogumisaadressi."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Juhuslik"
   },
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Extension update required"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
   }
 }

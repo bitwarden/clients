@@ -885,6 +885,15 @@
     "message": "Duo Mobile, SMS, ഫോൺ കോൾ അല്ലെങ്കിൽ U2F സുരക്ഷാ കീ ഉപയോഗിച്ച് നിങ്ങളുടെ ഓർഗനൈസേഷനെ Duo Security ഉപയോഗിച്ച് പരിശോധിക്കുക.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -1378,9 +1387,6 @@
   },
   "premiumPurchase": {
     "message": "പ്രീമിയം വാങ്ങുക"
-  },
-  "premiumPurchaseAlert": {
-    "message": "നിങ്ങൾക്ക് bitwarden.com വെബ് വാൾട്ടിൽ പ്രീമിയം അംഗത്വം വാങ്ങാം. നിങ്ങൾക്ക് ഇപ്പോൾ വെബ്സൈറ്റ് സന്ദർശിക്കാൻ ആഗ്രഹമുണ്ടോ?"
   },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
@@ -2544,6 +2550,9 @@
   "catchallEmailDesc": {
     "message": "Use your domain's configured catch-all inbox."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Random"
   },
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Extension update required"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
   }
 }

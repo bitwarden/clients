@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Cəmi tətbiq"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Kritik tətbiq kimi işarəni götür"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Kritik tətbiq işarəsi uğurla götürüldü"
+  },
   "whatTypeOfItem": {
     "message": "Bu elementin növü nədir?"
   },
@@ -1161,6 +1167,12 @@
   "verifyIdentity": {
     "message": "Kimliyinizi doğrulayın"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "Bu cihazı tanımırıq. Kimliyinizi doğrulamaq üçün e-poçtunuza göndərilən kodu daxil edin."
+  },
+  "continueLoggingIn": {
+    "message": "Giriş etməyə davam"
+  },
   "whatIsADevice": {
     "message": "Cihaz nədir?"
   },
@@ -1827,12 +1839,6 @@
   "dangerZone": {
     "message": "Təhlükəli zona"
   },
-  "dangerZoneDesc": {
-    "message": "Diqqətli olun, bu əməliyyatları geri qaytara bilməzsiniz!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Diqqətli olun, bu əməliyyatı geri qaytara bilməzsiniz!"
-  },
   "deauthorizeSessions": {
     "message": "Seansların səlahiyyətlərini götür"
   },
@@ -1841,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Davam etsəniz, hazırkı seansınız bitəcək, təkrar giriş etməyiniz tələb olunacaq. Fəallaşdırılıbsa, iki addımlı giriş üçün yenidən soruşulacaq. Digər cihazlardakı aktiv seanslar, bir saata qədər aktiv qalmağa davam edə bilər."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Yeni cihaz girişi"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Yeni cihaz girişi qorumasını söndür"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Yeni cihaz girişi qorumasını işə sal"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Yeni bir cihazdan giriş etdiyiniz zaman Bitwarden göndərən doğrulama e-poçtlarını dayandırmaq üçün aşağıdakı addımları izləyin."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Yeni bir cihazdan giriş etdiyiniz zaman Bitwarden-in sizə doğrulama e-poçtlarını göndərməsi üçün aşağıdakı addımları izləyin."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Yeni cihaz girişi qorumasını söndürsəniz, ana parolunuzu bilən hər kəs, istənilən cihazdan hesabınıza müraciət edə bilər. Hesabınızı doğrulama e-poçtları olmadan qorumaq üçün iki addımlı girişi qurun."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Yeni cihaz girişi qoruması dəyişiklikləri saxlanıldı"
   },
   "sessionsDeauthorized": {
     "message": "Bütün seansların səlahiyyəti götürüldü"
@@ -6719,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Domeninizin konfiqurasiya edilmiş hamısını yaxalama gələn qutusunu istifadə edin."
   },
+  "useThisEmail": {
+    "message": "Bu e-poçtu istifadə et"
+  },
   "random": {
     "message": "Təsadüfi",
     "description": "Generates domain-based username using random letters"
@@ -8595,6 +8625,9 @@
   "limitCollectionDeletionDesc": {
     "message": "Kolleksiya silinməsini sahibləri və adminləri ilə məhdudlaşdır"
   },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Sahiblər və adminlər bütün kolleksiyaları və elementləri idarə edə bilər"
   },
@@ -9273,6 +9306,9 @@
   "monthPerMember": {
     "message": "üzv başına ay"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "üzv üzrə aylıq illik hesablama"
+  },
   "seats": {
     "message": "Yer"
   },
@@ -9792,6 +9828,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Açar alqoritmi"
+  },
+  "sshPrivateKey": {
+    "message": "Private açar"
+  },
+  "sshPublicKey": {
+    "message": "Public açar"
+  },
+  "sshFingerprint": {
+    "message": "Barmaq izi"
   },
   "sshKeyFingerprint": {
     "message": "Barmaq izi"

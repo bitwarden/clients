@@ -20,6 +20,12 @@ export default {
       alert("Close button clicked!");
     },
   },
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=502-24633&t=2O7uCAkwRZCcjumm-4",
+    },
+  },
 } as Meta<Args>;
 
 const Template = (args: Args) => CloseButton({ ...args });

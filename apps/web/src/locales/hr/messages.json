@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Ukupno aplikacija"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "Koja je ovo vrsta stavke?"
   },
@@ -1161,6 +1167,12 @@
   "verifyIdentity": {
     "message": "Potvrdi svoj identitet"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "whatIsADevice": {
     "message": "What is a device?"
   },
@@ -1827,12 +1839,6 @@
   "dangerZone": {
     "message": "OPASNA zona!"
   },
-  "dangerZoneDesc": {
-    "message": "Pažljivo, ove akcije su konačne i ne mogu se poništiti!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Pažljivo, ova radnja se ne može poništiti!"
-  },
   "deauthorizeSessions": {
     "message": "Deautoriziraj sesije"
   },
@@ -1841,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Ako nastaviš, trenutna sesija će biti zatvorena, što će zahtijevati ponovnu prijavu uklljučujući i prijavu dvostrukom autentifikacijom, ako je ona aktivna. Aktivne sesije na drugim uređajima mogu ostati aktivne još jedan sat."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "Sve sesije deautorizirane"
@@ -6719,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Koristi konfigurirani catch-all sandučić svoje domene."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Nasumično",
     "description": "Generates domain-based username using random letters"
@@ -8595,6 +8625,9 @@
   "limitCollectionDeletionDesc": {
     "message": "Omogući brisanje zbirki samo vlasnicima i adminima"
   },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Vlasnici i admini mogu upravljati svim zbirkama i stavkama"
   },
@@ -9273,6 +9306,9 @@
   "monthPerMember": {
     "message": "mjesečno po korisniku"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
+  },
   "seats": {
     "message": "Mjesta"
   },
@@ -9792,6 +9828,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Algoritam ključa"
+  },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
   },
   "sshKeyFingerprint": {
     "message": "Otisak prsta"

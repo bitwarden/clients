@@ -11,7 +11,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { filter, firstValueFrom, map, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -144,11 +144,15 @@ export class ViewComponent implements OnDestroy, OnInit {
   async load() {
     this.cleanUp();
 
-    const cipher = await this.cipherService.get(this.cipherId);
     const activeUserId = await firstValueFrom(this.activeUserId$);
-    this.cipher = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+    // Grab individual cipher from `cipherViews$` for the most up-to-date information
+    this.cipher = await firstValueFrom(
+      this.cipherService.cipherViews$.pipe(
+        map((ciphers) => ciphers.find((c) => c.id === this.cipherId)),
+        filter((cipher) => !!cipher),
+      ),
     );
+
     this.canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
     );

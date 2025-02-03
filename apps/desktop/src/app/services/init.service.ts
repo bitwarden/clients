@@ -5,13 +5,14 @@ import { firstValueFrom } from "rxjs";
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
@@ -35,7 +36,7 @@ export class InitService {
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
     private twoFactorService: TwoFactorServiceAbstraction,
-    private notificationsService: NotificationsServiceAbstraction,
+    private notificationsService: NotificationsService,
     private platformUtilsService: PlatformUtilsServiceAbstraction,
     private stateService: StateServiceAbstraction,
     private keyService: KeyServiceAbstraction,
@@ -47,11 +48,13 @@ export class InitService {
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
+    private sdkLoadService: SdkLoadService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
+      await this.sdkLoadService.load();
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.stateService.init({ runMigrations: false }); // Desktop will run them in main process
@@ -75,7 +78,7 @@ export class InitService {
       await (this.i18nService as I18nRendererService).init();
       (this.eventUploadService as EventUploadService).init(true);
       this.twoFactorService.init();
-      setTimeout(() => this.notificationsService.init(), 3000);
+      this.notificationsService.startListening();
       const htmlEl = this.win.document.documentElement;
       htmlEl.classList.add("os_" + this.platformUtilsService.getDeviceString());
       this.themingService.applyThemeChangesTo(this.document);

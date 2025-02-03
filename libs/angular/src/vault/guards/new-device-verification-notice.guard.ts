@@ -1,6 +1,6 @@
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from "@angular/router";
-import { Observable, firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -47,17 +47,23 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
     return router.createUrlTree(["/login"]);
   }
 
-  const has2FAEnabled = await hasATwoFactorProviderEnabled(vaultProfileService, currentAcct.id);
-  const isSelfHosted = await platformUtilsService.isSelfHost();
-  const requiresSSO = await isSSORequired(policyService);
-  const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(
-    vaultProfileService,
-    currentAcct.id,
-  );
+  try {
+    const isSelfHosted = platformUtilsService.isSelfHost();
+    const requiresSSO = await isSSORequired(policyService);
+    const has2FAEnabled = await hasATwoFactorProviderEnabled(vaultProfileService, currentAcct.id);
+    const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(
+      vaultProfileService,
+      currentAcct.id,
+    );
 
-  // When any of the following are true, the device verification notice is
-  // not applicable for the user.
-  if (has2FAEnabled || isSelfHosted || requiresSSO || isProfileLessThanWeekOld) {
+    // When any of the following are true, the device verification notice is
+    // not applicable for the user.
+    if (has2FAEnabled || isSelfHosted || requiresSSO || isProfileLessThanWeekOld) {
+      return true;
+    }
+  } catch {
+    // Skip showing the notice if there was a problem determining applicability
+    // The most likely problem to occur is the user not having a network connection
     return true;
   }
 

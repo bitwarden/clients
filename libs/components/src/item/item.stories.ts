@@ -135,12 +135,35 @@ export const ContentTypes: Story = {
   }),
 };
 
-export const TextOverflow: Story = {
+export const TextOverflowTruncate: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
       <bit-item>
         <bit-item-content>
+          <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+          Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!
+          <ng-container slot="secondary">Worlddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd!</ng-container>
+        </bit-item-content>
+        <ng-container slot="end">
+          <bit-item-action>
+            <button type="button" bitIconButton="bwi-clone" size="small"></button>
+          </bit-item-action>
+          <bit-item-action>
+            <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
+          </bit-item-action>
+        </ng-container>
+      </bit-item>
+    `,
+  }),
+};
+
+export const TextOverflowWrap: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-item>
+        <bit-item-content [truncate]="false">
           <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
           Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!
           <ng-container slot="secondary">Worlddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd!</ng-container>

@@ -885,6 +885,15 @@
     "message": "Bekræft med Duo Security for din organisation vha. Duo Mobile-app, SMS, telefonopkald eller U2F-sikkerhedsnøgle.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Bekræft identiteten"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Denne enhed er ikke genkendt. Angiv koden i den tilsendte e-mail for at bekræfte identiteten."
+  },
+  "continueLoggingIn": {
+    "message": "Fortsæt med at logge ind"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -1378,9 +1387,6 @@
   },
   "premiumPurchase": {
     "message": "Køb Premium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Premium-medlemskab kan købes via bitwarden.com web-boksen. Besøg webstedet nu?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Der kan købes Premium fra kontoindstillingerne via Bitwarden web-appen."
@@ -2544,6 +2550,9 @@
   "catchallEmailDesc": {
     "message": "Brug domænets opsatte fang-alle indbakke."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Tilfældig"
   },
@@ -3483,5 +3492,11 @@
   },
   "upgradeOrganizationDesc": {
     "message": "Denne funktion er utilgængelig for gratis organisationer. Skift til en betalingsabonnementstype for at oplåse flere funktioner."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Udvidelsesopdatering krævet"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Den anvendte webbrowserudvidelse er forældet. Opdatér den venligst eller deaktivér webbrowserintegreret fingeraftryksbekræftelse i computer-app indstillingerne."
   }
 }
