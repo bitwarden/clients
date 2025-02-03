@@ -1,9 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { NoItemsModule, SearchModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -22,10 +25,16 @@ export class SMLandingComponent implements OnInit {
   showSecretsManagerInformation: boolean = true;
   showGiveMembersAccessInstructions: boolean = false;
 
-  constructor(private organizationService: OrganizationService) {}
+  constructor(
+    private organizationService: OrganizationService,
+    private accountService: AccountService,
+  ) {}
 
   async ngOnInit() {
-    const enabledOrganizations = (await this.organizationService.getAll()).filter((e) => e.enabled);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const enabledOrganizations = (
+      await firstValueFrom(this.organizationService.organizations$(userId))
+    ).filter((e) => e.enabled);
 
     if (enabledOrganizations.length > 0) {
       this.handleEnabledOrganizations(enabledOrganizations);

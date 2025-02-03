@@ -150,8 +150,8 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get allowOwnershipChange() {
-    // Do not allow ownership change in edit mode.
-    if (this.config.mode === "edit") {
+    // Do not allow ownership change in edit mode and the cipher is owned by an organization
+    if (this.config.mode === "edit" && this.originalCipherView.organizationId != null) {
       return false;
     }
 

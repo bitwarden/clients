@@ -39,13 +39,14 @@ import {
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
   LoginSuccessHandlerService,
+  PasswordLoginStrategy,
+  PasswordLoginStrategyData,
   LoginApprovalComponentServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -67,8 +68,8 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/services/organization/organization.service";
 import { OrgDomainApiService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain-api.service";
 import { OrgDomainService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain.service";
 import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/services/organization-management-preferences/default-organization-management-preferences.service";
@@ -175,6 +176,16 @@ import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/inter
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
+// eslint-disable-next-line no-restricted-imports -- Needed for service creation
+import {
+  DefaultNotificationsService,
+  NoopNotificationsService,
+  SignalRConnectionService,
+  UnsupportedWebPushConnectionService,
+  WebPushConnectionService,
+  WebPushNotificationsApiService,
+} from "@bitwarden/common/platform/notifications/internal";
 import {
   TaskSchedulerService,
   DefaultTaskSchedulerService,
@@ -192,7 +203,6 @@ import { FileUploadService } from "@bitwarden/common/platform/services/file-uplo
 import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { NoopNotificationsService } from "@bitwarden/common/platform/services/noop-notifications.service";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
@@ -226,7 +236,6 @@ import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { NotificationsService } from "@bitwarden/common/services/notifications.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
@@ -273,12 +282,6 @@ import {
   PasswordGenerationServiceAbstraction,
   UsernameGenerationServiceAbstraction,
 } from "@bitwarden/generator-legacy";
-import {
-  ImportApiService,
-  ImportApiServiceAbstraction,
-  ImportService,
-  ImportServiceAbstraction,
-} from "@bitwarden/importer/core";
 import {
   KeyService,
   DefaultKeyService,
@@ -554,7 +557,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalAccountService,
     useClass: AccountServiceImplementation,
-    deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider],
+    deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider, SingleUserStateProvider],
   }),
   safeProvider({
     provide: AccountServiceAbstraction,
@@ -818,26 +821,6 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: ImportApiServiceAbstraction,
-    useClass: ImportApiService,
-    deps: [ApiServiceAbstraction],
-  }),
-  safeProvider({
-    provide: ImportServiceAbstraction,
-    useClass: ImportService,
-    deps: [
-      CipherServiceAbstraction,
-      FolderServiceAbstraction,
-      ImportApiServiceAbstraction,
-      I18nServiceAbstraction,
-      CollectionService,
-      KeyService,
-      EncryptService,
-      PinServiceAbstraction,
-      AccountServiceAbstraction,
-    ],
-  }),
-  safeProvider({
     provide: IndividualVaultExportServiceAbstraction,
     useClass: IndividualVaultExportService,
     deps: [
@@ -877,19 +860,36 @@ const safeProviders: SafeProvider[] = [
     deps: [LogService, I18nServiceAbstraction, StateProvider],
   }),
   safeProvider({
-    provide: NotificationsServiceAbstraction,
-    useClass: devFlagEnabled("noopNotifications") ? NoopNotificationsService : NotificationsService,
+    provide: WebPushNotificationsApiService,
+    useClass: WebPushNotificationsApiService,
+    deps: [ApiServiceAbstraction, AppIdServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SignalRConnectionService,
+    useClass: SignalRConnectionService,
+    deps: [ApiServiceAbstraction, LogService],
+  }),
+  safeProvider({
+    provide: WebPushConnectionService,
+    useClass: UnsupportedWebPushConnectionService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: NotificationsService,
+    useClass: devFlagEnabled("noopNotifications")
+      ? NoopNotificationsService
+      : DefaultNotificationsService,
     deps: [
       LogService,
       SyncService,
       AppIdServiceAbstraction,
-      ApiServiceAbstraction,
       EnvironmentService,
       LOGOUT_CALLBACK,
-      StateServiceAbstraction,
-      AuthServiceAbstraction,
       MessagingServiceAbstraction,
-      TaskSchedulerService,
+      AccountServiceAbstraction,
+      SignalRConnectionService,
+      AuthServiceAbstraction,
+      WebPushConnectionService,
     ],
   }),
   safeProvider({
@@ -992,13 +992,14 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: InternalOrganizationServiceAbstraction,
-    useClass: OrganizationService,
+    useClass: DefaultOrganizationService,
     deps: [StateProvider],
   }),
   safeProvider({
     provide: OrganizationServiceAbstraction,
     useExisting: InternalOrganizationServiceAbstraction,
   }),
+
   safeProvider({
     provide: OrganizationUserApiService,
     useClass: DefaultOrganizationUserApiService,
@@ -1233,7 +1234,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       ApiServiceAbstraction,
       BillingApiServiceAbstraction,
-      ConfigService,
       KeyService,
       EncryptService,
       I18nServiceAbstraction,
@@ -1394,7 +1394,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherAuthorizationService,
     useClass: DefaultCipherAuthorizationService,
-    deps: [CollectionService, OrganizationServiceAbstraction],
+    deps: [CollectionService, OrganizationServiceAbstraction, AccountServiceAbstraction],
   }),
   safeProvider({
     provide: AuthRequestApiService,
@@ -1434,6 +1434,37 @@ const safeProviders: SafeProvider[] = [
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
     deps: [SyncService, UserAsymmetricKeysRegenerationService],
+  }),
+  safeProvider({
+    provide: PasswordLoginStrategy,
+    useClass: PasswordLoginStrategy,
+    deps: [
+      PasswordLoginStrategyData,
+      PasswordStrengthServiceAbstraction,
+      PolicyServiceAbstraction,
+      LoginStrategyServiceAbstraction,
+      AccountServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+      KeyService,
+      EncryptService,
+      ApiServiceAbstraction,
+      TokenServiceAbstraction,
+      AppIdServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
+      MessagingServiceAbstraction,
+      LogService,
+      StateServiceAbstraction,
+      TwoFactorServiceAbstraction,
+      InternalUserDecryptionOptionsServiceAbstraction,
+      BillingAccountProfileStateService,
+      VaultTimeoutSettingsServiceAbstraction,
+      KdfConfigService,
+    ],
+  }),
+  safeProvider({
+    provide: PasswordLoginStrategyData,
+    useClass: PasswordLoginStrategyData,
+    deps: [],
   }),
 ];
 

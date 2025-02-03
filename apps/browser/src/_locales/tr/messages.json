@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Parola üret"
   },
+  "passwordGenerated": {
+    "message": "Parola üretildi"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Kullanıcı adı üretildi"
+  },
+  "emailGenerated": {
+    "message": "E-posta üretildi"
+  },
   "regeneratePassword": {
     "message": "Yeni parola oluştur"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Kimliği doğrula"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Bu cihazı tanıyamadık. Kimliğinizi doğrulamak için e-postanıza gönderilen kodu girin."
+  },
+  "continueLoggingIn": {
+    "message": "Giriş yapmaya devam et"
   },
   "yourVaultIsLocked": {
     "message": "Kasanız kilitli. Devam etmek için kimliğinizi doğrulayın."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Kasanızda bulunmayan kayıtların eklenmesini isteyip istemediğinizi sorar. Oturum açmış tüm hesaplar için geçerlidir."
   },
-  "showCardsInVaultView": {
-    "message": "Kasa görünümünde kartları otomatik doldurma önerisi olarak göster"
+  "showCardsInVaultViewV2": {
+    "message": "Kasa görünümünde kartları her zaman otomatik doldurma önerisi olarak göster"
   },
   "showCardsCurrentTab": {
     "message": "Sekme sayfasında kartları göster"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Kolay otomatik doldurma için sekme sayfasında kartları listele."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Kasa görünümünde kimlikleri otomatik doldurma önerisi olarak göster"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Kasa görünümünde kimlikleri her zaman otomatik doldurma önerisi olarak göster"
   },
   "showIdentitiesCurrentTab": {
     "message": "Sekme sayfasında kimlikleri göster"
@@ -1262,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Premium satın al"
   },
-  "premiumPurchaseAlert": {
-    "message": "Premium üyeliği bitwarden.com web kasası üzerinden satın alabilirsiniz. Şimdi siteye gitmek ister misiniz?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden web uygulamasındaki hesap ayarlarınızdan Premium abonelik satın alabilirsiniz."
   },
@@ -1466,7 +1481,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Önerileri otomatik doldur"
+    "message": "Otomatik doldurma önerileri"
   },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
@@ -2045,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Kullanıcı adı üreteci"
+  },
+  "useThisEmail": {
+    "message": "Bu e-postayı kullan"
   },
   "useThisPassword": {
     "message": "Bu parolayı kullan"
@@ -3976,7 +3994,7 @@
     "message": "Geçiş anahtarı kaldırıldı"
   },
   "autofillSuggestions": {
-    "message": "Önerileri otomatik doldur"
+    "message": "Otomatik doldurma önerileri"
   },
   "itemSuggestions": {
     "message": "Önerilen kayıtlar"
@@ -4868,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Ekstra geniş"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Lütfen masaüstü uygulamanızı güncelleyin"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

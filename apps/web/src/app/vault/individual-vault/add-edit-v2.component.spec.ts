@@ -49,7 +49,7 @@ describe("AddEditComponentV2", () => {
     } as Organization;
 
     organizationService = mock<OrganizationService>();
-    organizationService.organizations$ = of([mockOrganization]);
+    organizationService.organizations$.mockReturnValue(of([mockOrganization]));
 
     policyService = mock<PolicyService>();
     policyService.policyAppliesToActiveUser$.mockImplementation((policyType: PolicyType) =>

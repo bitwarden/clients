@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Izveidot paroles vārdkopu"
   },
+  "passwordGenerated": {
+    "message": "Parole izveidota"
+  },
+  "passphraseGenerated": {
+    "message": "Paroles vārdkopa izveidota"
+  },
+  "usernameGenerated": {
+    "message": "Lietotājvārds izveidots"
+  },
+  "emailGenerated": {
+    "message": "E-pasta adrese izveidota"
+  },
   "regeneratePassword": {
     "message": "Pārizveidot paroli"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Identitātes apliecināšana"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Mēs neatpazīstam šo ierīci. Jāievada kods, kas tika nosūtīts e-pastā, lai apliecinātu savu identitāti."
+  },
+  "continueLoggingIn": {
+    "message": "Turpināt pieteikšanos"
   },
   "yourVaultIsLocked": {
     "message": "Glabātava ir aizslēgta. Jāapliecina sava identitāte, lai turpinātu."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Vaicāt, vai pievienot vienumu, ja glabātavā tāds nav atrodams. Attiecas uz visiem kontiem, kuri ir pieteikušies."
   },
-  "showCardsInVaultView": {
-    "message": "Rādīt kartes kā automātiskās aizpildes ieteikumus glabātavas skatā"
+  "showCardsInVaultViewV2": {
+    "message": "Glabātavas skatā vienmēr rādīt kartes kā automātiskās aizpildes ieteikumus"
   },
   "showCardsCurrentTab": {
     "message": "Rādīt kartes cilnes lapā"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Attēlot kartes ciļņu lapā vieglākai aizpildīšanai."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Rādīt identitātes kā automātiskās aizpildes ieteikumus glabātavas skatā"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Glabātavas skatā vienmēr rādīt identitātes kā automātiskās aizpildes ieteikumus"
   },
   "showIdentitiesCurrentTab": {
     "message": "Rādīt identitātes cilnes pārskatā"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Iegādāties Premium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Premium dalību ir iespējams iegādāties bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Premium var iegādāties Bitwarden tīmekļa lietotnē sava konta iestatījumos."
@@ -2045,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Lietotājvārdu veidotājs"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Izmantot šo paroli"
@@ -4868,5 +4886,11 @@
   },
   "extraWide": {
     "message": "Ļoti plats"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Lūgums atjaunināt darbvirsmas lietotni"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Lai izmantotu atslēgšanu ar biometriju, lūgums atjaunināt darbvirsmas lietotni vai atspējot atslēgšanu ar pirkstu nospiedumu darbvirsmas iestatījumos."
   }
 }

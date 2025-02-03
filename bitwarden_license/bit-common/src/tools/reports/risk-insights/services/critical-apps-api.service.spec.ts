@@ -3,12 +3,14 @@ import { mock } from "jest-mock-extended";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { CriticalAppsApiService } from "./critical-apps-api.service";
 import {
+  PasswordHealthReportApplicationDropRequest,
   PasswordHealthReportApplicationId,
   PasswordHealthReportApplicationsRequest,
   PasswordHealthReportApplicationsResponse,
-} from "./critical-apps.service";
+} from "../models/password-health";
+
+import { CriticalAppsApiService } from "./critical-apps-api.service";
 
 describe("CriticalAppsApiService", () => {
   let service: CriticalAppsApiService;
@@ -70,6 +72,26 @@ describe("CriticalAppsApiService", () => {
         "GET",
         `/reports/password-health-report-applications/${orgId.toString()}`,
         null,
+        true,
+        true,
+      );
+      done();
+    });
+  });
+
+  it("should call apiService.send with correct parameters for DropCriticalApp", (done) => {
+    const request: PasswordHealthReportApplicationDropRequest = {
+      organizationId: "org1" as OrganizationId,
+      passwordHealthReportApplicationIds: ["123"],
+    };
+
+    apiService.send.mockReturnValue(Promise.resolve());
+
+    service.dropCriticalApp(request).subscribe(() => {
+      expect(apiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/reports/password-health-report-application/",
+        request,
         true,
         true,
       );

@@ -155,6 +155,12 @@
   "totalApplications": {
     "message": "Total applications"
   },
+  "unmarkAsCriticalApp": {
+    "message": "Unmark as critical app"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Critical application successfully unmarked"
+  },
   "whatTypeOfItem": {
     "message": "Kog je tipa ovaj unos?"
   },
@@ -1161,6 +1167,12 @@
   "verifyIdentity": {
     "message": "Verify your Identity"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
+  },
   "whatIsADevice": {
     "message": "What is a device?"
   },
@@ -1827,12 +1839,6 @@
   "dangerZone": {
     "message": "Opasna zona"
   },
-  "dangerZoneDesc": {
-    "message": "Pažljivo, ove odluke se ne mogu poništiti!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "Deauthorize sessions"
   },
@@ -1841,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Proceeding will also log you out of your current session, requiring you to log back in. You will also be prompted for two-step login again, if set up. Active sessions on other devices may continue to remain active for up to one hour."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "All sessions deauthorized"
@@ -6719,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Use your domain's configured catch-all inbox."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Random",
     "description": "Generates domain-based username using random letters"
@@ -8595,6 +8625,9 @@
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
   },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
   },
@@ -9273,6 +9306,9 @@
   "monthPerMember": {
     "message": "month per member"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "month per member billed annually"
+  },
   "seats": {
     "message": "Seats"
   },
@@ -9792,6 +9828,15 @@
   },
   "sshKeyAlgorithm": {
     "message": "Key algorithm"
+  },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
   },
   "sshKeyFingerprint": {
     "message": "Fingerprint"
