@@ -10276,6 +10276,9 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "openingExtension": {
+    "message": "Opening the Bitwarden browser extension"
+  },
   "resellerRenewalWarningMsg": {
     "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
     "placeholders": {
