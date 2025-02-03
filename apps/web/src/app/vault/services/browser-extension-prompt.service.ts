@@ -11,7 +11,9 @@ export enum BrowserPromptState {
   Success = "success",
 }
 
-@Injectable()
+@Injectable({
+  providedIn: "root",
+})
 export class BrowserExtensionPromptService {
   private _pageState$ = new BehaviorSubject<BrowserPromptState>(BrowserPromptState.Loading);
 
