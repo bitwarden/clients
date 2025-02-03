@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import {
   CollectionService,
@@ -34,7 +34,6 @@ import { InternalMasterPasswordServiceAbstraction } from "../../auth/abstraction
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
-import { getUserId } from "../../auth/services/account.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { DomainsResponse } from "../../models/response/domains.response";
@@ -108,7 +107,7 @@ export class DefaultSyncService extends CoreSyncService {
 
   @sequentialize(() => "fullSync")
   override async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
     if (authStatus === AuthenticationStatus.LoggedOut) {
@@ -198,6 +197,7 @@ export class DefaultSyncService extends CoreSyncService {
     await this.avatarService.setSyncAvatarColor(response.id, response.avatarColor);
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
+    await this.accountService.setAccountVerifyNewDeviceLogin(response.id, response.verifyDevices);
 
     await this.billingAccountProfileStateService.setHasPremium(
       response.premiumPersonally,

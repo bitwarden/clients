@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generate passphrase"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Berrezarri pasahitza"
   },
@@ -1268,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Premium erosi"
   },
-  "premiumPurchaseAlert": {
-    "message": "Zure premium bazkidetza bitwarden.com webguneko kutxa gotorrean ordaindu dezakezu. Orain bisitatu nahi duzu webgunea?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2051,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Username generator"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Use this password"

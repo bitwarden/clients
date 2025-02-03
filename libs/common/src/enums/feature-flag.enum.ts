@@ -9,6 +9,7 @@ export enum FeatureFlag {
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   PM14505AdminConsoleIntegrationPage = "pm-14505-admin-console-integration-page",
+  LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -47,6 +48,7 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
   NewDeviceVerification = "new-device-verification",
+  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -66,6 +68,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.PM14505AdminConsoleIntegrationPage]: FALSE,
+  [FeatureFlag.LimitItemDeletion]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
@@ -104,6 +107,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
   [FeatureFlag.NewDeviceVerification]: FALSE,
+  [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

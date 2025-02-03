@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "Køb Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Premium-medlemskab kan købes via bitwarden.com web-boksen. Besøg webstedet nu?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Der kan købes Premium fra kontoindstillingerne via Bitwarden web-appen."
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "Brug domænets opsatte fang-alle indbakke."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Tilfældig"

@@ -4,13 +4,17 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationApiKeyType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationApiKeyType,
+  OrganizationUserStatusType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -61,11 +65,14 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   showSubscription = true;
   showSelfHost = false;
   organizationIsManagedByConsolidatedBillingMSP = false;
+  resellerSeatsRemainingMessage: string;
 
   protected readonly subscriptionHiddenIcon = SubscriptionHiddenIcon;
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
 
   private destroy$ = new Subject<void>();
+
+  private seatsRemainingMessage: string;
 
   constructor(
     private apiService: ApiService,
@@ -79,6 +86,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private configService: ConfigService,
     private toastService: ToastService,
     private billingApiService: BillingApiServiceAbstraction,
+    private organizationUserApiService: OrganizationUserApiService,
   ) {}
 
   async ngOnInit() {
@@ -103,6 +111,28 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
           this.preSelectedProductTier = productTier;
         }
       }
+    }
+
+    if (this.userOrg.hasReseller) {
+      const allUsers = await this.organizationUserApiService.getAllUsers(this.userOrg.id);
+
+      const userCount = allUsers.data.filter((user) =>
+        [
+          OrganizationUserStatusType.Invited,
+          OrganizationUserStatusType.Accepted,
+          OrganizationUserStatusType.Confirmed,
+        ].includes(user.status),
+      ).length;
+
+      const remainingSeats = this.userOrg.seats - userCount;
+
+      const seatsRemaining = this.i18nService.t(
+        "seatsRemaining",
+        remainingSeats.toString(),
+        this.userOrg.seats.toString(),
+      );
+
+      this.resellerSeatsRemainingMessage = seatsRemaining;
     }
   }
 

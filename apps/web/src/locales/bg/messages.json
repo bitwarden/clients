@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "ОПАСНО"
   },
-  "dangerZoneDesc": {
-    "message": "Внимание, тези действия са необратими!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Внимание, това действие е необратимо!"
-  },
   "deauthorizeSessions": {
     "message": "Прекратяване на сесии"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Действието ще прекрати и текущата ви сесия, след което ще се наложи отново да се впишете. Ако сте включили двустепенна идентификация, ще се наложи да повторите и нея. Активните сесии на другите устройства може да останат такива до един час."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Вписване от ново устройство"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Изключване на защитата за вписване от ново устройство"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Включване на защитата за вписване от ново устройство"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Продължете по-долу, за да изключите е-писмата за потвърждение, които Битуорден изпраща, когато се вписвате от ново устройство."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Продължете по-долу, за да посочите, че искате Биуорден да изпраща е-писма за потвърждение, когато се вписвате от ново устройство."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Ако защитата за вписване от ново устройство е изключена, всеки, който знае главната Ви парола, ще може да получи достъп до акаунта Ви от всяко устройство. Ако искате да защитите акаунта си без потвърждение чрез е-поща, настройте двустепенното удостоверяване."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Промените на защитата за вписване от ново устройство са запазени"
   },
   "sessionsDeauthorized": {
     "message": "Всички сесии са прекратени"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Use your domain's configured catch-all inbox."
   },
+  "useThisEmail": {
+    "message": "Използване на тази е-поща"
+  },
   "random": {
     "message": "Произволно",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Ограничаване на изтриването на колекции, така че да може да се извършва само от собствениците и администраторите"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Собствениците и администраторите могат да управляват всички колекции и елементи"

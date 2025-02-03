@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "購買進階會員資格"
   },
-  "premiumPurchaseAlert": {
-    "message": "您可以在 bitwarden.com 網頁版密碼庫購買進階會員資格。現在要前往嗎？"
-  },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 網頁應用程式的帳號設定中購買進階版。"
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "使用您的網域設定的 Catch-all 收件匣。"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "隨機"

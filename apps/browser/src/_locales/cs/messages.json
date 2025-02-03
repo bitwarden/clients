@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Vygenerovat heslovou frázi"
   },
+  "passwordGenerated": {
+    "message": "Heslo bylo vygenerováno"
+  },
+  "passphraseGenerated": {
+    "message": "Heslová fráze byla vygenerována"
+  },
+  "usernameGenerated": {
+    "message": "Uživatelské jméno bylo vygenerováno"
+  },
+  "emailGenerated": {
+    "message": "E-mail byl vygenerován"
+  },
   "regeneratePassword": {
     "message": "Vygenerovat jiné heslo"
   },
@@ -1268,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Zakoupit členství Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Prémiové členství můžete zakoupit na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Premium si můžete zakoupit v nastavení účtu ve webové aplikaci Bitwarden."
   },
@@ -2051,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Generátor uživatelského jména"
+  },
+  "useThisEmail": {
+    "message": "Použít tento e-mail"
   },
   "useThisPassword": {
     "message": "Použít toto heslo"
