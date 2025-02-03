@@ -158,7 +158,6 @@ export class InlineMenuFieldQualificationService
       sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag"),
       sendExtensionMessage("getUserPremiumStatus"),
     ]).then(([fieldQualificationFlag, premiumStatus]) => {
-      this.inlineMenuFieldQualificationFlagSet = !!fieldQualificationFlag?.result;
       this.premiumEnabled = !!premiumStatus?.result;
     });
   }
@@ -170,10 +169,6 @@ export class InlineMenuFieldQualificationService
    * @param pageDetails - The details of the page that the field is on.
    */
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
-    if (!this.inlineMenuFieldQualificationFlagSet) {
-      return this.isFieldForLoginFormFallback(field);
-    }
-
     /**
      * Totp inline menu is available only for premium users.
      */
