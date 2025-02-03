@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Premium satın al"
   },
-  "premiumPurchaseAlert": {
-    "message": "Premium üzvlüyü bitwarden.com veb seyfində satın ala bilərsiniz. İndi saytı ziyarət etmək istəyirsiniz?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden veb tətbiqindəki hesab ayarlarınızda Premium satın ala bilərsiniz."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "İstifadəçi adı yaradıcı"
+  },
+  "useThisEmail": {
+    "message": "Bu e-poçtu istifadə et"
   },
   "useThisPassword": {
     "message": "Bu parolu istifadə et"

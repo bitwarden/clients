@@ -9,6 +9,7 @@ export enum FeatureFlag {
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   PM14505AdminConsoleIntegrationPage = "pm-14505-admin-console-integration-page",
+  LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -67,6 +68,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.PM14505AdminConsoleIntegrationPage]: FALSE,
+  [FeatureFlag.LimitItemDeletion]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,

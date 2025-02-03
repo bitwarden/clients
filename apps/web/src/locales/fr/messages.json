@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Zone de danger"
   },
-  "dangerZoneDesc": {
-    "message": "Attention, ces actions sont irréversibles !"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Attention, cette action est irréversible!"
-  },
   "deauthorizeSessions": {
     "message": "Révoquer les sessions"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "En poursuivant, vous serez également déconnecté de votre session en cours, ce qui vous obligera à vous reconnecter. Vous serez également invité à vous reconnecter via l'authentification à deux facteurs, si elle est configurée. Les sessions actives sur d'autres appareils peuvent rester actives pendant encore une heure."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Connexion à un nouvel appareil"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Désactivez la protection de connexion du nouvel appareil"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Activez la protection de connexion du nouvel appareil"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Procédez ci-dessous pour désactiver les courriels de vérification envoyés par Bitwarden lorsque vous vous connectez à partir d'un nouvel appareil."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Procédez ci-dessous pour que Bitwarden vous envoie des courriels de vérification lorsque vous vous connectez à partir d'un nouvel appareil."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Avec la protection de connexion d'un nouvel appareil désactivée, toute personne ayant votre mot de passe maître peut accéder à votre compte depuis n'importe quel appareil. Pour protéger votre compte sans courriel de vérification, configurez la connexion en deux étapes."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Modifications de la protection de connexion de l'appareil enregistrées"
   },
   "sessionsDeauthorized": {
     "message": "Toutes les sessions ont été révoquées"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Utilisez la boîte de réception du collecteur (catch-all) configurée de votre domaine."
   },
+  "useThisEmail": {
+    "message": "Utiliser ce courriel"
+  },
   "random": {
     "message": "Aléatoire",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limiter la suppression de collections aux propriétaires et administrateurs"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limite la suppression de l'élément aux membres avc l'autorisation Peut gérer"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Les propriétaires et les administrateurs peuvent gérer toutes les collections et tous les éléments"

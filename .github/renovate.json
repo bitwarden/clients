@@ -211,6 +211,8 @@
         "@storybook/angular",
         "@storybook/manager-api",
         "@storybook/theming",
+        "@typescript-eslint/utils",
+        "@typescript-eslint/rule-tester",
         "@types/react",
         "autoprefixer",
         "bootstrap",
@@ -225,9 +227,9 @@
         "tailwindcss",
         "zone.js"
       ],
-      "description": "Component library owned dependencies",
-      "commitMessagePrefix": "[deps] Design System:",
-      "reviewers": ["team:team-design-system"]
+      "description": "UI Foundation owned dependencies",
+      "commitMessagePrefix": "[deps] UI Foundation:",
+      "reviewers": ["team:team-ui-foundation"]
     },
     {
       "matchPackageNames": [

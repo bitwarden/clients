@@ -97,25 +97,28 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/scan.yml @bitwarden/team-platform-dev
 .github/workflows/test.yml @bitwarden/team-platform-dev
 .github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
+# ESLint custom rules
+libs/eslint @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/src/autofill @bitwarden/team-autofill-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
+apps/desktop/desktop_native/windows-plugin-authenticator @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
 # SSH Agent
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
 
-## Component Library ##
-.storybook @bitwarden/team-design-system
-libs/components @bitwarden/team-design-system
-libs/ui @bitwarden/team-design-system
-apps/browser/src/platform/popup/layout @bitwarden/team-design-system
-apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-design-system
-apps/web/src/app/layouts @bitwarden/team-design-system
+## UI Foundation ##
+.storybook @bitwarden/team-ui-foundation
+libs/components @bitwarden/team-ui-foundation
+libs/ui @bitwarden/team-ui-foundation
+apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
+apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation
+apps/web/src/app/layouts @bitwarden/team-ui-foundation
 
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev

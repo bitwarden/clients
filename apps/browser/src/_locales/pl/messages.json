@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Kup konto Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Konto Premium możesz zakupić na stronie sejfu bitwarden.com. Czy chcesz otworzyć tę stronę?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Możesz kupić Premium w ustawieniach konta w aplikacji internetowej Bitwarden."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Generator nazw użytkownika"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Użyj tego hasła"
