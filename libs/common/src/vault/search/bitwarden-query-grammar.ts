@@ -9,12 +9,13 @@ declare var lparen: any;
 declare var rparen: any;
 declare var AND: any;
 declare var OR: any;
-declare var string: any;
 declare var access: any;
 declare var func_has: any;
 declare var func_in: any;
 declare var func_is: any;
 declare var NOT: any;
+declare var string: any;
+declare var contains_string: any;
 declare var WS: any;
 
 const moo = require("moo");
@@ -34,6 +35,7 @@ let lexer = moo.compile({
   func_is: "is:",
   // function parameter separator
   access: ":",
+  contains_string: /contains:(?:"(?:\\["\\]|[^\n"\\])*"|(?:\\["\\]|[^\s\(\):])+)/,
   // string match, includes quoted strings with escaped quotes and backslashes
   string: /(?:"(?:\\["\\]|[^\n"\\])*"|(?:\\["\\]|[^\s\(\):])+)/,
 });
@@ -90,7 +92,7 @@ const grammar: Grammar = {
         return { type: "parentheses", inner: d[2], d: d, start, end, length: end - start + 1 };
       },
     },
-    { name: "PARENTHESES", symbols: ["TERM"], postprocess: id },
+    { name: "PARENTHESES", symbols: ["EXPRESSION"], postprocess: id },
     {
       name: "AND",
       symbols: ["AND", "_", lexer.has("AND") ? { type: "AND" } : AND, "_", "PARENTHESES"],
@@ -138,22 +140,10 @@ const grammar: Grammar = {
       },
     },
     { name: "OR", symbols: ["AND"], postprocess: id },
+    { name: "EXPRESSION", symbols: ["TERM"] },
     {
-      name: "TERM",
-      symbols: [lexer.has("string") ? { type: "string" } : string],
-      postprocess: function (d) {
-        const start = d[0].offset;
-        const end = d[0].offset + d[0].value.length;
-        return { type: "term", value: d[0].value, d: d[0], start, end, length: d[0].value.length };
-      },
-    },
-    {
-      name: "TERM",
-      symbols: [
-        lexer.has("string") ? { type: "string" } : string,
-        lexer.has("access") ? { type: "access" } : access,
-        lexer.has("string") ? { type: "string" } : string,
-      ],
+      name: "EXPRESSION",
+      symbols: ["TERM", lexer.has("access") ? { type: "access" } : access, "TERM"],
       postprocess: function (d) {
         const start = d[0].offset;
         const end = d[2].offset + d[2].value.length;
@@ -169,7 +159,7 @@ const grammar: Grammar = {
       },
     },
     {
-      name: "TERM",
+      name: "EXPRESSION",
       symbols: [lexer.has("func_has") ? { type: "func_has" } : func_has, { literal: "attachment" }],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -178,7 +168,7 @@ const grammar: Grammar = {
       },
     },
     {
-      name: "TERM",
+      name: "EXPRESSION",
       symbols: [lexer.has("func_has") ? { type: "func_has" } : func_has, { literal: "uri" }],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -187,7 +177,7 @@ const grammar: Grammar = {
       },
     },
     {
-      name: "TERM",
+      name: "EXPRESSION",
       symbols: [lexer.has("func_has") ? { type: "func_has" } : func_has, { literal: "folder" }],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -196,7 +186,7 @@ const grammar: Grammar = {
       },
     },
     {
-      name: "TERM",
+      name: "EXPRESSION",
       symbols: [lexer.has("func_has") ? { type: "func_has" } : func_has, { literal: "collection" }],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -205,12 +195,12 @@ const grammar: Grammar = {
       },
     },
     {
-      name: "TERM",
+      name: "EXPRESSION",
       symbols: [
         lexer.has("func_in") ? { type: "func_in" } : func_in,
         { literal: "folder" },
         lexer.has("access") ? { type: "access" } : access,
-        lexer.has("string") ? { type: "string" } : string,
+        "TERM",
       ],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -219,12 +209,12 @@ const grammar: Grammar = {
       },
     },
     {
-      name: "TERM",
+      name: "EXPRESSION",
       symbols: [
         lexer.has("func_in") ? { type: "func_in" } : func_in,
         { literal: "collection" },
         lexer.has("access") ? { type: "access" } : access,
-        lexer.has("string") ? { type: "string" } : string,
+        "TERM",
       ],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -240,12 +230,12 @@ const grammar: Grammar = {
       },
     },
     {
-      name: "TERM",
+      name: "EXPRESSION",
       symbols: [
         lexer.has("func_in") ? { type: "func_in" } : func_in,
         { literal: "org" },
         lexer.has("access") ? { type: "access" } : access,
-        lexer.has("string") ? { type: "string" } : string,
+        "TERM",
       ],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -254,7 +244,7 @@ const grammar: Grammar = {
       },
     },
     {
-      name: "TERM",
+      name: "EXPRESSION",
       symbols: [lexer.has("func_is") ? { type: "func_is" } : func_is, { literal: "favorite" }],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -263,7 +253,7 @@ const grammar: Grammar = {
       },
     },
     {
-      name: "TERM",
+      name: "EXPRESSION",
       symbols: [lexer.has("NOT") ? { type: "NOT" } : NOT, "_", "PARENTHESES"],
       postprocess: function (d) {
         const start = d[0].offset;
@@ -274,6 +264,41 @@ const grammar: Grammar = {
           start,
           end: d[2].end,
           length: d[2].end - d[0].offset + 1,
+        };
+      },
+    },
+    {
+      name: "TERM",
+      symbols: [lexer.has("string") ? { type: "string" } : string],
+      postprocess: function (d) {
+        const start = d[0].offset;
+        const end = d[0].offset + d[0].value.length;
+        return {
+          type: "term",
+          value: d[0].value.replace(/^"/, "").replace(/"$/, "").replace(/\"/, '"'),
+          d: d[0],
+          start,
+          end,
+          length: d[0].value.length,
+        };
+      },
+    },
+    {
+      name: "TERM",
+      symbols: [lexer.has("contains_string") ? { type: "contains_string" } : contains_string],
+      postprocess: function (d) {
+        const start = d[0].offset;
+        const end = d[0].offset + d[0].value.length;
+        return {
+          type: "term",
+          value: d[0].value
+            .replace(/^contains:"?/, "*")
+            .replace(/"?$/, "*")
+            .replace(/\"/, '"'),
+          d: d[0],
+          start,
+          end,
+          length: d[0].value.length,
         };
       },
     },
