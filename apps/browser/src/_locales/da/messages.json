@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Køb premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Du kan købe premium-medlemskab i bitwarden.com web-boksen. Vil du besøge hjemmesiden nu?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Der kan købes Premium fra kontoindstillingerne via Bitwarden web-appen."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Brugernavngenerator"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Anvend denne adgangskode"

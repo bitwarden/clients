@@ -3,7 +3,6 @@
 import { firstValueFrom, map, mergeMap } from "rxjs";
 
 import { LockService } from "@bitwarden/auth/common";
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -16,6 +15,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { BiometricsCommands } from "@bitwarden/key-management";
 
@@ -240,7 +240,6 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        await this.notificationsService.updateConnection(msg.command === "loggedIn");
         this.processReloadSerivce.cancelProcessReload();
 
         if (item) {

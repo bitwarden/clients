@@ -3,7 +3,6 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { InfiniteScrollDirective } from "ngx-infinite-scroll";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -49,7 +48,6 @@ import "./locales";
     DragDropModule,
     FormsModule,
     ReactiveFormsModule,
-    InfiniteScrollDirective,
     RouterModule,
     JslibModule,
 
@@ -86,7 +84,6 @@ import "./locales";
     DragDropModule,
     FormsModule,
     ReactiveFormsModule,
-    InfiniteScrollDirective,
     RouterModule,
     JslibModule,
 

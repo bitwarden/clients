@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "프리미엄 멤버십 구입"
   },
-  "premiumPurchaseAlert": {
-    "message": "bitwarden.com 웹 보관함에서 프리미엄 멤버십을 구입할 수 있습니다. 지금 웹 사이트를 방문하시겠습니까?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "catch-all이 설정된 내 도메인의 메일함을 사용하세요."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "무작위"

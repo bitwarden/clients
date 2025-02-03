@@ -26,7 +26,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
-  DialogService,
   Icons,
   NoItemsModule,
   SearchModule,
@@ -38,9 +37,6 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { openAppAtRiskMembersDialog } from "./app-at-risk-members-dialog.component";
-import { OrgAtRiskAppsDialogComponent } from "./org-at-risk-apps-dialog.component";
-import { OrgAtRiskMembersDialogComponent } from "./org-at-risk-members-dialog.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
@@ -131,7 +127,6 @@ export class AllApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     private accountService: AccountService,
     protected criticalAppsService: CriticalAppsService,
-    protected dialogService: DialogService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -176,24 +171,23 @@ export class AllApplicationsComponent implements OnInit {
   }
 
   showAppAtRiskMembers = async (applicationName: string) => {
-    openAppAtRiskMembersDialog(this.dialogService, {
+    const info = {
       members:
         this.dataSource.data.find((app) => app.applicationName === applicationName)
           ?.atRiskMemberDetails ?? [],
       applicationName,
-    });
+    };
+    this.dataService.setDrawerForAppAtRiskMembers(info);
   };
 
   showOrgAtRiskMembers = async () => {
-    this.dialogService.open(OrgAtRiskMembersDialogComponent, {
-      data: this.reportService.generateAtRiskMemberList(this.dataSource.data),
-    });
+    const dialogData = this.reportService.generateAtRiskMemberList(this.dataSource.data);
+    this.dataService.setDrawerForOrgAtRiskMembers(dialogData);
   };
 
   showOrgAtRiskApps = async () => {
-    this.dialogService.open(OrgAtRiskAppsDialogComponent, {
-      data: this.reportService.generateAtRiskApplicationList(this.dataSource.data),
-    });
+    const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
+    this.dataService.setDrawerForOrgAtRiskApps(data);
   };
 
   onCheckboxChange(applicationName: string, event: Event) {

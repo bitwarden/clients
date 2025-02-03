@@ -1203,6 +1203,9 @@
   "logInInitiated": {
     "message": "Log in initiated"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "submit": {
     "message": "Submit"
   },
@@ -1392,11 +1395,38 @@
   "notificationSentDevice": {
     "message": "A notification has been sent to your device."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "Version $VERSION_NUMBER$",
@@ -1792,7 +1822,7 @@
   },
   "requestPending": {
     "message": "Request pending"
-  },  
+  },
   "logBackInOthersToo": {
     "message": "Please log back in. If you are using other Bitwarden applications log out and back in to those as well."
   },
@@ -1860,12 +1890,6 @@
   "dangerZone": {
     "message": "Danger zone"
   },
-  "dangerZoneDesc": {
-    "message": "Careful, these actions are not reversible!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "Deauthorize sessions"
   },
@@ -1874,6 +1898,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Proceeding will also log you out of your current session, requiring you to log back in. You will also be prompted for two-step login again, if set up. Active sessions on other devices may continue to remain active for up to one hour."
+  },
+  "newDeviceLoginProtection": {
+    "message":"New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message":"Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message":"Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message":"Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message":"Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message":"With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "All sessions deauthorized"
@@ -2176,8 +2221,20 @@
   "manage": {
     "message": "Manage"
   },
-  "canManage": {
-    "message": "Can manage"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "Turn off"
@@ -2374,11 +2431,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "There was a problem reading the security key. Try again."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used. Supported platforms:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Web vault and browser extensions on a desktop/laptop with a WebAuthn supported browser (Chrome, Opera, Vivaldi, or Firefox with FIDO U2F turned on)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Your Bitwarden two-step login recovery code"
@@ -6752,6 +6806,9 @@
   "catchallEmailDesc": {
     "message": "Use your domain's configured catch-all inbox."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Random",
     "description": "Generates domain-based username using random letters"
@@ -7668,18 +7725,6 @@
   },
   "noCollection": {
     "message": "No collection"
-  },
-  "canView": {
-    "message": "Can view"
-  },
-  "canViewExceptPass": {
-    "message": "Can view, except passwords"
-  },
-  "canEdit": {
-    "message": "Can edit"
-  },
-  "canEditExceptPass": {
-    "message": "Can edit, except passwords"
   },
   "noCollectionsAdded": {
     "message": "No collections added"
@@ -8627,6 +8672,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"

@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "প্রিমিয়াম কিনুন"
   },
-  "premiumPurchaseAlert": {
-    "message": "আপনি bitwarden.com ওয়েব ভল্টে প্রিমিয়াম সদস্যতা কিনতে পারেন। আপনি কি এখনই ওয়েবসাইটটি দেখতে চান?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Username generator"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Use this password"

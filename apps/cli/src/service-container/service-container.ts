@@ -355,6 +355,7 @@ export class ServiceContainer {
       this.messagingService,
       this.logService,
       this.globalStateProvider,
+      this.singleUserStateProvider,
     );
 
     this.activeUserStateProvider = new DefaultActiveUserStateProvider(

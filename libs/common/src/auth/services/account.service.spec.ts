@@ -7,7 +7,10 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { FakeGlobalState } from "../../../spec/fake-state";
-import { FakeGlobalStateProvider } from "../../../spec/fake-state-provider";
+import {
+  FakeGlobalStateProvider,
+  FakeSingleUserStateProvider,
+} from "../../../spec/fake-state-provider";
 import { trackEmissions } from "../../../spec/utils";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
@@ -19,6 +22,7 @@ import {
   ACCOUNT_ACCOUNTS,
   ACCOUNT_ACTIVE_ACCOUNT_ID,
   ACCOUNT_ACTIVITY,
+  ACCOUNT_VERIFY_NEW_DEVICE_LOGIN,
   AccountServiceImplementation,
 } from "./account.service";
 
@@ -66,6 +70,7 @@ describe("accountService", () => {
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
   let globalStateProvider: FakeGlobalStateProvider;
+  let singleUserStateProvider: FakeSingleUserStateProvider;
   let sut: AccountServiceImplementation;
   let accountsState: FakeGlobalState<Record<UserId, AccountInfo>>;
   let activeAccountIdState: FakeGlobalState<UserId>;
@@ -77,8 +82,14 @@ describe("accountService", () => {
     messagingService = mock();
     logService = mock();
     globalStateProvider = new FakeGlobalStateProvider();
+    singleUserStateProvider = new FakeSingleUserStateProvider();
 
-    sut = new AccountServiceImplementation(messagingService, logService, globalStateProvider);
+    sut = new AccountServiceImplementation(
+      messagingService,
+      logService,
+      globalStateProvider,
+      singleUserStateProvider,
+    );
 
     accountsState = globalStateProvider.getFake(ACCOUNT_ACCOUNTS);
     activeAccountIdState = globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID);
@@ -125,6 +136,22 @@ describe("accountService", () => {
       expect(await firstValueFrom(sut.accounts$)).toEqual({
         [userId]: userInfo,
       });
+    });
+  });
+
+  describe("accountsVerifyNewDeviceLogin$", () => {
+    it("returns expected value", async () => {
+      // Arrange
+      const expected = true;
+      // we need to set this state since it is how we initialize the VerifyNewDeviceLogin$
+      activeAccountIdState.stateSubject.next(userId);
+      singleUserStateProvider.getFake(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN).nextState(expected);
+
+      // Act
+      const result = await firstValueFrom(sut.accountVerifyNewDeviceLogin$);
+
+      // Assert
+      expect(result).toEqual(expected);
     });
   });
 
@@ -221,6 +248,33 @@ describe("accountService", () => {
     it("should not update if the email is the same", async () => {
       await sut.setAccountEmailVerified(userId, false);
       const currentState = await firstValueFrom(accountsState.state$);
+
+      expect(currentState).toEqual(initialState);
+    });
+  });
+
+  describe("setAccountVerifyNewDeviceLogin", () => {
+    const initialState = true;
+    beforeEach(() => {
+      activeAccountIdState.stateSubject.next(userId);
+      singleUserStateProvider
+        .getFake(userId, ACCOUNT_VERIFY_NEW_DEVICE_LOGIN)
+        .nextState(initialState);
+    });
+
+    it("should update the VerifyNewDeviceLogin", async () => {
+      const expected = false;
+      expect(await firstValueFrom(sut.accountVerifyNewDeviceLogin$)).toEqual(initialState);
+
+      await sut.setAccountVerifyNewDeviceLogin(userId, expected);
+      const currentState = await firstValueFrom(sut.accountVerifyNewDeviceLogin$);
+
+      expect(currentState).toEqual(expected);
+    });
+
+    it("should NOT update VerifyNewDeviceLogin when userId is null", async () => {
+      await sut.setAccountVerifyNewDeviceLogin(null, false);
+      const currentState = await firstValueFrom(sut.accountVerifyNewDeviceLogin$);
 
       expect(currentState).toEqual(initialState);
     });
