@@ -10,10 +10,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { Account } from "@bitwarden/importer/core";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { Account } from "../../../../../../../libs/importer/src/importers/lastpass/access/models";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 
 import { AdminConsoleCipherFormConfigService } from "./admin-console-cipher-form-config.service";

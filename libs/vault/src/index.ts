@@ -1,4 +1,5 @@
 export { PasswordRepromptService } from "./services/password-reprompt.service";
+export { NewDeviceVerificationNoticeService } from "./services/new-device-verification-notice.service";
 export { CopyCipherFieldService, CopyAction } from "./services/copy-cipher-field.service";
 export { CopyCipherFieldDirective } from "./components/copy-cipher-field.directive";
 export { OrgIconDirective } from "./components/org-icon.directive";
