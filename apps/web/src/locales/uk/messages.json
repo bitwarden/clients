@@ -113,6 +113,39 @@
   "atRiskMembers": {
     "message": "Ризиковані учасники"
   },
+  "atRiskMembersWithCount": {
+    "message": "Учасники з ризиком ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskApplicationsWithCount": {
+    "message": "Програми з ризиком ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "atRiskMembersDescription": {
+    "message": "Ці учасники використовують у програмах слабкі, викриті, або повторювані паролі."
+  },
+  "atRiskApplicationsDescription": {
+    "message": "Ці програми мають слабкі, викриті, або повторювані паролі."
+  },
+  "atRiskMembersDescriptionWithApp": {
+    "message": "Ці учасники використовують у $APPNAME$ слабкі, викриті, або повторювані паролі.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
     "message": "Всього учасників"
   },
@@ -121,6 +154,12 @@
   },
   "totalApplications": {
     "message": "Всього програм"
+  },
+  "unmarkAsCriticalApp": {
+    "message": "Зняти позначку критичної програми"
+  },
+  "criticalApplicationSuccessfullyUnmarked": {
+    "message": "Позначку критичної програми знято"
   },
   "whatTypeOfItem": {
     "message": "Який це тип запису?"
@@ -1128,6 +1167,18 @@
   "verifyIdentity": {
     "message": "Підтвердьте свою особу"
   },
+  "weDontRecognizeThisDevice": {
+    "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
+  },
+  "continueLoggingIn": {
+    "message": "Продовжити вхід"
+  },
+  "whatIsADevice": {
+    "message": "Що таке пристрій?"
+  },
+  "aDeviceIs": {
+    "message": "Пристрій – це унікальне встановлення програми Bitwarden, де ви увійшли в систему. Перевстановлення, очищення даних програми або очищення файлів cookie може призвести до того, що пристрій з'являтиметься кілька разів."
+  },
   "logInInitiated": {
     "message": "Ініційовано вхід"
   },
@@ -1715,6 +1766,12 @@
   "logBackIn": {
     "message": "Повторно виконайте вхід."
   },
+  "currentSession": {
+    "message": "Поточний сеанс"
+  },
+  "requestPending": {
+    "message": "Запит в очікуванні"
+  },
   "logBackInOthersToo": {
     "message": "Будь ласка, повторно виконайте вхід. Якщо ви користуєтесь іншими програмами Bitwarden, також вийдіть із них, і знову увійдіть."
   },
@@ -1782,12 +1839,6 @@
   "dangerZone": {
     "message": "Небезпечна зона"
   },
-  "dangerZoneDesc": {
-    "message": "Обережно, ці дії неможливо скасувати!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Обережно, цю дію неможливо скасувати!"
-  },
   "deauthorizeSessions": {
     "message": "Завершити сеанси"
   },
@@ -1796,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Продовжуючи, ви також вийдете з поточного сеансу і необхідно буде виконати вхід знову. Ви також отримаєте повторний запит двоетапної перевірки, якщо вона увімкнена. Активні сеанси на інших пристроях можуть залишатися активними протягом години."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Вхід з нового пристрою"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Вимкнути захист входу з нового пристрою"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Увімкнути захист входу з нового пристрою"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Виконайте наведені нижче дії, щоб вимкнути надсилання підтверджень під час входу з нового пристрою."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Виконайте наведені нижче дії, щоб увімкнути надсилання підтверджень під час входу з нового пристрою."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Якщо захист входу з нового пристрою вимкнено, будь-хто може отримати доступ до вашого облікового запису з будь-якого пристрою, знаючи головний пароль. Щоб захистити свій обліковий запис і не вмикати надсилання підтверджень, налаштуйте двоетапну перевірку."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Зміни захисту входу з нового пристрою збережено"
   },
   "sessionsDeauthorized": {
     "message": "Усі сеанси завершено"
@@ -3266,6 +3338,12 @@
       }
     }
   },
+  "inviteSingleEmailDesc": {
+    "message": "У вас залишилось 1 запрошення."
+  },
+  "inviteZeroEmailDesc": {
+    "message": "У вас залишилося 0 запрошень."
+  },
   "userUsingTwoStep": {
     "message": "Цей користувач використовує двоетапну перевірку для захисту свого облікового запису."
   },
@@ -3717,6 +3795,9 @@
       }
     }
   },
+  "unlinkedSso": {
+    "message": "Від'єднаний SSO."
+  },
   "unlinkedSsoUser": {
     "message": "Користувач $ID$ не має пов'язаного SSO.",
     "placeholders": {
@@ -3764,6 +3845,76 @@
   },
   "device": {
     "message": "Пристрій"
+  },
+  "loginStatus": {
+    "message": "Стан входу в систему"
+  },
+  "firstLogin": {
+    "message": "Перший вхід"
+  },
+  "trusted": {
+    "message": "Надійний"
+  },
+  "needsApproval": {
+    "message": "Потребує підтвердження"
+  },
+  "areYouTryingtoLogin": {
+    "message": "Ви намагаєтесь увійти?"
+  },
+  "logInAttemptBy": {
+    "message": "Спроба входу з $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "Тип пристрою"
+  },
+  "ipAddress": {
+    "message": "IP-адреса"
+  },
+  "confirmLogIn": {
+    "message": "Підтвердити вхід"
+  },
+  "denyLogIn": {
+    "message": "Заборонити вхід"
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "Цей запит більше недійсний."
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "Ви відхилили спробу входу з іншого пристрою. Якщо це були дійсно ви, спробуйте увійти з пристроєм знову."
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "Термін дії запиту на вхід завершився."
+  },
+  "justNow": {
+    "message": "Щойно"
+  },
+  "requestedXMinutesAgo": {
+    "message": "Запитано $MINUTES$ хвилин тому",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
   },
   "creatingAccountOn": {
     "message": "Створення облікового запису"
@@ -5655,6 +5806,20 @@
   "error": {
     "message": "Помилка"
   },
+  "decryptionError": {
+    "message": "Помилка розшифрування"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Зверніться до служби підтримки клієнтів,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "щоб уникнути втрати даних.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
   "accountRecoveryManageUsers": {
     "message": "Разом із дозволом на керування відновленням облікового запису також необхідно надати дозвіл на керування користувачами"
   },
@@ -6580,6 +6745,9 @@
   },
   "catchallEmailDesc": {
     "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
+  },
+  "useThisEmail": {
+    "message": "Використати цю е-пошту"
   },
   "random": {
     "message": "Випадково",
@@ -8133,33 +8301,33 @@
   "trustedDevices": {
     "message": "Довірені пристрої"
   },
-  "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Після автентифікації учасники розшифровуватимуть дані сховища з використанням ключа, збереженого на їхньому пристрої.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart1": {
+    "message": "Учасникам не потрібен головний пароль під час входу з використанням SSO. Натомість використовується ключ шифрування, що зберігається на пристрої, роблячи цей пристрій довіреним. Перший пристрій, на якому учасник реєструється і входить до системи, буде довіреним. Нові пристрої необхідно схвалити за допомогою наявного довіреного пристрою або адміністратором.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkOne": {
+  "memberDecryptionOptionTdeDescLink1": {
     "message": "Політику єдиної",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartTwo": {
+  "memberDecryptionOptionTdeDescPart2": {
     "message": "організації,",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+  "memberDecryptionOptionTdeDescLink2": {
     "message": "політику обов'язкового",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
+  "memberDecryptionOptionTdeDescPart3": {
     "message": "SSO та",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionLinkThree": {
+  "memberDecryptionOptionTdeDescLink3": {
     "message": "політику адміністрування облікового",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
-  "memberDecryptionOptionTdeDescriptionPartFour": {
-    "message": "запису з автоматичним розгортанням буде увімкнено, якщо використовується ця опція.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  "memberDecryptionOptionTdeDescPart4": {
+    "message": "запису буде ввімкнено, якщо використовується цей параметр.",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Оновлено дозволи вашої організації – вимагається встановлення головного пароля.",
@@ -8235,6 +8403,18 @@
   },
   "approveRequest": {
     "message": "Схвалити запит"
+  },
+  "deviceApproved": {
+    "message": "Пристрій схвалено"
+  },
+  "deviceRemoved": {
+    "message": "Пристрій вилучено"
+  },
+  "removeDevice": {
+    "message": "Вилучити пристрій"
+  },
+  "removeDeviceConfirmation": {
+    "message": "Ви дійсно хочете вилучити цей пристрій?"
   },
   "noDeviceRequests": {
     "message": "Немає запитів з пристрою"
@@ -8444,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Дозволити видалення збірок лише власникам та адміністраторам"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Обмежити видалення записів для учасників, які мають дозвіл \"Може керувати\""
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Власники та адміністратори можуть керувати всіма збірками та записами"
@@ -9123,6 +9306,9 @@
   "monthPerMember": {
     "message": "на місяць за учасника"
   },
+  "monthPerMemberBilledAnnually": {
+    "message": "місяць за учасника сплачується щороку"
+  },
   "seats": {
     "message": "Місця"
   },
@@ -9270,6 +9456,18 @@
   },
   "updatedTaxInformation": {
     "message": "Податкову інформацію оновлено"
+  },
+  "billingInvalidTaxIdError": {
+    "message": "Недійсний ІПН. Якщо ви вважаєте це помилкою, зверніться до служби підтримки."
+  },
+  "billingTaxIdTypeInferenceError": {
+    "message": "Не вдалося перевірити ваш ІПН. Якщо ви вважаєте це помилкою, зверніться до служби підтримки."
+  },
+  "billingPreviewInvalidTaxIdError": {
+    "message": "Недійсний ІПН. Якщо ви вважаєте це помилкою, зверніться до служби підтримки."
+  },
+  "billingPreviewInvoiceError": {
+    "message": "Під час перегляду рахунку виникла помилка. Повторіть спробу пізніше."
   },
   "unverified": {
     "message": "Не перевірений"
@@ -9631,6 +9829,15 @@
   "sshKeyAlgorithm": {
     "message": "Алгоритм ключа"
   },
+  "sshPrivateKey": {
+    "message": "Закритий ключ"
+  },
+  "sshPublicKey": {
+    "message": "Відкритий ключ"
+  },
+  "sshFingerprint": {
+    "message": "Цифровий відбиток"
+  },
   "sshKeyFingerprint": {
     "message": "Цифровий відбиток"
   },
@@ -9923,6 +10130,15 @@
   "removeMembers": {
     "message": "Вилучити учасників"
   },
+  "devices": {
+    "message": "Пристрої"
+  },
+  "deviceListDescription": {
+    "message": "Вхід у ваш обліковий запис виконано на пристроях, зазначених нижче. Якщо ви не розпізнаєте пристрій, вилучіть його."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Вхід у ваш обліковий запис виконано на пристроях, зазначених нижче."
+  },
   "claimedDomains": {
     "message": "Заявлені домени"
   },
@@ -10007,5 +10223,63 @@
   },
   "organizationNameMaxLength": {
     "message": "Назва організації не може перевищувати 50 символів."
+  },
+  "resellerRenewalWarningMsg": {
+    "message": "Ваша передплата невдовзі поновиться. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $RENEWAL_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "renewal_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      }
+    }
+  },
+  "resellerOpenInvoiceWarningMgs": {
+    "message": "Рахунок за вашу передплату випущено $ISSUED_DATE$. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $DUE_DATE$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "issued_date": {
+        "content": "$2",
+        "example": "01/01/2024"
+      },
+      "due_date": {
+        "content": "$3",
+        "example": "01/15/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsg": {
+    "message": "Рахунок за вашу передплату ще не сплачено. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "reseller": {
+        "content": "$1",
+        "example": "Reseller Name"
+      },
+      "grace_period_end": {
+        "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "restartOrganizationSubscription": {
+    "message": "Передплату організації розпочато повторно"
+  },
+  "restartSubscription": {
+    "message": "Розпочніть повторно свою передплату"
+  },
+  "suspendedManagedOrgMessage": {
+    "message": "Звернутися до $PROVIDER$ по допомогу.",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
   }
 }

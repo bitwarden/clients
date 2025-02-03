@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationApiKeyRequest } from "../../../admin-console/models/request/organization-api-key.request";
@@ -14,6 +13,7 @@ import { OrganizationSmSubscriptionUpdateRequest } from "../../../billing/models
 import { OrganizationSubscriptionUpdateRequest } from "../../../billing/models/request/organization-subscription-update.request";
 import { PaymentRequest } from "../../../billing/models/request/payment.request";
 import { SecretsManagerSubscribeRequest } from "../../../billing/models/request/sm-subscribe.request";
+import { BillingHistoryResponse } from "../../../billing/models/response/billing-history.response";
 import { BillingResponse } from "../../../billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "../../../billing/models/response/organization-subscription.response";
 import { PaymentResponse } from "../../../billing/models/response/payment.response";

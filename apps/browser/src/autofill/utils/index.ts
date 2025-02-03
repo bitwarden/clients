@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
@@ -36,7 +37,9 @@ export function requestIdleCallbackPolyfill(
     return globalThis.requestIdleCallback(() => callback(), options);
   }
 
-  return globalThis.setTimeout(() => callback(), 1);
+  const timeoutDelay = options?.timeout || 1;
+
+  return globalThis.setTimeout(() => callback(), timeoutDelay);
 }
 
 /**
@@ -544,3 +547,31 @@ export const specialCharacterToKeyMap: Record<string, string> = {
   "?": "questionCharacterDescriptor",
   "/": "forwardSlashCharacterDescriptor",
 };
+
+/**
+ * Determines if the current rect values are not all 0.
+ */
+export function rectHasSize(rect: FieldRect): boolean {
+  if (rect.right > 0 && rect.left > 0 && rect.top > 0 && rect.bottom > 0) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Checks if all the values corresponding to the specified keys in an object are null.
+ * If no keys are specified, checks all keys in the object.
+ *
+ * @param obj - The object to check.
+ * @param keys - An optional array of keys to check in the object. Defaults to all keys.
+ * @returns Returns true if all values for the specified keys (or all keys if none are provided) are null; otherwise, false.
+ */
+export function areKeyValuesNull<T extends Record<string, any>>(
+  obj: T,
+  keys?: Array<keyof T>,
+): boolean {
+  const keysToCheck = keys && keys.length > 0 ? keys : (Object.keys(obj) as Array<keyof T>);
+
+  return keysToCheck.every((key) => obj[key] == null);
+}

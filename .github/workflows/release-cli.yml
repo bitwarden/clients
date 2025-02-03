@@ -23,7 +23,7 @@ jobs:
     name: Setup
     runs-on: ubuntu-22.04
     outputs:
-      release-version: ${{ steps.version.outputs.version }}
+      release_version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -73,9 +73,9 @@ jobs:
 
       - name: Create release
         if: ${{ inputs.release_type != 'Dry Run' }}
-        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
         env:
-          PKG_VERSION: ${{ needs.setup.outputs.release-version }}
+          PKG_VERSION: ${{ needs.setup.outputs.release_version }}
         with:
           artifacts: "apps/cli/bw-oss-windows-${{ env.PKG_VERSION }}.zip,
                       apps/cli/bw-oss-windows-sha256-${{ env.PKG_VERSION }}.txt,

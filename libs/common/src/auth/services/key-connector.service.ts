@@ -3,6 +3,8 @@
 import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   Argon2KdfConfig,
   KdfConfig,
@@ -12,7 +14,6 @@ import {
 } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
-import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../admin-console/enums";
 import { Organization } from "../../admin-console/models/domain/organization";
 import { KeysRequest } from "../../models/request/keys.request";
@@ -28,7 +29,6 @@ import {
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { MasterKey } from "../../types/key";
-import { AccountService } from "../abstractions/account.service";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import { TokenService } from "../abstractions/token.service";
@@ -122,7 +122,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   }
 
   async getManagingOrganization(userId?: UserId): Promise<Organization> {
-    const orgs = await this.organizationService.getAll(userId);
+    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
     return orgs.find(
       (o) =>
         o.keyConnectorEnabled &&

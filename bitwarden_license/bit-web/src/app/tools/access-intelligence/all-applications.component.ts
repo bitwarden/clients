@@ -1,19 +1,26 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { debounceTime, map, Observable, of, Subscription } from "rxjs";
+import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, skipWhile } from "rxjs";
 
 import {
+  CriticalAppsService,
   RiskInsightsDataService,
   RiskInsightsReportService,
 } from "@bitwarden/bit-common/tools/reports/risk-insights";
 import {
   ApplicationHealthReportDetail,
+  ApplicationHealthReportDetailWithCriticalFlag,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/tools/reports/risk-insights/models/password-health";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -46,16 +53,20 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
     SharedModule,
   ],
 })
-export class AllApplicationsComponent implements OnInit, OnDestroy {
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetail>();
-  protected selectedIds: Set<number> = new Set<number>();
+export class AllApplicationsComponent implements OnInit {
+  protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
+  protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
-  protected organization = {} as Organization;
+  protected organization = new Organization();
   noItemsIcon = Icons.Security;
   protected markingAsCritical = false;
-  protected applicationSummary = {} as ApplicationHealthReportSummary;
-  private subscription = new Subscription();
+  protected applicationSummary: ApplicationHealthReportSummary = {
+    totalMemberCount: 0,
+    totalAtRiskMemberCount: 0,
+    totalApplicationCount: 0,
+    totalAtRiskApplicationCount: 0,
+  };
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
@@ -66,28 +77,43 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
       FeatureFlag.CriticalApps,
     );
 
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (organizationId) {
-      this.organization = await this.organizationService.get(organizationId);
-      this.subscription = this.dataService.applications$
+      const organization$ = this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(organizationId));
+
+      combineLatest([
+        this.dataService.applications$,
+        this.criticalAppsService.getAppsListForOrg(organizationId),
+        organization$,
+      ])
         .pipe(
-          map((applications) => {
-            if (applications) {
-              this.dataSource.data = applications;
-              this.applicationSummary =
-                this.reportService.generateApplicationsSummary(applications);
-            }
-          }),
           takeUntilDestroyed(this.destroyRef),
+          skipWhile(([_, __, organization]) => !organization),
+          map(([applications, criticalApps, organization]) => {
+            const criticalUrls = criticalApps.map((ca) => ca.uri);
+            const data = applications?.map((app) => ({
+              ...app,
+              isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+            })) as ApplicationHealthReportDetailWithCriticalFlag[];
+            return { data, organization };
+          }),
         )
-        .subscribe();
+        .subscribe(({ data, organization }) => {
+          if (data) {
+            this.dataSource.data = data;
+            this.applicationSummary = this.reportService.generateApplicationsSummary(data);
+          }
+          if (organization) {
+            this.organization = organization;
+          }
+        });
+
       this.isLoading$ = this.dataService.isLoading$;
     }
-  }
-
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
   }
 
   constructor(
@@ -99,6 +125,8 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     protected dataService: RiskInsightsDataService,
     protected organizationService: OrganizationService,
     protected reportService: RiskInsightsReportService,
+    private accountService: AccountService,
+    protected criticalAppsService: CriticalAppsService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -114,33 +142,62 @@ export class AllApplicationsComponent implements OnInit, OnDestroy {
     });
   };
 
+  isMarkedAsCriticalItem(applicationName: string) {
+    return this.selectedUrls.has(applicationName);
+  }
+
   markAppsAsCritical = async () => {
-    // TODO: Send to API once implemented
     this.markingAsCritical = true;
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.selectedIds.clear();
-        this.toastService.showToast({
-          variant: "success",
-          title: "",
-          message: this.i18nService.t("appsMarkedAsCritical"),
-        });
-        resolve(true);
-        this.markingAsCritical = false;
-      }, 1000);
-    });
+
+    try {
+      await this.criticalAppsService.setCriticalApps(
+        this.organization.id,
+        Array.from(this.selectedUrls),
+      );
+
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("appsMarkedAsCritical"),
+      });
+    } finally {
+      this.selectedUrls.clear();
+      this.markingAsCritical = false;
+    }
   };
 
   trackByFunction(_: number, item: ApplicationHealthReportDetail) {
     return item.applicationName;
   }
 
-  onCheckboxChange(id: number, event: Event) {
+  showAppAtRiskMembers = async (applicationName: string) => {
+    const info = {
+      members:
+        this.dataSource.data.find((app) => app.applicationName === applicationName)
+          ?.atRiskMemberDetails ?? [],
+      applicationName,
+    };
+    this.dataService.setDrawerForAppAtRiskMembers(info);
+  };
+
+  showOrgAtRiskMembers = async () => {
+    const dialogData = this.reportService.generateAtRiskMemberList(this.dataSource.data);
+    this.dataService.setDrawerForOrgAtRiskMembers(dialogData);
+  };
+
+  showOrgAtRiskApps = async () => {
+    const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
+    this.dataService.setDrawerForOrgAtRiskApps(data);
+  };
+
+  onCheckboxChange(applicationName: string, event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
     if (isChecked) {
-      this.selectedIds.add(id);
+      this.selectedUrls.add(applicationName);
     } else {
-      this.selectedIds.delete(id);
+      this.selectedUrls.delete(applicationName);
     }
   }
+
+  getSelectedUrls = () => Array.from(this.selectedUrls);
 }

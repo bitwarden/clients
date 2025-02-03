@@ -29,6 +29,7 @@ import {
   map,
   shareReplay,
   switchMap,
+  take,
   takeUntil,
   tap,
 } from "rxjs/operators";
@@ -46,7 +47,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
@@ -75,12 +79,13 @@ import { DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CollectionAssignmentResult,
+  DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
 import { TrialFlowService } from "../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../core/types/free-trial";
+import { FreeTrial } from "../../billing/types/free-trial";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
@@ -144,6 +149,7 @@ const SearchTextDebounceInterval = 200;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
+    DecryptionFailureDialogComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -190,7 +196,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   private hasSubscription$ = new BehaviorSubject<boolean>(false);
 
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
-  private readonly unpaidSubscriptionDialog$ = this.organizationService.organizations$.pipe(
+  private organizations$ = this.accountService.activeAccount$
+    .pipe(map((a) => a?.id))
+    .pipe(switchMap((id) => this.organizationService.organizations$(id)));
+
+  private readonly unpaidSubscriptionDialog$ = this.organizations$.pipe(
     filter((organizations) => organizations.length === 1),
     map(([organization]) => organization),
     switchMap((organization) =>
@@ -209,9 +219,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
     ),
   );
-
   protected organizationsPaymentStatus$: Observable<FreeTrial[]> = combineLatest([
-    this.organizationService.organizations$.pipe(
+    this.organizations$.pipe(
       map(
         (organizations) =>
           organizations?.filter((org) => org.isOwner && org.canViewBillingHistory) ?? [],
@@ -359,13 +368,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
+        const failedCiphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$);
         const filterFunction = createFilterFunction(filter);
+        // Append any failed to decrypt ciphers to the top of the cipher list
+        const allCiphers = [...failedCiphers, ...ciphers];
 
         if (await this.searchService.isSearchable(searchText)) {
-          return await this.searchService.searchCiphers(searchText, [filterFunction], ciphers);
+          return await this.searchService.searchCiphers(searchText, [filterFunction], allCiphers);
         }
 
-        return ciphers.filter(filterFunction);
+        return allCiphers.filter(filterFunction);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -436,6 +448,18 @@ export class VaultComponent implements OnInit, OnDestroy {
                 action = "view";
               }
 
+              if (action == "showFailedToDecrypt") {
+                DecryptionFailureDialogComponent.open(this.dialogService, {
+                  cipherIds: [cipherId as CipherId],
+                });
+                await this.router.navigate([], {
+                  queryParams: { itemId: null, cipherId: null, action: null },
+                  queryParamsHandling: "merge",
+                  replaceUrl: true,
+                });
+                return;
+              }
+
               if (action === "view") {
                 await this.viewCipherById(cipherId);
               } else {
@@ -458,6 +482,20 @@ export class VaultComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
+    firstSetup$
+      .pipe(
+        switchMap(() => this.cipherService.failedToDecryptCiphers$),
+        map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
+        filter((ciphers) => ciphers.length > 0),
+        take(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((ciphers) => {
+        DecryptionFailureDialogComponent.open(this.dialogService, {
+          cipherIds: ciphers.map((c) => c.id as CipherId),
+        });
+      });
+
     this.unpaidSubscriptionDialog$.pipe(takeUntil(this.destroy$)).subscribe();
 
     firstSetup$
@@ -467,9 +505,9 @@ export class VaultComponent implements OnInit, OnDestroy {
         switchMap(() =>
           combineLatest([
             filter$,
-            this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$(this.activeUserId),
             allCollections$,
-            this.organizationService.organizations$,
+            this.organizations$,
             ciphers$,
             collections$,
             selectedCollection$,
@@ -614,7 +652,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.messagingService.send("premiumRequired");
       return;
     } else if (cipher.organizationId != null) {
-      const org = await this.organizationService.get(cipher.organizationId);
+      const org = await firstValueFrom(
+        this.organizations$.pipe(getOrganizationById(cipher.organizationId)),
+      );
       if (org != null && (org.maxStorageGb == null || org.maxStorageGb === 0)) {
         this.messagingService.send("upgradeOrganization", {
           organizationId: cipher.organizationId,
@@ -685,6 +725,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       mode,
       formConfig,
       activeCollectionId,
+      restore: this.restore,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
@@ -747,16 +788,26 @@ export class VaultComponent implements OnInit, OnDestroy {
       null,
       cipherType,
     );
+    const collectionId =
+      this.activeFilter.collectionId !== "AllCollections" && this.activeFilter.collectionId != null
+        ? this.activeFilter.collectionId
+        : null;
+    let organizationId =
+      this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
+        ? this.activeFilter.organizationId
+        : null;
+    // Attempt to get the organization ID from the collection if present
+    if (collectionId) {
+      const organizationIdFromCollection = (
+        await firstValueFrom(this.vaultFilterService.filteredCollections$)
+      ).find((c) => c.id === this.activeFilter.collectionId)?.organizationId;
+      if (organizationIdFromCollection) {
+        organizationId = organizationIdFromCollection;
+      }
+    }
     cipherFormConfig.initialValues = {
-      organizationId:
-        this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
-          ? (this.activeFilter.organizationId as OrganizationId)
-          : null,
-      collectionIds:
-        this.activeFilter.collectionId !== "AllCollections" &&
-        this.activeFilter.collectionId != null
-          ? [this.activeFilter.collectionId as CollectionId]
-          : [],
+      organizationId: organizationId as OrganizationId,
+      collectionIds: [collectionId as CollectionId],
       folderId: this.activeFilter.folderId,
     };
 
@@ -928,7 +979,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async deleteCollection(collection: CollectionView): Promise<void> {
-    const organization = await this.organizationService.get(collection.organizationId);
+    const organization = await firstValueFrom(
+      this.organizations$.pipe(getOrganizationById(collection.organizationId)),
+    );
     if (!collection.canDelete(organization)) {
       this.showMissingPermissionsError();
       return;
@@ -1025,7 +1078,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async restore(c: CipherView): Promise<boolean> {
+  restore = async (c: CipherView): Promise<boolean> => {
     if (!c.isDeleted) {
       return;
     }
@@ -1050,7 +1103,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.logService.error(e);
     }
-  }
+  };
 
   async bulkRestore(ciphers: CipherView[]) {
     if (ciphers.some((c) => !c.edit)) {
@@ -1093,9 +1146,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         .filter((i) => i.cipher === undefined)
         .map((i) => i.collection.organizationId);
       const orgs = await firstValueFrom(
-        this.organizationService.organizations$.pipe(
-          map((orgs) => orgs.filter((o) => orgIds.includes(o.id))),
-        ),
+        this.organizations$.pipe(map((orgs) => orgs.filter((o) => orgIds.includes(o.id)))),
       );
       await this.bulkDelete(ciphers, collections, orgs);
     }

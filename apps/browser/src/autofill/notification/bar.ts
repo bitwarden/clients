@@ -1,11 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ThemeTypes } from "@bitwarden/common/platform/enums";
+import { render } from "lit";
+
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { FilelessImportPort, FilelessImportType } from "../../tools/enums/fileless-import.enums";
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
+import { NotificationContainer } from "../content/components/notification/container";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
@@ -13,13 +15,13 @@ import {
   NotificationBarWindowMessageHandlers,
   NotificationBarWindowMessage,
   NotificationBarIframeInitData,
+  NotificationType,
 } from "./abstractions/notification-bar";
-
-require("./bar.scss");
 
 const logService = new ConsoleLogService(false);
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
 let windowMessageOrigin: string;
+let useComponentBar = false;
 const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers = {
   initNotificationBar: ({ message }) => initNotificationBar(message),
   saveCipherAttemptCompleted: ({ message }) => handleSaveCipherAttemptCompletedMessage(message),
@@ -28,6 +30,17 @@ const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers
 globalThis.addEventListener("load", load);
 function load() {
   setupWindowMessageListener();
+  sendPlatformMessage({ command: "notificationRefreshFlagValue" }, (flagValue) => {
+    useComponentBar = flagValue;
+    applyNotificationBarStyle();
+  });
+}
+
+function applyNotificationBarStyle() {
+  if (!useComponentBar) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require("./bar.scss");
+  }
   postMessageToParent({ command: "initNotificationBar" });
 }
 
@@ -38,12 +51,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 
   notificationBarIframeInitData = initData;
-  const { isVaultLocked } = notificationBarIframeInitData;
-  setNotificationBarTheme();
-
-  (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
-    ? chrome.runtime.getURL("images/icon38_locked.png")
-    : chrome.runtime.getURL("images/icon38.png");
+  const { isVaultLocked, theme } = notificationBarIframeInitData;
 
   const i18n = {
     appName: chrome.i18n.getMessage("appName"),
@@ -57,12 +65,49 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
-    filelessImport: chrome.i18n.getMessage("filelessImport"),
-    lpFilelessImport: chrome.i18n.getMessage("lpFilelessImport"),
-    cancelFilelessImport: chrome.i18n.getMessage("no"),
-    lpCancelFilelessImport: chrome.i18n.getMessage("lpCancelFilelessImport"),
-    startFilelessImport: chrome.i18n.getMessage("startFilelessImport"),
+
+    // @TODO move values to message catalog
+    saveAction: "Save",
+    saveAsNewLoginAction: "Save as new login",
+    updateLoginAction: "Update login",
+    saveLoginPrompt: "Save login?",
+    updateLoginPrompt: "Update existing login?",
+    loginSaveSuccess: "Login saved",
+    loginSaveSuccessDetails: "Login saved to Bitwarden.",
+    loginUpdateSuccess: "Login saved",
+    loginUpdateSuccessDetails: "Login updated in Bitwarden.",
+    saveFailure: "Error saving",
+    saveFailureDetails: "Oh no! We couldn't save this. Try entering the details as a New item",
   };
+
+  if (useComponentBar) {
+    document.body.innerHTML = "";
+    // Current implementations utilize a require for scss files which creates the need to remove the node.
+    document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
+
+    const themeType = getTheme(globalThis, theme);
+
+    // There are other possible passed theme values, but for now, resolve to dark or light
+    const resolvedTheme: Theme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
+
+    // @TODO use context to avoid prop drilling
+    return render(
+      NotificationContainer({
+        ...notificationBarIframeInitData,
+        type: notificationBarIframeInitData.type as NotificationType,
+        theme: resolvedTheme,
+        handleCloseNotification,
+        i18n,
+      }),
+      document.body,
+    );
+  }
+
+  setNotificationBarTheme();
+
+  (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
+    ? chrome.runtime.getURL("images/icon38_locked.png")
+    : chrome.runtime.getURL("images/icon38.png");
 
   setupLogoLink(i18n);
 
@@ -105,46 +150,30 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
 
   unlockTemplate.content.getElementById("unlock-text").textContent = i18n.notificationUnlockDesc;
 
-  // i18n for "Fileless Import" (fileless-import) template
-  const isLpImport = initData.importType === FilelessImportType.LP;
-  const importTemplate = document.getElementById("template-fileless-import") as HTMLTemplateElement;
-
-  const startImportButton = importTemplate.content.getElementById("start-fileless-import");
-  startImportButton.textContent = i18n.startFilelessImport;
-
-  const cancelImportButton = importTemplate.content.getElementById("cancel-fileless-import");
-  cancelImportButton.textContent = isLpImport
-    ? i18n.lpCancelFilelessImport
-    : i18n.cancelFilelessImport;
-
-  importTemplate.content.getElementById("fileless-import-text").textContent = isLpImport
-    ? i18n.lpFilelessImport
-    : i18n.filelessImport;
-
   // i18n for body content
   const closeButton = document.getElementById("close-button");
   closeButton.title = i18n.close;
 
   const notificationType = initData.type;
-  if (initData.type === "add") {
+  if (notificationType === "add") {
     handleTypeAdd();
   } else if (notificationType === "change") {
     handleTypeChange();
   } else if (notificationType === "unlock") {
     handleTypeUnlock();
-  } else if (notificationType === "fileless-import") {
-    handleTypeFilelessImport();
   }
 
-  closeButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    sendPlatformMessage({
-      command: "bgCloseNotificationBar",
-    });
-  });
+  closeButton.addEventListener("click", handleCloseNotification);
 
   globalThis.addEventListener("resize", adjustHeight);
   adjustHeight();
+}
+
+function handleCloseNotification(e: Event) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgCloseNotificationBar",
+  });
 }
 
 function handleTypeAdd() {
@@ -247,59 +276,6 @@ function handleTypeUnlock() {
   });
 }
 
-/**
- * Sets up a port to communicate with the fileless importer content script.
- * This connection to the background script is used to trigger the action of
- * downloading the CSV file from the LP importer or importing the data into
- * the Bitwarden vault.
- */
-function handleTypeFilelessImport() {
-  const importType = notificationBarIframeInitData.importType;
-  const port = chrome.runtime.connect({ name: FilelessImportPort.NotificationBar });
-  setContent(document.getElementById("template-fileless-import") as HTMLTemplateElement);
-
-  const startFilelessImportButton = document.getElementById("start-fileless-import");
-  const startFilelessImport = () => {
-    port.postMessage({ command: "startFilelessImport", importType });
-    document.getElementById("fileless-import-buttons").textContent =
-      chrome.i18n.getMessage("importing");
-    startFilelessImportButton.removeEventListener("click", startFilelessImport);
-  };
-  startFilelessImportButton.addEventListener("click", startFilelessImport);
-
-  const cancelFilelessImportButton = document.getElementById("cancel-fileless-import");
-  cancelFilelessImportButton.addEventListener("click", () => {
-    port.postMessage({ command: "cancelFilelessImport", importType });
-  });
-
-  const handlePortMessage = (msg: any) => {
-    if (msg.command !== "filelessImportCompleted" && msg.command !== "filelessImportFailed") {
-      return;
-    }
-
-    port.disconnect();
-
-    const filelessImportButtons = document.getElementById("fileless-import-buttons");
-    const notificationBarOuterWrapper = document.getElementById("notification-bar-outer-wrapper");
-
-    if (msg.command === "filelessImportCompleted") {
-      filelessImportButtons.textContent = chrome.i18n.getMessage("dataSuccessfullyImported");
-      filelessImportButtons.prepend(buildSvgDomElement(circleCheckIcon));
-      filelessImportButtons.classList.add("success-message");
-      notificationBarOuterWrapper.classList.add("success-event");
-      adjustHeight();
-      return;
-    }
-
-    filelessImportButtons.textContent = chrome.i18n.getMessage("dataImportFailed");
-    filelessImportButtons.classList.add("error-message");
-    notificationBarOuterWrapper.classList.add("error-event");
-    adjustHeight();
-    logService.error(`Error Encountered During Import: ${msg.importErrorMessage}`);
-  };
-  port.onMessage.addListener(handlePortMessage);
-}
-
 function setContent(template: HTMLTemplateElement) {
   const content = document.getElementById("content");
   while (content.firstChild) {
@@ -392,13 +368,18 @@ function setupLogoLink(i18n: Record<string, string>) {
   sendPlatformMessage({ command: "getWebVaultUrlForNotification" }, setWebVaultUrlLink);
 }
 
-function setNotificationBarTheme() {
-  let theme = notificationBarIframeInitData.theme;
+function getTheme(globalThis: any, theme: NotificationBarIframeInitData["theme"]) {
   if (theme === ThemeTypes.System) {
-    theme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
+    return globalThis.matchMedia("(prefers-color-scheme: dark)").matches
       ? ThemeTypes.Dark
       : ThemeTypes.Light;
   }
+
+  return theme;
+}
+
+function setNotificationBarTheme() {
+  const theme = getTheme(globalThis, notificationBarIframeInitData.theme);
 
   document.documentElement.classList.add(`theme_${theme}`);
 

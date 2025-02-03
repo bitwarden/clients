@@ -1,10 +1,13 @@
+/* eslint-disable no-console */
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { homedir } from "os";
 
 import * as NodeIPC from "node-ipc";
 
+// eslint-disable-next-line no-restricted-imports
 import { MessageCommon } from "../../src/models/native-messaging/message-common";
+// eslint-disable-next-line no-restricted-imports
 import { UnencryptedMessageResponse } from "../../src/models/native-messaging/unencrypted-message-response";
 
 import Deferred from "./deferred";

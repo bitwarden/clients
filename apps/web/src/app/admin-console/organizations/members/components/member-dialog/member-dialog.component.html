@@ -2,9 +2,11 @@
   <bit-dialog [disablePadding]="!loading" dialogSize="large">
     <span bitDialogTitle>
       {{ title }}
-      <span class="tw-text-sm tw-normal-case tw-text-muted" *ngIf="!loading && params.name">{{
-        params.name
-      }}</span>
+      <span
+        class="tw-text-sm tw-normal-case tw-text-muted"
+        *ngIf="!loading && editParams$ && (editParams$ | async)?.name"
+        >{{ (editParams$ | async)?.name }}</span
+      >
       <span bitBadge variant="secondary" *ngIf="isRevoked">{{ "revoked" | i18n }}</span>
     </span>
     <div bitDialogContent>
@@ -23,14 +25,19 @@
         <bit-tab [label]="'role' | i18n">
           <ng-container *ngIf="!editMode">
             <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
-            <bit-form-field>
+            <bit-form-field *ngIf="{ seats: remainingSeats$ | async } as remaining">
               <bit-label>{{ "email" | i18n }}</bit-label>
               <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
-              <bit-hint>{{
-                "inviteMultipleEmailDesc"
-                  | i18n
-                    : (organization.productTierType === ProductTierType.TeamsStarter ? "10" : "20")
+
+              <bit-hint *ngIf="remaining.seats > 1">{{
+                "inviteMultipleEmailDesc" | i18n: remaining.seats
               }}</bit-hint>
+
+              <bit-hint *ngIf="remaining.seats === 1">{{
+                "inviteSingleEmailDesc" | i18n
+              }}</bit-hint>
+
+              <bit-hint *ngIf="remaining.seats === 0">{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
             </bit-form-field>
           </ng-container>
           <bit-radio-group formControlName="type">
@@ -263,7 +270,9 @@
         </button>
         <button
           *ngIf="
-            editMode && (!(accountDeprovisioningEnabled$ | async) || !params.managedByOrganization)
+            this.editMode &&
+            (!(accountDeprovisioningEnabled$ | async) ||
+              !(editParams$ | async)?.managedByOrganization)
           "
           type="button"
           bitIconButton="bwi-close"
@@ -275,7 +284,9 @@
         ></button>
         <button
           *ngIf="
-            editMode && (accountDeprovisioningEnabled$ | async) && params.managedByOrganization
+            this.editMode &&
+            (accountDeprovisioningEnabled$ | async) &&
+            (editParams$ | async)?.managedByOrganization
           "
           type="button"
           bitIconButton="bwi-trash"

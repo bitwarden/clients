@@ -6,15 +6,19 @@ import { CollectionService, CollectionView } from "@bitwarden/admin-console/comm
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { ObservableTracker } from "@bitwarden/common/spec";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { ObservableTracker, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 
@@ -41,6 +45,8 @@ describe("VaultPopupItemsService", () => {
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
   const inlineMenuFieldQualificationServiceMock = mock<InlineMenuFieldQualificationService>();
+  const userId = Utils.newGuid() as UserId;
+  const accountServiceMock = mockAccountServiceWith(userId);
 
   beforeEach(() => {
     allCiphers = cipherFactory(10);
@@ -58,6 +64,7 @@ describe("VaultPopupItemsService", () => {
     cipherServiceMock.getAllDecrypted.mockResolvedValue(cipherList);
     cipherServiceMock.ciphers$ = new BehaviorSubject(null);
     cipherServiceMock.localData$ = new BehaviorSubject(null);
+    cipherServiceMock.failedToDecryptCiphers$ = new BehaviorSubject([]);
     searchService.searchCiphers.mockImplementation(async (_, __, ciphers) => ciphers);
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(c.id)),
@@ -96,7 +103,7 @@ describe("VaultPopupItemsService", () => {
       { id: "col2", name: "Collection 2" } as CollectionView,
     ];
 
-    organizationServiceMock.organizations$ = new BehaviorSubject([mockOrg]);
+    organizationServiceMock.organizations$.mockReturnValue(new BehaviorSubject([mockOrg]));
     collectionService.decryptedCollections$ = new BehaviorSubject(mockCollections);
 
     activeUserLastSync$ = new BehaviorSubject(new Date());
@@ -108,6 +115,7 @@ describe("VaultPopupItemsService", () => {
         { provide: VaultSettingsService, useValue: vaultSettingsServiceMock },
         { provide: SearchService, useValue: searchService },
         { provide: OrganizationService, useValue: organizationServiceMock },
+        { provide: AccountService, useValue: accountServiceMock },
         { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
         { provide: CollectionService, useValue: collectionService },
         { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
@@ -294,21 +302,6 @@ describe("VaultPopupItemsService", () => {
       });
     });
 
-    it("should sort by last used then by name by default", (done) => {
-      service.remainingCiphers$.subscribe(() => {
-        expect(cipherServiceMock.getLocaleSortingFunction).toHaveBeenCalled();
-        done();
-      });
-    });
-
-    it("should NOT sort by last used then by name when search text is applied", (done) => {
-      service.applyFilter("Login");
-      service.remainingCiphers$.subscribe(() => {
-        expect(cipherServiceMock.getLocaleSortingFunction).not.toHaveBeenCalled();
-        done();
-      });
-    });
-
     it("should filter remainingCiphers$ down to search term", (done) => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Login";
@@ -375,20 +368,17 @@ describe("VaultPopupItemsService", () => {
   });
 
   describe("deletedCiphers$", () => {
-    it("should return deleted ciphers", (done) => {
-      const ciphers = [
-        { id: "1", type: CipherType.Login, name: "Login 1", isDeleted: true },
-        { id: "2", type: CipherType.Login, name: "Login 2", isDeleted: true },
-        { id: "3", type: CipherType.Login, name: "Login 3", isDeleted: true },
-        { id: "4", type: CipherType.Login, name: "Login 4", isDeleted: false },
-      ] as CipherView[];
+    it("should return deleted ciphers", async () => {
+      const deletedCipher = new CipherView();
+      deletedCipher.deletedDate = new Date();
+      const ciphers = [new CipherView(), new CipherView(), new CipherView(), deletedCipher];
 
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
 
-      service.deletedCiphers$.subscribe((deletedCiphers) => {
-        expect(deletedCiphers.length).toBe(3);
-        done();
-      });
+      (cipherServiceMock.ciphers$ as BehaviorSubject<any>).next(null);
+
+      const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
+      expect(deletedCiphers.length).toBe(1);
     });
   });
 

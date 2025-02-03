@@ -52,11 +52,11 @@ export class VaultCipherRowComponent implements OnInit {
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
   private permissionPriority = [
-    "canManage",
-    "canEdit",
-    "canEditExceptPass",
-    "canView",
-    "canViewExceptPass",
+    "manageCollection",
+    "editItems",
+    "editItemsHidePass",
+    "viewItems",
+    "viewItemsHidePass",
   ];
   protected organization?: Organization;
 
@@ -76,6 +76,13 @@ export class VaultCipherRowComponent implements OnInit {
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }
+  }
+
+  protected get clickAction() {
+    if (this.cipher.decryptionFailure) {
+      return "showFailedToDecrypt";
+    }
+    return this.extensionRefreshEnabled ? "view" : null;
   }
 
   protected get showTotpCopyButton() {
@@ -111,7 +118,7 @@ export class VaultCipherRowComponent implements OnInit {
 
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
-      return this.i18nService.t("canManage");
+      return this.i18nService.t("manageCollection");
     }
 
     const filteredCollections = this.collections.filter((collection) => {

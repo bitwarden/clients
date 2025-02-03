@@ -9,6 +9,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { NewDeviceVerificationNoticeService } from "../../../../vault/src/services/new-device-verification-notice.service";
 import { VaultProfileService } from "../services/vault-profile.service";
 
@@ -34,7 +36,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
 
     return Promise.resolve(false);
   });
-  const isSelfHost = jest.fn().mockResolvedValue(false);
+  const isSelfHost = jest.fn().mockReturnValue(false);
   const getProfileTwoFactorEnabled = jest.fn().mockResolvedValue(false);
   const policyAppliesToActiveUser$ = jest.fn().mockReturnValue(new BehaviorSubject<boolean>(false));
   const noticeState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
@@ -133,6 +135,12 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
 
     getProfileCreationDate.mockResolvedValueOnce(sixDaysAgo);
+
+    expect(await newDeviceGuard()).toBe(true);
+  });
+
+  it("returns `true` when the profile service throws an error", async () => {
+    getProfileCreationDate.mockRejectedValueOnce(new Error("test"));
 
     expect(await newDeviceGuard()).toBe(true);
   });

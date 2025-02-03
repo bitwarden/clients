@@ -12,6 +12,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   ApplicationHealthReportDetail,
   ApplicationHealthReportSummary,
+  AtRiskMemberDetail,
+  AtRiskApplicationDetail,
   CipherHealthReportDetail,
   CipherHealthReportUriDetail,
   ExposedPasswordDetail,
@@ -90,6 +92,54 @@ export class RiskInsightsReportService {
   }
 
   /**
+   * Generates a list of members with at-risk passwords along with the number of at-risk passwords.
+   */
+  generateAtRiskMemberList(
+    cipherHealthReportDetails: ApplicationHealthReportDetail[],
+  ): AtRiskMemberDetail[] {
+    const memberRiskMap = new Map<string, number>();
+
+    cipherHealthReportDetails.forEach((app) => {
+      app.atRiskMemberDetails.forEach((member) => {
+        if (memberRiskMap.has(member.email)) {
+          memberRiskMap.set(member.email, memberRiskMap.get(member.email) + 1);
+        } else {
+          memberRiskMap.set(member.email, 1);
+        }
+      });
+    });
+
+    return Array.from(memberRiskMap.entries()).map(([email, atRiskPasswordCount]) => ({
+      email,
+      atRiskPasswordCount,
+    }));
+  }
+
+  generateAtRiskApplicationList(
+    cipherHealthReportDetails: ApplicationHealthReportDetail[],
+  ): AtRiskApplicationDetail[] {
+    const appsRiskMap = new Map<string, number>();
+
+    cipherHealthReportDetails
+      .filter((app) => app.atRiskPasswordCount > 0)
+      .forEach((app) => {
+        if (appsRiskMap.has(app.applicationName)) {
+          appsRiskMap.set(
+            app.applicationName,
+            appsRiskMap.get(app.applicationName) + app.atRiskPasswordCount,
+          );
+        } else {
+          appsRiskMap.set(app.applicationName, app.atRiskPasswordCount);
+        }
+      });
+
+    return Array.from(appsRiskMap.entries()).map(([applicationName, atRiskPasswordCount]) => ({
+      applicationName,
+      atRiskPasswordCount,
+    }));
+  }
+
+  /**
    * Gets the summary from the application health report. Returns total members and applications as well
    * as the total at risk members and at risk applications
    * @param reports The previously calculated application health report data
@@ -125,6 +175,7 @@ export class RiskInsightsReportService {
   ): Promise<CipherHealthReportDetail[]> {
     const cipherHealthReports: CipherHealthReportDetail[] = [];
     const passwordUseMap = new Map<string, number>();
+    const exposedDetails = await this.findExposedPasswords(ciphers);
     for (const cipher of ciphers) {
       if (this.validateCipher(cipher)) {
         const weakPassword = this.findWeakPassword(cipher);
@@ -139,7 +190,7 @@ export class RiskInsightsReportService {
           passwordUseMap.set(cipher.login.password, 1);
         }
 
-        const exposedPassword = await this.findExposedPassword(cipher);
+        const exposedPassword = exposedDetails.find((x) => x.cipherId === cipher.id);
 
         // Get the cipher members
         const cipherMembers = memberDetails.filter((x) => x.cipherId === cipher.id);
@@ -205,13 +256,29 @@ export class RiskInsightsReportService {
     return appReports;
   }
 
-  private async findExposedPassword(cipher: CipherView): Promise<ExposedPasswordDetail> {
-    const exposedCount = await this.auditService.passwordLeaked(cipher.login.password);
-    if (exposedCount > 0) {
-      const exposedDetail = { exposedXTimes: exposedCount } as ExposedPasswordDetail;
-      return exposedDetail;
-    }
-    return null;
+  private async findExposedPasswords(ciphers: CipherView[]): Promise<ExposedPasswordDetail[]> {
+    const exposedDetails: ExposedPasswordDetail[] = [];
+    const promises: Promise<void>[] = [];
+
+    ciphers.forEach((ciph) => {
+      if (this.validateCipher(ciph)) {
+        const promise = this.auditService
+          .passwordLeaked(ciph.login.password)
+          .then((exposedCount) => {
+            if (exposedCount > 0) {
+              const detail = {
+                exposedXTimes: exposedCount,
+                cipherId: ciph.id,
+              } as ExposedPasswordDetail;
+              exposedDetails.push(detail);
+            }
+          });
+        promises.push(promise);
+      }
+    });
+    await Promise.all(promises);
+
+    return exposedDetails;
   }
 
   private findWeakPassword(cipher: CipherView): WeakPasswordDetail {
@@ -295,7 +362,7 @@ export class RiskInsightsReportService {
       reportDetail.atRiskMemberDetails = this.getUniqueMembers(
         reportDetail.atRiskMemberDetails.concat(newUriDetail.cipherMembers),
       );
-      reportDetail.atRiskMemberCount += reportDetail.atRiskMemberDetails.length;
+      reportDetail.atRiskMemberCount = reportDetail.atRiskMemberDetails.length;
     }
 
     reportDetail.memberCount = reportDetail.memberDetails.length;

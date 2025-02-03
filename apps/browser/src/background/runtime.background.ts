@@ -3,7 +3,6 @@
 import { firstValueFrom, map, mergeMap } from "rxjs";
 
 import { LockService } from "@bitwarden/auth/common";
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -13,15 +12,17 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { BiometricsCommands } from "@bitwarden/key-management";
 
-import { MessageListener, isExternalMessage } from "../../../../libs/common/src/platform/messaging";
 import {
   closeUnlockPopout,
   openSsoAuthResultPopout,
-  openTwoFactorAuthPopout,
+  openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
@@ -71,8 +72,10 @@ export default class RuntimeBackground {
       sendResponse: (response: any) => void,
     ) => {
       const messagesWithResponse = [
-        "biometricUnlock",
-        "biometricUnlockAvailable",
+        BiometricsCommands.AuthenticateWithBiometrics,
+        BiometricsCommands.GetBiometricsStatus,
+        BiometricsCommands.UnlockWithBiometricsForUser,
+        BiometricsCommands.GetBiometricsStatusForUser,
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
         "getInlineMenuTotpFeatureFlag",
@@ -185,13 +188,17 @@ export default class RuntimeBackground {
             break;
         }
         break;
-      case "biometricUnlock": {
-        const result = await this.main.biometricsService.authenticateBiometric();
-        return result;
+      case BiometricsCommands.AuthenticateWithBiometrics: {
+        return await this.main.biometricsService.authenticateWithBiometrics();
       }
-      case "biometricUnlockAvailable": {
-        const result = await this.main.biometricsService.isBiometricUnlockAvailable();
-        return result;
+      case BiometricsCommands.GetBiometricsStatus: {
+        return await this.main.biometricsService.getBiometricsStatus();
+      }
+      case BiometricsCommands.UnlockWithBiometricsForUser: {
+        return await this.main.biometricsService.unlockWithBiometricsForUser(msg.userId);
+      }
+      case BiometricsCommands.GetBiometricsStatusForUser: {
+        return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(
@@ -202,8 +209,11 @@ export default class RuntimeBackground {
         return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
       }
       case "getUserPremiumStatus": {
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+        );
         const result = await firstValueFrom(
-          this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
         );
         return result;
       }
@@ -230,7 +240,6 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        await this.notificationsService.updateConnection(msg.command === "loggedIn");
         this.processReloadSerivce.cancelProcessReload();
 
         if (item) {
@@ -249,9 +258,7 @@ export default class RuntimeBackground {
         await this.main.refreshBadge();
         await this.main.refreshMenu(false);
 
-        if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
-          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-        }
+        await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         break;
       }
       case "addToLockedVaultPendingNotifications":
@@ -278,9 +285,7 @@ export default class RuntimeBackground {
           await this.configService.ensureConfigFetched();
           await this.main.updateOverlayCiphers();
 
-          if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
-            await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-          }
+          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
       case "openPopup":
@@ -327,7 +332,7 @@ export default class RuntimeBackground {
           return;
         }
 
-        await openTwoFactorAuthPopout(msg);
+        await openTwoFactorAuthWebAuthnPopout(msg);
         break;
       }
       case "reloadPopup":

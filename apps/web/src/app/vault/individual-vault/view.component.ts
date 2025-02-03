@@ -3,11 +3,13 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, firstValueFrom, map } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -24,7 +26,11 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { PremiumUpgradePromptService } from "../../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
 import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";
@@ -94,6 +100,7 @@ export class ViewComponent implements OnInit {
     private toastService: ToastService,
     private organizationService: OrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -103,8 +110,17 @@ export class ViewComponent implements OnInit {
     this.cipher = this.params.cipher;
     this.collections = this.params.collections;
     this.cipherTypeString = this.getCipherViewTypeString();
+
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     if (this.cipher.organizationId) {
-      this.organization = await this.organizationService.get(this.cipher.organizationId);
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(
+            map((organizations) => organizations.find((o) => o.id === this.cipher.organizationId)),
+          ),
+      );
     }
 
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [

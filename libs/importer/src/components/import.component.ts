@@ -23,11 +23,15 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -138,8 +142,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @Input() set organizationId(value: string) {
     this._organizationId = value;
-    this.organizationService
-      .get$(this._organizationId)
+    getUserId(this.accountService.activeAccount$)
+      .pipe(
+        switchMap((userId) =>
+          this.organizationService
+            .organizations$(userId)
+            .pipe(getOrganizationById(this._organizationId)),
+        ),
+      )
       .pipe(takeUntil(this.destroy$))
       .subscribe((organization) => {
         this._organizationId = organization?.id;
@@ -294,8 +304,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async initializeOrganizations() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.organizations$ = concat(
-      this.organizationService.memberOrganizations$.pipe(
+      this.organizationService.memberOrganizations$(userId).pipe(
         // Import is an alternative way to create collections during onboarding, so import from Password Manager
         // is available to any user who can create collections in the organization.
         map((orgs) => orgs.filter((org) => org.canAccessImport || org.canCreateNewCollections)),
@@ -408,7 +419,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!organizationId) {
       return false;
     }
-    return (await this.organizationService.get(this.organizationId))?.canAccessImport;
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    return (
+      await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.organizationId)),
+      )
+    )?.canAccessImport;
   }
 
   getFormatInstructionTitle() {
