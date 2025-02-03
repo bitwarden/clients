@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "പ്രീമിയം വാങ്ങുക"
   },
-  "premiumPurchaseAlert": {
-    "message": "നിങ്ങൾക്ക് bitwarden.com വെബ് വാൾട്ടിൽ പ്രീമിയം അംഗത്വം വാങ്ങാം. നിങ്ങൾക്ക് ഇപ്പോൾ വെബ്സൈറ്റ് സന്ദർശിക്കാൻ ആഗ്രഹമുണ്ടോ?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "Use your domain's configured catch-all inbox."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Random"

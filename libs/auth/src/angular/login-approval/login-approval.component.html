@@ -1,5 +1,5 @@
 <bit-dialog>
-  <span bitDialogTitle>{{ "areYouTryingtoLogin" | i18n }}</span>
+  <span bitDialogTitle>{{ "areYouTryingToAccessYourAccount" | i18n }}</span>
   <ng-container bitDialogContent>
     <ng-container *ngIf="loading">
       <div class="tw-flex tw-items-center tw-justify-center" *ngIf="loading">
@@ -8,7 +8,7 @@
     </ng-container>
 
     <ng-container *ngIf="!loading">
-      <h4 class="tw-mb-3">{{ "logInAttemptBy" | i18n: email }}</h4>
+      <h4 class="tw-mb-3">{{ "accessAttemptBy" | i18n: email }}</h4>
       <div>
         <b>{{ "fingerprintPhraseHeader" | i18n }}</b>
         <p class="tw-text-code">{{ fingerprintPhrase }}</p>
@@ -35,7 +35,7 @@
       [bitAction]="approveLogin"
       [disabled]="loading"
     >
-      {{ "confirmLogIn" | i18n }}
+      {{ "confirmAccess" | i18n }}
     </button>
     <button
       bitButton
@@ -44,7 +44,7 @@
       [bitAction]="denyLogin"
       [disabled]="loading"
     >
-      {{ "denyLogIn" | i18n }}
+      {{ "denyAccess" | i18n }}
     </button>
   </ng-container>
 </bit-dialog>

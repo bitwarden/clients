@@ -446,16 +446,16 @@
     "message": "Генерувати парольну фразу"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Пароль згенеровано"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Парольну фразу згенеровано"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Ім'я користувача згенеровано"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Адресу е-пошти згенеровано"
   },
   "regeneratePassword": {
     "message": "Генерувати новий"
@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Придбати преміум"
   },
-  "premiumPurchaseAlert": {
-    "message": "Ви можете передплатити преміум у сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Ви можете придбати Преміум у налаштуваннях облікового запису вебпрограмі Bitwarden."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Генератор імені користувача"
+  },
+  "useThisEmail": {
+    "message": "Використати цю е-пошту"
   },
   "useThisPassword": {
     "message": "Використати цей пароль"

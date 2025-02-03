@@ -1219,7 +1219,7 @@
     "message": "Dica da palavra-passe mestra"
   },
   "masterPassHintText": {
-    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ caracteres.",
+    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ carateres.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -1268,7 +1268,7 @@
     "message": "É necessário reescrever a palavra-passe mestra."
   },
   "masterPasswordMinlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ caracteres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ carateres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1653,15 +1653,15 @@
     "message": "Mínimo de números"
   },
   "minSpecial": {
-    "message": "Mínimo de caracteres especiais",
+    "message": "Mínimo de carateres especiais",
     "description": "Minimum special characters"
   },
   "ambiguous": {
-    "message": "Evitar caracteres ambíguos",
+    "message": "Evitar carateres ambíguos",
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Evitar caracteres ambíguos",
+    "message": "Evitar carateres ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "regeneratePassword": {
@@ -1686,7 +1686,7 @@
     "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Caracteres especiais (!@#$%^&*)"
+    "message": "Carateres especiais (!@#$%^&*)"
   },
   "numWords": {
     "message": "Número de palavras"
@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Zona de risco"
   },
-  "dangerZoneDesc": {
-    "message": "Cuidado, estas ações são irreversíveis!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Cuidado, esta ação não é reversível!"
-  },
   "deauthorizeSessions": {
     "message": "Desautorizar sessões"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Ao prosseguir, também terminará a sua sessão atual e terá de iniciar sessão novamente. Ser-lhe-á também pedido que volte efetuar a verificação de dois passos, se estiver configurada. As sessões ativas noutros dispositivos podem continuar ativas até uma hora."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "Todas as sessões desautorizadas"
@@ -4720,16 +4735,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais caracteres em maiúsculas"
+    "message": "Contém um ou mais carateres em maiúsculas"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais caracteres em minúsculas"
+    "message": "Contém um ou mais carateres em minúsculas"
   },
   "policyInEffectNumbers": {
     "message": "Contém um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
+    "message": "Contém um ou mais dos seguintes carateres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -6562,7 +6577,7 @@
     "message": "obrigatório"
   },
   "charactersCurrentAndMaximum": {
-    "message": "$CURRENT$/$MAX$ máximo de caracteres",
+    "message": "$CURRENT$/$MAX$ máximo de carateres",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -6575,7 +6590,7 @@
     }
   },
   "characterMaximum": {
-    "message": "Máximo de $MAX$ caracteres",
+    "message": "Máximo de $MAX$ carateres",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -6696,7 +6711,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Utilize $RECOMMENDED$ caracteres ou mais para gerar uma palavra-passe forte.",
+    "message": " Utilize $RECOMMENDED$ carateres ou mais para gerar uma palavra-passe forte.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6730,6 +6745,9 @@
   },
   "catchallEmailDesc": {
     "message": "Utilize a caixa de entrada de captura geral configurada para o seu domínio."
+  },
+  "useThisEmail": {
+    "message": "Utilizar este e-mail"
   },
   "random": {
     "message": "Aleatório",
@@ -7026,7 +7044,7 @@
     "message": "O campo não é um endereço de e-mail."
   },
   "inputMinLength": {
-    "message": "O campo deve ter pelo menos $COUNT$ caracteres.",
+    "message": "O campo deve ter pelo menos $COUNT$ carateres.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7035,7 +7053,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "O campo não pode exceder os $COUNT$ caracteres de comprimento.",
+    "message": "O campo não pode exceder os $COUNT$ carateres de comprimento.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7044,7 +7062,7 @@
     }
   },
   "inputForbiddenCharacters": {
-    "message": "Não são permitidos os seguintes caracteres: $CHARACTERS$",
+    "message": "Não são permitidos os seguintes carateres: $CHARACTERS$",
     "placeholders": {
       "characters": {
         "content": "$1",
@@ -7053,7 +7071,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "message": "O valor do campo tem de ser, pelo menos, $MIN$ carateres.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -7062,7 +7080,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "O valor do campo não pode exceder os $MAX$ caracteres.",
+    "message": "O valor do campo não pode exceder os $MAX$ carateres.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -7194,11 +7212,11 @@
     "message": "Limpar tudo"
   },
   "toggleCharacterCount": {
-    "message": "Mostrar/ocultar contagem de caracteres",
+    "message": "Mostrar/ocultar contagem de carateres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "passwordCharacterCount": {
-    "message": "Contagem de caracteres da palavra-passe",
+    "message": "Contagem de carateres da palavra-passe",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "hide": {
@@ -8202,7 +8220,7 @@
     "message": "Palavra-passe fraca identificada e encontrada numa violação de dados. Utilize uma palavra-passe forte e única para proteger a sua conta. Tem a certeza de que pretende utilizar esta palavra-passe?"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ caracteres no mínimo",
+    "message": "$LENGTH$ carateres no mínimo",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -8211,7 +8229,7 @@
     }
   },
   "masterPasswordMinimumlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $LENGTH$ caracteres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $LENGTH$ carateres.",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limitar a eliminação de coleções aos proprietários e administradores"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Os proprietários e administradores podem gerir todas as coleções e itens"
@@ -9897,10 +9918,10 @@
     "description": "The text, 'API', is an acronym and should not be translated."
   },
   "showCharacterCount": {
-    "message": "Mostrar contagem de caracteres"
+    "message": "Mostrar contagem de carateres"
   },
   "hideCharacterCount": {
-    "message": "Ocultar contagem de caracteres"
+    "message": "Ocultar contagem de carateres"
   },
   "editAccess": {
     "message": "Editar acesso"
@@ -9921,7 +9942,7 @@
     "message": "Introduza o ID do HTML, o nome, a aria-label ou o placeholder do campo."
   },
   "uppercaseDescription": {
-    "message": "Incluir caracteres em maiúsculas",
+    "message": "Incluir carateres em maiúsculas",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -9929,7 +9950,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Incluir caracteres em minúsculas",
+    "message": "Incluir carateres em minúsculas",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -9945,7 +9966,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Incluir caracteres especiais",
+    "message": "Incluir carateres especiais",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -10201,7 +10222,7 @@
     "message": "Domínio reivindicado"
   },
   "organizationNameMaxLength": {
-    "message": "O nome da organização não pode exceder 50 caracteres."
+    "message": "O nome da organização não pode exceder 50 carateres."
   },
   "resellerRenewalWarningMsg": {
     "message": "A sua subscrição será renovada em breve. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $RENEWAL_DATE$.",
