@@ -49,7 +49,7 @@ export enum FeatureFlag {
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
   NewDeviceVerification = "new-device-verification",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
-  PM15179_AddExistingOrgsFromProviderPortal = "PM-15179-add-existing-orgs-from-provider-portal",
+  PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
