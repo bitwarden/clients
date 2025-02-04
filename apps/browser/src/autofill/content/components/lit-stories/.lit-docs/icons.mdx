@@ -1,0 +1,69 @@
+import { Meta, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./icons.lit-stories";
+
+<Meta title="Components/Icons/Icons" of={stories} />
+
+## Icon Stories
+
+The `Icons` component suite demonstrates various icon components styled dynamically based on props
+like size, color, and theme. Each story is an example of how a specific icon can be rendered.
+
+<Controls />
+### Icons
+
+|                           |                    |
+| ------------------------- | ------------------ |
+| `AngleDownIcon`           | `FolderIcon`       |
+| `BusinessIcon`            | `GlobeIcon`        |
+| `BrandIcon`               | `PartyHornIcon`    |
+| `CloseIcon`               | `PencilSquareIcon` |
+| `ExclamationTriangleIcon` | `ShieldIcon`       |
+| `FamilyIcon`              | `UserIcon`         |
+
+## Props
+
+| **Prop**   | **Type**  | **Required** | **Description**                                                                   |
+| ---------- | --------- | ------------ | --------------------------------------------------------------------------------- |
+| `iconLink` | `URL`     | No           | Defines an external URL associated with the icon, prop exclusive to `Brand Icon`. |
+| `color`    | `string`  | No           | Sets the color of the icon.                                                       |
+| `disabled` | `boolean` | No           | Disables the icon visually and functionally.                                      |
+| `theme`    | `Theme`   | Yes          | Defines the theme used to style the icons. Must match the `Theme` enum.           |
+| `size`     | `number`  | Yes          | Sets the width and height of the icon in pixels.                                  |
+
+---
+
+## Standard Icon Usage Example
+
+```tsx
+import { AngleDownIcon } from "./Icons";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+
+<AngleDownIcon size={50} color="#000000" theme={ThemeTypes.Light} />;
+```
+
+## Brand Icon Usage Example
+
+```tsx
+import { BrandIconContainer } from "./Icons";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+
+<BrandIconContainer
+  size={50}
+  color="#000000"
+  theme={ThemeTypes.Light}
+  iconLink="https://bitwarden.com"
+/>;
+```
+
+## Accessibility (WCAG) Compliance
+
+Icons in this suite are designed with accessibility and usability in mind:
+
+### Screen Reader Compatibility
+
+- Icons are rendered as `<svg>` elements.
+
+### Visual Feedback
+
+- The `disabled` prop adjusts the icon's visual appearance, ensuring clarity.

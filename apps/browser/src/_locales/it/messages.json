@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Passa a Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Puoi acquistare il un abbonamento Premium dalla cassaforte web su bitwarden.com. Vuoi visitare il sito?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Puoi acquistare Premium dalle impostazioni del tuo account sull'app web Bitwarden."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Generatore di nomi utente"
+  },
+  "useThisEmail": {
+    "message": "Usa questa e-mail"
   },
   "useThisPassword": {
     "message": "Usa questa password"

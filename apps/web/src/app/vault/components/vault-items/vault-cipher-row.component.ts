@@ -52,11 +52,11 @@ export class VaultCipherRowComponent implements OnInit {
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
   private permissionPriority = [
-    "canManage",
-    "canEdit",
-    "canEditExceptPass",
-    "canView",
-    "canViewExceptPass",
+    "manageCollection",
+    "editItems",
+    "editItemsHidePass",
+    "viewItems",
+    "viewItemsHidePass",
   ];
   protected organization?: Organization;
 
@@ -118,7 +118,7 @@ export class VaultCipherRowComponent implements OnInit {
 
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
-      return this.i18nService.t("canManage");
+      return this.i18nService.t("manageCollection");
     }
 
     const filteredCollections = this.collections.filter((collection) => {

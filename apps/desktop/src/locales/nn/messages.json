@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "Kjøp Premium-medlemsskap"
   },
-  "premiumPurchaseAlert": {
-    "message": "Du kan kjøpe eit Premium-medlemsskap i Bitwarden sin nettkvelv. Vil du gå til nettstaden no?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "Use your domain's configured catch-all inbox."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Random"
