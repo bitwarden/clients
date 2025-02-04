@@ -433,7 +433,11 @@
     <p class="tw-text-muted tw-italic tw-mb-3 tw-block" bitTypography="body2">
       {{ paymentDesc }}
     </p>
-    <app-payment *ngIf="createOrganization || upgradeRequiresPaymentMethod"></app-payment>
+    <app-payment
+      *ngIf="createOrganization || upgradeRequiresPaymentMethod"
+      [showAccountCredit]="false"
+    >
+    </app-payment>
     <app-manage-tax-information
       class="tw-my-4"
       [showTaxIdField]="showTaxIdField"

@@ -1,8 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { firstValueFrom, map } from "rxjs";
+import { switchMap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { ProviderAddOrganizationRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-add-organization.request";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -10,6 +13,8 @@ import { PlanType } from "@bitwarden/common/billing/enums";
 import { CreateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/create-client-organization.request";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
@@ -23,6 +28,8 @@ export class WebProviderService {
     private i18nService: I18nService,
     private encryptService: EncryptService,
     private billingApiService: BillingApiServiceAbstraction,
+    private stateProvider: StateProvider,
+    private providerApiService: ProviderApiServiceAbstraction,
   ) {}
 
   async addOrganizationToProvider(providerId: string, organizationId: string) {
@@ -38,6 +45,22 @@ export class WebProviderService {
     const response = await this.apiService.postProviderAddOrganization(providerId, request);
     await this.syncService.fullSync(true);
     return response;
+  }
+
+  async addOrganizationToProviderVNext(providerId: string, organizationId: string): Promise<void> {
+    const orgKey = await firstValueFrom(
+      this.stateProvider.activeUserId$.pipe(
+        switchMap((userId) => this.keyService.orgKeys$(userId)),
+        map((organizationKeysById) => organizationKeysById[organizationId as OrganizationId]),
+      ),
+    );
+    const providerKey = await this.keyService.getProviderKey(providerId);
+    const encryptedOrgKey = await this.encryptService.encrypt(orgKey.key, providerKey);
+    await this.providerApiService.addOrganizationToProvider(providerId, {
+      key: encryptedOrgKey.encryptedString,
+      organizationId,
+    });
+    await this.syncService.fullSync(true);
   }
 
   async createClientOrganization(
