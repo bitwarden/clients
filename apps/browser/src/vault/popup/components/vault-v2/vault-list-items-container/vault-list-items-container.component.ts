@@ -115,13 +115,13 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
    */
   private viewCipherTimeout: number | null;
 
-  ciphers = input<PopupCipherView[]>();
+  ciphers = input<PopupCipherView[]>([]);
 
   /**
    * If true, we will group ciphers by type (Login, Card, Identity)
    * within subheadings in a single container, converted to a WritableSignal.
    */
-  groupByType = input<boolean>();
+  groupByType = input<boolean>(false);
 
   /**
    * Computed signal for a grouped list of ciphers with an optional header
