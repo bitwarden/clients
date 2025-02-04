@@ -1219,18 +1219,4 @@ export class InlineMenuFieldQualificationService
 
     return false;
   }
-
-  /**
-   * This method represents the previous rudimentary approach to qualifying fields for login forms.
-   *
-   * @param field - The field to validate
-   * @deprecated - This method will only be used when the fallback flag is set to true.
-   */
-  private isFieldForLoginFormFallback(field: AutofillField): boolean {
-    if (field.type === "password") {
-      return true;
-    }
-
-    return this.isUsernameField(field);
-  }
 }
