@@ -7,7 +7,18 @@ export class ObservableTracker<T> {
   private subscription: Subscription;
   private emissionReceived = new Subject<T>();
   emissions: T[] = [];
-  constructor(observable: Observable<T>) {
+
+  /**
+   * Creates a new ObservableTracker and instantly subscribes to the given observable.
+   * @param observable The observable to track
+   * @param clone Whether to clone tracked emissions or not, defaults to true.
+   *              Cloning can be necessary if the observable emits objects that are mutated after emission. Cloning makes it
+   *              harder to compare the original and the tracked emission using reference equality (e.g. `expect().toBe()`).
+   */
+  constructor(
+    observable: Observable<T>,
+    private clone = true,
+  ) {
     this.emissions = this.trackEmissions(observable);
   }
 
@@ -65,7 +76,7 @@ export class ObservableTracker<T> {
           this.emissionReceived.next(value as T);
           break;
         default: {
-          this.emissionReceived.next(clone(value));
+          this.emissionReceived.next(this.clone ? clone(value) : value);
         }
       }
     });

@@ -10,6 +10,8 @@ import {
   tap,
   switchMap,
   catchError,
+  BehaviorSubject,
+  of,
 } from "rxjs";
 
 import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
@@ -34,6 +36,7 @@ import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
 
 export class DefaultSdkService implements SdkService {
+  private sdkClientOverrides = new BehaviorSubject<{ [userId: UserId]: Rc<BitwardenClient> }>({});
   private sdkClientCache = new Map<UserId, Observable<Rc<BitwardenClient>>>();
 
   client$ = this.environmentService.environment$.pipe(
@@ -60,6 +63,31 @@ export class DefaultSdkService implements SdkService {
   ) {}
 
   userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
+    return this.sdkClientOverrides.pipe(
+      map((clients) => clients[userId]),
+      distinctUntilChanged(),
+      switchMap((clientOverride) => {
+        if (clientOverride) {
+          return of(clientOverride);
+        }
+
+        return this.internalClient$(userId);
+      }),
+    );
+  }
+
+  setClient(userId: UserId, client: BitwardenClient) {
+    this.sdkClientOverrides.next({ ...this.sdkClientOverrides.value, [userId]: new Rc(client) });
+  }
+
+  /**
+   * This method is used to create a client for a specific user by using the existing state of the application.
+   * This methods is a fallback for when no client has been provided by Auth. As Auth starts implementing the
+   * client creation, this method will be deprecated.
+   * @param userId The user id for which to create the client
+   * @returns An observable that emits the client for the user
+   */
+  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
     // TODO: Figure out what happens when the user logs out
     if (this.sdkClientCache.has(userId)) {
       return this.sdkClientCache.get(userId);
@@ -107,6 +135,7 @@ export class DefaultSdkService implements SdkService {
           createAndInitializeClient()
             .then((c) => {
               client = c === undefined ? undefined : new Rc(c);
+
               subscriber.next(client);
             })
             .catch((e) => {

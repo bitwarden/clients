@@ -4,6 +4,7 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
+import { ObservableTracker } from "../../../../spec";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -26,8 +27,6 @@ describe("DefaultSdkService", () => {
     let keyService!: MockProxy<KeyService>;
     let service!: DefaultSdkService;
 
-    let mockClient!: MockProxy<BitwardenClient>;
-
     beforeEach(() => {
       sdkClientFactory = mock<SdkClientFactory>();
       environmentService = mock<EnvironmentService>();
@@ -47,15 +46,10 @@ describe("DefaultSdkService", () => {
         kdfConfigService,
         keyService,
       );
-
-      mockClient = mock<BitwardenClient>();
-      mockClient.crypto.mockReturnValue(mock());
-      sdkClientFactory.createSdkClient.mockResolvedValue(mockClient);
     });
 
     describe("given the user is logged in", () => {
       const userId = "user-id" as UserId;
-
       beforeEach(() => {
         environmentService.getEnvironment$
           .calledWith(userId)
@@ -75,56 +69,113 @@ describe("DefaultSdkService", () => {
         keyService.encryptedOrgKeys$.calledWith(userId).mockReturnValue(of({}));
       });
 
-      it("creates an SDK client when called the first time", async () => {
-        await firstValueFrom(service.userClient$(userId));
+      describe("given no client override has been set for the user", () => {
+        let mockClient!: MockProxy<BitwardenClient>;
 
-        expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
+        beforeEach(() => {
+          mockClient = createMockClient();
+          sdkClientFactory.createSdkClient.mockResolvedValue(mockClient);
+        });
+
+        it("creates an internal SDK client when called the first time", async () => {
+          await firstValueFrom(service.userClient$(userId));
+
+          expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
+        });
+
+        it("does not create an SDK client when called the second time with same userId", async () => {
+          const subject_1 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+          const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+
+          // Use subjects to ensure the subscription is kept alive
+          service.userClient$(userId).subscribe(subject_1);
+          service.userClient$(userId).subscribe(subject_2);
+
+          // Wait for the next tick to ensure all async operations are done
+          await new Promise(process.nextTick);
+
+          expect(subject_1.value.take().value).toBe(mockClient);
+          expect(subject_2.value.take().value).toBe(mockClient);
+          expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
+        });
+
+        it("destroys the internal SDK client when all subscriptions are closed", async () => {
+          const subject_1 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+          const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+          const subscription_1 = service.userClient$(userId).subscribe(subject_1);
+          const subscription_2 = service.userClient$(userId).subscribe(subject_2);
+          await new Promise(process.nextTick);
+
+          subscription_1.unsubscribe();
+          subscription_2.unsubscribe();
+
+          await new Promise(process.nextTick);
+          expect(mockClient.free).toHaveBeenCalledTimes(1);
+        });
+
+        it("destroys the internal SDK client when the userKey is unset (i.e. lock or logout)", async () => {
+          const userKey$ = new BehaviorSubject(
+            new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+          );
+          keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
+
+          const subject = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+          service.userClient$(userId).subscribe(subject);
+          await new Promise(process.nextTick);
+
+          userKey$.next(undefined);
+          await new Promise(process.nextTick);
+
+          expect(mockClient.free).toHaveBeenCalledTimes(1);
+          expect(subject.value).toBe(undefined);
+        });
       });
 
-      it("does not create an SDK client when called the second time with same userId", async () => {
-        const subject_1 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-        const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+      describe("given overrides are used", () => {
+        it("does not create a new client and returns the set client when a client override has already been set ", async () => {
+          const mockClient = mock<BitwardenClient>();
+          service.setClient(userId, mockClient);
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+          await userClientTracker.pauseUntilReceived(1);
 
-        // Use subjects to ensure the subscription is kept alive
-        service.userClient$(userId).subscribe(subject_1);
-        service.userClient$(userId).subscribe(subject_2);
+          expect(sdkClientFactory.createSdkClient).not.toHaveBeenCalled();
+          expect(userClientTracker.emissions[0].take().value).toBe(mockClient);
+        });
 
-        // Wait for the next tick to ensure all async operations are done
-        await new Promise(process.nextTick);
+        it("emits the internal client then switches to override when an override is set", async () => {
+          const mockInternalClient = createMockClient();
+          const mockOverrideClient = createMockClient();
+          sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
 
-        expect(subject_1.value.take().value).toBe(mockClient);
-        expect(subject_2.value.take().value).toBe(mockClient);
-        expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
-      });
+          await userClientTracker.pauseUntilReceived(1);
+          expect(userClientTracker.emissions[0].take().value).toBe(mockInternalClient);
 
-      it("destroys the SDK client when all subscriptions are closed", async () => {
-        const subject_1 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-        const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-        const subscription_1 = service.userClient$(userId).subscribe(subject_1);
-        const subscription_2 = service.userClient$(userId).subscribe(subject_2);
-        await new Promise(process.nextTick);
+          service.setClient(userId, mockOverrideClient);
 
-        subscription_1.unsubscribe();
-        subscription_2.unsubscribe();
+          await userClientTracker.pauseUntilReceived(2);
+          expect(userClientTracker.emissions[1].take().value).toBe(mockOverrideClient);
+        });
 
-        await new Promise(process.nextTick);
-        expect(mockClient.free).toHaveBeenCalledTimes(1);
-      });
+        it("destroys the internal client when an override is set", async () => {
+          const mockInternalClient = createMockClient();
+          const mockOverrideClient = createMockClient();
+          sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
 
-      it("destroys the SDK client when the userKey is unset (i.e. lock or logout)", async () => {
-        const userKey$ = new BehaviorSubject(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey);
-        keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
+          await userClientTracker.pauseUntilReceived(1);
+          service.setClient(userId, mockOverrideClient);
+          await userClientTracker.pauseUntilReceived(2);
 
-        const subject = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-        service.userClient$(userId).subscribe(subject);
-        await new Promise(process.nextTick);
-
-        userKey$.next(undefined);
-        await new Promise(process.nextTick);
-
-        expect(mockClient.free).toHaveBeenCalledTimes(1);
-        expect(subject.value).toBe(undefined);
+          expect(mockInternalClient.free).toHaveBeenCalled();
+        });
       });
     });
   });
 });
+
+function createMockClient(): MockProxy<BitwardenClient> {
+  const client = mock<BitwardenClient>();
+  client.crypto.mockReturnValue(mock());
+  return client;
+}
