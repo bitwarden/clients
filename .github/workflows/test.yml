@@ -170,8 +170,6 @@ jobs:
         run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
 
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # v5.1.1
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           files: ./apps/desktop/desktop_native/lcov.info
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
