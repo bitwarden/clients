@@ -51,6 +51,7 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
   NewDeviceVerification = "new-device-verification",
+  PM15179_AddExistingOrgsFromProviderPortal = "PM-15179-add-existing-orgs-from-provider-portal",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -112,6 +113,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
   [FeatureFlag.NewDeviceVerification]: FALSE,
+  [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
