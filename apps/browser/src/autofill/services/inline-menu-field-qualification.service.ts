@@ -150,7 +150,6 @@ export class InlineMenuFieldQualificationService
     this.identityPostalCodeAutocompleteValue,
   ]);
   private totpFieldAutocompleteValue = "one-time-code";
-  private inlineMenuFieldQualificationFlagSet = false;
   private inlineMenuTotpFeatureFlag = false;
   private premiumEnabled = false;
 
