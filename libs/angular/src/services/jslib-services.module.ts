@@ -799,7 +799,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoLoginServiceAbstraction,
     useClass: SsoLoginService,
-    deps: [StateProvider],
+    deps: [StateProvider, LogService],
   }),
   safeProvider({
     provide: STATE_FACTORY,

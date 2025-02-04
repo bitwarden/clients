@@ -2,10 +2,13 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
+
 import {
-  ActiveUserState,
   GlobalState,
   KeyDefinition,
+  SingleUserState,
   SSO_DISK,
   StateProvider,
   UserKeyDefinition,
@@ -15,21 +18,21 @@ import { SsoLoginServiceAbstraction } from "../abstractions/sso-login.service.ab
 /**
  * Uses disk storage so that the code verifier can be persisted across sso redirects.
  */
-const CODE_VERIFIER = new KeyDefinition<string>(SSO_DISK, "ssoCodeVerifier", {
+export const CODE_VERIFIER = new KeyDefinition<string>(SSO_DISK, "ssoCodeVerifier", {
   deserializer: (codeVerifier) => codeVerifier,
 });
 
 /**
  * Uses disk storage so that the sso state can be persisted across sso redirects.
  */
-const SSO_STATE = new KeyDefinition<string>(SSO_DISK, "ssoState", {
+export const SSO_STATE = new KeyDefinition<string>(SSO_DISK, "ssoState", {
   deserializer: (state) => state,
 });
 
 /**
  * Uses disk storage so that the organization sso identifier can be persisted across sso redirects.
  */
-const USER_ORGANIZATION_SSO_IDENTIFIER = new UserKeyDefinition<string>(
+export const USER_ORGANIZATION_SSO_IDENTIFIER = new UserKeyDefinition<string>(
   SSO_DISK,
   "organizationSsoIdentifier",
   {
@@ -41,7 +44,7 @@ const USER_ORGANIZATION_SSO_IDENTIFIER = new UserKeyDefinition<string>(
 /**
  * Uses disk storage so that the organization sso identifier can be persisted across sso redirects.
  */
-const GLOBAL_ORGANIZATION_SSO_IDENTIFIER = new KeyDefinition<string>(
+export const GLOBAL_ORGANIZATION_SSO_IDENTIFIER = new KeyDefinition<string>(
   SSO_DISK,
   "organizationSsoIdentifier",
   {
@@ -52,7 +55,7 @@ const GLOBAL_ORGANIZATION_SSO_IDENTIFIER = new KeyDefinition<string>(
 /**
  * Uses disk storage so that the user's email can be persisted across sso redirects.
  */
-const SSO_EMAIL = new KeyDefinition<string>(SSO_DISK, "ssoEmail", {
+export const SSO_EMAIL = new KeyDefinition<string>(SSO_DISK, "ssoEmail", {
   deserializer: (state) => state,
 });
 
@@ -61,16 +64,15 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
   private ssoState: GlobalState<string>;
   private orgSsoIdentifierState: GlobalState<string>;
   private ssoEmailState: GlobalState<string>;
-  private activeUserOrgSsoIdentifierState: ActiveUserState<string>;
 
-  constructor(private stateProvider: StateProvider) {
+  constructor(
+    private stateProvider: StateProvider,
+    private logService: LogService,
+  ) {
     this.codeVerifierState = this.stateProvider.getGlobal(CODE_VERIFIER);
     this.ssoState = this.stateProvider.getGlobal(SSO_STATE);
     this.orgSsoIdentifierState = this.stateProvider.getGlobal(GLOBAL_ORGANIZATION_SSO_IDENTIFIER);
     this.ssoEmailState = this.stateProvider.getGlobal(SSO_EMAIL);
-    this.activeUserOrgSsoIdentifierState = this.stateProvider.getActive(
-      USER_ORGANIZATION_SSO_IDENTIFIER,
-    );
   }
 
   getCodeVerifier(): Promise<string> {
@@ -105,11 +107,24 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.ssoEmailState.update((_) => email);
   }
 
-  getActiveUserOrganizationSsoIdentifier(): Promise<string> {
-    return firstValueFrom(this.activeUserOrgSsoIdentifierState.state$);
+  getActiveUserOrganizationSsoIdentifier(userId: UserId): Promise<string> {
+    return firstValueFrom(this.userOrgSsoIdentifierState(userId).state$);
   }
 
-  async setActiveUserOrganizationSsoIdentifier(organizationIdentifier: string): Promise<void> {
-    await this.activeUserOrgSsoIdentifierState.update((_) => organizationIdentifier);
+  async setActiveUserOrganizationSsoIdentifier(
+    organizationIdentifier: string,
+    userId: UserId | undefined,
+  ): Promise<void> {
+    if (userId === undefined) {
+      this.logService.warning(
+        "Tried to set a user organization sso identifier with an undefined user id.",
+      );
+      return;
+    }
+    await this.userOrgSsoIdentifierState(userId).update((_) => organizationIdentifier);
+  }
+
+  private userOrgSsoIdentifierState(userId: UserId): SingleUserState<string> {
+    return this.stateProvider.getUser(userId, USER_ORGANIZATION_SSO_IDENTIFIER);
   }
 }
