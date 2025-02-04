@@ -16,6 +16,7 @@ import {
   computed,
   OnInit,
   ChangeDetectionStrategy,
+  input,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, map } from "rxjs";
@@ -114,29 +115,13 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
    */
   private viewCipherTimeout: number | null;
 
-  private _ciphers = signal<PopupCipherView[]>([]);
-
-  @Input()
-  set ciphers(value: PopupCipherView[]) {
-    this._ciphers.set(value);
-  }
-
-  get ciphers(): PopupCipherView[] {
-    return this._ciphers();
-  }
+  ciphers = input<PopupCipherView[]>();
 
   /**
    * If true, we will group ciphers by type (Login, Card, Identity)
    * within subheadings in a single container, converted to a WritableSignal.
    */
-  private _groupByType = signal(false);
-  @Input()
-  set groupByType(value: boolean) {
-    this._groupByType.set(value);
-  }
-  get groupByType(): boolean {
-    return this._groupByType();
-  }
+  groupByType = input<boolean>();
 
   /**
    * Computed signal for a grouped list of ciphers with an optional header
@@ -149,10 +134,10 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   >(() => {
     const groups: { [key: string]: CipherView[] } = {};
 
-    this.ciphers.forEach((cipher) => {
+    this.ciphers().forEach((cipher) => {
       let groupKey;
 
-      if (this.groupByType) {
+      if (this.groupByType()) {
         switch (cipher.type) {
           case CipherType.Card:
             groupKey = "cards";
