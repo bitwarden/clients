@@ -1,9 +1,10 @@
 <bit-section *ngIf="ciphers?.length > 0 || description" [disableMargin]="disableSectionMargin">
   <ng-container *ngIf="collapsibleKey">
     <button
-      class="tw-group/vault-section-header hover:tw-bg-secondary-100 tw-pl-1 tw-w-full tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid focus-visible:tw-outline-none focus-visible:tw-rounded-md focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
+      class="tw-group/vault-section-header hover:tw-bg-primary-100 tw-rounded-md tw-pl-1 tw-w-full tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid focus-visible:tw-outline-none focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
       [ngClass]="{
-        'tw-border-b-secondary-300': !sectionOpenState(),
+        'tw-border-b-secondary-300 tw-rounded-b-none [&:is(:hover,:focus-visible)]:tw-border-b-transparent [&:is(:hover,:focus-visible)]:tw-rounded-b-md':
+          !sectionOpenState(),
         'tw-border-b-transparent': sectionOpenState(),
       }"
       type="button"
@@ -27,7 +28,7 @@
 </bit-section>
 
 <ng-template #sectionHeader>
-  <bit-section-header class="tw-p-0.5 -tw-mt-0.5 -tw-mx-0.5">
+  <bit-section-header class="tw-p-0.5 -tw-mx-0.5">
     <h2 bitTypography="h6">
       {{ title }}
     </h2>
@@ -51,7 +52,7 @@
       </span>
       <span class="tw-pr-1" *ngIf="collapsibleKey">
         <i
-          class="bwi"
+          class="bwi tw-text-main"
           [ngClass]="{
             'bwi-angle-down tw-inline-block': !sectionOpenState(),
             'bwi-angle-up tw-hidden group-hover/vault-section-header:tw-inline-block group-focus-visible/vault-section-header:tw-inline-block':
