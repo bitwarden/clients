@@ -2,7 +2,13 @@
 // @ts-strict-ignore
 import { signal } from "@angular/core";
 import { action } from "@storybook/addon-actions";
-import { componentWrapperDecorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import {
+  applicationConfig,
+  componentWrapperDecorator,
+  Meta,
+  moduleMetadata,
+  StoryObj,
+} from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -207,12 +213,14 @@ export default {
             getFeatureFlag: () => Promise.resolve(false),
           },
         },
-        { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
       ],
     }),
     componentWrapperDecorator(
       (story) => `<div class="tw-bg-background-alt tw-text-main tw-border">${story}</div>`,
     ),
+    applicationConfig({
+      providers: [{ provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } }],
+    }),
   ],
   args: {
     config: defaultConfig,
