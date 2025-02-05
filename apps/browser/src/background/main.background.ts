@@ -208,7 +208,7 @@ import {
   ImportApiServiceAbstraction,
   ImportService,
   ImportServiceAbstraction,
-} from "@bitwarden/importer/core";
+} from "@bitwarden/importer-core";
 import {
   BiometricsService,
   BiometricStateService,

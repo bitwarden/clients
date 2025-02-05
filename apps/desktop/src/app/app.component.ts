@@ -54,7 +54,6 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
@@ -65,9 +64,7 @@ import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.compo
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
-import { GeneratorComponent } from "./tools/generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
-import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -126,7 +123,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
     private syncService: SyncService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private cipherService: CipherService,
     private authService: AuthService,
     private router: Router,
@@ -508,41 +504,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async openGenerator() {
-    const isGeneratorSwapEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.GeneratorToolsModernization,
-    );
-    if (isGeneratorSwapEnabled) {
-      await this.dialogService.open(CredentialGeneratorComponent);
-      return;
-    }
-
-    this.modalService.closeAll();
-
-    [this.modal] = await this.modalService.openViewRef(
-      GeneratorComponent,
-      this.generatorModalRef,
-      (comp) => (comp.comingFromAddEdit = false),
-    );
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
+    await this.dialogService.open(CredentialGeneratorComponent);
+    return;
   }
 
   async openGeneratorHistory() {
-    const isGeneratorSwapEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.GeneratorToolsModernization,
-    );
-    if (isGeneratorSwapEnabled) {
-      await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
-      return;
-    }
-
-    await this.openModal<PasswordGeneratorHistoryComponent>(
-      PasswordGeneratorHistoryComponent,
-      this.passwordHistoryRef,
-    );
+    await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
+    return;
   }
 
   private async updateAppMenu() {

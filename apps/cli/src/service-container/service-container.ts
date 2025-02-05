@@ -151,7 +151,7 @@ import {
   ImportApiServiceAbstraction,
   ImportService,
   ImportServiceAbstraction,
-} from "@bitwarden/importer/core";
+} from "@bitwarden/importer-core";
 import {
   DefaultKdfConfigService,
   KdfConfigService,
