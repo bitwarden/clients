@@ -60,7 +60,8 @@
     "unlimitedStorage",
     "webNavigation",
     "webRequest",
-    "webRequestAuthProvider"
+    "webRequestAuthProvider",
+    "notifications"
   ],
   "__safari__permissions": [
     "activeTab",

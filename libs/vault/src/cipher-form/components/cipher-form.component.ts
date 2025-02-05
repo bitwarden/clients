@@ -178,7 +178,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   getInitialCipherView(): CipherView {
     const cachedCipherView = this.cipherFormCacheService.getCachedCipherView();
 
-    if (cachedCipherView) {
+    if (cachedCipherView && this.initializedWithCachedCipher()) {
       return cachedCipherView;
     }
 

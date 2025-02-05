@@ -31,6 +31,8 @@ export const ORGANIZATION_MANAGEMENT_PREFERENCES_DISK = new StateDefinition(
 );
 export const ACCOUNT_DEPROVISIONING_BANNER_DISK = new StateDefinition(
   "showAccountDeprovisioningBanner",
+export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
+  "showDeleteManagedUserWarning",
   "disk",
   {
     web: "disk-local",

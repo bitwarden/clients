@@ -3,22 +3,22 @@
     "message": "Όλες οι εφαρμογές"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "Κρίσιμες εφαρμογές"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Πληροφορίες Πρόσβασης"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "Insights Κινδύνου"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "Ρίσκος Κωδικού Πρόσβασης"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Ελέξτε τους κωδικούς πρόσβασης (αδύναμους, εκτεθειμένους ή επαναχρησιμοποιούμενους) σε όλες τις εφαρμογές. Επιλέξτε τις πιο κρίσιμες εφαρμογές σας για να δώσετε προτεραιότητα στις ενέργειες ασφαλείας για τους χρήστες σας ώστε να αντιμετωπίσουν τους εκτεθειμένους κωδικούς πρόσβασης."
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "Τελευταία ενημέρωση δεδομένων: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Επικίνδυνη Ζώνη"
   },
-  "dangerZoneDesc": {
-    "message": "Προσοχή, αυτές οι ενέργειες είναι μη αναστρέψιμες!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "Κατάργηση Εξουσιοδότησης Συνεδριών"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Η διαδικασία θα σας αποσυνδέσει από την τρέχουσα συνεδρία και θα σας ζητήσει να συνδεθείτε ξανά. Οι ενεργές συνεδρίες σε άλλες συσκευές ενδέχεται να παραμείνουν ενεργοποιημένες για έως και μία ώρα."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "Η Ανακληθεί η Πρόσβαση από Όλες τις Συνεδρίες"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Χρησιμοποιήστε τα διαμορφωμένα εισερχόμενα catch-all του domain σας."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Τυχαίο",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Οι ιδιοκτήτες και οι διαχειριστές μπορούν να διαχειριστούν όλες τις συλλογές και τα στοιχεία"
