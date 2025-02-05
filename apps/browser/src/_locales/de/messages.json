@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Premium-Mitgliedschaft kaufen"
   },
-  "premiumPurchaseAlert": {
-    "message": "Du kannst deine Premium-Mitgliedschaft im Bitwarden.com Web-Tresor kaufen. Möchtest du die Website jetzt besuchen?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Du kannst Premium über deine Kontoeinstellungen in der Bitwarden Web-App kaufen."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Benutzernamen-Generator"
+  },
+  "useThisEmail": {
+    "message": "Diese E-Mail-Adresse verwenden"
   },
   "useThisPassword": {
     "message": "Dieses Passwort verwenden"
@@ -3945,7 +3945,7 @@
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
-    "message": "Das Ignorieren dieser Option kann zu Konflikten zwischen dem Bitwarden Auto-Ausfüllen Menü und dem Browser führen.",
+    "message": "Das Ignorieren dieser Option kann zu Konflikten zwischen den Bitwarden Vorschlägen zum Auto-Ausfüllen und denen deines Browsers führen.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutoFillSettings": {

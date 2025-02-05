@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "شراء العضوية المميزة"
   },
-  "premiumPurchaseAlert": {
-    "message": "يمكنك شراء العضوية المتميزة على bitwarden.com على خزانة الويب. هل تريد زيارة الموقع الآن؟"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "مولد اسم المستخدم"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "استخدم كلمة المرور هذه"

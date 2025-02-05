@@ -1045,10 +1045,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         this.estimatedTax = invoice.taxAmount;
       })
       .catch((error) => {
+        const translatedMessage = this.i18nService.t(error.message);
         this.toastService.showToast({
           title: "",
           variant: "error",
-          message: this.i18nService.t(error.message),
+          message:
+            !translatedMessage || translatedMessage === "" ? error.message : translatedMessage,
         });
       });
   }

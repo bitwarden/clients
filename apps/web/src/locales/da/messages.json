@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Farezone"
   },
-  "dangerZoneDesc": {
-    "message": "Pas på, disse handlinger er irreversible!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Forsigtig, denne handling er irreversibel!"
-  },
   "deauthorizeSessions": {
     "message": "Fjern sessionsgodkendelser"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Fortsættes, logges man også ud af denne session og vil skulle logge ind igen. Der anmodes også om totrins-login igen, såfremt funktionen er opsat. Aktive sessioner på andre enheder kan forblive aktive i op til én time."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Nyt enheds-login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Slå nyt enheds-login beskyttelse fra"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Slå nyt enheds-login beskyttelse til"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Fortsæt nedenfor for at deaktivere Bitwarden-bekræftelsesmails ved indlogning fra en ny enhed."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Fortsæt nedenfor for at få tilsendt Bitwarden-bekræftelsesmails ved indlogning fra en ny enhed."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Med den nye enheds-login beskyttelse slået fra kan alle med hovedadgangskoden tilgå brugerkontoen fra enhver enhed. For at beskytte brugerkontoen uden bekræftelsesmails, opsæt totrins-login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Ændringer i ny enheds-login beskyttelse er gemt"
   },
   "sessionsDeauthorized": {
     "message": "Godkendelser for alle sessioner fjernet"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Brug den for domænet opsatte Fang-alle indbakke."
   },
+  "useThisEmail": {
+    "message": "Benyt denne e-mail"
+  },
   "random": {
     "message": "Tilfældig",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Begræns samlingsslettelse til ejere og admins"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Ejere og admins kan håndtere alle samlinger og emner"

@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Zakúpiť Prémiový účet"
   },
-  "premiumPurchaseAlert": {
-    "message": "Svoje prémiové členstvo si môžete zakúpiť vo webovom trezore bitwarden.com. Chcete navštíviť túto stránku teraz?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Prémiové členstvo si môžete zakúpiť v nastaveniach svojho účtu vo webovej aplikácii Bitwarden."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Generátor používateľského mena"
+  },
+  "useThisEmail": {
+    "message": "Použiť tento e-mail"
   },
   "useThisPassword": {
     "message": "Použiť toto heslo"
@@ -4858,7 +4858,7 @@
     "message": "Pripomenúť neskôr"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "message": "Máte zaručený prístup k e-mailu $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4870,7 +4870,7 @@
     "message": "Nie, nemám"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+    "message": "Áno, mám zaručený prístup k e-mailu"
   },
   "turnOnTwoStepLogin": {
     "message": "Zapnúť dvojstupňové prihlásenie"
