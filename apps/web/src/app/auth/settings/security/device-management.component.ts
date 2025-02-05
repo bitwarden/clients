@@ -49,11 +49,11 @@ interface DeviceTableData {
   imports: [CommonModule, SharedModule, TableModule, PopoverModule],
 })
 export class DeviceManagementComponent {
-  readonly tableId = "device-management-table";
-  dataSource = new TableDataSource<DeviceTableData>();
-  currentDevice: DeviceView | undefined;
-  loading = true;
-  asyncActionLoading = false;
+  protected readonly retableId = "device-management-table";
+  protected dataSource = new TableDataSource<DeviceTableData>();
+  protected currentDevice: DeviceView | undefined;
+  protected loading = true;
+  protected asyncActionLoading = false;
 
   constructor(
     private i18nService: I18nService,
