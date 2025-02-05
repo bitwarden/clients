@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { signal } from "@angular/core";
+import { importProvidersFrom, signal } from "@angular/core";
 import { action } from "@storybook/addon-actions";
 import {
   applicationConfig,
@@ -22,7 +22,6 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { ClientType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -35,6 +34,10 @@ import {
   CipherFormGenerationService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
+// FIXME: remove `/apps` import from `/libs`
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
+import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";
 import { TotpCaptureService } from "./abstractions/totp-capture.service";
@@ -219,7 +222,7 @@ export default {
       (story) => `<div class="tw-bg-background-alt tw-text-main tw-border">${story}</div>`,
     ),
     applicationConfig({
-      providers: [{ provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } }],
+      providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
     }),
   ],
   args: {
