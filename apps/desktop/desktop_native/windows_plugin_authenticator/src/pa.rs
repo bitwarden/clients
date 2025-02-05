@@ -11,5 +11,5 @@
 
 include!(concat!(
     env!("OUT_DIR"),
-    "/windows_pluginauthenticator_bindings.rs"
+    "/windows_plugin_authenticator_bindings.rs"
 ));

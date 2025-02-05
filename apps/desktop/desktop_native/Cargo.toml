@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["napi", "core", "proxy", "macos_provider", "windows-plugin-authenticator"]
+members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator"]
 
 [workspace.dependencies]
 anyhow = "=1.0.94"
