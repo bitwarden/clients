@@ -11,7 +11,7 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { ImportServiceAbstraction, ImportType } from "@bitwarden/importer/core";
+import { ImportServiceAbstraction, ImportType } from "@bitwarden/importer-core";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";

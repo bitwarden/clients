@@ -228,6 +228,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, "name"),
+        htmlClass: this.getPropertyOrAttribute(formElement, "class"),
         htmlID: this.getPropertyOrAttribute(formElement, "id"),
         htmlMethod: this.getPropertyOrAttribute(formElement, "method"),
       });

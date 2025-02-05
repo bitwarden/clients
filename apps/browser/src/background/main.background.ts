@@ -208,7 +208,7 @@ import {
   ImportApiServiceAbstraction,
   ImportService,
   ImportServiceAbstraction,
-} from "@bitwarden/importer/core";
+} from "@bitwarden/importer-core";
 import {
   BiometricsService,
   BiometricStateService,
@@ -809,7 +809,7 @@ export default class MainBackground {
       this.apiService,
     );
 
-    this.ssoLoginService = new SsoLoginService(this.stateProvider);
+    this.ssoLoginService = new SsoLoginService(this.stateProvider, this.logService);
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
@@ -1142,6 +1142,7 @@ export default class MainBackground {
       this.accountService,
       lockService,
       this.billingAccountProfileStateService,
+      this.cipherService,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,

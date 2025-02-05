@@ -131,6 +131,7 @@ apps/web/src/app/key-management @bitwarden/team-key-management-dev
 apps/browser/src/key-management @bitwarden/team-key-management-dev
 apps/cli/src/key-management @bitwarden/team-key-management-dev
 libs/key-management @bitwarden/team-key-management-dev
+libs/key-management-ui @bitwarden/team-key-management-dev
 libs/common/src/key-management @bitwarden/team-key-management-dev
 
 apps/desktop/destkop_native/core/src/biometric/ @bitwarden/team-key-management-dev
