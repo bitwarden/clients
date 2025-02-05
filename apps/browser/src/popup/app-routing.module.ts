@@ -163,13 +163,18 @@ const routes: Routes = [
     {
       path: "2fa",
       canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
-      data: { elevation: 1 } satisfies RouteDataProperties,
       children: [
         {
           path: "",
           component: TwoFactorAuthComponent,
         },
       ],
+      data: {
+        elevation: 1,
+        pageTitle: {
+          key: "verifyIdentity",
+        },
+      } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
     },
   ),
   {

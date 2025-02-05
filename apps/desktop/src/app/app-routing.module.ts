@@ -99,6 +99,11 @@ const routes: Routes = [
           component: TwoFactorAuthComponent,
         },
       ],
+      data: {
+        pageTitle: {
+          key: "verifyIdentity",
+        },
+      } satisfies RouteDataProperties & AnonLayoutWrapperData,
     },
   ),
   {
