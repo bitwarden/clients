@@ -20,7 +20,6 @@ import { DeviceType } from "../../../enums";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
@@ -35,6 +34,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { CsprngArray } from "../../../types/csprng";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
+import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 
 import {
   SHOULD_TRUST_DEVICE,
