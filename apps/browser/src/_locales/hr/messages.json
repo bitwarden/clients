@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Kupi premium članstvo"
   },
-  "premiumPurchaseAlert": {
-    "message": "Možeš kupiti premium članstvo na web trezoru. Želiš li sada posjetiti bitwarden.com?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Premium možeš kupiti u postavkama računa na Bitwarden web aplikaciji."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Generator korisničkih imena"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Koristi ovu lozinku"

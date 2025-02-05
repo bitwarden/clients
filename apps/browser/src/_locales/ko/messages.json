@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "프리미엄 멤버십 구입"
   },
-  "premiumPurchaseAlert": {
-    "message": "bitwarden.com 웹 보관함에서 프리미엄 멤버십을 구입할 수 있습니다. 지금 웹 사이트를 방문하시겠습니까?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden 웹 앱의 계정 설정에서 프리미엄에 대한 결제를 할 수 있습니다."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "사용자 이름 생성기"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "이 비밀번호 사용"

@@ -446,7 +446,7 @@
     "message": "產生密碼短語"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "已產生密碼"
   },
   "passphraseGenerated": {
     "message": "Passphrase generated"
@@ -660,10 +660,10 @@
     "message": "驗證身份"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "我們無法識別此裝置。請輸入已傳送到您電子郵件的驗證碼以驗證您的身分。"
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "繼續登入"
   },
   "yourVaultIsLocked": {
     "message": "您的密碼庫已鎖定。請驗證身分以繼續。"
@@ -1005,7 +1005,7 @@
     "message": "如果在您的密碼庫中找不到項目，則詢問是否新增項目。適用於所有已登入的帳戶。"
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "一律在密碼庫介面中顯示支付卡自動填入建議"
   },
   "showCardsCurrentTab": {
     "message": "於分頁頁面顯示支付卡"
@@ -1014,7 +1014,7 @@
     "message": "於分頁頁面顯示信用卡以便於自動填入。"
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "一律在密碼庫介面中顯示身分自動填入建議"
   },
   "showIdentitiesCurrentTab": {
     "message": "於分頁頁面顯示身分"
@@ -1279,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "升級為進階會員"
-  },
-  "premiumPurchaseAlert": {
-    "message": "您可以在 bitwarden.com 網頁版密碼庫購買進階會員資格。現在要前往嗎？"
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 網頁 App 的帳號設定中購買進階版。"
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "使用者名稱產生器"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "使用此密碼"
