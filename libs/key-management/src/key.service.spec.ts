@@ -158,40 +158,40 @@ describe("keyService", () => {
     });
   });
 
-  describe.each(["hasUserKey", "hasUserKeyInMemory"])(
-    `%s`,
-    (method: "hasUserKey" | "hasUserKeyInMemory") => {
-      let mockUserKey: UserKey;
+  describe.each(["hasUserKey", "hasUserKeyInMemory"])(`%s`, (methodName: string) => {
+    let mockUserKey: UserKey;
+    let method: (userId?: UserId) => Promise<boolean>;
 
-      beforeEach(() => {
-        const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-        mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-      });
+    beforeEach(() => {
+      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+      mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
+      method =
+        methodName === "hasUserKey"
+          ? keyService.hasUserKey.bind(keyService)
+          : keyService.hasUserKeyInMemory.bind(keyService);
+    });
 
-      it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
+    it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(hasKey ? mockUserKey : null);
+      expect(await method(mockUserId)).toBe(hasKey);
+    });
+
+    it("returns false when no active userId is set", async () => {
+      accountService.activeAccountSubject.next(null);
+      expect(await method()).toBe(false);
+    });
+
+    it.each([true, false])(
+      "resolves %s for active user id when none is provided",
+      async (hasKey) => {
+        stateProvider.activeUserId$ = of(mockUserId);
         stateProvider.singleUser
           .getFake(mockUserId, USER_KEY)
           .nextState(hasKey ? mockUserKey : null);
-        expect(await keyService[method](mockUserId)).toBe(hasKey);
-      });
-
-      it("returns false when no active userId is set", async () => {
-        accountService.activeAccountSubject.next(null);
-        expect(await keyService[method]()).toBe(false);
-      });
-
-      it.each([true, false])(
-        "resolves %s for active user id when none is provided",
-        async (hasKey) => {
-          stateProvider.activeUserId$ = of(mockUserId);
-          stateProvider.singleUser
-            .getFake(mockUserId, USER_KEY)
-            .nextState(hasKey ? mockUserKey : null);
-          expect(await keyService[method]()).toBe(hasKey);
-        },
-      );
-    },
-  );
+        expect(await method()).toBe(hasKey);
+      },
+    );
+  });
 
   describe("getUserKeyWithLegacySupport", () => {
     let mockUserKey: UserKey;
@@ -304,11 +304,15 @@ describe("keyService", () => {
     });
 
     it("throws if key is null", async () => {
-      await expect(keyService.setUserKey(null, mockUserId)).rejects.toThrow("No key provided.");
+      await expect(keyService.setUserKey(null as unknown as UserKey, mockUserId)).rejects.toThrow(
+        "No key provided.",
+      );
     });
 
     it("throws if userId is null", async () => {
-      await expect(keyService.setUserKey(mockUserKey, null)).rejects.toThrow("No userId provided.");
+      await expect(keyService.setUserKey(mockUserKey, null as unknown as UserId)).rejects.toThrow(
+        "No userId provided.",
+      );
     });
 
     describe("Pin Key refresh", () => {
@@ -379,21 +383,21 @@ describe("keyService", () => {
     });
 
     it("throws if userKey is null", async () => {
-      await expect(keyService.setUserKeys(null, mockEncPrivateKey, mockUserId)).rejects.toThrow(
-        "No userKey provided.",
-      );
+      await expect(
+        keyService.setUserKeys(null as unknown as UserKey, mockEncPrivateKey, mockUserId),
+      ).rejects.toThrow("No userKey provided.");
     });
 
     it("throws if encPrivateKey is null", async () => {
-      await expect(keyService.setUserKeys(mockUserKey, null, mockUserId)).rejects.toThrow(
-        "No encPrivateKey provided.",
-      );
+      await expect(
+        keyService.setUserKeys(mockUserKey, null as unknown as EncryptedString, mockUserId),
+      ).rejects.toThrow("No encPrivateKey provided.");
     });
 
     it("throws if userId is null", async () => {
-      await expect(keyService.setUserKeys(mockUserKey, mockEncPrivateKey, null)).rejects.toThrow(
-        "No userId provided.",
-      );
+      await expect(
+        keyService.setUserKeys(mockUserKey, mockEncPrivateKey, null as unknown as UserId),
+      ).rejects.toThrow("No userId provided.");
     });
 
     it("throws if encPrivateKey cannot be decrypted with the userKey", async () => {
@@ -429,7 +433,7 @@ describe("keyService", () => {
       let callCount = 0;
       stateProvider.activeUserId$ = stateProvider.activeUserId$.pipe(tap(() => callCount++));
 
-      await keyService.clearKeys(null);
+      await keyService.clearKeys();
       expect(callCount).toBe(1);
 
       // revert to the original state
@@ -443,7 +447,7 @@ describe("keyService", () => {
       USER_KEY,
     ])("key removal", (key: UserKeyDefinition<unknown>) => {
       it(`clears ${key.key} for active user when unspecified`, async () => {
-        await keyService.clearKeys(null);
+        await keyService.clearKeys();
 
         const encryptedOrgKeyState = stateProvider.singleUser.getFake(mockUserId, key);
         expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledTimes(1);
@@ -467,7 +471,10 @@ describe("keyService", () => {
       makeUserKey: boolean;
     };
 
-    function setupKeys({ makeMasterKey, makeUserKey }: SetupKeysParams): [UserKey, MasterKey] {
+    function setupKeys({
+      makeMasterKey,
+      makeUserKey,
+    }: SetupKeysParams): [UserKey | null, MasterKey | null] {
       const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
       const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64) : null;
       masterPasswordService.masterKeySubject.next(fakeMasterKey);
@@ -490,7 +497,7 @@ describe("keyService", () => {
 
       const fakeEncryptedUserPrivateKey = makeEncString("1");
 
-      userEncryptedPrivateKeyState.nextState(fakeEncryptedUserPrivateKey.encryptedString);
+      userEncryptedPrivateKeyState.nextState(fakeEncryptedUserPrivateKey.encryptedString!);
 
       // Decryption of the user private key
       const fakeDecryptedUserPrivateKey = makeStaticByteArray(10, 1);
@@ -567,7 +574,7 @@ describe("keyService", () => {
     function updateKeys(keys: Partial<UpdateKeysParams> = {}) {
       if ("userKey" in keys) {
         const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-        userKeyState.nextState(keys.userKey);
+        userKeyState.nextState(keys.userKey!);
       }
 
       if ("encryptedPrivateKey" in keys) {
@@ -575,7 +582,7 @@ describe("keyService", () => {
           mockUserId,
           USER_ENCRYPTED_PRIVATE_KEY,
         );
-        userEncryptedPrivateKey.nextState(keys.encryptedPrivateKey.encryptedString);
+        userEncryptedPrivateKey.nextState(keys.encryptedPrivateKey!.encryptedString!);
       }
 
       if ("orgKeys" in keys) {
@@ -583,7 +590,7 @@ describe("keyService", () => {
           mockUserId,
           USER_ENCRYPTED_ORGANIZATION_KEYS,
         );
-        orgKeysState.nextState(keys.orgKeys);
+        orgKeysState.nextState(keys.orgKeys!);
       }
 
       if ("providerKeys" in keys) {
@@ -591,7 +598,7 @@ describe("keyService", () => {
           mockUserId,
           USER_ENCRYPTED_PROVIDER_KEYS,
         );
-        providerKeysState.nextState(keys.providerKeys);
+        providerKeysState.nextState(keys.providerKeys!);
       }
 
       encryptService.decryptToBytes.mockImplementation((encryptedPrivateKey, userKey) => {
@@ -613,8 +620,8 @@ describe("keyService", () => {
       const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
 
       expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys.userKey).not.toBeNull();
-      expect(decryptionKeys.orgKeys).toEqual({});
+      expect(decryptionKeys!.userKey).not.toBeNull();
+      expect(decryptionKeys!.orgKeys).toEqual({});
     });
 
     it("returns decryption keys when there are org keys", async () => {
@@ -622,18 +629,18 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
         },
       });
 
       const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
 
       expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys.userKey).not.toBeNull();
-      expect(decryptionKeys.orgKeys).not.toBeNull();
-      expect(Object.keys(decryptionKeys.orgKeys)).toHaveLength(1);
-      expect(decryptionKeys.orgKeys[org1Id]).not.toBeNull();
-      const orgKey = decryptionKeys.orgKeys[org1Id];
+      expect(decryptionKeys!.userKey).not.toBeNull();
+      expect(decryptionKeys!.orgKeys).not.toBeNull();
+      expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(1);
+      expect(decryptionKeys!.orgKeys![org1Id]).not.toBeNull();
+      const orgKey = decryptionKeys!.orgKeys![org1Id];
       expect(orgKey.keyB64).toContain("org1Key");
     });
 
@@ -642,7 +649,7 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
         },
         providerKeys: {},
       });
@@ -650,11 +657,11 @@ describe("keyService", () => {
       const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
 
       expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys.userKey).not.toBeNull();
-      expect(decryptionKeys.orgKeys).not.toBeNull();
-      expect(Object.keys(decryptionKeys.orgKeys)).toHaveLength(1);
-      expect(decryptionKeys.orgKeys[org1Id]).not.toBeNull();
-      const orgKey = decryptionKeys.orgKeys[org1Id];
+      expect(decryptionKeys!.userKey).not.toBeNull();
+      expect(decryptionKeys!.orgKeys).not.toBeNull();
+      expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(1);
+      expect(decryptionKeys!.orgKeys![org1Id]).not.toBeNull();
+      const orgKey = decryptionKeys!.orgKeys![org1Id];
       expect(orgKey.keyB64).toContain("org1Key");
     });
 
@@ -664,30 +671,30 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
           [org2Id]: {
             type: "provider",
-            key: makeEncString("provider1Key").encryptedString,
+            key: makeEncString("provider1Key").encryptedString!,
             providerId: "provider1",
           },
         },
         providerKeys: {
-          provider1: makeEncString("provider1Key").encryptedString,
+          provider1: makeEncString("provider1Key").encryptedString!,
         },
       });
 
       const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
 
       expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys.userKey).not.toBeNull();
-      expect(decryptionKeys.orgKeys).not.toBeNull();
-      expect(Object.keys(decryptionKeys.orgKeys)).toHaveLength(2);
+      expect(decryptionKeys!.userKey).not.toBeNull();
+      expect(decryptionKeys!.orgKeys).not.toBeNull();
+      expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(2);
 
-      const orgKey = decryptionKeys.orgKeys[org1Id];
+      const orgKey = decryptionKeys!.orgKeys![org1Id];
       expect(orgKey).not.toBeNull();
       expect(orgKey.keyB64).toContain("org1Key");
 
-      const org2Key = decryptionKeys.orgKeys[org2Id];
+      const org2Key = decryptionKeys!.orgKeys![org2Id];
       expect(org2Key).not.toBeNull();
       expect(org2Key.keyB64).toContain("provider1Key");
     });
@@ -727,7 +734,7 @@ describe("keyService", () => {
       // User has their org keys set
       updateKeys({
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
         },
       });
 
@@ -782,7 +789,7 @@ describe("keyService", () => {
     type TestCase = {
       masterKey: MasterKey;
       masterPassword: string | null;
-      storedMasterKeyHash: string;
+      storedMasterKeyHash: string | null;
       mockReturnedHash: string;
       expectedToMatch: boolean;
     };
@@ -823,7 +830,7 @@ describe("keyService", () => {
         masterPasswordService.masterKeyHashSubject.next(storedMasterKeyHash);
 
         cryptoFunctionService.pbkdf2
-          .calledWith(masterKey.key, masterPassword, "sha256", 2)
+          .calledWith(masterKey.key, masterPassword as string, "sha256", 2)
           .mockResolvedValue(Utils.fromB64ToArray(mockReturnedHash));
 
         const actualDidMatch = await keyService.compareKeyHash(

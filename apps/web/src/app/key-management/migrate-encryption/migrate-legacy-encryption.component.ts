@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -50,6 +48,9 @@ export class MigrateFromLegacyEncryptionComponent {
     }
 
     const activeUser = await firstValueFrom(this.accountService.activeAccount$);
+    if (activeUser == null) {
+      return;
+    }
 
     const hasUserKey = await this.keyService.hasUserKey(activeUser.id);
     if (hasUserKey) {
@@ -58,6 +59,9 @@ export class MigrateFromLegacyEncryptionComponent {
     }
 
     const masterPassword = this.formGroup.value.masterPassword;
+    if (masterPassword == null) {
+      return;
+    }
 
     try {
       await this.syncService.fullSync(false, true);
@@ -73,7 +77,10 @@ export class MigrateFromLegacyEncryptionComponent {
       this.messagingService.send("logout");
     } catch (e) {
       // If the error is due to missing folders, we can delete all folders and try again
-      if (e.message === "All existing folders must be included in the rotation.") {
+      if (
+        e instanceof Error &&
+        e.message === "All existing folders must be included in the rotation."
+      ) {
         const deleteFolders = await this.dialogService.openSimpleDialog({
           type: "warning",
           title: { key: "encryptionKeyUpdateCannotProceed" },

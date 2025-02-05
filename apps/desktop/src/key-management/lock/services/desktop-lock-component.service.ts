@@ -54,7 +54,7 @@ export class DesktopLockComponentService implements LockComponentService {
       map(([biometricsStatus, userDecryptionOptions, pinDecryptionAvailable]) => {
         const unlockOpts: UnlockOptions = {
           masterPassword: {
-            enabled: userDecryptionOptions.hasMasterPassword,
+            enabled: userDecryptionOptions?.hasMasterPassword,
           },
           pin: {
             enabled: pinDecryptionAvailable,
