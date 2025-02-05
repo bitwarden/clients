@@ -32,6 +32,7 @@ export class AutoFillConstants {
     "totpcode",
     "2facode",
     "approvals_code",
+    "auth-mfa-otpcode",
     "mfacode",
     "otc-code",
     "onetimecode",
