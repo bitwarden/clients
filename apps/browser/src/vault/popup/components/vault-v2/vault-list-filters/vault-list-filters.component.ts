@@ -1,12 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
-import { Subject, combineLatest, map, take, takeUntil } from "rxjs";
+import { combineLatest, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ChipSelectComponent } from "@bitwarden/components";
 
-import { VaultListFilterLoadingStateService } from "../../../services/vault-list-filter-loading-state.service";
 import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
 
 @Component({
@@ -15,7 +14,7 @@ import { VaultPopupListFiltersService } from "../../../services/vault-popup-list
   templateUrl: "./vault-list-filters.component.html",
   imports: [CommonModule, JslibModule, ChipSelectComponent, ReactiveFormsModule],
 })
-export class VaultListFiltersComponent implements OnInit {
+export class VaultListFiltersComponent {
   protected filterForm = this.vaultPopupListFiltersService.filterForm;
   protected organizations$ = this.vaultPopupListFiltersService.organizations$;
   protected collections$ = this.vaultPopupListFiltersService.collections$;
@@ -37,16 +36,5 @@ export class VaultListFiltersComponent implements OnInit {
     }),
   );
 
-  constructor(
-    private vaultPopupListFiltersService: VaultPopupListFiltersService,
-    private vaultListFilterLoadingStateService: VaultListFilterLoadingStateService,
-  ) {}
-
-  private destroy$ = new Subject<void>();
-
-  ngOnInit() {
-    this.allFilters$.pipe(take(1), takeUntil(this.destroy$)).subscribe(() => {
-      this.vaultListFilterLoadingStateService.emitFiltersLoaded();
-    });
-  }
+  constructor(private vaultPopupListFiltersService: VaultPopupListFiltersService) {}
 }

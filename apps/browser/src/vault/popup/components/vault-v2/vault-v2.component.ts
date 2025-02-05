@@ -16,7 +16,6 @@ import { CurrentAccountComponent } from "../../../../auth/popup/account-switchin
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
-import { VaultListFilterLoadingStateService } from "../../services/vault-list-filter-loading-state.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
@@ -91,9 +90,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   protected VaultStateEnum = VaultState;
 
-  private allFilters$ = this.vaultPopupListFiltersService.allFilters$;
-
-  protected listFiltersLoaded$ = this.vaultListFilterLoadingStateService.filtersLoaded$;
+  protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
@@ -102,7 +99,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private destroyRef: DestroyRef,
     private cipherService: CipherService,
     private dialogService: DialogService,
-    private vaultListFilterLoadingStateService: VaultListFilterLoadingStateService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
