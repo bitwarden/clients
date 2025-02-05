@@ -1021,8 +1021,8 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
             jq -r .value | base64 -d > $HOME/certificates/appstore-app-cert.p12
 
-          # az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
-          #   jq -r .value | base64 -d > $HOME/certificates/appstore-installer-cert.p12
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-installer-cert |
+            jq -r .value | base64 -d > $HOME/certificates/appstore-installer-cert.p12
 
           # az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
           #   jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
@@ -1051,8 +1051,8 @@ jobs:
           security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
-          # security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
-          #   -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+          security import "$HOME/certificates/appstore-installer-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security import "$HOME/certificates/macdev-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
