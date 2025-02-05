@@ -485,6 +485,18 @@
   "editFolder": {
     "message": "Edit folder"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "Base domain",
     "description": "Domain name. Example: website.com"
@@ -748,15 +760,6 @@
   },
   "itemName": {
     "message": "Item name"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "ex.",
@@ -10143,6 +10146,15 @@
   "descriptorCode": {
     "message": "Descriptor code"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Important notice"
   },
@@ -10333,5 +10345,45 @@
         "example": "Acme c"
       }
     }
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
   }
 }

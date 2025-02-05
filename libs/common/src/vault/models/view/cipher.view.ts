@@ -142,6 +142,13 @@ export class CipherView implements View, InitializerMetadata {
     );
   }
 
+  get canAssignToCollections(): boolean {
+    if (this.organizationId == null) {
+      return true;
+    }
+
+    return this.edit && this.viewPassword;
+  }
   /**
    * Determines if the cipher can be launched in a new browser tab.
    */

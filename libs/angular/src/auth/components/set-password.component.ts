@@ -47,7 +47,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
   resetPasswordAutoEnroll = false;
   onSuccessfulChangePassword: () => Promise<void>;
   successRoute = "vault";
-  userId: UserId;
+  activeUserId: UserId;
 
   forceSetPasswordReason: ForceSetPasswordReason = ForceSetPasswordReason.None;
   ForceSetPasswordReason = ForceSetPasswordReason;
@@ -96,10 +96,10 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     await this.syncService.fullSync(true);
     this.syncLoading = false;
 
-    this.userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
 
     this.forceSetPasswordReason = await firstValueFrom(
-      this.masterPasswordService.forceSetPasswordReason$(this.userId),
+      this.masterPasswordService.forceSetPasswordReason$(this.activeUserId),
     );
 
     this.route.queryParams
@@ -111,7 +111,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
           } else {
             // Try to get orgSsoId from state as fallback
             // Note: this is primarily for the TDE user w/out MP obtains admin MP reset permission scenario.
-            return this.ssoLoginService.getActiveUserOrganizationSsoIdentifier();
+            return this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(this.activeUserId);
           }
         }),
         filter((orgSsoId) => orgSsoId != null),
@@ -167,10 +167,10 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
 
       // in case we have a local private key, and are not sure whether it has been posted to the server, we post the local private key instead of generating a new one
       const existingUserPrivateKey = (await firstValueFrom(
-        this.keyService.userPrivateKey$(this.userId),
+        this.keyService.userPrivateKey$(this.activeUserId),
       )) as Uint8Array;
       const existingUserPublicKey = await firstValueFrom(
-        this.keyService.userPublicKey$(this.userId),
+        this.keyService.userPublicKey$(this.activeUserId),
       );
       if (existingUserPrivateKey != null && existingUserPublicKey != null) {
         const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
@@ -217,7 +217,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
 
             return this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
               this.orgId,
-              this.userId,
+              this.activeUserId,
               resetRequest,
             );
           });
@@ -260,7 +260,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(
       ForceSetPasswordReason.None,
-      this.userId,
+      this.activeUserId,
     );
 
     // User now has a password so update account decryption options in state
@@ -269,9 +269,9 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     );
     userDecryptionOpts.hasMasterPassword = true;
     await this.userDecryptionOptionsService.setUserDecryptionOptions(userDecryptionOpts);
-    await this.kdfConfigService.setKdfConfig(this.userId, this.kdfConfig);
-    await this.masterPasswordService.setMasterKey(masterKey, this.userId);
-    await this.keyService.setUserKey(userKey[0], this.userId);
+    await this.kdfConfigService.setKdfConfig(this.activeUserId, this.kdfConfig);
+    await this.masterPasswordService.setMasterKey(masterKey, this.activeUserId);
+    await this.keyService.setUserKey(userKey[0], this.activeUserId);
 
     // Set private key only for new JIT provisioned users in MP encryption orgs
     // Existing TDE users will have private key set on sync or on login
@@ -280,7 +280,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
       this.forceSetPasswordReason !=
         ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
-      await this.keyService.setPrivateKey(keyPair[1].encryptedString, this.userId);
+      await this.keyService.setPrivateKey(keyPair[1].encryptedString, this.activeUserId);
     }
 
     const localMasterKeyHash = await this.keyService.hashMasterKey(
@@ -288,6 +288,6 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
       masterKey,
       HashPurpose.LocalAuthorization,
     );
-    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, this.userId);
+    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, this.activeUserId);
   }
 }

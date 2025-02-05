@@ -1,12 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, map, of } from "rxjs";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import {
-  CipherDecryptionKeys,
-  KeyService,
-} from "../../../../key-management/src/abstractions/key.service";
+import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
+
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
 import { makeStaticByteArray } from "../../../spec/utils";

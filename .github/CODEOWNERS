@@ -97,12 +97,15 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/scan.yml @bitwarden/team-platform-dev
 .github/workflows/test.yml @bitwarden/team-platform-dev
 .github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
+# ESLint custom rules
+libs/eslint @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/src/autofill @bitwarden/team-autofill-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
 apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
+apps/desktop/desktop_native/windows-plugin-authenticator @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
@@ -128,6 +131,7 @@ apps/web/src/app/key-management @bitwarden/team-key-management-dev
 apps/browser/src/key-management @bitwarden/team-key-management-dev
 apps/cli/src/key-management @bitwarden/team-key-management-dev
 libs/key-management @bitwarden/team-key-management-dev
+libs/key-management-ui @bitwarden/team-key-management-dev
 libs/common/src/key-management @bitwarden/team-key-management-dev
 
 apps/desktop/destkop_native/core/src/biometric/ @bitwarden/team-key-management-dev
