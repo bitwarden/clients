@@ -1,11 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { combineLatest, map, Observable, of, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of } from "rxjs";
 
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
-import { vNextInternalPolicyService } from "../../abstractions/policy/vnext-policy.service.abstraction";
+import { vNextPolicyService } from "../../abstractions/policy/vnext-policy.service";
 import { OrganizationUserStatusType, PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
@@ -15,14 +13,15 @@ import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-p
 
 import { POLICIES } from "./vnext-policy-state";
 
-const policyRecordToArray = (policiesMap: { [id: string]: PolicyData }) =>
-  Object.values(policiesMap || {}).map((f) => new Policy(f));
-
-export function getFirstPolicy(policies: Observable<Policy[]>): Observable<Policy> {
-  return policies.pipe(map((p) => p.at(0) ?? null));
+export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }) {
+  return Object.values(policiesMap || {}).map((f) => new Policy(f));
 }
 
-export class vNextPolicyService implements vNextInternalPolicyService {
+export function getFirstPolicy(policies: Observable<Policy[]>): Observable<Policy | undefined> {
+  return policies.pipe(map((p) => p.at(0) ?? undefined));
+}
+
+export class DefaultvNextPolicyService implements vNextPolicyService {
   constructor(
     private stateProvider: StateProvider,
     private organizationService: OrganizationService,
@@ -32,29 +31,21 @@ export class vNextPolicyService implements vNextInternalPolicyService {
     return this.stateProvider.getUser(userId, POLICIES);
   }
 
+  private policyData$(userId: UserId) {
+    return this.policyState(userId).state$.pipe(map((policyData) => policyData ?? {}));
+  }
+
   policies$(userId: UserId) {
-    const policies$ = this.policyState(userId).state$.pipe(
-      map((policyData) => policyRecordToArray(policyData)),
-    );
-
-    const organizations$ = this.stateProvider.activeUserId$.pipe(
-      switchMap((userId) => this.organizationService.organizations$(userId)),
-    );
-
-    return combineLatest([policies$, organizations$]).pipe(
-      map(([policies, organization]) => this.enforcedPolicyFilter(policies, organization)),
-    );
+    return this.policyData$(userId).pipe(map((policyData) => policyRecordToArray(policyData)));
   }
 
   policiesByType$(policyType: PolicyType, userId: UserId) {
-    const filteredPolicies$ = this.policyState(userId).state$.pipe(
+    const filteredPolicies$ = this.policyData$(userId).pipe(
       map((policyData) => policyRecordToArray(policyData)),
       map((policies) => policies.filter((p) => p.type === policyType)),
     );
 
-    const organizations$ = this.stateProvider.activeUserId$.pipe(
-      switchMap((userId) => this.organizationService.organizations$(userId)),
-    );
+    const organizations$ = this.organizationService.organizations$(userId ?? ("" as UserId));
 
     return combineLatest([filteredPolicies$, organizations$]).pipe(
       map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),
@@ -72,7 +63,7 @@ export class vNextPolicyService implements vNextInternalPolicyService {
 
       // This shouldn't happen, i.e. the user should only have policies for orgs they are a member of
       // But if it does, err on the side of enforcing the policy
-      if (organization == null) {
+      if (!organization) {
         return true;
       }
 
@@ -87,25 +78,22 @@ export class vNextPolicyService implements vNextInternalPolicyService {
 
   masterPasswordPolicyOptions$(
     userId: UserId,
-    policies: Policy[],
-  ): Observable<MasterPasswordPolicyOptions> {
+    policies?: Policy[],
+  ): Observable<MasterPasswordPolicyOptions | undefined> {
     const policies$ = policies ? of(policies) : this.policies$(userId);
     return policies$.pipe(
       map((obsPolicies) => {
-        let enforcedOptions: MasterPasswordPolicyOptions = null;
-        const filteredPolicies = obsPolicies.filter((p) => p.type === PolicyType.MasterPassword);
+        const enforcedOptions: MasterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
+        const filteredPolicies =
+          obsPolicies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
 
-        if (filteredPolicies == null || filteredPolicies.length === 0) {
-          return enforcedOptions;
+        if (filteredPolicies.length === 0) {
+          return;
         }
 
         filteredPolicies.forEach((currentPolicy) => {
-          if (!currentPolicy.enabled || currentPolicy.data == null) {
+          if (!currentPolicy.enabled || !currentPolicy.data) {
             return;
-          }
-
-          if (enforcedOptions == null) {
-            enforcedOptions = new MasterPasswordPolicyOptions();
           }
 
           if (
@@ -151,9 +139,9 @@ export class vNextPolicyService implements vNextInternalPolicyService {
   evaluateMasterPassword(
     passwordStrength: number,
     newPassword: string,
-    enforcedPolicyOptions: MasterPasswordPolicyOptions,
+    enforcedPolicyOptions?: MasterPasswordPolicyOptions,
   ): boolean {
-    if (enforcedPolicyOptions == null) {
+    if (!enforcedPolicyOptions) {
       return true;
     }
 
@@ -197,7 +185,7 @@ export class vNextPolicyService implements vNextInternalPolicyService {
   ): [ResetPasswordPolicyOptions, boolean] {
     const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
 
-    if (policies == null || orgId == null) {
+    if (!policies || !orgId) {
       return [resetPasswordPolicyOptions, false];
     }
 

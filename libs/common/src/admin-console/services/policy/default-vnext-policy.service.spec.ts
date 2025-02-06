@@ -19,7 +19,7 @@ import { POLICIES } from "../../../admin-console/services/policy/policy.service"
 import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 
-import { getFirstPolicy, vNextPolicyService } from "./default-vnext-policy.service";
+import { DefaultvNextPolicyService, getFirstPolicy } from "./default-vnext-policy.service";
 
 describe("PolicyService", () => {
   const userId = "userId" as UserId;
@@ -27,7 +27,7 @@ describe("PolicyService", () => {
   let organizationService: MockProxy<OrganizationService>;
   let singleUserState: FakeSingleUserState<Record<PolicyId, PolicyData>>;
 
-  let policyService: vNextPolicyService;
+  let policyService: DefaultvNextPolicyService;
 
   beforeEach(() => {
     const accountService = mockAccountServiceWith(userId);
@@ -57,9 +57,9 @@ describe("PolicyService", () => {
       organization("org6", true, true, OrganizationUserStatusType.Confirmed, true),
     ]);
 
-    organizationService.organizations$.mockReturnValue(organizations$);
+    organizationService.organizations$.calledWith(userId).mockReturnValue(organizations$);
 
-    policyService = new vNextPolicyService(stateProvider, organizationService);
+    policyService = new DefaultvNextPolicyService(stateProvider, organizationService);
   });
 
   it("upsert", async () => {
@@ -140,7 +140,7 @@ describe("PolicyService", () => {
       });
     });
 
-    it("returns null", async () => {
+    it("returns undefined", async () => {
       const data: any = {};
       const model = [
         new Policy(
@@ -154,7 +154,7 @@ describe("PolicyService", () => {
 
       const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
 
-      expect(result).toEqual(null);
+      expect(result).toEqual(undefined);
     });
 
     it("returns specified policy options", async () => {
@@ -257,7 +257,7 @@ describe("PolicyService", () => {
           .pipe(getFirstPolicy),
       );
 
-      expect(result).toBeNull();
+      expect(result).toEqual(undefined);
     });
 
     it("does not return policies that do not apply to the user because the user's role is exempt", async () => {
@@ -273,7 +273,7 @@ describe("PolicyService", () => {
           .policiesByType$(PolicyType.DisablePersonalVaultExport, userId)
           .pipe(getFirstPolicy),
       );
-      expect(result).toBeNull();
+      expect(result).toEqual(undefined);
     });
 
     it.each([
@@ -306,12 +306,12 @@ describe("PolicyService", () => {
         policyService.policiesByType$(PolicyType.ActivateAutofill, userId).pipe(getFirstPolicy),
       );
 
-      expect(result).toBeNull();
+      expect(result).toEqual(undefined);
     });
   });
 
   describe("policies$", () => {
-    it("returns all policies", async () => {
+    it("returns all policies when none are disabled", async () => {
       singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
@@ -351,7 +351,7 @@ describe("PolicyService", () => {
       ]);
     });
 
-    it("does not return disabled policies", async () => {
+    it("returns all policies when some are disabled", async () => {
       singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
@@ -377,6 +377,12 @@ describe("PolicyService", () => {
           enabled: true,
         },
         {
+          id: "policy3",
+          organizationId: "org5",
+          type: PolicyType.DisablePersonalVaultExport,
+          enabled: false,
+        },
+        {
           id: "policy4",
           organizationId: "org1",
           type: PolicyType.DisablePersonalVaultExport,
@@ -385,7 +391,7 @@ describe("PolicyService", () => {
       ]);
     });
 
-    it("does not return policies that do not apply to the user because the user's role is exempt", async () => {
+    it("returns policies that do not apply to the user because the user's role is exempt", async () => {
       singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
@@ -413,6 +419,12 @@ describe("PolicyService", () => {
         {
           id: "policy3",
           organizationId: "org5",
+          type: PolicyType.DisablePersonalVaultExport,
+          enabled: true,
+        },
+        {
+          id: "policy4",
+          organizationId: "org2",
           type: PolicyType.DisablePersonalVaultExport,
           enabled: true,
         },
@@ -445,6 +457,12 @@ describe("PolicyService", () => {
           enabled: true,
         },
         {
+          id: "policy3",
+          organizationId: "org3",
+          type: PolicyType.DisablePersonalVaultExport,
+          enabled: true,
+        },
+        {
           id: "policy4",
           organizationId: "org1",
           type: PolicyType.DisablePersonalVaultExport,
@@ -454,7 +472,7 @@ describe("PolicyService", () => {
     });
   });
 
-  describe("policyAppliesToActiveUser$", () => {
+  describe("policyAppliesToUser$", () => {
     it("returns true when the policyType applies to the user", async () => {
       singleUserState.nextState(
         arrayToRecord([
