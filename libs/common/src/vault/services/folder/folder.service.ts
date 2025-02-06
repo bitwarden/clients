@@ -4,9 +4,9 @@ import { Observable, Subject, firstValueFrom, map, shareReplay, switchMap, merge
 
 import { KeyService } from "@bitwarden/key-management";
 
-import { EncryptService } from ".././../../platform/abstractions/encrypt.service";
-import { Utils } from ".././../../platform/misc/utils";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
