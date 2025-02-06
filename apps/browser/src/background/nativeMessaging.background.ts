@@ -407,7 +407,6 @@ export class NativeMessagingBackground {
     }
 
     if (this.callbacks.has(messageId)) {
-      this.logService.info("[Native Messaging IPC] Received message with a callback", message);
       const callback = this.callbacks.get(messageId);
       this.callbacks.delete(messageId);
       callback.resolver(message);
