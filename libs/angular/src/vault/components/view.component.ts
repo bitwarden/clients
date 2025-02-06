@@ -11,7 +11,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { filter, firstValueFrom, map, Observable } from "rxjs";
+import { filter, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -81,6 +81,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   private passwordReprompted = false;
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+  private destroyed$ = new Subject<void>();
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -146,12 +147,15 @@ export class ViewComponent implements OnDestroy, OnInit {
 
     const activeUserId = await firstValueFrom(this.activeUserId$);
     // Grab individual cipher from `cipherViews$` for the most up-to-date information
-    this.cipher = await firstValueFrom(
-      this.cipherService.cipherViews$.pipe(
-        map((ciphers) => ciphers.find((c) => c.id === this.cipherId)),
+    this.cipherService.cipherViews$
+      .pipe(
+        map((ciphers) => ciphers?.find((c) => c.id === this.cipherId)),
         filter((cipher) => !!cipher),
-      ),
-    );
+        takeUntil(this.destroyed$),
+      )
+      .subscribe((cipher) => {
+        this.cipher = cipher;
+      });
 
     this.canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
@@ -524,6 +528,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.showCardNumber = false;
     this.showCardCode = false;
     this.passwordReprompted = false;
+    this.destroyed$.next();
     if (this.totpInterval) {
       clearInterval(this.totpInterval);
     }
