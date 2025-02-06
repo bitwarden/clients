@@ -3771,7 +3771,7 @@ dependencies = [
  "bindgen",
  "windows 0.59.0",
  "windows-core 0.59.0",
- "windows-implement 0.59.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

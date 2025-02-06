@@ -2,62 +2,77 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
-use windows_core::*;
-
 mod pa;
 
+use pa::{
+    EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+    EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
+    EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+};
+use windows_core::*;
+use windows_sys::Win32::System::Com::CoInitialize;
+
 pub fn register() -> i32 {
+    // let com_object: PACOMObject;
+    // let com_object_ptr: *const PACOMObject = &com_object;
+
+    // let result: HRESULT = unsafe {
+    //     HRESULT(CoInitialize(com_object_ptr))
+    // };
+
     8
+}
+
+pub fn get_test_number() -> i32 {
+    -1
 }
 
 pub fn get_version_number() -> u64 {
     unsafe { pa::WebAuthNGetApiVersionNumber() }.into()
 }
 
-pub fn add_authenticator() {
-    unimplemented!();
-}
-
-#[interface("7bfb04b4-e89c-4b1d-8188-89c734e3a9eb")]
+#[interface("e6466e9a-b2f3-47c5-b88d-89bc14a8d998")]
 unsafe trait EXPERIMENTAL_IPluginAuthenticator: IUnknown {
-    fn EXPERIMENTAL_PluginMakeCredential(&self) -> HRESULT;
-    fn EXPERIMENTAL_PluginGetAssertion(&self) -> HRESULT;
-    fn EXPERIMENTAL_PluginCancelOperation(&self) -> HRESULT;
+    fn EXPERIMENTAL_PluginMakeCredential(
+        &self,
+        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        response: &mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+    ) -> HRESULT;
+    fn EXPERIMENTAL_PluginGetAssertion(
+        &self,
+        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        response: &mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+    ) -> HRESULT;
+    fn EXPERIMENTAL_PluginCancelOperation(
+        &self,
+        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+    ) -> HRESULT;
 }
 
 #[implement(EXPERIMENTAL_IPluginAuthenticator)]
-struct COMObject(i32);
+struct PACOMObject;
 
-impl EXPERIMENTAL_IPluginAuthenticator_Impl for COMObject_Impl {
-    unsafe fn EXPERIMENTAL_PluginMakeCredential(&self) -> HRESULT {
-        HRESULT(0)
+impl EXPERIMENTAL_IPluginAuthenticator_Impl for PACOMObject_Impl {
+    unsafe fn EXPERIMENTAL_PluginMakeCredential(
+        &self,
+        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        response: &mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+    ) -> HRESULT {
+        HRESULT(get_test_number())
     }
 
-    unsafe fn EXPERIMENTAL_PluginGetAssertion(&self) -> HRESULT {
-        HRESULT(0)
+    unsafe fn EXPERIMENTAL_PluginGetAssertion(
+        &self,
+        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        response: &mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
+    ) -> HRESULT {
+        HRESULT(get_test_number())
     }
 
-    unsafe fn EXPERIMENTAL_PluginCancelOperation(&self) -> HRESULT {
-        HRESULT(0)
+    unsafe fn EXPERIMENTAL_PluginCancelOperation(
+        &self,
+        request: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+    ) -> HRESULT {
+        HRESULT(get_test_number())
     }
 }
-
-/*
-
-The COM object to provide:
-
-interface EXPERIMENTAL_IPluginAuthenticator : IUnknown
-{
-    HRESULT EXPERIMENTAL_PluginMakeCredential(
-        [in] EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST request,
-        [out] EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE* response);
-
-    HRESULT EXPERIMENTAL_PluginGetAssertion(
-        [in] EXPERIMENTAL_PCWEBAUTHN_PLUGIN_OPERATION_REQUEST request,
-        [out] EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE* response);
-
-    HRESULT EXPERIMENTAL_PluginCancelOperation(
-        [in] EXPERIMENTAL_PCWEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST request);
-}
-
-*/
