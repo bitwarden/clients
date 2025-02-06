@@ -1,14 +1,14 @@
-import { dirname, join } from "path";
-import path from "path";
+import path, { dirname, join } from "path";
+
 import type { StorybookConfig } from "@storybook/web-components-webpack5";
-import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import remarkGfm from "remark-gfm";
+import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 
 const getAbsolutePath = (value: string): string =>
   dirname(require.resolve(join(value, "package.json")));
 
 const config: StorybookConfig = {
-  stories: ["../lit-stories/**/*.lit-stories.@(js|jsx|ts|tsx)"],
+  stories: ["../lit-stories/**/*.lit-stories.@(js|jsx|ts|tsx)", "../lit-stories/**/*.mdx"],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
     getAbsolutePath("@storybook/addon-essentials"),

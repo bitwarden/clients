@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Įsigyti Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Galite įsigyti „Premium“ narystę „bitwarden.com“ žiniatinklio saugykloje. Ar norite apsilankyti svetainėje dabar?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Username generator"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Use this password"

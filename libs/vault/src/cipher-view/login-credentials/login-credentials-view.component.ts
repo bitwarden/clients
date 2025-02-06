@@ -18,6 +18,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
@@ -31,9 +32,6 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PremiumUpgradePromptService } from "../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 

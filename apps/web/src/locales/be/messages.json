@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Небяспечная зона"
   },
-  "dangerZoneDesc": {
-    "message": "Асцярожна, гэтыя дзеянні з'яўляюцца незваротнымі!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "Скасаваць аўтарызацыю сеанса"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Працягваючы, вы таксама выйдзіце з бягучага сеанса і вам неабходна будзе ўвайсці паўторна. Вы таксама атрымаеце паўторны запыт двухэтапнага ўваходу, калі гэта функцыя ў вас уключана. Сеансы на іншых прыладах могуць заставацца актыўнымі на працягу адной гадзіны."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "Аўтарызацыя ўсіх сеансаў скасавана"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Выкарыстоўвайце сваю сканфігураваную скрыню для ўсёй пошты дамена."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Выпадкова",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"

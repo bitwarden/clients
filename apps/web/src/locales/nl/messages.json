@@ -156,10 +156,10 @@
     "message": "Totaal applicaties"
   },
   "unmarkAsCriticalApp": {
-    "message": "Markeren als belangrijke applicatie ongedaan maken"
+    "message": "Markeren als belangrijke app ongedaan maken"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Markering als belangrijke applicatie ongedaan gemaakt"
+    "message": "Markeren als belangrijke app ongedaan gemaakt"
   },
   "whatTypeOfItem": {
     "message": "Van welke categorie is dit item?"
@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Gevarenzone"
   },
-  "dangerZoneDesc": {
-    "message": "Waarschuwing - deze acties zijn niet terug te draaien!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Waarschuwing - deze actie is niet terug te draaien!"
-  },
   "deauthorizeSessions": {
     "message": "Sessie-autorisaties intrekken"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Je moet ook je tweestapsaanmelding opnieuw doorlopen, als die is ingeschakeld. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Nieuwe apparaat login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Inlogbescherming nieuwe apparaten uitschakelen"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Inlogbescherming nieuwe apparaten inschakelen"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Ga hieronder verder voor het uitschakelen van de e-mailverificatieberichten die Bitwarden stuurt wanneer je inlogt vanaf een nieuw apparaat."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Ga hieronder verder om Bitwarden verificatie e-mails te sturen wanneer je inlogt vanaf een nieuw apparaat.\n\nGa hieronder verder om Bitwarden e-mailverificatieberichten te laten sturen wanneer je inlogt vanaf een nieuw apparaat."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Als je inlogbescherming voor nieuwe apparaten uitschakelt, kan iedereen op ieder apparaat met je hoofdwachtwoord inloggen. Stel tweestapsaanmelding in om je account te beschermen zonder e-mailverificatieberichten."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Wijzigingen inlogbescherming nieuwe apparaten opgeslagen"
   },
   "sessionsDeauthorized": {
     "message": "Autorisatie van alle sessies ingetrokken"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Gebruik de catch-all inbox van je domein."
   },
+  "useThisEmail": {
+    "message": "Dit e-mailadres gebruiken"
+  },
   "random": {
     "message": "Willekeurig",
     "description": "Generates domain-based username using random letters"
@@ -8607,6 +8625,9 @@
   "limitCollectionDeletionDesc": {
     "message": "Verwijderen van collecties beperken tot eigenaren en managers"
   },
+  "limitItemDeletionDesc": {
+    "message": "Beperk het verwijderen van items tot leden met het recht Kan beheren"
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Eigenaren en beheerders kunnen alle collecties en items beheren"
   },
@@ -9809,7 +9830,7 @@
     "message": "Sleutelalgoritme"
   },
   "sshPrivateKey": {
-    "message": "Privésleutel"
+    "message": "Privé sleutel"
   },
   "sshPublicKey": {
     "message": "Publieke sleutel"
