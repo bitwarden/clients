@@ -145,9 +145,14 @@ export default class NotificationBackground {
    */
 
   async getNotificationCipherData(): Promise<NotificationCipherData[]> {
-    const currentTab = await BrowserApi.getTabFromCurrentWindow();
-    const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // const currentTab = await BrowserApi.getTabFromCurrentWindow();
+    // const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
+    // const env = await firstValueFrom(this.environmentService.environment$);
+    const [currentTab, showFavicons, env] = await Promise.all([
+      BrowserApi.getTabFromCurrentWindow(),
+      firstValueFrom(this.domainSettingsService.showFavicons$),
+      firstValueFrom(this.environmentService.environment$),
+    ]);
     const iconsServerUrl = env.getIconsUrl();
     const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(currentTab.url);
 
