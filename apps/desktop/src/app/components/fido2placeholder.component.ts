@@ -72,7 +72,7 @@ export class Fido2PlaceholderComponent implements OnInit {
       // But if this route is somehow opened outside of session we want to make sure we clean up?
       await this.router.navigate(["/"]);
       await this.desktopSettingsService.setInModalMode(false);
-    } catch (error) {
+    } catch {
       // TODO: Handle error appropriately
     }
   }

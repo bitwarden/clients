@@ -22,7 +22,7 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
-import { DesktopSettingsService } from "src/platform/services/desktop-settings.service";
+import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
 // import the angular router
 
