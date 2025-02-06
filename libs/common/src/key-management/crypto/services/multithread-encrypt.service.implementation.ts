@@ -3,13 +3,13 @@
 import { defaultIfEmpty, filter, firstValueFrom, fromEvent, map, Subject, takeUntil } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { Utils } from "../../../platform/misc/utils";
-import { Decryptable } from "../../interfaces/decryptable.interface";
-import { InitializerMetadata } from "../../interfaces/initializer-metadata.interface";
-import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
+import { Decryptable } from "@bitwarden/common/platform/interfaces/decryptable.interface";
+import { InitializerMetadata } from "@bitwarden/common/platform/interfaces/initializer-metadata.interface";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { getClassInitializer } from "@bitwarden/common/platform/services/cryptography/get-class-initializer";
 
 import { EncryptServiceImplementation } from "./encrypt.service.implementation";
-import { getClassInitializer } from "./get-class-initializer";
 
 // TTL (time to live) is not strictly required but avoids tying up memory resources if inactive
 const workerTTL = 3 * 60000; // 3 minutes
@@ -40,7 +40,7 @@ export class MultithreadEncryptServiceImplementation extends EncryptServiceImple
     this.worker ??= new Worker(
       new URL(
         /* webpackChunkName: 'encrypt-worker' */
-        "@bitwarden/common/platform/services/cryptography/encrypt.worker.ts",
+        "@bitwarden/common/key-management/crypto/services/encrypt.worker.ts",
         import.meta.url,
       ),
     );
