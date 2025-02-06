@@ -8,10 +8,8 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { NewDeviceVerificationNoticeService } from "@bitwarden/vault";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { NewDeviceVerificationNoticeService } from "../../../../vault/src/services/new-device-verification-notice.service";
 import { VaultProfileService } from "../services/vault-profile.service";
 
 export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
