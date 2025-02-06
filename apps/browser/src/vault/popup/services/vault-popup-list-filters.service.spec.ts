@@ -85,11 +85,11 @@ describe("VaultPopupListFiltersService", () => {
     policyService.policyAppliesToActiveUser$.mockClear();
 
     const accountService = mockAccountServiceWith("userId" as UserId);
-    const testCachedSignal = createMockSignal<CachedFilterState>({});
+    const mockCachedSignal = createMockSignal<CachedFilterState>({});
 
     viewCacheService = {
-      mockSignal: testCachedSignal,
-      signal: jest.fn(() => testCachedSignal),
+      mockSignal: mockCachedSignal,
+      signal: jest.fn(() => mockCachedSignal),
     };
 
     collectionService.getAllNested = () => Promise.resolve([]);
