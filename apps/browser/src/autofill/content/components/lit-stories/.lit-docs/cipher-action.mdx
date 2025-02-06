@@ -1,0 +1,83 @@
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
+
+import * as stories from "./cipher-action.lit-stories";
+
+<Meta title="Components/Ciphers/Cipher Action" of={stories} />
+
+## Cipher Action
+
+The `CipherAction` component is a functional UI element that handles actions related to ciphers in a
+secure environment. Built with the `lit` library and styled for consistency across themes, it
+provides flexibility and accessibility while supporting various notification types.
+
+<Primary />
+<Controls />
+
+## Props
+
+| **Prop**           | **Type**                                            | **Required** | **Description**                                                |
+| ------------------ | --------------------------------------------------- | ------------ | -------------------------------------------------------------- |
+| `handleAction`     | `(e: Event) => void`                                | No           | Function to execute when an action is triggered.               |
+| `notificationType` | `NotificationTypes.Change \| NotificationTypes.Add` | Yes          | Specifies the type of notification associated with the action. |
+| `theme`            | `Theme`                                             | Yes          | The theme to style the component. Must match the `Theme` enum. |
+
+## Installation and Setup
+
+1. Ensure the necessary dependencies are installed:
+
+   - `lit`: Used to render the component.
+
+2. Pass the required props when rendering the component:
+   - `handleAction`: Optional function to handle the triggered action.
+   - `notificationType`: Mandatory type from `NotificationTypes` to define the action context.
+   - `theme`: The styling theme (must be a valid `Theme` enum value).
+
+## Accessibility (WCAG) Compliance
+
+The `CipherAction` component is designed to be accessible, ensuring usability across diverse user
+bases. Below are the key considerations for accessibility:
+
+### Keyboard Accessibility
+
+- Fully navigable using the keyboard.
+- The action can be triggered using the `Enter` or `Space` key for users relying on keyboard
+  interaction.
+
+### Screen Reader Compatibility
+
+- The semantic elements used in the `CipherAction` component ensure that assistive technologies can
+  interpret the component correctly.
+- Text associated with the `notificationType` is programmatically linked, providing clarity for
+  screen reader users.
+
+### Focus Management
+
+- The component includes focus styles to ensure visibility during navigation.
+- Proper focus management ensures the component works seamlessly with keyboard navigation.
+
+### Visual Feedback
+
+- Provides distinct visual states for different themes and states:
+  - **Hover:** Adjustments to background, border, and text for enhanced visibility.
+  - **Active:** Highlights the button with a focus state when activated.
+  - **Disabled:** Grays out the component to indicate inactivity.
+
+## Usage Example
+
+Here's an example of how to integrate the `CipherAction` component:
+
+```ts
+import { CipherAction } from "../../cipher/cipher-action";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
+
+const handleAction = (e: Event) => {
+  console.log("Cipher action triggered!", e);
+};
+
+<CipherAction
+  handleAction={handleAction}
+  notificationType={NotificationTypes.Change}
+  theme={ThemeTypes.Dark}
+/>;
+```

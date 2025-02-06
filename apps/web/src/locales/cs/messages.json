@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Nebezpečná zóna"
   },
-  "dangerZoneDesc": {
-    "message": "Opatrně. Tyto akce se nedají vrátit!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Opatrně, tato akce je nevratná!"
-  },
   "deauthorizeSessions": {
     "message": "Zrušit autorizaci relací"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Pokud chcete pokračovat, budete také odhlášeni z aktuální relace a bude nutné se znovu přihlásit. Pokud používáte dvoufázové přihlášení, bude také vyžadováno. Aktivní relace na jiných zařízeních mohou nadále zůstat aktivní po dobu až jedné hodiny."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Nové přihlášení do zařízení"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Vypnout ochranu pro přihlášení z nového zařízení"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Zapnout ochranu pro přihlášení z nového zařízení"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Pokračujte níže a vypněte ověřovací e-maily od Bitwardenu, když se přihlásíte z nového zařízení."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Níže postupujte tak, aby Vám Bitwarden zasílal ověřovací e-maily při přihlášení z nového zařízení."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Pokud je ochrana přihlášení z nového zařízení vypnutá, může kdokoli s Vaším hlavním heslem přistupovat k Vašemu účtu z libovolného zařízení. Chcete-li svůj účet chránit bez ověřovacích e-mailů, nastavte dvoufázové přihlašování."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Změny ochrany přihlášení z nového zařízení byly uloženy"
   },
   "sessionsDeauthorized": {
     "message": "Všechny relace byly zrušeny"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Použijte nakonfigurovanou univerzální schránku své domény."
   },
+  "useThisEmail": {
+    "message": "Použít tento e-mail"
+  },
   "random": {
     "message": "Náhodně",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Omezí mazání kolekce na vlastníky a správce"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Vlastníci a správci mohou spravovat všechny kolekce a předměty"

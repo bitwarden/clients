@@ -118,7 +118,13 @@
                         ) | currency: "$"
                       }}
                     </b>
-                    <span class="tw-text-xs tw-px-0"> /{{ "monthPerMember" | i18n }}</span>
+                    <span class="tw-text-xs tw-px-0">
+                      /{{
+                        selectableProduct.productTier === productTypes.Families
+                          ? "month"
+                          : ("monthPerMember" | i18n)
+                      }}</span
+                    >
                     <b class="tw-text-sm tw-font-semibold">
                       <ng-container
                         *ngIf="selectableProduct.PasswordManager.hasAdditionalSeatsOption"
