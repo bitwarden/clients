@@ -2269,6 +2269,9 @@
   "readSecurityKey": {
     "message": "Read security key"
   },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "Hide my email address from recipients."
   },

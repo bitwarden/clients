@@ -1407,6 +1407,9 @@
   "readSecurityKey": {
     "message": "Read security key"
   },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "loginUnavailable": {
     "message": "Login unavailable"
   },

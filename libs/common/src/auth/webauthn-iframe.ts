@@ -26,6 +26,9 @@ export class WebAuthnIFrame {
       data: this.base64Encode(JSON.stringify(data)),
       parent: encodeURIComponent(this.win.document.location.href),
       btnText: encodeURIComponent(this.i18nService.t("readSecurityKey")),
+      btnAwaitingInteractionText: encodeURIComponent(
+        this.i18nService.t("awaitingSecurityKeyInteraction"),
+      ),
       v: "1",
     });
 

@@ -5681,6 +5681,9 @@
   "readSecurityKey": {
     "message": "Read security key"
   },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "webAuthnNotSupported": {
     "message": "WebAuthn is not supported in this browser."
   },
