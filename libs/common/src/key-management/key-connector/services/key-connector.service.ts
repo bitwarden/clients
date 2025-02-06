@@ -18,8 +18,6 @@ import { Organization } from "../../../admin-console/models/domain/organization"
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../../auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "../../../auth/abstractions/token.service";
-import { KeyConnectorUserKeyRequest } from "../../../auth/models/request/key-connector-user-key.request";
-import { SetKeyConnectorKeyRequest } from "../../../auth/models/request/set-key-connector-key.request";
 import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
@@ -35,6 +33,8 @@ import {
 import { UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
+import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
+import { SetKeyConnectorKeyRequest } from "../models/set-key-connector-key.request";
 
 export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(
   KEY_CONNECTOR_DISK,

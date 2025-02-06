@@ -9,7 +9,6 @@ import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationData } from "../../../admin-console/models/data/organization.data";
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "../../../admin-console/models/response/profile-organization.response";
-import { KeyConnectorUserKeyRequest } from "../../../auth/models/request/key-connector-user-key.request";
 import { KeyConnectorUserKeyResponse } from "../../../auth/models/response/key-connector-user-key.response";
 import { FakeMasterPasswordService } from "../../../auth/services/master-password/fake-master-password.service";
 import { TokenService } from "../../../auth/services/token.service";
@@ -19,6 +18,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { KeyGenerationService } from "../../../platform/services/key-generation.service";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";
+import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 
 import {
   USES_KEY_CONNECTOR,
