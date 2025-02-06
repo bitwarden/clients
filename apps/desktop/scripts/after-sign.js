@@ -37,7 +37,7 @@ async function run(context) {
         const { execSync } = require('child_process');
         execSync(`codesign --force --sign "Mac Developer: Vince Grassia (KL9YM6L6GH)" --entitlements "${path.join(__dirname, '../macos/autofill-extension/autofill-extension.entitlements')}" "${extensionDestPath}"`);
       }
-      
+
       shouldResign = true;
     }
   }
@@ -81,7 +81,7 @@ async function run(context) {
     }
   }
 
-  if (macBuild || copyAutofillExtension) {
+  if (macBuild) {
     console.log("### Notarizing " + appPath);
     if (process.env.APP_STORE_CONNECT_TEAM_ISSUER) {
       const appleApiIssuer = process.env.APP_STORE_CONNECT_TEAM_ISSUER;
