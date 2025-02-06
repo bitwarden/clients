@@ -72,5 +72,8 @@ export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.com
 export * from "./login-approval/login-approval.component";
 export * from "./login-approval/default-login-approval-component.service";
 
+// two factor auth
+export * from "./two-factor-auth";
+
 // device verification
 export * from "./new-device-verification/new-device-verification.component";

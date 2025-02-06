@@ -11,15 +11,20 @@ export interface TwoFactorProviderDetails {
   sort: number;
   premium: boolean;
 }
-
 export abstract class TwoFactorService {
-  init: () => void;
-  getSupportedProviders: (win: Window) => Promise<TwoFactorProviderDetails[]>;
-  getDefaultProvider: (webAuthnSupported: boolean) => Promise<TwoFactorProviderType>;
-  setSelectedProvider: (type: TwoFactorProviderType) => Promise<void>;
-  clearSelectedProvider: () => Promise<void>;
+  abstract init(): void;
 
-  setProviders: (response: IdentityTwoFactorResponse) => Promise<void>;
-  clearProviders: () => Promise<void>;
-  getProviders: () => Promise<Map<TwoFactorProviderType, { [key: string]: string }>>;
+  abstract getSupportedProviders(win: Window): Promise<TwoFactorProviderDetails[]>;
+
+  abstract getDefaultProvider(webAuthnSupported: boolean): Promise<TwoFactorProviderType>;
+
+  abstract setSelectedProvider(type: TwoFactorProviderType): Promise<void>;
+
+  abstract clearSelectedProvider(): Promise<void>;
+
+  abstract setProviders(response: IdentityTwoFactorResponse): Promise<void>;
+
+  abstract clearProviders(): Promise<void>;
+
+  abstract getProviders(): Promise<Map<TwoFactorProviderType, { [key: string]: string }> | null>;
 }

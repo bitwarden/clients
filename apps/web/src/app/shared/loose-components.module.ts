@@ -50,8 +50,8 @@ import { TwoFactorSetupComponent } from "../auth/settings/two-factor/two-factor-
 import { TwoFactorVerifyComponent } from "../auth/settings/two-factor/two-factor-verify.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
+import { TwoFactorOptionsComponentV1 } from "../auth/two-factor-options-v1.component";
+import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
@@ -156,12 +156,12 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
+    TwoFactorComponentV1,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
-    TwoFactorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
-    TwoFactorOptionsComponent,
+    TwoFactorOptionsComponentV1,
     TwoFactorRecoveryComponent,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
@@ -223,18 +223,16 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
+    TwoFactorComponentV1,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
-    TwoFactorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
-    TwoFactorOptionsComponent,
-    TwoFactorRecoveryComponent,
+    TwoFactorOptionsComponentV1,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
     TwoFactorSetupWebAuthnComponent,
     TwoFactorSetupYubiKeyComponent,
-    UpdatePasswordComponent,
     UpdateTempPasswordComponent,
     UserLayoutComponent,
     VerifyEmailTokenComponent,

@@ -5,14 +5,11 @@
     <title>Bitwarden WebAuthn Connector</title>
   </head>
 
-  <body style="background: transparent">
-    <picture>
-      <source srcset="../images/u2fkey.avif" type="image/avif" />
-      <source srcset="../images/u2fkey.webp" type="image/webp" />
-      <img src="../images/u2fkey.jpg" class="rounded img-fluid mb-3" />
-    </picture>
-    <div class="text-center">
-      <button type="button" id="webauthn-button" class="btn btn-primary"></button>
-    </div>
+  <body class="tw-h-full tw-m-0 tw-flex tw-justify-center tw-items-center tw-bg-transparent">
+    <button
+      type="button"
+      id="webauthn-button"
+      class="tw-block !tw-text-contrast focus-visible:tw-ring-2 focus-visible:tw-ring-offset-2 focus-visible:tw-ring-primary-600 focus-visible:tw-z-10 focus:tw-outline-none hover:tw-bg-primary-700 hover:tw-border-primary-700 hover:tw-no-underline tw-bg-primary-600 tw-border-2 tw-border-primary-600 tw-border-solid tw-font-semibold tw-no-underline tw-px-3 tw-py-1.5 tw-rounded-full tw-text-center tw-transition tw-w-full"
+    ></button>
   </body>
 </html>
