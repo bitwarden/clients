@@ -25,6 +25,7 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -32,6 +33,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
+import { NotificationCipherData } from "../content/components/cipher/types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
@@ -82,6 +84,7 @@ export default class NotificationBackground {
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
     notificationRefreshFlagValue: () => this.getNotificationFlag(),
+    bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
   };
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
@@ -130,6 +133,40 @@ export default class NotificationBackground {
    */
   async getExcludedDomains(): Promise<NeverDomains> {
     return await firstValueFrom(this.domainSettingsService.neverDomains$);
+  }
+
+  /**
+   *
+   * Gets the current active tab and retrieves all decrypted ciphers
+   * for the tab's URL. It constructs and returns an array of `NotificationCipherData` objects.
+   * If no active tab or URL is found, it returns an empty array.
+   *
+   * @returns {Promise<NotificationCipherData[]>}
+   */
+
+  async getNotificationCipherData(): Promise<NotificationCipherData[]> {
+    const [currentTab, showFavicons, env] = await Promise.all([
+      BrowserApi.getTabFromCurrentWindow(),
+      firstValueFrom(this.domainSettingsService.showFavicons$),
+      firstValueFrom(this.environmentService.environment$),
+    ]);
+    const iconsServerUrl = env.getIconsUrl();
+    const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(currentTab.url);
+
+    return decryptedCiphers.map((view) => {
+      const { id, name, reprompt, favorite, login } = view;
+      return {
+        id,
+        name,
+        type: CipherType.Login,
+        reprompt,
+        favorite,
+        icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
+        login: login && {
+          username: login.username,
+        },
+      };
+    });
   }
 
   /**
