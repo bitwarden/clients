@@ -46,7 +46,11 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
 
   try {
     const isSelfHosted = platformUtilsService.isSelfHost();
-    const loggedInWithMP = await userLoggedInWithMP(userVerificationService, currentAcct.id);
+    const userIsSSOUser = await ssoAppliesToUser(
+      userVerificationService,
+      vaultProfileService,
+      currentAcct.id,
+    );
     const has2FAEnabled = await hasATwoFactorProviderEnabled(vaultProfileService, currentAcct.id);
     const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(
       vaultProfileService,
@@ -56,7 +60,7 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
     // When any of the following are true, the device verification notice is
     // not applicable for the user. When the user has *not* logged in with their
     // master password, assume they logged in with SSO.
-    if (has2FAEnabled || isSelfHosted || !loggedInWithMP || isProfileLessThanWeekOld) {
+    if (has2FAEnabled || isSelfHosted || userIsSSOUser || isProfileLessThanWeekOld) {
       return true;
     }
   } catch {
@@ -106,16 +110,34 @@ async function profileIsLessThanWeekOld(
 }
 
 /**
- * Returns true when the user logged in with their master password.
- * When a user logs in with a master password they should see the new device verification notice.
- * There are edge cases where this does not satisfy the original requirement of showing the notice to
- * users who are subject to the SSO required policy. Owners and Admins for instance can fall under the
- * SSO policy but login with either SSO or their MP. When they log in with their MP they will see the notice
- * when they log in with SSO they will not.
- * This is a concession made because the original logic references policies would not work for TDE users.
+ * Returns true when either:
+ * - The user is SSO bound to an organization and is not an Admin or Owner
+ * - The user is an Admin or Owner of an organization with SSO bound and has not logged in with their master password
+ *
+ * NOTE: There are edge cases where this does not satisfy the original requirement of showing the notice to
+ * users who are subject to the SSO required policy. When Owners and Admins log in with their MP they will see the notice
+ * when they log in with SSO they will not. This is a concession made because the original logic references policies would not work for TDE users.
  * When this guard is run for those users a sync hasn't occurred and thus the policies are not available.
  */
-async function userLoggedInWithMP(
+async function ssoAppliesToUser(
+  userVerificationService: UserVerificationService,
+  vaultProfileService: VaultProfileService,
+  userId: string,
+) {
+  const userSSOBound = await vaultProfileService.getUserSSOBound(userId);
+  const userSSOBoundAdminOwner = await vaultProfileService.getUserSSOBoundAdminOwner(userId);
+  const userLoggedInWithMP = await userLoggedInWithMasterPassword(userVerificationService, userId);
+
+  const nonOwnerAdminSsoUser = userSSOBound && !userSSOBoundAdminOwner;
+  const ssoAdminOwnerLoggedInWithMP = userSSOBoundAdminOwner && !userLoggedInWithMP;
+
+  return nonOwnerAdminSsoUser || ssoAdminOwnerLoggedInWithMP;
+}
+
+/**
+ * Returns true when the user logged in with their master password.
+ */
+async function userLoggedInWithMasterPassword(
   userVerificationService: UserVerificationService,
   userId: string,
 ) {
