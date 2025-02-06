@@ -138,7 +138,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      this.submitBtn.loading = loading;
+      this.submitBtn.loading.set(loading);
     });
 
     this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroy$)).subscribe((disabled) => {

@@ -34,7 +34,7 @@ export class BitActionDirective implements OnDestroy {
 
   set loading(value: boolean) {
     this._loading$.next(value);
-    this.buttonComponent.loading = value;
+    this.buttonComponent.loading.set(value);
   }
 
   disabled = false;

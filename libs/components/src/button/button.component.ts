@@ -2,7 +2,9 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component, signal } from "@angular/core";
+import { Input, HostBinding, Component, model, signal } from "@angular/core";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { debounce, interval } from "rxjs";
 
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
 
@@ -86,7 +88,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("attr.disabled")
   get disabledAttr() {
     const disabled = this.disabled != null && this.disabled !== false;
-    return disabled || this.loading ? true : null;
+    return disabled || this.loading() ? true : null;
   }
 
   /**
@@ -98,7 +100,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
    */
   protected showDisabledStyles() {
-    return this.showLoadingStyles() || (this.disabledAttr && this.loading === false);
+    return this.showLoadingStyle() || (this.disabledAttr && this.loading() === false);
   }
 
   @Input() buttonType: ButtonType;
@@ -114,6 +116,8 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     this._block = coerceBooleanProperty(value);
   }
 
+  loading = model<boolean>(false);
+
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show
    * a spinner if it's been more than 75 ms since the `loading` state began. This prevents
@@ -123,28 +127,16 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * the full `loading` state. I.e. we only want the spinner to be debounced, not the
    * loading state.
    */
-  protected showLoadingStyles = signal<boolean>(false);
-  loadingDelay: NodeJS.Timeout | undefined = undefined;
+  protected showLoadingStyle$ = toObservable(this.loading).pipe(
+    debounce((isLoading) => interval(isLoading ? 75 : 0)),
+  );
 
-  private _loading = false;
+  protected showLoadingStyle = signal(false);
 
-  @Input()
-  get loading() {
-    return this._loading;
-  }
-
-  set loading(value: boolean) {
-    this._loading = value;
-
-    if (value) {
-      this.loadingDelay = setTimeout(() => {
-        this.showLoadingStyles.set(true);
-      }, 75);
-    } else {
-      clearTimeout(this.loadingDelay);
-      this.loadingDelay = undefined;
-      this.showLoadingStyles.set(false);
-    }
+  constructor() {
+    this.showLoadingStyle$.pipe(takeUntilDestroyed()).subscribe((showLoadingStyle) => {
+      this.showLoadingStyle.set(showLoadingStyle);
+    });
   }
 
   @Input() disabled = false;

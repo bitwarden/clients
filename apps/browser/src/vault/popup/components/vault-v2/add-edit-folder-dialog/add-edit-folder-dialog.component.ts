@@ -102,7 +102,7 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
         return;
       }
 
-      this.submitBtn.loading = loading;
+      this.submitBtn.loading.set(loading);
     });
   }
 

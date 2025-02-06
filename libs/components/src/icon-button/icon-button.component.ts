@@ -1,7 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { Component, ElementRef, HostBinding, Input, signal } from "@angular/core";
+import { Component, ElementRef, HostBinding, Input, model, signal } from "@angular/core";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { debounce, interval } from "rxjs";
 
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
@@ -185,7 +187,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   @HostBinding("attr.disabled")
   get disabledAttr() {
     const disabled = this.disabled != null && this.disabled !== false;
-    return disabled || this.loading ? true : null;
+    return disabled || this.loading() ? true : null;
   }
 
   /**
@@ -197,8 +199,10 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
    */
   protected showDisabledStyles() {
-    return this.showLoadingStyles() || (this.disabledAttr && this.loading === false);
+    return this.showLoadingStyle() || (this.disabledAttr && this.loading() === false);
   }
+
+  loading = model(false);
 
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show
@@ -209,28 +213,11 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    * the full `loading` state. I.e. we only want the spinner to be debounced, not the
    * loading state.
    */
-  protected showLoadingStyles = signal<boolean>(false);
-  loadingDelay: NodeJS.Timeout | undefined = undefined;
+  protected showLoadingStyle$ = toObservable(this.loading).pipe(
+    debounce((isLoading) => interval(isLoading ? 75 : 0)),
+  );
 
-  private _loading = false;
-  @Input()
-  get loading() {
-    return this._loading;
-  }
-
-  set loading(value: boolean) {
-    this._loading = value;
-
-    if (value) {
-      this.loadingDelay = setTimeout(() => {
-        this.showLoadingStyles.set(true);
-      }, 75);
-    } else {
-      clearTimeout(this.loadingDelay);
-      this.loadingDelay = undefined;
-      this.showLoadingStyles.set(false);
-    }
-  }
+  protected showLoadingStyle = signal(false);
 
   @Input() disabled = false;
 
@@ -238,5 +225,9 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return this.elementRef.nativeElement;
   }
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) {
+    this.showLoadingStyle$.pipe(takeUntilDestroyed()).subscribe((showLoadingStyle) => {
+      this.showLoadingStyle.set(showLoadingStyle);
+    });
+  }
 }
