@@ -202,6 +202,33 @@ export class WindowMain {
     }
   }
 
+  async loadUrl(targetPath: string, modal: boolean = false) {
+    if (this.win == null || this.win.isDestroyed()) {
+      await this.createWindow("modal-app");
+      return;
+    }
+
+    await this.desktopSettingsService.setInModalMode(modal);
+    await this.win.loadURL(
+      url.format({
+        protocol: "file:",
+        //pathname: `${__dirname}/index.html`,
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        hash: targetPath,
+        query: {
+          redirectUrl: targetPath,
+        },
+      }),
+      {
+        userAgent: cleanUserAgent(this.win.webContents.userAgent),
+      },
+    );
+    this.win.once("ready-to-show", () => {
+      this.win.show();
+    });
+  }
+
   /**
    * Creates the main window. The template argument is used to determine the styling of the window and what url will be loaded.
    * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.

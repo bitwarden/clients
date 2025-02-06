@@ -1,14 +1,13 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { autofill } from "desktop_native/napi";
 import {
-  EMPTY,
   Subject,
   distinctUntilChanged,
   firstValueFrom,
   map,
   mergeMap,
   switchMap,
-  takeUntil,
+  takeUntil
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -56,9 +55,9 @@ export class DesktopAutofillService implements OnDestroy {
       .pipe(
         distinctUntilChanged(),
         switchMap((enabled) => {
-          if (!enabled) {
+          /*if (!enabled) {
             return EMPTY;
-          }
+          }*/
 
           return this.cipherService.cipherViews$;
         }),
