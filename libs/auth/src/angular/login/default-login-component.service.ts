@@ -31,13 +31,14 @@ export class DefaultLoginComponentService implements LoginComponentService {
     return this.clientType === ClientType.Web;
   }
 
+  async setSsoEmail(email: string): Promise<void> {
+    await this.ssoLoginService.setSsoEmail(email);
+  }
+
   async launchSsoBrowserWindow(
     email: string,
     clientId: "browser" | "desktop",
   ): Promise<void | null> {
-    // Save email for SSO
-    await this.ssoLoginService.setSsoEmail(email);
-
     // Generate SSO params
     const passwordOptions: any = {
       type: "password",

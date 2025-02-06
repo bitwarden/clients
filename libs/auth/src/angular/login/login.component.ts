@@ -637,7 +637,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Save the email configuration for the login component
     await this.saveEmailSettings();
+    // Since we're using SSO, we also need to save the email address in case we need it after authentication
+    await this.loginComponentService.setSsoEmail(this.emailFormControl.value);
 
     if (this.clientType === ClientType.Web) {
       await this.router.navigate(["/sso"], {
