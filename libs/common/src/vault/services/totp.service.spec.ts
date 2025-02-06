@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { WebCryptoFunctionService } from "../../key-management/crypto/services/web-crypto-function.service";
 import { LogService } from "../../platform/abstractions/log.service";
-import { WebCryptoFunctionService } from "../../platform/services/web-crypto-function.service";
 
 import { TotpService } from "./totp.service";
 

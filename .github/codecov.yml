@@ -50,17 +50,18 @@ component_management:
       name: Key Management - Crypto
       paths:
         - libs/common/src/key-management/crypto/**
+        - libs/node/src/services/**
     - component_id: key-management
       name: Key Management
       paths:
         - apps/browser/src/key-management/**
         - apps/browser/src/background/nativeMessaging.background.ts
         - apps/cli/src/key-management/**
-        - apps/desktop/destkop_native/core/src/biometric/**
+        - apps/desktop/desktop_native/core/src/biometric/**
         - apps/desktop/src/key-management/**
         - apps/desktop/src/services/biometric-message-handler.service.ts
         - apps/desktop/src/services/native-messaging.service.ts
-        - apps/web/src/app/key-managemen/**
+        - apps/web/src/app/key-management/**
         - libs/common/src/key-management/**
         - libs/key-management/**
         - libs/key-management-ui/**
