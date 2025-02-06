@@ -294,6 +294,10 @@
 </ng-template>
 
 <ng-template #setupSelfHost>
+  <ng-container *ngIf="userOrg.hasReseller && resellerSeatsRemainingMessage">
+    <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
+    <p bitTypography="body1">{{ resellerSeatsRemainingMessage }}</p>
+  </ng-container>
   <ng-container *ngIf="showSelfHost">
     <h2 bitTypography="h2" class="tw-mt-7">
       {{ "selfHostingTitleProper" | i18n }}

@@ -1,2 +1,66 @@
 ignore:
   - "**/*.spec.ts" # Tests
+
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+  individual_components:
+    - component_id: key-management-biometrics
+      name: Key Management - Biometrics
+      paths:
+        - apps/browser/src/key-management/biometrics/**
+        - apps/cli/src/key-management/cli-biometrics-service.ts
+        - apps/desktop/destkop_native/core/src/biometric/**
+        - apps/desktop/src/key-management/biometrics/**
+        - apps/desktop/src/services/biometric-message-handler.service.ts
+        - apps/web/src/app/key-management/web-biometric.service.ts
+        - libs/key-management/src/biometrics/**
+    - component_id: key-management-lock
+      name: Key Management - Lock
+      paths:
+        - apps/browser/src/key-management/lock/**
+        - apps/desktop/src/key-management/lock/**
+        - apps/web/src/app/key-management/lock/**
+        - libs/key-management-ui/src/lock/**
+    - component_id: key-management-ipc
+      name: Key Management - IPC
+      paths:
+        - apps/browser/src/background/nativeMessaging.background.ts
+        - apps/desktop/src/services/native-messaging.service.ts
+    - component_id: key-management-key-rotation
+      name: Key Management - Key Rotation
+      paths:
+        - apps/web/src/app/key-management/key-rotation/**
+        - apps/web/src/app/key-management/migrate-encryption/**
+        - libs/key-management/src/user-asymmetric-key-regeneration/**
+    - component_id: key-management-process-reload
+      name: Key Management - Process Reload
+      paths:
+        - apps/web/src/app/key-management/services/web-process-reload.service.ts
+        - libs/common/src/key-management/services/default-process-reload.service.ts
+    - component_id: key-management-keys
+      name: Key Management - Keys
+      paths:
+        - libs/key-management/src/kdf-config.service.ts
+        - libs/key-management/src/key.service.ts
+        - libs/common/src/key-management/master-password/**
+    - component_id: key-management-crypto
+      name: Key Management - Crypto
+      paths:
+        - libs/common/src/key-management/crypto/**
+    - component_id: key-management
+      name: Key Management
+      paths:
+        - apps/browser/src/key-management/**
+        - apps/browser/src/background/nativeMessaging.background.ts
+        - apps/cli/src/key-management/**
+        - apps/desktop/destkop_native/core/src/biometric/**
+        - apps/desktop/src/key-management/**
+        - apps/desktop/src/services/biometric-message-handler.service.ts
+        - apps/desktop/src/services/native-messaging.service.ts
+        - apps/web/src/app/key-managemen/**
+        - libs/common/src/key-management/**
+        - libs/key-management/**
+        - libs/key-management-ui/**
