@@ -1282,7 +1282,7 @@ jobs:
             --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
             --output none
             
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          # az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
             --name Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
             --file $HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
             --output none
