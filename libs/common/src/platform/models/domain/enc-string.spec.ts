@@ -4,7 +4,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import { makeEncString, makeStaticByteArray } from "../../../../spec";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserKey, OrgKey } from "../../../types/key";
 import { EncryptionType } from "../../enums";

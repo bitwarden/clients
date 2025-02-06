@@ -14,17 +14,15 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { BadgeModule, CheckboxModule, Option } from "@bitwarden/components";
+import {
+  BadgeModule,
+  CardComponent,
+  CheckboxModule,
+  FormFieldModule,
+  Option,
+  SelectModule,
+} from "@bitwarden/components";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { CardComponent } from "../../../../../../libs/components/src/card/card.component";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { FormFieldModule } from "../../../../../../libs/components/src/form-field/form-field.module";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SelectModule } from "../../../../../../libs/components/src/select/select.module";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupCompactModeService } from "../../../platform/popup/layout/popup-compact-mode.service";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
