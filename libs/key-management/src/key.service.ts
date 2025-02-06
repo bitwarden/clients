@@ -41,10 +41,6 @@ import { AccountService } from "../../common/src/auth/abstractions/account.servi
 import { InternalMasterPasswordServiceAbstraction } from "../../common/src/auth/abstractions/master-password.service.abstraction";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
 import { KeyGenerationService } from "../../common/src/platform/abstractions/key-generation.service";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
