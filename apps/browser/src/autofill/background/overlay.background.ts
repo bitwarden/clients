@@ -692,13 +692,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (cipher.type === CipherType.Login) {
-      const totpCode = await this.totpService.getCode(cipher.login?.totp);
-      const totpCodeTimeInterval = this.totpService.getTimeInterval(cipher.login?.totp);
+      const totpResponse = cipher.login?.totp
+        ? await firstValueFrom(this.totpService.getCode$(cipher.login.totp))
+        : undefined;
+
       inlineMenuData.login = {
         username: cipher.login.username,
-        totp: totpCode,
+        totp: totpResponse?.code,
         totpField: this.isTotpFieldForCurrentField(),
-        totpCodeTimeInterval: totpCodeTimeInterval,
+        totpCodeTimeInterval: totpResponse?.period,
         passkey: hasPasskey
           ? {
               rpName: cipher.login.fido2Credentials[0].rpName,
@@ -1116,9 +1118,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
 
       if (cipher.login?.totp) {
-        this.platformUtilsService.copyToClipboard(
-          await this.totpService.getCode(cipher.login.totp),
-        );
+        const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+        this.platformUtilsService.copyToClipboard(totpResponse.code);
       }
       return;
     }
