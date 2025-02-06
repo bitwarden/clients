@@ -1359,7 +1359,7 @@ jobs:
 
           # ls -l $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
 
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+          cp $AUTOFILL_PROFILE_PATH \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
 
           ls -l $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
