@@ -27,6 +27,7 @@ import {
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 
+import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 import { AtRiskPasswordsComponent } from "./at-risk-passwords.component";
 
 @Component({
@@ -65,8 +66,10 @@ describe("AtRiskPasswordsComponent", () => {
   let mockCiphers$: BehaviorSubject<CipherView[]>;
   let mockOrgs$: BehaviorSubject<Organization[]>;
   let mockInlineMenuVisibility$: BehaviorSubject<InlineMenuVisibilitySetting>;
+  let calloutDismissed$: BehaviorSubject<boolean>;
   const setInlineMenuVisibility = jest.fn();
   const mockToastService = mock<ToastService>();
+  const mockAtRiskPasswordPageService = mock<AtRiskPasswordPageService>();
 
   beforeEach(async () => {
     mockTasks$ = new BehaviorSubject<SecurityTask[]>([
@@ -99,8 +102,11 @@ describe("AtRiskPasswordsComponent", () => {
     mockInlineMenuVisibility$ = new BehaviorSubject<InlineMenuVisibilitySetting>(
       AutofillOverlayVisibility.Off,
     );
+
+    calloutDismissed$ = new BehaviorSubject<boolean>(false);
     setInlineMenuVisibility.mockClear();
     mockToastService.showToast.mockClear();
+    mockAtRiskPasswordPageService.isCalloutDismissed.mockReturnValue(calloutDismissed$);
 
     await TestBed.configureTestingModule({
       imports: [AtRiskPasswordsComponent],
@@ -150,9 +156,13 @@ describe("AtRiskPasswordsComponent", () => {
       .overrideComponent(AtRiskPasswordsComponent, {
         remove: {
           imports: [PopupHeaderComponent, PopupPageComponent],
+          providers: [AtRiskPasswordPageService],
         },
         add: {
           imports: [MockPopupHeaderComponent, MockPopupPageComponent],
+          providers: [
+            { provide: AtRiskPasswordPageService, useValue: mockAtRiskPasswordPageService },
+          ],
         },
       })
       .compileComponents();
@@ -203,6 +213,7 @@ describe("AtRiskPasswordsComponent", () => {
   describe("autofill callout", () => {
     it("should show the callout if inline autofill is disabled", async () => {
       mockInlineMenuVisibility$.next(AutofillOverlayVisibility.Off);
+      calloutDismissed$.next(false);
       fixture.detectChanges();
       const callout = fixture.debugElement.query(By.css('[data-testid="autofill-callout"]'));
 
@@ -211,10 +222,30 @@ describe("AtRiskPasswordsComponent", () => {
 
     it("should hide the callout if inline autofill is enabled", async () => {
       mockInlineMenuVisibility$.next(AutofillOverlayVisibility.OnButtonClick);
+      calloutDismissed$.next(false);
       fixture.detectChanges();
       const callout = fixture.debugElement.query(By.css('[data-testid="autofill-callout"]'));
 
       expect(callout).toBeFalsy();
+    });
+
+    it("should hide the callout if the user has previously dismissed it", async () => {
+      mockInlineMenuVisibility$.next(AutofillOverlayVisibility.Off);
+      calloutDismissed$.next(true);
+      fixture.detectChanges();
+      const callout = fixture.debugElement.query(By.css('[data-testid="autofill-callout"]'));
+
+      expect(callout).toBeFalsy();
+    });
+
+    it("should call dismissCallout when the dismiss callout button is clicked", async () => {
+      mockInlineMenuVisibility$.next(AutofillOverlayVisibility.Off);
+      fixture.detectChanges();
+      const dismissButton = fixture.debugElement.query(
+        By.css('[data-testid="dismiss-callout-button"]'),
+      );
+      dismissButton.nativeElement.click();
+      expect(mockAtRiskPasswordPageService.dismissCallout).toHaveBeenCalled();
     });
 
     describe("turn on autofill button", () => {
