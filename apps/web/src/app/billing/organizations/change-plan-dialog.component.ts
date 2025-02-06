@@ -184,6 +184,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   paymentSource?: PaymentSourceResponse;
   plans: ListResponse<PlanResponse>;
   isSubscriptionCanceled: boolean = false;
+  secretsManagerTotal: number;
 
   private destroy$ = new Subject<void>();
 
@@ -468,7 +469,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get selectedSecretsManagerPlan() {
-    return this.secretsManagerPlans.find((plan) => plan.type === this.selectedPlan.type);
+    if (this.secretsManagerPlans) {
+      return this.secretsManagerPlans.find((plan) => plan.type === this.selectedPlan.type);
+    }
   }
 
   get selectedPlanInterval() {
@@ -610,17 +613,18 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get secretsManagerSubtotal() {
+    this.secretsManagerTotal = 0;
     const plan = this.selectedSecretsManagerPlan;
 
     if (!this.organization.useSecretsManager) {
-      return 0;
+      return this.secretsManagerTotal;
     }
 
-    return (
+    this.secretsManagerTotal =
       plan.SecretsManager.basePrice +
       this.secretsManagerSeatTotal(plan, this.sub?.smSeats) +
-      this.additionalServiceAccountTotal(plan)
-    );
+      this.additionalServiceAccountTotal(plan);
+    return this.secretsManagerTotal;
   }
 
   get passwordManagerSeats() {
@@ -635,7 +639,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return (
         this.passwordManagerSubtotal +
         this.additionalStorageTotal(this.selectedPlan) +
-        this.secretsManagerSubtotal +
+        this.secretsManagerTotal +
         this.estimatedTax
       );
     }
