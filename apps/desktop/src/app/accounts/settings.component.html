@@ -111,7 +111,7 @@
                   }}</small>
                 </div>
               </ng-container>
-              <div class="form-group">
+              <div class="form-group" *ngIf="(pinEnabled$ | async) || this.form.value.pin">
                 <div class="checkbox">
                   <label for="pin">
                     <input id="pin" type="checkbox" formControlName="pin" />
