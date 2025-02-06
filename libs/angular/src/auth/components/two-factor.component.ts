@@ -295,6 +295,10 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
     // - Browser SSO on extension open
+
+    // Grabbing the active user id right before making the state set to ensure it exists.
+    this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+
     await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(
       this.orgIdentifier,
       this.activeUserId,

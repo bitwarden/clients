@@ -132,8 +132,6 @@ export class SsoComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
     const qParams: QueryParams = await firstValueFrom(this.route.queryParams);
 
     // This if statement will pass on the second portion of the SSO flow
@@ -388,6 +386,10 @@ export class SsoComponent implements OnInit {
       // - TDE login decryption options component
       // - Browser SSO on extension open
       // Note: you cannot set this in state before 2FA b/c there won't be an account in state.
+
+      // Grabbing the active user id right before making the state set to ensure it exists.
+      this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+
       await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(
         orgSsoIdentifier,
         this.activeUserId,

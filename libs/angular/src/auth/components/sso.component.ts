@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
@@ -77,11 +76,7 @@ export class SsoComponent implements OnInit {
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected accountService: AccountService,
     protected toastService: ToastService,
-  ) {
-    this.accountService.activeAccount$.pipe(takeUntilDestroyed()).subscribe((account) => {
-      this.activeUserId = account?.id;
-    });
-  }
+  ) {}
 
   async ngOnInit() {
     // eslint-disable-next-line rxjs/no-async-subscribe
@@ -233,6 +228,10 @@ export class SsoComponent implements OnInit {
       // - TDE login decryption options component
       // - Browser SSO on extension open
       // Note: you cannot set this in state before 2FA b/c there won't be an account in state.
+
+      // Grabbing the active user id right before making the state set to ensure it exists.
+      this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+
       await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(
         orgSsoIdentifier,
         this.activeUserId,
