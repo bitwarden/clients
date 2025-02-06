@@ -27,10 +27,24 @@ async function run(context) {
     if (!fse.existsSync(extensionPath)) {
       console.log("### Autofill extension not found - skipping");
     } else {
-      if (!fse.existsSync(path.join(appPath, "Contents/PlugIns"))) {
-        fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
+      const pluginsPath = path.join(appPath, "Contents/PlugIns");
+      if (!fse.existsSync(pluginsPath)) {
+        fse.mkdirSync(pluginsPath);
       }
-      fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
+      const extensionDestPath = path.join(pluginsPath, "autofill-extension.appex");
+      fse.copySync(extensionPath, extensionDestPath);
+  
+      // Create build options here before using them
+      if (context.targets.some((e) => e.name === "mas-dev")) {
+        console.log("### Resigning autofill extension for development");
+        const extensionBuildOptions = deepAssign({}, 
+          context.packager.platformSpecificBuildOptions, 
+          context.packager.config.mas,
+          { type: "development" }
+        );
+        await context.packager.sign(extensionDestPath, context.appOutDir, extensionBuildOptions, context.arch);
+      }
+      
       shouldResign = true;
     }
   }
