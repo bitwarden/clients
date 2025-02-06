@@ -2,6 +2,8 @@ import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from "@angular/router";
 import { firstValueFrom, Observable } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -20,6 +22,7 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
   const newDeviceVerificationNoticeService = inject(NewDeviceVerificationNoticeService);
   const accountService = inject(AccountService);
   const platformUtilsService = inject(PlatformUtilsService);
+  const policyService = inject(PolicyService);
   const vaultProfileService = inject(VaultProfileService);
 
   if (route.queryParams["fromNewDeviceVerification"]) {
@@ -46,7 +49,7 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
 
   try {
     const isSelfHosted = platformUtilsService.isSelfHost();
-    const usesSSO = await userIsSsoBound(vaultProfileService, currentAcct.id);
+    const requiresSSO = await isSSORequired(policyService);
     const has2FAEnabled = await hasATwoFactorProviderEnabled(vaultProfileService, currentAcct.id);
     const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(
       vaultProfileService,
@@ -55,7 +58,7 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
 
     // When any of the following are true, the device verification notice is
     // not applicable for the user.
-    if (has2FAEnabled || isSelfHosted || usesSSO || isProfileLessThanWeekOld) {
+    if (has2FAEnabled || isSelfHosted || requiresSSO || isProfileLessThanWeekOld) {
       return true;
     }
   } catch {
@@ -104,19 +107,9 @@ async function profileIsLessThanWeekOld(
   return !isMoreThan7DaysAgo(creationDate);
 }
 
-/**
- * Returns true if the user logs in via SSO.
- *
- * This is used instead of the PolicyService because the policy service relies on a full
- * sync to complete before the policies are populated. This isn't guaranteed for all users
- * by the time the guard is run (TDE users for example).
- * Waiting for a sync in the guard was also considered but could take too long to complete,
- * leaving the UI in an odd "waiting" state with no indication to the user.
- */
-async function userIsSsoBound(vaultProfileService: VaultProfileService, userId: string) {
-  const userLogsInWithSSO = await vaultProfileService.getUserSSOBound(userId);
-
-  return userLogsInWithSSO;
+/** Returns true when the user is required to login via SSO */
+async function isSSORequired(policyService: PolicyService) {
+  return firstValueFrom(policyService.policyAppliesToActiveUser$(PolicyType.RequireSso));
 }
 
 /** Returns the true when the date given is older than 7 days */
