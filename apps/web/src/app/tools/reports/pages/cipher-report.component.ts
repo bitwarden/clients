@@ -154,14 +154,14 @@ export class CipherReportComponent implements OnDestroy {
         cipher.type,
       );
 
-      await this.openVaultItemDialog("view", adminCipherFormConfig);
+      await this.openVaultItemDialog("view", adminCipherFormConfig, cipher);
     } else {
       const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
         "edit",
         cipher.id as CipherId,
         cipher.type,
       );
-      await this.openVaultItemDialog("view", cipherFormConfig);
+      await this.openVaultItemDialog("view", cipherFormConfig, cipher);
     }
   }
 
@@ -174,12 +174,16 @@ export class CipherReportComponent implements OnDestroy {
   async openVaultItemDialog(
     mode: VaultItemDialogMode,
     formConfig: CipherFormConfig,
+    cipher: CipherView,
     activeCollectionId?: CollectionId,
   ) {
+    const disableForm = cipher ? !cipher.edit && !this.organization.canEditAllCiphers : false;
+
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
       formConfig,
       activeCollectionId,
+      disableForm,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
