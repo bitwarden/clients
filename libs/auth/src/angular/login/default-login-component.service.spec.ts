@@ -75,6 +75,14 @@ describe("DefaultLoginComponentService", () => {
     });
   });
 
+  describe("setSsoEmail", () => {
+    it("sets the email in state", async () => {
+      const email = "test@bitwarden.com";
+      await service.setSsoEmail(email);
+      expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
+    });
+  });
+
   describe("launchSsoBrowserWindow", () => {
     const email = "test@bitwarden.com";
     let state = "testState";
@@ -114,7 +122,6 @@ describe("DefaultLoginComponentService", () => {
 
         const expectedUrl = `${baseUrl}?clientId=${clientId}&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
 
-        expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
         expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
         expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
         expect(platformUtilsService.launchUri).toHaveBeenCalledWith(expectedUrl);
