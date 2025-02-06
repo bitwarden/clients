@@ -189,7 +189,6 @@ export class VaultPopupListFiltersService {
       .pipe(takeUntilDestroyed())
       .subscribe(this.validateOrganizationChange.bind(this));
 
-    // Get the cached filter state
     const cachedFilters = this.viewCacheService.signal<CachedFilterState>({
       key: "vault-filters",
       initialValue: {},
@@ -198,10 +197,7 @@ export class VaultPopupListFiltersService {
 
     // Load initial state from cache
     toObservable(cachedFilters)
-      .pipe(
-        take(1),
-        filter((state) => Object.keys(state).length > 0),
-      )
+      .pipe(filter((state) => Object.keys(state).length > 0))
       .subscribe((state) => this.deserializeFilters(state));
 
     // Save changes to cache
