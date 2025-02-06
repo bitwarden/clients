@@ -34,8 +34,10 @@ async function run(context) {
 
       if (context.targets.some((e) => e.name === "mas-dev")) {
         console.log("### Resigning autofill extension for development");
-        const { execSync } = require('child_process');
-        execSync(`codesign --force --sign "Mac Developer: Vince Grassia (KL9YM6L6GH)" --entitlements "${path.join(__dirname, '../macos/autofill-extension/autofill-extension.entitlements')}" "${extensionDestPath}"`);
+        const { execSync } = require("child_process");
+        execSync(
+          `codesign --force --sign "Mac Developer: Vince Grassia (KL9YM6L6GH)" --entitlements "${path.join(__dirname, "../macos/autofill-extension/autofill-extension.entitlements")}" "${extensionDestPath}"`,
+        );
       }
 
       shouldResign = true;

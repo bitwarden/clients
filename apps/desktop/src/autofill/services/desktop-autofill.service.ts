@@ -7,7 +7,7 @@ import {
   map,
   mergeMap,
   switchMap,
-  takeUntil
+  takeUntil,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
