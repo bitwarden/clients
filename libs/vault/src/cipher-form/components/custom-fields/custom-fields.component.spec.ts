@@ -17,11 +17,8 @@ import {
 } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
-import { DialogService } from "@bitwarden/components";
+import { BitPasswordInputToggleDirective, DialogService } from "@bitwarden/components";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { BitPasswordInputToggleDirective } from "../../../../../components/src/form-field/password-input-toggle.directive";
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
