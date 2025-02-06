@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component } from "@angular/core";
+import { Input, HostBinding, Component, signal } from "@angular/core";
 
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
 
@@ -64,23 +64,42 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       "tw-no-underline",
       "hover:tw-no-underline",
       "focus:tw-outline-none",
-      "disabled:tw-bg-secondary-300",
-      "disabled:hover:tw-bg-secondary-300",
-      "disabled:tw-border-secondary-300",
-      "disabled:hover:tw-border-secondary-300",
-      "disabled:!tw-text-muted",
-      "disabled:hover:!tw-text-muted",
-      "disabled:tw-cursor-not-allowed",
-      "disabled:hover:tw-no-underline",
     ]
       .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType ?? "secondary"]);
+      .concat(buttonStyles[this.buttonType ?? "secondary"])
+      .concat(
+        this.applyDisabledStyles() || this.disabled
+          ? [
+              "disabled:tw-bg-secondary-300",
+              "disabled:hover:tw-bg-secondary-300",
+              "disabled:tw-border-secondary-300",
+              "disabled:hover:tw-border-secondary-300",
+              "disabled:!tw-text-muted",
+              "disabled:hover:!tw-text-muted",
+              "disabled:tw-cursor-not-allowed",
+              "disabled:hover:tw-no-underline",
+            ]
+          : [],
+      );
   }
 
   @HostBinding("attr.disabled")
   get disabledAttr() {
     const disabled = this.disabled != null && this.disabled !== false;
     return disabled || this.loading ? true : null;
+  }
+
+  protected applyDisabledStyles() {
+    /**
+     * 3rd condition is a workaround for `disabledAttr` returning `true` when `loading` is true;
+     * we only want to apply disabled styles during the loading condition if `showLoadingStyles`
+     * is true. but we do want to keep the `disabledAttr` set to `true` for the full `loading`
+     * condition. so if the button is disabled by attribute while loading is `true`, it will be
+     * caught by the 2nd condition
+     */
+    return (
+      this.disabled || this.showLoadingStyles() || (this.disabledAttr && this.loading === false)
+    );
   }
 
   @Input() buttonType: ButtonType;
@@ -96,9 +115,38 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     this._block = coerceBooleanProperty(value);
   }
 
-  @Input() loading = false;
+  /**
+   * Determine whether it is appropriate to display a loading spinner. We only want to show
+   * a spinner if it's been more than 75 ms since the `loading` state began. This prevents
+   * a spinner "flash" for actions that are synchronous/nearly synchronous.
+   *
+   * We can't use `loading` for this, because we still need to disable the button during
+   * the full `loading` state. I.e. we only want the spinner to be debounced, not the
+   * loading/disabled state.
+   */
+  protected showLoadingStyles = signal<boolean>(false);
+  loadingDelay: NodeJS.Timeout | undefined = undefined;
 
-  @Input() showLoadingSpinner = false;
+  private _loading = false;
+
+  @Input()
+  get loading() {
+    return this._loading;
+  }
+
+  set loading(value: boolean) {
+    this._loading = value;
+
+    if (value) {
+      this.loadingDelay = setTimeout(() => {
+        this.showLoadingStyles.set(true);
+      }, 75);
+    } else {
+      clearTimeout(this.loadingDelay);
+      this.loadingDelay = undefined;
+      this.showLoadingStyles.set(false);
+    }
+  }
 
   @Input() disabled = false;
 }

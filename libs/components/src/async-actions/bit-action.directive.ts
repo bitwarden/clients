@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, HostListener, Input, OnDestroy, Optional } from "@angular/core";
-import { BehaviorSubject, debounce, finalize, interval, Subject, takeUntil, tap } from "rxjs";
+import { BehaviorSubject, finalize, Subject, takeUntil, tap } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -37,19 +37,6 @@ export class BitActionDirective implements OnDestroy {
     this.buttonComponent.loading = value;
   }
 
-  /**
-   * Determine whether it is appropriate to display a loading spinner. We only want to show
-   * a spinner if it's been more than 75 ms since the `loading` state began. This prevents
-   * a spinner "flash" for actions that are synchronous/nearly synchronous.
-   *
-   * We can't use `loading` for this, because we still need to disable the button during
-   * the full `loading` state. I.e. we only want the spinner to be debounced, not the
-   * loading/disabled state.
-   */
-  private showLoadingSpinner$ = this._loading$.pipe(
-    debounce((isLoading) => interval(isLoading ? 75 : 0)),
-  );
-
   disabled = false;
 
   @Input("bitAction") handler: FunctionReturningAwaitable;
@@ -58,11 +45,7 @@ export class BitActionDirective implements OnDestroy {
     private buttonComponent: ButtonLikeAbstraction,
     @Optional() private validationService?: ValidationService,
     @Optional() private logService?: LogService,
-  ) {
-    this.showLoadingSpinner$.subscribe((showLoadingSpinner) => {
-      this.buttonComponent.showLoadingSpinner = showLoadingSpinner;
-    });
-  }
+  ) {}
 
   @HostListener("click")
   protected async onClick() {
