@@ -108,14 +108,11 @@ apps/desktop/macos/autofill-extension @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/windows-plugin-authenticator @bitwarden/team-autofill-dev
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-dev
-<<<<<<< HEAD
+apps/desktop/src/services/native-message-handler.service.ts @bitwarden/team-autofill-dev
 apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-dev
+apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-dev
 # SSH Agent
 apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-dev @bitwarden/wg-ssh-keys
-=======
-apps/desktop/src/services/native-message-handler.service.ts @bitwarden/team-autofill-dev
-apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-dev
->>>>>>> 7ed1b67ac3 (Added codeowners)
 
 ## UI Foundation ##
 .storybook @bitwarden/team-ui-foundation
