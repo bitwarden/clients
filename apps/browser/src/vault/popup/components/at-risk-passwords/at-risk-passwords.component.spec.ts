@@ -18,6 +18,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
 import {
+  ChangeLoginPasswordService,
+  DefaultChangeLoginPasswordService,
   PasswordRepromptService,
   SecurityTask,
   SecurityTaskType,
@@ -70,6 +72,7 @@ describe("AtRiskPasswordsComponent", () => {
   const setInlineMenuVisibility = jest.fn();
   const mockToastService = mock<ToastService>();
   const mockAtRiskPasswordPageService = mock<AtRiskPasswordPageService>();
+  const mockChangeLoginPasswordService = mock<ChangeLoginPasswordService>();
 
   beforeEach(async () => {
     mockTasks$ = new BehaviorSubject<SecurityTask[]>([
@@ -156,12 +159,16 @@ describe("AtRiskPasswordsComponent", () => {
       .overrideComponent(AtRiskPasswordsComponent, {
         remove: {
           imports: [PopupHeaderComponent, PopupPageComponent],
-          providers: [AtRiskPasswordPageService],
+          providers: [
+            AtRiskPasswordPageService,
+            { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+          ],
         },
         add: {
           imports: [MockPopupHeaderComponent, MockPopupPageComponent],
           providers: [
             { provide: AtRiskPasswordPageService, useValue: mockAtRiskPasswordPageService },
+            { provide: ChangeLoginPasswordService, useValue: mockChangeLoginPasswordService },
           ],
         },
       })
