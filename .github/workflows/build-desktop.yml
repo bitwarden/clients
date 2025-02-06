@@ -294,7 +294,7 @@ jobs:
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
     # We are currently running on 20.04 until the Ubuntu 24.04 release is available, as moving
     # to 22.04 now breaks users who are on 20.04 due to mismatched GLIBC versions.
-    runs-on: [self-hosted, Linux, ARM64, clients]
+    runs-on: ubuntu-22.04-arm
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -318,8 +318,8 @@ jobs:
 
       - name: Set up environment
         run: |
-          apt-get update
-          apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
+          sudo apt-get update
+          sudo apt-get -y install pkg-config libxss-dev rpm musl-dev musl-tools flatpak flatpak-builder
 
       - name: Set up Snap
         run: sudo snap install snapcraft --classic
