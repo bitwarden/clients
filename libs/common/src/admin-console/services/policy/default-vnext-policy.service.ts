@@ -44,7 +44,11 @@ export class DefaultvNextPolicyService implements vNextPolicyService {
       map((policies) => policies.filter((p) => p.type === policyType)),
     );
 
-    const organizations$ = this.organizationService.organizations$(userId ?? ("" as UserId));
+    if (!userId) {
+      throw new Error("No userId provided");
+    }
+
+    const organizations$ = this.organizationService.organizations$(userId);
 
     return combineLatest([filteredPolicies$, organizations$]).pipe(
       map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),

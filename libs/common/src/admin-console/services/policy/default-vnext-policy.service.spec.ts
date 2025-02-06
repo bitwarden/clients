@@ -154,7 +154,7 @@ describe("PolicyService", () => {
 
       const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
 
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
     });
 
     it("returns specified policy options", async () => {
@@ -257,7 +257,7 @@ describe("PolicyService", () => {
           .pipe(getFirstPolicy),
       );
 
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
     });
 
     it("does not return policies that do not apply to the user because the user's role is exempt", async () => {
@@ -273,7 +273,7 @@ describe("PolicyService", () => {
           .policiesByType$(PolicyType.DisablePersonalVaultExport, userId)
           .pipe(getFirstPolicy),
       );
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
     });
 
     it.each([
@@ -306,7 +306,7 @@ describe("PolicyService", () => {
         policyService.policiesByType$(PolicyType.ActivateAutofill, userId).pipe(getFirstPolicy),
       );
 
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
     });
   });
 
