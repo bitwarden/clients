@@ -5,10 +5,10 @@ import { firstValueFrom, map, Observable } from "rxjs";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { KeyService } from "@bitwarden/key-management";
 
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";

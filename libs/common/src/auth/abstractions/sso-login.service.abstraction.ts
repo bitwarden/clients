@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { UserId } from "@bitwarden/common/types/guid";
+
 export abstract class SsoLoginServiceAbstraction {
   /**
    * Gets the code verifier used for SSO.
@@ -74,12 +76,16 @@ export abstract class SsoLoginServiceAbstraction {
    * Gets the value of the active user's organization sso identifier.
    *
    * This should only be used post successful SSO login once the user is initialized.
+   * @param userId The user id for retrieving the org identifier state.
    */
-  getActiveUserOrganizationSsoIdentifier: () => Promise<string>;
+  getActiveUserOrganizationSsoIdentifier: (userId: UserId) => Promise<string>;
   /**
    * Sets the value of the active user's organization sso identifier.
    *
    * This should only be used post successful SSO login once the user is initialized.
    */
-  setActiveUserOrganizationSsoIdentifier: (organizationIdentifier: string) => Promise<void>;
+  setActiveUserOrganizationSsoIdentifier: (
+    organizationIdentifier: string,
+    userId: UserId | undefined,
+  ) => Promise<void>;
 }

@@ -1,6 +1,6 @@
 import { KeyService } from "@bitwarden/key-management";
 
-import { EncryptService } from "../abstractions/encrypt.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 
 export class ContainerService {
   constructor(

@@ -28,10 +28,10 @@
       "@bitwarden/generator-history": ["./libs/tools/generator/extensions/history/src"],
       "@bitwarden/generator-legacy": ["./libs/tools/generator/extensions/legacy/src"],
       "@bitwarden/generator-navigation": ["./libs/tools/generator/extensions/navigation/src"],
-      "@bitwarden/importer/core": ["./libs/importer/src"],
+      "@bitwarden/importer-core": ["./libs/importer/src"],
       "@bitwarden/importer/ui": ["./libs/importer/src/components"],
       "@bitwarden/key-management": ["./libs/key-management/src"],
-      "@bitwarden/key-management/angular": ["./libs/key-management/src/angular"],
+      "@bitwarden/key-management-ui": ["./libs/key-management-ui/src/index,ts"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/send-ui": [".libs/tools/send/send-ui/src"],
@@ -47,6 +47,11 @@
       }
     ]
   },
+  "files": [
+    ".storybook/main.ts",
+    ".storybook/manager.js",
+    "apps/browser/src/autofill/content/components/.lit-storybook/main.ts"
+  ],
   "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],
   "exclude": ["**/build", "**/dist"]
 }

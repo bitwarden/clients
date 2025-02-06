@@ -9,13 +9,13 @@ publish = false
 default = []
 
 [dependencies]
-anyhow = "=1.0.94"
-thiserror = "=1.0.69"
-tokio = "1.39.1"
+anyhow.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "=0.10.0"
 
 [build-dependencies]
-cc = "1.2.4"
-glob = "0.3.2"
+cc = "=1.2.4"
+glob = "=0.3.2"

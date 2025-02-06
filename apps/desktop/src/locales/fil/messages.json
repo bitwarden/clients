@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "Bumili ng Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Maaari kang bumili ng premium membership sa bitwarden.com web vault. Gusto mo bang bisitahin ang website ngayon?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "Gamitin ang naka configure na inbox ng catch all ng iyong domain."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Random"

@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Adquirir Prémium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Podes adquirir o plan Prémium na aplicación web de bitwarden.com. Queres visitala agora mesmo?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Podes adquirir o plan Prémium dende os axustes de conta da aplicación web de Bitwarden."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Xerador de nomes de usuario"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Usar este contrasinal"

@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "වාරික මිලදී"
   },
-  "premiumPurchaseAlert": {
-    "message": "ඔබට bitwarden.com වෙබ් සුරක්ෂිතාගාරයේ වාරික සාමාජිකත්වය මිලදී ගත හැකිය. ඔබට දැන් වෙබ් අඩවියට පිවිසීමට අවශ්යද?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Username generator"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Use this password"

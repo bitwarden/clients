@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Beli Keanggotaan Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Anda dapat membeli keanggotaan premium di brankas web bitwarden.com. Anda ingin mengunjungi situs web sekarang?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Anda dapat membeli Premium dari pilihan akun Anda pada aplikasi web Bitwarden."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Pembuat nama pengguna"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Gunakan kata sandi ini"

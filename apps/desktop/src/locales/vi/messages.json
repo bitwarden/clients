@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "Mua bản Cao Cấp"
   },
-  "premiumPurchaseAlert": {
-    "message": "Bạn có thể nâng cấp làm thành viên cao cấp trong kho bitwarden nền web. Bạn có muốn truy cập trang web bây giờ?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Bạn có thể mua gói Premium từ cài đặt tài khoản trên trang Bitwarden."
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "Sử dụng hộp thư bạn đã thiết lập để nhận tất cả email gửi đến tên miền của bạn."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Ngẫu nhiên"

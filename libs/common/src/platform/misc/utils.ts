@@ -10,7 +10,7 @@ import { Merge } from "type-fest";
 
 import { KeyService } from "@bitwarden/key-management";
 
-import { EncryptService } from "../abstractions/encrypt.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../abstractions/i18n.service";
 
 // FIXME: Remove when updating file. Eslint update

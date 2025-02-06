@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "Osta Preemium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Saad Preemium versiooni osta bitwarden.com veebihoidlas. Soovid seda kohe teha?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Sa saad hankida Preemiumi oma konto seadetes veebibrauseris."
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "Kasuta domeenipõhist kogumisaadressi."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Juhuslik"

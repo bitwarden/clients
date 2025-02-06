@@ -886,7 +886,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyIdentity": {
-    "message": "Controleer je identiteit"
+    "message": "Verifieer je identiteit"
   },
   "weDontRecognizeThisDevice": {
     "message": "We herkennen dit apparaat niet. Voer de code in die naar je e-mail is verzonden om je identiteit te verifiëren."
@@ -1387,9 +1387,6 @@
   },
   "premiumPurchase": {
     "message": "Premium aanschaffen"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Je kunt een Premium-abonnement aanschaffen in de webkluis op bitwarden.com. Wil je de website nu bezoeken?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Je kunt Premium via je accountinstellingen in de Bitwarden-webapp kopen."
@@ -2553,6 +2550,9 @@
   "catchallEmailDesc": {
     "message": "Gebruik de catch-all inbox van je domein."
   },
+  "useThisEmail": {
+    "message": "Dit e-mailadres gebruiken"
+  },
   "random": {
     "message": "Willekeurig"
   },
@@ -3494,9 +3494,9 @@
     "message": "Deze mogelijkheid is niet beschikbaar voor gratis organisaties. Schakel over naar een betaald abonnement om meer mogelijkheden te ontgrendelen."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
-    "message": "Extensie-uupdate vereist"
+    "message": "Extensie update vereist"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "De browserextensie die je gebruikt is verouderd. Werk deze bij of schakel de vingerafdruk validatie van de browserintegratie uit in instellingen van de desktop-app."
+    "message": "De browserextensie die je gebruikt is verouderd. Werk deze bij of schakel de browserintegratie vingerafdrukvalidatie uit in de desktop-app-instellingen."
   }
 }

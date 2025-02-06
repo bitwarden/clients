@@ -19,7 +19,6 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -45,6 +44,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -54,20 +54,17 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
+import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
-import { PremiumComponent } from "../vault/app/accounts/premium.component";
 import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
 
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
-import { GeneratorComponent } from "./tools/generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
-import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -126,7 +123,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
     private syncService: SyncService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private cipherService: CipherService,
     private authService: AuthService,
     private router: Router,
@@ -192,17 +188,11 @@ export class AppComponent implements OnInit, OnDestroy {
             this.recordActivity();
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection();
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
             this.processReloadService.cancelProcessReload();
             break;
           case "loggedOut":
             this.modalService.closeAll();
-            if (message.userId == null || message.userId === this.activeUserId) {
-              await this.notificationsService.updateConnection();
-            }
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
@@ -246,9 +236,6 @@ export class AppComponent implements OnInit, OnDestroy {
             ) {
               await this.router.navigate(["lock"]);
             }
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection();
             await this.updateAppMenu();
             await this.systemService.clearPendingClipboard();
             await this.processReloadService.startProcessReload(this.authService);
@@ -517,41 +504,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async openGenerator() {
-    const isGeneratorSwapEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.GeneratorToolsModernization,
-    );
-    if (isGeneratorSwapEnabled) {
-      await this.dialogService.open(CredentialGeneratorComponent);
-      return;
-    }
-
-    this.modalService.closeAll();
-
-    [this.modal] = await this.modalService.openViewRef(
-      GeneratorComponent,
-      this.generatorModalRef,
-      (comp) => (comp.comingFromAddEdit = false),
-    );
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
+    await this.dialogService.open(CredentialGeneratorComponent);
+    return;
   }
 
   async openGeneratorHistory() {
-    const isGeneratorSwapEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.GeneratorToolsModernization,
-    );
-    if (isGeneratorSwapEnabled) {
-      await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
-      return;
-    }
-
-    await this.openModal<PasswordGeneratorHistoryComponent>(
-      PasswordGeneratorHistoryComponent,
-      this.passwordHistoryRef,
-    );
+    await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
+    return;
   }
 
   private async updateAppMenu() {

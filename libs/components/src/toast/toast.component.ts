@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { IconButtonModule } from "../icon-button";
@@ -42,10 +40,10 @@ export class ToastComponent {
    * Pass an array to render multiple paragraphs.
    **/
   @Input({ required: true })
-  message: string | string[];
+  message!: string | string[];
 
   /** An optional title to display over the message. */
-  @Input() title: string;
+  @Input() title?: string;
 
   /**
    * The percent width of the progress bar, from 0-100
