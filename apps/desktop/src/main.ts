@@ -209,6 +209,7 @@ export class Main {
       this.windowMain,
       this.i18nService,
       this.desktopSettingsService,
+      this.biometricsService,
       this.messagingService,
     );
 
@@ -239,8 +240,8 @@ export class Main {
       this.windowMain,
       this.i18nService,
       this.desktopSettingsService,
-      biometricStateService,
       this.biometricsService,
+      this.messagingService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
