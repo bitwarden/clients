@@ -1446,6 +1446,7 @@ jobs:
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          CSC_FOR_PULL_REQUEST: true
         run: npm run pack:mac:masdev:with-extension
 
       # - name: Resign
