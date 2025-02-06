@@ -175,7 +175,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     ]
       .concat(styles[this.buttonType ?? "main"])
       .concat(sizes[this.size])
-      .concat(this.applyDisabledStyles() || this.disabled ? disabledStyles[this.buttonType] : []);
+      .concat(this.showDisabledStyles() || this.disabled ? disabledStyles[this.buttonType] : []);
   }
 
   get iconClass() {
@@ -188,17 +188,16 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return disabled || this.loading ? true : null;
   }
 
-  protected applyDisabledStyles() {
-    /**
-     * 3rd condition is a workaround for `disabledAttr` returning `true` when `loading` is true;
-     * we only want to apply disabled styles during the loading condition if `showLoadingStyles`
-     * is true. but we do want to keep the `disabledAttr` set to `true` for the full `loading`
-     * condition. so if the button is disabled by attribute while loading is `true`, it will be
-     * caught by the 2nd condition
-     */
-    return (
-      this.disabled || this.showLoadingStyles() || (this.disabledAttr && this.loading === false)
-    );
+  /**
+   * Determine whether it is appropriate to display the disabled styles. We only want to show
+   * the disabled styles if the button is truly disabled, or if the loading styles are also
+   * visible.
+   *
+   * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
+   * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
+   */
+  protected showDisabledStyles() {
+    return this.showLoadingStyles() || (this.disabledAttr && this.loading === false);
   }
 
   /**
@@ -208,7 +207,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    *
    * We can't use `loading` for this, because we still need to disable the button during
    * the full `loading` state. I.e. we only want the spinner to be debounced, not the
-   * loading/disabled state.
+   * loading state.
    */
   protected showLoadingStyles = signal<boolean>(false);
   loadingDelay: NodeJS.Timeout | undefined = undefined;
