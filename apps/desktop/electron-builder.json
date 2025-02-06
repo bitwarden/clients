@@ -34,7 +34,7 @@
     "hardenedRuntime": true,
     "entitlements": "resources/entitlements.mac.plist",
     "entitlementsInherit": "resources/entitlements.mac.plist",
-    "provisioningProfile": "apps/desktop/bitwarden_desktop_appstore.provisionprofile",
+    "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile",
     "extendInfo": {
       "ITSAppUsesNonExemptEncryption": false,
       "CFBundleLocalizations": [
@@ -134,7 +134,7 @@
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
-    "provisioningProfile": "apps/desktop/bitwarden_desktop_appstore.provisionprofile",
+    "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile",
     "hardenedRuntime": true,
     "extendInfo": {
       "LSMinimumSystemVersion": "12",
