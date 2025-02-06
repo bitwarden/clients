@@ -1005,7 +1005,7 @@
     "message": "Vraag om een item toe te voegen als het niet is gevonden is je kluis. Dit geld voor alle ingelogde accounts."
   },
   "showCardsInVaultViewV2": {
-    "message": "Kaarten altijd als Autofill-suggesties in de kluisweergave weergeven"
+    "message": "Kaarten altijd als auto-invullen suggesties in de kluisweergave weergeven"
   },
   "showCardsCurrentTab": {
     "message": "Kaarten weergeven op tabpagina"
@@ -1014,7 +1014,7 @@
     "message": "Kaartenitems weergeven op de tabpagina voor gemakkelijk automatisch invullen."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Identiteiten altijd als Autofill-suggesties in de kluisweergave weergeven"
+    "message": "Identiteiten altijd als auto-invullen suggesties in de kluisweergave weergeven"
   },
   "showIdentitiesCurrentTab": {
     "message": "Identiteiten weergeven op tabpagina"
@@ -1279,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Premium aanschaffen"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Je kunt een Premium-abonnement aanschaffen in de webkluis op bitwarden.com. Wil je de website nu bezoeken?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Je kunt Premium via je accountinstellingen in de Bitwarden-webapp kopen."
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Gebruikersnaamgenerator"
+  },
+  "useThisEmail": {
+    "message": "Dit e-mailadres gebruiken"
   },
   "useThisPassword": {
     "message": "Dit wachtwoord gebruiken"
@@ -4891,6 +4891,6 @@
     "message": "Werk je desktopapplicatie bij"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Als u biometrische gegevens wilt gebruiken, moet je de desktopapplicatie bijwerken of vingerafdrukontgrendeling uitschakelen in de instellingen van de desktopapplicatie."
+    "message": "Als je biometrische gegevens wilt gebruiken, moet je de desktopapplicatie bijwerken of vingerafdrukontgrendeling uitschakelen in de instellingen van de desktopapplicatie."
   }
 }

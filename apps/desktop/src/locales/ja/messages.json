@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "プレミアム会員に加入"
   },
-  "premiumPurchaseAlert": {
-    "message": "プレミアム会員権は bitwarden.com ウェブ保管庫で購入できます。ウェブサイトを開きますか？"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden ウェブアプリでアカウント設定からプレミアムを購入できます。"
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "ドメインに設定されたキャッチオール受信トレイを使用します。"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "ランダム"

@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "منطقه‌ی خطر"
   },
-  "dangerZoneDesc": {
-    "message": "مراقب باشید، این اقدامات قابل برگشت نیستند!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "لغو مجوز نشست‌ها"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "ادامه دادن همچنین شما را از نشست فعلی خود خارج می‌کند و باید دوباره وارد سیستم شوید. در صورت راه اندازی مجدداً از شما خواسته می‌شود تا دوباره به سیستم دو مرحله ای بپردازید. جلسات فعال در دستگاه‌های دیگر ممکن است تا یک ساعت فعال بمانند."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "همه نشست‌ها غیرمجاز است"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "از صندوق ورودی پیکربندی شده دامنه خود استفاده کنید."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "تصادفی",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"

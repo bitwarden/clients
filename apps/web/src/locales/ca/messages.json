@@ -3,22 +3,22 @@
     "message": "Totes les aplicacions"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "Aplicacions crítiques"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Intel·ligència d'accés"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "Coneixements de risc"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "Risc de contrasenya"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Reviseu les contrasenyes de risc (febles, exposades o reutilitzades) a totes les aplicacions. Seleccioneu les aplicacions més crítiques per prioritzar les accions de seguretat perquè els usuaris aborden les contrasenyes de risc."
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "Última actualització de les dades: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -27,19 +27,19 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Membres notificats"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "Revoca membres"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "Restaura membres"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "No es pot restaurar l'accés a l'organització"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Totes les aplicacions ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -48,10 +48,10 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Crea un nou element d'inici de sessió"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "Aplicacions crítiques ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -60,7 +60,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "Membres notificats ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -105,10 +105,10 @@
     "message": "Request password change"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "Contrasenyes totals"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "Cerca d'aplicacions"
   },
   "atRiskMembers": {
     "message": "At-risk members"
@@ -147,7 +147,7 @@
     }
   },
   "totalMembers": {
-    "message": "Total members"
+    "message": "Nombre total de membres"
   },
   "atRiskApplications": {
     "message": "At-risk applications"
@@ -232,7 +232,7 @@
     }
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Historial d'elements"
   },
   "authenticatorKey": {
     "message": "Clau autenticadora"
@@ -432,17 +432,17 @@
     "message": "Booleà"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Casella de selecció"
   },
   "cfTypeLinked": {
     "message": "Enllaçat",
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Tipus de camp"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Etiqueta del camp"
   },
   "remove": {
     "message": "Suprimeix"
@@ -508,7 +508,7 @@
     "message": "Genera contrasenya"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Genera frase de pas"
   },
   "checkPassword": {
     "message": "Comprova si la contrasenya ha estat exposada."
@@ -611,7 +611,7 @@
     "message": "Nota segura"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Clau SSH"
   },
   "typeLoginPlural": {
     "message": "Inicis de sessió"
@@ -644,7 +644,7 @@
     "message": "Nom complet"
   },
   "address": {
-    "message": "Address"
+    "message": "Adreça"
   },
   "address1": {
     "message": "Adreça 1"
@@ -689,7 +689,7 @@
     "message": "Visualitza l'element"
   },
   "newItemHeader": {
-    "message": "New $TYPE$",
+    "message": "Nou $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -698,7 +698,7 @@
     }
   },
   "editItemHeader": {
-    "message": "Edit $TYPE$",
+    "message": "Edita $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -707,7 +707,7 @@
     }
   },
   "viewItemType": {
-    "message": "View $ITEMTYPE$",
+    "message": "Mostra $ITEMTYPE$",
     "placeholders": {
       "itemtype": {
         "content": "$1",
@@ -761,7 +761,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Còpia correcta"
   },
   "copyValue": {
     "message": "Copia el valor",
@@ -772,11 +772,11 @@
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "Copia frase de pas",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "S'ha copiat la contrasenya"
   },
   "copyUsername": {
     "message": "Copia el nom d'usuari",
@@ -795,7 +795,7 @@
     "description": "Copy URI to clipboard"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Copia $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -804,31 +804,31 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Copia el lloc web"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Copia notes"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Copia l'adreça"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Copia telèfon"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Copia el correu electrònic"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Copia empresa"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Copia número de la Seguretat Social"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Copia el número de passaport"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Copia el número de llicència"
   },
   "copyName": {
     "message": "Copia el nom"
@@ -922,7 +922,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "S'han desplaçat elements a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -931,7 +931,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "S'ha desplaçat un element a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -985,25 +985,25 @@
     "message": "Nivell d'accés"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Accedint a"
   },
   "loggedOut": {
     "message": "Sessió tancada"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Heu tancat la sessió del compte."
   },
   "loginExpired": {
     "message": "La vostra sessió ha caducat."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Reinicia el registre"
   },
   "expiredLink": {
     "message": "Enllaç caducat"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Reinicieu el registre o proveu d'iniciar sessió."
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "És possible que ja tingueu un compte"
@@ -1033,7 +1033,7 @@
     "message": "L'inici de sessió amb el dispositiu ha d'estar activat a la configuració de l'aplicació Bitwarden. Necessiteu una altra opció?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Necessiteu una altra opció?"
   },
   "loginWithMasterPassword": {
     "message": "Inici de sessió amb contrasenya mestra"
@@ -1048,13 +1048,13 @@
     "message": "Utilitzeu un mètode d'inici de sessió diferent"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Inicieu sessió amb la clau de pas"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Usa inici de sessió únic"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Benvingut/da de nou"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Clau d'accés no vàlida. Torneu-ho a provar."
@@ -1138,7 +1138,7 @@
     "message": "Crea un compte"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Nou a Bitwarden?"
   },
   "setAStrongPassword": {
     "message": "Estableix una contrasenya segura"
@@ -1156,28 +1156,28 @@
     "message": "Inicia sessió"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Inicia sessió a Bitwarden"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Temps d'espera d'autenticació"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "La sessió d'autenticació s'ha esgotat. Reinicieu el procés d'inici de sessió."
   },
   "verifyIdentity": {
     "message": "Verificació de la vostra identitat"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "No reconeixem aquest dispositiu. Introduïu el codi que us hem enviat al correu electrònic per verificar la identitat."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Continua l'inici de sessió"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Què és un dispositiu?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Un dispositiu és una instal·lació única de l'aplicació Bitwarden on heu iniciat la sessió. Si torneu a instal·lar, suprimir les dades de l'aplicació o suprimir les galetes, pot ser que un dispositiu aparega diverses vegades."
   },
   "logInInitiated": {
     "message": "S'ha iniciat la sessió"
@@ -1213,7 +1213,7 @@
     "message": "Pista de la contrasenya mestra (opcional)"
   },
   "newMasterPassHint": {
-    "message": "New master password hint (optional)"
+    "message": "Pista de la contrasenya mestra (opcional)"
   },
   "masterPassHintLabel": {
     "message": "Pista de la contrasenya mestra"
@@ -1235,16 +1235,16 @@
     "message": "Configuració"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Correu electrònic del compte"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Sol·licita pista"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Sol·licita pista de la contrasenya"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "Introduïu l'adreça de correu electrònic del compte i se us enviarà la pista de contrasenya"
   },
   "passwordHint": {
     "message": "Pista de la contrasenya"
@@ -1284,10 +1284,10 @@
     "message": "El vostre compte s'ha creat correctament. Ara ja podeu entrar."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "S'ha creat el vostre compte nou!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Heu iniciat sessió!"
   },
   "trialAccountCreated": {
     "message": "Compte creat amb èxit."
@@ -1308,7 +1308,7 @@
     "message": "La caixa forta està bloquejada"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "El compte està bloquejat"
   },
   "uuid": {
     "message": "UUID"
@@ -1709,22 +1709,22 @@
     "message": "Historial de les contrasenyes"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Historial del generador"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Neteja l'historial del generador"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Si continueu, totes les entrades se suprimiran permanentment de l'historial del generador. Esteu segur que voleu continuar?"
   },
   "noPasswordsInList": {
     "message": "No hi ha cap contrasenya a llistar."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Neteja l'historial"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Res a mostrar"
   },
   "nothingGeneratedRecently": {
     "message": "You haven't generated anything recently"
@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Zona perillosa"
   },
-  "dangerZoneDesc": {
-    "message": "Aneu amb compte, aquestes accions no són reversibles!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Careful, this action is not reversible!"
-  },
   "deauthorizeSessions": {
     "message": "Desautoritza sessions"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "El procediment també tancarà la sessió actual, i l'heu de tornar a iniciar. També demanarà iniciar la sessió en dues passes, si està habilitada. Les sessions actives d'altres dispositius poden mantenir-se actives fins a una hora."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "Totes les sessions estan desautoritzades"
@@ -6731,6 +6746,9 @@
   "catchallEmailDesc": {
     "message": "Utilitzeu la safata d'entrada global configurada del vostre domini."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "random": {
     "message": "Aleatori",
     "description": "Generates domain-based username using random letters"
@@ -8606,6 +8624,9 @@
   },
   "limitCollectionDeletionDesc": {
     "message": "Limit collection deletion to owners and admins"
+  },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Els propietaris i els administradors poden gestionar totes les col·leccions i articles"

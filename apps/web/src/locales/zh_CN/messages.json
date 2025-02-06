@@ -1198,7 +1198,7 @@
     "message": "主密码"
   },
   "masterPassDesc": {
-    "message": "主密码是您访问密码库的密码。它非常重要，请您不要忘记。一旦忘记，无任何办法恢复此密码。"
+    "message": "主密码是用于访问您的密码库的密码。不要忘记您的主密码，这一点非常重要。一旦忘记，无任何办法恢复此密码。"
   },
   "masterPassImportant": {
     "message": "主密码忘记后，将无法恢复！"
@@ -1363,7 +1363,7 @@
     "message": "没有可列出的事件。"
   },
   "newOrganization": {
-    "message": "新建组织"
+    "message": "新增组织"
   },
   "noOrganizationsList": {
     "message": "您没有加入任何组织。同一组织的用户可以安全地与其他用户共享项目。"
@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "危险操作区"
   },
-  "dangerZoneDesc": {
-    "message": "当心，这些操作无法撤销！"
-  },
-  "dangerZoneDescSingular": {
-    "message": "当心，此操作无法撤销！"
-  },
   "deauthorizeSessions": {
     "message": "取消会话授权"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "继续操作还将使您退出当前会话，并要求您重新登录。如果有设置两步登录，也需要重新验证。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "已取消所有会话授权"
@@ -2443,7 +2458,7 @@
     "message": "发现暴露的密码"
   },
   "exposedPasswordsFoundReportDesc": {
-    "message": "我们在您的 $VAULT$ 中发现了 $COUNT$ 个在已知的数据泄露事件中暴露了密码的项目。您应更改它们以使用新的密码。",
+    "message": "我们在您的 $VAULT$ 中发现了 $COUNT$ 个在已知的数据泄露中暴露了密码的项目。您应更改它们以使用新的密码。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2456,7 +2471,7 @@
     }
   },
   "noExposedPasswords": {
-    "message": "您的密码库中没有在已知数据泄露事件中被暴露密码的项目。"
+    "message": "您的密码库中没有在已知数据泄露中暴露了密码的项目。"
   },
   "checkExposedPasswords": {
     "message": "检查暴露的密码"
@@ -2764,7 +2779,7 @@
     "message": "任何未付费订阅都将通过您的付款方式收取费用。"
   },
   "paymentChargedWithTrial": {
-    "message": "您的计划包含了 7 天的免费试用期。在试用期结束前，不会从您的付款方式中扣款。您可以随时取消。"
+    "message": "您的计划包含了 7 天的免费试用。在试用期结束前，不会从您的付款方式中扣款。您可以随时取消。"
   },
   "paymentInformation": {
     "message": "支付信息"
@@ -5060,7 +5075,7 @@
     "message": "确定移除此密码？"
   },
   "hideEmail": {
-    "message": "对收件人隐藏我的电子邮箱地址。"
+    "message": "对接收者隐藏我的电子邮箱地址。"
   },
   "disableThisSend": {
     "message": "停用此 Send 确保无人能访问它。",
@@ -5088,7 +5103,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendProtectedPasswordDontKnow": {
-    "message": "不知道密码？请向提供此 Send 的发件人索要密码。",
+    "message": "不知道密码吗？请向发送者索取访问此 Send 所需的密码。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendHiddenByDefault": {
@@ -5294,14 +5309,14 @@
     "message": "可以管理组织策略的组织成员豁免此策略。"
   },
   "disableHideEmail": {
-    "message": "在创建或编辑 Send 时，始终向收件人显示成员的电子邮箱地址。",
+    "message": "创建或编辑 Send 时，始终向接收者显示成员的电子邮箱地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendOptionsPolicyInEffect": {
     "message": "以下组织策略目前正起作用："
   },
   "sendDisableHideEmailInEffect": {
-    "message": "创建或编辑 Send 时，不允许用户对收件人隐藏他们的电子邮箱地址。",
+    "message": "创建或编辑 Send 时，不允许用户对接收者隐藏他们的电子邮箱地址。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "modifiedPolicyId": {
@@ -5864,7 +5879,7 @@
     "message": "提供商"
   },
   "newClientOrganization": {
-    "message": "新建客户组织"
+    "message": "新增客户组织"
   },
   "newClientOrganizationDesc": {
     "message": "创建一个新的客户组织，该组织将作为提供商与你关联。您将可以访问和管理这个组织。"
@@ -6148,7 +6163,7 @@
     "message": "最小入站签名算法"
   },
   "spWantAssertionsSigned": {
-    "message": "要求使用签名的断言"
+    "message": "期望已签名的断言"
   },
   "spValidateCertificates": {
     "message": "验证证书"
@@ -6184,7 +6199,7 @@
     "message": "允许出站注销请求"
   },
   "idpSignAuthenticationRequests": {
-    "message": "签名身份验证请求"
+    "message": "签署身份验证请求"
   },
   "ssoSettingsSaved": {
     "message": "单点登录配置已保存"
@@ -6283,7 +6298,7 @@
     "message": "立即兑换"
   },
   "recipient": {
-    "message": "收件人"
+    "message": "接收者"
   },
   "removeSponsorship": {
     "message": "移除赞助"
@@ -6730,6 +6745,9 @@
   },
   "catchallEmailDesc": {
     "message": "使用您的域名配置的 Catch-all 收件箱。"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "随机",
@@ -8607,6 +8625,9 @@
   "limitCollectionDeletionDesc": {
     "message": "限制为仅所有者和管理员可以删除集合"
   },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "所有者和管理员可以管理所有集合和项目"
   },
@@ -9283,10 +9304,10 @@
     "message": "35% 折扣"
   },
   "monthPerMember": {
-    "message": " /成员 /月"
+    "message": "月 /成员"
   },
   "monthPerMemberBilledAnnually": {
-    "message": " /成员 /月（按年计费）"
+    "message": "月 /成员（按年计费）"
   },
   "seats": {
     "message": "席位"

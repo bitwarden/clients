@@ -35,6 +35,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
 import { CaptchaProtectedComponent } from "./captcha-protected.component";
@@ -73,6 +74,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   protected successRoute = "vault";
   protected twoFactorTimeoutRoute = "authentication-timeout";
 
+  protected activeUserId: UserId;
+
   get isDuoProvider(): boolean {
     return (
       this.selectedProviderType === TwoFactorProviderType.Duo ||
@@ -102,7 +105,12 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     protected toastService: ToastService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
+
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
+
+    this.accountService.activeAccount$.pipe(takeUntilDestroyed()).subscribe((account) => {
+      this.activeUserId = account?.id;
+    });
 
     // Add subscription to authenticationSessionTimeout$ and navigate to twoFactorTimeoutRoute if expired
     this.loginStrategyService.authenticationSessionTimeout$
@@ -287,7 +295,10 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
     // - Browser SSO on extension open
-    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier);
+    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(
+      this.orgIdentifier,
+      this.activeUserId,
+    );
     this.loginEmailService.clearValues();
 
     // note: this flow affects both TDE & standard users

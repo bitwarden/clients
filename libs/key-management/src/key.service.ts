@@ -12,6 +12,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 
 // FIXME: remove `src` and fix import
@@ -40,7 +41,6 @@ import { AccountService } from "../../common/src/auth/abstractions/account.servi
 import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService } from "../../common/src/platform/abstractions/encrypt.service";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { KeyGenerationService } from "../../common/src/platform/abstractions/key-generation.service";

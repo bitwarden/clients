@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule, NgClass } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -8,6 +8,7 @@ import { concatMap, map } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -43,7 +44,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
     SelectModule,
     SectionHeaderComponent,
     IconButtonModule,
-    NgClass,
     JslibModule,
     CommonModule,
   ],
@@ -67,7 +67,7 @@ export class ItemDetailsSectionComponent implements OnInit {
    * Collections that are already assigned to the cipher and are read-only. These cannot be removed.
    * @protected
    */
-  protected readOnlyCollections: string[] = [];
+  protected readOnlyCollections: CollectionView[] = [];
 
   protected showCollectionsControl: boolean;
 
@@ -79,6 +79,10 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   @Input()
   originalCipherView: CipherView;
+
+  get readOnlyCollectionsNames(): string[] {
+    return this.readOnlyCollections.map((c) => c.name);
+  }
   /**
    * Whether the form is in partial edit mode. Only the folder and favorite controls are available.
    */
@@ -133,7 +137,10 @@ export class ItemDetailsSectionComponent implements OnInit {
             name: value.name,
             organizationId: value.organizationId,
             folderId: value.folderId,
-            collectionIds: value.collectionIds?.map((c) => c.id) || [],
+            collectionIds: [
+              ...(value.collectionIds?.map((c) => c.id) || []),
+              ...this.readOnlyCollections.map((c) => c.id),
+            ],
             favorite: value.favorite,
           } as CipherView);
           return cipher;
@@ -223,6 +230,8 @@ export class ItemDetailsSectionComponent implements OnInit {
       favorite: prefillCipher.favorite,
     });
 
+    const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
+    const organization = this.organizations.find((o) => o.id === orgId);
     const initializedWithCachedCipher = this.cipherFormContainer.initializedWithCachedCipher();
 
     // Configure form for clone mode.
@@ -244,20 +253,36 @@ export class ItemDetailsSectionComponent implements OnInit {
 
     await this.updateCollectionOptions(prefillCollections);
 
+    if (!organization?.canEditAllCiphers && !prefillCipher.canAssignToCollections) {
+      this.itemDetailsForm.controls.collectionIds.disable();
+    }
+
     if (this.partialEdit) {
       this.itemDetailsForm.disable();
       this.itemDetailsForm.controls.favorite.enable();
       this.itemDetailsForm.controls.folderId.enable();
     } else if (this.config.mode === "edit") {
-      this.readOnlyCollections = this.collections
-        .filter(
+      if (!this.config.isAdminConsole || !this.config.admin) {
+        this.readOnlyCollections = this.collections.filter(
           // When the configuration is set up for admins, they can alter read only collections
           (c) =>
+            c.organizationId === orgId &&
             c.readOnly &&
-            !this.config.admin &&
             this.originalCipherView.collectionIds.includes(c.id as CollectionId),
-        )
-        .map((c) => c.name);
+        );
+
+        // When Owners/Admins access setting is turned on.
+        // Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
+        // Disable Collections Options if Custom user does not have Edit/Manage permissions on item
+        if (
+          (organization.allowAdminAccessToAllCollectionItems &&
+            (!this.originalCipherView.viewPassword || !this.originalCipherView.edit)) ||
+          (organization.type === OrganizationUserType.Custom &&
+            !this.originalCipherView.viewPassword)
+        ) {
+          this.itemDetailsForm.controls.collectionIds.disable();
+        }
+      }
     }
   }
 

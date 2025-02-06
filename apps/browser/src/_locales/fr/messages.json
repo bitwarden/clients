@@ -446,13 +446,13 @@
     "message": "Générer une phrase de passe"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Mot de passe généré"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Phrase de passe générée"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Nom d'utilisateur généré"
   },
   "emailGenerated": {
     "message": "Email generated"
@@ -663,7 +663,7 @@
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Continuer à se connecter"
   },
   "yourVaultIsLocked": {
     "message": "Votre coffre est verrouillé. Vérifiez votre identité pour continuer."
@@ -1279,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Acheter Premium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Vous pouvez acheter une adhésion Premium sur le coffre web de bitwarden.com. Voulez-vous visiter le site web maintenant ?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Vous pouvez acheter la version Premium depuis les paramètres de votre compte dans l'application web Bitwarden."
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Générateur de nom d'utilisateur"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Utiliser ce mot de passe"
