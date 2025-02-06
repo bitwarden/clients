@@ -108,10 +108,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
 
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
 
-    this.accountService.activeAccount$.pipe(takeUntilDestroyed()).subscribe((account) => {
-      this.activeUserId = account?.id;
-    });
-
     // Add subscription to authenticationSessionTimeout$ and navigate to twoFactorTimeoutRoute if expired
     this.loginStrategyService.authenticationSessionTimeout$
       .pipe(takeUntilDestroyed())
