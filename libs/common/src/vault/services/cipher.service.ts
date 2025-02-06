@@ -11,7 +11,6 @@ import {
   shareReplay,
   Subject,
   switchMap,
-  tap,
 } from "rxjs";
 import { SemVer } from "semver";
 
