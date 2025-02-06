@@ -17,9 +17,9 @@ export function policyRecordToArray(policiesMap: { [id: string]: PolicyData }) {
   return Object.values(policiesMap || {}).map((f) => new Policy(f));
 }
 
-export function getFirstPolicy(policies: Observable<Policy[]>): Observable<Policy | undefined> {
-  return policies.pipe(map((p) => p.at(0) ?? undefined));
-}
+export const getFirstPolicy = map<Policy[], Policy | undefined>((policies) => {
+  return policies.at(0) ?? undefined;
+});
 
 export class DefaultvNextPolicyService implements vNextPolicyService {
   constructor(
@@ -40,8 +40,7 @@ export class DefaultvNextPolicyService implements vNextPolicyService {
   }
 
   policiesByType$(policyType: PolicyType, userId: UserId) {
-    const filteredPolicies$ = this.policyData$(userId).pipe(
-      map((policyData) => policyRecordToArray(policyData)),
+    const filteredPolicies$ = this.policies$(userId).pipe(
       map((policies) => policies.filter((p) => p.type === policyType)),
     );
 
@@ -53,7 +52,10 @@ export class DefaultvNextPolicyService implements vNextPolicyService {
   }
 
   policyAppliesToUser$(policyType: PolicyType, userId: UserId) {
-    return this.policiesByType$(policyType, userId).pipe(map((policies) => !!policies?.at(0)));
+    return this.policiesByType$(policyType, userId).pipe(
+      getFirstPolicy,
+      map((policy) => !!policy),
+    );
   }
 
   private enforcedPolicyFilter(policies: Policy[], organizations: Organization[]) {
