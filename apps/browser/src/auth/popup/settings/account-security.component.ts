@@ -212,11 +212,18 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap(async () => {
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
+          const needsPermissionPrompt =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
+            !this.platformUtilsService.isSafari();
+          const isBiometricsAlreadyEnabled =
+            await this.vaultTimeoutSettingsService.isBiometricLockSet();
+          const statusAllowsBiometric =
+            status !== BiometricsStatus.DesktopDisconnected &&
+            status !== BiometricsStatus.NotEnabledInConnectedDesktopApp &&
+            status !== BiometricsStatus.HardwareUnavailable;
+
           const biometricSettingAvailable =
-            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) ||
-            (status !== BiometricsStatus.DesktopDisconnected &&
-              status !== BiometricsStatus.NotEnabledInConnectedDesktopApp) ||
-            (await this.vaultTimeoutSettingsService.isBiometricLockSet());
+            needsPermissionPrompt || statusAllowsBiometric || isBiometricsAlreadyEnabled;
           if (!biometricSettingAvailable) {
             this.form.controls.biometric.disable({ emitEvent: false });
           } else {
@@ -234,6 +241,13 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.biometricUnavailabilityReason = this.i18nService.t(
               "biometricsStatusHelptextNotEnabledInDesktop",
               activeAccount.email,
+            );
+          } else if (
+            status === BiometricsStatus.HardwareUnavailable &&
+            !biometricSettingAvailable
+          ) {
+            this.biometricUnavailabilityReason = this.i18nService.t(
+              "biometricsStatusHelptextHardwareUnavailable",
             );
           } else {
             this.biometricUnavailabilityReason = "";
