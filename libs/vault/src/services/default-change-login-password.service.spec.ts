@@ -1,6 +1,6 @@
 /**
  * Jest needs to run in custom environment to mock Request/Response objects
- * @jest-environment ./src/tests/fix-fetch-jsdom-environment.ts
+ * @jest-environment ../../libs/shared/test.environment.ts
  */
 
 import { mock } from "jest-mock-extended";
