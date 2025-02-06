@@ -381,8 +381,6 @@ export class NativeMessagingBackground {
           "ipc-desktop-ipc-channel-key",
         ),
       );
-    } else {
-      this.logService.info("[Native Messaging IPC] Received message from Safari", message);
     }
 
     if (Math.abs(message.timestamp - Date.now()) > MessageValidTimeout) {
