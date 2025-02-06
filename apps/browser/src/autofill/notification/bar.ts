@@ -119,17 +119,20 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     // There are other possible passed theme values, but for now, resolve to dark or light
     const resolvedTheme: Theme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
 
-    // @TODO use context to avoid prop drilling
-    return render(
-      NotificationContainer({
-        ...notificationBarIframeInitData,
-        type: notificationBarIframeInitData.type as NotificationType,
-        theme: resolvedTheme,
-        handleCloseNotification,
-        i18n,
-      }),
-      document.body,
-    );
+    sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, (cipherData) => {
+      // @TODO use context to avoid prop drilling
+      return render(
+        NotificationContainer({
+          ...notificationBarIframeInitData,
+          type: notificationBarIframeInitData.type as NotificationType,
+          theme: resolvedTheme,
+          handleCloseNotification,
+          i18n,
+          ciphers: cipherData,
+        }),
+        document.body,
+      );
+    });
   }
 
   setNotificationBarTheme();
