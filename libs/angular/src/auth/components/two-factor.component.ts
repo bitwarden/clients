@@ -35,7 +35,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
 import { CaptchaProtectedComponent } from "./captcha-protected.component";
@@ -73,8 +72,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   protected forcePasswordResetRoute = "update-temp-password";
   protected successRoute = "vault";
   protected twoFactorTimeoutRoute = "authentication-timeout";
-
-  protected activeUserId: UserId;
 
   get isDuoProvider(): boolean {
     return (
@@ -291,14 +288,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
     // - Browser SSO on extension open
-
-    // Grabbing the active user id right before making the state set to ensure it exists.
-    this.activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
-    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(
-      this.orgIdentifier,
-      this.activeUserId,
-    );
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier, userId);
     this.loginEmailService.clearValues();
 
     // note: this flow affects both TDE & standard users
