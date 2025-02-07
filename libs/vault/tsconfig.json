@@ -8,7 +8,7 @@
       "@bitwarden/auth/common": ["../auth/src/common"],
       "@bitwarden/common/*": ["../common/src/*"],
       "@bitwarden/components": ["../components/src"],
-      "@bitwarden/importer/ui": ["../importer/src/components"],
+      "@bitwarden/importer-ui": ["../importer/src/components"],
       "@bitwarden/generator-components": ["../tools/generator/components/src"],
       "@bitwarden/generator-core": ["../tools/generator/core/src"],
       "@bitwarden/generator-history": ["../tools/generator/extensions/history/src"],

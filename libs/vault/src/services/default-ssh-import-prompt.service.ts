@@ -6,7 +6,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SshKeyApi } from "@bitwarden/common/vault/models/api/ssh-key.api";
 import { SshKeyData } from "@bitwarden/common/vault/models/data/ssh-key.data";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { SshKeyPasswordPromptComponent } from "@bitwarden/importer/ui";
+import { SshKeyPasswordPromptComponent } from "@bitwarden/importer-ui";
 import { import_ssh_key, SshKey, SshKeyImportError } from "@bitwarden/sdk-internal";
 
 import { SshImportPromptService } from "./ssh-import-prompt.service";
