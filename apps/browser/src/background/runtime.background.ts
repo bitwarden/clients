@@ -405,13 +405,19 @@ export default class RuntimeBackground {
     }, 100);
   }
 
+  /** Returns the browser tabs that have the web vault open */
+  private async getBwTabs() {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const vaultUrl = env.getWebVaultUrl();
+    const urlObj = new URL(vaultUrl);
+
+    return await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
+  }
+
+
   async sendBwInstalledMessageToVault() {
     try {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const vaultUrl = env.getWebVaultUrl();
-      const urlObj = new URL(vaultUrl);
-
-      const tabs = await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
+      const tabs = await this.getBwTabs();
 
       if (!tabs?.length) {
         return;
