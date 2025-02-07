@@ -469,9 +469,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get selectedSecretsManagerPlan() {
+    let planResponse: PlanResponse;
     if (this.secretsManagerPlans) {
       return this.secretsManagerPlans.find((plan) => plan.type === this.selectedPlan.type);
     }
+    return planResponse;
   }
 
   get selectedPlanInterval() {
