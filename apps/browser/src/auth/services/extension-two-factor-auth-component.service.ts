@@ -1,5 +1,6 @@
 import {
   DefaultTwoFactorAuthComponentService,
+  DuoLaunchAction,
   TwoFactorAuthComponentService,
 } from "@bitwarden/auth/angular";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -9,6 +10,7 @@ import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import {
   AuthPopoutType,
   closeSsoAuthResultPopout,
+  closeTwoFactorAuthDuoPopout,
   closeTwoFactorAuthEmailPopout,
   closeTwoFactorAuthWebAuthnPopout,
 } from "../popup/utils/auth-popout-window";
@@ -81,11 +83,33 @@ export class ExtensionTwoFactorAuthComponentService
       return true;
     }
 
+    const inTwoFactorAuthDuoPopout = BrowserPopupUtils.inSingleActionPopout(
+      this.window,
+      AuthPopoutType.twoFactorAuthDuo,
+    );
+    if (inTwoFactorAuthDuoPopout) {
+      await closeTwoFactorAuthDuoPopout();
+      return true;
+    }
+
     return false;
   }
 
   private async isLinux(): Promise<boolean> {
     const platformInfo = await BrowserApi.getPlatformInfo();
     return platformInfo.os === "linux";
+  }
+
+  determineDuoLaunchAction(): DuoLaunchAction {
+    const inTwoFactorAuthDuoPopout = BrowserPopupUtils.inSingleActionPopout(
+      this.window,
+      AuthPopoutType.twoFactorAuthDuo,
+    );
+
+    if (inTwoFactorAuthDuoPopout) {
+      return DuoLaunchAction.DIRECT_LAUNCH;
+    }
+
+    return DuoLaunchAction.SINGLE_ACTION_POPOUT;
   }
 }

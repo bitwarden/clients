@@ -5,6 +5,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+import { openTwoFactorAuthDuoPopout } from "../../auth/popup/utils/auth-popout-window";
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
 
 interface Message {
@@ -53,5 +54,9 @@ export class ExtensionTwoFactorAuthDuoComponentService implements TwoFactorAuthD
       "&handOffMessage=" +
       encodeURIComponent(JSON.stringify(duoHandOffMessage));
     this.platformUtilsService.launchUri(launchUrl);
+  }
+
+  async openTwoFactorAuthDuoPopout(): Promise<void> {
+    await openTwoFactorAuthDuoPopout();
   }
 }

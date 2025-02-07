@@ -9,6 +9,7 @@ jest.mock("../popup/utils/auth-popout-window", () => {
     closeSsoAuthResultPopout: jest.fn(),
     closeTwoFactorAuthWebAuthnPopout: jest.fn(),
     closeTwoFactorAuthEmailPopout: jest.fn(),
+    closeTwoFactorAuthDuoPopout: jest.fn(),
   };
 });
 
@@ -16,6 +17,7 @@ jest.mock("../../platform/popup/browser-popup-utils", () => ({
   inSingleActionPopout: jest.fn(),
 }));
 
+import { DuoLaunchAction } from "@bitwarden/auth/angular";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -23,6 +25,7 @@ import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import {
   AuthPopoutType,
   closeSsoAuthResultPopout,
+  closeTwoFactorAuthDuoPopout,
   closeTwoFactorAuthEmailPopout,
   closeTwoFactorAuthWebAuthnPopout,
 } from "../popup/utils/auth-popout-window";
@@ -139,6 +142,19 @@ describe("ExtensionTwoFactorAuthComponentService", () => {
       expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(3);
       expect(closeTwoFactorAuthEmailPopout).toHaveBeenCalled();
     });
+
+    it("should call closeTwoFactorAuthDuoPopout if in two factor auth email popout", async () => {
+      const inSingleActionPopoutSpy = jest
+        .spyOn(BrowserPopupUtils, "inSingleActionPopout")
+        .mockImplementation((_, key) => {
+          return key === AuthPopoutType.twoFactorAuthDuo;
+        });
+
+      await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
+
+      expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(4);
+      expect(closeTwoFactorAuthDuoPopout).toHaveBeenCalled();
+    });
   });
 
   describe("reloadOpenWindows", () => {
@@ -148,6 +164,26 @@ describe("ExtensionTwoFactorAuthComponentService", () => {
       extensionTwoFactorAuthComponentService.reloadOpenWindows();
 
       expect(reloadOpenWindowsSpy).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe("determineDuoLaunchAction", () => {
+    it("should return DIRECT_LAUNCH if in two factor auth duo popout", () => {
+      jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockImplementation((_, key) => {
+        return key === AuthPopoutType.twoFactorAuthDuo;
+      });
+
+      expect(extensionTwoFactorAuthComponentService.determineDuoLaunchAction()).toBe(
+        DuoLaunchAction.DIRECT_LAUNCH,
+      );
+    });
+
+    it("should return SINGLE_ACTION_POPOUT if not in two factor auth duo popout", () => {
+      jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockImplementation(() => false);
+
+      expect(extensionTwoFactorAuthComponentService.determineDuoLaunchAction()).toBe(
+        DuoLaunchAction.SINGLE_ACTION_POPOUT,
+      );
     });
   });
 });

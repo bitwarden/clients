@@ -60,6 +60,7 @@ import { TwoFactorAuthEmailComponent } from "./child-components/two-factor-auth-
 import { TwoFactorAuthWebAuthnComponent } from "./child-components/two-factor-auth-webauthn/two-factor-auth-webauthn.component";
 import { TwoFactorAuthYubikeyComponent } from "./child-components/two-factor-auth-yubikey.component";
 import {
+  DuoLaunchAction,
   LegacyKeyMigrationAction,
   TwoFactorAuthComponentService,
 } from "./two-factor-auth-component.service";
@@ -131,6 +132,9 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
 
   formPromise: Promise<any> | undefined;
 
+  duoLaunchAction: DuoLaunchAction | undefined = undefined;
+  DuoLaunchAction = DuoLaunchAction;
+
   private authenticationSessionTimeoutRoute = "authentication-timeout";
 
   constructor(
@@ -172,6 +176,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     await this.twoFactorAuthComponentService.extendPopupWidthIfRequired?.(
       this.selectedProviderType,
     );
+
+    this.duoLaunchAction = this.twoFactorAuthComponentService.determineDuoLaunchAction();
 
     this.loading = false;
   }
@@ -305,8 +311,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   async launchDuo() {
-    if (this.duoComponent != null) {
-      await this.duoComponent.launchDuoFrameless();
+    if (this.duoComponent != null && this.duoLaunchAction !== undefined) {
+      await this.duoComponent.launchDuoFrameless(this.duoLaunchAction);
     }
   }
 

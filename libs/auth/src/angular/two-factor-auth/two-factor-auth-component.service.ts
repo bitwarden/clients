@@ -5,6 +5,11 @@ export enum LegacyKeyMigrationAction {
   NAVIGATE_TO_MIGRATION_COMPONENT,
 }
 
+export enum DuoLaunchAction {
+  DIRECT_LAUNCH,
+  SINGLE_ACTION_POPOUT,
+}
+
 /**
  * Manages all cross client functionality so we can have a single two factor auth component
  * implementation for all clients.
@@ -52,4 +57,10 @@ export abstract class TwoFactorAuthComponentService {
    * Only defined on the extension client for the goal of refreshing sidebars.
    */
   abstract reloadOpenWindows?(): void;
+
+  /**
+   * Determines the action to take when launching the Duo flow.
+   * The extension has to popout the flow, while other clients can launch it directly.
+   */
+  abstract determineDuoLaunchAction(): DuoLaunchAction;
 }

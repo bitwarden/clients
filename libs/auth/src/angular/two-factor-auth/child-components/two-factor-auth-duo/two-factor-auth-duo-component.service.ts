@@ -23,4 +23,10 @@ export abstract class TwoFactorAuthDuoComponentService {
    * Launches the client specific duo frameless 2FA flow.
    */
   abstract launchDuoFrameless(duoFramelessUrl: string): Promise<void>;
+
+  /**
+   * Optionally launches the extension duo 2FA single action popout
+   * Only applies to the extension today.
+   */
+  abstract openTwoFactorAuthDuoPopout?(): Promise<void>;
 }

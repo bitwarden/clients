@@ -16,6 +16,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { DuoLaunchAction } from "../../two-factor-auth-component.service";
+
 import {
   Duo2faResult,
   TwoFactorAuthDuoComponentService,
@@ -66,7 +68,20 @@ export class TwoFactorAuthDuoComponent implements OnInit {
   }
 
   // Called via parent two-factor-auth component.
-  async launchDuoFrameless(): Promise<void> {
+  async launchDuoFrameless(duoLaunchAction: DuoLaunchAction): Promise<void> {
+    switch (duoLaunchAction) {
+      case DuoLaunchAction.DIRECT_LAUNCH:
+        await this.launchDuoFramelessDirectly();
+        break;
+      case DuoLaunchAction.SINGLE_ACTION_POPOUT:
+        await this.twoFactorAuthDuoComponentService.openTwoFactorAuthDuoPopout?.();
+        break;
+      default:
+        break;
+    }
+  }
+
+  private async launchDuoFramelessDirectly(): Promise<void> {
     if (this.duoFramelessUrl === null || this.duoFramelessUrl === undefined) {
       this.toastService.showToast({
         variant: "error",

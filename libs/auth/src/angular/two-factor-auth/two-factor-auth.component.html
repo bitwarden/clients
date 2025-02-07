@@ -34,7 +34,7 @@
       "
       #duoComponent
     />
-    <bit-form-control>
+    <bit-form-control *ngIf="duoLaunchAction !== DuoLaunchAction.SINGLE_ACTION_POPOUT">
       <bit-label>{{ "dontAskAgainOnThisDeviceFor30Days" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="remember" />
     </bit-form-control>
@@ -72,7 +72,12 @@
           selectedProviderType === providerType.OrganizationDuo
         "
       >
-        <span> {{ "launchDuo" | i18n }}</span>
+        <span *ngIf="duoLaunchAction === DuoLaunchAction.DIRECT_LAUNCH">
+          {{ "launchDuo" | i18n }}</span
+        >
+        <span *ngIf="duoLaunchAction === DuoLaunchAction.SINGLE_ACTION_POPOUT">
+          {{ "popoutExtension" | i18n }}</span
+        >
       </button>
 
       <p class="tw-text-center tw-mb-0">{{ "or" | i18n }}</p>

@@ -8,7 +8,9 @@ const AuthPopoutType = {
   ssoAuthResult: "auth_ssoAuthResult",
   twoFactorAuthWebAuthn: "auth_twoFactorAuthWebAuthn",
   twoFactorAuthEmail: "auth_twoFactorAuthEmail",
+  twoFactorAuthDuo: "auth_twoFactorAuthDuo",
 } as const;
+
 const extensionUnlockUrls = new Set([
   chrome.runtime.getURL("popup/index.html#/lock"),
   chrome.runtime.getURL("popup/index.html#/home"),
@@ -110,6 +112,22 @@ async function closeTwoFactorAuthEmailPopout() {
   await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.twoFactorAuthEmail);
 }
 
+/**
+ * Opens the two-factor authentication Duo popout.
+ */
+async function openTwoFactorAuthDuoPopout() {
+  await BrowserPopupUtils.openPopout("popup/index.html#/2fa", {
+    singleActionKey: AuthPopoutType.twoFactorAuthDuo,
+  });
+}
+
+/**
+ * Closes the two-factor authentication Duo popout.
+ */
+async function closeTwoFactorAuthDuoPopout() {
+  await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.twoFactorAuthDuo);
+}
+
 export {
   AuthPopoutType,
   openUnlockPopout,
@@ -120,4 +138,6 @@ export {
   closeTwoFactorAuthWebAuthnPopout,
   openTwoFactorAuthEmailPopout,
   closeTwoFactorAuthEmailPopout,
+  openTwoFactorAuthDuoPopout,
+  closeTwoFactorAuthDuoPopout,
 };
