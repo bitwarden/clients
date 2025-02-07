@@ -79,7 +79,6 @@ export default class RuntimeBackground {
         BiometricsCommands.UnlockWithBiometricsForUser,
         BiometricsCommands.GetBiometricsStatusForUser,
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
-        "getInlineMenuFieldQualificationFeatureFlag",
         "getInlineMenuTotpFeatureFlag",
         "getUserPremiumStatus",
       ];
@@ -209,9 +208,6 @@ export default class RuntimeBackground {
         return await this.configService.getFeatureFlag(
           FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
         );
-      }
-      case "getInlineMenuFieldQualificationFeatureFlag": {
-        return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
       }
       case "getUserPremiumStatus": {
         const activeUserId = await firstValueFrom(
