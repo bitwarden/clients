@@ -71,12 +71,6 @@ describe("VaultPopupListFiltersService", () => {
   const state$ = new BehaviorSubject<boolean>(false);
   const update = jest.fn().mockResolvedValue(undefined);
 
-  function createMockSignal<T>(initialValue: T): WritableSignal<T> {
-    const s = signal(initialValue);
-    s.set = (value: T) => s.update(() => value);
-    return s;
-  }
-
   beforeEach(() => {
     _memberOrganizations$ = new BehaviorSubject<Organization[]>([]); // Fresh instance per test
     folderViews$ = new BehaviorSubject([]); // Fresh instance per test
@@ -616,3 +610,9 @@ describe("VaultPopupListFiltersService", () => {
     }));
   });
 });
+
+function createMockSignal<T>(initialValue: T): WritableSignal<T> {
+  const s = signal(initialValue);
+  s.set = (value: T) => s.update(() => value);
+  return s;
+}
