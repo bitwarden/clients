@@ -622,8 +622,15 @@ export class LoginComponent implements OnInit, OnDestroy {
    * @param event - The event object.
    */
   async handleSsoClick() {
-    const isEmailValid = await this.validateEmail();
+    // Make sure the email is not empty, for type safety
+    const email = this.formGroup.value.email;
+    if (!email) {
+      this.logService.error("Email is required for SSO");
+      return;
+    }
 
+    // Make sure the email is valid
+    const isEmailValid = await this.validateEmail();
     if (!isEmailValid) {
       return;
     }
@@ -631,6 +638,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Save the email configuration for the login component
     await this.saveEmailSettings();
 
-    await this.loginComponentService.redirectToSsoLogin(this.formGroup.value.email);
+    // Send the user to SSO, either through routing or through redirecting to the web app
+    await this.loginComponentService.redirectToSsoLogin(email);
   }
 }

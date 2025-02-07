@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { LoginComponentService, PasswordPolicies } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
@@ -19,7 +17,9 @@ export class DefaultLoginComponentService implements LoginComponentService {
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
     protected ssoLoginService: SsoLoginServiceAbstraction,
-  ) {}
+  ) {
+    this.clientType = this.platformUtilsService.getClientType();
+  }
 
   async getOrgPolicies(): Promise<PasswordPolicies | null> {
     return null;

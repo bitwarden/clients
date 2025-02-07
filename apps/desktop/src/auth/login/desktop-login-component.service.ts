@@ -33,7 +33,6 @@ export class DesktopLoginComponentService
       platformUtilsService,
       ssoLoginService,
     );
-    this.clientType = this.platformUtilsService.getClientType();
   }
 
   protected override async redirectToSso(

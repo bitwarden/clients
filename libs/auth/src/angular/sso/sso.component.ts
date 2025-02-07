@@ -550,36 +550,39 @@ export class SsoComponent implements OnInit {
    * redirect here on SSO button click.
    */
   private async initializeIdentifierFromEmailOrStorage(): Promise<void> {
-    // show loading spinner
-    this.loggingIn = true;
-    try {
-      // Check if email matches any claimed domains
-      if (await this.configService.getFeatureFlag(FeatureFlag.VerifiedSsoDomainEndpoint)) {
-        const response: ListResponse<VerifiedOrganizationDomainSsoDetailsResponse> =
-          await this.orgDomainApiService.getVerifiedOrgDomainsByEmail(this.email);
+    if (this.email) {
+      // show loading spinner
+      this.loggingIn = true;
+      try {
+        // Check if email matches any claimed domains
+        if (await this.configService.getFeatureFlag(FeatureFlag.VerifiedSsoDomainEndpoint)) {
+          const response: ListResponse<VerifiedOrganizationDomainSsoDetailsResponse> =
+            await this.orgDomainApiService.getVerifiedOrgDomainsByEmail(this.email);
 
-        if (response.data.length > 0) {
-          this.identifierFormControl.setValue(response.data[0].organizationIdentifier);
-          await this.submit();
-          return;
-        }
-      } else {
-        const response: OrganizationDomainSsoDetailsResponse =
-          await this.orgDomainApiService.getClaimedOrgDomainByEmail(this.email);
+          if (response.data.length > 0) {
+            this.identifierFormControl.setValue(response.data[0].organizationIdentifier);
+            await this.submit();
+            return;
+          }
+        } else {
+          const response: OrganizationDomainSsoDetailsResponse =
+            await this.orgDomainApiService.getClaimedOrgDomainByEmail(this.email);
 
-        if (response?.ssoAvailable && response?.verifiedDate) {
-          this.identifierFormControl.setValue(response.organizationIdentifier);
-          await this.submit();
-          return;
+          if (response?.ssoAvailable && response?.verifiedDate) {
+            this.identifierFormControl.setValue(response.organizationIdentifier);
+            await this.submit();
+            return;
+          }
         }
+      } catch (error) {
+        this.handleGetClaimedDomainByEmailError(error);
       }
-    } catch (error) {
-      this.handleGetClaimedDomainByEmailError(error);
+
+      this.loggingIn = false;
     }
 
-    this.loggingIn = false;
-
-    // Fallback to state svc if domain is unclaimed
+    // If we don't find a claimed domain, check to see if we stored an identifier in state
+    // from their last attrempt to login via SSO. If so, we'll populate the field, but not submit.
     const storedIdentifier = await this.ssoLoginService.getOrganizationSsoIdentifier();
     if (storedIdentifier != null) {
       this.identifierFormControl.setValue(storedIdentifier);
