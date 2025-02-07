@@ -90,7 +90,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   protected VaultStateEnum = VaultState;
 
-  private allFilters$ = this.vaultPopupListFiltersService.allFilters$;
+  protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
