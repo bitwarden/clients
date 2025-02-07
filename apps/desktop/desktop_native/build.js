@@ -46,9 +46,9 @@ switch (process.platform) {
     break;
 
     default:
-        console.log("PLATFORM===", process.platform);
         targets = [
-            ['x86_64-unknown-linux-musl', 'x64']
+            ['x86_64-unknown-linux-musl', 'x64'],
+            ['aarch64-unknown-linux-musl', 'arm64']
         ];
 
         process.env["PKG_CONFIG_ALLOW_CROSS"] = "1";
