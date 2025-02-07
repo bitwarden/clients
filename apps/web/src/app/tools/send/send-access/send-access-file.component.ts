@@ -13,7 +13,7 @@ import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-ac
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
-import { SharedModule } from "../../shared";
+import { SharedModule } from "../../../shared";
 
 @Component({
   selector: "app-send-access-file",
