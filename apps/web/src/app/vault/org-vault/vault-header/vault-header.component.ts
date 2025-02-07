@@ -13,7 +13,6 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -90,11 +89,6 @@ export class VaultHeaderComponent implements OnInit {
 
   protected CollectionDialogTabType = CollectionDialogTabType;
 
-  /**
-   * Whether the extension refresh feature flag is enabled.
-   */
-  protected extensionRefreshEnabled = false;
-
   /** The cipher type enum. */
   protected CipherType = CipherType;
 
@@ -106,11 +100,7 @@ export class VaultHeaderComponent implements OnInit {
     private configService: ConfigService,
   ) {}
 
-  async ngOnInit() {
-    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
-  }
+  async ngOnInit() {}
 
   get title() {
     const headerType = this.i18nService.t("collections").toLowerCase();
