@@ -5,6 +5,7 @@ const path = require("path");
 const { notarize } = require("@electron/notarize");
 const { deepAssign } = require("builder-util");
 const fse = require("fs-extra");
+const { identity } = require("rxjs");
 
 exports.default = run;
 
@@ -38,7 +39,7 @@ async function run(context) {
         console.log("### Resigning autofill extension for development");
         const { execSync } = require("child_process");
         execSync(
-          `codesign --force --sign 4B9662CAB74E8E4F4ECBDD9EDEF2543659D95E3C --entitlements "${path.join(__dirname, "../macos/autofill-extension/autofill_extension.entitlements")}" "${extensionDestPath}"`,
+          `codesign --force --sign "4B9662CAB74E8E4F4ECBDD9EDEF2543659D95E3C" --entitlements "${path.join(__dirname, "../macos/autofill-extension/autofill_extension.entitlements")}" "${extensionDestPath}"`,
         );
       }
 
@@ -74,7 +75,7 @@ async function run(context) {
       );
       if (context.targets.some((e) => e.name === "mas-dev")) {
         deepAssign(masBuildOptions, {
-          type: "development",
+          identity: "4B9662CAB74E8E4F4ECBDD9EDEF2543659D95E3C"
         });
       }
       if (context.packager.packagerOptions.prepackaged == null) {
