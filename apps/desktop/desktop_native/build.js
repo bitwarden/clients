@@ -46,6 +46,7 @@ switch (process.platform) {
     break;
 
     default:
+        console.log("PLATFORM===", process.platform);
         targets = [
             ['x86_64-unknown-linux-musl', 'x64']
         ];
