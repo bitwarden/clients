@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Accesso avviato"
   },
+  "logInRequestSent": {
+    "message": "Richiesta inviata"
+  },
   "notificationSentDevice": {
     "message": "Una notifica è stata inviata al tuo dispositivo."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Una notifica è stata inviata al tuo dispositivo"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assicurati che il tuo account sia sbloccato e che la frase dell'impronta digitale corrisponda nell'altro dispositivo"
+  "notificationSentDevicePart1": {
+    "message": "Sblocca Bitwarden sul tuo dispositivo o su "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "app web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Assicurarsi che la frase di impronta digitale corrisponda a quella sottostante prima dell'approvazione."
   },
   "needAnotherOptionV1": {
     "message": "Bisogno di un'altra opzione?"
@@ -2782,10 +2791,10 @@
     "message": "Attiva/disattiva conteggio caratteri",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Stai cercando di accedere?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Stai cercando di accedere al tuo account?"
   },
-  "logInAttemptBy": {
+  "accessAttemptBy": {
     "message": "Tentativo di accesso di $EMAIL$",
     "placeholders": {
       "email": {
@@ -2803,10 +2812,10 @@
   "time": {
     "message": "Ora"
   },
-  "confirmLogIn": {
-    "message": "Consenti accesso"
+  "confirmAccess": {
+    "message": "Conferma accesso"
   },
-  "denyLogIn": {
+  "denyAccess": {
     "message": "Nega accesso"
   },
   "logInConfirmedForEmailOnDevice": {
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "La richiesta non è più valida."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Conferma il tentativo di accesso di $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Conferma il tentativo di accesso per $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Accesso richiesto"
+  },
+  "accountAccessRequested": {
+    "message": "Accesso all'account richiesto"
   },
   "creatingAccountOn": {
     "message": "Creazione account su"

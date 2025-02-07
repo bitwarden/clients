@@ -2575,10 +2575,10 @@
     "message": "Prehľadávať môj trezor"
   },
   "forwardedEmail": {
-    "message": "Alias preposlaného e-mailu"
+    "message": "Alias presmerovaného e-mailu"
   },
   "forwardedEmailDesc": {
-    "message": "Vytvoriť e-mailový alias pomocou externej služby preposielania."
+    "message": "Vytvoriť e-mailový alias pomocou externej služby presmerovania."
   },
   "forwarderDomainName": {
     "message": "E-mailová doména",
@@ -2603,11 +2603,11 @@
     }
   },
   "forwarderGeneratedBy": {
-    "message": "Vygenerované s Bitwarden.",
+    "message": "Vygenerované Bitwardenom.",
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Webstránka: $WEBSITE$. Vygenerované s Bitwarden.",
+    "message": "Webstránka: $WEBSITE$. Vygenerované Bitwardenon.",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {
@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Iniciované prihlásenie"
   },
+  "logInRequestSent": {
+    "message": "Požiadavka bola odoslaná"
+  },
   "notificationSentDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Uistite sa, že je váš účet odomknutý a fráza odtlačku prsta sa zhoduje s frázou na druhom zariadení"
+  "notificationSentDevicePart1": {
+    "message": "Odomknúť Bitwarden vo svojom zariadení alebo vo "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webovej aplikácii"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pred schválením sa uistite, že sa odtlačok prístupovej frázy zhoduje s tou uvedenou nižšie."
   },
   "needAnotherOptionV1": {
     "message": "Potrebujete inú možnosť?"
@@ -2782,11 +2791,11 @@
     "message": "Prepnúť počítadlo znakov",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Snažíte sa prihlásiť?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Snažíte sa získať prístup k svojmu účtu?"
   },
-  "logInAttemptBy": {
-    "message": "Pokus o prihlásenie pomocou $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Pokus o prístup z $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Čas"
   },
-  "confirmLogIn": {
-    "message": "Potvrdiť prihlásenie"
+  "confirmAccess": {
+    "message": "Potvrdiť prístup"
   },
-  "denyLogIn": {
-    "message": "Odmietnuť prihlásenie"
+  "denyAccess": {
+    "message": "Zamietnuť prístup"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Potvrdené prihlásenie pomocou $EMAIL$ na $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Táto žiadosť už nie je platná."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Potvrdiť pokus o prihlásenie pomocou $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Potvrďte pokus o prístup pre $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Požadované prihlásenie"
+  },
+  "accountAccessRequested": {
+    "message": "Žiadosť o prístup k účtu"
   },
   "creatingAccountOn": {
     "message": "Vytváranie účtu na"

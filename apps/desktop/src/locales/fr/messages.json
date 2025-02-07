@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Connexion initiée"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "Une notification a été envoyée à votre appareil."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assurez-vous que votre compte est déverrouillé et que la phrase d'empreinte digitale correspond à celle de l'autre appareil"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "Besoin d'une autre option ?"
@@ -2782,11 +2791,11 @@
     "message": "Activer / désactiver le compte de caractères",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Essayez-vous de vous connecter ?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Tentative de connexion par $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Heure"
   },
-  "confirmLogIn": {
-    "message": "Confirmer la connexion"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "Refuser la connexion"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Connexion confirmée pour $EMAIL$ sur $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Cette demande n'est plus valide."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Confirmer la tentative de connexion pour $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Connexion demandée"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Création du compte sur"

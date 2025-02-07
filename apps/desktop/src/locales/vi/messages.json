@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Bắt đầu đăng nhập"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "Một thông báo đã được gửi đến thiết bị của bạn."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "Need another option?"
@@ -2782,11 +2791,11 @@
     "message": "Bật tắt đếm kí tự",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Bạn đang cố đăng nhập?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Nỗ lực đăng nhập bằng $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Thời Gian"
   },
-  "confirmLogIn": {
-    "message": "Xác nhận đăng nhập"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "Từ chối đăng nhập"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Đã xác nhận đăng nhập cho $EMAIL$ trên $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Yêu cầu này không còn hiệu lực."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Phê duyệt đăng nhập cho $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Yêu cầu đăng nhập"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Đang tạo tài khoản trên"

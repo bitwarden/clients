@@ -579,7 +579,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "Els requisits de la política empresarial s'han aplicat a les opcions del generador.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
@@ -889,7 +889,7 @@
     "message": "Verifiqueu la vostra identitat"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "No reconeixem aquest dispositiu. Introduïu el codi que us hem enviat al correu electrònic per verificar la identitat."
   },
   "continueLoggingIn": {
     "message": "Continua l'inici de sessió"
@@ -946,7 +946,7 @@
     "message": "Temps d'espera d'autenticació"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "La sessió d'autenticació s'ha esgotat. Reinicieu el procés d'inici de sessió."
   },
   "selfHostBaseUrl": {
     "message": "URL del servidor autoallotjat",
@@ -1004,7 +1004,7 @@
     "message": "Enllaç caducat"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Reinicieu el registre o proveu d'iniciar sessió."
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "És possible que ja tingueu un compte"
@@ -2551,7 +2551,7 @@
     "message": "Utilitzeu la safata d'entrada global configurada del vostre domini."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Utilitza aquest correu"
   },
   "random": {
     "message": "Aleatori"
@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "S'ha iniciat la sessió"
   },
+  "logInRequestSent": {
+    "message": "Sol·licitud enviada"
+  },
   "notificationSentDevice": {
     "message": "S'ha enviat una notificació al vostre dispositiu."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "S'ha enviat una notificació al vostre dispositiu"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assegureu-vos que la vostra caixa forta estiga desbloquejada i que la frase d'empremta digital coincidisca en l'altre dispositiu"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "aplicació web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "Necessiteu una altra opció?"
@@ -2782,11 +2791,11 @@
     "message": "Commuta el recompte de caràcters",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Esteu intentant iniciar sessió?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Intent d'inici de sessió per $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Hora"
   },
-  "confirmLogIn": {
-    "message": "Confirma l'inici de sessió"
+  "confirmAccess": {
+    "message": "Confirmeu l'accés"
   },
-  "denyLogIn": {
-    "message": "Denega l'inici de sessió"
+  "denyAccess": {
+    "message": "Denega l'accés"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "S'ha confirmat l'inici de sessió per a $EMAIL$ a $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Aquesta sol·licitud ja no és vàlida."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Confirmeu l'intent d'inici de sessió per a $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "S'ha sol·licitat inici de sessió"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Creant compte en"

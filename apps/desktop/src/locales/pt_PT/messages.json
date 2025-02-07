@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "A preparar o início de sessão"
   },
+  "logInRequestSent": {
+    "message": "Pedido enviado"
+  },
   "notificationSentDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Certifique-se de que a sua conta está desbloqueada e que a frase de impressão digital corresponde à do outro dispositivo"
+  "notificationSentDevicePart1": {
+    "message": "Desbloqueie o Bitwarden no seu dispositivo ou no "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "aplicação web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Certifique-se de que a frase da impressão digital corresponde à frase abaixo indicada antes de a aprovar."
   },
   "needAnotherOptionV1": {
     "message": "Precisa de outra opção?"
@@ -2782,11 +2791,11 @@
     "message": "Mostrar/ocultar contagem de carateres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Está a tentar iniciar sessão?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Está a tentar aceder à sua conta?"
   },
-  "logInAttemptBy": {
-    "message": "Tentativa de início de sessão por $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Tentativa de acesso por $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Hora"
   },
-  "confirmLogIn": {
-    "message": "Confirmar início de sessão"
+  "confirmAccess": {
+    "message": "Confirmar acesso"
   },
-  "denyLogIn": {
-    "message": "Recusar início de sessão"
+  "denyAccess": {
+    "message": "Recusar acesso"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Início de sessão confirmado para $EMAIL$ no $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Este pedido já não é válido."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Confirmar tentativa de início de sessão de $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirmar tentativa de acesso para $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Pedido de início de sessão"
+  },
+  "accountAccessRequested": {
+    "message": "Acesso à conta solicitado"
   },
   "creatingAccountOn": {
     "message": "A criar uma conta em"
@@ -3446,7 +3458,7 @@
     "message": "Chave SSH importada com sucesso"
   },
   "fileSavedToDevice": {
-    "message": "Ficheiro guardado no dispositivo. Gira-o a partir das transferências do seu dispositivo."
+    "message": "Ficheiro guardado no dispositivo. Faça a gestão a partir das transferências do seu dispositivo."
   },
   "importantNotice": {
     "message": "Aviso importante"

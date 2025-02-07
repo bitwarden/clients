@@ -1907,7 +1907,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "$TOTAL$ 不足",
+    "message": "总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -2551,7 +2551,7 @@
     "message": "使用您的域名配置的 Catch-all 收件箱。"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "使用此电子邮箱"
   },
   "random": {
     "message": "随机"
@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "登录已发起"
   },
+  "logInRequestSent": {
+    "message": "请求已发送"
+  },
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "确保您的账户已解锁，并且指纹短语与其他设备上的相匹配。"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "网页 App"
+  },
+  "notificationSentDevicePart2": {
+    "message": "在批准前，请确保指纹短语与下面的一致。"
   },
   "needAnotherOptionV1": {
     "message": "需要其他选项吗？"
@@ -2782,11 +2791,11 @@
     "message": "字符计数开关",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "您正在尝试登录吗？"
+  "areYouTryingToAccessYourAccount": {
+    "message": "您正在尝试访问您的账户吗？"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ 的登录尝试",
+  "accessAttemptBy": {
+    "message": "$EMAIL$ 的访问尝试",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "时间"
   },
-  "confirmLogIn": {
-    "message": "确认登录"
+  "confirmAccess": {
+    "message": "确认访问"
   },
-  "denyLogIn": {
-    "message": "拒绝登录"
+  "denyAccess": {
+    "message": "拒绝访问"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "已确认 $EMAIL$ 在 $DEVICE$ 上的登录",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "此请求已失效。"
   },
-  "confirmLoginAtemptForMail": {
-    "message": "确认 $EMAIL$ 的登录尝试",
+  "confirmAccessAttempt": {
+    "message": "确认 $EMAIL$ 的访问尝试",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "已请求登录"
+  },
+  "accountAccessRequested": {
+    "message": "已请求账户访问"
   },
   "creatingAccountOn": {
     "message": "创建账户至"

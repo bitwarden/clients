@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Bylo zahájeno přihlášení"
   },
+  "logInRequestSent": {
+    "message": "Požadavek odeslán"
+  },
   "notificationSentDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Ujistěte se, že je Váš účet odemčen a fráze otisku prstu se shoduje s tou na druhém zařízení"
+  "notificationSentDevicePart1": {
+    "message": "Odemknout Bitwarden na Vašem zařízení nebo na "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webová aplikace"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Před schválením se ujistěte, že fráze otisku prstu odpovídá frázi níže."
   },
   "needAnotherOptionV1": {
     "message": "Potřebujete další volby?"
@@ -2782,11 +2791,11 @@
     "message": "Zobrazit počet znaků",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Pokoušíte se přihlásit?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Pokoušíte se získat přístup k Vašemu účtu?"
   },
-  "logInAttemptBy": {
-    "message": "Pokus o přihlášení z $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Pokus o přístup z $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Čas"
   },
-  "confirmLogIn": {
-    "message": "Potvrdit přihlášení"
+  "confirmAccess": {
+    "message": "Potvrdit přístup"
   },
-  "denyLogIn": {
-    "message": "Zamítnout přihlášení"
+  "denyAccess": {
+    "message": "Zamítnout přístup"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Přihlášení bylo potvrzeno z $EMAIL$ pro $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Tento požadavek již není platný."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Potvrďte pokus o přihlášení z $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Potvrďte pokus o přístup z $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Bylo vyžádáno přihlášení"
+  },
+  "accountAccessRequested": {
+    "message": "Požadován přístup k účtu"
   },
   "creatingAccountOn": {
     "message": "Vytváření účtu na"

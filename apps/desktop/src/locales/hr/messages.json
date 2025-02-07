@@ -250,17 +250,17 @@
     "message": "Pogreška"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Pogreška pri dešifriranju"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden nije mogao dešifrirati sljedeće stavke trezora."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Kontaktiraj službu za korisnike",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "kako bi izbjegli gubitak podataka.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -886,13 +886,13 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyIdentity": {
-    "message": "Verify your Identity"
+    "message": "Potvrdi svoj identitet"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Ne prepoznajemo ovaj uređaj. Za potvrdu identiteta unesi kôd poslan e-poštom."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Nastavi prijavu"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -2551,7 +2551,7 @@
     "message": "Koristi konfigurirani catch-all sandučić svoje domene."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Koristi ovu e-poštu"
   },
   "random": {
     "message": "Nasumično"
@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Prijava pokrenuta"
   },
+  "logInRequestSent": {
+    "message": "Zahtjev poslan"
+  },
   "notificationSentDevice": {
     "message": "Obavijest je poslana na tvoj uređaj."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Obavijest je poslana na tvoj uređaj"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Provjeri je li trezor otključan i slaže li se jedinstvena fraza s drugim uređajem"
+  "notificationSentDevicePart1": {
+    "message": "Otključaj Bitwarden na svojem uređaju ili na "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web trezoru"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Provjeri slaže li se jedinstvena fraza s ovdje prikazanom prije odobravanja."
   },
   "needAnotherOptionV1": {
     "message": "Trebaš drugu opciju?"
@@ -2782,11 +2791,11 @@
     "message": "Prikaži/Sakrij broj znakova",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Pokušavaš li se prijaviti?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Pokušavaš li pristupiti svom računu?"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ se pokušava prijaviti",
+  "accessAttemptBy": {
+    "message": "$EMAIL$ pokušava pristupiti",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Vrijeme"
   },
-  "confirmLogIn": {
-    "message": "Potvrdi prijavu"
+  "confirmAccess": {
+    "message": "Potvrdi pristup"
   },
-  "denyLogIn": {
-    "message": "Odbij prijavu"
+  "denyAccess": {
+    "message": "Odbij pristup"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
@@ -2843,7 +2852,7 @@
   "thisRequestIsNoLongerValid": {
     "message": "Ovaj zahtjev više nije valjan."
   },
-  "confirmLoginAtemptForMail": {
+  "confirmAccessAttempt": {
     "message": "Potvrdi pokušaj prijave za $EMAIL$",
     "placeholders": {
       "email": {
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Zatražena je prijava"
+  },
+  "accountAccessRequested": {
+    "message": "Zatražen je pristup računu"
   },
   "creatingAccountOn": {
     "message": "Stvaranje računa na"
@@ -2889,10 +2901,10 @@
     "message": "Slaba lozinka je nađena među ukradenima tijekom krađa podataka. Za zaštitu svog računa koristi jaku i jedinstvenu lozinku. Želiš li svejedno korisiti slabu, ukradenu lozinku?"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Koristi ovu lozinku"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Koristi ovo korisničko ime"
   },
   "checkForBreaches": {
     "message": "Provjeri je li lozinka ukradena prilikom krađe podataka"
@@ -3392,19 +3404,19 @@
     "message": "Nisu nađeni slobodni portovi za SSO prijavu."
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "Biometrijsko otključavanje nije dostupno jer je prvo potrebno otključati PIN-om ili lozinkom."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "Biometrijsko otključavanje trenutno nije dostupno."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrijsko otključavanje nije dostupno zbog pogrešno konfiguriranih sistemskih datoteka."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrijsko otključavanje nije dostupno zbog pogrešno konfiguriranih sistemskih datoteka."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "Biometrijsko otključavanje nije dostupno jer nije omogućeno za $EMAIL$ u Bitwarden desktop aplikaciji.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3413,7 +3425,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "Biometrijsko otključavanje trenutno nije dostupno iz nepoznatog razloga."
   },
   "authorize": {
     "message": "Autoriziraj"
@@ -3485,18 +3497,18 @@
     "message": "Promjeni e-poštu računa"
   },
   "organizationUpgradeRequired": {
-    "message": "Organization upgrade required"
+    "message": "Potrebna nadogradnja organizacije"
   },
   "upgradeOrganization": {
-    "message": "Upgrade organization"
+    "message": "Nadogradi organizaciju"
   },
   "upgradeOrganizationDesc": {
-    "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+    "message": "Ova značajka nije dostupna organizacijama koje koriste besplatnu uslugu. Prebaci se na plaćeni paket za pristup ovoj i drugim značajkama."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
-    "message": "Extension update required"
+    "message": "Potrebno je ažurirati proširenje"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+    "message": "Proširenje preglednika koje koristitš zastarjelo. Ažuriraj ga ili onemogući provjeru otiska prsta u pregledniku u postavkama aplikacije za stolno računalo."
   }
 }

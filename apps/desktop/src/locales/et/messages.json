@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Alustan sisselogimist"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "Sinu seadmesse saadeti teavitus."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "Need another option?"
@@ -2782,11 +2791,11 @@
     "message": "Loenda kirjatähtede hulka",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Oled sisse logimas?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Sisselogimise päring $EMAIL$-lt",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Aeg"
   },
-  "confirmLogIn": {
-    "message": "Kinnita sisselogimine"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "Tühista sisselogimine"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "$EMAIL$ sisselogimine seadmes $DEVICE$ on kinnitatud",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "See päring ei ole enam kehtiv."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Kinnita sisselogimise katse $EMAIL$-le",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Sisselogimise päring on saadetud"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Loon kontot asukohas"

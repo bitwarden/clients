@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "ログイン開始"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "デバイスに通知を送信しました。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "お使いのデバイスに通知が送信されました"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "アカウントがロック解除されていることと、フィンガープリントフレーズが他の端末と一致していることを確認してください"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "別の選択肢が必要ですか？"
@@ -2782,11 +2791,11 @@
     "message": "文字カウントを切り替える",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "ログインしようとしていますか？"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ によるログインの試行",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "時間"
   },
-  "confirmLogIn": {
-    "message": "ログインを承認"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "ログインを拒否"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "$EMAIL$ に $DEVICE$ でのログインを承認しました",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "このリクエストは無効になりました。"
   },
-  "confirmLoginAtemptForMail": {
-    "message": "$EMAIL$ のログイン試行を確認",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "ログインリクエスト済み"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "アカウント作成："

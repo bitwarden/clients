@@ -27,7 +27,7 @@
     "message": "Sikker notis"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH-nøkkel"
   },
   "folders": {
     "message": "Mapper"
@@ -64,7 +64,7 @@
     }
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Velkommen tilbake"
   },
   "moveToOrgDesc": {
     "message": "Velg en organisasjon som du ønsker å flyttet elementet til. Ved å flytte til en organisasjon, overfører du eierskapet til elementet til den organisasjonen. Du vil ikke lenger være den direkte eieren av elementet etter at den har blitt flyttet."
@@ -181,16 +181,16 @@
     "message": "Adresse"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Privat nøkkel"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Offentlig nøkkel"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Fingeravtrykk"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Nøkkeltype"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -208,19 +208,19 @@
     "message": "A new SSH key was generated"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Passordet du skrev inn er feil."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importer"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Bekreft passordet"
   },
   "enterSshKeyPasswordDesc": {
     "message": "Enter the password for the SSH key."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Skriv inn passord"
   },
   "sshAgentUnlockRequired": {
     "message": "Please unlock your vault to approve the SSH key request."
@@ -229,7 +229,7 @@
     "message": "SSH key request timed out."
   },
   "enableSshAgent": {
-    "message": "Enable SSH agent"
+    "message": "Skru på SSH-agent"
   },
   "enableSshAgentDesc": {
     "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
@@ -250,7 +250,7 @@
     "message": "Feil"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Dekrypteringsfeil"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -260,7 +260,7 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "for å unngå ytterligere datatap.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -337,7 +337,7 @@
     "message": "Generer et passord"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Generér passordfrase"
   },
   "type": {
     "message": "Type"
@@ -475,7 +475,7 @@
     "message": "Kopier passordet"
   },
   "regenerateSshKey": {
-    "message": "Regenerate SSH key"
+    "message": "Generér SSH-nøkkel på nytt"
   },
   "copySshPrivateKey": {
     "message": "Copy SSH private key"
@@ -512,19 +512,19 @@
     "message": "Spesialtegn (!@#$%^&*)"
   },
   "include": {
-    "message": "Include",
+    "message": "Inkluder",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Inkluder store bokstaver",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
-    "message": "A-Z",
+    "message": "A-Å",
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Inkluder små bokstaver",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -532,7 +532,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Inkluder tall",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -540,7 +540,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Inkluder spesialtegn",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -575,7 +575,7 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Unngå forvekslingsbare tegn",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -638,7 +638,7 @@
     "message": "Opprett en konto"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Er du ny til Bitwarden?"
   },
   "setAStrongPassword": {
     "message": "Velg et sterkt passord"
@@ -650,13 +650,13 @@
     "message": "Logg på"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Logg inn på Bitwarden"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Logg inn med passnøkkel"
   },
   "loginWithDevice": {
-    "message": "Log in with device"
+    "message": "Logg på med enhet"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
@@ -723,13 +723,13 @@
     "message": "Innstillinger"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Kontoens E-postadresse"
   },
   "requestHint": {
     "message": "Be om hint"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Be om passordhint"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
@@ -766,7 +766,7 @@
     }
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "Du har vellykket logget inn"
   },
   "youMayCloseThisWindow": {
     "message": "Du kan lukke dette vinduet"
@@ -778,10 +778,10 @@
     "message": "Din nye konto har blitt opprettet! Du kan nå logge på."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Den nye kontoen din er opprettet!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Du har blitt logget inn!"
   },
   "masterPassSent": {
     "message": "Vi har sendt deg en E-post med hintet til superpassordet."
@@ -892,7 +892,7 @@
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Fortsett innloggingen"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -904,7 +904,7 @@
     "message": "E-post"
   },
   "emailDescV2": {
-    "message": "Enter a code sent to your email."
+    "message": "Skriv inn koden du har fått tilsendt på E-post."
   },
   "loginUnavailable": {
     "message": "Innloggingen er utilgjengelig"
@@ -992,7 +992,7 @@
     "message": "Logget av"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Du har blitt logget ut av kontoen din."
   },
   "loginExpired": {
     "message": "Din innloggingsøkt har utløpt."
@@ -1007,7 +1007,7 @@
     "message": "Please restart registration or try logging in."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Du har kanskje allerede en konto"
   },
   "logOutConfirmation": {
     "message": "Er du sikker på at du vil logge av?"
@@ -1064,10 +1064,10 @@
     "message": "Endre hovedpassordet"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Vil du fortsette til nettappen?"
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
+    "message": "Du kan endre hovedpassordet ditt i Bitwardens nettapp."
   },
   "fingerprintPhrase": {
     "message": "Fingeravtrykksfrase",
@@ -1096,16 +1096,16 @@
     "message": "Hvelvet ditt er låst. Bekreft hovedpassordet ditt for å fortsette."
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Kontoen din er låst"
   },
   "or": {
-    "message": "or"
+    "message": "eller"
   },
   "unlockWithBiometrics": {
-    "message": "Unlock with biometrics"
+    "message": "Lås opp med biometri"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "Lås opp med hovedpassord"
   },
   "unlock": {
     "message": "Lås opp"
@@ -1413,10 +1413,10 @@
     "message": "Passordhistorikk"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Generatorhistorikk"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Tøm generatorhistorikk"
   },
   "cleargGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
@@ -1429,13 +1429,13 @@
     "message": "Det er ingen passord å liste opp."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Tøm historikk"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Ingenting å vise"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Du har ikke generert noe i det siste"
   },
   "undo": {
     "message": "Angre"
@@ -1512,7 +1512,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Kopiering lyktes"
   },
   "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
@@ -1635,7 +1635,7 @@
     "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
   },
   "exportTypeHeading": {
-    "message": "Export type"
+    "message": "Eksporttype"
   },
   "accountRestricted": {
     "message": "Konto begrenset"
@@ -1749,7 +1749,7 @@
     "message": "Ytterligere Windows Hello-innstillinger"
   },
   "unlockWithPolkit": {
-    "message": "Unlock with system authentication"
+    "message": "Lås opp med systemautentisering"
   },
   "windowsHelloConsentMessage": {
     "message": "Bekreft for Bitwarden."
@@ -1907,7 +1907,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "out of $TOTAL$",
+    "message": "av $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -1974,16 +1974,16 @@
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Avabonner"
   },
   "atAnyTime": {
-    "message": "at any time."
+    "message": "når som helst."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "By continuing, you agree to the"
+    "message": "Ved å fortsette, samtykker du til"
   },
   "and": {
-    "message": "and"
+    "message": "og"
   },
   "acceptPolicies": {
     "message": "Ved å huke av i denne boksen sier du deg enig i følgende:"
@@ -2028,7 +2028,7 @@
     "message": "Aktiver et ekstra lag sikkerhet ved å kreve fingeravtrykksvalidering når du oppretter en kobling mellom skrivebordet og nettleseren. Når dette er aktivert kreves det brukerintervensjon og verifisering hver gang en tilkobling etableres."
   },
   "enableHardwareAcceleration": {
-    "message": "Use hardware acceleration"
+    "message": "Bruk maskinvareakselerering"
   },
   "enableHardwareAccelerationDesc": {
     "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. Restart is required."
@@ -2440,7 +2440,7 @@
     "message": "Bytt konto"
   },
   "alreadyHaveAccount": {
-    "message": "Already have an account?"
+    "message": "Har du allerede en konto?"
   },
   "options": {
     "message": "Alternativer"
@@ -2476,7 +2476,7 @@
     "message": "Låst"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Hvelvet ditt er låst"
   },
   "unlocked": {
     "message": "Opplåst"
@@ -2498,10 +2498,10 @@
     "message": "Generer brukernavn"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "Generér E-post"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Verdien må være mellom $MIN$ og $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2515,7 +2515,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Bruk minst $RECOMMENDED$ tegn for å generere et sterkt passord.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2551,7 +2551,7 @@
     "message": "Bruk domenets konfigurerte catch-all innboks."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Bruk denne E-postadressen"
   },
   "random": {
     "message": "Tilfeldig"
@@ -2581,11 +2581,11 @@
     "message": "Generer et e-postalias med en ekstern videresendingstjeneste."
   },
   "forwarderDomainName": {
-    "message": "Email domain",
+    "message": "E-postdomene",
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "Velg et domene som støttes av den valgte tjenesten",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -2603,11 +2603,11 @@
     }
   },
   "forwarderGeneratedBy": {
-    "message": "Generated by Bitwarden.",
+    "message": "Generert av Bitwarden.",
     "description": "Displayed with the address on the forwarding service's configuration screen."
   },
   "forwarderGeneratedByWithWebsite": {
-    "message": "Website: $WEBSITE$. Generated by Bitwarden.",
+    "message": "Nettsted: $WEBSITE$. Generert av Bitwarden.",
     "description": "Displayed with the address on the forwarding service's configuration screen.",
     "placeholders": {
       "WEBSITE": {
@@ -2617,7 +2617,7 @@
     }
   },
   "forwaderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Ugyldig $SERVICENAME$-API-sjetong",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2627,7 +2627,7 @@
     }
   },
   "forwaderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Ugyldig $SERVICENAME$-API-sjetong: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -2651,7 +2651,7 @@
     }
   },
   "forwarderNoDomain": {
-    "message": "Invalid $SERVICENAME$ domain.",
+    "message": "Ugyldig $SERVICENAME$-domene.",
     "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2671,7 +2671,7 @@
     }
   },
   "forwarderUnknownError": {
-    "message": "Unknown $SERVICENAME$ error occurred.",
+    "message": "Ukjent $SERVICENAME$-feil oppstod.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
     "placeholders": {
       "servicename": {
@@ -2743,19 +2743,28 @@
     "message": "Logg inn med en annen enhet"
   },
   "loginInitiated": {
-    "message": "Login initiated"
+    "message": "Innlogging igangsatt"
+  },
+  "logInRequestSent": {
+    "message": "Forespørsel sendt"
   },
   "notificationSentDevice": {
     "message": "Et varsel har blitt sendt til enheten din."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Et varsel ble sendt til enheten din"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "nett-app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Trenger du et annet alternativ?"
   },
   "fingerprintMatchInfo": {
     "message": "Please make sure your vault is unlocked and Fingerprint phrase matches the other device."
@@ -2770,7 +2779,7 @@
     "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Vis alle påloggingsalternativer"
   },
   "viewAllLoginOptions": {
     "message": "Vis alle påloggingsalternativer"
@@ -2782,11 +2791,11 @@
     "message": "Toggle character count",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Prøver du å logge på?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Påloggingsforsøk av $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Tid"
   },
-  "confirmLogIn": {
-    "message": "Bekreft innlogging"
+  "confirmAccess": {
+    "message": "Bekreft tilgang"
   },
-  "denyLogIn": {
-    "message": "Avslå innlogging"
+  "denyAccess": {
+    "message": "Nekt tilgang"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Login confirmed for $EMAIL$ on $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Denne forespørselen er ikke lenger gyldig."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Bekreft påloggingsforsøket til $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2855,14 +2864,17 @@
   "logInRequested": {
     "message": "Log in requested"
   },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
   "creatingAccountOn": {
-    "message": "Creating account on"
+    "message": "Oppretter en konto på"
   },
   "checkYourEmail": {
-    "message": "Check your email"
+    "message": "Sjekk E-postinnboksen din"
   },
   "followTheLinkInTheEmailSentTo": {
-    "message": "Follow the link in the email sent to"
+    "message": "Følg lenken i E-postadressen som ble sendt til"
   },
   "andContinueCreatingYourAccount": {
     "message": "and continue creating your account."
@@ -2874,7 +2886,7 @@
     "message": "Gå tilbake"
   },
   "toEditYourEmailAddress": {
-    "message": "to edit your email address."
+    "message": "for å redigere E-postadressen din."
   },
   "exposedMasterPassword": {
     "message": "Eksponert hovedpassord"
@@ -2889,22 +2901,22 @@
     "message": "Weak password identified and found in a data breach. Use a strong and unique password to protect your account. Are you sure you want to use this password?"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Bruk dette passordet"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Bruk dette brukernavnet"
   },
   "checkForBreaches": {
     "message": "Check known data breaches for this password"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Innlogget!"
   },
   "important": {
     "message": "Viktig:"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Logger inn på"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "You have been logged out because your access token could not be decrypted. Please log in again to resolve this issue."
@@ -2937,7 +2949,7 @@
     "message": "Device approval required. Select an approval option below:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Enhetsgodkjennelse kreves"
   },
   "selectAnApprovalOptionBelow": {
     "message": "Select an approval option below"
@@ -2998,7 +3010,7 @@
     "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
-    "message": "Device trusted"
+    "message": "Enheten er betrodd"
   },
   "inputRequired": {
     "message": "Inndata er påkrevd."
@@ -3107,10 +3119,10 @@
     "message": "Hopp frem til innholdet"
   },
   "typePasskey": {
-    "message": "Passkey"
+    "message": "Passnøkkel"
   },
   "passkeyNotCopied": {
-    "message": "Passkey will not be copied"
+    "message": "Passkoden vil ikke bli kopiert"
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
@@ -3123,7 +3135,7 @@
     "description": "Used for the desktop menu item and the header of the import dialog"
   },
   "importError": {
-    "message": "Import error"
+    "message": "Importeringsfeil"
   },
   "importErrorDesc": {
     "message": "There was a problem with the data you tried to import. Please resolve the errors listed below in your source file and try again."
@@ -3183,7 +3195,7 @@
     "message": "Invalid file password, please use the password you entered when you created the export file."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Destinasjon"
   },
   "learnAboutImportOptions": {
     "message": "Lær mer om importalternativene dine"
@@ -3242,7 +3254,7 @@
     "message": "Bekreft filpassord"
   },
   "exportSuccess": {
-    "message": "Vault data exported"
+    "message": "Hvelvdataen ble eksportert"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktorautentisering ble avbrutt"
@@ -3284,7 +3296,7 @@
     "message": "Approve the login request in your authentication app or enter a one-time passcode."
   },
   "passcode": {
-    "message": "Passcode"
+    "message": "Passkode"
   },
   "lastPassMasterPassword": {
     "message": "LastPass-hovedpassord"
@@ -3322,10 +3334,10 @@
     "description": "Label indicating the most common import formats"
   },
   "success": {
-    "message": "Success"
+    "message": "Suksess"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Feilsøking"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Disable hardware acceleration and restart"
@@ -3334,7 +3346,7 @@
     "message": "Enable hardware acceleration and restart"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "Fjern passordnøkkel"
   },
   "passkeyRemoved": {
     "message": "Passkey removed"
@@ -3346,7 +3358,7 @@
     "message": "Error assigning target folder."
   },
   "viewItemsIn": {
-    "message": "View items in $NAME$",
+    "message": "Vis gjenstander i $NAME$",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -3356,7 +3368,7 @@
     }
   },
   "backTo": {
-    "message": "Back to $NAME$",
+    "message": "Tilbake til $NAME$",
     "description": "Navigate back to a previous folder or collection",
     "placeholders": {
       "name": {
@@ -3366,11 +3378,11 @@
     }
   },
   "back": {
-    "message": "Back",
+    "message": "Tilbake",
     "description": "Button text to navigate back"
   },
   "removeItem": {
-    "message": "Remove $NAME$",
+    "message": "Fjern $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -3395,7 +3407,7 @@
     "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "Biometrisk opplåsing er utilgjengelig for øyeblikket."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
     "message": "Biometric unlock is unavailable due to misconfigured system files."
@@ -3416,10 +3428,10 @@
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "authorize": {
-    "message": "Authorize"
+    "message": "Autoriser"
   },
   "deny": {
-    "message": "Deny"
+    "message": "Avvis"
   },
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
@@ -3428,13 +3440,13 @@
     "message": "is requesting access to"
   },
   "unknownApplication": {
-    "message": "An application"
+    "message": "Et program"
   },
   "sshKeyPasswordUnsupported": {
     "message": "Importing password protected SSH keys is not yet supported"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "SSH-nøkkelen er ugyldig"
   },
   "sshKeyTypeUnsupported": {
     "message": "The SSH key type is not supported"
@@ -3449,10 +3461,10 @@
     "message": "File saved to device. Manage from your device downloads."
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Viktig melding"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Sett opp 2-trinnspålogging"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
@@ -3461,7 +3473,7 @@
     "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Minn meg på det senere"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
     "message": "Do you have reliable access to your email, $EMAIL$?",
@@ -3473,16 +3485,16 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Nei, det gjør jeg ikke"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
     "message": "Yes, I can reliably access my email"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Slå på 2-trinnsinnlogging"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Endre kontoens E-postadresse"
   },
   "organizationUpgradeRequired": {
     "message": "Organization upgrade required"
