@@ -42,7 +42,7 @@ export class SetPinComponent implements OnInit {
       "requireMasterPasswordOnClientRestart",
     ).value;
 
-    if (Utils.isNullOrWhitespace(pin)) {
+    if (Utils.isNullOrWhitespace(pin) || pin.length < 4) {
       this.dialogRef.close(false);
       return;
     }
