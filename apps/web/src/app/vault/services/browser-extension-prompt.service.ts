@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, fromEvent } from "rxjs";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 export enum BrowserPromptState {
   Loading = "loading",
@@ -45,7 +45,7 @@ export class BrowserExtensionPromptService {
         void this.getMessages(event);
       });
 
-    window.postMessage({ command: VaultOnboardingMessages.checkBwInstalled });
+    window.postMessage({ command: VaultMessages.checkBwInstalled });
 
     // Wait a second for the extension to respond and open, else show the error state
     this.extensionCheckTimeout = window.setTimeout(() => {
@@ -55,7 +55,7 @@ export class BrowserExtensionPromptService {
 
   /** Handle window message events */
   private getMessages(event: any) {
-    if (event.data.command === VaultOnboardingMessages.HasBwInstalled) {
+    if (event.data.command === VaultMessages.HasBwInstalled) {
       this.openExtension();
     }
 

@@ -1,6 +1,6 @@
-const VaultOnboardingMessages = {
+const VaultMessages = {
   HasBwInstalled: "hasBwInstalled",
   checkBwInstalled: "checkIfBWExtensionInstalled",
 } as const;
 
-export { VaultOnboardingMessages };
+export { VaultMessages };

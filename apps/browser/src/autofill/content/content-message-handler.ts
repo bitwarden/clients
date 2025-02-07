@@ -1,4 +1,4 @@
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
   ContentMessageWindowData,
@@ -36,7 +36,7 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
  * Handles the post to the web vault showing the extension has been installed
  */
 function handleExtensionInstallCheck() {
-  window.postMessage({ command: VaultOnboardingMessages.HasBwInstalled });
+  window.postMessage({ command: VaultMessages.HasBwInstalled });
 }
 
 /**
