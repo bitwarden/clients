@@ -11,9 +11,9 @@ import { IconButtonModule } from "../icon-button";
 
 import { BitActionDirective } from "./bit-action.directive";
 
-const template = `
+const template = /*html*/ `
   <button bitButton buttonType="primary" [bitAction]="action" class="tw-mr-2">
-    Perform action
+    Perform action {{ statusEmoji }}
   </button>
   <button bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
 
@@ -22,9 +22,30 @@ const template = `
   selector: "app-promise-example",
 })
 class PromiseExampleComponent {
+  statusEmoji = "🟡";
   action = async () => {
     await new Promise<void>((resolve, reject) => {
-      setTimeout(resolve, 2000);
+      setTimeout(() => {
+        resolve();
+        this.statusEmoji = "🟢";
+      }, 5000);
+    });
+  };
+}
+
+@Component({
+  template,
+  selector: "app-action-resolves-quickly",
+})
+class ActionResolvesQuicklyComponent {
+  statusEmoji = "🟡";
+
+  action = async () => {
+    await new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+        this.statusEmoji = "🟢";
+      }, 50);
     });
   };
 }
@@ -59,6 +80,7 @@ export default {
         PromiseExampleComponent,
         ObservableExampleComponent,
         RejectedPromiseExampleComponent,
+        ActionResolvesQuicklyComponent,
       ],
       imports: [ButtonModule, IconButtonModule, BitActionDirective],
       providers: [
@@ -98,5 +120,12 @@ export const UsingObservable: ObservableStory = {
 export const RejectedPromise: ObservableStory = {
   render: (args) => ({
     template: `<app-rejected-promise-example></app-rejected-promise-example>`,
+  }),
+};
+
+export const ActionResolvesQuickly: PromiseStory = {
+  render: (args) => ({
+    props: args,
+    template: `<app-action-resolves-quickly></app-action-resolves-quickly>`,
   }),
 };
