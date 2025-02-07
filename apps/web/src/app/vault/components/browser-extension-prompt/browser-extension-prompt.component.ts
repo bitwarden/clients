@@ -27,4 +27,8 @@ export class BrowserExtensionPromptComponent implements OnInit {
   ngOnInit(): void {
     this.browserExtensionPromptService.start();
   }
+
+  openExtension(): void {
+    this.browserExtensionPromptService.openExtension();
+  }
 }

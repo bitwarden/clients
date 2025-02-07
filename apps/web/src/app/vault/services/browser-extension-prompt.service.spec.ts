@@ -55,16 +55,15 @@ describe("BrowserExtensionPromptService", () => {
       expect(service["extensionCheckTimeout"]).not.toBeNull();
     });
 
-    it("clears timeout on HasBwInstalled event", () => {
-      jest.spyOn(window, "clearTimeout");
-
+    it("attempts to open the extension when installed", () => {
       service.start();
+
       window.dispatchEvent(
         new MessageEvent("message", { data: { command: VaultOnboardingMessages.HasBwInstalled } }),
       );
 
-      expect(window.clearTimeout).toHaveBeenCalledTimes(1);
-      expect(service["extensionCheckTimeout"]).toBeUndefined();
+      expect(window.postMessage).toHaveBeenCalledTimes(2);
+      expect(window.postMessage).toHaveBeenCalledWith({ command: "openPopup" });
     });
   });
 

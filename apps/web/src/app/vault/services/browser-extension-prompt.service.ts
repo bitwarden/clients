@@ -32,6 +32,11 @@ export class BrowserExtensionPromptService {
     this.checkForBrowserExtension();
   }
 
+  /** Post a message to the extension to open */
+  openExtension() {
+    window.postMessage({ command: "openPopup" });
+  }
+
   /** Send message checking for the browser extension */
   private checkForBrowserExtension() {
     fromEvent<MessageEvent>(window, "message")
@@ -42,7 +47,7 @@ export class BrowserExtensionPromptService {
 
     window.postMessage({ command: VaultOnboardingMessages.checkBwInstalled });
 
-    // Wait a second for the extension to respond, else show the error state
+    // Wait a second for the extension to respond and open, else show the error state
     this.extensionCheckTimeout = window.setTimeout(() => {
       this.setErrorState();
     }, 1000);
@@ -51,8 +56,7 @@ export class BrowserExtensionPromptService {
   /** Handle window message events */
   private getMessages(event: any) {
     if (event.data.command === VaultOnboardingMessages.HasBwInstalled) {
-      window.clearTimeout(this.extensionCheckTimeout);
-      this.extensionCheckTimeout = undefined;
+      this.openExtension();
     }
   }
 
@@ -64,5 +68,10 @@ export class BrowserExtensionPromptService {
         key: "somethingWentWrong",
       },
     });
+  }
+
+  private clearExtensionCheckTimeout() {
+    window.clearTimeout(this.extensionCheckTimeout);
+    this.extensionCheckTimeout = undefined;
   }
 }

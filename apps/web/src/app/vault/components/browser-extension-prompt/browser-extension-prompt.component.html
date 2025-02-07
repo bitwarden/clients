@@ -6,7 +6,13 @@
 
   <ng-container *ngIf="pageState === BrowserPromptState.Error">
     <p bitTypography="body1" class="tw-mb-4 tw-text-xl">{{ "openingExtensionError" | i18n }}</p>
-    <button bitButton buttonType="primary" type="button">
+    <button
+      bitButton
+      buttonType="primary"
+      type="button"
+      (click)="openExtension()"
+      id="bw-extension-prompt-button"
+    >
       {{ "openExtension" | i18n }}
       <i class="bwi bwi-external-link tw-ml-2" aria-hidden="true"></i>
     </button>
