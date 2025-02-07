@@ -184,6 +184,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   paymentSource?: PaymentSourceResponse;
   plans: ListResponse<PlanResponse>;
   isSubscriptionCanceled: boolean = false;
+  secretsManagerTotal: number;
 
   private destroy$ = new Subject<void>();
 
@@ -289,7 +290,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     const taxInfo = await this.organizationApiService.getTaxInfo(this.organizationId);
     this.taxInformation = TaxInformation.from(taxInfo);
 
-    this.refreshSalesTax();
+    if (!this.isSubscriptionCanceled) {
+      this.refreshSalesTax();
+    }
   }
 
   resolveHeaderName(subscription: OrganizationSubscriptionResponse): string {
@@ -468,7 +471,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get selectedSecretsManagerPlan() {
-    return this.secretsManagerPlans.find((plan) => plan.type === this.selectedPlan.type);
+    let planResponse: PlanResponse;
+    if (this.secretsManagerPlans) {
+      return this.secretsManagerPlans.find((plan) => plan.type === this.selectedPlan.type);
+    }
+    return planResponse;
   }
 
   get selectedPlanInterval() {
@@ -610,17 +617,18 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get secretsManagerSubtotal() {
+    this.secretsManagerTotal = 0;
     const plan = this.selectedSecretsManagerPlan;
 
     if (!this.organization.useSecretsManager) {
-      return 0;
+      return this.secretsManagerTotal;
     }
 
-    return (
+    this.secretsManagerTotal =
       plan.SecretsManager.basePrice +
       this.secretsManagerSeatTotal(plan, this.sub?.smSeats) +
-      this.additionalServiceAccountTotal(plan)
-    );
+      this.additionalServiceAccountTotal(plan);
+    return this.secretsManagerTotal;
   }
 
   get passwordManagerSeats() {
@@ -631,11 +639,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get total() {
-    if (this.organization.useSecretsManager) {
+    if (this.organization && this.organization.useSecretsManager) {
       return (
         this.passwordManagerSubtotal +
         this.additionalStorageTotal(this.selectedPlan) +
-        this.secretsManagerSubtotal +
+        this.secretsManagerTotal +
         this.estimatedTax
       );
     }
