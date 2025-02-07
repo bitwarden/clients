@@ -1,7 +1,7 @@
 name: Build Browser
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
@@ -38,19 +38,14 @@ defaults:
     shell: bash
 
 jobs:
-  check-run:
-    name: Check PR run
-    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
-
   setup:
     name: Setup
     runs-on: ubuntu-22.04
-    needs:
-      - check-run
     outputs:
       repo_url: ${{ steps.gen_vars.outputs.repo_url }}
       adj_build_number: ${{ steps.gen_vars.outputs.adj_build_number }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
+      has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -73,6 +68,14 @@ jobs:
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check secrets
+        id: check-secrets
+        env:
+          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+        run: |
+          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
 
   locales-test:
@@ -281,6 +284,7 @@ jobs:
     needs:
       - setup
       - locales-test
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     env:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
