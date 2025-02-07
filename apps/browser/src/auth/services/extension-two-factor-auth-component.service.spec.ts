@@ -100,72 +100,54 @@ describe("ExtensionTwoFactorAuthComponentService", () => {
     });
   });
 
-  describe("handle2faSuccess", () => {
-    it("should call reload open windows (exempting current) and not close any popouts", async () => {
-      const reloadOpenWindowsSpy = jest.spyOn(BrowserApi, "reloadOpenWindows").mockImplementation();
-
-      const inSingleActionPopoutSpy = jest
-        .spyOn(BrowserPopupUtils, "inSingleActionPopout")
-        .mockReturnValue(false);
-
-      await extensionTwoFactorAuthComponentService.handle2faSuccess();
-
-      expect(reloadOpenWindowsSpy).toHaveBeenCalledWith(true);
-
-      expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(3);
-
-      // Ensure none of the close popout methods were called
-      expect(closeSsoAuthResultPopout).not.toHaveBeenCalled();
-      expect(closeTwoFactorAuthWebAuthnPopout).not.toHaveBeenCalled();
-      expect(closeTwoFactorAuthEmailPopout).not.toHaveBeenCalled();
-    });
-
+  describe("closeSingleActionPopouts", () => {
     it("should call closeSsoAuthResultPopout if in SSO auth result popout", async () => {
-      const reloadOpenWindowsSpy = jest.spyOn(BrowserApi, "reloadOpenWindows").mockImplementation();
-
       const inSingleActionPopoutSpy = jest
         .spyOn(BrowserPopupUtils, "inSingleActionPopout")
         .mockImplementation((_, key) => {
           return key === AuthPopoutType.ssoAuthResult;
         });
 
-      await extensionTwoFactorAuthComponentService.handle2faSuccess();
+      await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
 
-      expect(reloadOpenWindowsSpy).toHaveBeenCalledWith(true);
       expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(1);
       expect(closeSsoAuthResultPopout).toHaveBeenCalled();
     });
 
     it("should call closeTwoFactorAuthWebAuthnPopout if in two factor auth webauthn popout", async () => {
-      const reloadOpenWindowsSpy = jest.spyOn(BrowserApi, "reloadOpenWindows").mockImplementation();
-
       const inSingleActionPopoutSpy = jest
         .spyOn(BrowserPopupUtils, "inSingleActionPopout")
         .mockImplementation((_, key) => {
           return key === AuthPopoutType.twoFactorAuthWebAuthn;
         });
 
-      await extensionTwoFactorAuthComponentService.handle2faSuccess();
+      await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
 
-      expect(reloadOpenWindowsSpy).toHaveBeenCalledWith(true);
       expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(2);
       expect(closeTwoFactorAuthWebAuthnPopout).toHaveBeenCalled();
     });
 
     it("should call closeTwoFactorAuthEmailPopout if in two factor auth email popout", async () => {
-      const reloadOpenWindowsSpy = jest.spyOn(BrowserApi, "reloadOpenWindows").mockImplementation();
-
       const inSingleActionPopoutSpy = jest
         .spyOn(BrowserPopupUtils, "inSingleActionPopout")
         .mockImplementation((_, key) => {
           return key === AuthPopoutType.twoFactorAuthEmail;
         });
 
-      await extensionTwoFactorAuthComponentService.handle2faSuccess();
+      await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
 
-      expect(reloadOpenWindowsSpy).toHaveBeenCalledWith(true);
       expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(3);
       expect(closeTwoFactorAuthEmailPopout).toHaveBeenCalled();
+    });
+  });
+
+  describe("reloadOpenWindows", () => {
+    it("should call reload open windows (exempting current)", async () => {
+      const reloadOpenWindowsSpy = jest.spyOn(BrowserApi, "reloadOpenWindows").mockImplementation();
+
+      extensionTwoFactorAuthComponentService.reloadOpenWindows();
+
+      expect(reloadOpenWindowsSpy).toHaveBeenCalledWith(true);
     });
   });
 });
