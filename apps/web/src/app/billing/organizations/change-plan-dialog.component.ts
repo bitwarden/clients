@@ -616,7 +616,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return subTotal - this.discount;
   }
 
-  get secretsManagerSubtotal() {
+  secretsManagerSubtotal() {
     this.secretsManagerTotal = 0;
     const plan = this.selectedSecretsManagerPlan;
 
@@ -643,7 +643,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return (
         this.passwordManagerSubtotal +
         this.additionalStorageTotal(this.selectedPlan) +
-        this.secretsManagerTotal +
+        this.secretsManagerSubtotal() +
         this.estimatedTax
       );
     }
