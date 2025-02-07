@@ -32,7 +32,20 @@ export abstract class SdkService {
    * The client will be destroyed when the observable is no longer subscribed to.
    * Please let platform know if you need a client that is not destroyed when the observable is no longer subscribed to.
    *
-   * @param userId
+   * @param userId The user id for which to retrieve the client
+   *
+   * @throws {UserNotLoggedInError} If the user is not logged in
    */
   abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient>>;
+
+  /**
+   * This method is used during/after an authentication procedure to set a new client for a specific user.
+   * It can also be used to unset the client when a user logs out, this will result in:
+   *  - The client being disposed of
+   *  - All subscriptions to the client being completed
+   *  - Any new subscribers receiving an error
+   * @param userId The user id for which to set the client
+   * @param client The client to set for the user. If undefined, the client will be unset.
+   */
+  abstract setClient(userId: UserId, client: BitwardenClient | undefined): void;
 }
