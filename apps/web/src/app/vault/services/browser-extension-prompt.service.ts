@@ -34,7 +34,7 @@ export class BrowserExtensionPromptService {
 
   /** Post a message to the extension to open */
   openExtension() {
-    window.postMessage({ command: "openPopup" });
+    window.postMessage({ command: VaultMessages.OpenPopup });
   }
 
   /** Send message checking for the browser extension */
@@ -59,7 +59,7 @@ export class BrowserExtensionPromptService {
       this.openExtension();
     }
 
-    if (event.data.command === "popupOpened") {
+    if (event.data.command === VaultMessages.PopupOpened) {
       this.setSuccessState();
     }
   }

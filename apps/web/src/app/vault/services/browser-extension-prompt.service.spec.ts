@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
   BrowserExtensionPromptService,
@@ -45,7 +45,7 @@ describe("BrowserExtensionPromptService", () => {
       service.start();
 
       expect(window.postMessage).toHaveBeenCalledWith({
-        command: VaultOnboardingMessages.checkBwInstalled,
+        command: VaultMessages.checkBwInstalled,
       });
     });
 
@@ -59,11 +59,11 @@ describe("BrowserExtensionPromptService", () => {
       service.start();
 
       window.dispatchEvent(
-        new MessageEvent("message", { data: { command: VaultOnboardingMessages.HasBwInstalled } }),
+        new MessageEvent("message", { data: { command: VaultMessages.HasBwInstalled } }),
       );
 
       expect(window.postMessage).toHaveBeenCalledTimes(2);
-      expect(window.postMessage).toHaveBeenCalledWith({ command: "openPopup" });
+      expect(window.postMessage).toHaveBeenCalledWith({ command: VaultMessages.OpenPopup });
     });
   });
 
@@ -71,7 +71,9 @@ describe("BrowserExtensionPromptService", () => {
     beforeEach(() => {
       service.start();
 
-      window.dispatchEvent(new MessageEvent("message", { data: { command: "popupOpened" } }));
+      window.dispatchEvent(
+        new MessageEvent("message", { data: { command: VaultMessages.PopupOpened } }),
+      );
     });
 
     it("sets layout title", () => {

@@ -29,7 +29,7 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
   checkIfBWExtensionInstalled: () => handleExtensionInstallCheck(),
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
-  openPopup: () => handleOpenPopupMessage(),
+  [VaultMessages.OpenPopup]: () => handleOpenPopupMessage(),
 };
 
 /**
@@ -73,7 +73,7 @@ function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: s
 }
 
 function handleOpenPopupMessage() {
-  sendExtensionRuntimeMessage({ command: "openPopup" });
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenPopup });
 }
 
 /**
