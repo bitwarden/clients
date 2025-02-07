@@ -5,7 +5,12 @@
 </ng-container>
 
 <ng-container *ngIf="!loading">
-  <form [bitSubmit]="submit" [formGroup]="form" autocomplete="off" (keydown.enter)="submit()">
+  <form
+    [bitSubmit]="submit"
+    [formGroup]="form"
+    autocomplete="off"
+    (keydown.enter)="handleEnterKeyPress()"
+  >
     <app-two-factor-auth-email
       [tokenFormControl]="tokenFormControl"
       *ngIf="selectedProviderType === providerType.Email"

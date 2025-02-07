@@ -403,6 +403,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
 
     // if we have a custom success handler, call it
     if (this.twoFactorAuthComponentService.handle2faSuccess !== undefined) {
+      // TODO: this doesn't work for extension 2FA flows that don't use the popout.
       await this.twoFactorAuthComponentService.handle2faSuccess();
       return;
     }
@@ -515,6 +516,32 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     const env = await firstValueFrom(this.environmentService.environment$);
     const webVault = env.getWebVaultUrl();
     this.platformUtilsService.launchUri(webVault + "/#/recover-2fa");
+  }
+
+  async handleEnterKeyPress() {
+    // Each 2FA provider has a different implementation.
+    // For example, email 2FA uses a text input for the token which does not automatically submit on enter.
+    // Yubikey, however, uses an input with type 'password' which does automatically submit on enter.
+    // So we have to handle the enter key press differently for each provider.
+    // make switch for each provider type
+    switch (this.selectedProviderType) {
+      case TwoFactorProviderType.Authenticator:
+      case TwoFactorProviderType.Email:
+        await this.submit();
+        break;
+      case TwoFactorProviderType.Duo:
+      case TwoFactorProviderType.OrganizationDuo:
+      case TwoFactorProviderType.WebAuthn:
+      case TwoFactorProviderType.Yubikey:
+        // Do nothing
+        break;
+      default:
+        this.logService.error(
+          "handleEnterKeyPress: Unhandled 2FA provider type",
+          this.selectedProviderType,
+        );
+        break;
+    }
   }
 
   async ngOnDestroy() {
