@@ -169,4 +169,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async setShouldAutopromptNow(value: boolean): Promise<void> {}
+  async canEnableBiometricUnlock(): Promise<boolean> {
+    return true;
+  }
 }

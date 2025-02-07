@@ -39,4 +39,5 @@ export abstract class BiometricsService {
 
   abstract getShouldAutopromptNow(): Promise<boolean>;
   abstract setShouldAutopromptNow(value: boolean): Promise<void>;
+  abstract canEnableBiometricUnlock(): Promise<boolean>;
 }

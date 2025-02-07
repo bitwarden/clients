@@ -212,18 +212,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap(async () => {
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
-          const needsPermissionPrompt =
-            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
-            !this.platformUtilsService.isSafari();
-          const isBiometricsAlreadyEnabled =
-            await this.vaultTimeoutSettingsService.isBiometricLockSet();
-          const statusAllowsBiometric =
-            status !== BiometricsStatus.DesktopDisconnected &&
-            status !== BiometricsStatus.NotEnabledInConnectedDesktopApp &&
-            status !== BiometricsStatus.HardwareUnavailable;
-
-          const biometricSettingAvailable =
-            needsPermissionPrompt || statusAllowsBiometric || isBiometricsAlreadyEnabled;
+          const biometricSettingAvailable = await this.biometricsService.canEnableBiometricUnlock();
           if (!biometricSettingAvailable) {
             this.form.controls.biometric.disable({ emitEvent: false });
           } else {

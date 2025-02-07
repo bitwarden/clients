@@ -294,10 +294,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: BiometricsService,
-    useFactory: () => {
-      return new ForegroundBrowserBiometricsService();
-    },
-    deps: [],
+    useClass: ForegroundBrowserBiometricsService,
+    deps: [PlatformUtilsService, VaultTimeoutService],
   }),
   safeProvider({
     provide: SyncService,
