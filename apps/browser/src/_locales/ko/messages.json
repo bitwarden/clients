@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "기기에 알림이 전송되었습니다."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "기기에 알림이 전송되었습니다."
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "반드시 계정이 잠금 해제되었고, 지문 구절이 다른 기기에서 일치하는지 확인해주세요."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "요청이 승인되면 알림을 받게 됩니다"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "로그인 시작"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "노출된 마스터 비밀번호"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "항목 이름"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "보기 권한만 있는 컬렉션은 제거할 수 없습니다: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "조직이 비활성화되었습니다"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "매우 넓게"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "보기 권한만 있는 컬렉션은 제거할 수 없습니다: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Please update your desktop application"

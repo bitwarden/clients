@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Sebuah pemberitahuan dikirim ke perangkat Anda."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Sebuah pemberitahuan telah dikirim ke perangkat Anda"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Pastikan akun Anda terbuka dan frasa sidik jari cocok pada perangkat lainnya"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Anda akan diberitahu setelah permintaan disetujui"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "Memulai login"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "Kata Sandi Utama yang Terpapar"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "Nama benda"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Anda tidak dapat menghapus koleksi dengan izin hanya lihat: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organisasi dinonaktifkan"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "Ekstra lebar"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Anda tidak dapat menghapus koleksi dengan izin hanya lihat: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Please update your desktop application"
