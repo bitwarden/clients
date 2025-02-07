@@ -103,15 +103,15 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - macos-latest
-          - windows-latest
+          - macos-14
+          - windows-2022
 
     steps:
       - name: Check Rust version
         run: rustup --version
 
       - name: Install gnome-keyring
-        if: ${{ matrix.os=='ubuntu-latest' }}
+        if: ${{ matrix.os=='ubuntu-22.04' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y gnome-keyring dbus-x11
@@ -124,7 +124,7 @@ jobs:
         run: cargo build
 
       - name: Test Ubuntu
-        if: ${{ matrix.os=='ubuntu-latest' }}
+        if: ${{ matrix.os=='ubuntu-22.04' }}
         working-directory: ./apps/desktop/desktop_native
         run: |
           eval "$(dbus-launch --sh-syntax)"
@@ -135,11 +135,41 @@ jobs:
           cargo test -- --test-threads=1
 
       - name: Test macOS
-        if: ${{ matrix.os=='macos-latest' }}
+        if: ${{ matrix.os=='macos-14' }}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test -- --test-threads=1
 
       - name: Test Windows
-        if: ${{ matrix.os=='windows-latest'}}
+        if: ${{ matrix.os=='windows-2022'}}
         working-directory: ./apps/desktop/desktop_native/core
         run: cargo test -- --test-threads=1
+
+  rust-coverage:
+    name: Rust Coverage
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@a54c7afa936fefeb4456b2dd8068152669aa8203 # stable
+        with:
+          toolchain: stable
+          components: llvm-tools
+
+      - name: Cache cargo registry
+        uses: Swatinem/rust-cache@82a92a6e8fbeee089604da2575dc567ae9ddeaab # v2.7.5
+        with:
+          workspaces: "apps/desktop/desktop_native -> target"
+
+      - name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov --version 0.6.16
+
+      - name: Generate coverage
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo llvm-cov --all-features --lcov --output-path lcov.info --workspace --no-cfg-coverage
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
+        with:
+          files: ./apps/desktop/desktop_native/lcov.info
