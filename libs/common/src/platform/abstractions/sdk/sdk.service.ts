@@ -5,6 +5,12 @@ import { BitwardenClient } from "@bitwarden/sdk-internal";
 import { UserId } from "../../../types/guid";
 import { Rc } from "../../misc/reference-counting/rc";
 
+export class UserNotLoggedInError extends Error {
+  constructor(userId: UserId) {
+    super(`User (${userId}) is not logged in`);
+  }
+}
+
 export abstract class SdkService {
   /**
    * Retrieve the version of the SDK.
@@ -28,5 +34,5 @@ export abstract class SdkService {
    *
    * @param userId
    */
-  abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined>;
+  abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient>>;
 }

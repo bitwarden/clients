@@ -11,6 +11,7 @@ import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
+import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
@@ -132,7 +133,7 @@ describe("DefaultSdkService", () => {
       });
 
       describe("given overrides are used", () => {
-        it("does not create a new client and returns the set client when a client override has already been set ", async () => {
+        it("does not create a new client and emits the override client when a client override has already been set ", async () => {
           const mockClient = mock<BitwardenClient>();
           service.setClient(userId, mockClient);
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
@@ -157,6 +158,25 @@ describe("DefaultSdkService", () => {
           expect(userClientTracker.emissions[1].take().value).toBe(mockOverrideClient);
         });
 
+        it("throws error when the client has explicitly been set as undefined", async () => {
+          service.setClient(userId, undefined);
+
+          const result = () => firstValueFrom(service.userClient$(userId));
+
+          await expect(result).rejects.toThrow(UserNotLoggedInError);
+        });
+
+        it("completes the subscription when the override is set to undefined after having been defined", async () => {
+          const mockOverrideClient = createMockClient();
+          service.setClient(userId, mockOverrideClient);
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+          await userClientTracker.pauseUntilReceived(1);
+
+          service.setClient(userId, undefined);
+
+          await userClientTracker.expectCompletion();
+        });
+
         it("destroys the internal client when an override is set", async () => {
           const mockInternalClient = createMockClient();
           const mockOverrideClient = createMockClient();
@@ -168,6 +188,18 @@ describe("DefaultSdkService", () => {
           await userClientTracker.pauseUntilReceived(2);
 
           expect(mockInternalClient.free).toHaveBeenCalled();
+        });
+
+        it("destroys the override client when explicitly setting the client to undefined", async () => {
+          const mockOverrideClient = createMockClient();
+          service.setClient(userId, mockOverrideClient);
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+          await userClientTracker.pauseUntilReceived(1);
+
+          service.setClient(userId, undefined);
+          await userClientTracker.expectCompletion();
+
+          expect(mockOverrideClient.free).toHaveBeenCalled();
         });
       });
     });
