@@ -17,4 +17,11 @@
       <i class="bwi bwi-external-link tw-ml-2" aria-hidden="true"></i>
     </button>
   </ng-container>
+
+  <ng-container *ngIf="pageState === BrowserPromptState.Success">
+    <i class="bwi tw-text-2xl bwi-check-circle tw-text-success-700" aria-hidden="true"></i>
+    <p bitTypography="body1" class="tw-mb-4 tw-text-xl">
+      {{ "openedExtensionViewAtRiskPasswords" | i18n }}
+    </p>
+  </ng-container>
 </div>

@@ -67,6 +67,31 @@ describe("BrowserExtensionPromptService", () => {
     });
   });
 
+  describe("success state", () => {
+    beforeEach(() => {
+      service.start();
+
+      window.dispatchEvent(new MessageEvent("message", { data: { command: "popupOpened" } }));
+    });
+
+    it("sets layout title", () => {
+      expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
+        pageTitle: { key: "openedExtension" },
+      });
+    });
+
+    it("sets success page state", (done) => {
+      service.pageState$.subscribe((state) => {
+        expect(state).toBe(BrowserPromptState.Success);
+        done();
+      });
+    });
+
+    it("clears the error timeout", () => {
+      expect(service["extensionCheckTimeout"]).toBeUndefined();
+    });
+  });
+
   describe("error state", () => {
     beforeEach(() => {
       service.start();
@@ -74,6 +99,7 @@ describe("BrowserExtensionPromptService", () => {
 
     it("sets error state after timeout", () => {
       jest.advanceTimersByTime(1000);
+
       expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
         pageTitle: { key: "somethingWentWrong" },
       });

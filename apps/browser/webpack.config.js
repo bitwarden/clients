@@ -207,6 +207,7 @@ const mainConfig = {
       "./src/autofill/deprecated/overlay/pages/list/bootstrap-autofill-overlay-list.deprecated.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
+    "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
   },
   optimization: {
     minimize: ENV !== "development",

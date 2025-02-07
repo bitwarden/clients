@@ -58,6 +58,21 @@ export class BrowserExtensionPromptService {
     if (event.data.command === VaultOnboardingMessages.HasBwInstalled) {
       this.openExtension();
     }
+
+    if (event.data.command === "popupOpened") {
+      this.setSuccessState();
+    }
+  }
+
+  /** Show the open extension success state */
+  private setSuccessState() {
+    this.clearExtensionCheckTimeout();
+    this._pageState$.next(BrowserPromptState.Success);
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: {
+        key: "openedExtension",
+      },
+    });
   }
 
   /** Show open extension error state */

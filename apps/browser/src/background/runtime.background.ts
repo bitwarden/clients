@@ -289,7 +289,7 @@ export default class RuntimeBackground {
         }
         break;
       case "openPopup":
-        await this.main.openPopup();
+        await this.openPopup();
         break;
       case "bgUpdateContextMenu":
       case "editedCipher":
@@ -414,6 +414,27 @@ export default class RuntimeBackground {
     return await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
   }
 
+  private async openPopup() {
+    await this.main.openPopup();
+
+    const announcePopupOpen = async () => {
+      const isOpen = await this.platformUtilsService.isViewOpen();
+      const tabs = await this.getBwTabs();
+
+      if (isOpen && tabs.length > 0) {
+        // Send message to all vault tabs that the extension has opened
+        for (const tab of tabs) {
+          await BrowserApi.executeScriptInTab(tab.id, {
+            file: "content/send-popup-open-message.js",
+            runAt: "document_end",
+          });
+        }
+      }
+    };
+
+    // Give the popup a buffer to open
+    setTimeout(announcePopupOpen, 100);
+  }
 
   async sendBwInstalledMessageToVault() {
     try {

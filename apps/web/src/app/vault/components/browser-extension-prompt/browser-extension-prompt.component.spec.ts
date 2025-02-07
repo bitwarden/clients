@@ -49,7 +49,7 @@ describe("BrowserExtensionPromptComponent", () => {
 
     it("shows loading text", () => {
       const element = fixture.nativeElement;
-      expect(element.textContent).toBe("openingExtension");
+      expect(element.textContent.trim()).toBe("openingExtension");
     });
   });
 
@@ -61,7 +61,19 @@ describe("BrowserExtensionPromptComponent", () => {
 
     it("shows error text", () => {
       const errorText = fixture.debugElement.query(By.css("p")).nativeElement;
-      expect(errorText.textContent).toBe("openingExtensionError");
+      expect(errorText.textContent.trim()).toBe("openingExtensionError");
+    });
+  });
+
+  describe("success state", () => {
+    beforeEach(() => {
+      pageState$.next(BrowserPromptState.Success);
+      fixture.detectChanges();
+    });
+
+    it("shows success message", () => {
+      const successText = fixture.debugElement.query(By.css("p")).nativeElement;
+      expect(successText.textContent.trim()).toBe("openedExtensionViewAtRiskPasswords");
     });
   });
 });
