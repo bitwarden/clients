@@ -1,20 +1,23 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import {
   combineLatest,
+  debounceTime,
   distinctUntilChanged,
+  filter,
   map,
   Observable,
   shareReplay,
   startWith,
   switchMap,
+  take,
   tap,
 } from "rxjs";
 
-import { CollectionService, Collection, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -38,14 +41,23 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { ChipSelectOption } from "@bitwarden/components";
 
+import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
+
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
   deserializer: (obj) => obj,
 });
 
+export interface CachedFilterState {
+  organizationId?: string;
+  collectionId?: string;
+  folderId?: string;
+  cipherType?: CipherType;
+}
+
 /** All available cipher filters */
 export type PopupListFilter = {
   organization: Organization | null;
-  collection: Collection | null;
+  collection: CollectionView | null;
   folder: FolderView | null;
   cipherType: CipherType | null;
 };
@@ -76,8 +88,9 @@ export class VaultPopupListFiltersService {
    * Observable for `filterForm` value
    */
   filters$ = this.filterForm.valueChanges.pipe(
-    startWith(INITIAL_FILTERS),
-  ) as Observable<PopupListFilter>;
+    startWith(this.filterForm.value),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   /** Emits the number of applied filters. */
   numberOfAppliedFilters$ = this.filters$.pipe(
@@ -105,6 +118,61 @@ export class VaultPopupListFiltersService {
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
+  private serializeFilters(): CachedFilterState {
+    return {
+      organizationId: this.filterForm.value.organization?.id,
+      collectionId: this.filterForm.value.collection?.id,
+      folderId: this.filterForm.value.folder?.id,
+      cipherType: this.filterForm.value.cipherType,
+    };
+  }
+
+  private deserializeFilters(state: CachedFilterState): void {
+    combineLatest([this.organizations$, this.collections$, this.folders$])
+      .pipe(take(1))
+      .subscribe(([orgOptions, collectionOptions, folderOptions]) => {
+        const patchValue: PopupListFilter = {
+          organization: null,
+          collection: null,
+          folder: null,
+          cipherType: null,
+        };
+
+        if (state.organizationId) {
+          if (state.organizationId === MY_VAULT_ID) {
+            patchValue.organization = { id: MY_VAULT_ID } as Organization;
+          } else {
+            const orgOption = orgOptions.find((o) => o.value.id === state.organizationId);
+            patchValue.organization = orgOption?.value || null;
+          }
+        }
+
+        if (state.collectionId) {
+          const collection = collectionOptions
+            .flatMap((c) => this.flattenOptions(c))
+            .find((c) => c.value.id === state.collectionId)?.value;
+          patchValue.collection = collection || null;
+        }
+
+        if (state.folderId) {
+          const folder = folderOptions
+            .flatMap((f) => this.flattenOptions(f))
+            .find((f) => f.value.id === state.folderId)?.value;
+          patchValue.folder = folder || null;
+        }
+
+        if (state.cipherType) {
+          patchValue.cipherType = state.cipherType;
+        }
+
+        this.filterForm.patchValue(patchValue);
+      });
+  }
+
+  private flattenOptions<T>(option: ChipSelectOption<T>): ChipSelectOption<T>[] {
+    return [option, ...(option.children?.flatMap((c) => this.flattenOptions(c)) || [])];
+  }
+
   constructor(
     private folderService: FolderService,
     private cipherService: CipherService,
@@ -115,10 +183,33 @@ export class VaultPopupListFiltersService {
     private policyService: PolicyService,
     private stateProvider: StateProvider,
     private accountService: AccountService,
+    private viewCacheService: PopupViewCacheService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(this.validateOrganizationChange.bind(this));
+
+    const cachedFilters = this.viewCacheService.signal<CachedFilterState>({
+      key: "vault-filters",
+      initialValue: {},
+      deserializer: (v) => v,
+    });
+
+    // Load initial state from cache
+    toObservable(cachedFilters)
+      .pipe(filter((state) => Object.keys(state).length > 0))
+      .subscribe((state) => this.deserializeFilters(state));
+
+    // Save changes to cache
+    this.filterForm.valueChanges
+      .pipe(
+        debounceTime(300),
+        map(() => this.serializeFilters()),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+      )
+      .subscribe((state) => {
+        cachedFilters.set(state);
+      });
   }
 
   /** Stored state for the visibility of the filters. */
@@ -142,7 +233,7 @@ export class VaultPopupListFiltersService {
 
           if (
             filters.collection !== null &&
-            !cipher.collectionIds.includes(filters.collection.id)
+            !cipher.collectionIds?.includes(filters.collection.id)
           ) {
             return false;
           }
@@ -286,7 +377,7 @@ export class VaultPopupListFiltersService {
         map(([filters, folders, cipherViews]): [PopupListFilter, FolderView[], CipherView[]] => {
           if (folders.length === 1 && folders[0].id === null) {
             // Do not display folder selections when only the "no folder" option is available.
-            return [filters, [], cipherViews];
+            return [filters as PopupListFilter, [], cipherViews];
           }
 
           // Sort folders by alphabetic name
@@ -305,7 +396,7 @@ export class VaultPopupListFiltersService {
             // Move the "no folder" option to the end of the list
             arrangedFolders = [...folders.filter((f) => f.id !== null), updatedNoFolder];
           }
-          return [filters, arrangedFolders, cipherViews];
+          return [filters as PopupListFilter, arrangedFolders, cipherViews];
         }),
         map(([filters, folders, cipherViews]) => {
           const organizationId = filters.organization?.id ?? null;

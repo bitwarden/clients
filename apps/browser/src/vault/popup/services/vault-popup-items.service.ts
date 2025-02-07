@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { inject, Injectable, NgZone } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import {
-  BehaviorSubject,
   combineLatest,
   concatMap,
   distinctUntilChanged,
@@ -34,6 +34,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
+import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { waitUntil } from "../../util";
 import { PopupCipherView } from "../views/popup-cipher.view";
 
@@ -47,15 +48,18 @@ import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-fi
   providedIn: "root",
 })
 export class VaultPopupItemsService {
-  private _searchText$ = new BehaviorSubject<string>("");
+  private cachedSearchText = inject(PopupViewCacheService).signal({
+    key: "vault-search-text",
+    initialValue: "",
+  });
+
+  readonly searchText$ = toObservable(this.cachedSearchText);
 
   /**
    * Subject that emits whenever new ciphers are being processed/filtered.
    * @private
    */
   private _ciphersLoading$ = new Subject<void>();
-
-  latestSearchText$: Observable<string> = this._searchText$.asObservable();
 
   private organizations$ = this.accountService.activeAccount$.pipe(
     switchMap((account) => this.organizationService.organizations$(account?.id)),
@@ -124,13 +128,13 @@ export class VaultPopupItemsService {
    * Observable that indicates whether there is search text present that is searchable.
    * @private
    */
-  private _hasSearchText$ = this._searchText$.pipe(
+  private _hasSearchText = this.searchText$.pipe(
     switchMap((searchText) => this.searchService.isSearchable(searchText)),
   );
 
   private _filteredCipherList$: Observable<PopupCipherView[]> = combineLatest([
     this._activeCipherList$,
-    this._searchText$,
+    this.searchText$,
     this.vaultPopupListFiltersService.filterFunction$,
   ]).pipe(
     map(([ciphers, searchText, filterFunction]): [CipherView[], string] => [
@@ -208,7 +212,7 @@ export class VaultPopupItemsService {
    * Observable that indicates whether a filter or search text is currently applied to the ciphers.
    */
   hasFilterApplied$ = combineLatest([
-    this._hasSearchText$,
+    this._hasSearchText,
     this.vaultPopupListFiltersService.filters$,
   ]).pipe(
     map(([hasSearchText, filters]) => {
@@ -283,8 +287,8 @@ export class VaultPopupItemsService {
     private accountService: AccountService,
   ) {}
 
-  applyFilter(newSearchText: string) {
-    this._searchText$.next(newSearchText);
+  applyFilter(newSearchText: string | null) {
+    this.cachedSearchText.set(newSearchText);
   }
 
   /**
