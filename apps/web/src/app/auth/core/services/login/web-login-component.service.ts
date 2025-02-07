@@ -55,6 +55,8 @@ export class WebLoginComponentService
     state: string,
     codeChallenge: string,
   ): Promise<void> {
+    // Since we're on the web client, we can set the SSO email in state and then navigate.
+    await this.ssoLoginService.setSsoEmail(email);
     await this.router.navigate(["/sso"]);
     return;
   }
