@@ -68,7 +68,7 @@ export class DefaultSdkService implements SdkService {
     private userAgent: string = null,
   ) {}
 
-  userClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
+  userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
     return this.sdkClientOverrides.pipe(
       takeWhile((clients) => clients[userId] !== UnsetClient, false),
       map((clients) => {
@@ -109,7 +109,7 @@ export class DefaultSdkService implements SdkService {
    * @param userId The user id for which to create the client
    * @returns An observable that emits the client for the user
    */
-  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient>> {
+  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
     // TODO: Figure out what happens when the user logs out
     if (this.sdkClientCache.has(userId)) {
       return this.sdkClientCache.get(userId);

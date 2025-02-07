@@ -36,7 +36,7 @@ export abstract class SdkService {
    *
    * @throws {UserNotLoggedInError} If the user is not logged in
    */
-  abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient>>;
+  abstract userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined>;
 
   /**
    * This method is used during/after an authentication procedure to set a new client for a specific user.
