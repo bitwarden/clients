@@ -5,28 +5,28 @@ import { EncArrayBuffer } from "./enc-array-buffer";
 
 describe("encArrayBuffer", () => {
   describe("parses the buffer", () => {
-    test.each([
-      [EncryptionType.AesCbc128_HmacSha256_B64, "AesCbc128_HmacSha256_B64"],
-      [EncryptionType.AesCbc256_HmacSha256_B64, "AesCbc256_HmacSha256_B64"],
-    ])("with %c%s", (encType: EncryptionType) => {
-      const iv = makeStaticByteArray(16, 10);
-      const mac = makeStaticByteArray(32, 20);
-      // We use the minimum data length of 1 to test the boundary of valid lengths
-      const data = makeStaticByteArray(1, 100);
+    test.each([[EncryptionType.AesCbc256_HmacSha256_B64, "AesCbc256_HmacSha256_B64"]])(
+      "with %c%s",
+      (encType: EncryptionType) => {
+        const iv = makeStaticByteArray(16, 10);
+        const mac = makeStaticByteArray(32, 20);
+        // We use the minimum data length of 1 to test the boundary of valid lengths
+        const data = makeStaticByteArray(1, 100);
 
-      const array = new Uint8Array(1 + iv.byteLength + mac.byteLength + data.byteLength);
-      array.set([encType]);
-      array.set(iv, 1);
-      array.set(mac, 1 + iv.byteLength);
-      array.set(data, 1 + iv.byteLength + mac.byteLength);
+        const array = new Uint8Array(1 + iv.byteLength + mac.byteLength + data.byteLength);
+        array.set([encType]);
+        array.set(iv, 1);
+        array.set(mac, 1 + iv.byteLength);
+        array.set(data, 1 + iv.byteLength + mac.byteLength);
 
-      const actual = new EncArrayBuffer(array);
+        const actual = new EncArrayBuffer(array);
 
-      expect(actual.encryptionType).toEqual(encType);
-      expect(actual.ivBytes).toEqualBuffer(iv);
-      expect(actual.macBytes).toEqualBuffer(mac);
-      expect(actual.dataBytes).toEqualBuffer(data);
-    });
+        expect(actual.encryptionType).toEqual(encType);
+        expect(actual.ivBytes).toEqualBuffer(iv);
+        expect(actual.macBytes).toEqualBuffer(mac);
+        expect(actual.dataBytes).toEqualBuffer(data);
+      },
+    );
 
     it("with AesCbc256_B64", () => {
       const encType = EncryptionType.AesCbc256_B64;
@@ -50,7 +50,6 @@ describe("encArrayBuffer", () => {
 
   describe("throws if the buffer has an invalid length", () => {
     test.each([
-      [EncryptionType.AesCbc128_HmacSha256_B64, 50, "AesCbc128_HmacSha256_B64"],
       [EncryptionType.AesCbc256_HmacSha256_B64, 50, "AesCbc256_HmacSha256_B64"],
       [EncryptionType.AesCbc256_B64, 18, "AesCbc256_B64"],
     ])("with %c%c%s", (encType: EncryptionType, minLength: number) => {
