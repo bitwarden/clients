@@ -6,13 +6,13 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { BrowserPlatformUtilsService } from "../../../platform/services/platform-utils/browser-platform-utils.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { ExtensionLoginComponentService } from "./extension-login-component.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 jest.mock("../../../platform/flags", () => ({
   flagEnabled: jest.fn(),
@@ -65,7 +65,7 @@ describe("ExtensionLoginComponentService", () => {
   describe("redirectToSso", () => {
     it("launches SSO browser window with correct URL", async () => {
       const email = "test@bitwarden.com";
-      let state = "testState:clientId=browser";
+      const state = "testState:clientId=browser";
       const codeVerifier = "testCodeVerifier";
       const codeChallenge = "testCodeChallenge";
       const baseUrl = "https://webvault.bitwarden.com/#/sso";
