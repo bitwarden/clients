@@ -142,6 +142,9 @@
       "ElectronTeamID": "LTZ2PFU5D6"
     }
   },
+  "pkg": {
+    "identity": "C071BB05ED04B3B7E7F34E5C82431BF0AB3276AD"
+  },
   "nsisWeb": {
     "oneClick": false,
     "perMachine": false,
