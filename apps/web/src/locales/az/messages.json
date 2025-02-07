@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Qovluğa düzəliş et"
   },
+  "newFolder": {
+    "message": "Yeni qovluq"
+  },
+  "folderName": {
+    "message": "Qovluq adı"
+  },
+  "folderHintText": {
+    "message": "Ana qovluğun adından sonra \"/\" əlavə edərək qovluğu ardıcıl yerləşdirin. Nümunə: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Bu qovluğu həmişəlik silmək istədiyinizə əminsiniz?"
+  },
   "baseDomain": {
     "message": "Baza domeni",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Element adı"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "məs.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Giriş etmə başladıldı"
   },
+  "logInRequestSent": {
+    "message": "Tələb göndərildi"
+  },
   "submit": {
     "message": "Göndər"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildiriş göndərildi."
   },
+  "notificationSentDevicePart1": {
+    "message": "Cihazınızda Bitwarden kilidini açın, ya da "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Hesabınıza müraciət etməyə çalışırsınız?"
+  },
+  "accessAttemptBy": {
+    "message": "$EMAIL$ ilə müraciət cəhdi",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Müraciəti təsdiqlə"
+  },
+  "denyAccess": {
+    "message": "Müraciətə rədd cavabı ver"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "veb tətbiqinizdə"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Təsdiqləməzdən əvvəl Barmaq izi ifadəsinin aşağıdakı ifadə ilə uyuşduğuna əmin olun."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Cihazınızda Bitwarden-in kilidini açın. Təsdiqləməzdən əvvəl Barmaq izi ifadəsinin aşağıdakı ifadə ilə uyuşduğuna əmin olun."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Cihazınıza bir bildiriş göndərildi"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Hesabınızın kilidinin açıq olduğuna və barmaq izi ifadəsinin digər cihazda uyuşduğuna əmin olun"
   },
   "versionNumber": {
     "message": "Versiya $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Anlaşılmaz xarakterlərdən çəkin",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Parolu yenidən yarat"
   },
   "length": {
     "message": "Uzunluq"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "İdarə et"
   },
-  "canManage": {
-    "message": "İdarə edə bilər"
+  "manageCollection": {
+    "message": "Kolleksiyanı idarə et"
+  },
+  "viewItems": {
+    "message": "Elementlərə bax"
+  },
+  "viewItemsHidePass": {
+    "message": "Elementlərə, gizli parollara bax"
+  },
+  "editItems": {
+    "message": "Elementlərə düzəliş et"
+  },
+  "editItemsHidePass": {
+    "message": "Elementlərə, gizli parollara düzəliş et"
   },
   "disable": {
     "message": "Sıradan çıxart"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Güvənlik açarı oxunarkən problem yarandı. Yenidən sınayın."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Platforma məhdudiyyətlərinə görə, WebAuthn bütün Bitwarden tətbiqlərində istifadə edilə bilmir. WebAuthn istifadə edilə bilməyəndə, hesabınıza müraciət edə bilməyiniz üçün başqa bir iki addımlı giriş provayderini fəallaşdırmalısınız. Dəstəklənən platformalar:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "WebAuthn dəstəkli brauzerə sahib masaüstü/dizüstü kompüterdə veb seyf və brauzer uzantıları (FIDO U2F açıq olan Chrome, Opera, Vivaldi və ya Firefox)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Platforma məhdudiyyətlərinə görə, WebAuthn bütün Bitwarden tətbiqlərində istifadə edilə bilmir. WebAuthn istifadə edilə bilməyəndə, hesabınıza müraciət edə bilməyiniz üçün başqa bir iki addımlı giriş provayderini fəallaşdırmalısınız."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden iki addımlı giriş üçün geri qaytarma kodunuz"
@@ -3013,7 +3052,7 @@
     "message": "Əlavə istifadəçi yerləri"
   },
   "userSeatsDesc": {
-    "message": "İstifadəçi sayı"
+    "message": "# / istifadəçi yeri"
   },
   "userSeatsAdditionalDesc": {
     "message": "Planınızda $BASE_SEATS$ istifadəçi yeri var. İstifadəçiləri, istifadəçi/ay başına $SEAT_PRICE$ qarşılığında əlavə edə bilərsiniz.",
@@ -4284,7 +4323,7 @@
     "message": "Sirr Menecerinə abunəliyiniz üçün bir limit müəyyən edin. Bu limitə çatanda, yeni istifadəçiləri dəvət edə bilməyəcəksiniz."
   },
   "maxSeatLimit": {
-    "message": "Maksimum yer limiti (ixtiyari)",
+    "message": "Yer limiti (ixtiyari)",
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "maxSeatCost": {
@@ -4709,9 +4748,6 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Parol yaradıcı üçün tələbləri ayarla."
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Bir və ya daha çox təşkilat siyasətləri yaradıcı seçimlərinizə təsir edir."
   },
   "masterPasswordPolicyInEffect": {
     "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolunuzu tələb edir:"
@@ -6681,15 +6717,6 @@
     "message": "Yaradıcı",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Nə yaratmaq istəyirsiniz?"
-  },
-  "passwordType": {
-    "message": "Parol növü"
-  },
-  "regenerateUsername": {
-    "message": "İstifadəçi adını yenidən yarat"
-  },
   "generateUsername": {
     "message": "İstifadəçi adı yarat"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "İstifadəçi adı növü"
   },
   "plusAddressedEmail": {
     "message": "Plyus ünvanlı e-poçt",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Host adı",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API müraciət tokeni"
   },
   "deviceVerification": {
     "message": "Cihaz doğrulaması"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Kolleksiya yoxdur"
-  },
-  "canView": {
-    "message": "Baxa bilər"
-  },
-  "canViewExceptPass": {
-    "message": "Parollar istisna olmaqla baxa bilər"
-  },
-  "canEdit": {
-    "message": "Düzəliş edə bilər"
-  },
-  "canEditExceptPass": {
-    "message": "Parollar istisna olmaqla düzəliş edə bilər"
   },
   "noCollectionsAdded": {
     "message": "Heç bir kolleksiya əlavə edilmədi"
@@ -8626,7 +8635,7 @@
     "message": "Kolleksiya silinməsini sahibləri və adminləri ilə məhdudlaşdır"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "Elementin silinməsini \"İdarə edə bilər\" icazəsinə sahib üzvlərlə məhdudlaşdır"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Sahiblər və adminlər bütün kolleksiyaları və elementləri idarə edə bilər"
@@ -8676,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "Self-host server URL-si",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Domen ləqəbi"
   },
   "alreadyHaveAccount": {
     "message": "Artıq bir hesabınız var?"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Bu kolleksiyanı idarə etmək üçün müraciətiniz yoxdur."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "İdarə edə bilər icazələri əskikdir"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Kolleksiyanın silinməsi daxil olmaqla tam kolleksiya idarəetməsinə icazə vermək üçün \"İdarə edə bilər\" icazələrini verin."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Qrup və ya üzvlərin bu kolleksiyaya müraciətinə icazə verin."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Açıqlayıcı kod"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Vacib bildiriş"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "Bu təşkilata təyin edilmiş $TOTAL$ yerdən $REMAINING$ yeriniz qalıb. Abunəliyinizi idarə etmək üçün provayderinizlə əlaqə saxlayın.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Mövcud təşkilat"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Provayder Portalınıza əlavə ediləcək təşkilatı seçin."
+  },
+  "noOrganizations": {
+    "message": "Sadalanacaq heç bir təşkilat yoxdur."
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Provayder abunəliyiniz, təşkilatınızın abunəliyində qalan vaxt üçün bir kredit alacaq."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Bu təşkilatı bura əlavə etmək istəyirsiniz: $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Mövcud təşkilat əlavə edildi"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Təyin edilmiş yer sayı, boş yer sayından çoxdur."
   }
 }

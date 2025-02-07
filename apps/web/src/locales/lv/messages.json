@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Labot mapi"
   },
+  "newFolder": {
+    "message": "Jauna mape"
+  },
+  "folderName": {
+    "message": "Mapes nosaukums"
+  },
+  "folderHintText": {
+    "message": "Apakšmapes var izveidot, ja pievieno iekļaujošās mapes nosaukumu, aiz kura ir \"/\". Piemēram: Tīklošanās/Forumi"
+  },
+  "deleteFolderPermanently": {
+    "message": "Vai tiešām neatgriezeniski izdzēst šo mapi?"
+  },
   "baseDomain": {
     "message": "Pamata domēns",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Vienuma nosaukums"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "piem.,",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Uzsākta pieteikšanās"
   },
+  "logInRequestSent": {
+    "message": "Pieprasījums nosūtīts"
+  },
   "submit": {
     "message": "Iesniegt"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Uz ierīci ir nosūtīts paziņojums."
   },
+  "notificationSentDevicePart1": {
+    "message": "Bitwarden jāatslēdz savā ierīcē vai "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Vai mēģini piekļūt savam kontam?"
+  },
+  "accessAttemptBy": {
+    "message": "$EMAIL$ piekļuves mēģinājums",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Apstiprināt piekļuvi"
+  },
+  "denyAccess": {
+    "message": "Noraidīt piekļuvi"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "tīmekļa lietotnē"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pirms apstiprināšanas jāpārliecinās, ka pirkstu nospieduma vārdkopa atbilst zemāk esošajai."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Savā ierīcē jāatslēdz Bitwarden. Pirms apstiprināšanas jāpārliecinās, ka pirkstu nospieduma vārdkopa atbilst zemāk esošajai."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Uz ierīci tika nosūtīts paziņojums"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lūgums pārliecināties, ka konts ir atslēgts un atpazīšanas vārdkopa ir tāda pati arī otrā ierīcē"
   },
   "versionNumber": {
     "message": "Laidiens $VERSION_NUMBER$",
@@ -1664,9 +1697,6 @@
     "message": "Izvairīties no viegli sajaucamām rakstzīmēm",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Pārizveidot paroli"
-  },
   "length": {
     "message": "Garums"
   },
@@ -1849,7 +1879,7 @@
     "message": "Tiks veikta atteikšanās no pašreizējās sesijas, un pēc tam būs nepieciešams atkārtoti pieteikties. Būs nepieciešama arī divpakāpju pieteikšanās, ja tā ir iespējota. Citās ierīcēs darbojošās sesijas var būt spēkā līdz vienai stundai."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "Pieteikšanās jaunā ierīcē"
   },
   "turnOffNewDeviceLoginProtection": {
     "message": "Turn off new device login protection"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Pārvaldīt"
   },
-  "canManage": {
-    "message": "Var pārvaldīt"
+  "manageCollection": {
+    "message": "Pārvaldīt krājumu"
+  },
+  "viewItems": {
+    "message": "Apskatīt vienumus"
+  },
+  "viewItemsHidePass": {
+    "message": "Apskatīt vienumus, paslēptās paroles"
+  },
+  "editItems": {
+    "message": "Labot vienumus"
+  },
+  "editItemsHidePass": {
+    "message": "Labot vienumus, paslēptās paroles"
   },
   "disable": {
     "message": "Atspējot"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Radās sarežģījumi, nolasot drošības atslēgu. Jāmēģina vēlreiz."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Platformas ierobežojumu dēļ WebAuth nevar izmantot visās Bitwarden lietotnēs. Ir ieteicams iespējot vēl kādu divpakāpju pieteikšanās nodrošinātāju, lai varētu piekļūt kontam, kad nav iespējams izmantot WebAuth. Atbalstītās platformas:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Tīmekļa glabātava un pārlūku paplašinājums galddatorā/klēpjdatorā ar WebAuthn iespējotu pārlūku (Chrome, Opera, Vivaldi vai Firefox ar iespējotu FIDO U2F)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Platformas ierobežojumu dēļ WebAuth nevar izmantot visās Bitwarden lietotnēs. Ir ieteicams iespējot vēl kādu divpakāpju pieteikšanās nodrošinātāju, lai varētu piekļūt kontam, kad nav iespējams izmantot WebAuth."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden divpakāpju pieteikšanās atkopšanas kods"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Uzstādīt paroļu veidotāja uzstādījumu mazākās izpildāmās prasības."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Viens vai vairāki apvienības nosacījumi ietekmē veidotāja iestatījumus."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Vienā vai vairākos apvienības nosacījumos ir norādīts, ka galvenajai parolei ir jāatbilst šādām prasībām:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Veidotājs",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Ko ir vēlme izveidot?"
-  },
-  "passwordType": {
-    "message": "Paroles veids"
-  },
-  "regenerateUsername": {
-    "message": "Pārizveidot lietotājvārdu"
-  },
   "generateUsername": {
     "message": "Izveidot lietotājvārdu"
   },
@@ -6730,9 +6757,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Lietotājvārda veids"
-  },
   "plusAddressedEmail": {
     "message": "E-pasta adrese ar plusu",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -6747,7 +6771,7 @@
     "message": "Izmantot uzstādīto domēna visu tverošo iesūtni."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Izmantot šo e-pasta adresi"
   },
   "random": {
     "message": "Nejauši",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Resursdatora nosaukums",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API piekļuves pilnvara"
   },
   "deviceVerification": {
     "message": "Ierīces apstiprināšana"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Nav krājuma"
-  },
-  "canView": {
-    "message": "Var skatīt"
-  },
-  "canViewExceptPass": {
-    "message": "Var skatīt, izņemot paroles"
-  },
-  "canEdit": {
-    "message": "Var labot"
-  },
-  "canEditExceptPass": {
-    "message": "Var labot, izņemot paroles"
   },
   "noCollectionsAdded": {
     "message": "Nav pievienotu krājumu"
@@ -8626,7 +8635,7 @@
     "message": "Ļaut krājumu izdzēšanu tikai īpašniekiem un pārvaldītājiem"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "Ierobežot lietotājiem vienumu izdzēšanu ar atļauju \"Var pārvaldīt\""
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Īpašnieki un pārvaldnieki var pārvaldīt visus krājumus un vienumus"
@@ -8676,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "Pašmitināta servera URL",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Aizstājdomēns"
   },
   "alreadyHaveAccount": {
     "message": "Jau ir konts?"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Nav piekļuves pārvaldīt šo krājumu."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Trūkst atļaujas \"Var pārvaldīt\""
+  "grantManageCollectionWarningTitle": {
+    "message": "Trūkst krājumu pārvaldīšanas atļaujas"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Jānodrošina atļauja \"Var pārvaldīt\", lai ļautu pilnu krājuma pārvaldību, tajā skaitā krājuma izdzēšanu."
+  "grantManageCollectionWarning": {
+    "message": "Jānodrošina atļauja \"Pārvaldīt kŗajumu\", lai ļautu pilnu krājuma pārvaldību, tajā skaitā krājuma izdzēšanu."
   },
   "grantCollectionAccess": {
     "message": "Piešķirt kopām vai dalībniekiem piekļuvi šim krājumam."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Apraksta kods"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Svarīgs paziņojums"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Pārvaldītājiem tagad ir iespēja izdzēst dalībnieku kontus, kas pieder pieteiktam domēnam."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "Šī darbība izdzēsīs dalībnieka kontu, tajā skaitā visus glabātavas vienumus. Tā aizstāj iepriekšējo darbību \"Noņemt\"."
+  },
+  "deleteManagedUserWarning": {
+    "message": "\"Izdzēst\" ir jaunā darbība."
+  },
+  "seatsRemaining": {
+    "message": "Ir atlikušas $REMAINING$ no apvienībai piesaistītajām $TOTAL$ vietām. Jāsazinās ar nodrošinātāju, lai pārvaldītu savu abonementu.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Esoša apvienība"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Jāatlasa apvienība, kuru pievienot savam nodrošinātāju portālam."
+  },
+  "noOrganizations": {
+    "message": "Nav apvienību, ko uzskaitīt"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Nodrošinātāja abonements saņemts kredītu par jebkuru atlikušo laiku apvienības abonementā."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Vai šo apvienību pievienot $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Pievienota esoša apvienība"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Piešķirtās vietas pārsniedz pieejamās vietas."
   }
 }

@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Ordner bearbeiten"
   },
+  "newFolder": {
+    "message": "Neuer Ordner"
+  },
+  "folderName": {
+    "message": "Ordnername"
+  },
+  "folderHintText": {
+    "message": "Verschachtel einen Ordner, indem du den Namen des übergeordneten Ordners hinzufügst, gefolgt von einem „/“. Beispiel: Sozial/Foren"
+  },
+  "deleteFolderPermanently": {
+    "message": "Bist du sicher, dass du diesen Ordner dauerhaft löschen willst?"
+  },
   "baseDomain": {
     "message": "Basisdomäne",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Eintrags-Name"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "Bsp.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Anmeldung eingeleitet"
   },
+  "logInRequestSent": {
+    "message": "Anfrage gesendet"
+  },
   "submit": {
     "message": "Absenden"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
   },
+  "notificationSentDevicePart1": {
+    "message": "Entsperre Bitwarden auf deinem Gerät oder mit der "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Versuchst du auf dein Konto zuzugreifen?"
+  },
+  "accessAttemptBy": {
+    "message": "Zugriffsversuch von $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Zugriff bestätigen"
+  },
+  "denyAccess": {
+    "message": "Zugriff ablehnen"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "Web-App"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Stelle vor der Genehmigung sicher, dass die Fingerabdruck-Phrase mit der unten stehenden übereinstimmt."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Entsperre Bitwarden auf deinem Gerät. Stelle vor der Genehmigung sicher, dass die Fingerabdruck-Phrase mit der unten stehenden übereinstimmt."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Stelle sicher, dass dein Konto entsperrt ist und die Fingerabdruck-Phrase mit der vom anderen Gerät übereinstimmt"
   },
   "versionNumber": {
     "message": "Version $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Mehrdeutige Zeichen vermeiden",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Passwort neu generieren"
   },
   "length": {
     "message": "Länge"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Verwalten"
   },
-  "canManage": {
-    "message": "Darf verwalten"
+  "manageCollection": {
+    "message": "Sammlung verwalten"
+  },
+  "viewItems": {
+    "message": "Einträge anzeigen"
+  },
+  "viewItemsHidePass": {
+    "message": "Einträge anzeigen, versteckte Passwörter"
+  },
+  "editItems": {
+    "message": "Einträge bearbeiten"
+  },
+  "editItemsHidePass": {
+    "message": "Einträge bearbeiten, versteckte Passwörter"
   },
   "disable": {
     "message": "Deaktivieren"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Es gab ein Problem beim Lesen des Sicherheitsschlüssels, bitte versuche es erneut."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Aufgrund von Plattformbeschränkungen kann WebAuthn nicht in allen Bitwarden-Anwendungen verwendet werden. Du solltest einen anderen Zwei-Faktor-Authentifizierungsanbieter aktivieren, damit du auf dein Konto zugreifen kannst, wenn WebAuthn nicht verwendet werden kann. Unterstützte Plattformen:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Web-Tresor und Browser-Erweiterungen auf einem Desktop/Laptop mit einem WebAuthn-fähigen Browser (Chrome, Opera, Vivaldi oder Firefox mit aktiviertem FIDO U2F)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Aufgrund von Plattformbeschränkungen kann WebAuthn nicht in allen Bitwarden-Anwendungen verwendet werden. Du solltest einen anderen Zwei-Faktor-Authentifizierungsanbieter einrichten, damit du auf dein Konto zugreifen kannst, wenn WebAuthn nicht verwendet werden kann."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Ihr Wiederherstellungsschlüssel für die Zwei-Faktor-Anmeldung in Bitwarden"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Mindestanforderungen für den Passwort-Generator festlegen."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Eine oder mehrere Organisationsrichtlinien beeinflussen deine Generator-Einstellungen."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Eine oder mehrere Organisationsrichtlinien erfordern, dass dein Master-Passwort die folgenden Anforderungen erfüllt:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Generator",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Was möchtest du generieren?"
-  },
-  "passwordType": {
-    "message": "Passworttyp"
-  },
-  "regenerateUsername": {
-    "message": "Benutzername neu generieren"
-  },
   "generateUsername": {
     "message": "Benutzername generieren"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Benutzernamenstyp"
   },
   "plusAddressedEmail": {
     "message": "Plus-adressierte E-Mail-Adresse",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Hostname",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API-Zugriffstoken"
   },
   "deviceVerification": {
     "message": "Geräteverifizierung"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Keine Sammlung"
-  },
-  "canView": {
-    "message": "Darf anzeigen"
-  },
-  "canViewExceptPass": {
-    "message": "Darf anzeigen, Passwörter ausgenommen"
-  },
-  "canEdit": {
-    "message": "Darf bearbeiten"
-  },
-  "canEditExceptPass": {
-    "message": "Darf bearbeiten, Passwörter ausgenommen"
   },
   "noCollectionsAdded": {
     "message": "Keine Sammlungen hinzugefügt"
@@ -8677,9 +8686,6 @@
     "message": "Selbst gehostete Server-URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Alias-Domain"
-  },
   "alreadyHaveAccount": {
     "message": "Hast du bereits ein Konto?"
   },
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Du hast keinen Zugriff zur Verwaltung dieser Sammlung."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Fehlende \"Darf verwalten\"-Berechtigungen"
+  "grantManageCollectionWarningTitle": {
+    "message": "Berechtigungen zur Verwaltung von Sammlungen fehlen"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "\"Darf verwalten\"-Berechtigungen gewähren, um die vollständige Sammlungsverwaltung einschließlich der Löschung von Sammlungen zu ermöglichen."
+  "grantManageCollectionWarning": {
+    "message": "Berechtigungen zur Verwaltung von Sammlungen gewähren, um die vollständige Verwaltung von Sammlungen, einschließlich der Löschung von Sammlungen, zu erlauben."
   },
   "grantCollectionAccess": {
     "message": "Gewähre Gruppen oder Mitgliedern Zugriff auf diese Sammlung."
@@ -9307,7 +9313,7 @@
     "message": "Monat pro Mitglied"
   },
   "monthPerMemberBilledAnnually": {
-    "message": "month per member billed annually"
+    "message": "Monat pro Mitglied jährlich in Rechnung gestellt"
   },
   "seats": {
     "message": "Benutzerplätze"
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Beschreibungscode"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Wichtiger Hinweis"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administratoren haben nun die Möglichkeit, Mitgliedskonten, die zu einer beanspruchten Domain gehören, zu löschen."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "Diese Aktion löscht das Mitgliedskonto einschließlich aller Einträge in seinem Tresor. Dies ersetzt die vorherige Entfernen Aktion."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Löschen ist eine neue Aktion!"
+  },
+  "seatsRemaining": {
+    "message": "Du hast $REMAINING$ Plätze von $TOTAL$ dieser Organisation zugewiesenen Plätzen verfügbar. Kontaktiere deinen Anbieter, um dein Abonnement zu verwalten.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Vorhandene Organisation"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Wähle eine Organisation aus, um sie deinem Anbieterportal hinzuzufügen."
+  },
+  "noOrganizations": {
+    "message": "Keine Sammlungen vorhanden"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Dein Anbieterabonnement erhält ein Guthaben für jede verbleibende Zeit im Abonnement der Organisation."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Möchtest du diese Organisation zu $PROVIDER$ hinzufügen?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Vorhandene Organisation hinzugefügt"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Die zugewiesenen Plätze überschreiten die verfügbaren Plätze."
   }
 }

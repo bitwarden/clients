@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Baguhin ang folder"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "Base domain",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Item name"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "hal.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Sinimulan ang pag-log in"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "submit": {
     "message": "Ipadala"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Nakapagpadala na ng notipikasyon sa device mo."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "Bersyon $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Gumawa ng isa pang password"
   },
   "length": {
     "message": "Haba"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Pamahalaan"
   },
-  "canManage": {
-    "message": "Can manage"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "Isara"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Nagkaproblema sa pagbabasa ng security key. Pakisubukan ulit."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Hindi magagamit sa lahat ng mga aplikasyon ng Bitwarden ang WebAuthn dahil sa mga limitasyon ng platform. Dapat mag-set up ka ng isa pang provider ng dalawang-hakbang na pag-log in para ma-access mo ang account mo sakaling hindi magamit ang WebAuthn. Mga suportadong platform:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Web vault at mga ekstensyon pang-browser sa desktop/laptop na may browser na sinusuportahan ang WebAuthn (Chrome, Opera, Vivaldi, o Firefox na nakabukas ang FIDO U2F)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Code pang-recover mo sa dalawang-hakbang na pag-log in sa Bitwarden"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Magtakda ng mga kinakailangan para sa generator ng password."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Isang o higit pang patakaran ng organisasyon ay nakakaapekto sa iyong mga setting ng generator."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Isang o higit pang mga patakaran ng organisasyon ay nangangailangan ng iyong master password upang matugunan ang sumusunod na kinakailangan:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Magmamana",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Ano ang nais mong bumuo?"
-  },
-  "passwordType": {
-    "message": "Uri ng Password"
-  },
-  "regenerateUsername": {
-    "message": "Muling bumuo ng username"
-  },
   "generateUsername": {
     "message": "Lumikha ng username"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Uri ng username"
   },
   "plusAddressedEmail": {
     "message": "Plus na naka-address na email",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Pangalan ng Hostname",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Token ng Access sa API"
   },
   "deviceVerification": {
     "message": "Pag verify ng aparato"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Walang koleksyon"
-  },
-  "canView": {
-    "message": "Maaaring tingnan"
-  },
-  "canViewExceptPass": {
-    "message": "Maaaring tingnan, maliban sa mga password"
-  },
-  "canEdit": {
-    "message": "Maaaring i-edit"
-  },
-  "canEditExceptPass": {
-    "message": "Maaaring mag edit, maliban sa mga password"
   },
   "noCollectionsAdded": {
     "message": "Walang idinagdag na mga koleksyon"
@@ -8677,9 +8686,6 @@
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Alias domain"
-  },
   "alreadyHaveAccount": {
     "message": "Already have an account?"
   },
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Missing Can Manage Permissions"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Descriptor code"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Important notice"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
   }
 }

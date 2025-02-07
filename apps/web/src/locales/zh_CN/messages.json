@@ -199,7 +199,7 @@
     "message": "备注"
   },
   "note": {
-    "message": "备注"
+    "message": "笔记"
   },
   "customFields": {
     "message": "自定义字段"
@@ -254,7 +254,7 @@
     }
   },
   "websiteAdded": {
-    "message": "网址已添加"
+    "message": "网站已添加"
   },
   "addWebsite": {
     "message": "添加网站"
@@ -463,6 +463,18 @@
   },
   "editFolder": {
     "message": "编辑文件夹"
+  },
+  "newFolder": {
+    "message": "新增文件夹"
+  },
+  "folderName": {
+    "message": "文件夹名称"
+  },
+  "folderHintText": {
+    "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "您确定要永久删除这个文件夹吗？"
   },
   "baseDomain": {
     "message": "基础域",
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "项目名称"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "例如",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "登录已发起"
   },
+  "logInRequestSent": {
+    "message": "请求已发送"
+  },
   "submit": {
     "message": "提交"
   },
@@ -1213,7 +1219,7 @@
     "message": "主密码提示（可选）"
   },
   "newMasterPassHint": {
-    "message": "新的主密码提示（可选）"
+    "message": "新主密码提示（可选）"
   },
   "masterPassHintLabel": {
     "message": "主密码提示"
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "您正在尝试访问您的账户吗？"
+  },
+  "accessAttemptBy": {
+    "message": "$EMAIL$ 的访问尝试",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "确认访问"
+  },
+  "denyAccess": {
+    "message": "拒绝访问"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "网页 App"
+  },
+  "notificationSentDevicePart2": {
+    "message": "在批准前，请确保指纹短语与下面的一致。"
+  },
+  "notificationSentDeviceComplete": {
+    "message": "在您的设备上解锁 Bitwarden。在批准前，请确保指纹短语与下面的一致。"
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "确保您的账户已解锁，并且指纹短语与其他设备上的相匹配。"
   },
   "versionNumber": {
     "message": "版本: $VERSION_NUMBER$",
@@ -1664,9 +1697,6 @@
     "message": "避免易混淆的字符",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "重新生成密码"
-  },
   "length": {
     "message": "长度"
   },
@@ -1743,7 +1773,7 @@
     "message": "继续操作将更改您的账户电子邮箱地址。这不会更改用于双重身份验证的电子邮箱地址。您可以在两步登录设置中更改它。"
   },
   "newEmail": {
-    "message": "新的电子邮箱"
+    "message": "新电子邮箱"
   },
   "code": {
     "message": "代码"
@@ -1849,25 +1879,25 @@
     "message": "继续操作还将使您退出当前会话，并要求您重新登录。如果有设置两步登录，也需要重新验证。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "新设备登录"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "关闭新设备登录保护"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "开启新设备登录保护"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+    "message": "按照以下步骤关闭 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+    "message": "按照以下步骤开启 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+    "message": "关闭新设备登录保护后，任何拥有您的主密码的人都可以从任何设备访问您的账户。要在没有验证电子邮件的情况下保护您的账户，请设置两步登录。"
   },
   "accountNewDeviceLoginProtectionSaved": {
-    "message": "New device login protection changes saved"
+    "message": "新设备登录保护更改已保存"
   },
   "sessionsDeauthorized": {
     "message": "已取消所有会话授权"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "管理"
   },
-  "canManage": {
-    "message": "可以管理"
+  "manageCollection": {
+    "message": "管理集合"
+  },
+  "viewItems": {
+    "message": "查看项目"
+  },
+  "viewItemsHidePass": {
+    "message": "查看项目，隐藏密码"
+  },
+  "editItems": {
+    "message": "编辑项目"
+  },
+  "editItemsHidePass": {
+    "message": "编辑项目，隐藏密码"
   },
   "disable": {
     "message": "停用"
@@ -2279,7 +2321,7 @@
     }
   },
   "webAuthnkeyX": {
-    "message": "WebAuthn 密钥 $INDEX$",
+    "message": "WebAuthn 钥匙 $INDEX$",
     "placeholders": {
       "index": {
         "content": "$1",
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "读取安全钥匙时出现问题，请重试。"
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "由于平台限制，WebAuthn 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在 WebAuthn 无法使用时可以访问您的账户。支持的平台有："
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "桌面/笔记本电脑上支持 WebAuthn 的浏览器（启用了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页密码库和浏览器扩展。"
+  "twoFactorWebAuthnWarning1": {
+    "message": "由于平台限制，WebAuthn 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 WebAuthn 时可以访问您的账户。"
   },
   "twoFactorRecoveryYourCode": {
     "message": "您的 Bitwarden 两步登录恢复代码"
@@ -2644,7 +2683,7 @@
     "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
   },
   "creditAppliedDesc": {
-    "message": "您账户的信用额度可用于进行消费。任何可用的信用额度将用于自动支付此账户的账单。"
+    "message": "您账户的信用额度可用于进行消费。任何可用的信用额度将用于自动抵扣此账户的账单。"
   },
   "goPremium": {
     "message": "升级高级会员",
@@ -2920,7 +2959,7 @@
     "description": "Noun. A refunded payment that was charged."
   },
   "chargesStatement": {
-    "message": "任何费用将在您的对账单上以 $STATEMENT_NAME$ 显示。",
+    "message": "任何费用将以 $STATEMENT_NAME$ 出现在您的账单上。",
     "placeholders": {
       "statement_name": {
         "content": "$1",
@@ -2938,7 +2977,7 @@
     "message": "添加存储空间将会调整计费总金额，并立即通过您的付款方式进行扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
   },
   "storageRemoveNote": {
-    "message": "移除存储空间将会调整计费总金额，这笔费用将按比例返回下一笔账单费用中。"
+    "message": "移除存储空间将会调整计费总金额，这笔调整费用将按比例作为信用额度抵扣您的下一笔账单费用。"
   },
   "adjustedStorage": {
     "message": "已调整 $AMOUNT$ GB 的存储空间。",
@@ -3435,7 +3474,7 @@
     "message": "更改了帐户密码"
   },
   "enabledUpdated2fa": {
-    "message": "保存了两步登录"
+    "message": "两步登录已保存"
   },
   "disabled2fa": {
     "message": "停用了两步登录"
@@ -3796,7 +3835,7 @@
     }
   },
   "unlinkedSso": {
-    "message": "未链接 SSO。"
+    "message": "取消链接 SSO。"
   },
   "unlinkedSsoUser": {
     "message": "为用户 $ID$ 取消链接 SSO。",
@@ -4410,7 +4449,7 @@
     "message": "添加用户席位将会调整计费总金额，并立即通过您的付款方式进行扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
   },
   "seatsRemoveNote": {
-    "message": "移除用户席位将会调整计费总金额，这笔费用将按比例返回下一笔账单费用中。"
+    "message": "移除用户席位将会调整计费总金额，这笔调整费用将按比例作为信用额度抵扣您的下一笔账单费用。"
   },
   "adjustedSeats": {
     "message": "调整了 $AMOUNT$ 个用户席位。",
@@ -4709,9 +4748,6 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "设置密码生成器要求。"
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "一个或多个组织策略正在影响您的生成器设置。"
   },
   "masterPasswordPolicyInEffect": {
     "message": "一个或多个组织策略要求您的主密码满足以下要求："
@@ -5144,7 +5180,7 @@
     "message": "添加紧急联系人"
   },
   "designatedEmergencyContacts": {
-    "message": "已指定为紧急联系人"
+    "message": "指定为紧急联系人"
   },
   "noGrantedAccess": {
     "message": "您尚未被任何人指定为紧急联系人。"
@@ -5504,7 +5540,7 @@
     "message": "发送请求"
   },
   "addANote": {
-    "message": "添加备注"
+    "message": "添加笔记"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden 机密管理器"
@@ -6226,7 +6262,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "重新认领免费计划"
+    "message": "重新申领免费计划"
   },
   "redeem": {
     "message": "兑换"
@@ -6681,15 +6717,6 @@
     "message": "生成器",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "您想要生成什么？"
-  },
-  "passwordType": {
-    "message": "密码类型"
-  },
-  "regenerateUsername": {
-    "message": "重新生成用户名"
-  },
   "generateUsername": {
     "message": "生成用户名"
   },
@@ -6730,9 +6757,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "用户名类型"
-  },
   "plusAddressedEmail": {
     "message": "附加地址电子邮箱",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -6747,7 +6771,7 @@
     "message": "使用您的域名配置的 Catch-all 收件箱。"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "使用此电子邮箱"
   },
   "random": {
     "message": "随机",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "主机名",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API 访问令牌"
   },
   "deviceVerification": {
     "message": "设备验证"
@@ -7666,18 +7687,6 @@
   "noCollection": {
     "message": "没有集合"
   },
-  "canView": {
-    "message": "可以查看"
-  },
-  "canViewExceptPass": {
-    "message": "除密码外，可以查看"
-  },
-  "canEdit": {
-    "message": "可以编辑"
-  },
-  "canEditExceptPass": {
-    "message": "除密码外，可以编辑"
-  },
   "noCollectionsAdded": {
     "message": "未添加任何集合"
   },
@@ -8338,7 +8347,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "$TOTAL$ 不足",
+    "message": "总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -8620,13 +8629,13 @@
     "message": "管理组织的集合行为"
   },
   "limitCollectionCreationDesc": {
-    "message": "限制为仅所有者和管理员可以创建集合"
+    "message": "限制为所有者和管理员可以创建集合"
   },
   "limitCollectionDeletionDesc": {
-    "message": "限制为仅所有者和管理员可以删除集合"
+    "message": "限制为所有者和管理员可以删除集合"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "限制为拥有「可以管理」权限的成员可以删除项目"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "所有者和管理员可以管理所有集合和项目"
@@ -8677,9 +8686,6 @@
     "message": "自托管服务器 URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "别名域"
-  },
   "alreadyHaveAccount": {
     "message": "已经拥有账户了吗？"
   },
@@ -8690,7 +8696,7 @@
     "message": "跳转到内容"
   },
   "managePermissionRequired": {
-    "message": "必须至少有一个成员或群组拥有「可以管理」的权限。"
+    "message": "必须至少有一个成员或群组拥有「可以管理」权限。"
   },
   "typePasskey": {
     "message": "通行密钥"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "您没有管理此集合的权限。"
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "缺少「可以管理」权限"
+  "grantManageCollectionWarningTitle": {
+    "message": "缺少「管理集合」权限"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "授予「可以管理」权限以允许完整的集合管理，包括删除集合。"
+  "grantManageCollectionWarning": {
+    "message": "授予「管理集合」权限以允许完整的集合管理，包括删除集合。"
   },
   "grantCollectionAccess": {
     "message": "授予群组或成员对此集合的访问权限。"
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "描述符代码"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "重要通知"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "管理员现在可以删除已声明域名下的成员账户。"
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "此操作将删除成员账户及其密码库中的所有项目。其取代了之前的「移除」操作。"
+  },
+  "deleteManagedUserWarning": {
+    "message": "「删除」是一个新的操作！"
+  },
+  "seatsRemaining": {
+    "message": "该组织已分配 $TOTAL$ 个席位，您还剩余 $REMAINING$ 个席位。请联系提供商管理您的订阅。",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "现有组织"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "选择一个要添加到您的提供商门户的组织。"
+  },
+  "noOrganizations": {
+    "message": "没有可列出的组织"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "您的提供商订阅将获得此组织订阅剩余时间内的信用额度。"
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "您想将该组织添加到 $PROVIDER$ 吗？",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "添加了现有组织"
+  },
+  "assignedExceedsAvailable": {
+    "message": "分配的席位超过可用席位。"
   }
 }

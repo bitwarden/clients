@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Upraviť priečinok"
   },
+  "newFolder": {
+    "message": "Nový priečinok"
+  },
+  "folderName": {
+    "message": "Názov priečinka"
+  },
+  "folderHintText": {
+    "message": "Vnorte priečinok pridaním názvu nadradeného priečinka a znaku \"/\". Príklad: Sociálne siete/Fóra"
+  },
+  "deleteFolderPermanently": {
+    "message": "Naozaj chcete natrvalo odstrániť tento priečinok?"
+  },
   "baseDomain": {
     "message": "Základná doména",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Názov položky"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "napr.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Iniciované prihlásenie"
   },
+  "logInRequestSent": {
+    "message": "Požiadavka bola odoslaná"
+  },
   "submit": {
     "message": "Potvrdiť"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie."
   },
+  "notificationSentDevicePart1": {
+    "message": "Odomknúť Bitwarden vo svojom zariadení alebo vo "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Snažíte sa získať prístup k svojmu účtu?"
+  },
+  "accessAttemptBy": {
+    "message": "Pokus o prístup z $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Potvrďte prístup"
+  },
+  "denyAccess": {
+    "message": "Zamietnuť prístup"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webovej aplikácii"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pred schválením sa uistite, že sa odtlačok prístupovej frázy zhoduje s tou uvedenou nižšie."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Odomknite Bitwarden na vašom zariadení. Pred schválením sa uistite, že sa odtlačok prístupovej frázy zhoduje s tým uvedeným nižšie."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Uistite sa, že je váš účet odomknutý a fráza odtlačku prsta sa zhoduje s frázou na druhom zariadení"
   },
   "versionNumber": {
     "message": "Verzia $VERSION_NUMBER$",
@@ -1664,9 +1697,6 @@
     "message": "Vyhnúť sa zameniteľným znakom",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Vygenerovať nové heslo"
-  },
   "length": {
     "message": "Dĺžka"
   },
@@ -1849,25 +1879,25 @@
     "message": "Ak budete pokračovať, budete tiež odhlásený z vášho súčasného sedenia a budete sa musieť opäť prihlásiť. Tiež budete opäť požiadaný o dvojstupňové prihlásenie ak ho máte zapnuté. Aktívne sedenia na iných zariadeniach môžu ostať aktívne až po dobu jednej hodiny."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "Prihlásenie z nového zariadenia"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "Vypnúť ochranu pri prihlásení z nového zariadenia"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "Zapnúť ochranu pri prihlásení z nového zariadenia"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+    "message": "Ak chcete vypnúť overovacie emaily, ktoré Bitwarden posiela keď sa prihlasujete z nového zariadenia, pokračujte nižšie."
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+    "message": "Ak chcete aby Bitwarden posielal overovacie emaily keď sa prihlasujete z nového zariadenia, pokračujte nižšie."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+    "message": "S vypnutou ochranou pri prihlásení z nového zariadenia môže ktokoľvek, kto pozná vaše hlavne heslo, pristupovať k vášmu účtu z ľubovoľného zariadenia. Ak chcete ochrániť váš účet bez overovacích emailov, nastavte si dvojstupňové overovanie pri prihlasovaní."
   },
   "accountNewDeviceLoginProtectionSaved": {
-    "message": "New device login protection changes saved"
+    "message": "Zmeny v nastavení ochrany prihlasovania z nového zariadenia boli uložené"
   },
   "sessionsDeauthorized": {
     "message": "Všetky sedenia odhlásené"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Spravovať"
   },
-  "canManage": {
-    "message": "Môže spravovať"
+  "manageCollection": {
+    "message": "Spravovať zbierku"
+  },
+  "viewItems": {
+    "message": "Zobraziť položky"
+  },
+  "viewItemsHidePass": {
+    "message": "Zobraziť položky, skryté heslá"
+  },
+  "editItems": {
+    "message": "Upraviť položky"
+  },
+  "editItemsHidePass": {
+    "message": "Upraviť položky, skryté heslá"
   },
   "disable": {
     "message": "Vypnúť"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Problém pri čítaní bezpečnostného kľúča. Skúste to znova."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Vzhľadom na obmedzenia platform, WebAuthn nemôže byť použitý vo všetkých Bitwarden aplikáciách. Mali by ste povoliť inú formu dvojitého overenia, aby ste sa mohli prihlásiť k svojmu účtu ak nie je možné použiť WebAuthn. Podporované platformy:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Webový trezor a rozšírenia prehliadača na pracovnej stanici s prehliadačom podporujúcim WebAuthn (Chrome, Opera, Vivaldi, alebo Firefox so zapnutou podporou FIDO U2F)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Vzhľadom na obmedzenia platforiem, WebAuthn nemôže byť použitý vo všetkých Bitwarden aplikáciách. Mali by ste nastaviť inú formu dvojitého overenia, aby ste sa mohli prihlásiť k svojmu účtu ak nie je možné použiť WebAuthn."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Váš Bitwarden záchranný kód pre dvojstupňové overovanie"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Zvoľte minimálne požiadavky pre nastavenie generátora hesiel."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Jedno alebo viac nastavení organizácie ovplyvňujú vaše nastavenia generátora."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Jedno alebo viac pravidiel organizácie požadujú aby vaše hlavné heslo spĺňalo nasledujúce požiadavky:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Generátor",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Čo by ste chceli vygenerovať?"
-  },
-  "passwordType": {
-    "message": "Typ hesla"
-  },
-  "regenerateUsername": {
-    "message": "Vygenerovať nové používateľské meno"
-  },
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
   },
@@ -6730,9 +6757,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Typ používateľského mena"
-  },
   "plusAddressedEmail": {
     "message": "E-mail s plusovým aliasom",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -6747,7 +6771,7 @@
     "message": "Použiť doručenú poštu typu catch-all nastavenú na doméne."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Použiť tento e-mail"
   },
   "random": {
     "message": "Náhodné",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Názov hostiteľa",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Prístupový token API"
   },
   "deviceVerification": {
     "message": "Overenie zariadenia"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Žiadna zbierka"
-  },
-  "canView": {
-    "message": "Môže zobraziť"
-  },
-  "canViewExceptPass": {
-    "message": "Môže zobraziť okrem hesiel"
-  },
-  "canEdit": {
-    "message": "Môže upraviť"
-  },
-  "canEditExceptPass": {
-    "message": "Môže upravovať okrem hesiel"
   },
   "noCollectionsAdded": {
     "message": "Nebolí pridané žiadne zbierky"
@@ -8626,7 +8635,7 @@
     "message": "Obmedziť vymazávanie zbierky len pre vlastníkov a administrátorov"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "Obmedziť vymazávanie položiek na členov s oprávnením \"Môže spravovať\""
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Vlastníci a správcovia môžu spravovať všetky zbierky a položky"
@@ -8676,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "Adresa URL vlastného hostingu",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Alias doména"
   },
   "alreadyHaveAccount": {
     "message": "Už máte účet?"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Nemáte prístup k spravovaniu tejto zbierky."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Missing Can Manage Permissions"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Povoľte skupinám, alebo jednotlivcom prístup k tejto zbierke."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Kód výpisu"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Dôležité upozornenie"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "Z celkovo $TOTAL$ sedení pridelených tejto organizácii vám zostava $REMAINING$ sedení. Pre správu predplatného kontaktujte vášho poskytovateľa.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existujúca organizácia"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Vyberte organizáciu ktorú chcete pridať do portálu poskytovateľa."
+  },
+  "noOrganizations": {
+    "message": "Neexistujú žiadne organizácie na zobrazenie"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Váš poskytovateľ predplatného obdrží kredit za zostávajúci čas predplatného vašej organizácie."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Chcete pridať tuto organizáciu k $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Existujúca organizácia pridaná"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Počet pridelených sedení presahuje počet dostupných sedení."
   }
 }
