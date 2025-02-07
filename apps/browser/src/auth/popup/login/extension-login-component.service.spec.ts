@@ -12,6 +12,7 @@ import { BrowserPlatformUtilsService } from "../../../platform/services/platform
 import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { ExtensionLoginComponentService } from "./extension-login-component.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 jest.mock("../../../platform/flags", () => ({
   flagEnabled: jest.fn(),
@@ -59,6 +60,29 @@ describe("ExtensionLoginComponentService", () => {
 
   it("creates the service", () => {
     expect(service).toBeTruthy();
+  });
+
+  describe("redirectToSso", () => {
+    it("launches SSO browser window with correct URL", async () => {
+      const email = "test@bitwarden.com";
+      let state = "testState:clientId=browser";
+      const codeVerifier = "testCodeVerifier";
+      const codeChallenge = "testCodeChallenge";
+      const baseUrl = "https://webvault.bitwarden.com/#/sso";
+      const expectedRedirectUri = "https://webvault.bitwarden.com/sso-connector.html";
+
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
+      jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+
+      await service.redirectToSsoLogin(email);
+
+      const expectedUrl = `${baseUrl}?clientId=browser&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
+
+      expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+      expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+      expect(platformUtilsService.launchUri).toHaveBeenCalledWith(expectedUrl);
+    });
   });
 
   describe("showBackButton", () => {
