@@ -42,7 +42,7 @@ describe("DesktopLoginComponentService", () => {
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
 
-  let superLaunchSsoBrowserWindowSpy: jest.SpyInstance;
+  let launchSsoBrowserWindowSpy: jest.SpyInstance;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -89,9 +89,9 @@ describe("DesktopLoginComponentService", () => {
 
     service = TestBed.inject(DesktopLoginComponentService);
 
-    superLaunchSsoBrowserWindowSpy = jest.spyOn(
-      DefaultLoginComponentService.prototype,
-      "launchSsoBrowserWindow",
+    launchSsoBrowserWindowSpy = jest.spyOn(
+      DesktopLoginComponentService.prototype as any,
+      "initiateSsoThroughLocalhostCallback",
     );
   });
 
@@ -137,10 +137,10 @@ describe("DesktopLoginComponentService", () => {
         cryptoFunctionService.hash.mockResolvedValueOnce(codeVerifierHash);
         jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
 
-        await service.launchSsoBrowserWindow(email, clientId);
+        await service.redirectToSsoLogin(email);
 
         if (isAppImage || isSnapStore || isDev) {
-          expect(superLaunchSsoBrowserWindowSpy).not.toHaveBeenCalled();
+          expect(launchSsoBrowserWindowSpy).not.toHaveBeenCalled();
 
           // Assert that the standard logic is executed
           expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
@@ -154,7 +154,7 @@ describe("DesktopLoginComponentService", () => {
           );
         } else {
           // If all values are false, expect the super method to be called
-          expect(superLaunchSsoBrowserWindowSpy).toHaveBeenCalledWith(email, clientId);
+          expect(launchSsoBrowserWindowSpy).toHaveBeenCalledWith(email, clientId);
         }
       });
     });
