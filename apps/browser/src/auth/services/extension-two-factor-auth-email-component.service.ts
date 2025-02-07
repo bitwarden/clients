@@ -28,6 +28,7 @@ export class ExtensionTwoFactorAuthEmailComponentService
       });
       if (confirmed) {
         await openTwoFactorAuthEmailPopout();
+        this.window.close();
       }
     }
   }
