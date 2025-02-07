@@ -76,8 +76,7 @@ async function run(context) {
       );
       if (context.targets.some((e) => e.name === "mas-dev")) {
         deepAssign(masBuildOptions, {
-          identity: "4B9662CAB74E8E4F4ECBDD9EDEF2543659D95E3C",
-          installerIdentity: "C071BB05ED04B3B7E7F34E5C82431BF0AB3276AD",
+        
         });
       }
       if (context.packager.packagerOptions.prepackaged == null) {
