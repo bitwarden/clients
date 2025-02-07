@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { UserId } from "@bitwarden/common/types/guid";
 
 export abstract class SsoLoginServiceAbstraction {
@@ -13,7 +11,7 @@ export abstract class SsoLoginServiceAbstraction {
    * @see https://datatracker.ietf.org/doc/html/rfc7636
    * @returns The code verifier used for SSO.
    */
-  getCodeVerifier: () => Promise<string>;
+  abstract getCodeVerifier: () => Promise<string>;
   /**
    * Sets the code verifier used for SSO.
    *
@@ -23,7 +21,7 @@ export abstract class SsoLoginServiceAbstraction {
    * and verify it matches the one sent in the request for the `authorization_code`.
    * @see https://datatracker.ietf.org/doc/html/rfc7636
    */
-  setCodeVerifier: (codeVerifier: string) => Promise<void>;
+  abstract setCodeVerifier: (codeVerifier: string) => Promise<void>;
   /**
    * Gets the value of the SSO state.
    *
@@ -33,7 +31,7 @@ export abstract class SsoLoginServiceAbstraction {
    * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
    * @returns The SSO state.
    */
-  getSsoState: () => Promise<string>;
+  abstract getSsoState: () => Promise<string>;
   /**
    * Sets the value of the SSO state.
    *
@@ -42,7 +40,7 @@ export abstract class SsoLoginServiceAbstraction {
    * returns the `state` in the callback and the client verifies that the value returned matches the value sent.
    * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
    */
-  setSsoState: (ssoState: string) => Promise<void>;
+  abstract setSsoState: (ssoState: string) => Promise<void>;
   /**
    * Gets the value of the user's organization sso identifier.
    *
@@ -50,20 +48,20 @@ export abstract class SsoLoginServiceAbstraction {
    * Do not use this value outside of the SSO login flow.
    * @returns The user's organization identifier.
    */
-  getOrganizationSsoIdentifier: () => Promise<string>;
+  abstract getOrganizationSsoIdentifier: () => Promise<string>;
   /**
    * Sets the value of the user's organization sso identifier.
    *
    * This should only be used during the SSO flow to identify the organization that the user is attempting to log in to.
    * Do not use this value outside of the SSO login flow.
    */
-  setOrganizationSsoIdentifier: (organizationIdentifier: string) => Promise<void>;
+  abstract setOrganizationSsoIdentifier: (organizationIdentifier: string) => Promise<void>;
   /**
    * Gets the user's email.
    * Note: This should only be used during the SSO flow to identify the user that is attempting to log in.
    * @returns The user's email.
    */
-  getSsoEmail: () => Promise<string>;
+  abstract getSsoEmail: () => Promise<string>;
   /**
    * Sets the user's email.
    * Note: This should only be used during the SSO flow to identify the user that is attempting to log in.
@@ -71,20 +69,20 @@ export abstract class SsoLoginServiceAbstraction {
    * @returns A promise that resolves when the email has been set.
    *
    */
-  setSsoEmail: (email: string) => Promise<void>;
+  abstract setSsoEmail: (email: string) => Promise<void>;
   /**
    * Gets the value of the active user's organization sso identifier.
    *
    * This should only be used post successful SSO login once the user is initialized.
    * @param userId The user id for retrieving the org identifier state.
    */
-  getActiveUserOrganizationSsoIdentifier: (userId: UserId) => Promise<string>;
+  abstract getActiveUserOrganizationSsoIdentifier: (userId: UserId) => Promise<string | null>;
   /**
    * Sets the value of the active user's organization sso identifier.
    *
    * This should only be used post successful SSO login once the user is initialized.
    */
-  setActiveUserOrganizationSsoIdentifier: (
+  abstract setActiveUserOrganizationSsoIdentifier: (
     organizationIdentifier: string,
     userId: UserId | undefined,
   ) => Promise<void>;

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -107,7 +105,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.ssoEmailState.update((_) => email);
   }
 
-  getActiveUserOrganizationSsoIdentifier(userId: UserId): Promise<string> {
+  getActiveUserOrganizationSsoIdentifier(userId: UserId): Promise<string | null> {
     return firstValueFrom(this.userOrgSsoIdentifierState(userId).state$);
   }
 
@@ -116,7 +114,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     userId: UserId | undefined,
   ): Promise<void> {
     if (userId === undefined) {
-      this.logService.warning(
+      this.logService.error(
         "Tried to set a user organization sso identifier with an undefined user id.",
       );
       return;

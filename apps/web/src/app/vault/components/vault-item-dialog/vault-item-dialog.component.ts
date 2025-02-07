@@ -366,6 +366,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       const cipherData = new CipherData(cipherResponse);
       cipher = new Cipher(cipherData);
+
+      // Update organizationUseTotp from server response
+      this.cipher.organizationUseTotp = cipher.organizationUseTotp;
     }
 
     // Store the updated cipher so any following edits use the most up to date cipher
