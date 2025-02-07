@@ -174,6 +174,7 @@ const routes: Routes = [
         pageTitle: {
           key: "verifyIdentity",
         },
+        showBackButton: true,
       } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
     },
   ),
