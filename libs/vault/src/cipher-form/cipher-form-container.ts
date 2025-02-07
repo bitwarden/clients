@@ -52,10 +52,10 @@ export abstract class CipherFormContainer {
   ): void;
 
   /**
-   * Returns the current cipherView
-   * If config.originalCipher is not settled before getCipherView(), it returns null
+   * The website that the component publishes to edit email and username workflows.
+   * Returns `null` when the cipher isn't bound to a website.
    */
-  abstract get getCipherView(): CipherView | null;
+  abstract get website(): string | null;
 
   /**
    * Method to update the cipherView with the new values. This method should be called by the child form components

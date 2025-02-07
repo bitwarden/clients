@@ -45,46 +45,46 @@ describe("CipherFormComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  describe("getCipherView", () => {
+  describe("website", () => {
     it("should return null if updatedCipherView is null", () => {
       component["updatedCipherView"] = null as any;
-      expect(component.getCipherView).toBeNull();
+      expect(component.website).toBeNull();
     });
 
     it("should return null if updatedCipherView.login is undefined", () => {
       component["updatedCipherView"] = new CipherView();
       delete component["updatedCipherView"].login;
-      expect(component.getCipherView).toBeNull();
+      expect(component.website).toBeNull();
     });
 
     it("should return null if updatedCipherView.login is null", () => {
       component["updatedCipherView"] = new CipherView();
       component["updatedCipherView"].login = null as any;
-      expect(component.getCipherView).toBeNull();
+      expect(component.website).toBeNull();
     });
 
     it("should return null if updatedCipherView.login.uris is undefined", () => {
       component["updatedCipherView"] = new CipherView();
       component["updatedCipherView"].login = { uris: undefined } as any;
-      expect(component.getCipherView).toBeNull();
+      expect(component.website).toBeNull();
     });
 
     it("should return null if updatedCipherView.login.uris is null", () => {
       component["updatedCipherView"] = new CipherView();
       component["updatedCipherView"].login = { uris: null } as any;
-      expect(component.getCipherView).toBeNull();
+      expect(component.website).toBeNull();
     });
 
     it("should return null if updatedCipherView.login.uris is an empty array", () => {
       component["updatedCipherView"] = new CipherView();
       component["updatedCipherView"].login = { uris: [] } as any;
-      expect(component.getCipherView).toBeNull();
+      expect(component.website).toBeNull();
     });
 
     it("should return updatedCipherView if login.uris contains at least one URI", () => {
       component["updatedCipherView"] = new CipherView();
       component["updatedCipherView"].login = { uris: [{ uri: "https://example.com" }] } as any;
-      expect(component.getCipherView).toEqual(component["updatedCipherView"]);
+      expect(component.website).toEqual("https://example.com");
     });
   });
 });

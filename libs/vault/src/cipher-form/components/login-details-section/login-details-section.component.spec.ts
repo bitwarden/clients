@@ -51,12 +51,7 @@ describe("LoginDetailsSectionComponent", () => {
     getInitialCipherView.mockClear();
     cipherFormContainer = mock<CipherFormContainer>({
       getInitialCipherView,
-      getCipherView: {
-        login: {
-          uris: [{ uri: "example.com" }],
-          username: "existing-username",
-        },
-      } as CipherView,
+      website: "example.com",
     });
 
     generationService = mock<CipherFormGenerationService>();
