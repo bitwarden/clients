@@ -3,6 +3,7 @@ import { bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs"
 
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -16,9 +17,6 @@ import {
 import { FakeAccountService, mockAccountServiceWith } from "../../common/spec/fake-account-service";
 import { FakeActiveUserState, FakeSingleUserState } from "../../common/spec/fake-state";
 import { FakeStateProvider } from "../../common/spec/fake-state-provider";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { FakeMasterPasswordService } from "../../common/src/auth/services/master-password/fake-master-password.service";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";

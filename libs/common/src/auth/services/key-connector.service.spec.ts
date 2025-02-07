@@ -11,6 +11,7 @@ import { ApiService } from "../../abstractions/api.service";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { Organization } from "../../admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
+import { FakeMasterPasswordService } from "../../key-management/master-password/services/fake-master-password.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -25,7 +26,6 @@ import {
   CONVERT_ACCOUNT_TO_KEY_CONNECTOR,
   KeyConnectorService,
 } from "./key-connector.service";
-import { FakeMasterPasswordService } from "./master-password/fake-master-password.service";
 import { TokenService } from "./token.service";
 
 describe("KeyConnectorService", () => {

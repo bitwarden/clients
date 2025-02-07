@@ -13,6 +13,7 @@ import {
 } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -35,9 +36,6 @@ import { ProfileProviderResponse } from "../../common/src/admin-console/models/r
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { AccountService } from "../../common/src/auth/abstractions/account.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { InternalMasterPasswordServiceAbstraction } from "../../common/src/auth/abstractions/master-password.service.abstraction";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
