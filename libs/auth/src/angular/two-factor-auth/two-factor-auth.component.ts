@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  Inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
@@ -84,6 +92,10 @@ import {
   providers: [],
 })
 export class TwoFactorAuthComponent implements OnInit, OnDestroy {
+  @ViewChild("continueButton", { read: ElementRef, static: false }) continueButton:
+    | ElementRef
+    | undefined = undefined;
+
   loading = true;
 
   orgSsoIdentifier: string | undefined = undefined;
@@ -225,6 +237,12 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       // Token has been passed in so no need to validate the form
       tokenValue = token;
     } else {
+      // We support programmatic submission via enter key press, but we only update on submit
+      // so we have to manually update the form here for the invalid check to be accurate.
+      this.tokenFormControl.markAsTouched();
+      this.tokenFormControl.markAsDirty();
+      this.tokenFormControl.updateValueAndValidity();
+
       // Token has not been passed in ensure form is valid before proceeding.
       if (this.form.invalid) {
         // returning as form validation will show the relevant errors.
@@ -528,14 +546,14 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
 
   async handleEnterKeyPress() {
     // Each 2FA provider has a different implementation.
-    // For example, email 2FA uses a text input for the token which does not automatically submit on enter.
-    // Yubikey, however, uses an input with type 'password' which does automatically submit on enter.
+    // For example, email 2FA uses an input of type "text" for the token which does not automatically submit on enter.
+    // Yubikey, however, uses an input with type "password" which does automatically submit on enter.
     // So we have to handle the enter key press differently for each provider.
-    // make switch for each provider type
     switch (this.selectedProviderType) {
       case TwoFactorProviderType.Authenticator:
       case TwoFactorProviderType.Email:
-        await this.submit();
+        // We must actually submit the form via click in order for the tokenFormControl value to be set.
+        this.continueButton?.nativeElement?.click();
         break;
       case TwoFactorProviderType.Duo:
       case TwoFactorProviderType.OrganizationDuo:
