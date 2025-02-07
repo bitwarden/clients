@@ -87,7 +87,10 @@ export class DefaultTaskService implements TaskService {
    * @param tasks
    * @private
    */
-  private updateTaskState(userId: UserId, tasks: SecurityTaskData[]): Promise<SecurityTaskData[]> {
+  private updateTaskState(
+    userId: UserId,
+    tasks: SecurityTaskData[],
+  ): Promise<SecurityTaskData[] | null> {
     return this.taskState(userId).update(() => tasks);
   }
 }

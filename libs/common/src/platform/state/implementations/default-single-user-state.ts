@@ -16,7 +16,7 @@ export class DefaultSingleUserState<T>
   extends StateBase<T, UserKeyDefinition<T>>
   implements SingleUserState<T>
 {
-  readonly combinedState$: Observable<CombinedState<T>>;
+  readonly combinedState$: Observable<CombinedState<T | null>>;
 
   constructor(
     readonly userId: UserId,
