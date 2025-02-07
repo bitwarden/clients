@@ -91,6 +91,7 @@ export class SsoComponent implements OnInit {
   protected codeChallenge: string | undefined;
   protected clientId: SsoClientType | undefined;
   protected activeUserId: UserId | undefined;
+  protected email: string;
 
   formPromise: Promise<AuthResult> | undefined;
   initiateSsoFormPromise: Promise<SsoPreValidateResponse> | undefined;
@@ -136,6 +137,13 @@ export class SsoComponent implements OnInit {
 
     const qParams: QueryParams = await firstValueFrom(this.route.queryParams);
 
+    // SSO on web uses a service to provide the email via state that's set on login,
+    // but because we have clients that delegate SSO to web we have to accept the email in the query params as well
+    this.email = qParams.email ?? (await this.ssoLoginService.getSsoEmail());
+    if (!this.email) {
+      throw new Error("Email is required for SSO authentication");
+    }
+
     // This if statement will pass on the second portion of the SSO flow
     // where the user has already authenticated with the identity provider
     if (this.hasCodeOrStateParams(qParams)) {
@@ -157,7 +165,7 @@ export class SsoComponent implements OnInit {
       return;
     }
 
-    await this.initializeIdentifierFromEmailOrStorage(qParams);
+    await this.initializeIdentifierFromEmailOrStorage();
   }
 
   /**
@@ -364,14 +372,13 @@ export class SsoComponent implements OnInit {
   private async logIn(code: string, codeVerifier: string, orgSsoIdentifier: string): Promise<void> {
     this.loggingIn = true;
     try {
-      const email = await this.ssoLoginService.getSsoEmail();
       const redirectUri = this.redirectUri ?? "";
       const credentials = new SsoLoginCredentials(
         code,
         codeVerifier,
         redirectUri,
         orgSsoIdentifier,
-        email,
+        this.email,
       );
       this.formPromise = this.loginStrategyService.logIn(credentials);
       const authResult = await this.formPromise;
@@ -545,39 +552,36 @@ export class SsoComponent implements OnInit {
    * Attempts to initialize the SSO identifier from email or storage.
    * Note: this flow is written for web but both browser and desktop
    * redirect here on SSO button click.
-   * @param qParams - The query params
    */
-  private async initializeIdentifierFromEmailOrStorage(qParams: QueryParams): Promise<void> {
-    // Check if email matches any claimed domains
-    if (qParams.email) {
-      // show loading spinner
-      this.loggingIn = true;
-      try {
-        if (await this.configService.getFeatureFlag(FeatureFlag.VerifiedSsoDomainEndpoint)) {
-          const response: ListResponse<VerifiedOrganizationDomainSsoDetailsResponse> =
-            await this.orgDomainApiService.getVerifiedOrgDomainsByEmail(qParams.email);
+  private async initializeIdentifierFromEmailOrStorage(): Promise<void> {
+    // show loading spinner
+    this.loggingIn = true;
+    try {
+      // Check if email matches any claimed domains
+      if (await this.configService.getFeatureFlag(FeatureFlag.VerifiedSsoDomainEndpoint)) {
+        const response: ListResponse<VerifiedOrganizationDomainSsoDetailsResponse> =
+          await this.orgDomainApiService.getVerifiedOrgDomainsByEmail(this.email);
 
-          if (response.data.length > 0) {
-            this.identifierFormControl.setValue(response.data[0].organizationIdentifier);
-            await this.submit();
-            return;
-          }
-        } else {
-          const response: OrganizationDomainSsoDetailsResponse =
-            await this.orgDomainApiService.getClaimedOrgDomainByEmail(qParams.email);
-
-          if (response?.ssoAvailable && response?.verifiedDate) {
-            this.identifierFormControl.setValue(response.organizationIdentifier);
-            await this.submit();
-            return;
-          }
+        if (response.data.length > 0) {
+          this.identifierFormControl.setValue(response.data[0].organizationIdentifier);
+          await this.submit();
+          return;
         }
-      } catch (error) {
-        this.handleGetClaimedDomainByEmailError(error);
-      }
+      } else {
+        const response: OrganizationDomainSsoDetailsResponse =
+          await this.orgDomainApiService.getClaimedOrgDomainByEmail(this.email);
 
-      this.loggingIn = false;
+        if (response?.ssoAvailable && response?.verifiedDate) {
+          this.identifierFormControl.setValue(response.organizationIdentifier);
+          await this.submit();
+          return;
+        }
+      }
+    } catch (error) {
+      this.handleGetClaimedDomainByEmailError(error);
     }
+
+    this.loggingIn = false;
 
     // Fallback to state svc if domain is unclaimed
     const storedIdentifier = await this.ssoLoginService.getOrganizationSsoIdentifier();

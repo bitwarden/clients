@@ -10,6 +10,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
+import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class ExtensionLoginComponentService
@@ -32,6 +33,31 @@ export class ExtensionLoginComponentService
       ssoLoginService,
     );
     this.clientType = this.platformUtilsService.getClientType();
+  }
+
+  protected override async redirectToSso(
+    email: string,
+    state: string,
+    codeChallenge: string,
+  ): Promise<void> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webVaultUrl = env.getWebVaultUrl();
+
+    const redirectUri = webVaultUrl + "/sso-connector.html";
+
+    this.platformUtilsService.launchUri(
+      webVaultUrl +
+        "/#/sso?clientId=" +
+        this.clientType +
+        "&redirectUri=" +
+        encodeURIComponent(redirectUri) +
+        "&state=" +
+        state +
+        "&codeChallenge=" +
+        codeChallenge +
+        "&email=" +
+        encodeURIComponent(email),
+    );
   }
 
   showBackButton(showBackButton: boolean): void {

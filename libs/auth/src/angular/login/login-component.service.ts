@@ -31,15 +31,9 @@ export abstract class LoginComponentService {
   isLoginWithPasskeySupported: () => boolean;
 
   /**
-   * Sets the email state for SSO, so that the email can be used post-authentication
+   * Redirects the user to the SSO login page, either via route or in a new browser window.
    */
-  setSsoEmail: (email: string) => Promise<void>;
-
-  /**
-   * Launches the SSO flow in a new browser window.
-   * - Used by: Browser, Desktop
-   */
-  launchSsoBrowserWindow: (email: string, clientId: "browser" | "desktop") => Promise<void>;
+  redirectToSsoLogin: (email: string) => Promise<void | null>;
 
   /**
    * Shows the back button.

@@ -1,7 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
-
 import { LoginComponentService, PasswordPolicies } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
@@ -31,14 +29,45 @@ export class DefaultLoginComponentService implements LoginComponentService {
     return this.clientType === ClientType.Web;
   }
 
-  async setSsoEmail(email: string): Promise<void> {
+  /**
+   * Redirects the user to the SSO login page, either via route or in a new browser window.
+   * @param email The email address of the user attempting to log in
+   */
+  async redirectToSsoLogin(email: string): Promise<void | null> {
+    // Since we're using SSO, we want to also save the email the user has entered.
+    // This will be used to build the authentication request and ensure that we find the right 2FA remember token.
+    // We set this in state on the web client, but for other clients we pass it in the query parameter.
     await this.ssoLoginService.setSsoEmail(email);
+
+    // Then, we set the state that we'll need to verify the SSO login when we get the code back
+    const [state, codeChallenge] = await this.setSsoPreLoginState();
+
+    // Finally, we redirect to the SSO login page. This will be handled by each client implementation of this service.
+    await this.redirectToSso(email, state, codeChallenge);
   }
 
-  async launchSsoBrowserWindow(
+  /**
+   * No-op implementation of redirectToSso
+   */
+  protected async redirectToSso(
     email: string,
-    clientId: "browser" | "desktop",
-  ): Promise<void | null> {
+    state: string,
+    codeChallenge: string,
+  ): Promise<void> {
+    return;
+  }
+
+  /**
+   * No-op implementation of showBackButton
+   */
+  showBackButton(showBackButton: boolean): void {
+    return;
+  }
+
+  /**
+   * Sets the state required for verifying SSO login after completion
+   */
+  private async setSsoPreLoginState(): Promise<[string, string]> {
     // Generate SSO params
     const passwordOptions: any = {
       type: "password",
@@ -51,7 +80,7 @@ export class DefaultLoginComponentService implements LoginComponentService {
 
     let state = await this.passwordGenerationService.generatePassword(passwordOptions);
 
-    if (clientId === "browser") {
+    if (this.clientType === ClientType.Browser) {
       // Need to persist the clientId in the state for the extension
       state += ":clientId=browser";
     }
@@ -64,35 +93,6 @@ export class DefaultLoginComponentService implements LoginComponentService {
     await this.ssoLoginService.setSsoState(state);
     await this.ssoLoginService.setCodeVerifier(codeVerifier);
 
-    // Build URL
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const webVaultUrl = env.getWebVaultUrl();
-
-    const redirectUri =
-      clientId === "browser"
-        ? webVaultUrl + "/sso-connector.html" // Browser
-        : "bitwarden://sso-callback"; // Desktop
-
-    // Launch browser window with URL
-    this.platformUtilsService.launchUri(
-      webVaultUrl +
-        "/#/sso?clientId=" +
-        clientId +
-        "&redirectUri=" +
-        encodeURIComponent(redirectUri) +
-        "&state=" +
-        state +
-        "&codeChallenge=" +
-        codeChallenge +
-        "&email=" +
-        encodeURIComponent(email),
-    );
-  }
-
-  /**
-   * No-op implementation of showBackButton
-   */
-  showBackButton(showBackButton: boolean): void {
-    return;
+    return [state, codeChallenge];
   }
 }

@@ -20,6 +20,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 
 import { RouterService } from "../../../../core/router.service";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
+import { Router } from "@angular/router";
 
 @Injectable()
 export class WebLoginComponentService
@@ -37,6 +38,7 @@ export class WebLoginComponentService
     passwordGenerationService: PasswordGenerationServiceAbstraction,
     platformUtilsService: PlatformUtilsService,
     ssoLoginService: SsoLoginServiceAbstraction,
+    private router: Router,
   ) {
     super(
       cryptoFunctionService,
@@ -46,6 +48,17 @@ export class WebLoginComponentService
       ssoLoginService,
     );
     this.clientType = this.platformUtilsService.getClientType();
+  }
+
+  protected override async redirectToSso(
+    email: string,
+    state: string,
+    codeChallenge: string,
+  ): Promise<void> {
+    await this.router.navigate(["/sso"], {
+      queryParams: { email: email },
+    });
+    return;
   }
 
   async getOrgPolicies(): Promise<PasswordPolicies | null> {

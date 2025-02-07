@@ -301,15 +301,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
-    const email = this.emailFormControl.value;
-    if (!email) {
-      this.logService.error("Email is required for SSO login");
-      return;
-    }
-    await this.loginComponentService.launchSsoBrowserWindow(email, clientId);
-  }
-
   protected async evaluatePassword(): Promise<void> {
     try {
       // If we do not have any saved policies, attempt to load them from the service
@@ -639,19 +630,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // Save the email configuration for the login component
     await this.saveEmailSettings();
-    // Since we're using SSO, we want to also save the email the user has entered.
-    // This will be used to build the authentication request and ensure that we find the right 2FA remember token.
-    await this.loginComponentService.setSsoEmail(this.formGroup.value.email);
 
-    if (this.clientType === ClientType.Web) {
-      await this.router.navigate(["/sso"], {
-        queryParams: { email: this.formGroup.value.email },
-      });
-      return;
-    }
-
-    await this.launchSsoBrowserWindow(
-      this.clientType === ClientType.Browser ? "browser" : "desktop",
-    );
+    await this.loginComponentService.redirectToSsoLogin(this.clientType);
   }
 }
