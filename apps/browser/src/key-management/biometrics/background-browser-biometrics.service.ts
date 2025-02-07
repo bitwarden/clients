@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 
+import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -25,6 +26,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private keyService: KeyService,
     private biometricStateService: BiometricStateService,
     private messagingService: MessagingService,
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
   ) {
     super();
   }
@@ -170,6 +172,13 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async setShouldAutopromptNow(value: boolean): Promise<void> {}
   async canEnableBiometricUnlock(): Promise<boolean> {
-    return true;
+    const status = await this.getBiometricsStatus();
+    const isBiometricsAlreadyEnabled = await this.vaultTimeoutSettingsService.isBiometricLockSet();
+    const statusAllowsBiometric =
+      status !== BiometricsStatus.DesktopDisconnected &&
+      status !== BiometricsStatus.NotEnabledInConnectedDesktopApp &&
+      status !== BiometricsStatus.HardwareUnavailable;
+
+    return statusAllowsBiometric || isBiometricsAlreadyEnabled;
   }
 }

@@ -1,4 +1,3 @@
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -10,10 +9,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 export class ForegroundBrowserBiometricsService extends BiometricsService {
   shouldAutopromptNow = true;
 
-  constructor(
-    private platformUtilsService: PlatformUtilsService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-  ) {
+  constructor(private platformUtilsService: PlatformUtilsService) {
     super();
   }
 
@@ -63,16 +59,17 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
   }
 
   async canEnableBiometricUnlock(): Promise<boolean> {
-    const status = await this.getBiometricsStatus();
     const needsPermissionPrompt =
       !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
       !this.platformUtilsService.isSafari();
-    const isBiometricsAlreadyEnabled = await this.vaultTimeoutSettingsService.isBiometricLockSet();
-    const statusAllowsBiometric =
-      status !== BiometricsStatus.DesktopDisconnected &&
-      status !== BiometricsStatus.NotEnabledInConnectedDesktopApp &&
-      status !== BiometricsStatus.HardwareUnavailable;
-
-    return needsPermissionPrompt || statusAllowsBiometric || isBiometricsAlreadyEnabled;
+    return (
+      needsPermissionPrompt ||
+      (
+        await BrowserApi.sendMessageWithResponse<{
+          result: boolean;
+          error: string;
+        }>(BiometricsCommands.CanEnableBiometricUnlock)
+      ).result
+    );
   }
 }
