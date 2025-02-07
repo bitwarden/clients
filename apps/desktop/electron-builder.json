@@ -135,6 +135,7 @@
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
     "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile",
+    "identity": "4B9662CAB74E8E4F4ECBDD9EDEF2543659D95E3C",
     "hardenedRuntime": true,
     "extendInfo": {
       "LSMinimumSystemVersion": "12",
