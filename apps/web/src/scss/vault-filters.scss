@@ -147,62 +147,37 @@
   }
 }
 
-.groupings {
-  .card {
-    #search {
-      margin-bottom: 1rem;
+.filter {
+  ul:last-child {
+    margin-bottom: 0;
+  }
+
+  a {
+    @include themify($themes) {
+      color: themed("textHeadingColor");
+    }
+  }
+  .show-active {
+    display: none;
+  }
+  li.active {
+    > .show-active,
+    > div .show-active {
+      display: inline;
+    }
+  }
+  li.active {
+    > button:first-of-type,
+    > div button:first-of-type {
       @include themify($themes) {
-        background-color: themed("inputBackgroundColor");
-        border-color: themed("inputBorderColor");
-        color: themed("inputTextColor");
-      }
-
-      &::placeholder {
-        @include themify($themes) {
-          color: themed("inputPlaceholderColor");
-        }
+        color: themed("linkColor");
       }
     }
 
-    h3 {
-      font-weight: normal;
+    > .bwi,
+    > div > .bwi {
       @include themify($themes) {
-        color: themed("textMuted");
-      }
-    }
-
-    ul:last-child {
-      margin-bottom: 0;
-    }
-
-    .card-body a {
-      @include themify($themes) {
-        color: themed("textHeadingColor");
-        font-weight: themed("linkWeight");
-      }
-    }
-    .show-active {
-      display: none;
-    }
-    li.active {
-      > .show-active,
-      > div .show-active {
-        display: inline;
-      }
-    }
-    li.active {
-      > button:first-of-type,
-      > div button:first-of-type {
-        @include themify($themes) {
-          color: themed("linkColor");
-        }
-      }
-
-      > .bwi,
-      > div > .bwi {
-        @include themify($themes) {
-          color: themed("linkColor");
-        }
+        color: themed("linkColor");
       }
     }
   }
