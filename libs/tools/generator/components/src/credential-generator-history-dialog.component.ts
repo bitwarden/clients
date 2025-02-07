@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -33,7 +32,6 @@ export class CredentialGeneratorHistoryDialogComponent implements OnChanges {
     private accountService: AccountService,
     private history: GeneratorHistoryService,
     private dialogService: DialogService,
-    private dialogRef: DialogRef,
   ) {
     this.account$
       .pipe(
@@ -56,11 +54,6 @@ export class CredentialGeneratorHistoryDialogComponent implements OnChanges {
       const account = await firstValueFrom(this.accountService.activeAccount$);
       this.account$.next(account);
     }
-  }
-
-  /** closes the dialog */
-  protected close() {
-    this.dialogRef.close();
   }
 
   /** Launches clear history flow */

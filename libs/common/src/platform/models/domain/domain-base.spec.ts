@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { makeEncString, makeSymmetricCryptoKey } from "../../../../spec";
-import { EncryptService } from "../../abstractions/encrypt.service";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "../../misc/utils";
 
 import Domain from "./domain-base";

@@ -9,10 +9,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ColorPasswordModule, ItemModule } from "@bitwarden/components";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { ColorPasswordComponent } from "@bitwarden/components/src/color-password/color-password.component";
+import { ColorPasswordComponent, ColorPasswordModule, ItemModule } from "@bitwarden/components";
 
 import { PasswordHistoryViewComponent } from "./password-history-view.component";
 
