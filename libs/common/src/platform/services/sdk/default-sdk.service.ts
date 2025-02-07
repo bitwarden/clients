@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   combineLatest,
   concatMap,
@@ -10,6 +8,10 @@ import {
   tap,
   switchMap,
   catchError,
+  BehaviorSubject,
+  of,
+  takeWhile,
+  throwIfEmpty,
 } from "rxjs";
 
 import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
@@ -28,12 +30,19 @@ import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
-import { SdkService } from "../../abstractions/sdk/sdk.service";
+import { SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
 
+// A symbol that represents an overriden client that is explicitly set to undefined,
+// blocking the creation of an internal client for that user.
+const UnsetClient = Symbol("UnsetClient");
+
 export class DefaultSdkService implements SdkService {
+  private sdkClientOverrides = new BehaviorSubject<{
+    [userId: UserId]: Rc<BitwardenClient> | typeof UnsetClient;
+  }>({});
   private sdkClientCache = new Map<UserId, Observable<Rc<BitwardenClient>>>();
 
   client$ = this.environmentService.environment$.pipe(
@@ -60,6 +69,47 @@ export class DefaultSdkService implements SdkService {
   ) {}
 
   userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
+    return this.sdkClientOverrides.pipe(
+      takeWhile((clients) => clients[userId] !== UnsetClient, false),
+      map((clients) => {
+        if (clients[userId] === UnsetClient) {
+          throw new Error("Encountered UnsetClient even though it should have been filtered out");
+        }
+        return clients[userId];
+      }),
+      distinctUntilChanged(),
+      switchMap((clientOverride) => {
+        if (clientOverride) {
+          return of(clientOverride);
+        }
+
+        return this.internalClient$(userId);
+      }),
+      throwIfEmpty(() => new UserNotLoggedInError(userId)),
+    );
+  }
+
+  setClient(userId: UserId, client: BitwardenClient | undefined) {
+    const previousValue = this.sdkClientOverrides.value[userId];
+
+    this.sdkClientOverrides.next({
+      ...this.sdkClientOverrides.value,
+      [userId]: client ? new Rc(client) : UnsetClient,
+    });
+
+    if (previousValue !== UnsetClient && previousValue !== undefined) {
+      previousValue.markForDisposal();
+    }
+  }
+
+  /**
+   * This method is used to create a client for a specific user by using the existing state of the application.
+   * This methods is a fallback for when no client has been provided by Auth. As Auth starts implementing the
+   * client creation, this method will be deprecated.
+   * @param userId The user id for which to create the client
+   * @returns An observable that emits the client for the user
+   */
+  private internalClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
     // TODO: Figure out what happens when the user logs out
     if (this.sdkClientCache.has(userId)) {
       return this.sdkClientCache.get(userId);
@@ -107,6 +157,7 @@ export class DefaultSdkService implements SdkService {
           createAndInitializeClient()
             .then((c) => {
               client = c === undefined ? undefined : new Rc(c);
+
               subscriber.next(client);
             })
             .catch((e) => {
