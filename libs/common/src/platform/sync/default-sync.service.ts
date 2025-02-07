@@ -131,7 +131,6 @@ export class DefaultSyncService extends CoreSyncService {
     }
 
     try {
-      await this.apiService.refreshIdentityToken();
       const response = await this.apiService.getSync();
 
       await this.syncProfile(response.profile);
