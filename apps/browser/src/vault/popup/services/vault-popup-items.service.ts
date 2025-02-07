@@ -177,6 +177,8 @@ export class VaultPopupItemsService {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
+  hasMarked = false;
+
   /**
    * List of all remaining ciphers that are not currently suggested for autofill or marked as favorite.
    * Ciphers are sorted by name.
@@ -193,6 +195,18 @@ export class VaultPopupItemsService {
         (cipher) => !autoFillCiphers.includes(cipher) && !favoriteCiphers.includes(cipher),
       ),
     ),
+    tap((ciphers) => {
+      if (ciphers.length === 0 || this.hasMarked) {
+        return;
+      }
+
+      if (!this.hasMarked) {
+        this.hasMarked = true;
+      }
+
+      performance.mark("vault-v2-ciphers-available");
+      console.log("Ciphers available", ciphers);
+    }),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
