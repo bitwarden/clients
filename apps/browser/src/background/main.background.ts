@@ -647,9 +647,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.keyGenerationService,
       this.logService,
-      this.masterPasswordService,
       this.stateProvider,
-      this.stateService,
     );
 
     this.keyService = new DefaultKeyService(

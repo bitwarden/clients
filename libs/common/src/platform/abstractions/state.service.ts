@@ -54,10 +54,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use getUserKeyMasterKey instead
    */
   getEncryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<string>;
-  /**
-   * @deprecated For migration purposes only, use setUserKeyAuto instead
-   */
-  setCryptoMasterKeyAuto: (value: string, options?: StorageOptions) => Promise<void>;
   getDuckDuckGoSharedKey: (options?: StorageOptions) => Promise<string>;
   setDuckDuckGoSharedKey: (value: string, options?: StorageOptions) => Promise<void>;
 
