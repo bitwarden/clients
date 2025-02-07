@@ -42,8 +42,14 @@ export abstract class TwoFactorAuthComponentService {
   abstract determineLegacyKeyMigrationAction(): LegacyKeyMigrationAction;
 
   /**
-   * Optionally executes 2FA success logic.
-   * Only defined on clients that require custom success handling.
+   * Optionally closes any single action popouts (extension only).
+   * @returns true if we are in a single action popout and it was closed, false otherwise.
    */
-  abstract handle2faSuccess?(): Promise<void>;
+  abstract closeSingleActionPopouts?(): Promise<boolean>;
+
+  /**
+   * Optionally refreshes any open windows (exempts current window).
+   * Only defined on the extension client for the goal of refreshing sidebars.
+   */
+  abstract reloadOpenWindows?(): void;
 }

@@ -401,10 +401,13 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       return await this.handleChangePasswordRequired(this.orgSsoIdentifier);
     }
 
-    // if we have a custom success handler, call it
-    if (this.twoFactorAuthComponentService.handle2faSuccess !== undefined) {
-      // TODO: this doesn't work for extension 2FA flows that don't use the popout.
-      await this.twoFactorAuthComponentService.handle2faSuccess();
+    this.twoFactorAuthComponentService.reloadOpenWindows?.();
+
+    const inSingleActionPopoutWhichWasClosed =
+      await this.twoFactorAuthComponentService.closeSingleActionPopouts?.();
+
+    if (inSingleActionPopoutWhichWasClosed) {
+      // No need to execute navigation as the single action popout was closed
       return;
     }
 
@@ -458,8 +461,13 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       );
     }
 
-    if (this.twoFactorAuthComponentService.handle2faSuccess !== undefined) {
-      await this.twoFactorAuthComponentService.handle2faSuccess();
+    this.twoFactorAuthComponentService.reloadOpenWindows?.();
+
+    const inSingleActionPopoutWhichWasClosed =
+      await this.twoFactorAuthComponentService.closeSingleActionPopouts?.();
+
+    if (inSingleActionPopoutWhichWasClosed) {
+      // No need to execute navigation as the single action popout was closed
       return;
     }
 

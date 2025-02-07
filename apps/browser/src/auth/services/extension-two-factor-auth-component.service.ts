@@ -38,16 +38,14 @@ export class ExtensionTwoFactorAuthComponentService
     document.body.classList.remove("linux-webauthn");
   }
 
-  async handle2faSuccess(): Promise<void> {
+  reloadOpenWindows(): void {
     // Force sidebars (FF && Opera) to reload while exempting current window
     // because we are just going to close the current window if it is in a popout
     // or navigate forward if it is in the popup
     BrowserApi.reloadOpenWindows(true);
-
-    await this.closeSingleActionPopouts();
   }
 
-  private async closeSingleActionPopouts(): Promise<void> {
+  async closeSingleActionPopouts(): Promise<boolean> {
     // If we are in a single action popout, we don't need the popout anymore because the intent
     // is for the user to be left on the web vault screen which tells them to continue in
     // the browser extension (sidebar or popup).  We don't want the user to be left with a
@@ -60,7 +58,7 @@ export class ExtensionTwoFactorAuthComponentService
     );
     if (inSsoAuthResultPopout) {
       await closeSsoAuthResultPopout();
-      return;
+      return true;
     }
 
     const inTwoFactorAuthWebAuthnPopout = BrowserPopupUtils.inSingleActionPopout(
@@ -70,7 +68,7 @@ export class ExtensionTwoFactorAuthComponentService
 
     if (inTwoFactorAuthWebAuthnPopout) {
       await closeTwoFactorAuthWebAuthnPopout();
-      return;
+      return true;
     }
 
     const inTwoFactorAuthEmailPopout = BrowserPopupUtils.inSingleActionPopout(
@@ -80,8 +78,10 @@ export class ExtensionTwoFactorAuthComponentService
 
     if (inTwoFactorAuthEmailPopout) {
       await closeTwoFactorAuthEmailPopout();
-      return;
+      return true;
     }
+
+    return false;
   }
 
   private async isLinux(): Promise<boolean> {
