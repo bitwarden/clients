@@ -83,7 +83,6 @@
         *ngFor="let r of rows$ | async; trackBy: trackByFunction"
         [ngClass]="{ 'tw-bg-primary-100': dataService.drawerInvokerId === r.applicationName }"
       >
-        >
         <td>
           <i class="bwi bwi-star-f" *ngIf="r.isMarkedAsCritical"></i>
         </td>
