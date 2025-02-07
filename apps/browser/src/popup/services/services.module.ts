@@ -95,6 +95,10 @@ import {
 // eslint-disable-next-line import/no-restricted-paths -- Used for dependency injection
 import { InlineDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/inline-derived-state";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
+import {
+  SecureStorageService,
+  UnsupportedSecureStorageService,
+} from "@bitwarden/common/platform/storage/secure-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -602,6 +606,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginDecryptionOptionsService,
     useClass: ExtensionLoginDecryptionOptionsService,
     deps: [MessagingServiceAbstraction, Router],
+  }),
+  safeProvider({
+    provide: SecureStorageService,
+    useFactory: () => new UnsupportedSecureStorageService("no-browser-api"),
+    deps: [],
   }),
 ];
 
