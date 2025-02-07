@@ -290,7 +290,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     const taxInfo = await this.organizationApiService.getTaxInfo(this.organizationId);
     this.taxInformation = TaxInformation.from(taxInfo);
 
-    this.refreshSalesTax();
+    if (!this.isSubscriptionCanceled) {
+      this.refreshSalesTax();
+    }
   }
 
   resolveHeaderName(subscription: OrganizationSubscriptionResponse): string {
