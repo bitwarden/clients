@@ -631,6 +631,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Save the email configuration for the login component
     await this.saveEmailSettings();
 
-    await this.loginComponentService.redirectToSsoLogin(this.clientType);
+    await this.loginComponentService.redirectToSsoLogin(this.emailFormControl.value);
   }
 }

@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -20,7 +21,6 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 
 import { RouterService } from "../../../../core/router.service";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
-import { Router } from "@angular/router";
 
 @Injectable()
 export class WebLoginComponentService
@@ -55,9 +55,7 @@ export class WebLoginComponentService
     state: string,
     codeChallenge: string,
   ): Promise<void> {
-    await this.router.navigate(["/sso"], {
-      queryParams: { email: email },
-    });
+    await this.router.navigate(["/sso"]);
     return;
   }
 
