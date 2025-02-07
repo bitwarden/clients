@@ -73,6 +73,7 @@ export class CipherExport {
         break;
       case CipherType.SshKey:
         view.sshKey = SshKeyExport.toView(req.sshKey);
+        break;
     }
 
     if (req.passwordHistory != null) {
