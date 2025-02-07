@@ -2,7 +2,17 @@
 // @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import {
   BehaviorSubject,
@@ -11,6 +21,7 @@ import {
   combineLatestWith,
   distinctUntilChanged,
   filter,
+  firstValueFrom,
   map,
   ReplaySubject,
   Subject,
@@ -19,11 +30,10 @@ import {
   withLatestFrom,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { IntegrationId } from "@bitwarden/common/tools/integration";
-import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService, Option } from "@bitwarden/components";
 import {
   AlgorithmInfo,
@@ -51,7 +61,7 @@ const NONE_SELECTED = "none";
   selector: "tools-username-generator",
   templateUrl: "username-generator.component.html",
 })
-export class UsernameGeneratorComponent implements OnInit, OnDestroy {
+export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the username generator
    *  @param generatorService generates credentials; stores preferences
    *  @param i18nService localizes generator algorithm descriptions
@@ -75,7 +85,18 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
    * the form binds to the active user
    */
   @Input()
-  userId: UserId | null;
+  account: Account | null;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ("account" in changes && changes.account) {
+      this.account$.next(this.account);
+    } else if (!changes.account) {
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      this.account$.next(account);
+    }
+  }
 
   /** Emits credentials created from a generation request. */
   @Output()
@@ -98,20 +119,8 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
   });
 
   async ngOnInit() {
-    if (this.userId) {
-      this.userId$.next(this.userId);
-    } else {
-      this.accountService.activeAccount$
-        .pipe(
-          map((acct) => acct.id),
-          distinctUntilChanged(),
-          takeUntil(this.destroyed),
-        )
-        .subscribe(this.userId$);
-    }
-
     this.generatorService
-      .algorithms$(["email", "username"], { userId$: this.userId$ })
+      .algorithms$(["email", "username"], { account$: this.account$ })
       .pipe(
         map((algorithms) => {
           const usernames = algorithms.filter((a) => !isForwarderIntegration(a.id));
@@ -163,12 +172,12 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$, this.algorithm$),
+        withLatestFrom(this.account$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId, algorithm]) => {
+      .subscribe(([generated, account, algorithm]) => {
         this.generatorHistoryService
-          .track(userId, generated.credential, generated.category, generated.generationDate)
+          .track(account.id, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
             this.logService.error(e);
           });
@@ -263,7 +272,7 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
       });
 
     // assume the last-visible generator algorithm is the user's preferred one
-    const preferences = await this.generatorService.preferences({ singleUserId$: this.userId$ });
+    const preferences = await this.generatorService.preferences({ account$: this.account$ });
     this.algorithm$
       .pipe(
         filter((algorithm) => !!algorithm),
@@ -344,7 +353,7 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
   private typeToGenerator$(type: CredentialAlgorithm) {
     const dependencies = {
       on$: this.generate$,
-      userId$: this.userId$,
+      account$: this.account$,
     };
 
     switch (type) {
@@ -391,9 +400,6 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
 
   /** Emits the last generated value. */
   protected readonly value$ = new BehaviorSubject<string>("");
-
-  /** Emits when the userId changes */
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
 
   /** Emits when a new credential is requested */
   private readonly generate$ = new Subject<GenerateRequest>();

@@ -2,6 +2,7 @@
  * include structuredClone in test environment.
  * @jest-environment ../../../../shared/test.environment.ts
  */
+// @ts-strict-ignore this file explicitly tests what happens when types are ignored
 import { of, firstValueFrom, Subject, tap, EmptyError } from "rxjs";
 
 import { awaitAsync, trackEmissions } from "../../spec";
@@ -14,6 +15,7 @@ import {
   ready,
   reduceCollection,
   withLatestReady,
+  pin,
 } from "./rx";
 
 describe("errorOnChange", () => {
@@ -673,5 +675,74 @@ describe("on", () => {
     watch$.error(expected);
 
     expect(error).toEqual(expected);
+  });
+});
+
+describe("pin", () => {
+  it("emits the first value", async () => {
+    const input = new Subject<unknown>();
+    const result: unknown[] = [];
+
+    input.pipe(pin()).subscribe((v) => result.push(v));
+    input.next(1);
+
+    expect(result).toEqual([1]);
+  });
+
+  it("filters repeated emissions", async () => {
+    const input = new Subject<unknown>();
+    const result: unknown[] = [];
+
+    input.pipe(pin({ distinct: (p, c) => p == c })).subscribe((v) => result.push(v));
+    input.next(1);
+    input.next(1);
+
+    expect(result).toEqual([1]);
+  });
+
+  it("errors if multiple emissions occur", async () => {
+    const input = new Subject<unknown>();
+    let error: any = null!;
+
+    input.pipe(pin()).subscribe({
+      error: (e: unknown) => {
+        error = e;
+      },
+    });
+    input.next(1);
+    input.next(1);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toMatch(/^unknown/);
+  });
+
+  it("names the pinned observables if multiple emissions occur", async () => {
+    const input = new Subject<unknown>();
+    let error: any = null!;
+
+    input.pipe(pin({ name: () => "example" })).subscribe({
+      error: (e: unknown) => {
+        error = e;
+      },
+    });
+    input.next(1);
+    input.next(1);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toMatch(/^example/);
+  });
+
+  it("errors if indistinct emissions occur", async () => {
+    const input = new Subject<unknown>();
+    let error: any = null!;
+
+    input
+      .pipe(pin({ distinct: (p, c) => p == c }))
+      .subscribe({ error: (e: unknown) => (error = e) });
+    input.next(1);
+    input.next(2);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toMatch(/^unknown/);
   });
 });

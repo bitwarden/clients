@@ -1,7 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import {
   BehaviorSubject,
@@ -10,6 +20,7 @@ import {
   combineLatestWith,
   distinctUntilChanged,
   filter,
+  firstValueFrom,
   map,
   ReplaySubject,
   Subject,
@@ -18,11 +29,10 @@ import {
   withLatestFrom,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { IntegrationId } from "@bitwarden/common/tools/integration";
-import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService, Option } from "@bitwarden/components";
 import {
   AlgorithmInfo,
@@ -52,7 +62,9 @@ const NONE_SELECTED = "none";
   selector: "tools-credential-generator",
   templateUrl: "credential-generator.component.html",
 })
-export class CredentialGeneratorComponent implements OnInit, OnDestroy {
+export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly destroyed = new Subject<void>();
+
   constructor(
     private generatorService: CredentialGeneratorService,
     private generatorHistoryService: GeneratorHistoryService,
@@ -69,7 +81,18 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
    * the form binds to the active user
    */
   @Input()
-  userId: UserId | null;
+  account: Account | null;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ("account" in changes && changes.account) {
+      this.account$.next(this.account);
+    } else if (!changes.account) {
+      const account = await firstValueFrom(this.accountService.activeAccount$);
+      this.account$.next(account);
+    }
+  }
 
   /** Emits credentials created from a generation request. */
   @Output()
@@ -97,20 +120,8 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
   });
 
   async ngOnInit() {
-    if (this.userId) {
-      this.userId$.next(this.userId);
-    } else {
-      this.accountService.activeAccount$
-        .pipe(
-          map((acct) => acct.id),
-          distinctUntilChanged(),
-          takeUntil(this.destroyed),
-        )
-        .subscribe(this.userId$);
-    }
-
     this.generatorService
-      .algorithms$(["email", "username"], { userId$: this.userId$ })
+      .algorithms$(["email", "username"], { account$: this.account$ })
       .pipe(
         map((algorithms) => {
           const usernames = algorithms.filter((a) => !isForwarderIntegration(a.id));
@@ -131,7 +142,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
       });
 
     this.generatorService
-      .algorithms$("password", { userId$: this.userId$ })
+      .algorithms$("password", { account$: this.account$ })
       .pipe(
         map((algorithms) => {
           const options = this.toOptions(algorithms);
@@ -188,12 +199,12 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$, this.algorithm$),
+        withLatestFrom(this.account$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId, algorithm]) => {
+      .subscribe(([generated, account, algorithm]) => {
         this.generatorHistoryService
-          .track(userId, generated.credential, generated.category, generated.generationDate)
+          .track(account.id, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
             this.logService.error(e);
           });
@@ -299,7 +310,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
       });
 
     // assume the last-selected generator algorithm is the user's preferred one
-    const preferences = await this.generatorService.preferences({ singleUserId$: this.userId$ });
+    const preferences = await this.generatorService.preferences({ account$: this.account$ });
     this.algorithm$
       .pipe(
         filter((algorithm) => !!algorithm),
@@ -405,7 +416,7 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
   private typeToGenerator$(type: CredentialAlgorithm) {
     const dependencies = {
       on$: this.generate$,
-      userId$: this.userId$,
+      account$: this.account$,
     };
 
     switch (type) {
@@ -500,9 +511,6 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
     map((generated) => generated?.credential ?? "-"),
   );
 
-  /** Emits when the userId changes */
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
-
   /** Identifies generator requests that were requested by the user */
   protected readonly USER_REQUEST = "user request";
 
@@ -526,7 +534,6 @@ export class CredentialGeneratorComponent implements OnInit, OnDestroy {
     return options;
   }
 
-  private readonly destroyed = new Subject<void>();
   ngOnDestroy() {
     this.destroyed.next();
     this.destroyed.complete();
