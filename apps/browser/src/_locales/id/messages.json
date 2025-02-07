@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Buat frasa sandi"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Buat Ulang Kata Sandi"
   },
@@ -1268,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Beli Keanggotaan Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Anda dapat membeli keanggotaan premium di brankas web bitwarden.com. Anda ingin mengunjungi situs web sekarang?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Anda dapat membeli Premium dari pilihan akun Anda pada aplikasi web Bitwarden."
   },
@@ -2051,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Pembuat nama pengguna"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Gunakan kata sandi ini"

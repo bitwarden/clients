@@ -1,0 +1,64 @@
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
+
+import * as stories from "./badge-button.lit-stories";
+
+<Meta title="Components/Buttons/Badge Button" of={stories} />
+
+## Badge Button
+
+The `BadgeButton` component is a compact, styled button built using the `lit` library and styled
+with `@emotion/css`. It is designed to display concise text and supports themes, click event
+handling, and a disabled state. The component is optimized for accessibility and responsive design.
+
+<Primary />
+<Controls />
+
+## Props
+
+| **Prop**       | **Type**                   | **Required** | **Description**                                             |
+| -------------- | -------------------------- | ------------ | ----------------------------------------------------------- |
+| `buttonAction` | `(e: Event) => void`       | Yes          | The function to execute when the button is clicked.         |
+| `buttonText`   | `string`                   | Yes          | The text to display on the badge button.                    |
+| `disabled`     | `boolean` (default: false) | No           | Disables the button when set to `true`.                     |
+| `theme`        | `Theme`                    | Yes          | The theme to style the button. Must match the `Theme` enum. |
+
+## Installation and Setup
+
+1. Ensure you have the necessary dependencies installed:
+
+   - `lit`: Used to render the component.
+   - `@emotion/css`: Used for styling the component.
+
+2. Pass the required props to the component when rendering:
+   - `buttonAction`: A function that handles the click event.
+   - `buttonText`: The text displayed on the badge button.
+   - `disabled` (optional): A boolean indicating whether the button is disabled.
+   - `theme`: The theme to style the button (must be a valid `Theme`).
+
+## Accessibility (WCAG) Compliance
+
+The `BadgeButton` component follows the
+[W3C ARIA button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/). Below is a breakdown of
+key accessibility considerations:
+
+### Keyboard Accessibility
+
+- The button supports keyboard interaction through the `@click` event.
+- Users can activate the button using the `Enter` or `Space` key.
+
+### Screen Reader Compatibility
+
+- The `title` attribute is dynamically set to the button's text (`buttonText`), ensuring it is read
+  by screen readers.
+- The semantic `<button>` element is used, which is natively recognized by assistive technologies.
+
+### Focus Management
+
+- Ensure proper focus management when interacting with the button, especially when navigating using
+  a keyboard.
+
+### Visual Feedback
+
+- The button provides clear visual states for hover and disabled states:
+  - **Hover:** Changes background color, border color, and text contrast.
+  - **Disabled:** Muted background and text colors with no pointer events.

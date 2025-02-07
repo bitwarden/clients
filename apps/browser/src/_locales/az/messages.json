@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Keçid ifadələri yarat"
   },
+  "passwordGenerated": {
+    "message": "Parol yaradıldı."
+  },
+  "passphraseGenerated": {
+    "message": "Keçid ifadəsi yaradıldı"
+  },
+  "usernameGenerated": {
+    "message": "İstifadəçi adı yaradıldı"
+  },
+  "emailGenerated": {
+    "message": "E-poçt yaradıldı"
+  },
   "regeneratePassword": {
     "message": "Parolu yenidən yarat"
   },
@@ -1268,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Premium satın al"
   },
-  "premiumPurchaseAlert": {
-    "message": "Premium üzvlüyü bitwarden.com veb seyfində satın ala bilərsiniz. İndi saytı ziyarət etmək istəyirsiniz?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden veb tətbiqindəki hesab ayarlarınızda Premium satın ala bilərsiniz."
   },
@@ -2051,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "İstifadəçi adı yaradıcı"
+  },
+  "useThisEmail": {
+    "message": "Bu e-poçtu istifadə et"
   },
   "useThisPassword": {
     "message": "Bu parolu istifadə et"

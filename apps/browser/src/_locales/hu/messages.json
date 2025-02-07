@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Jelmondat generálás"
   },
+  "passwordGenerated": {
+    "message": "A jelszó generálásra került."
+  },
+  "passphraseGenerated": {
+    "message": "A jelmondat generálásra került."
+  },
+  "usernameGenerated": {
+    "message": "A felhasználónév generálásra került."
+  },
+  "emailGenerated": {
+    "message": "Az email generálásra került."
+  },
   "regeneratePassword": {
     "message": "Jelszó újragenerálása"
   },
@@ -1268,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Prémium funkció megvásárlása"
   },
-  "premiumPurchaseAlert": {
-    "message": "A prémium tagság megvásárolható a bitwarden.com webes széfben. Szeretnénk felkeresni a webhelyet most?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Prémium szolgáltatást vásárolhatunk a Bitwarden webalkalmazás fiókbeállításai között."
   },
@@ -2051,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Felhasználónév generátor"
+  },
+  "useThisEmail": {
+    "message": "Ezen email használata"
   },
   "useThisPassword": {
     "message": "Jelszó használata"

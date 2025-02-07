@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Создать парольную фразу"
   },
+  "passwordGenerated": {
+    "message": "Пароль создан"
+  },
+  "passphraseGenerated": {
+    "message": "Парольная фраза создана"
+  },
+  "usernameGenerated": {
+    "message": "Имя пользователя создано"
+  },
+  "emailGenerated": {
+    "message": "Email создан"
+  },
   "regeneratePassword": {
     "message": "Создать новый пароль"
   },
@@ -1268,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Купить Премиум"
   },
-  "premiumPurchaseAlert": {
-    "message": "Вы можете купить Премиум на bitwarden.com. Перейти на сайт сейчас?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Премиум можно приобрести в настройках аккаунта в веб-версии Bitwarden."
   },
@@ -2051,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Генератор имени пользователя"
+  },
+  "useThisEmail": {
+    "message": "Использовать этот email"
   },
   "useThisPassword": {
     "message": "Использовать этот пароль"

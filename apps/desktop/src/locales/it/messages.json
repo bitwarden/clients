@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "Passa a Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Puoi acquistare il un abbonamento Premium dalla cassaforte web su bitwarden.com. Vuoi visitare il sito?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Puoi acquistare Premium dalle impostazioni del tuo account sull'app web Bitwarden."
   },
@@ -2553,6 +2550,9 @@
   "catchallEmailDesc": {
     "message": "Usa la casella di posta catch-all di dominio."
   },
+  "useThisEmail": {
+    "message": "Usa questa e-mail"
+  },
   "random": {
     "message": "Casuale"
   },
@@ -3476,7 +3476,7 @@
     "message": "No, non ce l'ho"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Sì, posso accedere in modo affidabile alla mia e-mail"
+    "message": "Sì, riesco ad accedere all'email"
   },
   "turnOnTwoStepLogin": {
     "message": "Attiva accesso in due passaggi"

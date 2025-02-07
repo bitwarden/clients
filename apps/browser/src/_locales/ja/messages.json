@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "パスフレーズを生成"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "パスワードの再生成"
   },
@@ -1268,9 +1280,6 @@
   "premiumPurchase": {
     "message": "プレミアム会員に加入"
   },
-  "premiumPurchaseAlert": {
-    "message": "プレミアム会員権は bitwarden.com ウェブ保管庫で購入できます。ウェブサイトを開きますか？"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden ウェブアプリでアカウント設定からプレミアムを購入できます。"
   },
@@ -2051,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "ユーザー名生成ツール"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "このパスワードを使用する"

@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "Koop Premie"
   },
-  "premiumPurchaseAlert": {
-    "message": "U kan lidmaatskap op die bitwarden.com-webkluis koop. Wil u nou na die webwerf gaan?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2552,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "Gebruik u domein se opgestelde allesomvattende inmandjie."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Lukraak"

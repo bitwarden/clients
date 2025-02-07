@@ -19,7 +19,7 @@ import { AlgorithmInfo, GeneratedCredential } from "@bitwarden/generator-core";
 })
 export class CipherFormGeneratorComponent {
   @Input()
-  algorithm: (selected: AlgorithmInfo) => void;
+  onAlgorithmSelected: (selected: AlgorithmInfo) => void;
 
   /**
    * The type of generator form to show.

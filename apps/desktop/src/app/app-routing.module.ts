@@ -43,7 +43,7 @@ import {
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { LockComponent } from "@bitwarden/key-management/angular";
+import { LockComponent } from "@bitwarden/key-management-ui";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
@@ -224,7 +224,7 @@ const routes: Routes = [
       data: {
         pageIcon: DevicesIcon,
         pageTitle: {
-          key: "loginInitiated",
+          key: "logInRequestSent",
         },
         pageSubtitle: {
           key: "aNotificationWasSentToYourDevice",
