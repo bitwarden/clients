@@ -117,9 +117,15 @@ export class NativeMessagingBackground {
       this.connecting = true;
 
       const connectedCallback = () => {
-        this.logService.info(
-          "[Native Messaging IPC] Connection to Bitwarden Desktop app established!",
-        );
+        if (!this.platformUtilsService.isSafari()) {
+          this.logService.info(
+            "[Native Messaging IPC] Connection to Bitwarden Desktop app established!",
+          );
+        } else {
+          this.logService.info(
+            "[Native Messaging IPC] Connection to Safari swift module established!",
+          );
+        }
         this.connected = true;
         this.connecting = false;
         resolve();
@@ -128,6 +134,7 @@ export class NativeMessagingBackground {
       // Safari has a bundled native component which is always available, no need to
       // check if the desktop app is running.
       if (this.platformUtilsService.isSafari()) {
+        this.isConnectedToOutdatedDesktopClient = false;
         connectedCallback();
       }
 
@@ -398,7 +405,9 @@ export class NativeMessagingBackground {
     }
 
     if (this.callbacks.has(messageId)) {
-      this.callbacks.get(messageId).resolver(message);
+      const callback = this.callbacks.get(messageId);
+      this.callbacks.delete(messageId);
+      callback.resolver(message);
     } else {
       this.logService.info("[Native Messaging IPC] Received message without a callback", message);
     }

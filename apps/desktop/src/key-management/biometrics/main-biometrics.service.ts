@@ -164,4 +164,8 @@ export class MainBiometricsService extends DesktopBiometricsService {
   async getShouldAutopromptNow(): Promise<boolean> {
     return this.shouldAutoPrompt;
   }
+
+  async canEnableBiometricUnlock(): Promise<boolean> {
+    return true;
+  }
 }

@@ -51,4 +51,13 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   async setShouldAutopromptNow(value: boolean): Promise<void> {
     return await ipc.keyManagement.biometric.setShouldAutoprompt(value);
   }
+
+  async canEnableBiometricUnlock(): Promise<boolean> {
+    const biometricStatus = await this.getBiometricsStatus();
+    return [
+      BiometricsStatus.Available,
+      BiometricsStatus.AutoSetupNeeded,
+      BiometricsStatus.ManualSetupNeeded,
+    ].includes(biometricStatus);
+  }
 }
