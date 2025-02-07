@@ -407,7 +407,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AppIdServiceAbstraction,
     useClass: AppIdService,
-    deps: [OBSERVABLE_DISK_STORAGE, LogService],
+    deps: [OBSERVABLE_DISK_STORAGE],
   }),
   safeProvider({
     provide: AuditServiceAbstraction,

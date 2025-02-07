@@ -252,7 +252,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       "[Device trust rotation] Posting device trust update with current device:",
       deviceIdentifier,
     );
-    await this.devicesApiService.updateTrust(trustRequest, deviceIdentifier);
+    await this.devicesApiService.updateTrust(trustRequest);
     this.logService.info("[Device trust rotation] Device trust update posted successfully.");
   }
 
@@ -359,8 +359,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   }
 
   async recordDeviceTrustLoss(): Promise<void> {
-    const deviceIdentifier = await this.appIdService.getAppId();
-    await this.devicesApiService.postDeviceTrustLoss(deviceIdentifier);
+    await this.devicesApiService.postDeviceTrustLoss();
   }
 
   private getSecureStorageOptions(userId: UserId): StorageOptions {

@@ -774,7 +774,6 @@ describe("deviceTrustService", () => {
                 updateTrustModel.currentDevice.encryptedUserKey === "4.ZW5jcnlwdGVkdXNlcg=="
               );
             }),
-            expect.stringMatching("test_device_identifier"),
           );
         });
       });

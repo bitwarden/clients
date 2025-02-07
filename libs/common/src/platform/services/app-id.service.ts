@@ -1,5 +1,4 @@
 import { AppIdService as AppIdServiceAbstraction } from "../abstractions/app-id.service";
-import { LogService } from "../abstractions/log.service";
 import { AbstractStorageService } from "../abstractions/storage.service";
 import { Utils } from "../misc/utils";
 
@@ -7,13 +6,9 @@ export const APP_ID_KEY = "global_applicationId_appId";
 export const ANONYMOUS_APP_ID_KEY = "global_applicationId_appId";
 
 export class AppIdService implements AppIdServiceAbstraction {
-  constructor(
-    private readonly storageService: AbstractStorageService,
-    private readonly logService: LogService,
-  ) {}
+  constructor(private readonly storageService: AbstractStorageService) {}
 
   async getAppId(): Promise<string> {
-    this.logService.info("Retrieving application id");
     return await this.getEnsuredValue(APP_ID_KEY);
   }
 
