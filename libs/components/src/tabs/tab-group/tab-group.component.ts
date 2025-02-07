@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import { coerceNumberProperty } from "@angular/cdk/coercion";
-import { CommonModule } from "@angular/common";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   AfterContentChecked,
   AfterContentInit,
@@ -33,7 +33,7 @@ let nextId = 0;
   templateUrl: "./tab-group.component.html",
   standalone: true,
   imports: [
-    CommonModule,
+    NgTemplateOutlet,
     TabHeaderComponent,
     TabListContainerDirective,
     TabListItemDirective,
