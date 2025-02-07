@@ -176,7 +176,7 @@
     "https-proxy-agent": "7.0.5",
     "inquirer": "8.2.6",
     "jquery": "3.7.1",
-    "jsdom": "25.0.1",
+    "jsdom": "26.0.0",
     "jszip": "3.10.1",
     "koa": "2.15.3",
     "koa-bodyparser": "4.4.1",
