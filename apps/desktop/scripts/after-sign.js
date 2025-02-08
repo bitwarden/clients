@@ -5,6 +5,7 @@ const path = require("path");
 const { notarize } = require("@electron/notarize");
 const { deepAssign } = require("builder-util");
 const fse = require("fs-extra");
+const { identity } = require("rxjs");
 
 exports.default = run;
 
@@ -27,10 +28,21 @@ async function run(context) {
     if (!fse.existsSync(extensionPath)) {
       console.log("### Autofill extension not found - skipping");
     } else {
-      if (!fse.existsSync(path.join(appPath, "Contents/PlugIns"))) {
-        fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
+      const pluginsPath = path.join(appPath, "Contents/PlugIns");
+      if (!fse.existsSync(pluginsPath)) {
+        fse.mkdirSync(pluginsPath);
       }
-      fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
+      const extensionDestPath = path.join(pluginsPath, "autofill-extension.appex");
+      fse.copySync(extensionPath, extensionDestPath);
+
+      if (context.targets.some((e) => e.name === "mas-dev")) {
+        console.log("### Resigning autofill extension for development");
+        const { execSync } = require("child_process");
+        execSync(
+          `codesign --force --sign "4B9662CAB74E8E4F4ECBDD9EDEF2543659D95E3C" --entitlements "${path.join(__dirname, "../macos/autofill-extension/autofill_extension.entitlements")}" "${extensionDestPath}"`,
+        );
+      }
+
       shouldResign = true;
     }
   }
@@ -54,6 +66,7 @@ async function run(context) {
   }
 
   if (shouldResign) {
+    console.log("### Resigning app", context.electronPlatformName);
     // Resign to sign safari extension
     if (context.electronPlatformName === "mas") {
       const masBuildOptions = deepAssign(
@@ -63,13 +76,15 @@ async function run(context) {
       );
       if (context.targets.some((e) => e.name === "mas-dev")) {
         deepAssign(masBuildOptions, {
-          type: "development",
+        
         });
       }
       if (context.packager.packagerOptions.prepackaged == null) {
+        console.log("Signing using .sign()", masBuildOptions);
         await context.packager.sign(appPath, context.appOutDir, masBuildOptions, context.arch);
       }
     } else {
+      console.log("Signing using .signApp()");
       await context.packager.signApp(context, true);
     }
   }
