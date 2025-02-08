@@ -297,7 +297,7 @@ export class SsoComponent implements OnInit {
     }
   };
 
-  private async submitSso(returnUri?: string, includeUserIdentifier?: boolean) {
+  private async submitSso() {
     if (this.identifier == null || this.identifier === "") {
       this.toastService.showToast({
         variant: "error",
@@ -314,19 +314,11 @@ export class SsoComponent implements OnInit {
     this.initiateSsoFormPromise = this.apiService.preValidateSso(this.identifier);
     const response = await this.initiateSsoFormPromise;
 
-    const authorizeUrl = await this.buildAuthorizeUrl(
-      returnUri,
-      includeUserIdentifier,
-      response.token,
-    );
+    const authorizeUrl = await this.buildAuthorizeUrl(response.token);
     this.platformUtilsService.launchUri(authorizeUrl, { sameWindow: true });
   }
 
-  private async buildAuthorizeUrl(
-    returnUri?: string,
-    includeUserIdentifier?: boolean,
-    token?: string,
-  ): Promise<string> {
+  private async buildAuthorizeUrl(token: string): Promise<string> {
     let codeChallenge = this.codeChallenge;
     let state = this.state;
 
@@ -348,9 +340,6 @@ export class SsoComponent implements OnInit {
 
     if (state == null) {
       state = await this.passwordGenerationService.generatePassword(passwordOptions);
-      if (returnUri) {
-        state += `_returnUri='${returnUri}'`;
-      }
     }
 
     // Add Organization Identifier to state
@@ -363,7 +352,7 @@ export class SsoComponent implements OnInit {
 
     const env = await firstValueFrom(this.environmentService.environment$);
 
-    let authorizeUrl =
+    const authorizeUrl =
       env.getIdentityUrl() +
       "/connect/authorize?" +
       "client_id=" +
@@ -381,12 +370,7 @@ export class SsoComponent implements OnInit {
       "domain_hint=" +
       encodeURIComponent(this.identifier ?? "") +
       "&ssoToken=" +
-      encodeURIComponent(token ?? "");
-
-    if (includeUserIdentifier) {
-      const userIdentifier = await this.apiService.getSsoUserIdentifier();
-      authorizeUrl += `&user_identifier=${encodeURIComponent(userIdentifier)}`;
-    }
+      encodeURIComponent(token);
 
     return authorizeUrl;
   }
