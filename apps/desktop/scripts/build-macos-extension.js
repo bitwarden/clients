@@ -11,6 +11,7 @@ const paths = {
   extensionDist: "./macos/dist/autofill-extension.appex",
   macOsProject: "./macos/desktop.xcodeproj",
   macOsConfig: "./macos/production.xcconfig",
+  macOsProvisioningProfile: "./macos/bitwarden_desktop_autofill_app_store_2024.provisionprofile",
 };
 
 async function buildMacOs() {
@@ -31,6 +32,8 @@ async function buildMacOs() {
     // Uncomment when signing is fixed
     // "-xcconfig",
     // paths.macOsConfig,
+    "PROVISIONING_PROFILE=" + paths.macOsProvisioningProfile,
+    "CODE_SIGN_IDENTITY=4B9662CAB74E8E4F4ECBDD9EDEF2543659D95E3C",
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>

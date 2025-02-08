@@ -1,23 +1,24 @@
 name: Build Desktop
 
 on:
-  pull_request_target:
-    types: [opened, synchronize]
-    branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
-    paths:
-      - 'apps/desktop/**'
-      - 'libs/**'
-      - '*'
-      - '!*.md'
-      - '!*.txt'
-      - '.github/workflows/build-desktop.yml'
+  # pull_request:
+  #   types: [opened, synchronize]
+  #   branches-ignore:
+  #     - 'l10n_master'
+  #     - 'cf-pages'
+  #   paths:
+  #     - 'apps/desktop/**'
+  #     - 'libs/**'
+  #     - '*'
+  #     - '!*.md'
+  #     - '!*.txt'
+  #     - '.github/workflows/build-desktop.yml'
   push:
     branches:
       - 'main'
       - 'rc'
       - 'hotfix-rc-desktop'
+      - 'nathan/fix-autofill-signing'
     paths:
       - 'apps/desktop/**'
       - 'libs/**'
@@ -218,7 +219,7 @@ jobs:
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
+        # if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
         env:
           PKG_CONFIG_ALLOW_CROSS: true
@@ -590,6 +591,11 @@ jobs:
             --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             --output none
 
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --output none
+
       - name: Get certificates
         run: |
           mkdir -p $HOME/certificates
@@ -641,10 +647,15 @@ jobs:
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
+          security find-identity -v -p codesigning
+
       - name: Set up provisioning profiles
         run: |
           cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+          
+          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            $GITHUB_WORKSPACE/apps/desktop/macos/bitwarden_desktop_autofill_app_store_2024.provisionprofile
 
       - name: Increment version
         shell: pwsh
@@ -778,6 +789,11 @@ jobs:
             --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             --output none
 
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --output none
+
       - name: Get certificates
         run: |
           mkdir -p $HOME/certificates
@@ -833,6 +849,9 @@ jobs:
         run: |
           cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+          
+          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            $GITHUB_WORKSPACE/apps/desktop/macos/bitwarden_desktop_autofill_app_store_2024.provisionprofile
 
       - name: Increment version
         shell: pwsh
@@ -1026,6 +1045,11 @@ jobs:
             --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             --output none
 
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --output none
+
       - name: Get certificates
         run: |
           mkdir -p $HOME/certificates
@@ -1078,9 +1102,12 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Set up provisioning profiles
-        run: |
+        run: |        
           cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+          
+          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            $GITHUB_WORKSPACE/apps/desktop/macos/bitwarden_desktop_autofill_app_store_2024.provisionprofile
 
       - name: Increment version
         shell: pwsh
@@ -1282,6 +1309,11 @@ jobs:
             --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             --output none
 
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            --output none
+
       - name: Get certificates
         run: |
           mkdir -p $HOME/certificates
@@ -1337,6 +1369,9 @@ jobs:
         run: |
           cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
+          
+          cp $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
+            $GITHUB_WORKSPACE/apps/desktop/macos/bitwarden_desktop_autofill_app_store_2024.provisionprofile
 
       - name: Increment version
         shell: pwsh
@@ -1382,9 +1417,13 @@ jobs:
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
 
       - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native
-        run: node build.js cross-platform
+        working-directory: apps/desktop/desktop_native        
+        run: |
+          rustup target add aarch64-apple-darwin
+          node build.js cross-platform
+        # if: steps.cache.outputs.cache-hit != 'true'
+        # working-directory: apps/desktop/desktop_native
+        # run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1417,12 +1456,12 @@ jobs:
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
-        run: npm run pack:mac:masdev
+        run: npm run pack:mac:masdev:with-extension
 
       - name: Zip masdev asset
         run: |
           cd dist/mas-dev-universal
-          zip -r Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip Bitwarden.app
+          zip -ry Bitwarden-${{ env._PACKAGE_VERSION }}-masdev-universal.zip Bitwarden.app
 
       - name: Upload masdev artifact
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
