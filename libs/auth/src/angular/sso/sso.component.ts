@@ -130,6 +130,16 @@ export class SsoComponent implements OnInit {
     }
   }
 
+  /**
+   * Like several components in our app (e.g. our invite acceptance components), the SSO component is engaged both
+   * before and after the user authenticates.
+   * Flow 1: Initialize SSO state and redirect to IdP
+   *  - We can get here several ways:
+   *    - The user is on the web client and is routed here
+   *    - The user is on a different client and is redirected by opening a new browser window, passing query params
+   *    - A customer integration has been set up to direct users to the `/sso` route to initiate SSO with an identifier
+   * Flow 2: Handle callback from IdP and verify the state that was set pre-authentication
+   */
   async ngOnInit() {
     const qParams: QueryParams = await firstValueFrom(this.route.queryParams);
 
@@ -140,27 +150,32 @@ export class SsoComponent implements OnInit {
       throw new Error("Email is required for SSO authentication");
     }
 
-    // This if statement will pass on the second portion of the SSO flow
+    // Detect if we are on the second portion of the SSO flow,
     // where the user has already authenticated with the identity provider
-    if (this.hasCodeOrStateParams(qParams)) {
-      await this.handleCodeAndStateParams(qParams);
+    if (this.userCompletedSsoAuthentication(qParams)) {
+      await this.handleAuthenticatedUser(qParams);
       return;
     }
 
-    // This if statement will pass on the first portion of the SSO flow
-    if (this.hasRequiredSsoParams(qParams)) {
-      this.setRequiredSsoVariables(qParams);
+    // Detect if we are on the first portion of the SSO flow
+    // and have been sent here from another client with the info in query params
+    if (this.hasParametersFromOtherClientRedirect(qParams)) {
+      this.initializeFromRedirectFromOtherClient(qParams);
       return;
     }
 
+    // Detect if we have landed here but only have an SSO identifier in the URL.
+    // This is used by integrations that want to "short-circuit" the login to send users
+    // directly to their IdP to simulate IdP-initiated SSO, so we submit automatically.
     if (qParams.identifier != null) {
-      // SSO Org Identifier in query params takes precedence over claimed domains
       this.identifierFormControl.setValue(qParams.identifier);
       this.loggingIn = true;
       await this.submit();
       return;
     }
 
+    // If we're routed here with no additional parameters, we'll try to determine the
+    // identifier using claimed domain or local state saved from their last attempt.
     await this.initializeIdentifierFromEmailOrStorage();
   }
 
@@ -168,7 +183,7 @@ export class SsoComponent implements OnInit {
    * Sets the required SSO variables from the query params
    * @param qParams - The query params
    */
-  private setRequiredSsoVariables(qParams: QueryParams): void {
+  private initializeFromRedirectFromOtherClient(qParams: QueryParams): void {
     this.redirectUri = qParams.redirectUri ?? "";
     this.state = qParams.state ?? "";
     this.codeChallenge = qParams.codeChallenge ?? "";
@@ -190,11 +205,16 @@ export class SsoComponent implements OnInit {
   }
 
   /**
-   * Checks if the query params have the required SSO params
+   * Checks if the query params have the required SSO params to initiate SSO
+   * * The query params presented here are:
+   *  - clientId: The client type (e.g. web, browser, desktop)
+   *  - redirectUri: The URI to redirect to after authentication
+   *  - state: The state to verify on the client after authentication
+   *  - codeChallenge: The PKCE code challenge that is sent up when authenticating with the IdP
    * @param qParams - The query params
    * @returns True if the query params have the required SSO params, false otherwise
    */
-  private hasRequiredSsoParams(qParams: QueryParams): boolean {
+  private hasParametersFromOtherClientRedirect(qParams: QueryParams): boolean {
     return (
       qParams.clientId != null &&
       qParams.redirectUri != null &&
@@ -204,12 +224,15 @@ export class SsoComponent implements OnInit {
   }
 
   /**
-   * Handles the code and state params
+   * Handles the case in which the user has completed SSO authentication and has been redirected back to the SSO component
    * @param qParams - The query params
    */
-  private async handleCodeAndStateParams(qParams: QueryParams): Promise<void> {
+  private async handleAuthenticatedUser(qParams: QueryParams): Promise<void> {
+    // We set these in state prior to starting SSO, so we can retrieve them here
     const codeVerifier = await this.ssoLoginService.getCodeVerifier();
-    const state = await this.ssoLoginService.getSsoState();
+    const stateFromPrelogin = await this.ssoLoginService.getSsoState();
+
+    // Reset the code verifier and state so we don't accidentally use them again
     await this.ssoLoginService.setCodeVerifier("");
     await this.ssoLoginService.setSsoState("");
 
@@ -220,8 +243,8 @@ export class SsoComponent implements OnInit {
     if (
       qParams.code != null &&
       codeVerifier != null &&
-      state != null &&
-      this.checkState(state, qParams.state ?? "")
+      stateFromPrelogin != null &&
+      this.verifyStateMatches(stateFromPrelogin, qParams.state ?? "")
     ) {
       const ssoOrganizationIdentifier = this.getOrgIdentifierFromState(qParams.state ?? "");
       await this.logIn(qParams.code, codeVerifier, ssoOrganizationIdentifier);
@@ -229,11 +252,12 @@ export class SsoComponent implements OnInit {
   }
 
   /**
-   * Checks if the query params have a code or state
+   * Checks if the query params have a code and state, indicating that we've completed SSO authentication
+   * and have been redirected back to the SSO component to complete login.
    * @param qParams - The query params
-   * @returns True if the query params have a code or state, false otherwise
+   * @returns True if the query params have a code and state, false otherwise
    */
-  private hasCodeOrStateParams(qParams: QueryParams): boolean {
+  private userCompletedSsoAuthentication(qParams: QueryParams): boolean {
     return qParams.code != null && qParams.state != null;
   }
 
@@ -332,7 +356,9 @@ export class SsoComponent implements OnInit {
     // Add Organization Identifier to state
     state += `_identifier=${this.identifier}`;
 
-    // Save state (regardless of new or existing)
+    // Save the pre-SSO state.
+    // We need to do this here as even if it was generated on the intiating client (e.g. browser, desktop),
+    // we need it on the web client to verify after the user authenticates with the identity provider and is redirected back.
     await this.ssoLoginService.setSsoState(state);
 
     const env = await firstValueFrom(this.environmentService.environment$);
@@ -365,6 +391,11 @@ export class SsoComponent implements OnInit {
     return authorizeUrl;
   }
 
+  /**
+   * We are using the Auth Code + PKCE flow for authenticating.
+   * We have received the code from our IdentityServer instance, which we will now present with the code verifier to get a token.
+   * The code verifier is used to ensure that the client presenting the code is the same one that initiated the authentication request.
+   */
   private async logIn(code: string, codeVerifier: string, orgSsoIdentifier: string): Promise<void> {
     this.loggingIn = true;
     try {
@@ -531,16 +562,22 @@ export class SsoComponent implements OnInit {
     return stateSplit.length > 1 ? stateSplit[1] : "";
   }
 
-  private checkState(state: string, checkState: string): boolean {
-    if (state === null || state === undefined) {
+  /**
+   * Checks if the state matches the checkState
+   * @param originalStateValue - The state to check
+   * @param stateValueToCheck - The state to check against
+   * @returns True if the state matches the checkState, false otherwise
+   */
+  private verifyStateMatches(originalStateValue: string, stateValueToCheck: string): boolean {
+    if (originalStateValue === null || originalStateValue === undefined) {
       return false;
     }
-    if (checkState === null || checkState === undefined) {
+    if (stateValueToCheck === null || stateValueToCheck === undefined) {
       return false;
     }
 
-    const stateSplit = state.split("_identifier=");
-    const checkStateSplit = checkState.split("_identifier=");
+    const stateSplit = originalStateValue.split("_identifier=");
+    const checkStateSplit = stateValueToCheck.split("_identifier=");
     return stateSplit[0] === checkStateSplit[0];
   }
 
