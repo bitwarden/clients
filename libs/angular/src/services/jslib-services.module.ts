@@ -296,7 +296,12 @@ import {
   DefaultUserAsymmetricKeysRegenerationApiService,
 } from "@bitwarden/key-management";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
-import { NewDeviceVerificationNoticeService, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  DefaultTaskService,
+  NewDeviceVerificationNoticeService,
+  PasswordRepromptService,
+  TaskService,
+} from "@bitwarden/vault";
 import {
   VaultExportService,
   VaultExportServiceAbstraction,
@@ -1462,6 +1467,11 @@ const safeProviders: SafeProvider[] = [
     provide: PasswordLoginStrategyData,
     useClass: PasswordLoginStrategyData,
     deps: [],
+  }),
+  safeProvider({
+    provide: TaskService,
+    useClass: DefaultTaskService,
+    deps: [StateProvider, ApiServiceAbstraction, OrganizationServiceAbstraction, ConfigService],
   }),
 ];
 

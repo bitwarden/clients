@@ -5,6 +5,8 @@ export { CopyCipherFieldDirective } from "./components/copy-cipher-field.directi
 export { OrgIconDirective } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 
+export * from "./utils/observable-utilities";
+
 export * from "./cipher-view";
 export * from "./cipher-form";
 export {
