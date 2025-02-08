@@ -2,6 +2,7 @@
   class="tw-mb-1 tw-min-w-[--bit-toast-width] tw-text-main tw-flex tw-flex-col tw-justify-between tw-rounded-md tw-pointer-events-auto tw-cursor-default tw-overflow-hidden tw-shadow-lg {{
     bgColor
   }}"
+  [attr.role]="variant === 'error' ? 'alert' : null"
 >
   <div class="tw-flex tw-items-center tw-gap-4 tw-px-2 tw-pb-1 tw-pt-2">
     <i aria-hidden="true" class="bwi tw-text-xl tw-py-1.5 tw-px-2.5 {{ iconClass }}"></i>
