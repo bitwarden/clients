@@ -113,7 +113,7 @@
     "jest-diff": "29.7.0",
     "jest-junit": "16.0.0",
     "jest-mock-extended": "3.0.7",
-    "jest-preset-angular": "14.1.1",
+    "jest-preset-angular": "14.5.1",
     "lint-staged": "15.4.1",
     "mini-css-extract-plugin": "2.9.2",
     "node-ipc": "9.2.1",
