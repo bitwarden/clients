@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -37,6 +38,7 @@ export class WebLoginComponentService
     passwordGenerationService: PasswordGenerationServiceAbstraction,
     platformUtilsService: PlatformUtilsService,
     ssoLoginService: SsoLoginServiceAbstraction,
+    private router: Router,
   ) {
     super(
       cryptoFunctionService,
@@ -45,7 +47,17 @@ export class WebLoginComponentService
       platformUtilsService,
       ssoLoginService,
     );
-    this.clientType = this.platformUtilsService.getClientType();
+  }
+
+  protected override async redirectToSso(
+    email: string,
+    state: string,
+    codeChallenge: string,
+  ): Promise<void> {
+    // Since we're on the web client, we can set the SSO email in state and then navigate.
+    await this.ssoLoginService.setSsoEmail(email);
+    await this.router.navigate(["/sso"]);
+    return;
   }
 
   async getOrgPolicies(): Promise<PasswordPolicies | null> {

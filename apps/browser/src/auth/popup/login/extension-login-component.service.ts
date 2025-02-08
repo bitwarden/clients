@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
@@ -31,7 +32,31 @@ export class ExtensionLoginComponentService
       platformUtilsService,
       ssoLoginService,
     );
-    this.clientType = this.platformUtilsService.getClientType();
+  }
+
+  protected override async redirectToSso(
+    email: string,
+    state: string,
+    codeChallenge: string,
+  ): Promise<void> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webVaultUrl = env.getWebVaultUrl();
+
+    const redirectUri = webVaultUrl + "/sso-connector.html";
+
+    this.platformUtilsService.launchUri(
+      webVaultUrl +
+        "/#/sso?clientId=" +
+        this.clientType +
+        "&redirectUri=" +
+        encodeURIComponent(redirectUri) +
+        "&state=" +
+        state +
+        "&codeChallenge=" +
+        codeChallenge +
+        "&email=" +
+        encodeURIComponent(email),
+    );
   }
 
   showBackButton(showBackButton: boolean): void {
