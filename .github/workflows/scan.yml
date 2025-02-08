@@ -77,3 +77,4 @@ jobs:
             -Dsonar.sources=.
             -Dsonar.test.inclusions=**/*.spec.ts
             -Dsonar.exclusions=**/*.spec.ts
+            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
