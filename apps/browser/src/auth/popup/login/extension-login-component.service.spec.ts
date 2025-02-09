@@ -1,5 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
@@ -16,7 +17,6 @@ import { BrowserPlatformUtilsService } from "../../../platform/services/platform
 import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { ExtensionLoginComponentService } from "./extension-login-component.service";
-import { BehaviorSubject } from "rxjs";
 
 jest.mock("../../../platform/flags", () => ({
   flagEnabled: jest.fn(),
