@@ -1740,9 +1740,6 @@
     "message": "Avoid ambiguous characters",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Regenerate password"
-  },
   "length": {
     "message": "Length"
   },
@@ -4795,9 +4792,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Set requirements for password generator."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "One or more organization policies are affecting your generator settings."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"
   },
@@ -6772,15 +6766,6 @@
     "message": "Generator",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "What would you like to generate?"
-  },
-  "passwordType": {
-    "message": "Password type"
-  },
-  "regenerateUsername": {
-    "message": "Regenerate username"
-  },
   "generateUsername": {
     "message": "Generate username"
   },
@@ -6820,9 +6805,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Username type"
   },
   "plusAddressedEmail": {
     "message": "Plus addressed email",
@@ -7042,9 +7024,6 @@
   "hostname": {
     "message": "Hostname",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API access token"
   },
   "deviceVerification": {
     "message": "Device verification"
@@ -8761,9 +8740,6 @@
   "selfHostBaseUrl": {
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Alias domain"
   },
   "alreadyHaveAccount": {
     "message": "Already have an account?"

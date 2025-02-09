@@ -12,7 +12,6 @@ import {
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -90,7 +89,6 @@ import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
-import { GeneratorComponent } from "./tools/generator.component";
 import { ReportsModule } from "./tools/reports";
 import { AccessComponent } from "./tools/send/access.component";
 import { SendAccessExplainerComponent } from "./tools/send/send-access-explainer.component";
@@ -856,10 +854,11 @@ const routes: Routes = [
               titleId: "exportVault",
             } satisfies RouteDataProperties,
           },
-          ...generatorSwap(GeneratorComponent, CredentialGeneratorComponent, {
+          {
             path: "generator",
+            component: CredentialGeneratorComponent,
             data: { titleId: "generator" } satisfies RouteDataProperties,
-          }),
+          },
         ],
       },
       {
