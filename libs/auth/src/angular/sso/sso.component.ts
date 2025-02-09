@@ -302,7 +302,12 @@ export class SsoComponent implements OnInit {
     }
   };
 
-  private async submitSso() {
+  /**
+   * Redirects the user to `/connect/authorize` on IdentityServer to begin SSO.
+   * @param returnUri - The URI to redirect to after authentication (used to link user to SSO)
+   * @param includeUserIdentifier - Whether to include the user identifier in the request (used to link user to SSO)
+   */
+  private async submitSso(returnUri?: string, includeUserIdentifier?: boolean) {
     if (this.identifier == null || this.identifier === "") {
       this.toastService.showToast({
         variant: "error",
@@ -319,11 +324,19 @@ export class SsoComponent implements OnInit {
     this.initiateSsoFormPromise = this.apiService.preValidateSso(this.identifier);
     const response = await this.initiateSsoFormPromise;
 
-    const authorizeUrl = await this.buildAuthorizeUrl(response.token);
+    const authorizeUrl = await this.buildAuthorizeUrl(
+      returnUri,
+      includeUserIdentifier,
+      response.token,
+    );
     this.platformUtilsService.launchUri(authorizeUrl, { sameWindow: true });
   }
 
-  private async buildAuthorizeUrl(token: string): Promise<string> {
+  private async buildAuthorizeUrl(
+    returnUri?: string,
+    includeUserIdentifier?: boolean,
+    token?: string,
+  ): Promise<string> {
     let codeChallenge = this.codeChallenge;
     let state = this.state;
 
@@ -336,6 +349,9 @@ export class SsoComponent implements OnInit {
       special: false,
     };
 
+    // Initialize the challenge and state if they aren't passed in. If we're performing SSO initiated on a
+    // different client, they'll be passed in, as they will need to be verified on that client and not the web.
+    // If they're not passed in, then we need to set them here on the web client to be verified here after SSO.
     if (codeChallenge == null) {
       const codeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
       const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
@@ -345,6 +361,12 @@ export class SsoComponent implements OnInit {
 
     if (state == null) {
       state = await this.passwordGenerationService.generatePassword(passwordOptions);
+    }
+
+    // If we have a returnUri, add it to the state parameter. This will be used after SSO
+    // is complete, on the sso-connector, in order to route the user somewhere other than the SSO component.
+    if (returnUri) {
+      state += `_returnUri='${returnUri}'`;
     }
 
     // Add Organization Identifier to state
@@ -357,7 +379,7 @@ export class SsoComponent implements OnInit {
 
     const env = await firstValueFrom(this.environmentService.environment$);
 
-    const authorizeUrl =
+    let authorizeUrl =
       env.getIdentityUrl() +
       "/connect/authorize?" +
       "client_id=" +
@@ -375,7 +397,14 @@ export class SsoComponent implements OnInit {
       "domain_hint=" +
       encodeURIComponent(this.identifier ?? "") +
       "&ssoToken=" +
-      encodeURIComponent(token);
+      encodeURIComponent(token ?? "");
+
+    // If we're linking a user to SSO, we need to provide a user identifier that will be passed
+    // on to the SSO provider so that after SSO we can link the user to the SSO identity.
+    if (includeUserIdentifier) {
+      const userIdentifier = await this.apiService.getSsoUserIdentifier();
+      authorizeUrl += `&user_identifier=${encodeURIComponent(userIdentifier)}`;
+    }
 
     return authorizeUrl;
   }
