@@ -10,10 +10,15 @@
   ></iframe>
 </div>
 <ng-container *ngIf="webAuthnNewTab">
-  <div class="content text-center" *ngIf="webAuthnNewTab">
-    <p class="text-center">{{ "webAuthnNewTab" | i18n }}</p>
-    <button type="button" class="btn primary block" (click)="authWebAuthn()" appStopClick>
-      {{ "webAuthnNewTabOpen" | i18n }}
-    </button>
-  </div>
+  <button
+    class="tw-mb-3"
+    buttonType="primary"
+    [block]="true"
+    bitButton
+    type="button"
+    (click)="authWebAuthn()"
+    appStopClick
+  >
+    {{ "openInNewTab" | i18n }}
+  </button>
 </ng-container>

@@ -1401,6 +1401,9 @@
   "webAuthnNewTabOpen": {
     "message": "Open new tab"
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "webAuthnAuthenticate": {
     "message": "Authenticate WebAuthn"
   },

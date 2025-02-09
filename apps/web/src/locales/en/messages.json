@@ -1552,6 +1552,9 @@
   "webAuthnMigrated": {
     "message": "(Migrated from FIDO)"
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "emailTitle": {
     "message": "Email"
   },
