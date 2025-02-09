@@ -338,6 +338,11 @@ export class Utils {
         if (parseResult.domain != null) {
           return parseResult.domain;
         }
+
+        if (parseResult.hostname != null) {
+          return parseResult.hostname;
+        }
+
         return null;
       }
     } catch {
