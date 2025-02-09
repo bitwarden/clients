@@ -153,7 +153,7 @@ export class SsoComponent implements OnInit {
     // Detect if we are on the second portion of the SSO flow,
     // where the user has already authenticated with the identity provider
     if (this.userCompletedSsoAuthentication(qParams)) {
-      await this.handleAuthenticatedUser(qParams);
+      await this.handleTokenRequestForAuthenticatedUser(qParams);
       return;
     }
 
@@ -230,7 +230,7 @@ export class SsoComponent implements OnInit {
    * is where the state and verifier are stored.
    * @param qParams - The query params
    */
-  private async handleAuthenticatedUser(qParams: QueryParams): Promise<void> {
+  private async handleTokenRequestForAuthenticatedUser(qParams: QueryParams): Promise<void> {
     // We set these in state prior to starting SSO, so we can retrieve them here
     const codeVerifier = await this.ssoLoginService.getCodeVerifier();
     const stateFromPrelogin = await this.ssoLoginService.getSsoState();
@@ -243,6 +243,8 @@ export class SsoComponent implements OnInit {
       this.redirectUri = qParams.redirectUri;
     }
 
+    // Verify that the state matches the state we set prior to starting SSO.
+    // If it does, we can proceed with exchanging the code for a token.
     if (
       qParams.code != null &&
       codeVerifier != null &&
@@ -256,7 +258,7 @@ export class SsoComponent implements OnInit {
 
   /**
    * Checks if the query params have a code and state, indicating that we've completed SSO authentication
-   * and have been redirected back to the SSO component to complete login.
+   * and have been redirected back to the SSO component on the originating client to complete login.
    * @param qParams - The query params
    * @returns True if the query params have a code and state, false otherwise
    */
@@ -379,14 +381,15 @@ export class SsoComponent implements OnInit {
   }
 
   /**
-   * We are using the Auth Code + PKCE flow for authenticating.
-   * We have received the code from our IdentityServer, which we will now present with the code verifier to get a token.
-   * The code verifier is used to ensure that the client presenting the code is the same one that initiated the authentication request.
-   * The redirect URI is also required on the request to the token endpoint, to ensure it matches the original request.
+   * We are using the Auth Code + PKCE flow.
+   * We have received the code from IdentityServer, which we will now present with the code verifier to get a token.
    */
   private async logIn(code: string, codeVerifier: string, orgSsoIdentifier: string): Promise<void> {
     this.loggingIn = true;
     try {
+      // The code verifier is used to ensure that the client presenting the code is the same one that initiated the authentication request.
+      // The redirect URI is also supplied on the request to the token endpoint, so the server can ensure it matches the original request
+      // for the code and prevent authorization code injection attacks.
       const redirectUri = this.redirectUri ?? "";
       const credentials = new SsoLoginCredentials(
         code,
