@@ -84,7 +84,7 @@ export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
 
   private submitWebAuthnNewTabResponse() {
     const webAuthnNewTabResponse = this.route.snapshot.paramMap.get("webAuthnResponse");
-    const remember = this.route.snapshot.queryParamMap.get("remember") === "true";
+    const remember = this.route.snapshot.paramMap.get("remember") === "true";
 
     if (webAuthnNewTabResponse != null) {
       this.webAuthnResultEmitter.emit({
