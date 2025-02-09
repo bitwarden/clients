@@ -172,7 +172,7 @@ export class DesktopAutofillService implements OnDestroy {
       // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
       if (request.recordIdentifier && request.credentialId.length === 0) {
         const activeUserId = await firstValueFrom(
-          getOptionalUserId(this.accountService.activeAccount$),
+          this.accountService.activeAccount$.pipe(getOptionalUserId),
         );
         if (!activeUserId) {
           this.logService.error("listenPasskeyAssertion error", "Active user not found");

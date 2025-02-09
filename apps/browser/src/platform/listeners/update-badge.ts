@@ -92,7 +92,7 @@ export class UpdateBadge {
     }
 
     const activeUserId = await firstValueFrom(
-      getOptionalUserId(this.accountService.activeAccount$),
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (!activeUserId) {
       return;

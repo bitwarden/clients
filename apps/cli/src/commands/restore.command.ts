@@ -26,7 +26,7 @@ export class RestoreCommand {
   }
 
   private async restoreCipher(id: string) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {

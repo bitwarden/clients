@@ -95,7 +95,7 @@ export class OrganizationVaultExportService
     const decCollections: CollectionView[] = [];
     const decCiphers: CipherView[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       this.apiService.getOrganizationExport(organizationId).then((exportData) => {
@@ -183,7 +183,7 @@ export class OrganizationVaultExportService
     let allDecCiphers: CipherView[] = [];
     let decCollections: CollectionView[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       this.collectionService.getAllDecrypted().then(async (collections) => {
@@ -216,7 +216,7 @@ export class OrganizationVaultExportService
     let allCiphers: Cipher[] = [];
     let encCollections: Collection[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       this.collectionService.getAll().then((collections) => {

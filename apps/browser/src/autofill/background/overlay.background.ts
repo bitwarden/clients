@@ -410,7 +410,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateAllCipherTypes: boolean,
   ): Promise<CipherView[]> {
     const activeUserId = await firstValueFrom(
-      getOptionalUserId(this.accountService.activeAccount$),
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (!activeUserId) {
       return [];
@@ -2414,7 +2414,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     try {
       this.closeInlineMenu(sender);
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.cipherService.setAddEditCipherInfo(
         {
           cipher: cipherView,

@@ -125,7 +125,9 @@ export class ViewV2Component {
           this.loadAction = params.action;
           this.senderTabId = params.senderTabId ? parseInt(params.senderTabId, 10) : undefined;
 
-          const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
           const cipher = await this.getCipherData(params.cipherId, activeUserId);
           return { activeUserId, cipher };
         }),

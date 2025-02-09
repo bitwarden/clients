@@ -85,7 +85,7 @@ export class TrashListItemsContainerComponent {
 
   async restore(cipher: CipherView) {
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.cipherService.restoreWithServer(cipher.id, activeUserId);
 
       await this.router.navigate(["/trash"]);
@@ -117,7 +117,7 @@ export class TrashListItemsContainerComponent {
     }
 
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.cipherService.deleteWithServer(cipher.id, activeUserId);
 
       await this.router.navigate(["/trash"]);

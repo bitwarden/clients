@@ -314,7 +314,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
       this.viewCipherTimeout = null;
     }
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.cipherService.updateLastLaunchedDate(cipher.id, activeUserId);
 
     await BrowserApi.createNewTab(cipher.login.launchUri);

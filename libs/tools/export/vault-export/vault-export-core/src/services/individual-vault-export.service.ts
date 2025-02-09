@@ -62,7 +62,7 @@ export class IndividualVaultExportService
     let decFolders: FolderView[] = [];
     let decCiphers: CipherView[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       firstValueFrom(this.folderService.folderViews$(activeUserId)).then((folders) => {
@@ -89,7 +89,7 @@ export class IndividualVaultExportService
     let folders: Folder[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       firstValueFrom(this.folderService.folders$(activeUserId)).then((f) => {
@@ -106,7 +106,7 @@ export class IndividualVaultExportService
     await Promise.all(promises);
 
     const userKey = await this.keyService.getUserKeyWithLegacySupport(
-      await firstValueFrom(getUserId(this.accountService.activeAccount$)),
+      await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
     );
     const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), userKey);
 

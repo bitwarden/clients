@@ -24,7 +24,7 @@ export class DefaultCipherFormService implements CipherFormService {
   private apiService: ApiService = inject(ApiService);
 
   async decryptCipher(cipher: Cipher): Promise<CipherView> {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return await cipher.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
     );
@@ -32,7 +32,7 @@ export class DefaultCipherFormService implements CipherFormService {
 
   async saveCipher(cipher: CipherView, config: CipherFormConfig): Promise<CipherView> {
     // Passing the original cipher is important here as it is responsible for appending to password history
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const encryptedCipher = await this.cipherService.encrypt(
       cipher,
       activeUserId,

@@ -61,7 +61,7 @@ export default class WebRequestBackground {
   // eslint-disable-next-line
   private async resolveAuthCredentials(domain: string, success: Function, error: Function) {
     const activeUserId = await firstValueFrom(
-      getOptionalUserId(this.accountService.activeAccount$),
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId == null) {
       error();

@@ -11,6 +11,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -61,16 +62,15 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   buildNestedFolders(organizationId?: string): Observable<DynamicTreeNode<FolderView>> {
-    const transformation = async (storedFolders: FolderView[]) => {
+    const transformation = async (storedFolders: FolderView[], userId: UserId) => {
       let folders: FolderView[];
 
       // If no org or "My Vault" is selected, show all folders
       if (organizationId == null || organizationId == "MyVault") {
         folders = storedFolders;
       } else {
-        const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         // Otherwise, show only folders that have ciphers from the selected org and the "no folder" folder
-        const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+        const ciphers = await this.cipherService.getAllDecrypted(userId);
         const orgCiphers = ciphers.filter((c) => c.organizationId == organizationId);
         folders = storedFolders.filter(
           (f) => orgCiphers.some((oc) => oc.folderId == f.id) || f.id == null,
@@ -84,9 +84,13 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
       });
     };
 
-    return getUserId(this.accountService.activeAccount$).pipe(
-      switchMap((userId) => this.folderService.folderViews$(userId)),
-      mergeMap((folders) => from(transformation(folders))),
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.folderService
+          .folderViews$(userId)
+          .pipe(mergeMap((folders) => from(transformation(folders, userId)))),
+      ),
     );
   }
 
@@ -130,7 +134,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   async getFolderNested(id: string): Promise<TreeNode<FolderView>> {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const folders = await this.getAllFoldersNested(
       await firstValueFrom(this.folderService.folderViews$(activeUserId)),
     );

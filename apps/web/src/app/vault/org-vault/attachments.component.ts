@@ -76,7 +76,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent implements On
 
   protected async loadCipher() {
     if (!this.organization.canEditAllCiphers) {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       return await super.loadCipher(activeUserId);
     }
     const response = await this.apiService.getCipherAdmin(this.cipherId);

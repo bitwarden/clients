@@ -248,7 +248,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       .filter((i) => i.organizationId)
       .map((i) => i.id as CipherId);
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.accountActivity$.pipe(getUserId));
 
     // Move personal items to the organization
     if (this.personalItemsCount > 0) {

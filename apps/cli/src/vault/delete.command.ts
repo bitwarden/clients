@@ -45,7 +45,7 @@ export class DeleteCommand {
   }
 
   private async deleteCipher(id: string, options: Options) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {
@@ -77,7 +77,7 @@ export class DeleteCommand {
       return Response.badRequest("`itemid` option is required.");
     }
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const itemId = options.itemId.toLowerCase();
     const cipher = await this.cipherService.get(itemId, activeUserId);
@@ -114,7 +114,7 @@ export class DeleteCommand {
   }
 
   private async deleteFolder(id: string) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const folder = await this.folderService.getFromState(id, activeUserId);
     if (folder == null) {
       return Response.notFound();

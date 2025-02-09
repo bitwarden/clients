@@ -100,7 +100,7 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   protected async loadCipher() {
     this.isAdminConsoleAction = true;
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     // Calling loadCipher first to assess if the cipher is unassigned. If null use apiService getCipherAdmin
     const firstCipherCheck = await super.loadCipher(activeUserId);
 
@@ -126,7 +126,7 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   protected async deleteCipher() {
     if (!this.organization.canEditAllCiphers) {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       return super.deleteCipher(activeUserId);
     }
     return this.cipher.isDeleted

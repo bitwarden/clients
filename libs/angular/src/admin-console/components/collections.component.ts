@@ -47,7 +47,7 @@ export class CollectionsComponent implements OnInit {
   }
 
   async load() {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.cipherDomain = await this.loadCipher(activeUserId);
     this.collectionIds = this.loadCipherCollections();
     this.cipher = await this.cipherDomain.decrypt(
@@ -95,7 +95,7 @@ export class CollectionsComponent implements OnInit {
     }
     this.cipherDomain.collectionIds = selectedCollectionIds;
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       this.formPromise = this.saveCollections(activeUserId);
       await this.formPromise;
       this.onSavedCollections.emit();

@@ -535,7 +535,7 @@ export default class AutofillService implements AutofillServiceInterface {
     let cipher: CipherView;
 
     const activeUserId = await firstValueFrom(
-      getOptionalUserId(this.accountService.activeAccount$),
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId == null) {
       return null;
@@ -645,7 +645,7 @@ export default class AutofillService implements AutofillServiceInterface {
     let cacheKey = "";
 
     const activeUserId = await firstValueFrom(
-      getOptionalUserId(this.accountService.activeAccount$),
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId == null) {
       return null;

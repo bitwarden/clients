@@ -151,7 +151,13 @@ export default class NotificationBackground {
       firstValueFrom(this.environmentService.environment$),
     ]);
     const iconsServerUrl = env.getIconsUrl();
-    const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(currentTab.url);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(
+      currentTab.url,
+      activeUserId,
+    );
 
     return decryptedCiphers.map((view) => {
       const { id, name, reprompt, favorite, login } = view;
@@ -305,7 +311,7 @@ export default class NotificationBackground {
     }
 
     const activeUserId = await firstValueFrom(
-      getOptionalUserId(this.accountService.activeAccount$),
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId == null) {
       return;
@@ -390,7 +396,7 @@ export default class NotificationBackground {
 
     let id: string = null;
     const activeUserId = await firstValueFrom(
-      getOptionalUserId(this.accountService.activeAccount$),
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     if (activeUserId == null) {
       return;
@@ -550,7 +556,7 @@ export default class NotificationBackground {
       this.notificationQueue.splice(i, 1);
 
       const activeUserId = await firstValueFrom(
-        getOptionalUserId(this.accountService.activeAccount$),
+        this.accountService.activeAccount$.pipe(getOptionalUserId),
       );
 
       if (queueMessage.type === NotificationQueueMessageType.ChangePassword) {
@@ -707,7 +713,7 @@ export default class NotificationBackground {
    */
   private async getFolderData() {
     const activeUserId = await firstValueFrom(
-      getOptionalUserId(this.accountService.activeAccount$),
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
     );
     return await firstValueFrom(this.folderService.folderViews$(activeUserId));
   }

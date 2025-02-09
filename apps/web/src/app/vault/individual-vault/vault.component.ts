@@ -904,7 +904,7 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @returns Promise<void>
    */
   async viewCipherById(id: string) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.get(id, activeUserId);
     // If cipher exists (cipher is null when new) and MP reprompt
     // is on for this cipher, then show password reprompt.
@@ -1100,7 +1100,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.cipherService.restoreWithServer(c.id, activeUserId);
       this.toastService.showToast({
         variant: "success",
@@ -1183,7 +1183,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.deleteCipherWithServer(c.id, activeUserId, permanent);
 
       this.toastService.showToast({

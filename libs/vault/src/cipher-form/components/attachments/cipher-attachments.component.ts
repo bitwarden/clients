@@ -119,7 +119,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.cipherDomain = await this.cipherService.get(this.cipherId, this.activeUserId);
     this.cipher = await this.cipherDomain.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, this.activeUserId),

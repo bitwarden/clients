@@ -51,9 +51,11 @@ export class CipherReportComponent implements OnDestroy {
     protected i18nService: I18nService,
     private syncService: SyncService,
   ) {
-    this.organizations$ = getUserId(this.accountService.activeAccount$).pipe(
+    this.organizations$ = this.accountService.activeAccount$.pipe(
+      getUserId,
       switchMap((userId) => this.organizationService.organizations$(userId)),
     );
+
     this.organizations$.pipe(takeUntil(this.destroyed$)).subscribe((orgs) => {
       this.organizations = orgs;
     });
@@ -183,7 +185,7 @@ export class CipherReportComponent implements OnDestroy {
   }
 
   protected async getAllCiphers(): Promise<CipherView[]> {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return await this.cipherService.getAllDecrypted(activeUserId);
   }
 

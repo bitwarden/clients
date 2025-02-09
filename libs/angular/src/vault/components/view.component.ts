@@ -145,7 +145,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   async load() {
     this.cleanUp();
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     // Grab individual cipher from `cipherViews$` for the most up-to-date information
     this.cipherService
       .cipherViews$(activeUserId)
@@ -255,7 +255,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.deleteCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
@@ -278,7 +278,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.restoreCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
@@ -387,7 +387,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     if (cipherId) {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.cipherService.updateLastLaunchedDate(cipherId, activeUserId);
     }
 

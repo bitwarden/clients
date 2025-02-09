@@ -84,7 +84,7 @@ export class EditCommand {
   }
 
   private async editCipher(id: string, req: CipherExport) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {
       return Response.notFound();
@@ -111,7 +111,7 @@ export class EditCommand {
   }
 
   private async editCipherCollections(id: string, req: string[]) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {
@@ -135,7 +135,7 @@ export class EditCommand {
       const decCipher = await updatedCipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(
           updatedCipher,
-          await firstValueFrom(getUserId(this.accountService.activeAccount$)),
+          await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
         ),
       );
       const res = new CipherResponse(decCipher);
@@ -146,7 +146,7 @@ export class EditCommand {
   }
 
   private async editFolder(id: string, req: FolderExport) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const folder = await this.folderService.getFromState(id, activeUserId);
     if (folder == null) {
       return Response.notFound();

@@ -112,7 +112,7 @@ export class GetCommand extends DownloadCommand {
 
   private async getCipherView(id: string): Promise<CipherView | CipherView[]> {
     let decCipher: CipherView = null;
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (Utils.isGuid(id)) {
       const cipher = await this.cipherService.get(id, activeUserId);
       if (cipher != null) {
@@ -265,7 +265,7 @@ export class GetCommand extends DownloadCommand {
     );
 
     if (!canAccessPremium) {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const originalCipher = await this.cipherService.get(cipher.id, activeUserId);
       if (
         originalCipher == null ||
@@ -352,7 +352,7 @@ export class GetCommand extends DownloadCommand {
       this.accountProfileService.hasPremiumFromAnySource$(account.id),
     );
     if (!canAccessPremium) {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const originalCipher = await this.cipherService.get(cipher.id, activeUserId);
       if (originalCipher == null || originalCipher.organizationId == null) {
         return Response.error("Premium status is required to use this feature.");
@@ -385,7 +385,7 @@ export class GetCommand extends DownloadCommand {
 
   private async getFolder(id: string) {
     let decFolder: FolderView = null;
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (Utils.isGuid(id)) {
       const folder = await this.folderService.getFromState(id, activeUserId);
       if (folder != null) {
@@ -562,7 +562,7 @@ export class GetCommand extends DownloadCommand {
   private async getFingerprint(id: string) {
     let fingerprint: string[] = null;
     if (id === "me") {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const publicKey = await firstValueFrom(this.keyService.userPublicKey$(activeUserId));
       fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
     } else if (Utils.isGuid(id)) {

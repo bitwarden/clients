@@ -146,7 +146,9 @@ export class Fido2AuthenticatorService<ParentWindowReference>
       try {
         keyPair = await createKeyPair();
         pubKeyDer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
-        const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
         const encrypted = await this.cipherService.get(cipherId, activeUserId);
 
         cipher = await encrypted.decrypt(
@@ -307,7 +309,9 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         };
 
         if (selectedFido2Credential.counter > 0) {
-          const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
           const encrypted = await this.cipherService.encrypt(selectedCipher, activeUserId);
           await this.cipherService.updateWithServer(encrypted);
           await this.cipherService.clearCache(activeUserId);
@@ -397,7 +401,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
       return [];
     }
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     return ciphers
       .filter(
@@ -419,7 +423,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
       return [];
     }
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     return ciphers.filter(
       (cipher) =>
@@ -437,7 +441,7 @@ export class Fido2AuthenticatorService<ParentWindowReference>
   }
 
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     return ciphers.filter(
       (cipher) =>

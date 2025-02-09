@@ -284,7 +284,9 @@ export class AddEditV2Component implements OnInit {
 
           config.initialValues = this.setInitialValuesFromParams(params);
 
-          const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
 
           // The browser notification bar and overlay use addEditCipherInfo$ to pass modified cipher details to the form
           // Attempt to fetch them here and overwrite the initialValues if present
@@ -378,7 +380,7 @@ export class AddEditV2Component implements OnInit {
     }
 
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.deleteCipher(activeUserId);
     } catch (e) {
       this.logService.error(e);

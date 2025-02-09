@@ -60,7 +60,7 @@ export class ExposedPasswordsReportComponent
     this.isAdminConsoleActive = true;
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
-      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       this.organization = await firstValueFrom(
         this.organizationService
           .organizations$(userId)

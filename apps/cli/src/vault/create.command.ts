@@ -89,7 +89,7 @@ export class CreateCommand {
   }
 
   private async createCipher(req: CipherExport) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
     try {
       const newCipher = await this.cipherService.createWithServer(cipher);
@@ -131,7 +131,7 @@ export class CreateCommand {
       return Response.badRequest("File name not provided.");
     }
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const itemId = options.itemId.toLowerCase();
     const cipher = await this.cipherService.get(itemId, activeUserId);
@@ -172,7 +172,7 @@ export class CreateCommand {
   }
 
   private async createFolder(req: FolderExport) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
     const folder = await this.folderService.encrypt(FolderExport.toView(req), userKey);
     try {

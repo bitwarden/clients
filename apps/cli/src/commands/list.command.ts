@@ -66,7 +66,7 @@ export class ListCommand {
   private async listCiphers(options: Options) {
     let ciphers: CipherView[];
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     options.trash = options.trash || false;
     if (options.url != null && options.url.trim() !== "") {
@@ -141,7 +141,7 @@ export class ListCommand {
   }
 
   private async listFolders(options: Options) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
 

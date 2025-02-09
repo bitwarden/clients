@@ -356,7 +356,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.formConfig.mode = "edit";
       this.formConfig.initialValues = null;
     }
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     let cipher = await this.cipherService.get(cipherView.id, activeUserId);
 
     // When the form config is used within the Admin Console, retrieve the cipher from the admin endpoint (if not found in local state)
@@ -494,7 +494,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     if (config.originalCipher == null) {
       return;
     }
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return await config.originalCipher.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(config.originalCipher, activeUserId),
     );

@@ -45,7 +45,7 @@ export class AutofillOptionsViewComponent {
   ) {}
 
   async openWebsite(selectedUri: string) {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.accountActivity$.pipe(getUserId));
     await this.cipherService.updateLastLaunchedDate(this.cipherId, activeUserId);
     this.platformUtilsService.launchUri(selectedUri);
   }

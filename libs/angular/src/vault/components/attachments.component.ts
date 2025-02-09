@@ -226,7 +226,7 @@ export class AttachmentsComponent implements OnInit {
   }
 
   protected async init() {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.cipherDomain = await this.loadCipher(activeUserId);
     this.cipher = await this.cipherDomain.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
@@ -282,7 +282,9 @@ export class AttachmentsComponent implements OnInit {
               ? attachment.key
               : await this.keyService.getOrgKey(this.cipher.organizationId);
           const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
-          const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
           this.cipherDomain = await this.cipherService.saveAttachmentRawWithServer(
             this.cipherDomain,
             attachment.fileName,

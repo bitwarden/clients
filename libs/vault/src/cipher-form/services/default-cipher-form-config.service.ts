@@ -40,7 +40,7 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
     cipherId?: CipherId,
     cipherType?: CipherType,
   ): Promise<CipherFormConfig> {
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const [organizations, collections, allowPersonalOwnership, folders, cipher] =
       await firstValueFrom(

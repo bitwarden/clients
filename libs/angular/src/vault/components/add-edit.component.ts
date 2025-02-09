@@ -262,7 +262,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.title = this.i18nService.t("addItem");
     }
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const loadedAddEditCipherInfo = await this.loadAddEditCipherInfo(activeUserId);
 
@@ -420,7 +420,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.cipher.id = null;
     }
 
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.encryptCipher(activeUserId);
     try {
       this.formPromise = this.saveCipher(cipher);
@@ -514,7 +514,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       this.deletePromise = this.deleteCipher(activeUserId);
       await this.deletePromise;
       this.toastService.showToast({
@@ -541,7 +541,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       this.restorePromise = this.restoreCipher(activeUserId);
       await this.restorePromise;
       this.toastService.showToast({
