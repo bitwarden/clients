@@ -34,13 +34,14 @@
       "
       #duoComponent
     />
-    <bit-form-control *ngIf="duoLaunchAction !== DuoLaunchAction.SINGLE_ACTION_POPOUT">
+    <bit-form-control *ngIf="!hideRememberMe()">
       <bit-label>{{ "dontAskAgainOnThisDeviceFor30Days" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="remember" />
     </bit-form-control>
 
     <app-two-factor-auth-webauthn
       (webAuthnResultEmitter)="submit($event.token, $event.remember)"
+      (webAuthnInNewTabEmitter)="webAuthInNewTab = $event"
       *ngIf="selectedProviderType === providerType.WebAuthn"
     />
 

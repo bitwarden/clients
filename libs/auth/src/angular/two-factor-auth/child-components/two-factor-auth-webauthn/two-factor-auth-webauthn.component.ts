@@ -50,6 +50,7 @@ export interface WebAuthnResult {
 })
 export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
   @Output() webAuthnResultEmitter = new EventEmitter<WebAuthnResult>();
+  @Output() webAuthnInNewTabEmitter = new EventEmitter<boolean>();
 
   webAuthnReady = false;
   webAuthnNewTab = false;
@@ -72,6 +73,8 @@ export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    this.webAuthnInNewTabEmitter.emit(this.webAuthnNewTab);
+
     if (this.webAuthnNewTab && this.route.snapshot.paramMap.has("webAuthnResponse")) {
       this.submitWebAuthnNewTabResponse();
     } else {

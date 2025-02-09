@@ -135,6 +135,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   duoLaunchAction: DuoLaunchAction | undefined = undefined;
   DuoLaunchAction = DuoLaunchAction;
 
+  webAuthInNewTab = false;
+
   private authenticationSessionTimeoutRoute = "authentication-timeout";
 
   constructor(
@@ -539,6 +541,16 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       this.selectedProviderType !== TwoFactorProviderType.WebAuthn &&
       this.selectedProviderType !== TwoFactorProviderType.Duo &&
       this.selectedProviderType !== TwoFactorProviderType.OrganizationDuo
+    );
+  }
+
+  hideRememberMe() {
+    // Don't show remember for me for scenarios where we have to popout the extension
+    return (
+      ((this.selectedProviderType === TwoFactorProviderType.Duo ||
+        this.selectedProviderType === TwoFactorProviderType.OrganizationDuo) &&
+        this.duoLaunchAction === DuoLaunchAction.SINGLE_ACTION_POPOUT) ||
+      (this.selectedProviderType === TwoFactorProviderType.WebAuthn && this.webAuthInNewTab)
     );
   }
 
