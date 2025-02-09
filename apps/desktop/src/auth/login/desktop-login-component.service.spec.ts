@@ -42,8 +42,6 @@ describe("DesktopLoginComponentService", () => {
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
 
-  let launchSsoBrowserWindowSpy: jest.SpyInstance;
-
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
     environmentService = mock<EnvironmentService>();
@@ -88,11 +86,6 @@ describe("DesktopLoginComponentService", () => {
     });
 
     service = TestBed.inject(DesktopLoginComponentService);
-
-    launchSsoBrowserWindowSpy = jest.spyOn(
-      DesktopLoginComponentService.prototype as any,
-      "initiateSsoThroughLocalhostCallback",
-    );
   });
 
   afterEach(() => {
@@ -106,7 +99,7 @@ describe("DesktopLoginComponentService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("launchSsoBrowserWindow", () => {
+  describe("redirectToSso", () => {
     // Array of all permutations of isAppImage, isSnapStore, and isDev
     const permutations = [
       [true, false, false], // Case 1: isAppImage true
@@ -125,36 +118,29 @@ describe("DesktopLoginComponentService", () => {
         (global as any).ipc.platform.isSnapStore = isSnapStore;
         (global as any).ipc.platform.isDev = isDev;
 
-        const email = "user@example.com";
-        const clientId = "desktop";
-        const codeChallenge = "testCodeChallenge";
-        const codeVerifier = "testCodeVerifier";
+        const email = "test@bitwarden.com";
         const state = "testState";
-        const codeVerifierHash = new Uint8Array(64);
+        const codeVerifier = "testCodeVerifier";
+        const codeChallenge = "testCodeChallenge";
+        const baseUrl = "https://webvault.bitwarden.com/#/sso";
+        const expectedRedirectUri = "bitwarden://sso-callback";
 
         passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
         passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
-        cryptoFunctionService.hash.mockResolvedValueOnce(codeVerifierHash);
         jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
 
         await service.redirectToSsoLogin(email);
 
         if (isAppImage || isSnapStore || isDev) {
-          expect(launchSsoBrowserWindowSpy).not.toHaveBeenCalled();
-
-          // Assert that the standard logic is executed
-          expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
-          expect(passwordGenerationService.generatePassword).toHaveBeenCalledTimes(2);
-          expect(cryptoFunctionService.hash).toHaveBeenCalledWith(codeVerifier, "sha256");
-          expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
-          expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
           expect(ipc.platform.localhostCallbackService.openSsoPrompt).toHaveBeenCalledWith(
             codeChallenge,
             state,
           );
         } else {
-          // If all values are false, expect the super method to be called
-          expect(launchSsoBrowserWindowSpy).toHaveBeenCalledWith(email, clientId);
+          const expectedUrl = `${baseUrl}?clientId=desktop&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
+          expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+          expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+          expect(platformUtilsService.launchUri).toHaveBeenCalledWith(expectedUrl);
         }
       });
     });

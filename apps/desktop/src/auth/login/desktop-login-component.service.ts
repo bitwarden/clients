@@ -43,7 +43,7 @@ export class DesktopLoginComponentService
     // For platforms that cannot support a protocol-based (e.g. bitwarden://) callback, we use a localhost callback
     // Otherwise, we launch the SSO component in a browser window and wait for the callback
     if (ipc.platform.isAppImage || ipc.platform.isSnapStore || ipc.platform.isDev) {
-      await this.initiateSsoThroughLocalhostCallback(email, state, codeChallenge);
+      await this.initiateSsoThroughLocalhostCallback(state, codeChallenge);
     } else {
       const env = await firstValueFrom(this.environmentService.environment$);
       const webVaultUrl = env.getWebVaultUrl();
@@ -67,7 +67,6 @@ export class DesktopLoginComponentService
   }
 
   private async initiateSsoThroughLocalhostCallback(
-    email: string,
     state: string,
     challenge: string,
   ): Promise<void> {

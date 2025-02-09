@@ -75,8 +75,8 @@ export class DefaultLoginComponentService implements LoginComponentService {
 
     let state = await this.passwordGenerationService.generatePassword(passwordOptions);
 
+    // For the browser extension, we persist the clientId on state so that it will be included after SSO in the callback
     if (this.clientType === ClientType.Browser) {
-      // Need to persist the clientId in the state for the extension
       state += ":clientId=browser";
     }
 

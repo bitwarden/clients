@@ -4,7 +4,10 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -13,12 +16,14 @@ import { BrowserPlatformUtilsService } from "../../../platform/services/platform
 import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { ExtensionLoginComponentService } from "./extension-login-component.service";
+import { BehaviorSubject } from "rxjs";
 
 jest.mock("../../../platform/flags", () => ({
   flagEnabled: jest.fn(),
 }));
 
 describe("ExtensionLoginComponentService", () => {
+  const baseUrl = "https://webvault.bitwarden.com/#/sso";
   let service: ExtensionLoginComponentService;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let environmentService: MockProxy<EnvironmentService>;
@@ -33,6 +38,10 @@ describe("ExtensionLoginComponentService", () => {
     platformUtilsService = mock<BrowserPlatformUtilsService>();
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
     extensionAnonLayoutWrapperDataService = mock<ExtensionAnonLayoutWrapperDataService>();
+    environmentService.environment$ = new BehaviorSubject<Environment>({
+      getWebVaultUrl: () => baseUrl,
+    } as Environment);
+
     TestBed.configureTestingModule({
       providers: [
         {
@@ -68,7 +77,6 @@ describe("ExtensionLoginComponentService", () => {
       const state = "testState:clientId=browser";
       const codeVerifier = "testCodeVerifier";
       const codeChallenge = "testCodeChallenge";
-      const baseUrl = "https://webvault.bitwarden.com/#/sso";
       const expectedRedirectUri = "https://webvault.bitwarden.com/sso-connector.html";
 
       passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
