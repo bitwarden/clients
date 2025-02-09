@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Αγορά Premium έκδοσης"
   },
-  "premiumPurchaseAlert": {
-    "message": "Μπορείτε να αγοράσετε συνδρομή Premium στο διαδικτυακό θησαυ/κιο του bitwarden.com. Θέλετε να επισκεφθείτε την ιστοσελίδα τώρα;"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Μπορείτε να αγοράσετε το Premium από τις ρυθμίσεις του λογαριασμού σας στην διαδικτυακή εφαρμογή Bitwarden."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Γεννήτρια ονόματος χρήστη"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Χρήση αυτού του κωδικού πρόσβασης"

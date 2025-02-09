@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Prémium funkció megvásárlása"
   },
-  "premiumPurchaseAlert": {
-    "message": "A prémium tagság megvásárolható a bitwarden.com webes széfben. Szeretnénk felkeresni a webhelyet most?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Prémium szolgáltatást vásárolhatunk a Bitwarden webalkalmazás fiókbeállításai között."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Felhasználónév generátor"
+  },
+  "useThisEmail": {
+    "message": "Ezen email használata"
   },
   "useThisPassword": {
     "message": "Jelszó használata"

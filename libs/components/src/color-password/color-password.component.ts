@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgFor, NgIf } from "@angular/common";
+
 import { Component, HostBinding, Input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -14,18 +14,16 @@ enum CharacterType {
 
 @Component({
   selector: "bit-color-password",
-  template: `<span
-    *ngFor="let character of passwordArray; index as i"
-    [class]="getCharacterClass(character)"
-  >
-    <span>{{ character }}</span>
-    <span *ngIf="showCount" class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{
-      i + 1
-    }}</span>
-  </span>`,
+  template: `@for (character of passwordArray; track character; let i = $index) {
+    <span [class]="getCharacterClass(character)">
+      <span>{{ character }}</span>
+      @if (showCount) {
+        <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
+      }
+    </span>
+  }`,
   preserveWhitespaces: false,
   standalone: true,
-  imports: [NgFor, NgIf],
 })
 export class ColorPasswordComponent {
   @Input() password: string = null;

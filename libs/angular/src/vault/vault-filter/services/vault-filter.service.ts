@@ -16,13 +16,10 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { DeprecatedVaultFilterService as DeprecatedVaultFilterServiceAbstraction } from "../../abstractions/deprecated-vault-filter.service";
 import { DynamicTreeNode } from "../models/dynamic-tree-node.model";
-
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { COLLAPSED_GROUPINGS } from "./../../../../../common/src/vault/services/key-state/collapsed-groupings.state";
 
 const NestingDelimiter = "/";
 

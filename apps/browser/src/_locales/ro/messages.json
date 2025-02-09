@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Achiziționare abonament Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Puteți achiziționa un abonament Premium pe website-ul bitwarden.com. Doriți să vizitați site-ul acum?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Username generator"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Use this password"

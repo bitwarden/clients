@@ -15,7 +15,7 @@
     "message": "Ризик од лозинке"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Прегледај ризичне лозинке (слабе, изложене или поново коришћене) у апликацијама. Изабери своје најкритичније апликације да би дао приоритет безбедносним радњама како би твоји корисници адресирали ризичне лозинке."
   },
   "dataLastUpdated": {
     "message": "Подаци су последњи пут ажурирани: $DATE$",
@@ -132,13 +132,13 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+    "message": "Ови чланови се пријављују у апликације са слабим, откривеним или поново коришћеним лозинкама."
   },
   "atRiskApplicationsDescription": {
     "message": "Ове апликације имају слабу, проваљену или често коришћену лозинку."
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "message": "Ови чланови се пријављују у $APPNAME$ са слабим, откривеним или поново коришћеним лозинкама.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -816,7 +816,7 @@
     "message": "Копирати телефон"
   },
   "copyEmail": {
-    "message": "Копирати имејл"
+    "message": "Копирај Е-пошту"
   },
   "copyCompany": {
     "message": "Копирати фирму"
@@ -1168,7 +1168,7 @@
     "message": "Потврдите идентитет"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет."
   },
   "continueLoggingIn": {
     "message": "Настави са пријављивањем"
@@ -1177,7 +1177,7 @@
     "message": "Шта је уређај?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Уређај је јединствена инсталација Bitwarden апликације на коју сте се пријавили. Поновно инсталирање, брисање података апликације или брисање колачића може довести до тога да се уређај појави више пута."
   },
   "logInInitiated": {
     "message": "Пријава је покренута"
@@ -1186,7 +1186,7 @@
     "message": "Пошаљи"
   },
   "emailAddressDesc": {
-    "message": "Користите ваш имејл за пријављивање."
+    "message": "Користи твоју Е-пошту за пријављивање."
   },
   "yourName": {
     "message": "Ваше име"
@@ -1219,7 +1219,7 @@
     "message": "Савет Главне Лозинке"
   },
   "masterPassHintText": {
-    "message": "Ако заборавите лозинку, наговештај за лозинку се може послати на ваш имејл. $CURRENT$/$MAXIMUM$ карактера максимум.",
+    "message": "Ако заборавиш лозинку, наговештај за лозинку се може послати на твоју Е-пошту. $CURRENT$/$MAXIMUM$ карактера максимум.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -1235,7 +1235,7 @@
     "message": "Подешавања"
   },
   "accountEmail": {
-    "message": "Имејл налога"
+    "message": "Е-пошта налога"
   },
   "requestHint": {
     "message": "Захтевај савет"
@@ -1244,22 +1244,22 @@
     "message": "Затражити савет лозинке"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Унесите имејл свог налога и биће вам послат савет за лозинку"
+    "message": "Унеси адресу Е-поште свог налога и биће ти послат савет за лозинку"
   },
   "passwordHint": {
     "message": "Помоћ за лозинку"
   },
   "enterEmailToGetHint": {
-    "message": "Унесите Ваш имејл да би добили савет за Вашу Главну Лозинку."
+    "message": "Унеси твоју Е-пошту да би добио савет за твоју Главну Лозинку."
   },
   "getMasterPasswordHint": {
     "message": "Добити савет за Главну Лозинку"
   },
   "emailRequired": {
-    "message": "Имејл је неопходан."
+    "message": "Адреса Е-поште је неопходна."
   },
   "invalidEmail": {
-    "message": "Неисправан имејл."
+    "message": "Нетачна адреса Е-поште."
   },
   "masterPasswordRequired": {
     "message": "Главна Лозинка је неопходна."
@@ -1302,7 +1302,7 @@
     "message": "Изаберите датум истека који је у будућности."
   },
   "emailAddress": {
-    "message": "Имејл"
+    "message": "Адреса Е-поште"
   },
   "yourVaultIsLockedV2": {
     "message": "Ваш сеф је блокиран"
@@ -1399,7 +1399,7 @@
     }
   },
   "verificationCodeEmailSent": {
-    "message": "Провера имејла послата на $EMAIL$.",
+    "message": "Е-пошта за верификацију је послата на $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1411,7 +1411,7 @@
     "message": "Запамти ме"
   },
   "sendVerificationCodeEmailAgain": {
-    "message": "Поново послати верификациони код на имејл"
+    "message": "Поново послати верификациони код на Е-пошту"
   },
   "useAnotherTwoStepMethod": {
     "message": "Користите другу методу пријављивања у два корака"
@@ -1839,12 +1839,6 @@
   "dangerZone": {
     "message": "Опасна зона"
   },
-  "dangerZoneDesc": {
-    "message": "Пажљиво, ове акције су крајне!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Пажљиво, ова акција није реверзибилна!"
-  },
   "deauthorizeSessions": {
     "message": "Одузели овлашћење сесије"
   },
@@ -1853,6 +1847,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Наставак ће вас такође одјавити из тренутне сесије, што захтева поновно пријављивање. Од вас ће такође бити затражено да се поново пријавите у два корака, ако је омогућено. Активне сесије на другим уређајима могу да остану активне још један сат."
+  },
+  "newDeviceLoginProtection": {
+    "message": "New device login"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Turn off new device login protection"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Turn on new device login protection"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "New device login protection changes saved"
   },
   "sessionsDeauthorized": {
     "message": "Одузето овлашћење свих сесија"
@@ -5795,14 +5810,14 @@
     "message": "Грешка при декрипцији"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden није могао да декриптује ставке из трезора наведене испод."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Обратите се корисничкој подршци",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "да бисте избегли додатни губитак података.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
@@ -6730,6 +6745,9 @@
   },
   "catchallEmailDesc": {
     "message": "Use your domain's configured catch-all inbox."
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "random": {
     "message": "Случајно",
@@ -8607,6 +8625,9 @@
   "limitCollectionDeletionDesc": {
     "message": "Ограничите брисање збирке на власнике и администраторе"
   },
+  "limitItemDeletionDesc": {
+    "message": "Limit item deletion to members with the Can manage permission"
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Власници и администратори могу да управљају свим колекцијама и ставкама"
   },
@@ -9208,19 +9229,19 @@
     "message": "Configure Bitwarden Directory Connector to automatically provision users and groups using the implementation guide for your Identity Provider."
   },
   "eventManagement": {
-    "message": "Event management"
+    "message": "Управљање догађајима"
   },
   "eventManagementDesc": {
     "message": "Integrate Bitwarden event logs with your SIEM (system information and event management) system by using the implementation guide for your platform."
   },
   "deviceManagement": {
-    "message": "Device management"
+    "message": "Управљање уређајима"
   },
   "deviceManagementDesc": {
-    "message": "Configure device management for Bitwarden using the implementation guide for your platform."
+    "message": "Конфигуришите управљање уређајима за Bitwarden помоћу водича за имплементацију за своју платформу."
   },
   "integrationCardTooltip": {
-    "message": "Launch $INTEGRATION$ implementation guide.",
+    "message": "Покренути $INTEGRATION$ водич за имплементацију.",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9229,7 +9250,7 @@
     }
   },
   "smIntegrationTooltip": {
-    "message": "Set up $INTEGRATION$.",
+    "message": "Подесити $INTEGRATION$.",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -9238,7 +9259,7 @@
     }
   },
   "smSdkTooltip": {
-    "message": "View $SDK$ repository",
+    "message": "Преглед $SDK$ спремишта",
     "placeholders": {
       "sdk": {
         "content": "$1",
@@ -9809,13 +9830,13 @@
     "message": "Алгоритам кључа"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Приватни кључ"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Јавни кључ"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Отисак"
   },
   "sshKeyFingerprint": {
     "message": "Отисак прста"
@@ -9890,7 +9911,7 @@
     "message": "Ваша комплементарна једногодишња претплата на Менаџер Лозинки ће надоградити на изабрани план. Неће вам бити наплаћено док се бесплатни период не заврши."
   },
   "fileSavedToDevice": {
-    "message": "File saved to device. Manage from your device downloads."
+    "message": "Датотека је сачувана на уређају. Управљајте преузимањима са свог уређаја."
   },
   "publicApi": {
     "message": "Јавни API",
@@ -10068,7 +10089,7 @@
     "message": "We have made a micro-deposit to your bank account (this may take 1-2 business days). Enter the six-digit code starting with 'SM' found on the deposit description. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   },
   "descriptorCode": {
-    "message": "Descriptor code"
+    "message": "Кôд дескриптора"
   },
   "importantNotice": {
     "message": "Важно обавештење"
@@ -10110,13 +10131,13 @@
     "message": "Уклони чланове"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Уређаји"
   },
   "deviceListDescription": {
-    "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
+    "message": "Ваш рачун је пријављен на сваку од доле наведених уређаја. Ако не препознајете уређај, извадите га сада."
   },
   "deviceListDescriptionTemp": {
-    "message": "Your account was logged in to each of the devices below."
+    "message": "Ваш рачун је пријављен на сваку од доле наведених уређаја."
   },
   "claimedDomains": {
     "message": "Claimed domains"
@@ -10250,10 +10271,10 @@
     "message": "Organization subscription restarted"
   },
   "restartSubscription": {
-    "message": "Restart your subscription"
+    "message": "Поново покрените претплату"
   },
   "suspendedManagedOrgMessage": {
-    "message": "Contact $PROVIDER$ for assistance.",
+    "message": "Контактирајте $PROVIDER$ за помоћ.",
     "placeholders": {
       "provider": {
         "content": "$1",

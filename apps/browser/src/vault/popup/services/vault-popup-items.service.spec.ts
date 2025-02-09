@@ -19,9 +19,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { LocalData } from "@bitwarden/common/vault/models/data/local.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";

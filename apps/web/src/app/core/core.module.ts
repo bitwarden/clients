@@ -52,10 +52,10 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import {
   EnvironmentService,
   Urls,
@@ -99,7 +99,7 @@ import {
   KeyService as KeyServiceAbstraction,
   BiometricsService,
 } from "@bitwarden/key-management";
-import { LockComponentService } from "@bitwarden/key-management/angular";
+import { LockComponentService } from "@bitwarden/key-management-ui";
 
 import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";

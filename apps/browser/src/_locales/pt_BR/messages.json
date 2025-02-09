@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Comprar Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Você pode comprar a assinatura premium no cofre web em bitwarden.com. Você deseja visitar o site agora?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Você pode comprar Premium nas configurações de sua conta no aplicativo web do Bitwarden."
   },
@@ -2063,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Gerador de usuário"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Use esta senha"

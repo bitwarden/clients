@@ -67,7 +67,6 @@ export default class AutofillService implements AutofillServiceInterface {
   private openPasswordRepromptPopoutDebounce: number | NodeJS.Timeout;
   private currentlyOpeningPasswordRepromptPopout = false;
   private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
-
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
 
   constructor(
@@ -465,8 +464,13 @@ export default class AutofillService implements AutofillServiceInterface {
         fillScript.properties.delay_between_operations = 20;
 
         didAutofill = true;
+
         if (!options.skipLastUsed) {
-          await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
+          // In order to prevent a UI update send message to background script to update last used date
+          await chrome.runtime.sendMessage({
+            command: "updateLastUsedDate",
+            cipherId: options.cipher.id,
+          });
         }
 
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

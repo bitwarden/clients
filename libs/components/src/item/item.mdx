@@ -111,6 +111,30 @@ Actions are commonly icon buttons or badge buttons.
 </bit-item>
 ```
 
+## Text Overflow Behavior
+
+The default behavior for long text is to truncate it. However, you have the option of changing it to
+wrap instead if that is what the design calls for.
+
+This can be changed by passing `[truncate]="false"` to the `bit-item-content`.
+
+```html
+<bit-item>
+  <bit-item-content [truncate]="false">
+    Long text goes here!
+    <ng-container slot="secondary">This could also be very long text</ng-container>
+  </bit-item-content>
+</bit-item>
+```
+
+### Truncation (Default)
+
+<Story of={stories.TextOverflowTruncate} />
+
+### Wrap
+
+<Story of={stories.TextOverflowWrap} />
+
 ## Item Groups
 
 Groups of items can be associated by wrapping them in the `<bit-item-group>`.
