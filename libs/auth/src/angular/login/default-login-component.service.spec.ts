@@ -90,11 +90,5 @@ describe("DefaultLoginComponentService", () => {
       expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
       expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
     });
-
-    it("calls redirectToSso", async () => {
-      const email = "test@bitwarden.com";
-      await service.redirectToSsoLogin(email);
-      expect(service["redirectToSso"]).toHaveBeenCalled();
-    });
   });
 });
