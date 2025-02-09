@@ -224,7 +224,10 @@ export class SsoComponent implements OnInit {
   }
 
   /**
-   * Handles the case in which the user has completed SSO authentication and has been redirected back to the SSO component
+   * Handles the case in which the user has completed SSO authentication, has a code
+   * and has been redirected back to the SSO component to exchange the code for a token.
+   * This will be on the client originating the SSO request, not always the web client, as that
+   * is where the state and verifier are stored.
    * @param qParams - The query params
    */
   private async handleAuthenticatedUser(qParams: QueryParams): Promise<void> {
@@ -377,8 +380,9 @@ export class SsoComponent implements OnInit {
 
   /**
    * We are using the Auth Code + PKCE flow for authenticating.
-   * We have received the code from our IdentityServer instance, which we will now present with the code verifier to get a token.
+   * We have received the code from our IdentityServer, which we will now present with the code verifier to get a token.
    * The code verifier is used to ensure that the client presenting the code is the same one that initiated the authentication request.
+   * The redirect URI is also required on the request to the token endpoint, to ensure it matches the original request.
    */
   private async logIn(code: string, codeVerifier: string, orgSsoIdentifier: string): Promise<void> {
     this.loggingIn = true;
