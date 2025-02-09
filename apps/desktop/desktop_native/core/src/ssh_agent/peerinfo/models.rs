@@ -29,4 +29,8 @@ impl PeerInfo {
     pub fn process_name(&self) -> &str {
         &self.process_name
     }
+
+    pub fn unknown() -> Self {
+        Self::new(0, 0, "Unknown application".to_string())
+    }
 }
