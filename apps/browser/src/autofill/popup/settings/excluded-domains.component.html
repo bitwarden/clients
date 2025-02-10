@@ -36,6 +36,7 @@
               type="text"
               (change)="fieldChange()"
               [(ngModel)]="excludedDomainsState[i]"
+              [attr.aria-label]="'websiteItemLabel' | i18n: i + 1"
             />
             <div id="excludedDomain{{ i }}" *ngIf="i < fieldsEditThreshold">{{ domain }}</div>
           </bit-item-content>
