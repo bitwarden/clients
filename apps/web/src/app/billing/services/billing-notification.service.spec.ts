@@ -30,7 +30,7 @@ describe("BillingNotificationService", () => {
       });
     });
 
-    it("should use provided title", () => {
+    it("shows error toast with the provided error", () => {
       const error = new ErrorResponse(["test error"], 400);
 
       expect(() => service.handleError(error, "Test Title")).toThrow();
