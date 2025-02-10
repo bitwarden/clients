@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "デバイスに通知を送信しました。"
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "お使いのデバイスに通知が送信されました"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "アカウントがロック解除されていることと、フィンガープリントフレーズが他の端末で一致していることを確認してください"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "リクエストが承認されると通知されます"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "ログイン開始"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "流出したマスターパスワード"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "アイテム名"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "表示のみの権限が与えられているコレクションを削除することはできません: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "組織は無効化されています"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "エクストラワイド"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "表示のみの権限が与えられているコレクションを削除することはできません: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Please update your desktop application"
