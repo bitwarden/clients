@@ -95,6 +95,8 @@ import { ReportsModule } from "./tools/reports";
 import { AccessComponent } from "./tools/send/access.component";
 import { SendAccessExplainerComponent } from "./tools/send/send-access-explainer.component";
 import { SendComponent } from "./tools/send/send.component";
+import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
+import { BrowserExtensionPromptComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -697,6 +699,23 @@ const routes: Routes = [
         data: {
           maxWidth: "3xl",
         } satisfies AnonLayoutWrapperData,
+      },
+      {
+        path: "browser-extension-prompt",
+        data: {
+          pageIcon: VaultIcons.BrowserExtensionIcon,
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: BrowserExtensionPromptComponent,
+          },
+          {
+            path: "",
+            component: BrowserExtensionPromptInstallComponent,
+            outlet: "secondary",
+          },
+        ],
       },
     ],
   },
