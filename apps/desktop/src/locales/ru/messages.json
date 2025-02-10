@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Вход инициирован"
   },
+  "logInRequestSent": {
+    "message": "Запрос отправлен"
+  },
   "notificationSentDevice": {
     "message": "На ваше устройство отправлено уведомление."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "На ваше устройство было отправлено уведомление"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Убедитесь, что ваш аккаунт разблокирован и фраза отпечатка совпадает с фразой на другом устройстве"
+  "notificationSentDevicePart1": {
+    "message": "Разблокируйте Bitwarden на своем устройстве или "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "веб-приложении"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Перед одобрением убедитесь, что фраза отпечатка совпадает с приведенной ниже."
   },
   "needAnotherOptionV1": {
     "message": "Нужен другой вариант?"
@@ -2782,11 +2791,11 @@
     "message": "Показать количество символов",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Вы пытаетесь войти?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
   },
-  "logInAttemptBy": {
-    "message": "Попытка авторизации через $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Попытка доступа $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Время"
   },
-  "confirmLogIn": {
-    "message": "Подтвердить вход"
+  "confirmAccess": {
+    "message": "Подтвердить доступ"
   },
-  "denyLogIn": {
-    "message": "Запретить вход"
+  "denyAccess": {
+    "message": "Отказать в доступе"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Вход подтвержден для $EMAIL$ на $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Этот запрос больше не действителен."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Подтвердите попытку входа для $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Подтвердить попытку доступа $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Запрошено разрешение на вход"
+  },
+  "accountAccessRequested": {
+    "message": "Запрошен доступ к аккаунту"
   },
   "creatingAccountOn": {
     "message": "Создание аккаунта"
