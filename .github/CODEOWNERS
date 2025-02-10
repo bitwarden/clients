@@ -134,7 +134,7 @@ libs/key-management @bitwarden/team-key-management-dev
 libs/key-management-ui @bitwarden/team-key-management-dev
 libs/common/src/key-management @bitwarden/team-key-management-dev
 
-apps/desktop/destkop_native/core/src/biometric/ @bitwarden/team-key-management-dev
+apps/desktop/desktop_native/core/src/biometric/ @bitwarden/team-key-management-dev
 apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-key-management-dev
 apps/browser/src/background/nativeMessaging.background.ts @bitwarden/team-key-management-dev
 apps/desktop/src/services/biometric-message-handler.service.ts @bitwarden/team-key-management-dev
