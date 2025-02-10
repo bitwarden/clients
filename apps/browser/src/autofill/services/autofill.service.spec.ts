@@ -769,7 +769,10 @@ describe("AutofillService", () => {
       );
       expect(autofillService["generateLoginFillScript"]).toHaveBeenCalled();
       expect(logService.info).not.toHaveBeenCalled();
-      expect(cipherService.updateLastUsedDate).toHaveBeenCalledWith(autofillOptions.cipher.id);
+      expect(cipherService.updateLastUsedDate).toHaveBeenCalledWith(
+        autofillOptions.cipher.id,
+        mockUserId,
+      );
       expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
         autofillOptions.pageDetails[0].tab.id,
         {
