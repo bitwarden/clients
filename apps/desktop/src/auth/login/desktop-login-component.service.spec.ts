@@ -4,6 +4,7 @@ import { of } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import {
   Environment,
@@ -58,6 +59,7 @@ describe("DesktopLoginComponentService", () => {
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
     i18nService = mock<I18nService>();
     toastService = mock<ToastService>();
+    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
 
     TestBed.configureTestingModule({
       providers: [

@@ -4,6 +4,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import {
   Environment,
@@ -23,7 +24,7 @@ jest.mock("../../../platform/flags", () => ({
 }));
 
 describe("ExtensionLoginComponentService", () => {
-  const baseUrl = "https://webvault.bitwarden.com/#/sso";
+  const baseUrl = "https://webvault.bitwarden.com";
   let service: ExtensionLoginComponentService;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let environmentService: MockProxy<EnvironmentService>;
@@ -41,6 +42,7 @@ describe("ExtensionLoginComponentService", () => {
     environmentService.environment$ = new BehaviorSubject<Environment>({
       getWebVaultUrl: () => baseUrl,
     } as Environment);
+    platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
 
     TestBed.configureTestingModule({
       providers: [
@@ -74,7 +76,8 @@ describe("ExtensionLoginComponentService", () => {
   describe("redirectToSso", () => {
     it("launches SSO browser window with correct URL", async () => {
       const email = "test@bitwarden.com";
-      const state = "testState:clientId=browser";
+      const state = "testState";
+      const expectedState = "testState:clientId=browser";
       const codeVerifier = "testCodeVerifier";
       const codeChallenge = "testCodeChallenge";
       const expectedRedirectUri = "https://webvault.bitwarden.com/sso-connector.html";
@@ -85,9 +88,9 @@ describe("ExtensionLoginComponentService", () => {
 
       await service.redirectToSsoLogin(email);
 
-      const expectedUrl = `${baseUrl}?clientId=browser&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
+      const expectedUrl = `${baseUrl}/#/sso?clientId=browser&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${expectedState}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
 
-      expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+      expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(expectedState);
       expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
       expect(platformUtilsService.launchUri).toHaveBeenCalledWith(expectedUrl);
     });
