@@ -97,7 +97,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
           type: notificationBarIframeInitData.type as NotificationType,
           theme: resolvedTheme,
           handleCloseNotification,
-          handleSave,
+          handleSaveAction,
           handleEditOrUpdateAction,
           i18n,
           ciphers: cipherData,
@@ -184,7 +184,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 }
 
-function handleSave(e: Event) {
+function handleSaveAction(e: Event) {
   e.preventDefault();
 
   sendSaveCipherMessage(removeIndividualVault());

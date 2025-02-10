@@ -24,11 +24,11 @@ export function NotificationContainer({
   theme = ThemeTypes.Light,
   type,
   ciphers,
-  handleSave,
+  handleSaveAction,
   handleEditOrUpdateAction,
 }: NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
-  handleSave: (e: Event) => void;
+  handleSaveAction: (e: Event) => void;
   handleEditOrUpdateAction: (e: Event) => void;
 } & {
   i18n: { [key: string]: string };
@@ -55,7 +55,7 @@ export function NotificationContainer({
           })
         : null}
       ${NotificationFooter({
-        handleSave,
+        handleSaveAction,
         theme,
         notificationType: type,
       })}
