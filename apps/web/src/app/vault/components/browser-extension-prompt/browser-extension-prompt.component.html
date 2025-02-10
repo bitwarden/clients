@@ -24,4 +24,12 @@
       {{ "openedExtensionViewAtRiskPasswords" | i18n }}
     </p>
   </ng-container>
+
+  <ng-container *ngIf="pageState === BrowserPromptState.ManualOpen">
+    <p
+      bitTypography="body1"
+      class="tw-mb-0 tw-text-xl [&>svg]:tw-align-baseline [&>svg]:-tw-mb-[2px]"
+      [innerHTML]="manualErrorMessage"
+    ></p>
+  </ng-container>
 </div>

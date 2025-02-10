@@ -1,6 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
@@ -11,17 +12,20 @@ import {
 describe("BrowserExtensionPromptService", () => {
   let service: BrowserExtensionPromptService;
   const setAnonLayoutWrapperData = jest.fn();
+  const isFirefox = jest.fn().mockReturnValue(false);
   const postMessage = jest.fn();
   window.postMessage = postMessage;
 
   beforeEach(() => {
     setAnonLayoutWrapperData.mockClear();
     postMessage.mockClear();
+    isFirefox.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
         BrowserExtensionPromptService,
         { provide: AnonLayoutWrapperDataService, useValue: { setAnonLayoutWrapperData } },
+        { provide: PlatformUtilsService, useValue: { isFirefox } },
       ],
     });
     jest.useFakeTimers();
@@ -94,14 +98,45 @@ describe("BrowserExtensionPromptService", () => {
     });
   });
 
-  describe("error state", () => {
+  describe("firefox", () => {
     beforeEach(() => {
+      isFirefox.mockReturnValue(true);
       service.start();
     });
 
-    it("sets error state after timeout", () => {
-      jest.advanceTimersByTime(1000);
+    afterEach(() => {
+      // rest mock
+      isFirefox.mockReturnValue(false);
+    });
 
+    it("sets manual open state", (done) => {
+      service.pageState$.subscribe((state) => {
+        expect(state).toBe(BrowserPromptState.ManualOpen);
+        done();
+      });
+    });
+
+    it("sets error state after timeout", () => {
+      expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
+        pageTitle: { key: "somethingWentWrong" },
+      });
+    });
+  });
+
+  describe("error state", () => {
+    beforeEach(() => {
+      service.start();
+      jest.advanceTimersByTime(1000);
+    });
+
+    it("sets error state", (done) => {
+      service.pageState$.subscribe((state) => {
+        expect(state).toBe(BrowserPromptState.Error);
+        done();
+      });
+    });
+
+    it("sets error state after timeout", () => {
       expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
         pageTitle: { key: "somethingWentWrong" },
       });

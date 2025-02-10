@@ -10300,6 +10300,15 @@
   "openedExtensionViewAtRiskPasswords": {
     "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
   },
+  "openExtensionManually": {
+    "message": "We had trouble opening the Bitwarden browser extension. Open the the Bitwarden icon $ICON$ from the toolbar.",
+    "placeholders": {
+      "icon": {
+        "content": "$1",
+        "example": "Bitwarden Icon"
+      }
+    }
+  },
   "resellerRenewalWarningMsg": {
     "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
     "placeholders": {

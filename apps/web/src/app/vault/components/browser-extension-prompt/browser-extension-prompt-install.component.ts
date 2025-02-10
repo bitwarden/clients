@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
+import { map } from "rxjs";
 
 import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -31,8 +32,10 @@ const WebStoreUrls: Partial<Record<DeviceType, string>> = {
   imports: [CommonModule, I18nPipe, LinkModule],
 })
 export class BrowserExtensionPromptInstallComponent implements OnInit {
-  /** Current state of the prompt page */
-  protected pageState$ = this.browserExtensionPromptService.pageState$;
+  /** The install link should only who for error states */
+  protected shouldShow$ = this.browserExtensionPromptService.pageState$.pipe(
+    map((state) => state === BrowserPromptState.Error || state === BrowserPromptState.ManualOpen),
+  );
 
   /** All available page states */
   protected BrowserPromptState = BrowserPromptState;

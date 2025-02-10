@@ -56,6 +56,11 @@ describe("BrowserExtensionInstallComponent", () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).not.toBe("");
+
+    pageState$.next(BrowserPromptState.ManualOpen);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toBe("");
   });
 
   describe("error state", () => {

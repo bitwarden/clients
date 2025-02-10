@@ -3,13 +3,17 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, fromEvent } from "rxjs";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 export enum BrowserPromptState {
   Loading = "loading",
   Error = "error",
   Success = "success",
+  ManualOpen = "manualOpen",
 }
+
+type PromptErrorStates = BrowserPromptState.Error | BrowserPromptState.ManualOpen;
 
 @Injectable({
   providedIn: "root",
@@ -26,9 +30,19 @@ export class BrowserExtensionPromptService {
   constructor(
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private destroyRef: DestroyRef,
+    private platformUtilsService: PlatformUtilsService,
   ) {}
 
   start(): void {
+    // Firefox does not support automatically opening the extension,
+    // it currently requires a user gesture within the context of the extension to open.
+    // Show message to direct the user to manually open the extension.
+    // Mozilla Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=1799344
+    if (this.platformUtilsService.isFirefox()) {
+      this.setErrorState(BrowserPromptState.ManualOpen);
+      return;
+    }
+
     this.checkForBrowserExtension();
   }
 
@@ -76,8 +90,9 @@ export class BrowserExtensionPromptService {
   }
 
   /** Show open extension error state */
-  private setErrorState() {
-    this._pageState$.next(BrowserPromptState.Error);
+  private setErrorState(errorState?: PromptErrorStates) {
+    this.clearExtensionCheckTimeout();
+    this._pageState$.next(errorState ?? BrowserPromptState.Error);
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageTitle: {
         key: "somethingWentWrong",
