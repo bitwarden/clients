@@ -4003,7 +4003,7 @@
     "message": "Passkey entfernt"
   },
   "autofillSuggestions": {
-    "message": "Vorschläge zum Auto-Ausfüllen"
+    "message": "Auto-Ausfüllen-Vorschläge"
   },
   "itemSuggestions": {
     "message": "Vorgeschlagene Einträge"
@@ -4579,7 +4579,7 @@
     "message": "Konto-Aktionen"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "Anzahl der Vorschläge zum Auto-Ausfüllen von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
+    "message": "Anzahl der Auto-Ausfüllen-Vorschläge von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
   },
   "showQuickCopyActions": {
     "message": "Schnellkopier-Aktionen im Tresor anzeigen"
