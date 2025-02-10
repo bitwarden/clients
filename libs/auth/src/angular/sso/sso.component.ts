@@ -425,7 +425,7 @@ export class SsoComponent implements OnInit {
         codeVerifier,
         redirectUri,
         orgSsoIdentifier,
-        this.email,
+        this.email ?? undefined,
       );
       this.formPromise = this.loginStrategyService.logIn(credentials);
       const authResult = await this.formPromise;
