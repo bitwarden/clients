@@ -13,15 +13,6 @@ on:
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-web.yml'
-  workflow_dispatch:
-    inputs:
-      custom_tag_extension:
-        description: "Custom image tag extension"
-        required: false
-      sdk_branch:
-        description: "Custom SDK branch"
-        required: false
-        type: string
 
 defaults:
   run:

@@ -14,12 +14,6 @@ on:
       - '!*.txt'
   workflow_call:
     inputs: {}
-  workflow_dispatch:
-    inputs:
-      sdk_branch:
-        description: "Custom SDK branch"
-        required: false
-        type: string
 
 defaults:
   run:
