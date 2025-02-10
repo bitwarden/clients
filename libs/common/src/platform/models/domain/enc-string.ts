@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Jsonify, Opaque } from "type-fest";
 
-import { EncryptService } from "../../abstractions/encrypt.service";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../enums";
 import { Encrypted } from "../../interfaces/encrypted";
 import { Utils } from "../../misc/utils";

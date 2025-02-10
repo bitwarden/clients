@@ -13,9 +13,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService } from "@bitwarden/key-management";
 
 @Component({
@@ -34,9 +32,7 @@ export class RegisterComponent extends BaseRegisterComponent {
     i18nService: I18nService,
     keyService: KeyService,
     apiService: ApiService,
-    stateService: StateService,
     platformUtilsService: PlatformUtilsService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
     environmentService: EnvironmentService,
     logService: LogService,
     auditService: AuditService,
@@ -51,9 +47,7 @@ export class RegisterComponent extends BaseRegisterComponent {
       i18nService,
       keyService,
       apiService,
-      stateService,
       platformUtilsService,
-      passwordGenerationService,
       environmentService,
       logService,
       auditService,

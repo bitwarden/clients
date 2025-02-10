@@ -12,8 +12,9 @@ import {
   SkipSelf,
 } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { IconButtonModule } from "../icon-button";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { NavGroupAbstraction, NavItemComponent } from "./nav-item.component";
@@ -28,6 +29,7 @@ import { SideNavService } from "./side-nav.service";
   ],
   standalone: true,
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
+  preserveWhitespaces: false,
 })
 export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {
   @ContentChildren(NavBaseComponent, {
