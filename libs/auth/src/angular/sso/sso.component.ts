@@ -89,7 +89,7 @@ export class SsoComponent implements OnInit {
   protected state: string | undefined;
   protected codeChallenge: string | undefined;
   protected clientId: SsoClientType | undefined;
-  protected email: string | undefined;
+  protected email: string | null | undefined;
 
   formPromise: Promise<AuthResult> | undefined;
   initiateSsoFormPromise: Promise<SsoPreValidateResponse> | undefined;
