@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { ConditionalExcept, ConditionalKeys, Constructor } from "type-fest";
 
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { View } from "../../../models/view/view";
-import { EncryptService } from "../../abstractions/encrypt.service";
 
 import { EncString } from "./enc-string";
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";

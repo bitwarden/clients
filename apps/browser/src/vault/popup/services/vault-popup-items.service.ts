@@ -214,6 +214,7 @@ export class VaultPopupItemsService {
     map(([hasSearchText, filters]) => {
       return hasSearchText || Object.values(filters).some((filter) => filter !== null);
     }),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   /**

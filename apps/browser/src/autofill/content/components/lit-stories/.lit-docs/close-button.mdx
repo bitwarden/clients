@@ -1,0 +1,55 @@
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
+
+import * as stories from "./close-button.lit-stories";
+
+<Meta title="Components/Buttons/Close Button" of={stories} />
+
+## Close Button
+
+The `CloseButton` component is a lightweight, themeable button used for closing notifications or
+dismissing elements. It is built using the `lit` library, styled with `@emotion/css`, and integrates
+a close icon for visual clarity. The component is designed to be intuitive and accessible.
+
+<Primary />
+<Controls />
+## Props
+
+| **Prop**                  | **Type**             | **Required** | **Description**                                             |
+| ------------------------- | -------------------- | ------------ | ----------------------------------------------------------- |
+| `handleCloseNotification` | `(e: Event) => void` | Yes          | The function to execute when the button is clicked.         |
+| `theme`                   | `Theme`              | Yes          | The theme to style the button. Must match the `Theme` enum. |
+
+## Installation and Setup
+
+1. Ensure you have the necessary dependencies installed:
+
+   - `lit`: Used to render the component.
+   - `@emotion/css`: Used for styling the component.
+
+2. Pass the required props to the component when rendering:
+   - `handleCloseNotification`: A function that handles the click event for closing.
+   - `theme`: The theme to style the button (must be a valid `Theme`).
+
+## Accessibility (WCAG) Compliance
+
+The `CloseButton` component follows the
+[W3C ARIA button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/). Below is a breakdown of
+key accessibility considerations:
+
+### Keyboard Accessibility
+
+- The button supports keyboard interaction through the `@click` event.
+- Users can activate the button using the `Enter` or `Space` key.
+
+### Screen Reader Compatibility
+
+- The button uses a semantic `<button>` element, ensuring it is natively recognized by assistive
+  technologies.
+
+### Focus Management
+
+- Ensure the button receives proper focus, especially when navigating using a keyboard.
+
+### Visual Feedback
+
+- The button provides hover feedback by changing the border color for better user interaction.

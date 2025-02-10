@@ -6,14 +6,26 @@
       bitTypography="body2"
       class="tw-text-main tw-truncate tw-inline-flex tw-items-center tw-gap-1.5 tw-w-full"
     >
-      <div class="tw-truncate">
+      <div
+        [ngClass]="{
+          'tw-truncate': truncate,
+          'tw-text-wrap tw-overflow-auto tw-break-words': !truncate,
+        }"
+      >
         <ng-content></ng-content>
       </div>
       <div class="tw-flex-grow">
         <ng-content select="[slot=default-trailing]"></ng-content>
       </div>
     </div>
-    <div bitTypography="helper" class="tw-text-muted tw-w-full tw-truncate">
+    <div
+      bitTypography="helper"
+      class="tw-text-muted tw-w-full"
+      [ngClass]="{
+        'tw-truncate': truncate,
+        'tw-text-wrap tw-overflow-auto tw-break-words': !truncate,
+      }"
+    >
       <ng-content select="[slot=secondary]"></ng-content>
     </div>
   </div>

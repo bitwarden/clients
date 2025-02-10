@@ -54,9 +54,9 @@ export class DefaultStateProvider implements StateProvider {
 
   async setUserState<T>(
     userKeyDefinition: UserKeyDefinition<T>,
-    value: T,
+    value: T | null,
     userId?: UserId,
-  ): Promise<[UserId, T]> {
+  ): Promise<[UserId, T | null]> {
     if (userId) {
       return [userId, await this.getUser<T>(userId, userKeyDefinition).update(() => value)];
     } else {

@@ -11,6 +11,8 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
@@ -26,6 +28,10 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { WebProviderService } from "../../../admin-console/providers/services/web-provider.service";
 
+import {
+  AddExistingOrganizationDialogComponent,
+  AddExistingOrganizationDialogResultType,
+} from "./add-existing-organization-dialog.component";
 import {
   CreateClientDialogResultType,
   openCreateClientDialog,
@@ -63,6 +69,9 @@ export class ManageClientsComponent {
 
   protected searchControl = new FormControl("", { nonNullable: true });
   protected plans: PlanResponse[] = [];
+  protected addExistingOrgsFromProviderPortal$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal,
+  );
 
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
@@ -74,6 +83,7 @@ export class ManageClientsComponent {
     private toastService: ToastService,
     private validationService: ValidationService,
     private webProviderService: WebProviderService,
+    private configService: ConfigService,
     private billingNotificationService: BillingNotificationService,
   ) {
     this.activatedRoute.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((queryParams) => {
@@ -114,21 +124,32 @@ export class ManageClientsComponent {
   async load() {
     try {
       this.provider = await firstValueFrom(this.providerService.get$(this.providerId));
-
       this.isProviderAdmin = this.provider?.type === ProviderUserType.ProviderAdmin;
-
-      const clients = (await this.billingApiService.getProviderClientOrganizations(this.providerId))
-        .data;
-
-      this.dataSource.data = clients;
-
+      this.dataSource.data = (
+        await this.billingApiService.getProviderClientOrganizations(this.providerId)
+      ).data;
       this.plans = (await this.billingApiService.getPlans()).data;
-
       this.loading = false;
     } catch (error) {
       this.billingNotificationService.handleError(error);
     }
   }
+
+  addExistingOrganization = async () => {
+    if (this.provider) {
+      const reference = AddExistingOrganizationDialogComponent.open(this.dialogService, {
+        data: {
+          provider: this.provider,
+        },
+      });
+
+      const result = await lastValueFrom(reference.closed);
+
+      if (result === AddExistingOrganizationDialogResultType.Submitted) {
+        await this.load();
+      }
+    }
+  };
 
   createClient = async () => {
     const reference = openCreateClientDialog(this.dialogService, {

@@ -22,7 +22,7 @@ import {
   DefaultNotificationsService,
   DISABLED_NOTIFICATIONS_URL,
 } from "./default-notifications.service";
-import { SignalRNotification, SignalRConnectionService } from "./signalr-connection.service";
+import { SignalRConnectionService, SignalRNotification } from "./signalr-connection.service";
 import { WebPushConnectionService, WebPushConnector } from "./webpush-connection.service";
 import { WorkerWebPushConnectionService } from "./worker-webpush-connection.service";
 
@@ -92,6 +92,7 @@ describe("NotificationsService", () => {
     );
 
     sut = new DefaultNotificationsService(
+      mock<LogService>(),
       syncService,
       appIdService,
       environmentService,
@@ -101,7 +102,6 @@ describe("NotificationsService", () => {
       signalRNotificationConnectionService,
       authService,
       webPushNotificationConnectionService,
-      mock<LogService>(),
     );
   });
 

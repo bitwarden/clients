@@ -11,7 +11,7 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
-import { UnlockOptions } from "@bitwarden/key-management/angular";
+import { UnlockOptions } from "@bitwarden/key-management-ui";
 
 import { DesktopLockComponentService } from "./desktop-lock-component.service";
 

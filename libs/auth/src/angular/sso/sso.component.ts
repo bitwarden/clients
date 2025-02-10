@@ -367,7 +367,7 @@ export class SsoComponent implements OnInit {
         codeVerifier,
         redirectUri,
         orgSsoIdentifier,
-        email,
+        email ?? undefined,
       );
       this.formPromise = this.loginStrategyService.logIn(credentials);
       const authResult = await this.formPromise;
@@ -384,7 +384,10 @@ export class SsoComponent implements OnInit {
       // - TDE login decryption options component
       // - Browser SSO on extension open
       // Note: you cannot set this in state before 2FA b/c there won't be an account in state.
-      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgSsoIdentifier);
+
+      // Grabbing the active user id right before making the state set to ensure it exists.
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgSsoIdentifier, userId);
 
       // Users enrolled in admin acct recovery can be forced to set a new password after
       // having the admin set a temp password for them (affects TDE & standard users)
