@@ -2016,7 +2016,7 @@
     "message": "很遗憾，目前仅 Mac App Store 版本支持浏览器集成。"
   },
   "browserIntegrationWindowsStoreDesc": {
-    "message": "很遗憾，Microsoft Store 版本目前不支持浏览器整合。"
+    "message": "很遗憾，Microsoft Store 版本目前不支持浏览器集成。"
   },
   "browserIntegrationLinuxDesc": {
     "message": "很遗憾，Linux 版本目前不支持浏览器集成。"
