@@ -8,6 +8,7 @@ import { NotificationFooter } from "../../notification/footer";
 type Args = {
   notificationType: NotificationType;
   theme: Theme;
+  handleSave: (e: Event) => void;
 };
 
 export default {
