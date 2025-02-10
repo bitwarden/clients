@@ -32,7 +32,7 @@ export function NotificationFooter({
             handleAction: handleSaveAction,
             theme,
           })
-        : ButtonRow({ theme })}
+        : ButtonRow({ theme, buttonAction: handleSaveAction })}
     </div>
   `;
 }
