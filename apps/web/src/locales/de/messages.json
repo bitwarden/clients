@@ -10301,7 +10301,7 @@
     "message": "Administratoren haben nun die Möglichkeit, Mitgliedskonten, die zu einer beanspruchten Domain gehören, zu löschen."
   },
   "deleteManagedUserWarningDesc": {
-    "message": "Diese Aktion löscht das Mitgliedskonto einschließlich aller Einträge in seinem Tresor. Dies ersetzt die vorherige Entfernen Aktion."
+    "message": "Diese Aktion löscht das Mitgliedskonto, einschließlich aller Einträge in seinem Tresor. Dies ersetzt die vorherige Entfernen-Aktion."
   },
   "deleteManagedUserWarning": {
     "message": "Löschen ist eine neue Aktion!"

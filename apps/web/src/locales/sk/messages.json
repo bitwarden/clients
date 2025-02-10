@@ -8748,10 +8748,10 @@
     "message": "Nemáte prístup k spravovaniu tejto zbierky."
   },
   "grantManageCollectionWarningTitle": {
-    "message": "Missing Manage Collection Permissions"
+    "message": "Chýbajúce oprávnenia pre správu zbierky"
   },
   "grantManageCollectionWarning": {
-    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
+    "message": "Pre povolenie kompletnej správy zbierky vrátane jej vymazania, udeľte oprávnenia na správu zbierky."
   },
   "grantCollectionAccess": {
     "message": "Povoľte skupinám, alebo jednotlivcom prístup k tejto zbierke."
@@ -10298,13 +10298,13 @@
     }
   },
   "accountDeprovisioningNotification": {
-    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+    "message": "Odteraz majú správcovia právomoc vymazať konta členov, ktorí prináležia do privlastnenej domény."
   },
   "deleteManagedUserWarningDesc": {
-    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+    "message": "Táto akcia vymaže člena vrátane všetkých ich položiek v trezore. Tato akcia nahrádza predchádzajúcu akciu Odstrániť."
   },
   "deleteManagedUserWarning": {
-    "message": "Delete is a new action!"
+    "message": "\"Vymazať\" je nová akcia!"
   },
   "seatsRemaining": {
     "message": "Z celkovo $TOTAL$ sedení pridelených tejto organizácii vám zostava $REMAINING$ sedení. Pre správu predplatného kontaktujte vášho poskytovateľa.",

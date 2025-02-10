@@ -8748,10 +8748,10 @@
     "message": "Bu kolleksiyanı idarə etmək üçün müraciətiniz yoxdur."
   },
   "grantManageCollectionWarningTitle": {
-    "message": "Missing Manage Collection Permissions"
+    "message": "\"Kolleksiyanı idarə etmə\" icazələri əskikdir"
   },
   "grantManageCollectionWarning": {
-    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
+    "message": "Kolleksiyanın silinməsi daxil olmaqla tam kolleksiya idarəetməsinə icazə vermək üçün \"Kolleksiyanı idarə etmə\" icazələrini verin."
   },
   "grantCollectionAccess": {
     "message": "Qrup və ya üzvlərin bu kolleksiyaya müraciətinə icazə verin."
@@ -10298,13 +10298,13 @@
     }
   },
   "accountDeprovisioningNotification": {
-    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+    "message": "İnzibatçılar, artıq götürülmüş domenlərə aid üzv hesablarını silmə imkanına sahibdir."
   },
   "deleteManagedUserWarningDesc": {
-    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+    "message": "Bu əməliyyat, seyfdəki bütün elementlər daxil olmaqla üzv hesabını siləcək. Bu, əvvəlki Sil əməliyyatını əvəz edir."
   },
   "deleteManagedUserWarning": {
-    "message": "Delete is a new action!"
+    "message": "Silmək, yeni bir əməliyyatdır!"
   },
   "seatsRemaining": {
     "message": "Bu təşkilata təyin edilmiş $TOTAL$ yerdən $REMAINING$ yeriniz qalıb. Abunəliyinizi idarə etmək üçün provayderinizlə əlaqə saxlayın.",
