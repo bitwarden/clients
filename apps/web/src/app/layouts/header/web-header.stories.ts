@@ -187,7 +187,9 @@ export const WithLongTitle: Story = {
   render: (arg: any) => ({
     props: arg,
     template: `
-    <app-header title="LongTitleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" icon="bwi-bug"></app-header>
+    <app-header title="LongTitleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" icon="bwi-bug">
+        <ng-container slot="title-suffix"><i class="bwi bwi-key"></i></ng-container>
+    </app-header>
   `,
   }),
 };
