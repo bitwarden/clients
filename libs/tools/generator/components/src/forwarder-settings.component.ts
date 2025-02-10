@@ -11,16 +11,7 @@ import {
   SimpleChanges,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import {
-  concatMap,
-  map,
-  ReplaySubject,
-  skip,
-  Subject,
-  switchAll,
-  takeUntil,
-  withLatestFrom,
-} from "rxjs";
+import { map, ReplaySubject, skip, Subject, switchAll, takeUntil, withLatestFrom } from "rxjs";
 
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { IntegrationId } from "@bitwarden/common/tools/integration";
@@ -101,14 +92,12 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
         forwarder$.next(forwarder);
       });
 
-    const settings$$ = forwarder$.pipe(
-      concatMap((forwarder) =>
-        this.generatorService.settings(forwarder, { account$: this.account$ }),
-      ),
+    const settings$ = forwarder$.pipe(
+      map((forwarder) => this.generatorService.settings(forwarder, { account$: this.account$ })),
     );
 
     // bind settings to the reactive form
-    settings$$.pipe(switchAll(), takeUntil(this.destroyed$)).subscribe((settings) => {
+    settings$.pipe(switchAll(), takeUntil(this.destroyed$)).subscribe((settings) => {
       // skips reactive event emissions to break a subscription cycle
       this.settings.patchValue(settings as any, { emitEvent: false });
     });
@@ -126,7 +115,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     });
 
     // the first emission is the current value; subsequent emissions are updates
-    settings$$
+    settings$
       .pipe(
         map((settings$) => settings$.pipe(skip(1))),
         switchAll(),
@@ -136,7 +125,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
 
     // now that outputs are set up, connect inputs
     this.saveSettings
-      .pipe(withLatestFrom(this.settings.valueChanges, settings$$), takeUntil(this.destroyed$))
+      .pipe(withLatestFrom(this.settings.valueChanges, settings$), takeUntil(this.destroyed$))
       .subscribe(([, value, settings]) => {
         settings.next(value);
       });
