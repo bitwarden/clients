@@ -435,7 +435,7 @@ export class NativeMessagingBackground {
     }
 
     if (this.callbacks.has(messageId)) {
-      const callback = this.callbacks!.get(messageId);
+      const callback = this.callbacks!.get(messageId)!;
       this.callbacks.delete(messageId);
       callback.resolver(message);
     } else {
