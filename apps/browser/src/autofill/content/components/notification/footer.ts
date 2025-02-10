@@ -12,9 +12,11 @@ import { ActionRow } from "../rows/action-row";
 import { ButtonRow } from "../rows/button-row";
 
 export function NotificationFooter({
+  handleSave,
   notificationType,
   theme,
 }: {
+  handleSave: (e: Event) => void;
   notificationType?: NotificationType;
   theme: Theme;
 }) {
@@ -25,7 +27,11 @@ export function NotificationFooter({
   return html`
     <div class=${notificationFooterStyles({ theme })}>
       ${isChangeNotification
-        ? ActionRow({ itemText: saveNewItemText, handleAction: () => {}, theme })
+        ? ActionRow({
+            itemText: saveNewItemText,
+            handleAction: handleSave,
+            theme,
+          })
         : ButtonRow({ theme })}
     </div>
   `;
