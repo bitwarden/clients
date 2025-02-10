@@ -106,7 +106,6 @@ describe("BrowserExtensionPromptService", () => {
     });
 
     afterEach(() => {
-      // rest mock
       isFirefox.mockReturnValue(false);
     });
 
