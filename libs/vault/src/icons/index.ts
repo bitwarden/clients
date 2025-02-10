@@ -5,3 +5,4 @@ export * from "./empty-trash";
 export * from "./exclamation-triangle";
 export * from "./user-lock";
 export * from "./browser-extension";
+export * from "./bitwarden-icon";
