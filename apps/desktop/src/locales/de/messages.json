@@ -211,7 +211,7 @@
     "message": "Dein eingegebenes Passwort ist falsch."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Importieren"
   },
   "confirmSshKeyPassword": {
     "message": "Passwort bestätigen"
@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Anmeldung eingeleitet"
   },
+  "logInRequestSent": {
+    "message": "Anfrage gesendet"
+  },
   "notificationSentDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Stelle sicher, dass dein Konto entsperrt ist und die Fingerabdruck-Phrase mit der vom anderen Gerät übereinstimmt"
+  "notificationSentDevicePart1": {
+    "message": "Entsperre Bitwarden auf deinem Gerät oder mit der "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "Web-App"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Stelle vor der Genehmigung sicher, dass die Fingerabdruck-Phrase mit der unten stehenden übereinstimmt."
   },
   "needAnotherOptionV1": {
     "message": "Brauchst du eine andere Option?"
@@ -2782,11 +2791,11 @@
     "message": "Zeichenanzahl ein-/ausschalten",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Versuchst du dich anzumelden?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Versuchst du auf dein Konto zuzugreifen?"
   },
-  "logInAttemptBy": {
-    "message": "Anmeldeversuch von $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Zugriffsversuch von $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Zeit"
   },
-  "confirmLogIn": {
-    "message": "Anmeldung genehmigen"
+  "confirmAccess": {
+    "message": "Zugriff bestätigen"
   },
-  "denyLogIn": {
-    "message": "Anmeldung ablehnen"
+  "denyAccess": {
+    "message": "Zugriff ablehnen"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Anmeldung von $EMAIL$ auf $DEVICE$ bestätigt",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Diese Anfrage ist nicht mehr gültig."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Anmeldeversuch von $EMAIL$ genehmigen",
+  "confirmAccessAttempt": {
+    "message": "Zugriffsversuch für $EMAIL$ bestätigen",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Anmeldung angefordert"
+  },
+  "accountAccessRequested": {
+    "message": "Kontozugriff angefragt"
   },
   "creatingAccountOn": {
     "message": "Konto wird erstellt bei"

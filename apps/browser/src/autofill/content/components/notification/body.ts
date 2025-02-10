@@ -5,7 +5,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { NotificationType } from "../../../notification/abstractions/notification-bar";
 import { CipherItem } from "../cipher";
-import { CipherData } from "../cipher/types";
+import { NotificationCipherData } from "../cipher/types";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
 import { ItemRow } from "../rows/item-row";
 
@@ -20,7 +20,7 @@ export function NotificationBody({
   notificationType,
   theme = ThemeTypes.Light,
 }: {
-  ciphers: CipherData[];
+  ciphers: NotificationCipherData[];
   customClasses?: string[];
   notificationType?: NotificationType;
   theme: Theme;

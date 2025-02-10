@@ -1,24 +1,24 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Усе праграмы"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "Крытычныя праграмы"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Кіраванне доступам"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "Разуменне рызык"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "Рызыка пароля"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Праглядайце паролі, якія знаходзяцца ў зоне рызыкі (ненадзейныя, скампраметаваныя або паўторна выкарыстаныя) ва ўсіх вашых праграмах. Выберыце найбольш крытычныя праграмы для вызначэння прыярытэту бяспекі дзеянняў для вашых карыстальнікаў, якія выкарыстоўваюць рызыкоўныя паролі."
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "Апошняе абнаўленне даных: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -27,19 +27,19 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Апавешчаныя ўдзельнікі"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "Адклікаць удзельнікаў"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "Аднавіць удзельнікаў"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "Немагчыма аднавіць доступ да арганізацыі"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Усе праграмы ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -48,10 +48,10 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Стварыць новы элемент запісу ўваходу"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "Крытычныя праграмы ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -60,7 +60,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "Апавешчаныя ўдзельнікі ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -69,7 +69,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "Праграмы ў $ORG NAME$ не знойдзены",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -78,43 +78,43 @@
     }
   },
   "noAppsInOrgDescription": {
-    "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
+    "message": "Тут будуць адлюстроўвацца праграмы па меры таго, як карыстальнікі будуць захоўваць запісы ўваходу, якія знаходзяцца ў зоне рызыкі. Пазначце крытычныя праграмы і апавяшчайце карыстальнікаў аб неабходнасці абнавіць паролі."
   },
   "noCriticalAppsTitle": {
-    "message": "You haven't marked any applications as a Critical"
+    "message": "Вы не пазначылі ніводную праграму ў якасці кратычнай"
   },
   "noCriticalAppsDescription": {
-    "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
+    "message": "Выберыце найбольш крытычныя праграмы для выяўлення пароляў, якія знаходзяцца ў зоне рызыкі. Апавяшчайце карыстальнікаў аб неабходнасці змяніць іх."
   },
   "markCriticalApps": {
-    "message": "Mark critical apps"
+    "message": "Пазначыць крытычныя праграмы"
   },
   "markAppAsCritical": {
-    "message": "Mark app as critical"
+    "message": "Пазначыць праграму як крытычную"
   },
   "appsMarkedAsCritical": {
-    "message": "Apps marked as critical"
+    "message": "Праграмы пазначаныя як крытычныя"
   },
   "application": {
-    "message": "Application"
+    "message": "Праграма"
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Паролі ў зоне рызыкі"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "Запытаць змену пароля"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "Усяго пароляў"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "Пошук праграм"
   },
   "atRiskMembers": {
-    "message": "At-risk members"
+    "message": "Удзельнікі ў зоне рызыкі"
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "Удзельнікі ў зоне рызыкі ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -123,7 +123,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "Праграмы ў зоне рызыкі ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -132,13 +132,13 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+    "message": "Гэтыя ўдзельнікі ўваходзяць у праграму з ненадзейнымі, скампраметаванымі або паўторна выкарыстанымі паролямі."
   },
   "atRiskApplicationsDescription": {
-    "message": "These applications have weak, exposed, or reused passwords."
+    "message": "Гэтыя праграмы маюць ненадзейныя, скампраметаваныя або паўторна выкарыстаныя паролі."
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "message": "Гэтыя ўдзельнікі ўваходзяць у праграму $APPNAME$ з ненадзейнымі, скампраметаванымі або паўторна выкарыстанымі паролямі.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -147,19 +147,19 @@
     }
   },
   "totalMembers": {
-    "message": "Total members"
+    "message": "Усяго ўдзельнікаў"
   },
   "atRiskApplications": {
-    "message": "At-risk applications"
+    "message": "Праграмы ў зоне рызыкі"
   },
   "totalApplications": {
-    "message": "Total applications"
+    "message": "Усяго праграм"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Зняць пазнаку крытычнай праграмы"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Пазнака з крытычнай праграмы паспяхова знята"
   },
   "whatTypeOfItem": {
     "message": "Які гэта элемент запісу?"
@@ -260,10 +260,10 @@
     "message": "Дадаць вэб-сайт"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Выдаліць вэб-сайт"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Прадвызначана ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -273,7 +273,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Паказаць выяўленне супадзенняў $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -282,7 +282,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Схаваць выяўленне супадзенняў $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -291,7 +291,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Аўтазапаўняць пры загрузцы старонкі?"
   },
   "number": {
     "message": "Нумар"
@@ -306,7 +306,7 @@
     "message": "Код бяспекі (CVV)"
   },
   "securityCodeSlashCVV": {
-    "message": "Security code / CVV"
+    "message": "Код бяспекі (CVV)"
   },
   "identityName": {
     "message": "Імя пасведчання"
@@ -384,10 +384,10 @@
     "message": "Доктар"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Картка пратэрмінавана"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Калі вы падаўжалі картку, то абнавіце яе звесткі"
   },
   "expirationMonth": {
     "message": "Месяц завяршэння"
@@ -399,7 +399,7 @@
     "message": "Ключ аўтэнтыфікацыі (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Спрасціце двухэтапную праверку"
   },
   "totpHelper": {
     "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
@@ -463,6 +463,18 @@
   },
   "editFolder": {
     "message": "Рэдагаваць папку"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
   },
   "baseDomain": {
     "message": "Асноўны дамен",
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Item name"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "напр.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Ініцыяваны ўваход"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "submit": {
     "message": "Адправіць"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Апавяшчэнне было адпраўлена на вашу прыладу."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "Версія $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Паўторна генерыраваць пароль"
   },
   "length": {
     "message": "Даўжыня"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Кіраванне"
   },
-  "canManage": {
-    "message": "Can manage"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "Адключыць"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Праблема чытання ключа бяспекі. Паспрабуйце яшчэ раз."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "У сувязі з абмежаваннямі платформы, WebAuthn немагчыма выкарыстоўваць ва ўсіх праграмах Bitwarden. Вам неабходна актываваць іншага пастаўшчыка двухэтапнага ўваходу, каб вы маглі атрымаць доступ да свайго ўліковага запісу, калі немагчыма скарыстацца WebAuthn. Платформы, які падтрымліваюцца:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Вэб-сховішча і пашырэнні браўзера на камп'ютары/ноўтбуку з браўзерам, які падтрымлівае WebAuthn (Chrome, Opera, Vivaldi або Firefox з уключаным FIDO U2F)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Ваш код аднаўлення двухэтапнага ўваходу Bitwarden"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Прызначыць патрабаванні для генератара пароляў."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Адна або больш палітык арганізацыі ўплывае на налады генератара."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Адна або больш палітык арганізацыі патрабуе, каб ваш асноўны пароль адпавядаў наступным патрабаванням:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Генератар",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Што вы хочаце генерыраваць?"
-  },
-  "passwordType": {
-    "message": "Тып пароля"
-  },
-  "regenerateUsername": {
-    "message": "Паўторна генерыраваць імя карыстальніка"
-  },
   "generateUsername": {
     "message": "Генерыраваць імя карыстальніка"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Тып імя карыстальніка"
   },
   "plusAddressedEmail": {
     "message": "Адрасы электроннай пошты з плюсам",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Назва вузла",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Токен доступу да API"
   },
   "deviceVerification": {
     "message": "Праверка прылады"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Няма калекцый"
-  },
-  "canView": {
-    "message": "Можа праглядаць"
-  },
-  "canViewExceptPass": {
-    "message": "Можа праглядаць (без пароляў)"
-  },
-  "canEdit": {
-    "message": "Можа рэдагаваць"
-  },
-  "canEditExceptPass": {
-    "message": "Можа рэдагаваць (без пароляў)"
   },
   "noCollectionsAdded": {
     "message": "Няма дадзеных калекцый"
@@ -8677,9 +8686,6 @@
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Мянушка дамена"
-  },
   "alreadyHaveAccount": {
     "message": "Ужо маеце ўліковы запіс?"
   },
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Missing Can Manage Permissions"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Descriptor code"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Important notice"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
   }
 }

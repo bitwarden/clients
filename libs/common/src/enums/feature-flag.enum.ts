@@ -26,7 +26,6 @@ export enum FeatureFlag {
 
   /* Tools */
   ItemShare = "item-share",
-  GeneratorToolsModernization = "generator-tools-modernization",
   CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
 
@@ -88,7 +87,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.ItemShare]: FALSE,
-  [FeatureFlag.GeneratorToolsModernization]: FALSE,
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
