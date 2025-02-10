@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
@@ -120,6 +121,34 @@ describe("BrowserExtensionPromptService", () => {
       expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
         pageTitle: { key: "somethingWentWrong" },
       });
+    });
+  });
+
+  describe("mobile state", () => {
+    beforeEach(() => {
+      Utils.isMobileBrowser = true;
+      service.start();
+    });
+
+    afterEach(() => {
+      Utils.isMobileBrowser = false;
+    });
+
+    it("sets mobile state", (done) => {
+      service.pageState$.subscribe((state) => {
+        expect(state).toBe(BrowserPromptState.MobileBrowser);
+        done();
+      });
+    });
+
+    it("sets desktop required title", () => {
+      expect(setAnonLayoutWrapperData).toHaveBeenCalledWith({
+        pageTitle: { key: "desktopRequired" },
+      });
+    });
+
+    it("clears the error timeout", () => {
+      expect(service["extensionCheckTimeout"]).toBeUndefined();
     });
   });
 

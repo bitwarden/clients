@@ -4,6 +4,7 @@ import { BehaviorSubject, fromEvent } from "rxjs";
 
 import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 export enum BrowserPromptState {
@@ -11,6 +12,7 @@ export enum BrowserPromptState {
   Error = "error",
   Success = "success",
   ManualOpen = "manualOpen",
+  MobileBrowser = "mobileBrowser",
 }
 
 type PromptErrorStates = BrowserPromptState.Error | BrowserPromptState.ManualOpen;
@@ -34,6 +36,11 @@ export class BrowserExtensionPromptService {
   ) {}
 
   start(): void {
+    if (Utils.isMobileBrowser) {
+      this.setMobileState();
+      return;
+    }
+
     // Firefox does not support automatically opening the extension,
     // it currently requires a user gesture within the context of the extension to open.
     // Show message to direct the user to manually open the extension.
@@ -76,6 +83,17 @@ export class BrowserExtensionPromptService {
     if (event.data.command === VaultMessages.PopupOpened) {
       this.setSuccessState();
     }
+  }
+
+  /** Show message that this page should be opened on a desktop browser */
+  private setMobileState() {
+    this.clearExtensionCheckTimeout();
+    this._pageState$.next(BrowserPromptState.MobileBrowser);
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: {
+        key: "desktopRequired",
+      },
+    });
   }
 
   /** Show the open extension success state */

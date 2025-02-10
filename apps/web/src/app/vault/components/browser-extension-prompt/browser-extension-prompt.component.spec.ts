@@ -76,4 +76,16 @@ describe("BrowserExtensionPromptComponent", () => {
       expect(successText.textContent.trim()).toBe("openedExtensionViewAtRiskPasswords");
     });
   });
+
+  describe("mobile state", () => {
+    beforeEach(() => {
+      pageState$.next(BrowserPromptState.MobileBrowser);
+      fixture.detectChanges();
+    });
+
+    it("shows mobile message", () => {
+      const mobileText = fixture.debugElement.query(By.css("p")).nativeElement;
+      expect(mobileText.textContent.trim()).toBe("reopenLinkOnDesktop");
+    });
+  });
 });

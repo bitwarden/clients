@@ -9290,7 +9290,12 @@
   },
   "deviceManagementDesc":{
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
-
+  },
+  "desktopRequired": {
+    "message": "Desktop required"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Reopen this link from your email on a desktop."
   },
   "integrationCardTooltip":{
     "message": "Launch $INTEGRATION$ implementation guide.",
