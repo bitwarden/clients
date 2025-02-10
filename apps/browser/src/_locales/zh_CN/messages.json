@@ -379,7 +379,7 @@
     "message": "文件夹名称"
   },
   "folderHintText": {
-    "message": "通过在父文件夹名后面跟随「/」来嵌套文件夹。示例：Social/Forums"
+    "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
   },
   "noFoldersAdded": {
     "message": "未添加文件夹"
@@ -591,7 +591,7 @@
     "message": "私密备注"
   },
   "note": {
-    "message": "备注"
+    "message": "笔记"
   },
   "editItem": {
     "message": "编辑项目"
@@ -2062,7 +2062,7 @@
     "message": "用户名生成器"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "使用此电子邮箱"
   },
   "useThisPassword": {
     "message": "使用此密码"
@@ -2664,7 +2664,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "$TOTAL$ 不足",
+    "message": "总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "网页 App"
+  },
+  "notificationSentDevicePart2": {
+    "message": "在批准前，请确保指纹短语与下面的一致。"
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "确保您的账户已解锁，并且指纹短语与其他设备上的相匹配。"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "请求获得批准后，您将收到通知"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "登录已发起"
+  },
+  "logInRequestSent": {
+    "message": "请求已发送"
   },
   "exposedMasterPassword": {
     "message": "已暴露的主密码"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "项目名称"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "组织已停用"
   },
@@ -4226,7 +4226,7 @@
     "message": "筛选"
   },
   "filterVault": {
-    "message": "密码库筛选"
+    "message": "筛选密码库"
   },
   "filterApplied": {
     "message": "已应用一个筛选"
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "超宽"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "请更新您的桌面应用程序"
