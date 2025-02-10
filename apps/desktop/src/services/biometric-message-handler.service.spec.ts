@@ -2,7 +2,7 @@ import { NgZone } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -27,7 +27,7 @@ import { BiometricMessageHandlerService } from "./biometric-message-handler.serv
 
 const SomeUser = "SomeUser" as UserId;
 const AnotherUser = "SomeOtherUser" as UserId;
-const accounts = {
+const accounts: Record<UserId, AccountInfo> = {
   [SomeUser]: {
     name: "some user",
     email: "some.user@example.com",
@@ -108,6 +108,30 @@ describe("BiometricMessageHandlerService", () => {
   });
 
   describe("setup encryption", () => {
+    it("should ignore when public key missing in message", async () => {
+      await service.handleMessage({
+        appId: "appId",
+        message: {
+          command: "setupEncryption",
+          messageId: 0,
+          userId: "unknownUser" as UserId,
+        },
+      });
+      expect((global as any).ipc.platform.nativeMessaging.sendMessage).not.toHaveBeenCalled();
+    });
+
+    it("should ignore when user id missing in message", async () => {
+      await service.handleMessage({
+        appId: "appId",
+        message: {
+          command: "setupEncryption",
+          messageId: 0,
+          publicKey: Utils.fromUtf8ToB64("publicKey"),
+        },
+      });
+      expect((global as any).ipc.platform.nativeMessaging.sendMessage).not.toHaveBeenCalled();
+    });
+
     it("should reject when user is not in app", async () => {
       await service.handleMessage({
         appId: "appId",
@@ -115,6 +139,7 @@ describe("BiometricMessageHandlerService", () => {
           command: "setupEncryption",
           messageId: 0,
           userId: "unknownUser" as UserId,
+          publicKey: Utils.fromUtf8ToB64("publicKey"),
         },
       });
       expect((global as any).ipc.platform.nativeMessaging.sendMessage).toHaveBeenCalledWith({
@@ -362,12 +387,15 @@ describe("BiometricMessageHandlerService", () => {
       // always reload when another user is active than the requested one
       [SomeUser, AuthenticationStatus.Unlocked, AnotherUser, false, true],
       [SomeUser, AuthenticationStatus.Locked, AnotherUser, false, true],
+      // don't reload when no active user
+      [null, AuthenticationStatus.Unlocked, AnotherUser, false, false],
 
       // don't reload in dev mode
       [SomeUser, AuthenticationStatus.Unlocked, SomeUser, true, false],
       [SomeUser, AuthenticationStatus.Locked, SomeUser, true, false],
       [SomeUser, AuthenticationStatus.Unlocked, AnotherUser, true, false],
       [SomeUser, AuthenticationStatus.Locked, AnotherUser, true, false],
+      [null, AuthenticationStatus.Unlocked, AnotherUser, true, false],
     ];
 
     it.each(testCases)(

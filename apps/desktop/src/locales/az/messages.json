@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Giriş başladıldı"
   },
+  "logInRequestSent": {
+    "message": "Tələb göndərildi"
+  },
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildiriş göndərildi."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Cihazınıza bir bildiriş göndərildi"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lütfən hesabınızın kilidinin açıq olduğuna və barmaq izi ifadəsinin digər cihazla uyuşduğuna əmin olun"
+  "notificationSentDevicePart1": {
+    "message": "Cihazınızda Bitwarden kilidini açın, ya da "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "veb tətbiqinizdə"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Təsdiqləməzdən əvvəl Barmaq izi ifadəsinin aşağıdakı ifadə ilə uyuşduğuna əmin olun."
   },
   "needAnotherOptionV1": {
     "message": "Başqa bir seçimə ehtiyacınız var?"
@@ -2782,11 +2791,11 @@
     "message": "Simvol sayını dəyişdir",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Giriş etməyə çalışırsınız?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Hesabınıza müraciət etməyə çalışırsınız?"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ tərəfindən giriş cəhdi",
+  "accessAttemptBy": {
+    "message": "$EMAIL$ ilə müraciət cəhdi",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Vaxt"
   },
-  "confirmLogIn": {
-    "message": "Girişi təsdiqlə"
+  "confirmAccess": {
+    "message": "Müraciəti təsdiqlə"
   },
-  "denyLogIn": {
-    "message": "Girişi rədd et"
+  "denyAccess": {
+    "message": "Müraciətə rədd cavabı ver"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş təsdiqləndi",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Bu tələb artıq yararsızdır."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "$EMAIL$ üçün giriş cəhdini təsdiqlə",
+  "confirmAccessAttempt": {
+    "message": "$EMAIL$ üçün müraciət cəhdini təsdiqlə",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Giriş tələb olundu"
+  },
+  "accountAccessRequested": {
+    "message": "Tələb olunan hesaba müraciət"
   },
   "creatingAccountOn": {
     "message": "Hesab yaradılır"

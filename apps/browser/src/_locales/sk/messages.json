@@ -2902,7 +2902,7 @@
     "message": "Služba"
   },
   "forwardedEmail": {
-    "message": "Alias preposlaného e-mailu"
+    "message": "Alias presmerovaného e-mailu"
   },
   "forwardedEmailDesc": {
     "message": "Vytvoriť e-mailový alias pomocou externej služby preposielania."
@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie."
   },
+  "notificationSentDevicePart1": {
+    "message": "Odomknúť Bitwarden vo svojom zariadení alebo vo"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webovej aplikácii"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pred schválením sa uistite, že sa odtlačok prístupovej frázy zhoduje s tou uvedenou nižšie."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Uistite sa, že je váš účet odomknutý a fráza odtlačku prsta sa zhoduje s frázou na druhom zariadení"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Po schválení žiadosti budete informovaní"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "Iniciované prihlásenie"
+  },
+  "logInRequestSent": {
+    "message": "Požiadavka bola odoslaná"
   },
   "exposedMasterPassword": {
     "message": "Odhalené hlavné heslo"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "Názov položky"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organizácia je vypnutá"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Aktualizujte desktopovú aplikáciu"

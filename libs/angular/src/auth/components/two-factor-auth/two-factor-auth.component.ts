@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, ViewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, NavigationExtras, Router, RouterLink } from "@angular/router";
 import { Subject, takeUntil, lastValueFrom, first, firstValueFrom } from "rxjs";
@@ -32,7 +31,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -128,7 +126,6 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
   protected changePasswordRoute = "set-password";
   protected forcePasswordResetRoute = "update-temp-password";
   protected successRoute = "vault";
-  protected activeUserId: UserId;
 
   constructor(
     protected loginStrategyService: LoginStrategyServiceAbstraction,
@@ -151,10 +148,6 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     protected toastService: ToastService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
-
-    this.accountService.activeAccount$.pipe(takeUntilDestroyed()).subscribe((account) => {
-      this.activeUserId = account?.id;
-    });
   }
 
   async ngOnInit() {
@@ -269,10 +262,8 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
     // - Browser SSO on extension open
-    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(
-      this.orgIdentifier,
-      this.activeUserId,
-    );
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier, userId);
     this.loginEmailService.clearValues();
 
     // note: this flow affects both TDE & standard users
