@@ -4,7 +4,7 @@ import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
+import { firstValueFrom, Subject, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
@@ -36,6 +36,7 @@ import {
 } from "@bitwarden/components";
 import {
   CipherAttachmentsComponent,
+  CipherFormComponent,
   CipherFormConfig,
   CipherFormGenerationService,
   CipherFormModule,
@@ -144,6 +145,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   @ViewChild("dialogContent")
   protected dialogContent: ElementRef<HTMLElement>;
 
+  @ViewChild(CipherFormComponent) cipherFormComponent!: CipherFormComponent;
+
   /**
    * Tracks if the cipher was ever modified while the dialog was open. Used to ensure the dialog emits the correct result
    * in case of closing with the X button or ESC key.
@@ -204,16 +207,24 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ),
   );
 
+  protected get isTrashFilter() {
+    return this.filter?.type === "trash";
+  }
+
+  protected get showCancel() {
+    return !this.isTrashFilter && !this.showCipherView;
+  }
+
+  protected get showClose() {
+    return this.isTrashFilter && !this.showRestore;
+  }
+
   /**
    * Determines if the user may restore the item.
    * A user may restore items if they have delete permissions and the item is in the trash.
    */
   protected async canUserRestore() {
-    return (
-      this.filter?.type === "trash" &&
-      this.cipher?.isDeleted &&
-      (await firstValueFrom(this.canDeleteCipher$))
-    );
+    return this.isTrashFilter && this.cipher?.isDeleted && this.canDelete;
   }
 
   protected showRestore: boolean;
@@ -226,8 +237,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.params.disableForm;
   }
 
-  protected get canDelete() {
-    return this.cipher?.edit ?? false;
+  protected get showEdit() {
+    return this.showCipherView && !this.isTrashFilter && !this.showRestore;
   }
 
   protected get showDelete() {
@@ -255,9 +266,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected formConfig: CipherFormConfig = this.params.formConfig;
 
-  protected canDeleteCipher$: Observable<boolean>;
-
   protected filter: RoutedVaultFilterModel;
+
+  protected canDelete = false;
 
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
@@ -299,10 +310,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         (o) => o.id === this.cipher.organizationId,
       );
 
-      this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
-        this.cipher,
-        [this.params.activeCollectionId],
-        this.params.isAdminConsoleAction,
+      this.canDelete = await firstValueFrom(
+        this.cipherAuthorizationService.canDeleteCipher$(
+          this.cipher,
+          [this.params.activeCollectionId],
+          this.params.isAdminConsoleAction,
+        ),
       );
 
       await this.eventCollectionService.collect(
@@ -353,6 +366,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       const cipherData = new CipherData(cipherResponse);
       cipher = new Cipher(cipherData);
+
+      // Update organizationUseTotp from server response
+      this.cipher.organizationUseTotp = cipher.organizationUseTotp;
     }
 
     // Store the updated cipher so any following edits use the most up to date cipher
@@ -432,6 +448,22 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       result.action === AttachmentDialogResult.Removed ||
       result.action === AttachmentDialogResult.Uploaded
     ) {
+      const updatedCipher = await this.cipherService.get(this.formConfig.originalCipher?.id);
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+
+      const updatedCipherView = await updatedCipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
+      );
+
+      this.cipherFormComponent.patchCipher((currentCipher) => {
+        currentCipher.attachments = updatedCipherView.attachments;
+        currentCipher.revisionDate = updatedCipherView.revisionDate;
+
+        return currentCipher;
+      });
+
       this._cipherModified = true;
     }
   };

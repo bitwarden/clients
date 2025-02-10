@@ -7,7 +7,7 @@ export { BiometricsCommands } from "./biometrics/biometrics-commands";
 export { BiometricsService } from "./biometrics/biometric.service";
 export * from "./biometrics/biometric.state";
 
-export { KeyService } from "./abstractions/key.service";
+export { CipherDecryptionKeys, KeyService } from "./abstractions/key.service";
 export { DefaultKeyService } from "./key.service";
 export { UserKeyRotationDataProvider } from "./abstractions/user-key-rotation-data-provider.abstraction";
 export {

@@ -26,10 +26,14 @@ import {
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -128,28 +132,31 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   protected orgName: string;
   protected showOrgSelector: boolean = false;
 
-  protected organizations$: Observable<Organization[]> =
-    this.organizationService.organizations$.pipe(
-      map((orgs) =>
-        orgs
-          .filter((o) => o.enabled && o.status === OrganizationUserStatusType.Confirmed)
-          .sort((a, b) => a.name.localeCompare(b.name)),
-      ),
-      tap((orgs) => {
-        if (orgs.length > 0 && this.showOrgSelector) {
-          // Using setTimeout to defer the patchValue call until the next event loop cycle
-          setTimeout(() => {
-            this.formGroup.patchValue({ selectedOrg: orgs[0].id });
-            this.setFormValidators();
+  protected organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.organizationService.organizations$(account?.id).pipe(
+        map((orgs) =>
+          orgs
+            .filter((o) => o.enabled && o.status === OrganizationUserStatusType.Confirmed)
+            .sort((a, b) => a.name.localeCompare(b.name)),
+        ),
+        tap((orgs) => {
+          if (orgs.length > 0 && this.showOrgSelector) {
+            // Using setTimeout to defer the patchValue call until the next event loop cycle
+            setTimeout(() => {
+              this.formGroup.patchValue({ selectedOrg: orgs[0].id });
+              this.setFormValidators();
 
-            // Disable the org selector if there is only one organization
-            if (orgs.length === 1) {
-              this.formGroup.controls.selectedOrg.disable();
-            }
-          });
-        }
-      }),
-    );
+              // Disable the org selector if there is only one organization
+              if (orgs.length === 1) {
+                this.formGroup.controls.selectedOrg.disable();
+              }
+            });
+          }
+        }),
+      ),
+    ),
+  );
 
   protected transferWarningText = (orgName: string, itemsCount: number) => {
     const haveOrgName = !!orgName;
@@ -199,7 +206,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     await this.initializeItems(this.selectedOrgId);
 
     if (this.selectedOrgId && this.selectedOrgId !== MY_VAULT_ID) {
-      await this.handleOrganizationCiphers();
+      await this.handleOrganizationCiphers(this.selectedOrgId);
     }
 
     this.setupFormSubscriptions();
@@ -276,7 +283,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private sortItems = (a: SelectItemView, b: SelectItemView) =>
     this.i18nService.collator.compare(a.labelName, b.labelName);
 
-  private async handleOrganizationCiphers() {
+  private async handleOrganizationCiphers(organizationId: OrganizationId) {
     // If no ciphers are editable, cancel the operation
     if (this.editableItemCount == 0) {
       this.toastService.showToast({
@@ -289,12 +296,21 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       return;
     }
 
-    this.availableCollections = this.params.availableCollections.map((c) => ({
-      icon: "bwi-collection",
-      id: c.id,
-      labelName: c.name,
-      listName: c.name,
-    }));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const org = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+    );
+
+    this.availableCollections = this.params.availableCollections
+      .filter((collection) => {
+        return collection.canEditItems(org);
+      })
+      .map((c) => ({
+        icon: "bwi-collection",
+        id: c.id,
+        labelName: c.name,
+        listName: c.name,
+      }));
 
     // Select assigned collections for a single cipher.
     this.selectCollectionsAssignedToSingleCipher();
@@ -354,7 +370,10 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       return;
     }
 
-    const org = await this.organizationService.get(organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const org = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+    );
     this.orgName = org.name;
 
     this.editableItems = org.canEditAllCiphers
@@ -408,7 +427,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private getCollectionsForOrganization(orgId: OrganizationId): Observable<CollectionView[]> {
     return combineLatest([
       this.collectionService.decryptedCollections$,
-      this.organizationService.organizations$,
+      this.accountService.activeAccount$.pipe(
+        switchMap((account) => this.organizationService.organizations$(account?.id)),
+      ),
     ]).pipe(
       map(([collections, organizations]) => {
         const org = organizations.find((o) => o.id === orgId);

@@ -13,8 +13,8 @@ import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/resp
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -275,5 +275,25 @@ describe("PasswordLoginStrategy", () => {
       userId,
     );
     expect(secondResult.forcePasswordReset).toEqual(ForceSetPasswordReason.WeakMasterPassword);
+  });
+
+  it("handles new device verification login with OTP", async () => {
+    const deviceVerificationOtp = "123456";
+    const tokenResponse = identityTokenResponseFactory();
+    apiService.postIdentityToken.mockResolvedValueOnce(tokenResponse);
+    tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    await passwordLoginStrategy.logIn(credentials);
+
+    const result = await passwordLoginStrategy.logInNewDeviceVerification(deviceVerificationOtp);
+
+    expect(apiService.postIdentityToken).toHaveBeenCalledWith(
+      expect.objectContaining({
+        newDeviceOtp: deviceVerificationOtp,
+      }),
+    );
+    expect(result.forcePasswordReset).toBe(ForceSetPasswordReason.None);
+    expect(result.resetMasterPassword).toBe(false);
+    expect(result.userId).toBe(userId);
   });
 });

@@ -1,17 +1,18 @@
 import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
+import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import {
   EnvironmentSelectorComponent,
   EnvironmentSelectorRouteData,
   ExtensionDefaultOverlayPosition,
 } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { TwoFactorTimeoutComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-expired.component";
 import { unauthUiRefreshRedirect } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-redirect";
 import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
   lockGuard,
+  activeAuthGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
@@ -40,9 +41,11 @@ import {
   DevicesIcon,
   SsoComponent,
   TwoFactorTimeoutIcon,
+  NewDeviceVerificationComponent,
+  DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { LockComponent } from "@bitwarden/key-management/angular";
+import { LockComponent } from "@bitwarden/key-management-ui";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
@@ -174,12 +177,12 @@ const routes: Routes = [
     component: ExtensionAnonLayoutWrapperComponent,
     children: [
       {
-        path: "2fa-timeout",
+        path: "authentication-timeout",
         canActivate: [unauthGuardFn(unauthRouteOverrides)],
         children: [
           {
             path: "",
-            component: TwoFactorTimeoutComponent,
+            component: AuthenticationTimeoutComponent,
           },
         ],
         data: {
@@ -232,6 +235,27 @@ const routes: Routes = [
       ],
     },
   ),
+  {
+    path: "device-verification",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [
+      canAccessFeature(FeatureFlag.NewDeviceVerification),
+      unauthGuardFn(),
+      activeAuthGuard(),
+    ],
+    children: [{ path: "", component: NewDeviceVerificationComponent }],
+    data: {
+      pageIcon: DeviceVerificationIcon,
+      pageTitle: {
+        key: "verifyIdentity",
+      },
+      pageSubtitle: {
+        key: "weDontRecognizeThisDevice",
+      },
+      showBackButton: true,
+      elevation: 1,
+    } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+  },
   {
     path: "set-password",
     component: SetPasswordComponent,
@@ -413,7 +437,7 @@ const routes: Routes = [
       data: {
         pageIcon: DevicesIcon,
         pageTitle: {
-          key: "loginInitiated",
+          key: "logInRequestSent",
         },
         pageSubtitle: {
           key: "aNotificationWasSentToYourDevice",
@@ -559,7 +583,7 @@ const routes: Routes = [
     children: [
       {
         path: "signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           elevation: 1,
           pageIcon: RegistrationUserAddIcon,
@@ -585,7 +609,7 @@ const routes: Routes = [
       },
       {
         path: "finish-signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationLockAltIcon,
           elevation: 1,
@@ -635,7 +659,6 @@ const routes: Routes = [
     children: [
       {
         path: "set-password-jit",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification)],
         component: SetPasswordJitComponent,
         data: {
           pageTitle: {

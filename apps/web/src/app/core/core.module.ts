@@ -52,10 +52,10 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import {
   EnvironmentService,
   Urls,
@@ -66,14 +66,22 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+// eslint-disable-next-line no-restricted-imports -- Needed for DI
+import {
+  UnsupportedWebPushConnectionService,
+  WebPushConnectionService,
+} from "@bitwarden/common/platform/notifications/internal";
 import { AppIdService as DefaultAppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 /* eslint-disable import/no-restricted-paths -- Implementation for memory storage */
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
@@ -91,7 +99,7 @@ import {
   KeyService as KeyServiceAbstraction,
   BiometricsService,
 } from "@bitwarden/key-management";
-import { LockComponentService } from "@bitwarden/key-management/angular";
+import { LockComponentService } from "@bitwarden/key-management-ui";
 
 import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
@@ -110,7 +118,7 @@ import { WebProcessReloadService } from "../key-management/services/web-process-
 import { WebBiometricsService } from "../key-management/web-biometric.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
-import { WebSdkClientFactory } from "../platform/web-sdk-client-factory";
+import { WebSdkLoadService } from "../platform/web-sdk-load.service";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
 
 import { EventService } from "./event.service";
@@ -243,6 +251,12 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: WebPushConnectionService,
+    // We can support web in the future by creating a worker
+    useClass: UnsupportedWebPushConnectionService,
+    deps: [],
+  }),
+  safeProvider({
     provide: LockComponentService,
     useClass: WebLockComponentService,
     deps: [],
@@ -289,8 +303,13 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiService, KeyServiceAbstraction, EncryptService, CollectionService],
   }),
   safeProvider({
+    provide: SdkLoadService,
+    useClass: flagEnabled("sdk") ? WebSdkLoadService : NoopSdkLoadService,
+    deps: [],
+  }),
+  safeProvider({
     provide: SdkClientFactory,
-    useClass: flagEnabled("sdk") ? WebSdkClientFactory : NoopSdkClientFactory,
+    useClass: flagEnabled("sdk") ? DefaultSdkClientFactory : NoopSdkClientFactory,
     deps: [],
   }),
   safeProvider({
