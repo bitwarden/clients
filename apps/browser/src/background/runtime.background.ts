@@ -4,6 +4,7 @@ import { firstValueFrom, map, mergeMap } from "rxjs";
 
 import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -203,7 +204,10 @@ export default class RuntimeBackground {
         return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
       }
       case "updateLastUsedDate": {
-        return await this.cipherService.updateLastUsedDate(msg.cipherId);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        return await this.cipherService.updateLastUsedDate(msg.cipherId, activeUserId);
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(
