@@ -743,6 +743,9 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
             jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
 
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
+            jq -r .value | base64 -d > $HOME/certificates/devid-installer-cert.p12
+
       - name: Set up keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
@@ -753,6 +756,9 @@ jobs:
           security set-keychain-settings -lut 1200 build.keychain
 
           security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
