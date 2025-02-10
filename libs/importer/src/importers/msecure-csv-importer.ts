@@ -43,13 +43,13 @@ export class MSecureCsvImporter extends BaseImporter implements Importer {
         ).split("/");
         cipher.card.expMonth = month.trim();
         cipher.card.expYear = year.trim();
-        const securityCodeRegex = RegExp("^Security Code\\|.*\\|");
+        const securityCodeRegex = RegExp("^Security Code\\|\\d*\\|");
         const securityCodeEntry = value.find((entry: string) => securityCodeRegex.test(entry));
         cipher.card.code = this.getValueOrDefault(
           this.splitValueRetainingLastPart(securityCodeEntry),
         );
 
-        const cardNameRegex = RegExp("^Name on Card\\|.*\\|");
+        const cardNameRegex = RegExp("^Name on Card\\|\\d*\\|");
         const nameOnCardEntry = value.find((entry: string) => entry.match(cardNameRegex));
         cipher.card.cardholderName = this.getValueOrDefault(
           this.splitValueRetainingLastPart(nameOnCardEntry),
@@ -57,12 +57,13 @@ export class MSecureCsvImporter extends BaseImporter implements Importer {
 
         cipher.card.brand = this.getValueOrDefault(this.splitValueRetainingLastPart(value[9]), "");
 
+        const noteRegex = RegExp("\\|\\d*\\|");
         const rawNotes = value
           .slice(2)
-          .filter((entry: string) => !this.isNullOrWhitespace(entry) && !entry.includes("|"));
+          .filter((entry: string) => !this.isNullOrWhitespace(entry) && !noteRegex.test(entry));
         const noteIndexes = [8, 10, 11];
         const indexedNotes = noteIndexes
-          .filter((idx) => value[idx] && value[idx].includes("|"))
+          .filter((idx) => value[idx] && noteRegex.test(value[idx]))
           .map((idx) => value[idx])
           .map((val) => {
             const key = val.split("|")[0];

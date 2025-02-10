@@ -22,6 +22,7 @@ describe("MSecureCsvImporter.parse", () => {
     expect(cipher.card.expiration).toBe("04 / 2029");
     expect(cipher.card.code).toBe("444");
     expect(cipher.card.cardholderName).toBe("Obi Wan Kenobi");
+    expect(cipher.notes).toBe("Security code 1234");
     expect(cipher.card.brand).toBe("");
   });
 
