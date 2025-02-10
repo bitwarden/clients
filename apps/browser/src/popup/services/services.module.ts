@@ -536,6 +536,7 @@ const safeProviders: SafeProvider[] = [
     useClass: ExtensionLockComponentService,
     deps: [],
   }),
+  // TODO: PM-18182 - Refactor component services into lazy loaded modules
   safeProvider({
     provide: TwoFactorAuthComponentService,
     useClass: ExtensionTwoFactorAuthComponentService,
