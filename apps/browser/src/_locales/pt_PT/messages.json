@@ -296,7 +296,7 @@
     "message": "Continuar para a loja de extensões do navegador?"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "Ajude outras pessoas a descobrir se o Bitwarden lhes é adequado. Visite a loja de extensões do seu navegador e deixe uma avaliação agora."
+    "message": "Ajude outras pessoas a descobrir se o Bitwarden lhes é adequado. Visite a loja de extensões do seu navegador e deixe uma classificação agora."
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "Pode alterar a sua palavra-passe mestra na aplicação Web Bitwarden."
@@ -340,7 +340,7 @@
     "message": "Gestor de Segredos Bitwarden"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "Armazene, gira e partilhe segredos de programador de forma segura com o Gestor de Segredos Bitwarden. Saiba mais no site bitwarden.com."
+    "message": "Armazene, faça a gestão e partilhe de forma segura os segredos dos programadores com o Gestor de Segredos Bitwarden. Saiba mais no site bitwarden.com."
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
@@ -379,7 +379,7 @@
     "message": "Nome da pasta"
   },
   "folderHintText": {
-    "message": "Aninhe uma pasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
+    "message": "Crie uma subpasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
   },
   "noFoldersAdded": {
     "message": "Nenhuma pasta adicionada"
@@ -651,7 +651,7 @@
     "message": "Outras opções"
   },
   "rateExtension": {
-    "message": "Avaliar a extensão"
+    "message": "Classificar a extensão"
   },
   "browserNotSupportClipboard": {
     "message": "O seu navegador Web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
@@ -1598,7 +1598,7 @@
     "message": "Booleano"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Caixa de verificação"
   },
   "cfTypeLinked": {
     "message": "Associado",
@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo."
   },
+  "notificationSentDevicePart1": {
+    "message": "Desbloqueie o Bitwarden no seu dispositivo ou no "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "aplicação web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Certifique-se de que a frase da impressão digital corresponde à frase abaixo indicada antes de a aprovar."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Certifique-se de que a sua conta está desbloqueada e que a frase de impressão digital corresponde à do outro dispositivo"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Será notificado quando o pedido for aprovado"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "A preparar o início de sessão"
+  },
+  "logInRequestSent": {
+    "message": "Pedido enviado"
   },
   "exposedMasterPassword": {
     "message": "Palavra-passe mestra exposta"
@@ -3208,7 +3217,7 @@
     "message": "O atalho de preenchimento automático de credenciais não está definido. Altere-o nas definições do navegador."
   },
   "autofillLoginShortcutText": {
-    "message": "O atalho de preenchimento automático de credenciais é $COMMAND$. Gira todos os atalhos nas definidções do navegador.",
+    "message": "O atalho de preenchimento automático de credenciais é $COMMAND$. Organize todos os atalhos nas definições do navegador.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "Nome do item"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "A organização está desativada"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "Muito ampla"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Por favor, atualize a sua aplicação para computador"

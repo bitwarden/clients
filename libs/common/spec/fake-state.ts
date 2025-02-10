@@ -131,9 +131,9 @@ export class FakeSingleUserState<T> implements SingleUserState<T> {
   }
 
   async update<TCombine>(
-    configureState: (state: T, dependency: TCombine) => T,
+    configureState: (state: T | null, dependency: TCombine) => T | null,
     options?: StateUpdateOptions<T, TCombine>,
-  ): Promise<T> {
+  ): Promise<T | null> {
     options = populateOptionsWithDefault(options);
     const current = await firstValueFrom(this.state$.pipe(timeout(options.msTimeout)));
     const combinedDependencies =
@@ -206,9 +206,9 @@ export class FakeActiveUserState<T> implements ActiveUserState<T> {
   }
 
   async update<TCombine>(
-    configureState: (state: T, dependency: TCombine) => T,
+    configureState: (state: T | null, dependency: TCombine) => T | null,
     options?: StateUpdateOptions<T, TCombine>,
-  ): Promise<[UserId, T]> {
+  ): Promise<[UserId, T | null]> {
     options = populateOptionsWithDefault(options);
     const current = await firstValueFrom(this.state$.pipe(timeout(options.msTimeout)));
     const combinedDependencies =
