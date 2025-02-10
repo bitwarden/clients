@@ -131,17 +131,17 @@ export class CriticalApplicationsComponent implements OnInit {
           ?.atRiskMemberDetails ?? [],
       applicationName,
     };
-    this.dataService.setDrawerForAppAtRiskMembers(data);
+    this.dataService.setDrawerForAppAtRiskMembers(data, applicationName);
   };
 
-  showOrgAtRiskMembers = async () => {
+  showOrgAtRiskMembers = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskMemberList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskMembers(data);
+    this.dataService.setDrawerForOrgAtRiskMembers(data, invokerId);
   };
 
-  showOrgAtRiskApps = async () => {
+  showOrgAtRiskApps = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskApps(data);
+    this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
 
   trackByFunction(_: number, item: ApplicationHealthReportDetailWithCriticalFlag) {

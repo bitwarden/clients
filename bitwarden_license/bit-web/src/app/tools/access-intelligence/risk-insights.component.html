@@ -56,7 +56,11 @@
       </bit-tab>
     </bit-tab-group>
 
-    <bit-drawer style="width: 30%" [(open)]="dataService.openDrawer">
+    <bit-drawer
+      style="width: 30%"
+      [(open)]="dataService.openDrawer"
+      (openChange)="dataService.closeDrawer()"
+    >
       <ng-container *ngIf="dataService.isActiveDrawerType(drawerTypes.OrgAtRiskMembers)">
         <bit-drawer-header
           title="{{ 'atRiskMembersWithCount' | i18n: dataService.atRiskMemberDetails.length }}"

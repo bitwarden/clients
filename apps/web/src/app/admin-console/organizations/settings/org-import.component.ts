@@ -11,8 +11,8 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ImportComponent } from "@bitwarden/importer/ui";
 import { ImportCollectionServiceAbstraction } from "@bitwarden/importer-core";
+import { ImportComponent } from "@bitwarden/importer-ui";
 
 import { LooseComponentsModule, SharedModule } from "../../../shared";
 import { ImportCollectionAdminService } from "../../../tools/import/import-collection-admin.service";
