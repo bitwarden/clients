@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "بَدْء تسجيل الدخول"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "تم إرسال إشعار إلى جهازك."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "أُرسل إشعار إلى جهازك"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "تيقن من أن حسابك مفتوح وأن عبارة البصمة متطابقة على الجهاز الآخر"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "هل تحتاج إلى خيار آخر؟"
@@ -2782,11 +2791,11 @@
     "message": "تبديل عدد الأحرف",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "هل تحاول تسجيل الدخول؟"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "محاولة تسجيل الدخول بواسطة $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "الوقت"
   },
-  "confirmLogIn": {
-    "message": "تأكيد تسجيل الدخول"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "رفض تسجيل الدخول"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "تم تأكيد تسجيل الدخول لـ $EMAIL$ في $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "هذا الطلب لم يعد صالحًا."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "تأكيد محاولة تسجيل الدخول لـ $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "طلب تسجيل الدخول"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "إنشاء الحساب في"
