@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Er is een melding naar je apparaat verzonden."
   },
+  "notificationSentDevicePart1": {
+    "message": "Ontgrendel Bitwarden op je apparaat of op de"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webapp"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Zorg ervoor dat de Vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Er is een melding naar je apparaat verzonden"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Zorg ervoor dat je kluis is ontgrendeld en de vingerafdrukzin hetzelfde is op het andere apparaat"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Je krijgt een melding zodra de aanvraag is goedgekeurd"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "Inloggen gestart"
+  },
+  "logInRequestSent": {
+    "message": "Verzoek verzonden"
   },
   "exposedMasterPassword": {
     "message": "Gelekt hoofdwachtwoord"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "Itemnaam"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organisatie is gedeactiveerd"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "Extra breed"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Werk je desktopapplicatie bij"

@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "A bejelentkezés elindításra került."
   },
+  "logInRequestSent": {
+    "message": "A kérés elküldésre került."
+  },
   "notificationSentDevice": {
     "message": "Egy értesítés lett elküldve az eszközre."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Egy értesítés lett elküldve az eszközre."
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Ellenőrizzük, hogy a széf feloldásra került és az ujjlenyomat kifejezés egyezik a másik eszközön levővel."
+  "notificationSentDevicePart1": {
+    "message": "A Bitwarden zárolás feloldása az eszközön vagy: "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webalkalmazás"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Jóváhagyás előtt győződjünk meg arról, hogy az ujjlenyomat kifejezés megegyezik az alábbi kifejezéssel."
   },
   "needAnotherOptionV1": {
     "message": "Másik opció szükséges?"
@@ -2782,10 +2791,10 @@
     "message": "Karakterszámláló váltás",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Megpróbálunk bejelentkezni?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "A fiókhoz próbálunk hozzáférni?"
   },
-  "logInAttemptBy": {
+  "accessAttemptBy": {
     "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
     "placeholders": {
       "email": {
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Időpont"
   },
-  "confirmLogIn": {
-    "message": "Bejelentkezés megerősítése"
+  "confirmAccess": {
+    "message": "Hozzáférés megerősítése"
   },
-  "denyLogIn": {
-    "message": "Bejelentkezés megtagadása"
+  "denyAccess": {
+    "message": "Hozzáférés megtagadása"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "A bejelelentketés $EMAIL$ email címmel megerősítésre került $DEVICE$ eszközön.",
@@ -2843,7 +2852,7 @@
   "thisRequestIsNoLongerValid": {
     "message": "A kérés a továbbiakban már nem érvényes."
   },
-  "confirmLoginAtemptForMail": {
+  "confirmAccessAttempt": {
     "message": "Bejelentkezési kísérlet megerősítése $EMAIL$ email címmel",
     "placeholders": {
       "email": {
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Bejelentkezés megkérve"
+  },
+  "accountAccessRequested": {
+    "message": "Fiók hozzáférés kérés történt."
   },
   "creatingAccountOn": {
     "message": "Fiók létrehozása:"
