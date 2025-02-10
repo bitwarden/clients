@@ -14,22 +14,21 @@ import {
 } from "rxjs";
 import { SemVer } from "semver";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { KeyService } from "@bitwarden/key-management";
+
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { BulkEncryptService } from "../../key-management/crypto/abstractions/bulk-encrypt.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
-import { BulkEncryptService } from "../../platform/abstractions/bulk-encrypt.service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { sequentialize } from "../../platform/misc/sequentialize";

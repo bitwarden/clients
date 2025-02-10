@@ -146,11 +146,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       }
     }
 
-    const extensionRefreshEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
-    );
-
-    this.cardIsExpired = extensionRefreshEnabled && isCardExpired(this.cipher.card);
+    this.cardIsExpired = isCardExpired(this.cipher.card);
   }
 
   ngOnDestroy() {
