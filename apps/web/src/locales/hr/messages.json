@@ -114,7 +114,7 @@
     "message": "Rizični korisnici"
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "Izloženi članovi ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -123,7 +123,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "Izložene aplikacije ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -132,13 +132,13 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+    "message": "Ovi članovi se prijavljuju u aplikacije slabim, izloženim ili ponovno korištenim lozinkama."
   },
   "atRiskApplicationsDescription": {
-    "message": "These applications have weak, exposed, or reused passwords."
+    "message": "Ove aplikacije imaju slabe, izložene ili ponovno korištene lozinke."
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "message": "Ovi članovi se u $APPNAME$ prijavljuju slabim, izloženim ili ponovno korištenim lozinkama.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -156,10 +156,10 @@
     "message": "Ukupno aplikacija"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Odznači kao kritičnu aplikaciju"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Kritična aplikacija uspješno odznačena"
   },
   "whatTypeOfItem": {
     "message": "Koja je ovo vrsta stavke?"
@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Uredi mapu"
   },
+  "newFolder": {
+    "message": "Nova mapa"
+  },
+  "folderName": {
+    "message": "Naziv mape"
+  },
+  "folderHintText": {
+    "message": "Ugnijezdi mapu dodavanjem naziva roditeljske mape i znaka kroz. Npr. Mreže/Forumi"
+  },
+  "deleteFolderPermanently": {
+    "message": "Sigurno želiš trajno izbrisati ovu mapu?"
+  },
   "baseDomain": {
     "message": "Primarna domena",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Naziv stavke"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "S dopuštenjima samo za prikaz ne možeš ukloniti zbirke: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "npr.",
@@ -1168,19 +1171,22 @@
     "message": "Potvrdi svoj identitet"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Ne prepoznajemo ovaj uređaj. Za potvrdu identiteta unesi kôd poslan e-poštom."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Nastavi prijavu"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Što je uređaj?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Uređaj je jedinstvena instalacija Bitwarden aplikacije gdje si prijavljen/a. Ponovna instalacija, brisanje podataka aplikacije ili kolačića može rezultirati višestrukim prikazom uređaja."
   },
   "logInInitiated": {
     "message": "Pokrenuta prijava"
+  },
+  "logInRequestSent": {
+    "message": "Zahtjev poslan"
   },
   "submit": {
     "message": "Pošalji"
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Obavijest je poslana na tvoj uređaj."
   },
+  "notificationSentDevicePart1": {
+    "message": "Otključaj Bitwarden na svojem uređaju ili na "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Pokušavaš li pristupiti svom računu?"
+  },
+  "accessAttemptBy": {
+    "message": "$EMAIL$ pokušava pristupiti",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Potvrdi pristup"
+  },
+  "denyAccess": {
+    "message": "Odbij pristup"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web trezoru"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Provjeri slaže li se jedinstvena fraza s ovdje prikazanom prije odobravanja."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Otključaj Bitwarden na svojem uređaju. Provjeri slaže li se jedinstvena fraza s ovdje prikazanom prije odobravanja."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Obavijest je poslana na tvoj uređaj"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Provjeri je li trezor otključan i slaže li se jedinstvena fraza s drugim uređajem"
   },
   "versionNumber": {
     "message": "Verzija $VERSION_NUMBER$",
@@ -1664,9 +1697,6 @@
     "message": "Izbjegavaj dvosmislene znakove",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Ponovno generiraj lozinku"
-  },
   "length": {
     "message": "Duljina"
   },
@@ -1767,10 +1797,10 @@
     "message": "Molimo, ponovno se prijavi."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Trenutna sesija"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Zahtjev u tijeku"
   },
   "logBackInOthersToo": {
     "message": "Molimo, ponovno se prijavi. Ako koristiš druge aplikacije Bitwarden i u njima napravi odjavu/prijavu."
@@ -1849,25 +1879,25 @@
     "message": "Ako nastaviš, trenutna sesija će biti zatvorena, što će zahtijevati ponovnu prijavu uklljučujući i prijavu dvostrukom autentifikacijom, ako je ona aktivna. Aktivne sesije na drugim uređajima mogu ostati aktivne još jedan sat."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "Prijava novog uređaja"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "Isključi zaštitu prijave novih uređaja"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "Uključi zaštitu prijave novih uređaja"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+    "message": "Za prestanak dobivanja e-pošte kada se prijaviš s novog uređaja, nastavi niže."
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+    "message": "Za dobivanje e-pošte kada se prijaviš s novog uređaja, nastavi niže."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+    "message": "Ako je zaštita prijave novih uređaja isključena, bilo tko s tvojom glavnom lozinkom može pristupiti tvom računu s bilo kojeg uređaja. Za zaštitu svog računa bez potvrde e-poštom, uključi dvostruku autentifikaciju."
   },
   "accountNewDeviceLoginProtectionSaved": {
-    "message": "New device login protection changes saved"
+    "message": "Promjene zaštite prijave novih uređaja su spremljene"
   },
   "sessionsDeauthorized": {
     "message": "Sve sesije deautorizirane"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Upravljaj"
   },
-  "canManage": {
-    "message": "Može upravljati"
+  "manageCollection": {
+    "message": "Upravljaj zbirkom"
+  },
+  "viewItems": {
+    "message": "Prikaz stavke"
+  },
+  "viewItemsHidePass": {
+    "message": "Prikaz stavke, skrivene lozinke"
+  },
+  "editItems": {
+    "message": "Uredi stavke"
+  },
+  "editItemsHidePass": {
+    "message": "Uredi stavke, skrivene lozinke"
   },
   "disable": {
     "message": "Onemogući"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Došlo je do pogreške kod očitavanja sigurnosnog ključa. Pokušaj ponovno."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Zbog platformskih ograničenja, WebAuthn nije moguće koristiti s Bitwarden aplikacijama na svim platformama. Za pristup računu kada nije moguće koristiti WebAuthn, trebalo bi uključiti drugog pružatelja prijave dvostrukom autentifikacijom. Platforme na kojima je WebAuthn podržan:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Web trezor i proširenja preglednika na stolnim/prijenosnim računalima s WebAuthn podržanim preglednikom (npr. Chrome, Opera, Vivaldi ili Firefox s omogućenim WebAuthn)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Zbog platformskih ograničenja, WebAuthn nije moguće koristiti sa svim Bitwarden aplikacijama. Uključi drugi način dvostruke autentifikacije za pristup računu kada se ne može koristiti WebAuthn."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Tvoj kôd za oporavak Bitwarden prijave dvostrukom autentifikacijom"
@@ -3339,10 +3378,10 @@
     }
   },
   "inviteSingleEmailDesc": {
-    "message": "You have 1 invite remaining."
+    "message": "Imaš jednu preostalu pozivnicu."
   },
   "inviteZeroEmailDesc": {
-    "message": "You have 0 invites remaining."
+    "message": "Nemaš preostalih pozivnica."
   },
   "userUsingTwoStep": {
     "message": "Ovaj korisnik upotrebljava prijavu u dva koraka za zaštitu svog računa."
@@ -3796,7 +3835,7 @@
     }
   },
   "unlinkedSso": {
-    "message": "Unlinked SSO."
+    "message": "SSO odspojen."
   },
   "unlinkedSsoUser": {
     "message": "Odspojen SSO za korisnika $ID$.",
@@ -3847,22 +3886,22 @@
     "message": "Uređaj"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Status prijave"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Prva prijava"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Pouzdan"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Zahtjeva odobrenje"
   },
   "areYouTryingtoLogin": {
-    "message": "Are you trying to log in?"
+    "message": "Pokušavaš li se prijaviti?"
   },
   "logInAttemptBy": {
-    "message": "Login attempt by $EMAIL$",
+    "message": "$EMAIL$ se pokušava prijaviti",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3871,22 +3910,22 @@
     }
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Vrsta uređaja"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "IP Adresa"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "Potvrdi prijavu"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "Odbij prijavu"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Ovaj zahtjev više nije valjan."
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Prijava za $EMAIL$ potvrđena na uređaju $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3899,16 +3938,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Odbijena je prijava na drugom uređaju. Ako si ovo stvarno ti, pokušaj se ponovno prijaviti uređajem."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Zahtjev za prijavu je već istekao."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Upravo"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Zatraženo prije $MINUTES$ minute/a",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4709,9 +4748,6 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Postavi pravila sigurnosti koje mora zadovoljiti generator lozinki."
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Jedna ili više organizacijskih pravila utječe na postavke generatora."
   },
   "masterPasswordPolicyInEffect": {
     "message": "Jedna ili više organizacijskih pravila zahtijeva da tvoja glavna lozinka ispunjava sljedeće uvjete:"
@@ -5807,17 +5843,17 @@
     "message": "Greška"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Pogreška pri dešifriranju"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden nije mogao dešifrirati sljedeće stavke trezora."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Kontaktiraj službu za korisnike",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "kako bi izbjegli gubitak podataka.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
@@ -6681,15 +6717,6 @@
     "message": "Generator",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Što želiš generirati?"
-  },
-  "passwordType": {
-    "message": "Tip lozinke"
-  },
-  "regenerateUsername": {
-    "message": "Ponovno generiraj korisničko ime"
-  },
   "generateUsername": {
     "message": "Generiraj korisničko ime"
   },
@@ -6730,9 +6757,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Tip korisničkog imena"
-  },
   "plusAddressedEmail": {
     "message": "Plus adresa e-pošte",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -6747,7 +6771,7 @@
     "message": "Koristi konfigurirani catch-all sandučić svoje domene."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Koristi ovu e-poštu"
   },
   "random": {
     "message": "Nasumično",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Naziv poslužitelja",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Token za API pristup"
   },
   "deviceVerification": {
     "message": "Provjera uređaja"
@@ -7666,18 +7687,6 @@
   "noCollection": {
     "message": "Nema zbirke"
   },
-  "canView": {
-    "message": "Može vidjeti"
-  },
-  "canViewExceptPass": {
-    "message": "Može vidjeti, osim lozinke"
-  },
-  "canEdit": {
-    "message": "Može urediti"
-  },
-  "canEditExceptPass": {
-    "message": "Može urediti, osim lozinke"
-  },
   "noCollectionsAdded": {
     "message": "Niti jedna zbirka nije dodana"
   },
@@ -8302,31 +8311,31 @@
     "message": "Pouzdani uređaji"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "message": "Članovi neće trebati glavnu lozinku kada se prijavljuju putem SSO-a. Glavnu lozinku zamjenjuje ključem za šifriranje pohranjen na uređaju, što taj uređaj čini pouzdanim. Prvi uređaj na kojem član kreira svoj račun i s kojeg se prijavi bit će pouzdan. Nove uređaje morat će odobriti ili postojeći pouzdani uređaj ili administrator. Pravilo",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
-    "message": "single organization",
+    "message": "isključive organizacije,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart2": {
-    "message": "policy,",
+    "message": "",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink2": {
-    "message": "SSO required",
+    "message": "obavezne SSO prijave",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart3": {
-    "message": "policy, and",
+    "message": "i",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink3": {
-    "message": "account recovery administration",
+    "message": "administracije oporavka računa",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart4": {
-    "message": "policy will turn on when this option is used.",
+    "message": "biti će uključeni ako se koristi ova opcija.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -8405,16 +8414,16 @@
     "message": "Odobri zahtjev"
   },
   "deviceApproved": {
-    "message": "Device approved"
+    "message": "Uređaj odobren"
   },
   "deviceRemoved": {
-    "message": "Device removed"
+    "message": "Uređaj uklonjen"
   },
   "removeDevice": {
-    "message": "Remove device"
+    "message": "Ukloni uređaj"
   },
   "removeDeviceConfirmation": {
-    "message": "Are you sure you want to remove this device?"
+    "message": "Sigurno želiš ukoniti ovaj uređaj?"
   },
   "noDeviceRequests": {
     "message": "Nema zahtjeva na čekanju"
@@ -8626,7 +8635,7 @@
     "message": "Omogući brisanje zbirki samo vlasnicima i adminima"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "Ograniči brisanje stavke samo članovima koji imaju dozvolu „Moguće upravljanje”"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Vlasnici i admini mogu upravljati svim zbirkama i stavkama"
@@ -8676,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "URL vlastitog poslužitelja",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Alias domene"
   },
   "alreadyHaveAccount": {
     "message": "Već imaš račun?"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Nemaš pristup za upravljanje ovom zbirkom."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Neodstaju prava „Moguće upravljanje”"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Dodijeli prava „Moguće upravljanje” kako bi dozvolili puni pristup zbirkama uključujući brisanje."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Dodijeli grupama i članovima pristup ovoj zbirki."
@@ -9307,7 +9313,7 @@
     "message": "mjesečno po korisniku"
   },
   "monthPerMemberBilledAnnually": {
-    "message": "month per member billed annually"
+    "message": "mjesečno po članu, naplata godišnje"
   },
   "seats": {
     "message": "Mjesta"
@@ -9458,16 +9464,16 @@
     "message": "Ažurirane porezne informacije"
   },
   "billingInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Neispravni porezni broj. Ako misliš da je broj ispravan, kontaktiraj podršku."
   },
   "billingTaxIdTypeInferenceError": {
-    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+    "message": "Nismo mogli provjeriti tvoj porezni broj. Ako misliš da je broj ispravan, kontaktiraj podršku."
   },
   "billingPreviewInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "Neispravni porezni broj. Ako misliš da je broj ispravan, kontaktiraj podršku."
   },
   "billingPreviewInvoiceError": {
-    "message": "An error occurred while previewing the invoice. Please try again later."
+    "message": "Greška kod pregleda fakture. Pokušaj ponovno kasnije."
   },
   "unverified": {
     "message": "Nepotvrđeno"
@@ -9830,13 +9836,13 @@
     "message": "Algoritam ključa"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Privatni ključ"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Javni ključ"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Otisak prsta"
   },
   "sshKeyFingerprint": {
     "message": "Otisak prsta"
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Šifra uplate"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "S dopuštenjima samo za prikaz ne možeš ukloniti zbirke: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Važna napomena"
   },
@@ -10131,13 +10146,13 @@
     "message": "Ukloni članove"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Uređaji"
   },
   "deviceListDescription": {
-    "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
+    "message": "Tvoj račun je prijavljen na svakom od ovih uređaja. Ako ne prepoznaješ uređaj, odmah ga ukloni."
   },
   "deviceListDescriptionTemp": {
-    "message": "Your account was logged in to each of the devices below."
+    "message": "Tvoj račun je prijavljen na svakom od ovih uređaja."
   },
   "claimedDomains": {
     "message": "Potvrđene domene"
@@ -10225,7 +10240,7 @@
     "message": "Naziv organizacije ne može biti duži od 50 znakova."
   },
   "resellerRenewalWarningMsg": {
-    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "message": "Tvoja će se pretplata uskoro obnoviti. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnove prije $RENEWAL_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10238,7 +10253,7 @@
     }
   },
   "resellerOpenInvoiceWarningMgs": {
-    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "message": "Za tvoju je pretplatu $ISSUED_DATE$ izdana faktura. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnove prije $DUE_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10255,7 +10270,7 @@
     }
   },
   "resellerPastDueWarningMsg": {
-    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "message": "Faktura za tvoju pretplatu nije plaćena. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnovu prije $GRACE_PERIOD_END$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10268,18 +10283,67 @@
     }
   },
   "restartOrganizationSubscription": {
-    "message": "Organization subscription restarted"
+    "message": "Organizacijska pretplata ponovno pokrenuta"
   },
   "restartSubscription": {
-    "message": "Restart your subscription"
+    "message": "Ponovno pokreni pretplatu"
   },
   "suspendedManagedOrgMessage": {
-    "message": "Contact $PROVIDER$ for assistance.",
+    "message": "Kontaktiraj $PROVIDER$ za pomoć.",
     "placeholders": {
       "provider": {
         "content": "$1",
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "Imaš još $REMAINING$ preostalih sjedišta od $TOTAL$ dodijeljenih ovog organizaciji. Kontaktiraj svog pružatelja usluge za upravljanje pretplatom.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Postojeća organizacija"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Odaberi organizaciju koju želiš dodati na svoj portal pružatelja usluga."
+  },
+  "noOrganizations": {
+    "message": "Nema organizaciji za prikaz"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Tvoja pretplata davatelja usluga dobit će kredit za preostalo vrijeme u organizacijskoj pretplati."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "IP Adresa",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Postojeća organizacija dodana"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Dodijeljene licence premašuju dostupne licence."
   }
 }

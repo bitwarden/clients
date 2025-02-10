@@ -1,4 +1,5 @@
 export { PasswordRepromptService } from "./services/password-reprompt.service";
+export { NewDeviceVerificationNoticeService } from "./services/new-device-verification-notice.service";
 export { CopyCipherFieldService, CopyAction } from "./services/copy-cipher-field.service";
 export { CopyCipherFieldDirective } from "./components/copy-cipher-field.directive";
 export { OrgIconDirective } from "./components/org-icon.directive";
@@ -17,6 +18,7 @@ export { PasswordHistoryViewComponent } from "./components/password-history-view
 export { NewDeviceVerificationNoticePageOneComponent } from "./components/new-device-verification-notice/new-device-verification-notice-page-one.component";
 export { NewDeviceVerificationNoticePageTwoComponent } from "./components/new-device-verification-notice/new-device-verification-notice-page-two.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
+export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 export * as VaultIcons from "./icons";
 
