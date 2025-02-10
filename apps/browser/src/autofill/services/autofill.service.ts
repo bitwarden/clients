@@ -463,13 +463,8 @@ export default class AutofillService implements AutofillServiceInterface {
         fillScript.properties.delay_between_operations = 20;
 
         didAutofill = true;
-
         if (!options.skipLastUsed) {
-          // In order to prevent a UI update send message to background script to update last used date
-          await chrome.runtime.sendMessage({
-            command: "updateLastUsedDate",
-            cipherId: options.cipher.id,
-          });
+          await this.cipherService.updateLastUsedDate(options.cipher.id);
         }
 
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
