@@ -10,7 +10,7 @@
   <i
     slot="end"
     *ngIf="!activeOrganization.enabled"
-    class="bwi bwi-exclamation-triangle tw-my-auto !text-alt-2"
+    class="bwi bwi-exclamation-triangle tw-my-auto"
     [attr.aria-label]="'organizationIsDisabled' | i18n"
     appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
   ></i>
@@ -27,7 +27,7 @@
       <i
         slot="end"
         *ngIf="org.enabled == false"
-        class="bwi bwi-exclamation-triangle !text-alt-2"
+        class="bwi bwi-exclamation-triangle"
         [attr.aria-label]="'organizationIsDisabled' | i18n"
         appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
       ></i>

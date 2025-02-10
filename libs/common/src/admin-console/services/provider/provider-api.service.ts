@@ -1,3 +1,5 @@
+import { AddableOrganizationResponse } from "@bitwarden/common/admin-console/models/response/addable-organization.response";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { ProviderApiServiceAbstraction } from "../../abstractions/provider/provider-api.service.abstraction";
 import { ProviderSetupRequest } from "../../models/request/provider/provider-setup.request";
@@ -43,5 +45,35 @@ export class ProviderApiService implements ProviderApiServiceAbstraction {
 
   async deleteProvider(id: string): Promise<void> {
     await this.apiService.send("DELETE", "/providers/" + id, null, true, false);
+  }
+
+  async getProviderAddableOrganizations(
+    providerId: string,
+  ): Promise<AddableOrganizationResponse[]> {
+    const response = await this.apiService.send(
+      "GET",
+      "/providers/" + providerId + "/clients/addable",
+      null,
+      true,
+      true,
+    );
+
+    return response.map((data: any) => new AddableOrganizationResponse(data));
+  }
+
+  addOrganizationToProvider(
+    providerId: string,
+    request: {
+      key: string;
+      organizationId: string;
+    },
+  ): Promise<void> {
+    return this.apiService.send(
+      "POST",
+      "/providers/" + providerId + "/clients/existing",
+      request,
+      true,
+      false,
+    );
   }
 }

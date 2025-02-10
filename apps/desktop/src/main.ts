@@ -133,12 +133,6 @@ export class Main {
     this.mainCryptoFunctionService = new MainCryptoFunctionService();
     this.mainCryptoFunctionService.init();
 
-    const accountService = new AccountServiceImplementation(
-      MessageSender.EMPTY,
-      this.logService,
-      globalStateProvider,
-    );
-
     const stateEventRegistrarService = new StateEventRegistrarService(
       globalStateProvider,
       storageServiceProvider,
@@ -148,6 +142,13 @@ export class Main {
       storageServiceProvider,
       stateEventRegistrarService,
       this.logService,
+    );
+
+    const accountService = new AccountServiceImplementation(
+      MessageSender.EMPTY,
+      this.logService,
+      globalStateProvider,
+      singleUserStateProvider,
     );
 
     const activeUserStateProvider = new DefaultActiveUserStateProvider(

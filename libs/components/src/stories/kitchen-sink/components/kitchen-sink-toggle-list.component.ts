@@ -16,11 +16,15 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
         <bit-toggle value="small"> Mid-sized <span bitBadge variant="info">1</span> </bit-toggle>
       </bit-toggle-group>
     </div>
-    <ul *ngFor="let company of companyList">
-      <li *ngIf="company.size === selectedToggle || selectedToggle === 'all'">
-        {{ company.name }}
-      </li>
-    </ul>
+    @for (company of companyList; track company) {
+      <ul>
+        @if (company.size === selectedToggle || selectedToggle === "all") {
+          <li>
+            {{ company.name }}
+          </li>
+        }
+      </ul>
+    }
   `,
 })
 export class KitchenSinkToggleList {

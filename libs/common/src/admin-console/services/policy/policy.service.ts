@@ -51,7 +51,7 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
     );
   }
 
-  getAll$(policyType: PolicyType, userId?: UserId) {
+  getAll$(policyType: PolicyType, userId: UserId) {
     const filteredPolicies$ = this.stateProvider.getUserState$(POLICIES, userId).pipe(
       map((policyData) => policyRecordToArray(policyData)),
       map((policies) => policies.filter((p) => p.type === policyType)),
