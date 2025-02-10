@@ -163,7 +163,11 @@
                       formControlName="requirePasswordOnStart"
                       (change)="updateRequirePasswordOnStart()"
                     />
-                    {{ "requirePasswordOnStart" | i18n }}
+                    @if (pinEnabled$ | async) {
+                      {{ "requirePasswordOnStart" | i18n }}
+                    } @else {
+                      {{ "requirePasswordWithoutPinOnStart" | i18n }}
+                    }
                   </label>
                 </div>
                 <small class="help-block form-group-child" *ngIf="isWindows">{{
