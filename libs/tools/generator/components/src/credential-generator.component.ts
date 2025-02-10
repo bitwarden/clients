@@ -33,6 +33,12 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { IntegrationId } from "@bitwarden/common/tools/integration";
+import {
+  SemanticLogger,
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+} from "@bitwarden/common/tools/log";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService, Option } from "@bitwarden/components";
 import {
   AlgorithmInfo,
@@ -51,6 +57,9 @@ import {
   toCredentialGeneratorConfiguration,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
+
+// ❌ delete this variable before merge
+const DELETE_THIS_VARIABLE_BEFORE_MERGE = true;
 
 // constants used to identify navigation selections that are not
 // generator algorithms
@@ -83,14 +92,30 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
   @Input()
   account: Account | null;
 
+  /** Send structured debug logs from the credential generator component
+   *  to the debugger console.
+   *
+   *  @warning this may reveal sensitive information in plaintext.
+   */
+  @Input()
+  debug: boolean = DELETE_THIS_VARIABLE_BEFORE_MERGE || false;
+
+  // this `log` initializer is overridden in `ngOnInit`
+  private log: SemanticLogger = disabledSemanticLoggerProvider({});
+
   protected account$ = new ReplaySubject<Account>(1);
 
   async ngOnChanges(changes: SimpleChanges) {
-    if ("account" in changes && changes.account) {
-      this.account$.next(this.account);
-    } else if (!changes.account) {
-      const account = await firstValueFrom(this.accountService.activeAccount$);
-      this.account$.next(account);
+    const account = changes?.account;
+    if (account?.previousValue?.id !== account?.currentValue?.id) {
+      this.log.debug(
+        {
+          previousUserId: account?.previousValue?.id as UserId,
+          currentUserId: account?.currentValue?.id as UserId,
+        },
+        "account input change detected",
+      );
+      this.account$.next(account.currentValue ?? this.account);
     }
   }
 
@@ -120,6 +145,19 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
   });
 
   async ngOnInit() {
+    this.log = ifEnabledSemanticLoggerProvider(this.debug, this.logService, {
+      type: "CredentialGeneratorComponent",
+    });
+
+    if (!this.account) {
+      this.account = await firstValueFrom(this.accountService.activeAccount$);
+      this.log.info(
+        { userId: this.account.id },
+        "account not specified; using active account settings",
+      );
+      this.account$.next(this.account);
+    }
+
     this.generatorService
       .algorithms$(["email", "username"], { account$: this.account$ })
       .pipe(
@@ -203,6 +241,8 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
         takeUntil(this.destroyed),
       )
       .subscribe(([generated, account, algorithm]) => {
+        this.log.debug({ source: generated.source }, "credential generated");
+
         this.generatorHistoryService
           .track(account.id, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
@@ -279,6 +319,8 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
         takeUntil(this.destroyed),
       )
       .subscribe(([showForwarder, forwarderId]) => {
+        this.log.debug({ forwarderId, showForwarder }, "forwarder visibility updated");
+
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
@@ -302,6 +344,8 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
         takeUntil(this.destroyed),
       )
       .subscribe((algorithm) => {
+        this.log.debug(algorithm, "algorithm selected");
+
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
@@ -318,19 +362,21 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
         takeUntil(this.destroyed),
       )
       .subscribe(([algorithm, preference]) => {
-        function setPreference(category: CredentialCategory) {
+        function setPreference(category: CredentialCategory, log: SemanticLogger) {
           const p = preference[category];
           p.algorithm = algorithm.id;
           p.updated = new Date();
+
+          log.info({ algorithm, category }, "algorithm preferences updated");
         }
 
         // `is*Algorithm` decides `algorithm`'s type, which flows into `setPreference`
         if (isEmailAlgorithm(algorithm.id)) {
-          setPreference("email");
+          setPreference("email", this.log);
         } else if (isUsernameAlgorithm(algorithm.id)) {
-          setPreference("username");
+          setPreference("username", this.log);
         } else if (isPasswordAlgorithm(algorithm.id)) {
-          setPreference("password");
+          setPreference("password", this.log);
         } else {
           return;
         }
@@ -401,25 +447,33 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
     this.algorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
       this.zone.run(() => {
         if (!a || a.onlyOnRequest) {
+          this.log.debug("autogeneration disabled; clearing generated credential");
           this.generatedCredential$.next(null);
         } else {
-          this.generate("autogenerate").catch((e: unknown) => this.logService.error(e));
+          this.log.debug("autogeneration enabled");
+          this.generate("autogenerate").catch((e: unknown) => {
+            this.log.error(e as object, "a failure occurred during autogeneration");
+          });
         }
       });
     });
+
+    this.log.debug("component initialized");
   }
 
   private announce(message: string) {
     this.ariaLive.announce(message).catch((e) => this.logService.error(e));
   }
 
-  private typeToGenerator$(type: CredentialAlgorithm) {
+  private typeToGenerator$(algorithm: CredentialAlgorithm) {
     const dependencies = {
       on$: this.generate$,
       account$: this.account$,
     };
 
-    switch (type) {
+    this.log.debug({ algorithm }, "constructing generation stream");
+
+    switch (algorithm) {
       case "catchall":
         return this.generatorService.generate$(Generators.catchall, dependencies);
 
@@ -436,14 +490,14 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
         return this.generatorService.generate$(Generators.passphrase, dependencies);
     }
 
-    if (isForwarderIntegration(type)) {
-      const forwarder = getForwarderConfiguration(type.forwarder);
+    if (isForwarderIntegration(algorithm)) {
+      const forwarder = getForwarderConfiguration(algorithm.forwarder);
       const configuration = toCredentialGeneratorConfiguration(forwarder);
       const generator = this.generatorService.generate$(configuration, dependencies);
       return generator;
     }
 
-    throw new Error(`Invalid generator type: "${type}"`);
+    this.log.panic({ algorithm }, `Invalid generator type: "${algorithm}"`);
   }
 
   /** Lists the top-level credential types supported by the component.
@@ -522,6 +576,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
    *  origin in the debugger.
    */
   protected async generate(requestor: string) {
+    this.log.debug({ requestor }, "generation requested");
     this.generate$.next({ source: requestor });
   }
 
@@ -544,5 +599,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
 
     // finalize component bindings
     this.onGenerated.complete();
+
+    this.log.debug("component destroyed");
   }
 }
