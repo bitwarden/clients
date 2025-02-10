@@ -129,10 +129,10 @@ export class DefaultBiometricStateService implements BiometricStateService {
   private requirePasswordOnStartState: ActiveUserState<boolean>;
   private encryptedClientKeyHalfState: ActiveUserState<EncryptedString>;
   private dismissedRequirePasswordOnStartCalloutState: ActiveUserState<boolean>;
-  private promptCancelledState: GlobalState<Record<UserId, boolean> | null>;
+  private promptCancelledState: GlobalState<Record<UserId, boolean>>;
   private promptAutomaticallyState: ActiveUserState<boolean>;
-  private fingerprintValidatedState: GlobalState<boolean | null>;
-  private lastProcessReloadState: GlobalState<Date | null>;
+  private fingerprintValidatedState: GlobalState<boolean>;
+  private lastProcessReloadState: GlobalState<Date>;
   biometricUnlockEnabled$: Observable<boolean>;
   encryptedClientKeyHalf$: Observable<EncString | null>;
   requirePasswordOnStart$: Observable<boolean>;

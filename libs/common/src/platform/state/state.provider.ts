@@ -68,13 +68,10 @@ export abstract class StateProvider {
   abstract getActive<T>(userKeyDefinition: UserKeyDefinition<T>): ActiveUserState<T>;
 
   /** @see{@link SingleUserStateProvider.get} */
-  abstract getUser<T>(
-    userId: UserId,
-    userKeyDefinition: UserKeyDefinition<T>,
-  ): SingleUserState<T | null>;
+  abstract getUser<T>(userId: UserId, userKeyDefinition: UserKeyDefinition<T>): SingleUserState<T>;
 
   /** @see{@link GlobalStateProvider.get} */
-  abstract getGlobal<T>(keyDefinition: KeyDefinition<T>): GlobalState<T | null>;
+  abstract getGlobal<T>(keyDefinition: KeyDefinition<T>): GlobalState<T>;
   abstract getDerived<TFrom, TTo, TDeps extends DerivedStateDependencies>(
     parentState$: Observable<TFrom>,
     deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,

@@ -17,7 +17,7 @@ export abstract class GeneratorStrategy<Options, Policy> {
    *  @param userId: identifies the user state to retrieve
    *  @returns the strategy's durable user state
    */
-  durableState: (userId: UserId) => SingleUserState<Options | null>;
+  durableState: (userId: UserId) => SingleUserState<Options>;
 
   /** Gets the default options. */
   defaults$: (userId: UserId) => Observable<Options>;

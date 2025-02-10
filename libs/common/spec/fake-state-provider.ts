@@ -240,11 +240,11 @@ export class FakeStateProvider implements StateProvider {
     return this.activeUser.get(userKeyDefinition);
   }
 
-  getGlobal<T>(keyDefinition: KeyDefinition<T>): GlobalState<T | null> {
+  getGlobal<T>(keyDefinition: KeyDefinition<T>): GlobalState<T> {
     return this.global.get(keyDefinition);
   }
 
-  getUser<T>(userId: UserId, userKeyDefinition: UserKeyDefinition<T>): SingleUserState<T | null> {
+  getUser<T>(userId: UserId, userKeyDefinition: UserKeyDefinition<T>): SingleUserState<T> {
     return this.singleUser.get(userId, userKeyDefinition);
   }
 

@@ -468,7 +468,6 @@ export class LockComponent implements OnInit, OnDestroy {
       if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
         this.toastService.showToast({
           variant: "error",
-          title: null,
           message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
         });
         this.messagingService.send("logout");

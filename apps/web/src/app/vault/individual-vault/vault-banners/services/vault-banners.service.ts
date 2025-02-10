@@ -144,7 +144,7 @@ export class VaultBannersService {
    *
    * @returns a SingleUserState for the premium banner reprompt state
    */
-  private premiumBannerState(userId: UserId): SingleUserState<PremiumBannerReprompt | null> {
+  private premiumBannerState(userId: UserId): SingleUserState<PremiumBannerReprompt> {
     return this.stateProvider.getUser(userId, PREMIUM_BANNER_REPROMPT_KEY);
   }
 
@@ -152,7 +152,7 @@ export class VaultBannersService {
    *
    * @returns a SingleUserState for the session banners dismissed state
    */
-  private sessionBannerState(userId: UserId): SingleUserState<SessionBanners[] | null> {
+  private sessionBannerState(userId: UserId): SingleUserState<SessionBanners[]> {
     return this.stateProvider.getUser(userId, BANNERS_DISMISSED_DISK_KEY);
   }
 
