@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Inloggen gestart"
   },
+  "logInRequestSent": {
+    "message": "Verzoek verzonden"
+  },
   "notificationSentDevice": {
     "message": "Er is een melding naar je apparaat verzonden."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Er is een melding naar je apparaat verzonden"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Zorg ervoor dat je account is ontgrendeld en dat de vingerafdrukzin overeenkomt met het andere apparaat"
+  "notificationSentDevicePart1": {
+    "message": "Ontgrendel Bitwarden op je apparaat of op de "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webapp"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Zorg ervoor dat de Vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
   },
   "needAnotherOptionV1": {
     "message": "Nog een optie nodig?"
@@ -2782,10 +2791,10 @@
     "message": "Tekentelling in-/uitschakelen",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Probeer je in te loggen?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Probeer je toegang te krijgen tot je account?"
   },
-  "logInAttemptBy": {
+  "accessAttemptBy": {
     "message": "Inlogpoging door $EMAIL$",
     "placeholders": {
       "email": {
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Tijd"
   },
-  "confirmLogIn": {
-    "message": "Inloggen bevestigen"
+  "confirmAccess": {
+    "message": "Toegang bevestigen"
   },
-  "denyLogIn": {
-    "message": "Inloggen afwijzen"
+  "denyAccess": {
+    "message": "Toegang weigeren"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Inloggen voor $EMAIL$ bevestigd op $DEVICE$",
@@ -2843,7 +2852,7 @@
   "thisRequestIsNoLongerValid": {
     "message": "Dit verzoek is niet langer geldig."
   },
-  "confirmLoginAtemptForMail": {
+  "confirmAccessAttempt": {
     "message": "Inlogpoging voor $EMAIL$ bevestigen",
     "placeholders": {
       "email": {
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Inloggen verzocht"
+  },
+  "accountAccessRequested": {
+    "message": "Accounttoegang aangevraagd"
   },
   "creatingAccountOn": {
     "message": "Account maken bij"

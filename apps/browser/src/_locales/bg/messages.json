@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Към устройството Ви е изпратено известие."
   },
+  "notificationSentDevicePart1": {
+    "message": "Отключете Битоурден на устройството си или в"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "приложението по уеб"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Уверете се, че уникалната фраза съвпада с тази по-долу, преди да одобрите."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Към устройството Ви е изпратено известие"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Уверете се, че регистрацията Ви е отключена и че уникалната фраза съвпада с другото устройство"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Ще получите уведомление когато заявката бъде одобрена"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "Вписването е стартирано"
+  },
+  "logInRequestSent": {
+    "message": "Заявката е изпратена"
   },
   "exposedMasterPassword": {
     "message": "Разобличена главна парола"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "Име на елемента"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Организацията е деактивирана"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "Много широко"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Моля, обновете самостоятелното приложение"

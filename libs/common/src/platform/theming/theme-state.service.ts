@@ -32,7 +32,11 @@ export class DefaultThemeStateService implements ThemeStateService {
     map(([theme, isExtensionRefresh]) => {
       // The extension refresh should not allow for Nord or SolarizedDark
       // Default the user to their system theme
-      if (isExtensionRefresh && [ThemeType.Nord, ThemeType.SolarizedDark].includes(theme)) {
+      if (
+        isExtensionRefresh &&
+        theme != null &&
+        [ThemeType.Nord, ThemeType.SolarizedDark].includes(theme)
+      ) {
         return ThemeType.System;
       }
 
