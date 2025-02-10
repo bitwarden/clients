@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Una notifica è stata inviata al tuo dispositivo."
   },
+  "notificationSentDevicePart1": {
+    "message": "Sblocca Bitwarden sul tuo dispositivo o su"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "app web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Assicurarsi che la frase di impronta digitale corrisponda a quella sottostante prima dell'approvazione."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Una notifica è stata inviata al tuo dispositivo"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assicurati che il tuo account sia sbloccato e che la frase dell'impronta digitale corrisponda nell'altro dispositivo"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Sarai notificato una volta che la richiesta sarà approvata"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "Accesso avviato"
+  },
+  "logInRequestSent": {
+    "message": "Richiesta inviata"
   },
   "exposedMasterPassword": {
     "message": "Password principale violata"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "Nome elemento"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Non puoi rimuovere raccolte con i soli permessi di visualizzazione: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "L'organizzazione è disattivata"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "Molto larga"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Non puoi rimuovere raccolte con i soli permessi di visualizzazione: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Aggiornare l'applicazione desktop"

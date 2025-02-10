@@ -12,7 +12,7 @@ export interface UserState<T> {
   readonly state$: Observable<T | null>;
 
   /** Emits a stream of tuples, with the first element being a user id and the second element being the data for that user. */
-  readonly combinedState$: Observable<CombinedState<T>>;
+  readonly combinedState$: Observable<CombinedState<T | null>>;
 }
 
 export const activeMarker: unique symbol = Symbol("active");
@@ -38,9 +38,9 @@ export interface ActiveUserState<T> extends UserState<T> {
    * Resolves to the new state. If `shouldUpdate` returns false, the promise will resolve to the current state.
    */
   readonly update: <TCombine>(
-    configureState: (state: T, dependencies: TCombine) => T,
+    configureState: (state: T | null, dependencies: TCombine) => T | null,
     options?: StateUpdateOptions<T, TCombine>,
-  ) => Promise<[UserId, T]>;
+  ) => Promise<[UserId, T | null]>;
 }
 
 export interface SingleUserState<T> extends UserState<T> {
@@ -58,7 +58,7 @@ export interface SingleUserState<T> extends UserState<T> {
    * Resolves to the new state. If `shouldUpdate` returns false, the promise will resolve to the current state.
    */
   readonly update: <TCombine>(
-    configureState: (state: T, dependencies: TCombine) => T,
+    configureState: (state: T | null, dependencies: TCombine) => T | null,
     options?: StateUpdateOptions<T, TCombine>,
-  ) => Promise<T>;
+  ) => Promise<T | null>;
 }
