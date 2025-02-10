@@ -51,7 +51,7 @@ describe("BillingNotificationService", () => {
   });
 
   describe("showSuccess", () => {
-    it("should show success toast with default title", () => {
+    it("shows success toast with default title when provided title is empty", () => {
       const message = "test message";
       service.showSuccess(message);
 
