@@ -465,7 +465,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
         didAutofill = true;
         if (!options.skipLastUsed) {
-          await this.cipherService.updateLastUsedDate(options.cipher.id);
+          await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
         }
 
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
