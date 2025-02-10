@@ -4,7 +4,6 @@ import { firstValueFrom, map, mergeMap } from "rxjs";
 
 import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -17,7 +16,6 @@ import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/m
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { BiometricsCommands } from "@bitwarden/key-management";
 
@@ -55,7 +53,6 @@ export default class RuntimeBackground {
     private accountService: AccountService,
     private readonly lockService: LockService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private cipherService: CipherService,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -202,12 +199,6 @@ export default class RuntimeBackground {
       }
       case BiometricsCommands.GetBiometricsStatusForUser: {
         return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
-      }
-      case "updateLastUsedDate": {
-        const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(getUserId),
-        );
-        return await this.cipherService.updateLastUsedDate(msg.cipherId, activeUserId);
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(
