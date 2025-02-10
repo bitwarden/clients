@@ -11,7 +11,7 @@ export abstract class SsoLoginServiceAbstraction {
    * @see https://datatracker.ietf.org/doc/html/rfc7636
    * @returns The code verifier used for SSO.
    */
-  abstract getCodeVerifier: () => Promise<string>;
+  abstract getCodeVerifier: () => Promise<string | null>;
   /**
    * Sets the code verifier used for SSO.
    *
@@ -31,7 +31,7 @@ export abstract class SsoLoginServiceAbstraction {
    * @see https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
    * @returns The SSO state.
    */
-  abstract getSsoState: () => Promise<string>;
+  abstract getSsoState: () => Promise<string | null>;
   /**
    * Sets the value of the SSO state.
    *
@@ -48,7 +48,7 @@ export abstract class SsoLoginServiceAbstraction {
    * Do not use this value outside of the SSO login flow.
    * @returns The user's organization identifier.
    */
-  abstract getOrganizationSsoIdentifier: () => Promise<string>;
+  abstract getOrganizationSsoIdentifier: () => Promise<string | null>;
   /**
    * Sets the value of the user's organization sso identifier.
    *
@@ -61,7 +61,7 @@ export abstract class SsoLoginServiceAbstraction {
    * Note: This should only be used during the SSO flow to identify the user that is attempting to log in.
    * @returns The user's email.
    */
-  abstract getSsoEmail: () => Promise<string>;
+  abstract getSsoEmail: () => Promise<string | null>;
   /**
    * Sets the user's email.
    * Note: This should only be used during the SSO flow to identify the user that is attempting to log in.

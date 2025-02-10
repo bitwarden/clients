@@ -2551,7 +2551,7 @@
     "message": "Izmantot uzstādīto domēna visu tverošo iesūtni."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Izmantot šo e-pasta adresi"
   },
   "random": {
     "message": "Nejauši"
@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Uzsākta pieteikšanās"
   },
+  "logInRequestSent": {
+    "message": "Pieprasījums nosūtīts"
+  },
   "notificationSentDevice": {
     "message": "Uz jūsu ierīci ir nosūtīts paziņojums."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Uz ierīci tika nosūtīts paziņojums"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lūgums pārliecināties, ka konts ir atslēgts un atpazīšanas vārdkopa ir tāda pati arī otrā ierīcē"
+  "notificationSentDevicePart1": {
+    "message": "Bitwarden jāatslēdz savā ierīcē vai "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "tīmekļa lietotnē"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pirms apstiprināšanas jāpārliecinās, ka pirkstu nospieduma vārdkopa atbilst zemāk esošajai."
   },
   "needAnotherOptionV1": {
     "message": "Nepieciešama cita iespēja?"
@@ -2782,11 +2791,11 @@
     "message": "Pārslēgt rakstzīmju skaita attēlošanu",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Vai mēģini pieteikties?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Vai mēģini piekļūt savam kontam?"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ pieteikšanās mēģinājums",
+  "accessAttemptBy": {
+    "message": "$EMAIL$ piekļuves mēģinājums",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Laiks"
   },
-  "confirmLogIn": {
-    "message": "Apstiprināt pieteikšanos"
+  "confirmAccess": {
+    "message": "Apstiprināt piekļuvi"
   },
-  "denyLogIn": {
-    "message": "Atteikt pieteikšanos"
+  "denyAccess": {
+    "message": "Noraidīt piekļuvi"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Šis pieprasījums vairs nav derīgs."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Apstiprināt $EMAIL$ pieteikšanās mēģinājumu",
+  "confirmAccessAttempt": {
+    "message": "Apstiprināt $EMAIL$ piekļuves mēģinājumu",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Pieprasīta pieteikšanās"
+  },
+  "accountAccessRequested": {
+    "message": "Pieprasīta piekļuve kontam"
   },
   "creatingAccountOn": {
     "message": "Tiek veidots konts"

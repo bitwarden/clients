@@ -2364,7 +2364,7 @@
     "message": "Endre dette i innstillingene"
   },
   "websiteItemLabel": {
-    "message": "Nettsted $nummer$ (URİ)",
+    "message": "Nettsted $number$ (URİ)",
     "placeholders": {
       "number": {
         "content": "$1",
