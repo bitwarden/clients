@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildirim gönderildi."
   },
+  "notificationSentDevicePart1": {
+    "message": "Bitwarden kilidini cihazınızdan veya"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web uygulamasından açın"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Onay vermeden önce parmak izi ifadesinin aşağıdakiyle eşleştiğini kontrol edin."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Cihazınıza bir bildirim gönderildi"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lütfen hesabınızın kilidinin açık olduğundan ve parmak izi ifadesinin diğer cihazla eşleştiğinden emin olun"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "İsteğiniz onaylanınca size haber vereceğiz"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "Giriş başlatıldı"
+  },
+  "logInRequestSent": {
+    "message": "İstek gönderildi"
   },
   "exposedMasterPassword": {
     "message": "Açığa Çıkmış Ana Parola"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "Kayıt adı"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Kuruluş pasifleştirilmiş"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "Ekstra geniş"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Lütfen masaüstü uygulamanızı güncelleyin"
