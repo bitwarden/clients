@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Вписването е стартирано"
   },
+  "logInRequestSent": {
+    "message": "Заявката е изпратена"
+  },
   "notificationSentDevice": {
     "message": "Към устройството Ви е изпратено известие."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Към устройството Ви е изпратено известие"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Уверете се, че регистрацията Ви е отключена и че уникалната фраза съвпада с другото устройство"
+  "notificationSentDevicePart1": {
+    "message": "Отключете Битоурден на устройството си или в "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "приложението по уеб"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Уверете се, че уникалната фраза съвпада с тази по-долу, преди да одобрите."
   },
   "needAnotherOptionV1": {
     "message": "Предпочитате друг вариант?"
@@ -2782,11 +2791,11 @@
     "message": "Превключване на броя знаци",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Опитвате се да се впишете ли?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Опитвате ли се да получите достъп до акаунта си?"
   },
-  "logInAttemptBy": {
-    "message": "Опит за вписване от $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Опит за достъп от $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Време"
   },
-  "confirmLogIn": {
-    "message": "Потвърждаване на вписването"
+  "confirmAccess": {
+    "message": "Разрешаване на достъпа"
   },
-  "denyLogIn": {
-    "message": "Отказване на вписването"
+  "denyAccess": {
+    "message": "Отказване на достъпа"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Вписването за $EMAIL$ на $DEVICE$ е одобрено",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Тази заявка вече не е активна."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Потвърждаване на заявката за вписване за $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Потвърждаване на заявката за достъп за $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Направена е заявка за вписване"
+  },
+  "accountAccessRequested": {
+    "message": "Има заявка за достъп до акаунта"
   },
   "creatingAccountOn": {
     "message": "Създаване на регистрация в"
