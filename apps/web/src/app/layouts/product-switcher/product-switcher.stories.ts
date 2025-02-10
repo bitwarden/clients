@@ -109,6 +109,7 @@ export default {
         MockProviderService,
         { provide: SyncService, useClass: MockSyncService },
         { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
+        MockPlatformUtilsService,
         ProductSwitcherService,
         {
           provide: I18nService,
