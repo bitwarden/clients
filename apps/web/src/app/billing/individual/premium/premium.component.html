@@ -66,7 +66,7 @@
   </bit-callout>
 </bit-section>
 <bit-section *ngIf="isSelfHost">
-  <ng-container *ngIf="!(useLicenseUploaderComponent$ | async)">
+  <ng-container>
     <p bitTypography="body1">{{ "uploadLicenseFilePremium" | i18n }}</p>
     <form [formGroup]="licenseFormGroup" [bitSubmit]="submitPremiumLicense">
       <bit-form-field>
@@ -95,10 +95,6 @@
       </button>
     </form>
   </ng-container>
-  <individual-self-hosting-license-uploader
-    *ngIf="useLicenseUploaderComponent$ | async"
-    (onLicenseFileUploaded)="onLicenseFileSelectedChanged()"
-  />
 </bit-section>
 <form *ngIf="!isSelfHost" [formGroup]="addOnFormGroup" [bitSubmit]="submitPayment">
   <bit-section>
