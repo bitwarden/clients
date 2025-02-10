@@ -1119,7 +1119,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (cipher.login?.totp) {
         const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
-        this.platformUtilsService.copyToClipboard(totpResponse.code);
+
+        if (totpResponse?.code) {
+          this.platformUtilsService.copyToClipboard(totpResponse.code);
+        } else {
+          this.logService.error("Failed to get TOTP code for inline menu cipher");
+        }
       }
       return;
     }
