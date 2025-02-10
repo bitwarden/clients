@@ -80,10 +80,6 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnDestroy() {
-    await this.close();
-  }
-
-  async close() {
     await firstValueFrom(
       this.activeRoute.queryParams.pipe(
         switchMap(async (params) => {
