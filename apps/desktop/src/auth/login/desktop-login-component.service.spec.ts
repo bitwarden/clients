@@ -124,7 +124,7 @@ describe("DesktopLoginComponentService", () => {
         const state = "testState";
         const codeVerifier = "testCodeVerifier";
         const codeChallenge = "testCodeChallenge";
-        const baseUrl = "https://webvault.bitwarden.com/#/sso";
+        const baseUrl = "https://webvault.bitwarden.com";
         const expectedRedirectUri = "bitwarden://sso-callback";
 
         passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
@@ -139,7 +139,7 @@ describe("DesktopLoginComponentService", () => {
             state,
           );
         } else {
-          const expectedUrl = `${baseUrl}?clientId=desktop&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
+          const expectedUrl = `${baseUrl}/#/sso?clientId=desktop&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
           expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
           expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
           expect(platformUtilsService.launchUri).toHaveBeenCalledWith(expectedUrl);
