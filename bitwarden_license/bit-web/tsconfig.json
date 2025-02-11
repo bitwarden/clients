@@ -21,8 +21,8 @@
         "../../libs/tools/export/vault-export/vault-export-core/src"
       ],
       "@bitwarden/vault-export-ui": ["../../libs/tools/export/vault-export/vault-export-ui/src"],
-      "@bitwarden/importer/core": ["../../libs/importer/src"],
-      "@bitwarden/importer/ui": ["../../libs/importer/src/components"],
+      "@bitwarden/importer-core": ["../../libs/importer/src"],
+      "@bitwarden/importer-ui": ["../../libs/importer/src/components"],
       "@bitwarden/key-management": ["../../libs/key-management/src"],
       "@bitwarden/key-management-ui": ["../../libs/key-management-ui/src"],
       "@bitwarden/platform": ["../../libs/platform/src"],
@@ -46,7 +46,7 @@
     "../../apps/web/src/connectors/*.ts",
     "../../apps/web/src/**/*.stories.ts",
     "../../apps/web/src/**/*.spec.ts",
-    "../../libs/common/src/platform/services/**/*.worker.ts",
+    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
 
     "src/**/*.stories.ts",
     "src/**/*.spec.ts"

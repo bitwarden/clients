@@ -26,7 +26,6 @@ export enum FeatureFlag {
 
   /* Tools */
   ItemShare = "item-share",
-  GeneratorToolsModernization = "generator-tools-modernization",
   CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
 
@@ -45,11 +44,11 @@ export enum FeatureFlag {
   SecurityTasks = "security-tasks",
   NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
   NewDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss",
-  DisableFreeFamiliesSponsorship = "PM-12274-disable-free-families-sponsorship",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
+  AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   NewDeviceVerification = "new-device-verification",
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
 }
@@ -88,7 +87,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.ItemShare]: FALSE,
-  [FeatureFlag.GeneratorToolsModernization]: FALSE,
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
@@ -107,11 +105,11 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
   [FeatureFlag.NewDeviceVerificationPermanentDismiss]: FALSE,
-  [FeatureFlag.DisableFreeFamiliesSponsorship]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
+  [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.NewDeviceVerification]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
