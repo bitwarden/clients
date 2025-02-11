@@ -66,7 +66,6 @@ import { ProductSwitcherModule } from "../layouts/product-switcher/product-switc
 import { UserLayoutComponent } from "../layouts/user-layout.component";
 import { DomainRulesComponent } from "../settings/domain-rules.component";
 import { PreferencesComponent } from "../settings/preferences.component";
-import { AddEditComponent as SendAddEditComponent } from "../tools/send/add-edit.component";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/individual-vault/add-edit.component";
@@ -148,7 +147,6 @@ import { SharedModule } from "./shared.module";
     SecurityComponent,
     SecurityKeysComponent,
     SelectableAvatarComponent,
-    SendAddEditComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
@@ -213,7 +211,6 @@ import { SharedModule } from "./shared.module";
     SecurityComponent,
     SecurityKeysComponent,
     SelectableAvatarComponent,
-    SendAddEditComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
