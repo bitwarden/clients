@@ -3,15 +3,23 @@
     <img class="logo-image" alt="Bitwarden" />
 
     <ng-container *ngIf="state == StateEnum.StandardAuthRequest">
-      <p class="lead text-center">{{ "loginInitiated" | i18n }}</p>
+      <p class="lead text-center">{{ "logInRequestSent" | i18n }}</p>
 
       <div class="box last">
         <div class="box-content">
           <div class="box-content-row" appBoxRow>
             <div class="section">
-              <p class="section">{{ "notificationSentDevice" | i18n }}</p>
-              <p>
-                {{ "fingerprintMatchInfo" | i18n }}
+              <p class="section">
+                {{ "notificationSentDevicePart1" | i18n }}
+                <a
+                  bitLink
+                  linkType="primary"
+                  class="tw-cursor-pointer"
+                  [href]="deviceManagementUrl"
+                  target="_blank"
+                  rel="noreferrer"
+                  >{{ "notificationSentDeviceAnchor" | i18n }}</a
+                >. {{ "notificationSentDevicePart2" | i18n }}
               </p>
             </div>
 

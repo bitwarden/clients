@@ -61,7 +61,6 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
 
   protected onboardingTasks$: Observable<VaultOnboardingTasks>;
   protected showOnboarding = false;
-  protected extensionRefreshEnabled = false;
 
   private activeId: UserId;
   constructor(
@@ -81,9 +80,6 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
     this.setInstallExtLink();
     this.individualVaultPolicyCheck();
     this.checkForBrowserExtension();
-    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
   }
 
   async ngOnChanges(changes: SimpleChanges) {

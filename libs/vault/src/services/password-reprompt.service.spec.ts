@@ -1,8 +1,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { UserVerificationService } from "@bitwarden/common/src/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 
 import { PasswordRepromptService } from "./password-reprompt.service";

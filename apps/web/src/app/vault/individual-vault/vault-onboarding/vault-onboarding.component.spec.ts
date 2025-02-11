@@ -37,7 +37,6 @@ describe("VaultOnboardingComponent", () => {
   let individualVaultPolicyCheckSpy: any;
   let mockConfigService: MockProxy<ConfigService>;
   const mockAccountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
-  const fakeStateProvider = new FakeStateProvider(mockAccountService);
 
   beforeEach(() => {
     mockPolicyService = mock<PolicyService>();
@@ -48,6 +47,15 @@ describe("VaultOnboardingComponent", () => {
     };
     mockVaultOnboardingService = mock<VaultOnboardingServiceAbstraction>();
     mockConfigService = mock<ConfigService>();
+    mockStateProvider = {
+      getActive: jest.fn().mockReturnValue(
+        of({
+          createAccount: true,
+          importData: false,
+          installExtension: false,
+        }),
+      ),
+    };
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
@@ -59,9 +67,10 @@ describe("VaultOnboardingComponent", () => {
         { provide: VaultOnboardingServiceAbstraction, useValue: mockVaultOnboardingService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ApiService, useValue: mockApiService },
-        { provide: StateProvider, useValue: fakeStateProvider },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: StateProvider, useValue: mockStateProvider },
+
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(VaultOnboardingComponent);
