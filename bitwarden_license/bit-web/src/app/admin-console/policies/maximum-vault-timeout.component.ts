@@ -65,7 +65,7 @@ export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
     };
   }
 
-  protected async buildRequest(): Promise<PolicyRequest> {
+  async buildRequest(): Promise<PolicyRequest> {
     const request = await super.buildRequest();
     if (request.data?.minutes == null || request.data?.minutes <= 0) {
       throw new Error(this.i18nService.t("invalidMaximumVaultTimeout"));
