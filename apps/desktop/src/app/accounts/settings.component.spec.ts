@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -28,7 +29,7 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService } from "@bitwarden/components";
-import { BiometricStateService, KeyService } from "@bitwarden/key-management";
+import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
@@ -54,6 +55,8 @@ describe("SettingsComponent", () => {
   const desktopAutofillSettingsService = mock<DesktopAutofillSettingsService>();
   const themeStateService = mock<ThemeStateService>();
   const pinServiceAbstraction = mock<PinServiceAbstraction>();
+  const desktopBiometricsService = mock<DesktopBiometricsService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
 
   beforeEach(async () => {
     originalIpc = (global as any).ipc;
@@ -86,7 +89,7 @@ describe("SettingsComponent", () => {
           provide: DesktopAutofillSettingsService,
           useValue: desktopAutofillSettingsService,
         },
-        { provide: DesktopBiometricsService, useValue: mock<DesktopBiometricsService>() },
+        { provide: DesktopBiometricsService, useValue: desktopBiometricsService },
         { provide: DesktopSettingsService, useValue: desktopSettingsService },
         { provide: DomainSettingsService, useValue: domainSettingsService },
         { provide: DialogService, useValue: mock<DialogService>() },
@@ -99,7 +102,7 @@ describe("SettingsComponent", () => {
         },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PinServiceAbstraction, useValue: pinServiceAbstraction },
-        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: PolicyService, useValue: policyService },
         { provide: StateService, useValue: mock<StateService>() },
         { provide: ThemeStateService, useValue: themeStateService },
@@ -159,35 +162,22 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
-
     policyService.get$.mockReturnValue(of(policy));
 
     await component.ngOnInit();
 
     await expect(firstValueFrom(component.pinEnabled$)).resolves.toBe(true);
-
-    fixture.detectChanges();
-
-    const pinInputElement = fixture.debugElement.query(By.css("#pin"));
-    expect(pinInputElement).not.toBeNull();
-    expect(pinInputElement.name).toBe("input");
   });
 
   it("pin disabled when RemoveUnlockWithPin policy is enabled", async () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-
     policyService.get$.mockReturnValue(of(policy));
 
     await component.ngOnInit();
 
     await expect(firstValueFrom(component.pinEnabled$)).resolves.toBe(false);
-
-    fixture.detectChanges();
-
-    const pinInputElement = fixture.debugElement.query(By.css("#pin"));
-    expect(pinInputElement).toBeNull();
   });
 
   it("pin visible when RemoveUnlockWithPin policy is not set", async () => {
@@ -200,13 +190,15 @@ describe("SettingsComponent", () => {
     const pinInputElement = fixture.debugElement.query(By.css("#pin"));
     expect(pinInputElement).not.toBeNull();
     expect(pinInputElement.name).toBe("input");
+    expect(pinInputElement.attributes).toMatchObject({
+      type: "checkbox",
+    });
   });
 
   it("pin visible when RemoveUnlockWithPin policy is disabled", async () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
-
     policyService.get$.mockReturnValue(of(policy));
 
     await component.ngOnInit();
@@ -215,15 +207,16 @@ describe("SettingsComponent", () => {
     const pinInputElement = fixture.debugElement.query(By.css("#pin"));
     expect(pinInputElement).not.toBeNull();
     expect(pinInputElement.name).toBe("input");
+    expect(pinInputElement.attributes).toMatchObject({
+      type: "checkbox",
+    });
   });
 
   it("pin visible when RemoveUnlockWithPin policy is enabled and pin set", async () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-
     policyService.get$.mockReturnValue(of(policy));
-
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
     await component.ngOnInit();
@@ -232,13 +225,15 @@ describe("SettingsComponent", () => {
     const pinInputElement = fixture.debugElement.query(By.css("#pin"));
     expect(pinInputElement).not.toBeNull();
     expect(pinInputElement.name).toBe("input");
+    expect(pinInputElement.attributes).toMatchObject({
+      type: "checkbox",
+    });
   });
 
   it("pin not visible when RemoveUnlockWithPin policy is enabled", async () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-
     policyService.get$.mockReturnValue(of(policy));
 
     await component.ngOnInit();
@@ -246,5 +241,82 @@ describe("SettingsComponent", () => {
 
     const pinInputElement = fixture.debugElement.query(By.css("#pin"));
     expect(pinInputElement).toBeNull();
+  });
+
+  describe("biometrics enabled", () => {
+    beforeEach(() => {
+      desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+      vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(true);
+    });
+
+    it("require password or pin on app start message when RemoveUnlockWithPin policy is disabled and pin set and windows desktop", async () => {
+      const policy = new Policy();
+      policy.type = PolicyType.RemoveUnlockWithPin;
+      policy.enabled = false;
+      policyService.get$.mockReturnValue(of(policy));
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      i18nService.t.mockImplementation((id: string) => {
+        if (id === "requirePasswordOnStart") {
+          return "Require password or pin on app start";
+        } else if (id === "requirePasswordWithoutPinOnStart") {
+          return "Require password on app start";
+        }
+        return "";
+      });
+      pinServiceAbstraction.isPinSet.mockResolvedValue(true);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const requirePasswordOnStartLabelElement = fixture.debugElement.query(
+        By.css("label[for='requirePasswordOnStart']"),
+      );
+      expect(requirePasswordOnStartLabelElement).not.toBeNull();
+      expect(requirePasswordOnStartLabelElement.children).toHaveLength(1);
+      expect(requirePasswordOnStartLabelElement.children[0].name).toBe("input");
+      expect(requirePasswordOnStartLabelElement.children[0].attributes).toMatchObject({
+        id: "requirePasswordOnStart",
+        type: "checkbox",
+      });
+      const textNodes = requirePasswordOnStartLabelElement.childNodes
+        .filter((node) => node.nativeNode.nodeType === Node.TEXT_NODE)
+        .map((node) => node.nativeNode.wholeText?.trim());
+      expect(textNodes).toContain("Require password or pin on app start");
+    });
+
+    it("require password on app start message when RemoveUnlockWithPin policy is enabled and pin set and windows desktop", async () => {
+      const policy = new Policy();
+      policy.type = PolicyType.RemoveUnlockWithPin;
+      policy.enabled = true;
+      policyService.get$.mockReturnValue(of(policy));
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      i18nService.t.mockImplementation((id: string) => {
+        if (id === "requirePasswordOnStart") {
+          return "Require password or pin on app start";
+        } else if (id === "requirePasswordWithoutPinOnStart") {
+          return "Require password on app start";
+        }
+        return "";
+      });
+      pinServiceAbstraction.isPinSet.mockResolvedValue(true);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const requirePasswordOnStartLabelElement = fixture.debugElement.query(
+        By.css("label[for='requirePasswordOnStart']"),
+      );
+      expect(requirePasswordOnStartLabelElement).not.toBeNull();
+      expect(requirePasswordOnStartLabelElement.children).toHaveLength(1);
+      expect(requirePasswordOnStartLabelElement.children[0].name).toBe("input");
+      expect(requirePasswordOnStartLabelElement.children[0].attributes).toMatchObject({
+        id: "requirePasswordOnStart",
+        type: "checkbox",
+      });
+      const textNodes = requirePasswordOnStartLabelElement.childNodes
+        .filter((node) => node.nativeNode.nodeType === Node.TEXT_NODE)
+        .map((node) => node.nativeNode.wholeText?.trim());
+      expect(textNodes).toContain("Require password on app start");
+    });
   });
 });
