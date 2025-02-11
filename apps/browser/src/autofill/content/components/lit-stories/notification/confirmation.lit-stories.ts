@@ -27,7 +27,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=32-3461&m=dev",
+      url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=485-20160&m=dev",
     },
   },
 } as Meta<Args>;
