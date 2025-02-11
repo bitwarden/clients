@@ -13,8 +13,6 @@ const decorator = componentWrapperDecorator(
         [ngClass]="{
           'tw-bg-[#ffffff] tw-border-secondary-300': theme === 'light',
           'tw-bg-[#1f242e]': theme === 'dark',
-          'tw-bg-[#434C5E]': theme === 'nord',
-          'tw-bg-[#002b36]': theme === 'solarized'
         }"
       >
         ${story}
@@ -25,8 +23,6 @@ const decorator = componentWrapperDecorator(
     // We need to add the theme class to the body to support body-appended content like popovers and menus
     document.body.classList.remove("theme_light");
     document.body.classList.remove("theme_dark");
-    document.body.classList.remove("theme_nord");
-    document.body.classList.remove("theme_solarized");
 
     document.body.classList.add(`theme_${globals["theme"]}`);
 
@@ -53,16 +49,6 @@ const preview: Preview = {
             title: "Dark",
             value: "dark",
             icon: "moon",
-          },
-          {
-            title: "Nord",
-            value: "nord",
-            left: "⛰",
-          },
-          {
-            title: "Solarized",
-            value: "solarized",
-            left: "☯",
           },
         ],
         dynamicTitle: true,
