@@ -49,6 +49,11 @@ export class WebLoginComponentService
     );
   }
 
+  /**
+   * For the web client, redirecting to the SSO component is done via the router.
+   * We do not need to provide email, state, or code challenge since those are set in state
+   * or generated on the SSO component.
+   */
   protected override async redirectToSso(
     email: string,
     state: string,

@@ -35,6 +35,13 @@ export class DesktopLoginComponentService
     );
   }
 
+  /**
+   * On the desktop, redirecting to the SSO login page is done via a new browser window, opened
+   * to the SSO component on the web client.
+   * @param email the email of the user trying to log in, used to look up the org SSO identifier
+   * @param state the state that will be used to verify the SSO login, which needs to be passed to the IdP
+   * @param codeChallenge the challenge that will be verified after the code is returned from the IdP, which needs to be passed to the IdP
+   */
   protected override async redirectToSso(
     email: string,
     state: string,
