@@ -71,7 +71,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   protected changePasswordRoute = "set-password";
   protected forcePasswordResetRoute = "update-temp-password";
   protected successRoute = "vault";
-  protected twoFactorTimeoutRoute = "2fa-timeout";
+  protected twoFactorTimeoutRoute = "authentication-timeout";
 
   get isDuoProvider(): boolean {
     return (
@@ -102,10 +102,11 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     protected toastService: ToastService,
   ) {
     super(environmentService, i18nService, platformUtilsService, toastService);
+
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
 
-    // Add subscription to twoFactorTimeout$ and navigate to twoFactorTimeoutRoute if expired
-    this.loginStrategyService.twoFactorTimeout$
+    // Add subscription to authenticationSessionTimeout$ and navigate to twoFactorTimeoutRoute if expired
+    this.loginStrategyService.authenticationSessionTimeout$
       .pipe(takeUntilDestroyed())
       .subscribe(async (expired) => {
         if (!expired) {
@@ -287,7 +288,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
     // - Browser SSO on extension open
-    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier);
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier, userId);
     this.loginEmailService.clearValues();
 
     // note: this flow affects both TDE & standard users

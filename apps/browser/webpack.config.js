@@ -205,10 +205,8 @@ const mainConfig = {
       "./src/autofill/deprecated/overlay/pages/button/bootstrap-autofill-overlay-button.deprecated.ts",
     "overlay/list":
       "./src/autofill/deprecated/overlay/pages/list/bootstrap-autofill-overlay-list.deprecated.ts",
-    "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
-    "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
+    "encrypt-worker": "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
-    "content/lp-suppress-import-download": "./src/tools/content/lp-suppress-import-download.ts",
   },
   optimization: {
     minimize: ENV !== "development",
@@ -312,8 +310,6 @@ if (manifestVersion == 2) {
   // Manifest V2 background pages can be run through the regular build pipeline.
   // Since it's a standard webpage.
   mainConfig.entry.background = "./src/platform/background.ts";
-  mainConfig.entry["content/lp-suppress-import-download-script-append-mv2"] =
-    "./src/tools/content/lp-suppress-import-download-script-append.mv2.ts";
   mainConfig.entry["content/fido2-page-script-append-mv2"] =
     "./src/autofill/fido2/content/fido2-page-script-append.mv2.ts";
   mainConfig.entry["content/fido2-page-script-delay-append-mv2"] =
@@ -321,19 +317,24 @@ if (manifestVersion == 2) {
 
   configs.push(mainConfig);
 } else {
-  // Manifest v3 needs an extra helper for utilities in the content script.
-  // The javascript output of this should be added to manifest.v3.json
-  mainConfig.entry["content/misc-utils"] = "./src/autofill/content/misc-utils.ts";
-  mainConfig.entry["offscreen-document/offscreen-document"] =
-    "./src/platform/offscreen-document/offscreen-document.ts";
+  // Firefox does not use the offscreen API
+  if (browser !== "firefox") {
+    // Manifest v3 needs an extra helper for utilities in the content script.
+    // The javascript output of this should be added to manifest.v3.json
+    mainConfig.entry["content/misc-utils"] = "./src/autofill/content/misc-utils.ts";
+    mainConfig.entry["offscreen-document/offscreen-document"] =
+      "./src/platform/offscreen-document/offscreen-document.ts";
 
-  mainConfig.plugins.push(
-    new HtmlWebpackPlugin({
-      template: "./src/platform/offscreen-document/index.html",
-      filename: "offscreen-document/index.html",
-      chunks: ["offscreen-document/offscreen-document"],
-    }),
-  );
+    mainConfig.plugins.push(
+      new HtmlWebpackPlugin({
+        template: "./src/platform/offscreen-document/index.html",
+        filename: "offscreen-document/index.html",
+        chunks: ["offscreen-document/offscreen-document"],
+      }),
+    );
+  }
+
+  const target = browser === "firefox" ? "web" : "webworker";
 
   /**
    * @type {import("webpack").Configuration}
@@ -343,7 +344,7 @@ if (manifestVersion == 2) {
     mode: ENV,
     devtool: false,
     entry: "./src/platform/background.ts",
-    target: "webworker",
+    target: target,
     output: {
       filename: "background.js",
       path: path.resolve(__dirname, "build"),

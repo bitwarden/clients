@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
@@ -24,6 +25,7 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -31,13 +33,13 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
+import { NotificationCipherData } from "../content/components/cipher/types";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
 import {
   AddChangePasswordQueueMessage,
   AddLoginQueueMessage,
-  AddRequestFilelessImportQueueMessage,
   AddUnlockVaultQueueMessage,
   ChangePasswordMessageData,
   AddLoginMessageData,
@@ -81,6 +83,8 @@ export default class NotificationBackground {
     bgGetExcludedDomains: () => this.getExcludedDomains(),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
+    notificationRefreshFlagValue: () => this.getNotificationFlag(),
+    bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
   };
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
@@ -132,10 +136,53 @@ export default class NotificationBackground {
   }
 
   /**
+   *
+   * Gets the current active tab and retrieves all decrypted ciphers
+   * for the tab's URL. It constructs and returns an array of `NotificationCipherData` objects.
+   * If no active tab or URL is found, it returns an empty array.
+   *
+   * @returns {Promise<NotificationCipherData[]>}
+   */
+
+  async getNotificationCipherData(): Promise<NotificationCipherData[]> {
+    const [currentTab, showFavicons, env] = await Promise.all([
+      BrowserApi.getTabFromCurrentWindow(),
+      firstValueFrom(this.domainSettingsService.showFavicons$),
+      firstValueFrom(this.environmentService.environment$),
+    ]);
+    const iconsServerUrl = env.getIconsUrl();
+    const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(currentTab.url);
+
+    return decryptedCiphers.map((view) => {
+      const { id, name, reprompt, favorite, login } = view;
+      return {
+        id,
+        name,
+        type: CipherType.Login,
+        reprompt,
+        favorite,
+        icon: buildCipherIcon(iconsServerUrl, view, showFavicons),
+        login: login && {
+          username: login.username,
+        },
+      };
+    });
+  }
+
+  /**
    * Gets the active user server config from the config service.
    */
   async getActiveUserServerConfig(): Promise<ServerConfig> {
     return await firstValueFrom(this.configService.serverConfig$);
+  }
+
+  /**
+   * Gets the current value of the notification refresh feature flag
+   * @returns Promise<boolean> indicating if the feature is enabled
+   */
+  async getNotificationFlag(): Promise<boolean> {
+    const flagValue = await this.configService.getFeatureFlag(FeatureFlag.NotificationRefresh);
+    return flagValue;
   }
 
   private async getAuthStatus() {
@@ -200,11 +247,6 @@ export default class NotificationBackground {
     switch (notificationType) {
       case NotificationQueueMessageType.AddLogin:
         typeData.removeIndividualVault = await this.removeIndividualVault();
-        break;
-      case NotificationQueueMessageType.RequestFilelessImport:
-        typeData.importType = (
-          notificationQueueMessage as AddRequestFilelessImportQueueMessage
-        ).importType;
         break;
     }
 
@@ -399,25 +441,6 @@ export default class NotificationBackground {
     }
   }
 
-  /**
-   * Sets up a notification to request a fileless import when the user
-   * attempts to trigger an import from a third party website.
-   *
-   * @param tab - The tab that we are sending the notification to
-   * @param importType - The type of import that is being requested
-   */
-  async requestFilelessImport(tab: chrome.tabs.Tab, importType: string) {
-    const currentAuthStatus = await this.getAuthStatus();
-    if (currentAuthStatus !== AuthenticationStatus.Unlocked || this.notificationQueue.length) {
-      return;
-    }
-
-    const loginDomain = Utils.getDomain(tab.url);
-    if (loginDomain) {
-      await this.pushRequestFilelessImportToQueue(loginDomain, tab, importType);
-    }
-  }
-
   private async pushChangePasswordToQueue(
     cipherId: string,
     loginDomain: string,
@@ -454,36 +477,6 @@ export default class NotificationBackground {
       wasVaultLocked: true,
     };
     await this.sendNotificationQueueMessage(tab, message);
-  }
-
-  /**
-   * Pushes a request to start a fileless import to the notification queue.
-   * This will display a notification bar to the user, prompting them to
-   * start the import.
-   *
-   * @param loginDomain - The domain of the tab that we are sending the notification to
-   * @param tab - The tab that we are sending the notification to
-   * @param importType - The type of import that is being requested
-   */
-  private async pushRequestFilelessImportToQueue(
-    loginDomain: string,
-    tab: chrome.tabs.Tab,
-    importType?: string,
-  ) {
-    this.removeTabFromNotificationQueue(tab);
-    const launchTimestamp = new Date().getTime();
-    const message: AddRequestFilelessImportQueueMessage = {
-      type: NotificationQueueMessageType.RequestFilelessImport,
-      domain: loginDomain,
-      tab,
-      launchTimestamp,
-      expires: new Date(launchTimestamp + 0.5 * 60000), // 30 seconds
-      wasVaultLocked: false,
-      importType,
-    };
-    this.notificationQueue.push(message);
-    await this.checkNotificationQueue(tab);
-    this.removeTabFromNotificationQueue(tab);
   }
 
   /**

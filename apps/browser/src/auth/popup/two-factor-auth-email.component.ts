@@ -23,9 +23,6 @@ import { FormFieldModule } from "../../../../../libs/components/src/form-field";
 import { LinkModule } from "../../../../../libs/components/src/link";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
-import { I18nPipe } from "../../../../../libs/components/src/shared/i18n.pipe";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
 import { TypographyModule } from "../../../../../libs/components/src/typography";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
@@ -46,7 +43,6 @@ import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
     AsyncActionsModule,
     FormsModule,
   ],
-  providers: [I18nPipe],
 })
 export class TwoFactorAuthEmailComponent extends TwoFactorAuthEmailBaseComponent implements OnInit {
   private dialogService = inject(DialogService);

@@ -5,6 +5,7 @@ import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angula
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
+  firstValueFrom,
   map,
   Observable,
   of,
@@ -24,12 +25,17 @@ import {
   CollectionResponse,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { BitValidators, DialogService } from "@bitwarden/components";
+import { BitValidators, DialogService, ToastService } from "@bitwarden/components";
 
 import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
 import { PermissionMode } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.component";
@@ -110,6 +116,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private organizationUserApiService: OrganizationUserApiService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
+    private accountService: AccountService,
+    private toastService: ToastService,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
   }
@@ -121,7 +129,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.controls.selectedOrg.valueChanges
         .pipe(takeUntil(this.destroy$))
         .subscribe((id) => this.loadOrg(id));
-      this.organizations$ = this.organizationService.organizations$.pipe(
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.organizations$ = this.organizationService.organizations$(userId).pipe(
         first(),
         map((orgs) =>
           orgs
@@ -139,8 +150,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   async loadOrg(orgId: string) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const organization$ = this.organizationService
-      .get$(orgId)
+      .organizations$(userId)
+      .pipe(getOrganizationById(orgId))
       .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
     const groups$ = organization$.pipe(
       switchMap((organization) => {
@@ -274,17 +287,20 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       const accessTabError = this.formGroup.controls.access.hasError("managePermissionRequired");
 
       if (this.tabIndex === CollectionDialogTabType.Access && !accessTabError) {
-        this.platformUtilsService.showToast(
-          "error",
-          null,
-          this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("collectionInfo")),
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t(
+            "fieldOnTabRequiresAttention",
+            this.i18nService.t("collectionInfo"),
+          ),
+        });
       } else if (this.tabIndex === CollectionDialogTabType.Info && accessTabError) {
-        this.platformUtilsService.showToast(
-          "error",
-          null,
-          this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("access")),
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("access")),
+        });
       }
       return;
     }
@@ -309,14 +325,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     const savedCollection = await this.collectionAdminService.save(collectionView);
 
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t(
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(
         this.editMode ? "editedCollectionId" : "createdCollectionId",
         collectionView.name,
       ),
-    );
+    });
 
     this.close(CollectionDialogAction.Saved, savedCollection);
   };
@@ -339,11 +355,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     await this.collectionAdminService.delete(this.params.organizationId, this.params.collectionId);
 
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("deletedCollectionId", this.collection?.name),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("deletedCollectionId", this.collection?.name),
+    });
 
     this.close(CollectionDialogAction.Deleted, this.collection);
   };

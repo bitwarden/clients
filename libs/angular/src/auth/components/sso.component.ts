@@ -19,7 +19,6 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SsoPreValidateResponse } from "@bitwarden/common/auth/models/response/sso-pre-validate.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -50,7 +49,7 @@ export class SsoComponent implements OnInit {
   protected twoFactorRoute = "2fa";
   protected successRoute = "lock";
   protected trustedDeviceEncRoute = "login-initiated";
-  protected changePasswordRoute = "set-password";
+  protected changePasswordRoute = "set-password-jit";
   protected forcePasswordResetRoute = "update-temp-password";
   protected clientId: string;
   protected redirectUri: string;
@@ -227,7 +226,8 @@ export class SsoComponent implements OnInit {
       // - TDE login decryption options component
       // - Browser SSO on extension open
       // Note: you cannot set this in state before 2FA b/c there won't be an account in state.
-      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgSsoIdentifier);
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(orgSsoIdentifier, userId);
 
       // Users enrolled in admin acct recovery can be forced to set a new password after
       // having the admin set a temp password for them (affects TDE & standard users)
@@ -339,14 +339,6 @@ export class SsoComponent implements OnInit {
   }
 
   private async handleChangePasswordRequired(orgIdentifier: string) {
-    const emailVerification = await this.configService.getFeatureFlag(
-      FeatureFlag.EmailVerification,
-    );
-
-    if (emailVerification) {
-      this.changePasswordRoute = "set-password-jit";
-    }
-
     await this.navigateViaCallbackOrRoute(
       this.onSuccessfulLoginChangePasswordNavigate,
       [this.changePasswordRoute],
