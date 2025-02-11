@@ -43,7 +43,7 @@ export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
     ];
   }
 
-  loadData() {
+  protected loadData() {
     const minutes = this.policyResponse.data?.minutes;
     const action = this.policyResponse.data?.action;
 
@@ -54,7 +54,7 @@ export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
     });
   }
 
-  buildRequestData() {
+  protected buildRequestData() {
     if (this.data.value.hours == null && this.data.value.minutes == null) {
       return null;
     }
@@ -65,7 +65,7 @@ export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
     };
   }
 
-  async buildRequest(): Promise<PolicyRequest> {
+  protected async buildRequest(): Promise<PolicyRequest> {
     const request = await super.buildRequest();
     if (request.data?.minutes == null || request.data?.minutes <= 0) {
       throw new Error(this.i18nService.t("invalidMaximumVaultTimeout"));
