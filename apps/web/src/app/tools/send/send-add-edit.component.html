@@ -17,6 +17,9 @@
     <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
       {{ "save" | i18n }}
     </button>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
     <div class="tw-ml-auto">
       <button
         *ngIf="config?.mode !== 'add'"
