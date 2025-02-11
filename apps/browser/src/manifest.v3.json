@@ -128,6 +128,13 @@
       },
       "description": "__MSG_commandOpenSidebar__"
     },
+    "__opera___execute_sidebar_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+Y",
+        "linux": "Alt+Shift+U"
+      },
+      "description": "__MSG_commandOpenSidebar__"
+    },
     "autofill_login": {
       "suggested_key": {
         "default": "Ctrl+Shift+L"
@@ -182,5 +189,12 @@
   "storage": {
     "managed_schema": "managed_schema.json"
   },
-  "__firefox__storage": null
+  "__firefox__storage": null,
+  "__opera__sidebar_action": {
+    "default_title": "Bitwarden",
+    "default_panel": "popup/index.html?uilocation=sidebar",
+    "default_icon": "images/icon19.png",
+    "open_at_install": false,
+    "browser_style": false
+  }
 }
