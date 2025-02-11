@@ -23,7 +23,7 @@ export class DefaultTaskService implements TaskService {
 
   tasksEnabled$ = perUserCache$((userId) => {
     return this.organizationService
-      .getAll$(userId)
+      .organizations$(userId)
       .pipe(map((orgs) => orgs.some((o) => o.useRiskInsights)));
   });
 
@@ -87,7 +87,10 @@ export class DefaultTaskService implements TaskService {
    * @param tasks
    * @private
    */
-  private updateTaskState(userId: UserId, tasks: SecurityTaskData[]): Promise<SecurityTaskData[]> {
+  private updateTaskState(
+    userId: UserId,
+    tasks: SecurityTaskData[],
+  ): Promise<SecurityTaskData[] | null> {
     return this.taskState(userId).update(() => tasks);
   }
 }

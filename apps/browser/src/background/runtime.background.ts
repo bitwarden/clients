@@ -3,7 +3,6 @@
 import { firstValueFrom, map, mergeMap } from "rxjs";
 
 import { LockService } from "@bitwarden/auth/common";
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -16,13 +15,15 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { BiometricsCommands } from "@bitwarden/key-management";
 
 import {
   closeUnlockPopout,
   openSsoAuthResultPopout,
-  openTwoFactorAuthPopout,
+  openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
@@ -53,6 +54,7 @@ export default class RuntimeBackground {
     private accountService: AccountService,
     private readonly lockService: LockService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private cipherService: CipherService,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -200,6 +202,9 @@ export default class RuntimeBackground {
       case BiometricsCommands.GetBiometricsStatusForUser: {
         return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
       }
+      case "updateLastUsedDate": {
+        return await this.cipherService.updateLastUsedDate(msg.cipherId);
+      }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(
           FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
@@ -240,7 +245,6 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        await this.notificationsService.updateConnection(msg.command === "loggedIn");
         this.processReloadSerivce.cancelProcessReload();
 
         if (item) {
@@ -333,7 +337,7 @@ export default class RuntimeBackground {
           return;
         }
 
-        await openTwoFactorAuthPopout(msg);
+        await openTwoFactorAuthWebAuthnPopout(msg);
         break;
       }
       case "reloadPopup":

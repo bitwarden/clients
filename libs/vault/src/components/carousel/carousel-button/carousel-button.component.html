@@ -1,0 +1,13 @@
+<button
+  #btn
+  type="button"
+  role="tab"
+  class="tw-size-6 tw-p-0 tw-flex tw-items-center tw-justify-center tw-border-2 tw-border-solid tw-rounded-full tw-transition tw-bg-transparent tw-border-transparent focus-visible:tw-outline-none focus-visible:tw-border-primary-600"
+  [ngClass]="dynamicClasses"
+  [attr.aria-selected]="isActive"
+  [attr.tabindex]="isActive ? 0 : -1"
+  [attr.aria-label]="slide.label"
+  (click)="onClick.emit()"
+>
+  <bit-icon [icon]="CarouselIcon"></bit-icon>
+</button>

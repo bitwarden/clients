@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
+import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -20,6 +20,9 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -29,6 +32,8 @@ import { BannerModule, IconModule } from "@bitwarden/components";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { AdminConsoleLogo } from "../../icons/admin-console-logo";
+
+import { AccountDeprovisioningBannerService } from "./services/account-deprovisioning-banner.service";
 
 @Component({
   selector: "app-organization-layout",
@@ -59,6 +64,8 @@ export class OrganizationLayoutComponent implements OnInit {
   organizationIsUnmanaged$: Observable<boolean>;
   enterpriseOrganization$: Observable<boolean>;
 
+  showAccountDeprovisioningBanner$: Observable<boolean>;
+
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
@@ -66,6 +73,8 @@ export class OrganizationLayoutComponent implements OnInit {
     private configService: ConfigService,
     private policyService: PolicyService,
     private providerService: ProviderService,
+    protected bannerService: AccountDeprovisioningBannerService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -73,8 +82,25 @@ export class OrganizationLayoutComponent implements OnInit {
 
     this.organization$ = this.route.params.pipe(
       map((p) => p.organizationId),
-      switchMap((id) => this.organizationService.organizations$.pipe(getById(id))),
+      withLatestFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      switchMap(([orgId, userId]) =>
+        this.organizationService.organizations$(userId).pipe(getById(orgId)),
+      ),
       filter((org) => org != null),
+    );
+
+    this.showAccountDeprovisioningBanner$ = combineLatest([
+      this.bannerService.showBanner$,
+      this.configService.getFeatureFlag$(FeatureFlag.AccountDeprovisioningBanner),
+      this.organization$,
+    ]).pipe(
+      map(
+        ([dismissedOrgs, featureFlagEnabled, organization]) =>
+          organization.productTierType === ProductTierType.Enterprise &&
+          organization.isAdmin &&
+          !dismissedOrgs?.includes(organization.id) &&
+          featureFlagEnabled,
+      ),
     );
 
     this.canAccessExport$ = this.organization$.pipe(map((org) => org.canAccessExport));

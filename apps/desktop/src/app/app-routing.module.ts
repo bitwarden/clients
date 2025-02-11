@@ -1,19 +1,21 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import {
   DesktopDefaultOverlayPosition,
   EnvironmentSelectorComponent,
 } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { TwoFactorTimeoutComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-expired.component";
 import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
   lockGuard,
+  activeAuthGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
@@ -37,8 +39,11 @@ import {
   DevicesIcon,
   SsoComponent,
   TwoFactorTimeoutIcon,
+  NewDeviceVerificationComponent,
+  DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
-import { LockComponent } from "@bitwarden/key-management/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { LockComponent } from "@bitwarden/key-management-ui";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
@@ -97,18 +102,37 @@ const routes: Routes = [
     },
   ),
   {
-    path: "2fa-timeout",
+    path: "authentication-timeout",
     component: AnonLayoutWrapperComponent,
     children: [
       {
         path: "",
-        component: TwoFactorTimeoutComponent,
+        component: AuthenticationTimeoutComponent,
       },
     ],
     data: {
       pageIcon: TwoFactorTimeoutIcon,
       pageTitle: {
         key: "authenticationTimeout",
+      },
+    } satisfies RouteDataProperties & AnonLayoutWrapperData,
+  },
+  {
+    path: "device-verification",
+    component: AnonLayoutWrapperComponent,
+    canActivate: [
+      canAccessFeature(FeatureFlag.NewDeviceVerification),
+      unauthGuardFn(),
+      activeAuthGuard(),
+    ],
+    children: [{ path: "", component: NewDeviceVerificationComponent }],
+    data: {
+      pageIcon: DeviceVerificationIcon,
+      pageTitle: {
+        key: "verifyIdentity",
+      },
+      pageSubtitle: {
+        key: "weDontRecognizeThisDevice",
       },
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
   },
@@ -200,7 +224,7 @@ const routes: Routes = [
       data: {
         pageIcon: DevicesIcon,
         pageTitle: {
-          key: "loginInitiated",
+          key: "logInRequestSent",
         },
         pageSubtitle: {
           key: "aNotificationWasSentToYourDevice",

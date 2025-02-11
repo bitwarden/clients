@@ -3,7 +3,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { lastValueFrom, Observable, Subject } from "rxjs";
+import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 import { first, map, takeUntil } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -12,6 +12,8 @@ import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationSponsorshipRedeemRequest } from "@bitwarden/common/admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { PreValidateSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/pre-validate-sponsorship.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -69,6 +71,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     private syncService: SyncService,
     private validationService: ValidationService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
@@ -115,14 +118,18 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       this.loading = false;
     });
 
-    this.existingFamilyOrganizations$ = this.organizationService.organizations$.pipe(
-      map((orgs) =>
-        orgs.filter(
-          (o) =>
-            o.productTierType === ProductTierType.Families && o.type === OrganizationUserType.Owner,
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.existingFamilyOrganizations$ = this.organizationService
+      .organizations$(userId)
+      .pipe(
+        map((orgs) =>
+          orgs.filter(
+            (o) =>
+              o.productTierType === ProductTierType.Families &&
+              o.type === OrganizationUserType.Owner,
+          ),
         ),
-      ),
-    );
+      );
 
     this.existingFamilyOrganizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
       if (orgs.length === 0) {

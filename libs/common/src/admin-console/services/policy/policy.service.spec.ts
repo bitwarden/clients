@@ -2,8 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
-import { FakeActiveUserState } from "../../../../spec/fake-state";
-import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
+import { FakeActiveUserState, FakeSingleUserState } from "../../../../spec/fake-state";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -18,12 +17,14 @@ import { Policy } from "../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../admin-console/models/domain/reset-password-policy-options";
 import { POLICIES, PolicyService } from "../../../admin-console/services/policy/policy.service";
 import { PolicyId, UserId } from "../../../types/guid";
+import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 
 describe("PolicyService", () => {
   const userId = "userId" as UserId;
   let stateProvider: FakeStateProvider;
   let organizationService: MockProxy<OrganizationService>;
   let activeUserState: FakeActiveUserState<Record<PolicyId, PolicyData>>;
+  let singleUserState: FakeSingleUserState<Record<PolicyId, PolicyData>>;
 
   let policyService: PolicyService;
 
@@ -33,6 +34,7 @@ describe("PolicyService", () => {
     organizationService = mock<OrganizationService>();
 
     activeUserState = stateProvider.activeUser.getFake(POLICIES);
+    singleUserState = stateProvider.singleUser.getFake(activeUserState.userId, POLICIES);
 
     const organizations$ = of([
       // User
@@ -56,9 +58,7 @@ describe("PolicyService", () => {
       organization("org6", true, true, OrganizationUserStatusType.Confirmed, true),
     ]);
 
-    organizationService.organizations$ = organizations$;
-
-    organizationService.getAll$.mockReturnValue(organizations$);
+    organizationService.organizations$.mockReturnValue(organizations$);
 
     policyService = new PolicyService(stateProvider, organizationService);
   });
@@ -196,7 +196,7 @@ describe("PolicyService", () => {
 
   describe("getResetPasswordPolicyOptions", () => {
     it("default", async () => {
-      const result = policyService.getResetPasswordPolicyOptions(null, null);
+      const result = policyService.getResetPasswordPolicyOptions([], "");
 
       expect(result).toEqual([new ResetPasswordPolicyOptions(), false]);
     });
@@ -297,7 +297,7 @@ describe("PolicyService", () => {
 
   describe("getAll$", () => {
     it("returns the specified PolicyTypes", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
           policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
@@ -307,7 +307,7 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.getAll$(PolicyType.DisablePersonalVaultExport),
+        policyService.getAll$(PolicyType.DisablePersonalVaultExport, activeUserState.userId),
       );
 
       expect(result).toEqual([
@@ -333,7 +333,7 @@ describe("PolicyService", () => {
     });
 
     it("does not return disabled policies", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
           policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
@@ -343,7 +343,7 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.getAll$(PolicyType.DisablePersonalVaultExport),
+        policyService.getAll$(PolicyType.DisablePersonalVaultExport, activeUserState.userId),
       );
 
       expect(result).toEqual([
@@ -363,7 +363,7 @@ describe("PolicyService", () => {
     });
 
     it("does not return policies that do not apply to the user because the user's role is exempt", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
           policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
@@ -373,7 +373,7 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.getAll$(PolicyType.DisablePersonalVaultExport),
+        policyService.getAll$(PolicyType.DisablePersonalVaultExport, activeUserState.userId),
       );
 
       expect(result).toEqual([
@@ -393,7 +393,7 @@ describe("PolicyService", () => {
     });
 
     it("does not return policies for organizations that do not use policies", async () => {
-      activeUserState.nextState(
+      singleUserState.nextState(
         arrayToRecord([
           policyData("policy1", "org4", PolicyType.DisablePersonalVaultExport, true),
           policyData("policy2", "org1", PolicyType.ActivateAutofill, true),
@@ -403,7 +403,7 @@ describe("PolicyService", () => {
       );
 
       const result = await firstValueFrom(
-        policyService.getAll$(PolicyType.DisablePersonalVaultExport),
+        policyService.getAll$(PolicyType.DisablePersonalVaultExport, activeUserState.userId),
       );
 
       expect(result).toEqual([

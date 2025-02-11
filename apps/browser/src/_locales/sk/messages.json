@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Generovať prístupovú frázu"
   },
+  "passwordGenerated": {
+    "message": "Heslo vygenerované"
+  },
+  "passphraseGenerated": {
+    "message": "Prístupová fráza vygenerovaná"
+  },
+  "usernameGenerated": {
+    "message": "Používateľské meno vygenerované"
+  },
+  "emailGenerated": {
+    "message": "E-mail vygenoravný"
+  },
   "regeneratePassword": {
     "message": "Vygenerovať nové heslo"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Overiť identitu"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Toto zariadenie nepoznáme. Na overenie vašej totožnosti zadajte kód, ktorý bol zaslaný na váš e-mail."
+  },
+  "continueLoggingIn": {
+    "message": "Pokračovať v prihlasovaní"
   },
   "yourVaultIsLocked": {
     "message": "Váš trezor je uzamknutý. Ak chcete pokračovať, overte svoju identitu."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Požiada o pridanie položky, ak sa v trezore nenachádza. Platí pre všetky prihlásené účty."
   },
-  "showCardsInVaultView": {
-    "message": "Zobraziť karty ako návrhy automatického vypĺňania v zobrazení trezora"
+  "showCardsInVaultViewV2": {
+    "message": "Vždy zobraziť karty ako návrhy automatického vypĺňania v zobrazení trezora"
   },
   "showCardsCurrentTab": {
     "message": "Zobraziť karty na stránke \"Aktuálna karta\""
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Zoznam položiek karty na stránke \"Aktuálna karta\" na jednoduché automatické vyplnenie."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Zobraziť identity ako návrhy automatického vypĺňania v zobrazení trezora"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Vždy zobraziť identity ako návrhy automatického vypĺňania v zobrazení trezora"
   },
   "showIdentitiesCurrentTab": {
     "message": "Zobraziť identity na stránke \"Aktuálna karta\""
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Zakúpiť Prémiový účet"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Svoje prémiové členstvo si môžete zakúpiť vo webovom trezore bitwarden.com. Chcete navštíviť túto stránku teraz?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Prémiové členstvo si môžete zakúpiť v nastaveniach svojho účtu vo webovej aplikácii Bitwarden."
@@ -2045,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Generátor používateľského mena"
+  },
+  "useThisEmail": {
+    "message": "Použiť tento e-mail"
   },
   "useThisPassword": {
     "message": "Použiť toto heslo"
@@ -2884,7 +2902,7 @@
     "message": "Služba"
   },
   "forwardedEmail": {
-    "message": "Alias preposlaného e-mailu"
+    "message": "Alias presmerovaného e-mailu"
   },
   "forwardedEmailDesc": {
     "message": "Vytvoriť e-mailový alias pomocou externej služby preposielania."
@@ -3105,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie."
   },
+  "notificationSentDevicePart1": {
+    "message": "Odomknúť Bitwarden vo svojom zariadení alebo vo"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webovej aplikácii"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pred schválením sa uistite, že sa odtlačok prístupovej frázy zhoduje s tou uvedenou nižšie."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Uistite sa, že je váš účet odomknutý a fráza odtlačku prsta sa zhoduje s frázou na druhom zariadení"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Po schválení žiadosti budete informovaní"
@@ -3119,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "Iniciované prihlásenie"
+  },
+  "logInRequestSent": {
+    "message": "Požiadavka bola odoslaná"
   },
   "exposedMasterPassword": {
     "message": "Odhalené hlavné heslo"
@@ -4128,15 +4155,6 @@
   "itemName": {
     "message": "Názov položky"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organizácia je vypnutá"
   },
@@ -4840,7 +4858,7 @@
     "message": "Pripomenúť neskôr"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "message": "Máte zaručený prístup k e-mailu $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4852,7 +4870,7 @@
     "message": "Nie, nemám"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+    "message": "Áno, mám zaručený prístup k e-mailu"
   },
   "turnOnTwoStepLogin": {
     "message": "Zapnúť dvojstupňové prihlásenie"
@@ -4868,5 +4886,20 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Aktualizujte desktopovú aplikáciu"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "Ak chcete používať biometrické odomykanie, aktualizujte desktopovú aplikáciu alebo vypnite odomykanie odtlačkom prsta v nastaveniach desktopovej aplikácie."
   }
 }

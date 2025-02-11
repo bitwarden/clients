@@ -8,7 +8,7 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationAutoEnrollStatusResponse } from "../../admin-console/models/response/organization-auto-enroll-status.response";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { UserId } from "../../types/guid";
 import { Account, AccountInfo, AccountService } from "../abstractions/account.service";

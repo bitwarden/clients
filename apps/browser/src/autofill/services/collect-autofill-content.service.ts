@@ -228,6 +228,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, "name"),
+        htmlClass: this.getPropertyOrAttribute(formElement, "class"),
         htmlID: this.getPropertyOrAttribute(formElement, "id"),
         htmlMethod: this.getPropertyOrAttribute(formElement, "method"),
       });
@@ -947,8 +948,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.mutationsQueue.length) {
-      // Collect all mutations and debounce the processing of those mutations by 100ms to ensure we don't process too many mutations at once.
-      debounce(this.processMutations, 100);
+      requestIdleCallbackPolyfill(debounce(this.processMutations, 100), { timeout: 500 });
     }
     this.mutationsQueue.push(mutations);
   };
@@ -983,8 +983,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const queueLength = this.mutationsQueue.length;
 
     if (!this.domQueryService.pageContainsShadowDomElements()) {
-      // Checking if a page contains shadowDOM elements is a heavy operation and doesn't have to be done immediately, so we can call this within an idle moment on the event loop.
-      requestIdleCallbackPolyfill(this.checkPageContainsShadowDom, { timeout: 500 });
+      this.checkPageContainsShadowDom();
     }
 
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {

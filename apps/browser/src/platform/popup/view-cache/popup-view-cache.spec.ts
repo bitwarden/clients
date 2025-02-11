@@ -196,13 +196,15 @@ describe("popup view cache", () => {
   });
 
   it("should clear on 2nd navigation", async () => {
-    await initServiceWithState({});
+    await initServiceWithState({ temp: "state" });
 
     await router.navigate(["a"]);
     expect(messageSenderMock.send).toHaveBeenCalledTimes(0);
+    expect(service["_cache"]).toEqual({ temp: "state" });
 
     await router.navigate(["b"]);
     expect(messageSenderMock.send).toHaveBeenCalledWith(ClEAR_VIEW_CACHE_COMMAND, {});
+    expect(service["_cache"]).toEqual({});
   });
 
   it("should ignore cached values when feature flag is off", async () => {

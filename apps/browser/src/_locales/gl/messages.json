@@ -445,6 +445,18 @@
   "generatePassphrase": {
     "message": "Xerar frase de contrasinal"
   },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "regeneratePassword": {
     "message": "Volver xerar contrasinal"
   },
@@ -646,6 +658,12 @@
   },
   "verifyIdentity": {
     "message": "Verificar identidade"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "yourVaultIsLocked": {
     "message": "A túa caixa forte está bloqueada. Verifica a túa identidade para continuar."
@@ -986,8 +1004,8 @@
   "addLoginNotificationDescAlt": {
     "message": "Ofrecer gardar un elemento se non se atopa na caixa forte. Aplica a tódalas sesións iniciadas."
   },
-  "showCardsInVaultView": {
-    "message": "Na caixa forte, amosar tarxetas como suxestións de Autoenchido"
+  "showCardsInVaultViewV2": {
+    "message": "Always show cards as Autofill suggestions on Vault view"
   },
   "showCardsCurrentTab": {
     "message": "Amosar tarxetas na pestana"
@@ -995,8 +1013,8 @@
   "showCardsCurrentTabDesc": {
     "message": "Lista na pestana actual as tarxetas gardadas para autoenchido."
   },
-  "showIdentitiesInVaultView": {
-    "message": "Na caixa forte, amosar identidades como suxestións de Autoenchido"
+  "showIdentitiesInVaultViewV2": {
+    "message": "Always show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Amosar identidades na pestana"
@@ -1261,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "Adquirir Prémium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Podes adquirir o plan Prémium na aplicación web de bitwarden.com. Queres visitala agora mesmo?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Podes adquirir o plan Prémium dende os axustes de conta da aplicación web de Bitwarden."
@@ -2045,6 +2060,9 @@
   },
   "usernameGenerator": {
     "message": "Xerador de nomes de usuario"
+  },
+  "useThisEmail": {
+    "message": "Use this email"
   },
   "useThisPassword": {
     "message": "Usar este contrasinal"
@@ -3105,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Enviouse unha notificación ó teu dispositivo."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Enviouse unha notificación ó teu dispositivo"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Por favor asegúrate de que a sesión está aberta e a frase de pegada dixital coincide ca do outro dispositivo"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Serás notificado unha vez se aprobe a solicitude"
@@ -3119,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "Inicio de sesión comezado"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "Contrasinal mestre filtrado"
@@ -4128,15 +4155,6 @@
   "itemName": {
     "message": "Nome da entrada"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Non podes eliminar coleccións con permisos de Só lectura: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "A organización está desactivada"
   },
@@ -4868,5 +4886,20 @@
   },
   "extraWide": {
     "message": "Moi ancho"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Non podes eliminar coleccións con permisos de Só lectura: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "Please update your desktop application"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   }
 }

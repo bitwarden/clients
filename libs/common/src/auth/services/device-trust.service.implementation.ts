@@ -7,10 +7,10 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
@@ -81,7 +81,17 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     private configService: ConfigService,
   ) {
     this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
-      map((options) => options?.trustedDeviceOption != null ?? false),
+      map((options) => {
+        return options?.trustedDeviceOption != null ?? false;
+      }),
+    );
+  }
+
+  supportsDeviceTrustByUserId$(userId: UserId): Observable<boolean> {
+    return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId).pipe(
+      map((options) => {
+        return options?.trustedDeviceOption != null ?? false;
+      }),
     );
   }
 
