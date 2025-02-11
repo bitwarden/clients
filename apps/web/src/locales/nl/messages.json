@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Map bewerken"
   },
+  "newFolder": {
+    "message": "Nieuwe map"
+  },
+  "folderName": {
+    "message": "Mapnaam"
+  },
+  "folderHintText": {
+    "message": "Je kunt een map onderbrengen door het toevoegen van de naam van de bovenliggende map gevolgd door een \"/\". Voorbeeld: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Weet je zeker dat je deze map definitief wilt verwijderen?"
+  },
   "baseDomain": {
     "message": "Basisdomein",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Itemnaam"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "bijv.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Inloggen gestart"
   },
+  "logInRequestSent": {
+    "message": "Verzoek verzonden"
+  },
   "submit": {
     "message": "Versturen"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Er is een bericht naar je apparaat verstuurd."
   },
+  "notificationSentDevicePart1": {
+    "message": "Ontgrendel Bitwarden op je apparaat of op de "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Probeer je toegang te krijgen tot je account?"
+  },
+  "accessAttemptBy": {
+    "message": "Inlogpoging door $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Toegang bevestigen"
+  },
+  "denyAccess": {
+    "message": "Toegang weigeren"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web-app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Zorg ervoor dat de Vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Ontgrendel Bitwarden op je apparaat. Zorg ervoor dat de vingerafdruk-zin overeenkomt met de onderstaande zin voordat je deze goedkeurt."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Er is een melding naar je apparaat verzonden"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Zorg ervoor dat je kluis is ontgrendeld en de vingerafdrukzin hetzelfde is op het andere apparaat"
   },
   "versionNumber": {
     "message": "Versie $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Dubbelzinnige tekens vermijden",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Opnieuw genereren"
   },
   "length": {
     "message": "Lengte"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Beheren"
   },
-  "canManage": {
-    "message": "Kan beheren"
+  "manageCollection": {
+    "message": "Collectie beheren"
+  },
+  "viewItems": {
+    "message": "Items bekijken"
+  },
+  "viewItemsHidePass": {
+    "message": "Items bekijken, verborgen wachtwoorden"
+  },
+  "editItems": {
+    "message": "Items bewerken"
+  },
+  "editItemsHidePass": {
+    "message": "Items bewerken, verborgen wachtwoorden"
   },
   "disable": {
     "message": "Uitschakelen"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Er was een probleem met het lezen van de beveiligingssleutel. Probeer het nogmaals."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Vanwege platformbeperkingen kan WebAuthn niet in alle Bitwarden applicaties gebruikt worden. Stel een andere tweestapsaanmeldingsaanbieder in zodat je je account kunt benaderen wanneer WebAuthn niet beschikbaar is. De volgende platformen worden ondersteund:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Webkluis en browser-extensies op een desktop/laptop met een browser met ondersteuning voor WebAuthn (Chrome, Opera, Vivaldi of Firefox met FIDO U2F ingeschakeld)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Vanwege platformbeperkingen kan WebAuthn niet in alle Bitwarden-applicaties gebruikt worden. Stel een andere tweestapsaanmeldingsaanbieder in zodat je je account kunt benaderen wanneer WebAuthn niet beschikbaar is."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Je herstelcode voor Bitwarden-tweestapsaanmelding"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Stel minimale vereisten in voor de configuratie van het wachtwoord generator."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Een of meer organisatiebeleidseisen heeft invloed op de instellingen van je generator."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Een of meer organisatiebeleidseisen stelt de volgende eisen aan je hoofdwachtwoord:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Generator",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Wat wil je genereren?"
-  },
-  "passwordType": {
-    "message": "Type wachtwoord"
-  },
-  "regenerateUsername": {
-    "message": "Gebruikersnaam opnieuw genereren"
-  },
   "generateUsername": {
     "message": "Gebruikersnaam genereren"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Type gebruikersnaam"
   },
   "plusAddressedEmail": {
     "message": "E-mailadres-met-plus",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Hostnaam",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API-toegangstoken"
   },
   "deviceVerification": {
     "message": "Apparaatverificatie"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Geen collectie"
-  },
-  "canView": {
-    "message": "Kan bekijken"
-  },
-  "canViewExceptPass": {
-    "message": "Kan bekijken, behalve wachtwoorden"
-  },
-  "canEdit": {
-    "message": "Kan bewerken"
-  },
-  "canEditExceptPass": {
-    "message": "Kan bewerken, behalve wachtwoorden"
   },
   "noCollectionsAdded": {
     "message": "Geen collecties toegevoegd"
@@ -8677,9 +8686,6 @@
     "message": "URL zelfgehoste server",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Aliasdomein"
-  },
   "alreadyHaveAccount": {
     "message": "Heb je al een account?"
   },
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Je hebt geen toegang om deze collectie te beheren."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Ontbrekende Kan beheren machtigingen"
+  "grantManageCollectionWarningTitle": {
+    "message": "Recht voor het beheren van machtigingen ontbreekt"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Kan beheren machtigingen verlenen voor volledig verzamelingsbeheer, inclusief het verwijderen van verzamelingen."
+  "grantManageCollectionWarning": {
+    "message": "Beheren van machtigingen toekennen voor het toestaan van het volledig verzamelingenbeheer, inclusief het verwijderen van een verzameling."
   },
   "grantCollectionAccess": {
     "message": "Groepen of mensen toegang tot deze collectie geven."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Code bankafschrift"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Belangrijke mededeling"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Beheerders hebben nu de mogelijkheid om leden van een geclaimd domein te verwijderen."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "Deze actie verwijdert het account van het lid, inclusief alle items in hun kluis. Dit vervangt de vorige verwijderactie."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Verwijderen is een nieuwe actie!"
+  },
+  "seatsRemaining": {
+    "message": "Je hebt nog $REMAINING$ plaatsen van de $TOTAL$ plaatsen die aan deze organisatie zijn toegewezen. Neem contact op met je provider om je abonnement te beheren.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Bestaande toevoegen"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Kies een organisatie om aan je providerportaal toe te voegen."
+  },
+  "noOrganizations": {
+    "message": "Er zijn geen organisaties om weer te geven"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Je providerabonnement zal een credit ontvangen voor de resterende tijd van het abonnement van de organisatie."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Wilt je deze organisatie toevoegen aan $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Bestaande organisatie toegevoegd"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Meer toegewezen dan beschikbare plaatsen."
   }
 }
