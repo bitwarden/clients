@@ -268,8 +268,6 @@ export class MainContextMenuHandler {
         !cipher ||
         (cipher.type === CipherType.Login && !Utils.isNullOrEmpty(cipher.login?.password))
       ) {
-        await createChildItem(AUTOFILL_ID);
-
         if (cipher?.viewPassword ?? true) {
           await createChildItem(COPY_PASSWORD_ID);
         }
@@ -286,8 +284,18 @@ export class MainContextMenuHandler {
       const canAccessPremium = await firstValueFrom(
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       );
-      if (canAccessPremium && (!cipher || !Utils.isNullOrEmpty(cipher.login?.totp))) {
+      if (canAccessPremium && (!cipher || !Utils.isNullOrEmpty(cipher?.login?.totp))) {
         await createChildItem(COPY_VERIFICATION_CODE_ID);
+      }
+
+      if (
+        !cipher ||
+        (cipher.type === CipherType.Login &&
+          (!Utils.isNullOrEmpty(cipher.login?.username) ||
+            !Utils.isNullOrEmpty(cipher.login?.password) ||
+            !Utils.isNullOrEmpty(cipher.login?.totp)))
+      ) {
+        await createChildItem(AUTOFILL_ID);
       }
 
       if ((!cipher || cipher.type === CipherType.Card) && optionId !== CREATE_LOGIN_ID) {
