@@ -194,6 +194,7 @@
     "default_title": "Bitwarden",
     "default_panel": "popup/index.html?uilocation=sidebar",
     "default_icon": "images/icon19.png",
+    "open_at_install": false,
     "browser_style": false
   }
 }
