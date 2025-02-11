@@ -41,7 +41,7 @@ export class MainContextMenuHandler {
       id: AUTOFILL_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("autoFillLogin"),
-      checkUriIsBlocked: true,
+      requiresUnblockedUri: true,
     },
     {
       id: COPY_USERNAME_ID,
@@ -57,7 +57,7 @@ export class MainContextMenuHandler {
       id: COPY_VERIFICATION_CODE_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("copyVerificationCode"),
-      checkPremiumAccess: true,
+      requiresPremiumAccess: true,
     },
     {
       id: SEPARATOR_ID + 1,
@@ -68,19 +68,19 @@ export class MainContextMenuHandler {
       id: AUTOFILL_IDENTITY_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("autoFillIdentity"),
-      checkUriIsBlocked: true,
+      requiresUnblockedUri: true,
     },
     {
       id: AUTOFILL_CARD_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("autoFillCard"),
-      checkUriIsBlocked: true,
+      requiresUnblockedUri: true,
     },
     {
       id: SEPARATOR_ID + 2,
       type: "separator",
       parentId: ROOT_ID,
-      checkUriIsBlocked: true,
+      requiresUnblockedUri: true,
     },
     {
       id: GENERATE_PASSWORD_ID,
@@ -91,7 +91,7 @@ export class MainContextMenuHandler {
       id: COPY_IDENTIFIER_ID,
       parentId: ROOT_ID,
       title: this.i18nService.t("copyElementIdentifier"),
-      checkUriIsBlocked: true,
+      requiresUnblockedUri: true,
     },
   ];
   private noCardsContextMenuItems: chrome.contextMenus.CreateProperties[] = [
@@ -162,7 +162,7 @@ export class MainContextMenuHandler {
    *
    * @returns a boolean showing whether or not items were created
    */
-  async init(currentUriIsBlocked?: boolean): Promise<boolean> {
+  async init(): Promise<boolean> {
     const menuEnabled = await firstValueFrom(this.autofillSettingsService.enableContextMenu$);
     if (!menuEnabled) {
       await MainContextMenuHandler.removeAll();
@@ -180,20 +180,19 @@ export class MainContextMenuHandler {
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       );
 
-      for (const options of this.initContextMenuItems) {
-        if (options.checkPremiumAccess && !hasPremium) {
+      for (const menuItem of this.initContextMenuItems) {
+        const {
+          requiresPremiumAccess,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          requiresUnblockedUri, // destructuring this out of being passed to `create`
+          ...otherOptions
+        } = menuItem;
+
+        if (requiresPremiumAccess && !hasPremium) {
           continue;
         }
 
-        delete options.checkPremiumAccess;
-
-        if (options.checkUriIsBlocked && currentUriIsBlocked) {
-          continue;
-        }
-
-        delete options.checkUriIsBlocked;
-
-        await MainContextMenuHandler.create({ ...options, contexts: ["all"] });
+        await MainContextMenuHandler.create({ ...otherOptions, contexts: ["all"] });
       }
     } catch (error) {
       this.logService.warning(error.message);
@@ -317,10 +316,22 @@ export class MainContextMenuHandler {
     }
   }
 
+  async removeBlockedUriMenuItems() {
+    try {
+      for (const menuItem of this.initContextMenuItems) {
+        if (menuItem.requiresUnblockedUri && menuItem.id) {
+          await MainContextMenuHandler.remove(menuItem.id);
+        }
+      }
+    } catch (error) {
+      this.logService.warning(error.message);
+    }
+  }
+
   async noCards() {
     try {
-      for (const option of this.noCardsContextMenuItems) {
-        await MainContextMenuHandler.create(option);
+      for (const menuItem of this.noCardsContextMenuItems) {
+        await MainContextMenuHandler.create(menuItem);
       }
     } catch (error) {
       this.logService.warning(error.message);
@@ -329,8 +340,8 @@ export class MainContextMenuHandler {
 
   async noIdentities() {
     try {
-      for (const option of this.noIdentitiesContextMenuItems) {
-        await MainContextMenuHandler.create(option);
+      for (const menuItem of this.noIdentitiesContextMenuItems) {
+        await MainContextMenuHandler.create(menuItem);
       }
     } catch (error) {
       this.logService.warning(error.message);
@@ -339,8 +350,8 @@ export class MainContextMenuHandler {
 
   async noLogins() {
     try {
-      for (const option of this.noLoginsContextMenuItems) {
-        await MainContextMenuHandler.create(option);
+      for (const menuItem of this.noLoginsContextMenuItems) {
+        await MainContextMenuHandler.create(menuItem);
       }
 
       await this.loadOptions(this.i18nService.t("addLoginMenu"), CREATE_LOGIN_ID);

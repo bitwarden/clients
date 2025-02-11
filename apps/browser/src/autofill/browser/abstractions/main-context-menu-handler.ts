@@ -1,6 +1,6 @@
 type InitContextMenuItems = Omit<chrome.contextMenus.CreateProperties, "contexts"> & {
-  checkPremiumAccess?: boolean;
-  checkUriIsBlocked?: boolean;
+  requiresPremiumAccess?: boolean;
+  requiresUnblockedUri?: boolean;
 };
 
 export { InitContextMenuItems };
