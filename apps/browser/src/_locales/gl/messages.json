@@ -382,7 +382,7 @@
     "message": "Aniñar un cartafol engadindo o nome do cartafol pai seguido dun \"/\". Exemplo: Social/Foros"
   },
   "noFoldersAdded": {
-    "message": "Sen cartafois"
+    "message": "Sen cartafoles"
   },
   "createFoldersToOrganize": {
     "message": "Crea cartafoles para organizar as entradas da túa caixa forte"
@@ -394,10 +394,10 @@
     "message": "Eliminar cartafol"
   },
   "folders": {
-    "message": "Cartafois"
+    "message": "Cartafoles"
   },
   "noFolders": {
-    "message": "Non hai cartafois que listar."
+    "message": "Non hai cartafoles que listar."
   },
   "helpFeedback": {
     "message": "Axuda e comentarios"
@@ -3819,7 +3819,7 @@
     "message": "Autenticación multifactor fallida"
   },
   "includeSharedFolders": {
-    "message": "Incluír cartafois compartidos"
+    "message": "Incluír cartafoles compartidos"
   },
   "lastPassEmail": {
     "message": "Correo de LastPass"

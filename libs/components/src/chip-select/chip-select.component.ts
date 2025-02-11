@@ -18,9 +18,8 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { compareValues } from "../../../common/src/platform/misc/compare-values";
+import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
+
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { MenuComponent, MenuItemDirective, MenuModule } from "../menu";
