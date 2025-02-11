@@ -8,7 +8,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { ToastService } from "@bitwarden/components";
 
-import { SharedModule } from "../../shared";
+import { SharedModule } from "../../../shared";
 
 @Component({
   selector: "app-send-access-text",

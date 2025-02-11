@@ -63,6 +63,22 @@
     "webRequestAuthProvider",
     "notifications"
   ],
+  "__firefox__permissions": [
+    "activeTab",
+    "alarms",
+    "clipboardRead",
+    "clipboardWrite",
+    "contextMenus",
+    "idle",
+    "scripting",
+    "storage",
+    "tabs",
+    "unlimitedStorage",
+    "webNavigation",
+    "webRequest",
+    "webRequestAuthProvider",
+    "notifications"
+  ],
   "__safari__permissions": [
     "activeTab",
     "alarms",
@@ -86,7 +102,7 @@
   "host_permissions": ["https://*/*", "http://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
-    "sandbox": "sandbox allow-scripts; script-src 'self'"
+    "__chrome__sandbox": "sandbox allow-scripts; script-src 'self'"
   },
   "sandbox": {
     "pages": [
