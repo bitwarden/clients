@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Editar pasta"
   },
+  "newFolder": {
+    "message": "Nova pasta"
+  },
+  "folderName": {
+    "message": "Nome da pasta"
+  },
+  "folderHintText": {
+    "message": "Crie uma subpasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
+  },
+  "deleteFolderPermanently": {
+    "message": "Tem a certeza de que pretende eliminar permanentemente esta pasta?"
+  },
   "baseDomain": {
     "message": "Domínio de base",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Nome do item"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "ex.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "A preparar o início de sessão"
   },
+  "logInRequestSent": {
+    "message": "Pedido enviado"
+  },
   "submit": {
     "message": "Submeter"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo."
   },
+  "notificationSentDevicePart1": {
+    "message": "Desbloqueie o Bitwarden no seu dispositivo ou no "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Está a tentar aceder à sua conta?"
+  },
+  "accessAttemptBy": {
+    "message": "Tentativa de acesso por $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirmar acesso"
+  },
+  "denyAccess": {
+    "message": "Recusar acesso"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "aplicação web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Certifique-se de que a frase da impressão digital corresponde à frase abaixo indicada antes de a aprovar."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Desbloqueie o Bitwarden no seu dispositivo. Certifique-se de que a frase da impressão digital corresponde à frase abaixo antes de a aprovar."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Certifique-se de que a sua conta está desbloqueada e que a frase de impressão digital corresponde à do outro dispositivo"
   },
   "versionNumber": {
     "message": "Versão $VERSION_NUMBER$",
@@ -1664,9 +1697,6 @@
     "message": "Evitar carateres ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Regenerar palavra-passe"
-  },
   "length": {
     "message": "Comprimento"
   },
@@ -1849,25 +1879,25 @@
     "message": "Ao prosseguir, também terminará a sua sessão atual e terá de iniciar sessão novamente. Ser-lhe-á também pedido que volte efetuar a verificação de dois passos, se estiver configurada. As sessões ativas noutros dispositivos podem continuar ativas até uma hora."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "Início de sessão de um novo dispositivo"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "Desativar a proteção de início de sessão de novos dispositivos"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "Ativar a proteção de início de sessão de novos dispositivos"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+    "message": "Proceda da seguinte forma para desativar os e-mails de verificação que o Bitwarden envia quando inicia sessão a partir de um novo dispositivo."
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+    "message": "Proceda da seguinte forma para que o Bitwarden lhe envie e-mails de verificação quando iniciar sessão a partir de um novo dispositivo."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+    "message": "Com a proteção de início de sessão de novos dispositivos desativada, qualquer pessoa com a sua palavra-passe mestra pode aceder à sua conta a partir de qualquer dispositivo. Para proteger a sua conta sem e-mails de verificação, configure a verificação de dois passos."
   },
   "accountNewDeviceLoginProtectionSaved": {
-    "message": "New device login protection changes saved"
+    "message": "Alterações na proteção do início de sessão do novo dispositivo guardadas"
   },
   "sessionsDeauthorized": {
     "message": "Todas as sessões desautorizadas"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Gerir"
   },
-  "canManage": {
-    "message": "Pode gerir"
+  "manageCollection": {
+    "message": "Gerir coleção"
+  },
+  "viewItems": {
+    "message": "Ver itens"
+  },
+  "viewItemsHidePass": {
+    "message": "Ver itens, palavras-passe ocultas"
+  },
+  "editItems": {
+    "message": "Editar itens"
+  },
+  "editItemsHidePass": {
+    "message": "Editar itens, palavras-passe ocultas"
   },
   "disable": {
     "message": "Desativar"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Ocorreu um problema ao ler a chave de segurança. Tente novamente."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Devido a limitações da plataforma, o WebAuthn não pode ser utilizado em todas as aplicações Bitwarden. Deve configurar outro fornecedor de verificação de dois passos para que possa aceder à sua conta quando o WebAuthn não puder ser utilizado. Plataformas suportadas:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Cofre web e extensões do navegador num computador de secretária/portátil com um navegador compatível com WebAuthn (Chrome, Opera, Vivaldi ou Firefox com FIDO U2F ativado)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Devido a limitações da plataforma, o WebAuthn não pode ser utilizado em todas as aplicações Bitwarden. Deve configurar outro fornecedor de verificação de dois passos para poder aceder à sua conta quando o WebAuthn não puder ser utilizado."
   },
   "twoFactorRecoveryYourCode": {
     "message": "O seu código Bitwarden de recuperação da verificação de dois passos"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Definir requisitos para o gerador de palavras-passe."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização estão a afetar as suas definições do gerador."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Uma ou mais políticas da organização exigem que a sua palavra-passe mestra cumpra os seguintes requisitos:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Gerador",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "O que é que gostaria de gerar?"
-  },
-  "passwordType": {
-    "message": "Tipo de palavra-passe"
-  },
-  "regenerateUsername": {
-    "message": "Regenerar nome de utilizador"
-  },
   "generateUsername": {
     "message": "Gerar nome de utilizador"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Tipo de nome de utilizador"
   },
   "plusAddressedEmail": {
     "message": "E-mail com subendereço",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Nome de domínio",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Token de acesso à API"
   },
   "deviceVerification": {
     "message": "Verificação do dispositivo"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Sem coleções"
-  },
-  "canView": {
-    "message": "Pode ver"
-  },
-  "canViewExceptPass": {
-    "message": "Pode ver, excepto palavras-passe"
-  },
-  "canEdit": {
-    "message": "Pode editar"
-  },
-  "canEditExceptPass": {
-    "message": "Pode editar, excepto palavras-passe"
   },
   "noCollectionsAdded": {
     "message": "Não foram adicionadas coleções"
@@ -8626,7 +8635,7 @@
     "message": "Limitar a eliminação de coleções aos proprietários e administradores"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "Limitar a eliminação de itens a membros com a permissão Pode gerir"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Os proprietários e administradores podem gerir todas as coleções e itens"
@@ -8676,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "URL do servidor auto-hospedado",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Alias de domínio"
   },
   "alreadyHaveAccount": {
     "message": "Já tem uma conta?"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Não tem acesso para gerir esta coleção."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Faltam permissões Pode gerir"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Conceda permissões Pode gerir para permitir a gestão completa da coleção, incluindo a eliminação da coleção."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Conceder a grupos ou membros acesso a esta coleção."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Código descritor"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Aviso importante"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "Tem $REMAINING$ lugares restantes dos $TOTAL$ lugares atribuídos a esta organização. Contacte o seu fornecedor para gerir a sua subscrição.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Organização existente"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Selecione uma organização para adicionar ao seu Portal do fornecedor."
+  },
+  "noOrganizations": {
+    "message": "Não existem organizações para listar"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "A subscrição do fornecedor receberá um crédito por qualquer tempo restante na subscrição da organização."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Pretende adicionar esta organização a $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Organização existente adicionada"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Os lugares atribuídos excedem os lugares disponíveis."
   }
 }
