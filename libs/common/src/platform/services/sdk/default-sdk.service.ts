@@ -16,7 +16,6 @@ import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key
 import {
   BitwardenClient,
   ClientSettings,
-  LogLevel,
   DeviceType as SdkDeviceType,
 } from "@bitwarden/sdk-internal";
 
@@ -39,7 +38,7 @@ export class DefaultSdkService implements SdkService {
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
       const settings = this.toSettings(env);
-      return await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
+      return await this.sdkClientFactory.createSdkClient(settings);
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -96,7 +95,7 @@ export class DefaultSdkService implements SdkService {
             }
 
             const settings = this.toSettings(env);
-            const client = await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
+            const client = await this.sdkClientFactory.createSdkClient(settings);
 
             await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
 
