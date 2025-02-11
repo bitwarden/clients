@@ -58,9 +58,6 @@ import {
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
-// ❌ delete this variable before merge
-const DELETE_THIS_VARIABLE_BEFORE_MERGE = true;
-
 // constants used to identify navigation selections that are not
 // generator algorithms
 const IDENTIFIER = "identifier";
@@ -98,7 +95,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
    *  @warning this may reveal sensitive information in plaintext.
    */
   @Input()
-  debug: boolean = DELETE_THIS_VARIABLE_BEFORE_MERGE || false;
+  debug: boolean = false;
 
   // this `log` initializer is overridden in `ngOnInit`
   private log: SemanticLogger = disabledSemanticLoggerProvider({});
