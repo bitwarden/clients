@@ -575,9 +575,9 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
    * @param requestor a label used to trace generation request
    *  origin in the debugger.
    */
-  protected async generate(requestor: string) {
-    this.log.debug({ requestor }, "generation requested");
-    this.generate$.next({ source: requestor });
+  protected async generate(source: string) {
+    this.log.debug({ source }, "generation requested");
+    this.generate$.next({ source });
   }
 
   private toOptions(algorithms: AlgorithmInfo[]) {
