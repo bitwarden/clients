@@ -35,7 +35,7 @@
     "message": "設定一個強密碼"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "設定密碼以完成創建您的帳戶。"
+    "message": "設定密碼以完成建立您的帳號"
   },
   "enterpriseSingleSignOn": {
     "message": "企業單一登入"
@@ -763,7 +763,7 @@
     "message": "若您忘記主密碼，將會無法找回！"
   },
   "masterPassHintLabel": {
-    "message": "您已成功創建新帳戶！"
+    "message": "主密碼提示"
   },
   "errorOccurred": {
     "message": "發生錯誤"
@@ -797,7 +797,7 @@
     "message": "帳戶已建立！現在可以登入了。"
   },
   "newAccountCreated2": {
-    "message": "您已成功創建新帳戶！"
+    "message": "您已成功建立新帳號！"
   },
   "youHaveBeenLoggedIn": {
     "message": "你已經登入！"
@@ -2062,7 +2062,7 @@
     "message": "使用者名稱產生器"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "使用此電子郵件"
   },
   "useThisPassword": {
     "message": "使用此密碼"
@@ -2529,7 +2529,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSendSuccessfully": {
-    "message": "Send 創建成功！",
+    "message": "Send 建立成功！",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHoursSingle": {
@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "已傳送通知至您的裝置。"
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "網頁應用程式"
+  },
+  "notificationSentDevicePart2": {
+    "message": "在核准前請確保您的指紋短語與下面完全相符。"
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "已傳送通知至您的裝置"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "請確保您的帳號已解鎖，並且指紋短語與其他裝置一致。"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "一旦您的請求被通過，您會獲得通知。"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "登入已啟動"
+  },
+  "logInRequestSent": {
+    "message": "已傳送請求"
   },
   "exposedMasterPassword": {
     "message": "已洩露的主密碼"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "項目名稱"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "組織已被停用"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "更寬"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "請更新您的桌面應用程式"
