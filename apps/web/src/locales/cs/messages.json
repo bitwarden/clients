@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Upravit složku"
   },
+  "newFolder": {
+    "message": "Nová složka"
+  },
+  "folderName": {
+    "message": "Název složky"
+  },
+  "folderHintText": {
+    "message": "Vnořte složku přidáním názvu nadřazené složky následovaného znakem \"/\". Příklad: Sociální/Fóra"
+  },
+  "deleteFolderPermanently": {
+    "message": "Opravdu chcete trvale smazat tuto složku?"
+  },
   "baseDomain": {
     "message": "Základní doména",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Název položky"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Nemůžete odebrat kolekce s oprávněními jen pro zobrazení: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "např.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Bylo zahájeno přihlášení"
   },
+  "logInRequestSent": {
+    "message": "Požadavek odeslán"
+  },
   "submit": {
     "message": "Odeslat"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení."
   },
+  "notificationSentDevicePart1": {
+    "message": "Odemknout Bitwarden na Vašem zařízení nebo na "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Pokoušíte se získat přístup k Vašemu účtu?"
+  },
+  "accessAttemptBy": {
+    "message": "Pokus o přístup z $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Potvrdit přístup"
+  },
+  "denyAccess": {
+    "message": "Zamítnout přístup"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webová aplikace"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Před schválením se ujistěte, že fráze otisku prstu odpovídá frázi níže."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Odemkněte Bitwarden na Vašem zařízení. Před schválením se ujistěte, že fráze otisku prstu odpovídá frázi níže."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Ujistěte se, že je Váš trezor odemčen a fráze otisku prstu se shodují s druhým zařízením"
   },
   "versionNumber": {
     "message": "Verze $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Nepoužívat zaměnitelné znaky",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Vygenerovat jiné heslo"
   },
   "length": {
     "message": "Délka"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Spravovat"
   },
-  "canManage": {
-    "message": "Může spravovat"
+  "manageCollection": {
+    "message": "Spravovat kolekci"
+  },
+  "viewItems": {
+    "message": "Zobrazit položky"
+  },
+  "viewItemsHidePass": {
+    "message": "Zobrazit položky, skrytá hesla"
+  },
+  "editItems": {
+    "message": "Upravit položky"
+  },
+  "editItemsHidePass": {
+    "message": "Upravit položky, skrytá hesla"
   },
   "disable": {
     "message": "Vypnout"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Při čtení bezpečnostního klíče došlo k potížím. Zkuste to znovu."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Z důvodu omezení platformy nelze WebAuthn použít ve všech aplikacích Bitwarden. Měli byste využít i jiného poskytovatele dvoufaktorového přihlášení, abyste měli přístup ke svému účtu, když nelze použít WebAuthn. Podporované platformy:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Webový trezor a rozšíření pro prohlížeče na počítači/notebooku s podporou WebAuthn (Chrome, Opera, Vivaldi nebo Firefox se zapnutým FIDO U2F)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Z důvodu omezení platformy nelze WebAuthn použít ve všech aplikacích Bitwarden. Měli byste využít i jiného poskytovatele dvoufaktorového přihlášení, abyste měli přístup ke svému účtu, když nelze použít WebAuthn."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Váš kód pro obnovení dvoufázového přihlášení"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Nastaví požadavky pro generátor hesel."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Jedna nebo více zásad organizace ovlivňují nastavení generátoru."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Jedna nebo více zásad organizace vyžaduje, aby hlavní heslo splňovalo následující požadavky:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Generátor",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Co chcete vygenerovat?"
-  },
-  "passwordType": {
-    "message": "Typ hesla"
-  },
-  "regenerateUsername": {
-    "message": "Znovu vygenerovat uživatelské jméno"
-  },
   "generateUsername": {
     "message": "Vygenerovat uživatelské jméno"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Typ uživatelského jména"
   },
   "plusAddressedEmail": {
     "message": "E-mailová adresa s plusem",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Název hostitele",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Přístupový token API"
   },
   "deviceVerification": {
     "message": "Ověřování zařízení"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Žádná kolekce"
-  },
-  "canView": {
-    "message": "Může zobrazit"
-  },
-  "canViewExceptPass": {
-    "message": "Může zobrazit kromě hesel"
-  },
-  "canEdit": {
-    "message": "Může upravovat"
-  },
-  "canEditExceptPass": {
-    "message": "Může upravovat kromě hesel"
   },
   "noCollectionsAdded": {
     "message": "Nebyly přidány žádné kolekce"
@@ -8626,7 +8635,7 @@
     "message": "Omezí mazání kolekce na vlastníky a správce"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "Omezit smazání položky na členy s oprávněním ke správě"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Vlastníci a správci mohou spravovat všechny kolekce a předměty"
@@ -8676,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "Adresa URL serveru vlastního hostování",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Doména aliasu"
   },
   "alreadyHaveAccount": {
     "message": "Už máte účet?"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Nemáte přístup ke správě této kolekce."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Chybějící oprávnění \"Může spravovat\""
+  "grantManageCollectionWarningTitle": {
+    "message": "Chybějící oprávnění pro správu kolekcí"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Udělte oprávnění \"Může spravovat\" pro úplnou správu kolekce, včetně jejího smazání."
+  "grantManageCollectionWarning": {
+    "message": "Udělte oprávnění \"Spravovat kolekci\" pro úplnou správu kolekce, včetně jejího smazání."
   },
   "grantCollectionAccess": {
     "message": "Udělí skupinám nebo členům přístup k této kolekci."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Kód z popisu"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Nemůžete odebrat kolekce s oprávněními jen pro zobrazení: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Důležité upozornění"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Správci mají nyní možnost smazat účty členů, které patří k nárokované doméně."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "Tato akce smaže účet uživatele včetně všech jeho položek v trezoru. Tím se nahradí předchozí akce odebrání."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Smazat je nová akce!"
+  },
+  "seatsRemaining": {
+    "message": "Máte zbývajících $REMAINING$ uživatelů z $TOTAL$ uživatelů přidělených této organizaci. Kontaktujte svého poskytovatele pro správu předplatného.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existující organizace"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Vyberte organizaci pro přidání do portálu poskytovatele."
+  },
+  "noOrganizations": {
+    "message": "Žádné organizace k zobrazení"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Předplatné poskytovatele obdrží kredit za zbývající čas v předplatném organizace."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Chcete přidat tuto organizaci do $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Přidána existující organizace"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Přiřazení uživatelé překračují dostupné uživatele."
   }
 }
