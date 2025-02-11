@@ -2400,7 +2400,10 @@
       }
     }
   },
-  "reviewAndChangeAtRiskPasswords": {
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "Review and change $COUNT$ at-risk passwords",
     "placeholders": {
       "count": {
