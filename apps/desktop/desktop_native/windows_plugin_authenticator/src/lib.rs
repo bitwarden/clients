@@ -10,44 +10,53 @@ use pa::{
     EXPERIMENTAL_PWEBAUTHN_PLUGIN_OPERATION_RESPONSE,
 };
 use std::ptr;
-use windows_core::*;
-//use windows_sys::{core::GUID, Win32::System::Com::{CoInitialize, CoInitializeSecurity, CoRegisterClassObject, IClassFactory, EOAC_NONE, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE}};
 use windows::Win32::Foundation::*;
 use windows::Win32::System::Com::*;
+use windows_core::*;
 
 pub fn register() -> i32 {
-    let com_object: PACOMObject;
+    println!("register()");
 
-    // let result: HRESULT = unsafe {
-    //     HRESULT(CoInitialize(com_object_ptr))
-    // };
+    let r = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) };
+    println!("CoInitialize(): {:?}", r);
 
-    // https://github.com/microsoft/Windows-classic-samples/blob/main/Samples/PasskeyManager/cpp/App.xaml.cpp
-    // https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializesecurity
-    unsafe {
-        CoInitializeSecurity(None, -1, None, None, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, None, EOAC_NONE, None)
-    }.unwrap();
+    match unsafe {
+        CoInitializeSecurity(
+            None,
+            -1,
+            None,
+            None,
+            RPC_C_AUTHN_LEVEL_DEFAULT,
+            RPC_C_IMP_LEVEL_IMPERSONATE,
+            None,
+            EOAC_NONE,
+            None,
+        )
+    } {
+        Ok(()) => println!("CoInitializeSecurity(): ()"),
+        Err(e) => println!("Error calling CoInitializeSecurity(): {:?}", e),
+    }
 
-    // https://github.com/microsoft/Windows-classic-samples/blob/main/Samples/PasskeyManager/cpp/App.xaml.cpp
-    // https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coregisterclassobject
-    // Random GUID: a98925d1-61f6-40de-9327-dc418fcb2ff4
-    // let random_plugin_guid_ptr: *const GUID = &GUID {
-    //     data1: 0xa98925d1 as u32,
-    //     data2: 0x61f6 as u16,
-    //     data3: 0x40de as u16,
-    //     data4: [0x93, 0x27, 0xdc, 0x41, 0x8f, 0xcb, 0x2f, 0xf4],
-    // };
-    // let random_plugin_guid_ptr: *const GUID = &GUID::from_u128(0xa98925d161f640de9327dc418fcb2ff4);
-    // let register_object_result: HRESULT = unsafe {
-    //     CoRegisterClassObject(random_plugin_guid_ptr, ))
-    // };
+    static FACTORY: windows_core::StaticComObject<Factory> = Factory().into_static();
 
     let random_plugin_guid_ptr: *const GUID = &GUID::from_u128(0xa98925d161f640de9327dc418fcb2ff4);
-    let mut f = Factory();
-    let mut f_ptr = &mut f as *mut _ as *mut core::ffi::c_void;
-    let result: u32 = unsafe {
-        CoRegisterClassObject(random_plugin_guid_ptr, &IUnknown::from_raw(f_ptr), CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE)
-    }.unwrap();
+    let result: u32 = match unsafe {
+        CoRegisterClassObject(
+            random_plugin_guid_ptr,
+            FACTORY.as_interface_ref(),
+            CLSCTX_LOCAL_SERVER,
+            REGCLS_MULTIPLEUSE,
+        )
+    } {
+        Ok(r) => {
+            println!("CoRegisterClassObject(): {:?}", r);
+            r
+        }
+        Err(e) => {
+            println!("Error calling CoRegisterClassObject(): {:?}", e);
+            0
+        }
+    };
 
     8
 }

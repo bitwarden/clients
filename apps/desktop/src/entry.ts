@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import * as path from "path";
 
-//import { passkey_authenticator } from "@bitwarden/desktop-napi";
+import { passkey_authenticator } from "@bitwarden/desktop-napi";
 
 import { app } from "electron";
 
@@ -42,8 +42,7 @@ if (
   // eslint-disable-next-line
   const Main = require("./main").Main;
 
-  //let value = passkey_authenticator.register();
-  //console.log("C & T's value: " + value);
+  let value = passkey_authenticator.register();
 
   const main = new Main();
   main.bootstrap();
