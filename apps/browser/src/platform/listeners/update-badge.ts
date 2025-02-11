@@ -165,6 +165,13 @@ export class UpdateBadge {
       return;
     }
 
+    if ("opr" in this.win && BrowserApi.isManifestVersion(3)) {
+      // setIcon API is currenly broken for Opera MV3 extensions
+      // https://forums.opera.com/topic/75680/opr-sidebaraction-seticon-api-is-broken-access-to-extension-api-denied?_=1738349261570
+      // The API currently crashes on MacOS
+      return;
+    }
+
     if (this.isOperaSidebar(this.sidebarAction)) {
       await new Promise<void>((resolve) =>
         (this.sidebarAction as OperaSidebarAction).setIcon(options, () => resolve()),

@@ -156,16 +156,16 @@
     "message": "Всего приложений"
   },
   "unmarkAsCriticalApp": {
-    "message": "Unmark as critical app"
+    "message": "Снять пометку критического приложения"
   },
   "criticalApplicationSuccessfullyUnmarked": {
-    "message": "Critical application successfully unmarked"
+    "message": "Критическое приложение успешно снято"
   },
   "whatTypeOfItem": {
     "message": "Выберите тип элемента"
   },
   "name": {
-    "message": "Название"
+    "message": "Имя"
   },
   "uri": {
     "message": "URI"
@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Изменить папку"
   },
+  "newFolder": {
+    "message": "Новая папка"
+  },
+  "folderName": {
+    "message": "Название папки"
+  },
+  "folderHintText": {
+    "message": "Создайте вложенную папку, добавив название родительской папки и символ \"/\". Пример: Сообщества/Форумы"
+  },
+  "deleteFolderPermanently": {
+    "message": "Вы действительно хотите безвозвратно удалить эту папку?"
+  },
   "baseDomain": {
     "message": "Основной домен",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Название элемента"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "напр.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Вход инициирован"
   },
+  "logInRequestSent": {
+    "message": "Запрос отправлен"
+  },
   "submit": {
     "message": "Подтвердить"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "На ваше устройство отправлено уведомление."
   },
+  "notificationSentDevicePart1": {
+    "message": "Разблокируйте Bitwarden на своем устройстве или "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
+  },
+  "accessAttemptBy": {
+    "message": "Попытка доступа $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Подтвердить доступ"
+  },
+  "denyAccess": {
+    "message": "Отказать в доступе"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "веб-приложении"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Перед одобрением убедитесь, что фраза отпечатка совпадает с приведенной ниже."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Разблокируйте Bitwarden на своем устройстве. Перед одобрением убедитесь, что фраза отпечатка совпадает с приведенной ниже."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "На ваше устройство было отправлено уведомление"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Убедитесь, что ваш аккаунт разблокирован и фраза отпечатка совпадает с фразой на другом устройстве"
   },
   "versionNumber": {
     "message": "Версия $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Избегать неоднозначных символов",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Создать новый пароль"
   },
   "length": {
     "message": "Длина"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Управление"
   },
-  "canManage": {
-    "message": "Может управлять"
+  "manageCollection": {
+    "message": "Управление коллекцией"
+  },
+  "viewItems": {
+    "message": "Просмотр элементов"
+  },
+  "viewItemsHidePass": {
+    "message": "Просмотр элементов, скрытых паролей"
+  },
+  "editItems": {
+    "message": "Изменить элементы"
+  },
+  "editItemsHidePass": {
+    "message": "Изменить элементы, скрытые пароли"
   },
   "disable": {
     "message": "Отключить"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Не удалось прочитать ключ безопасности. Попробуйте снова."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Из-за ограничений платформы WebAuthn нельзя использовать во всех приложениях Bitwarden. Вы должны настроить другого провайдера двухэтапной аутентификации, чтобы иметь возможность получить доступ к своей учетной записи, когда WebAuthn не может быть использован. Поддерживаемые платформы:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Веб-хранилище и расширения браузера на компьютере/ноутбуке с браузером с поддержкой WebAuthn (Chrome, Opera, Vivaldi или Firefox с включенным FIDO U2F)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Из-за ограничений платформы WebAuthn нельзя использовать во всех приложениях Bitwarden. Вы должны настроить другого провайдера двухэтапной аутентификации, чтобы иметь возможность получить доступ к своей учетной записи, когда WebAuthn не может быть использован."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Ваш код восстановления двухэтапной аутентификации Bitwarden"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Установить требования к генератору паролей."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "На настройки генератора влияют одна или несколько политик организации."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Согласно одной или нескольким политикам организации необходимо, чтобы ваш мастер-пароль отвечал следующим требованиям:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Генератор",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Что вы хотите сгенерировать?"
-  },
-  "passwordType": {
-    "message": "Тип пароля"
-  },
-  "regenerateUsername": {
-    "message": "Пересоздать имя пользователя"
-  },
   "generateUsername": {
     "message": "Создать имя пользователя"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Тип имени пользователя"
   },
   "plusAddressedEmail": {
     "message": "Субадресованные email",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Имя хоста",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Токен доступа к API"
   },
   "deviceVerification": {
     "message": "Проверка устройства"
@@ -7666,18 +7687,6 @@
   "noCollection": {
     "message": "Нет коллекций"
   },
-  "canView": {
-    "message": "Может просматривать"
-  },
-  "canViewExceptPass": {
-    "message": "Может просматривать, кроме паролей"
-  },
-  "canEdit": {
-    "message": "Может редактировать"
-  },
-  "canEditExceptPass": {
-    "message": "Может редактировать, кроме паролей"
-  },
   "noCollectionsAdded": {
     "message": "Нет добавленных коллекций"
   },
@@ -8306,19 +8315,19 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
-    "message": "single organization",
+    "message": "одна организация",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart2": {
-    "message": "policy,",
+    "message": "политика,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink2": {
-    "message": "SSO required",
+    "message": "Требуется SSO",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart3": {
-    "message": "policy, and",
+    "message": "политика, и",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink3": {
@@ -8626,7 +8635,7 @@
     "message": "Ограничить удаление коллекций владельцам и администраторам"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "Ограничить удаление элементов для пользователей с разрешением 'Может управлять'"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Владельцы и администраторы могут управлять всеми коллекциями и элементами"
@@ -8676,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "URL собственного сервера",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Псевдоним домена"
   },
   "alreadyHaveAccount": {
     "message": "Уже зарегистрированы?"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "У вас нет доступа к управлению этой коллекцией."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Недостаточно полномочий для управления"
+  "grantManageCollectionWarningTitle": {
+    "message": "Отсутствуют разрешения на управление коллекцией"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Предоставить возможность управлять разрешениями коллекций, включая их удаление."
+  "grantManageCollectionWarning": {
+    "message": "Представить разрешения на управление коллекцией, включая ее удаление."
   },
   "grantCollectionAccess": {
     "message": "Предоставить группам или участникам доступ к этой коллекции."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Код дескриптора"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Важное уведомление"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Администраторы теперь могут удалять аккаунты пользователей, принадлежащие заявленному домену."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "Это действие удалит аккаунт пользователя, включая все элементы в его хранилище. Это действие заменяет предыдущее действие Удалить."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Удалить - это новое действие!"
+  },
+  "seatsRemaining": {
+    "message": "У вас осталось $REMAINING$ мест из $TOTAL$, закрепленных за этой организацией. Обратитесь к своему провайдеру для управления подпиской.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Существующая организация"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Выберите организацию для добавления на ваш портал провайдеров."
+  },
+  "noOrganizations": {
+    "message": "Нет организаций для отображения"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Вы хотите добавить эту организацию в $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
   }
 }
