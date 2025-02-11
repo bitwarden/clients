@@ -87,6 +87,7 @@ describe("DefaultLoginComponentService", () => {
       jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
 
       await service.redirectToSsoLogin(email);
+      expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
       expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
       expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
     });
