@@ -1286,7 +1286,7 @@ export default class MainBackground {
     }
     this.containerService.attachToGlobal(self);
 
-    await this.sdkLoadService.load();
+    await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
 

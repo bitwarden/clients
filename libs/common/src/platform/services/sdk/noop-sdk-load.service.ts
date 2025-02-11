@@ -2,6 +2,6 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 
 export class NoopSdkLoadService extends SdkLoadService {
   async load() {
-    return;
+    throw new Error("SDK not available in this environment");
   }
 }
