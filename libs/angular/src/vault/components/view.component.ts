@@ -11,7 +11,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { filter, firstValueFrom, map, Observable } from "rxjs";
+import { filter, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -20,9 +20,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -81,6 +81,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   private passwordReprompted = false;
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+  private destroyed$ = new Subject<void>();
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -146,12 +147,15 @@ export class ViewComponent implements OnDestroy, OnInit {
 
     const activeUserId = await firstValueFrom(this.activeUserId$);
     // Grab individual cipher from `cipherViews$` for the most up-to-date information
-    this.cipher = await firstValueFrom(
-      this.cipherService.cipherViews$.pipe(
-        map((ciphers) => ciphers.find((c) => c.id === this.cipherId)),
+    this.cipherService.cipherViews$
+      .pipe(
+        map((ciphers) => ciphers?.find((c) => c.id === this.cipherId)),
         filter((cipher) => !!cipher),
-      ),
-    );
+        takeUntil(this.destroyed$),
+      )
+      .subscribe((cipher) => {
+        this.cipher = cipher;
+      });
 
     this.canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
@@ -524,6 +528,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.showCardNumber = false;
     this.showCardCode = false;
     this.passwordReprompted = false;
+    this.destroyed$.next();
     if (this.totpInterval) {
       clearInterval(this.totpInterval);
     }

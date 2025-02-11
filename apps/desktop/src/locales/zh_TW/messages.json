@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "登入已啟動"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "已傳送通知至您的裝置。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "已傳送通知至您的裝置"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "需要另一個選項嗎？"
@@ -2782,11 +2791,11 @@
     "message": "切換字元計數",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "您正在嘗試登入嗎？"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "來自 $EMAIL$ 的登入嘗試",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "時間"
   },
-  "confirmLogIn": {
-    "message": "確認登入"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "拒絕登入"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "已確認 $EMAIL$ 在 $DEVICE$ 上的登入",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "此請求已失效。"
   },
-  "confirmLoginAtemptForMail": {
-    "message": "確認 $EMAIL$ 的登入嘗試",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "已要求登入"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Creating account on"

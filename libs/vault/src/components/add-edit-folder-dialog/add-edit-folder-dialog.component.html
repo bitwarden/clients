@@ -1,0 +1,41 @@
+<form [formGroup]="folderForm" [bitSubmit]="submit" id="add-edit-folder">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ (variant === "add" ? "newFolder" : "editFolder") | i18n }}
+    </span>
+    <div bitDialogContent>
+      <bit-form-field disableMargin>
+        <bit-label>{{ "folderName" | i18n }}</bit-label>
+        <input bitInput id="folderName" formControlName="name" type="text" />
+        <bit-hint>
+          {{ "folderHintText" | i18n }}
+        </bit-hint>
+      </bit-form-field>
+    </div>
+    <div bitDialogFooter class="tw-flex tw-gap-2 tw-w-full">
+      <button
+        #submitBtn
+        bitButton
+        buttonType="primary"
+        type="submit"
+        form="add-edit-folder"
+        [disabled]="folderForm.invalid"
+      >
+        {{ "save" | i18n }}
+      </button>
+      <button bitButton bitDialogClose buttonType="secondary" type="button">
+        {{ "cancel" | i18n }}
+      </button>
+
+      <button
+        *ngIf="variant === 'edit'"
+        type="button"
+        buttonType="danger"
+        class="tw-ml-auto"
+        bitIconButton="bwi-trash"
+        [appA11yTitle]="'deleteFolder' | i18n"
+        [bitAction]="deleteFolder"
+      ></button>
+    </div>
+  </bit-dialog>
+</form>

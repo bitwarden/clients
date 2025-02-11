@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { combineLatest, filter, from, map, Observable, of, switchMap } from "rxjs";
+import { combineLatest, filter, map, Observable, of, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -7,7 +7,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 interface EnterpriseOrgStatus {
@@ -52,11 +51,7 @@ export class FreeFamiliesPolicyService {
   );
 
   get showFreeFamilies$(): Observable<boolean> {
-    return this.isFreeFamilyFlagEnabled$.pipe(
-      switchMap((isFreeFamilyFlagEnabled) =>
-        isFreeFamilyFlagEnabled ? this.getFreeFamiliesVisibility$() : this.canManageSponsorships$,
-      ),
-    );
+    return this.getFreeFamiliesVisibility$();
   }
 
   private getFreeFamiliesVisibility$(): Observable<boolean> {
@@ -142,9 +137,5 @@ export class FreeFamiliesPolicyService {
   private getOrganizationIdForOneEnterprise(organizations: any[]): string | null {
     const enterpriseOrganizations = organizations.filter((org) => org.canManageSponsorships);
     return enterpriseOrganizations.length === 1 ? enterpriseOrganizations[0].id : null;
-  }
-
-  private get isFreeFamilyFlagEnabled$(): Observable<boolean> {
-    return from(this.configService.getFeatureFlag(FeatureFlag.DisableFreeFamiliesSponsorship));
   }
 }
