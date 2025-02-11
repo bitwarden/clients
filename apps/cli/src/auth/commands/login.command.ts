@@ -739,7 +739,7 @@ export class LoginCommand {
         try {
           this.ssoRedirectUri = "http://localhost:" + port;
           callbackServer.listen(port, () => {
-            const uri =
+            let uri =
               webUrl +
               "/#/sso?clientId=" +
               "cli" +
@@ -749,6 +749,9 @@ export class LoginCommand {
               state +
               "&codeChallenge=" +
               codeChallenge;
+            if (this.options.sso != true) {
+              uri += "&identifier=" + this.options.sso;
+            }
             CliUtils.writeLn(uri);
             this.platformUtilsService.launchUri(uri);
           });
