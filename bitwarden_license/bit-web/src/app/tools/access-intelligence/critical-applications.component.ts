@@ -18,7 +18,7 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   Icons,
   NoItemsModule,
@@ -27,9 +27,13 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/tools-card";
+import { SecurityTaskType } from "@bitwarden/vault";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
+
+import { CreateTasksRequest } from "../../../app/vault/services/abstractions/admin-task.abstraction";
+import { DefaultAdminTaskService } from "../../../app/vault/services/default-admin-task.service";
 
 import { RiskInsightsTabType } from "./risk-insights.component";
 
@@ -38,7 +42,7 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   selector: "tools-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [CardComponent, HeaderModule, SearchModule, NoItemsModule, PipesModule, SharedModule],
-  providers: [],
+  providers: [DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {
   protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
@@ -109,6 +113,19 @@ export class CriticalApplicationsComponent implements OnInit {
     this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };
 
+  async requestPasswordChange() {
+    const apps = this.dataSource.data;
+    const cipherIds = apps.flatMap((app) =>
+      app.atRiskMemberDetails.map((member) => member.cipherId),
+    );
+    const distinctCipherIds = Array.from(new Set(cipherIds));
+    const tasks: CreateTasksRequest[] = distinctCipherIds.map((cipherId) => ({
+      cipherId: cipherId as CipherId,
+      type: SecurityTaskType.UpdateAtRiskCredential,
+    }));
+    await this.adminTaskService.bulkCreateTasks(this.organizationId as OrganizationId, tasks);
+  }
+
   constructor(
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
@@ -118,6 +135,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     protected i18nService: I18nService,
     private configService: ConfigService,
+    private adminTaskService: DefaultAdminTaskService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
