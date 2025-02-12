@@ -20,7 +20,7 @@ export function NotificationConfirmationBody({
   confirmationMessage,
   theme = ThemeTypes.Light,
 }: {
-  error: string;
+  error?: string;
   buttonText: string;
   confirmationMessage?: string;
   theme: Theme;

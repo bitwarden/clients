@@ -15,11 +15,13 @@ type Args = {
 export default {
   title: "Components/Notifications/Notification Confirmation Body",
   argTypes: {
+    error: { control: "text" },
     buttonText: { control: "text" },
     confirmationMessage: { control: "text" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
   },
   args: {
+    error: "",
     buttonText: "View",
     confirmationMessage: "[item name] updated in Bitwarden.",
     theme: ThemeTypes.Light,
