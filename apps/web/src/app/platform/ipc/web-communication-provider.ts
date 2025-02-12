@@ -6,7 +6,6 @@ export class WebCommunicationProvider implements CommunicationProvider {
   private queue = new MessageQueue<Message>();
 
   constructor() {
-    // Background listener
     window.addEventListener("message", async (event: MessageEvent) => {
       const message = event.data;
       if (!isIpcMessage(message)) {

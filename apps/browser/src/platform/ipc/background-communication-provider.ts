@@ -8,7 +8,6 @@ export class BackgroundCommunicationProvider implements CommunicationProvider {
   private queue = new MessageQueue<Message>();
 
   constructor() {
-    // Web listener
     BrowserApi.messageListener("platform.ipc", (message, sender) => {
       if (!isIpcMessage(message)) {
         return;
