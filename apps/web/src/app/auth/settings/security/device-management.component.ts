@@ -36,6 +36,7 @@ interface DeviceTableData {
   trusted: boolean;
   devicePendingAuthRequest: DevicePendingAuthRequest | null;
   hasPendingAuthRequest: boolean;
+  identifier: string;
 }
 
 /**
@@ -123,8 +124,21 @@ export class DeviceManagementComponent implements OnDestroy {
         creationDate: authRequestResponse.creationDate,
       },
       hasPendingAuthRequest: true,
+      identifier: authRequestResponse.requestDeviceIdentifier,
     };
-    this.dataSource.data = [newDevice, ...this.dataSource.data];
+
+    const existingDeviceIndex = this.dataSource.data.findIndex(
+      (device) => device.identifier === newDevice.identifier,
+    );
+
+    if (existingDeviceIndex >= 0) {
+      // Update existing device
+      this.dataSource.data[existingDeviceIndex] = newDevice;
+      this.dataSource.data = [...this.dataSource.data];
+    } else {
+      // Add new device
+      this.dataSource.data = [newDevice, ...this.dataSource.data];
+    }
   }
 
   /**
@@ -174,6 +188,7 @@ export class DeviceManagementComponent implements OnDestroy {
           trusted: device?.response?.isTrusted ?? false,
           devicePendingAuthRequest: device?.response?.devicePendingAuthRequest ?? null,
           hasPendingAuthRequest: hasPendingRequest,
+          identifier: device.identifier,
         };
       })
       .filter((device): device is DeviceTableData => device !== null);
