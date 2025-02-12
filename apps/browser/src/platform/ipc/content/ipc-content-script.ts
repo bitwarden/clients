@@ -40,6 +40,7 @@ function setupMessageListener() {
     return;
   }
 
+  // eslint-disable-next-line no-restricted-syntax -- This doesn't run in the popup but in the content script
   chrome.runtime.onMessage.addListener(listener);
 }
 
