@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { switchMap, merge, delay, filter, concatMap, map, first, of, Subscription } from "rxjs";
+import { switchMap, merge, delay, filter, concatMap, map, first, of } from "rxjs";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
@@ -51,67 +51,57 @@ export class PopupViewCacheBackgroundService {
   ) {}
 
   startObservingTabChanges() {
-    const combinedSubscription = new Subscription();
-
-    combinedSubscription.add(
-      this.messageListener
-        .messages$(SAVE_VIEW_CACHE_COMMAND)
-        .pipe(
-          concatMap(async ({ key, value }) =>
-            this.popupViewCacheState.update((state) => ({
-              ...state,
-              [key]: value,
-            })),
-          ),
-        )
-        .subscribe(),
-    );
-
-    combinedSubscription.add(
-      this.messageListener
-        .messages$(ClEAR_VIEW_CACHE_COMMAND)
-        .pipe(concatMap(() => this.popupViewCacheState.update(() => null)))
-        .subscribe(),
-    );
-
-    combinedSubscription.add(
-      merge(
-        // on tab changed, excluding extension tabs
-        fromChromeEvent(chrome.tabs.onActivated).pipe(
-          switchMap((tabs) => BrowserApi.getTab(tabs[0].tabId)),
-          switchMap((tab) => {
-            // FireFox sets the `url` to "about:blank" and won't populate the `url` until the `onUpdated` event
-            if (tab.url !== "about:blank") {
-              return of(tab);
-            }
-
-            return fromChromeEvent(chrome.tabs.onUpdated).pipe(
-              first(),
-              switchMap(([tabId]) => BrowserApi.getTab(tabId)),
-            );
-          }),
-          map((tab) => tab.url || tab.pendingUrl),
-          filter((url) => !url.startsWith(chrome.runtime.getURL(""))),
+    this.messageListener
+      .messages$(SAVE_VIEW_CACHE_COMMAND)
+      .pipe(
+        concatMap(async ({ key, value }) =>
+          this.popupViewCacheState.update((state) => ({
+            ...state,
+            [key]: value,
+          })),
         ),
+      )
+      .subscribe();
 
-        // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
-        fromChromeEvent(chrome.runtime.onConnect).pipe(
-          filter(([port]) => port.name === popupClosedPortName),
-          switchMap(([port]) =>
-            fromChromeEvent(port.onDisconnect).pipe(
-              delay(
-                1000 * 60 * 2,
-                toScheduler(this.taskSchedulerService, ScheduledTaskNames.clearPopupViewCache),
-              ),
+    this.messageListener
+      .messages$(ClEAR_VIEW_CACHE_COMMAND)
+      .pipe(concatMap(() => this.popupViewCacheState.update(() => null)))
+      .subscribe();
+
+    merge(
+      // on tab changed, excluding extension tabs
+      fromChromeEvent(chrome.tabs.onActivated).pipe(
+        switchMap((tabs) => BrowserApi.getTab(tabs[0].tabId)),
+        switchMap((tab) => {
+          // FireFox sets the `url` to "about:blank" and won't populate the `url` until the `onUpdated` event
+          if (tab.url !== "about:blank") {
+            return of(tab);
+          }
+
+          return fromChromeEvent(chrome.tabs.onUpdated).pipe(
+            first(),
+            switchMap(([tabId]) => BrowserApi.getTab(tabId)),
+          );
+        }),
+        map((tab) => tab.url || tab.pendingUrl),
+        filter((url) => !url.startsWith(chrome.runtime.getURL(""))),
+      ),
+
+      // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
+      fromChromeEvent(chrome.runtime.onConnect).pipe(
+        filter(([port]) => port.name === popupClosedPortName),
+        switchMap(([port]) =>
+          fromChromeEvent(port.onDisconnect).pipe(
+            delay(
+              1000 * 60 * 2,
+              toScheduler(this.taskSchedulerService, ScheduledTaskNames.clearPopupViewCache),
             ),
           ),
         ),
-      )
-        .pipe(switchMap(() => this.clearState()))
-        .subscribe(),
-    );
-
-    return combinedSubscription;
+      ),
+    )
+      .pipe(switchMap(() => this.clearState()))
+      .subscribe();
   }
 
   async clearState() {
