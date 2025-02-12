@@ -22,14 +22,14 @@ export function NotificationConfirmationBody({
 }: {
   error?: string;
   buttonText: string;
-  confirmationMessage?: string;
+  confirmationMessage: string;
   theme: Theme;
 }) {
   const IconComponent = !error ? PartyHorn : Warning;
   return html`
     <div class=${notificationConfirmationBodyStyles({ theme })}>
       <div class=${iconContainerStyles(error)}>${IconComponent({ theme })}</div>
-      ${confirmationMessage
+      ${confirmationMessage && buttonText
         ? NotificationConfirmationMessage({
             handleClick: () => {},
             confirmationMessage,
@@ -41,7 +41,7 @@ export function NotificationConfirmationBody({
   `;
 }
 
-const iconContainerStyles = (error: string) => css`
+const iconContainerStyles = (error?: string) => css`
   > svg {
     width: ${!error ? "50px" : "40px"};
     height: fit-content;
