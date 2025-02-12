@@ -49,7 +49,7 @@ export class MigrateFromLegacyEncryptionComponent {
 
     const activeUser = await firstValueFrom(this.accountService.activeAccount$);
     if (activeUser == null) {
-      return;
+      throw new Error("No active user.");
     }
 
     const hasUserKey = await this.keyService.hasUserKey(activeUser.id);
