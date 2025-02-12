@@ -63,19 +63,27 @@ export class DeviceManagementComponent {
     private messageListener: MessageListener,
     private authRequestApiService: AuthRequestApiService,
   ) {
-    // Load devices
-    this.loadDevices().catch((error) => this.validationService.showError(error));
+    void this.initializeDevices();
+  }
 
-    // Listen for auth request messages
-    this.messageListener.allMessages$.pipe(takeUntilDestroyed()).subscribe((message) => {
-      if (message.command !== "openLoginApproval") {
-        return;
-      }
-      // Handle inserting a new device when an auth request is received
-      this.handleAuthRequest(message as { command: string; notificationId: string }).catch(
-        (error) => this.validationService.showError(error),
-      );
-    });
+  private async initializeDevices(): Promise<void> {
+    try {
+      // Load devices
+      await this.loadDevices();
+
+      // Listen for auth request messages
+      this.messageListener.allMessages$.pipe(takeUntilDestroyed()).subscribe((message) => {
+        if (message.command !== "openLoginApproval") {
+          return;
+        }
+        // Handle inserting a new device when an auth request is received
+        this.handleAuthRequest(message as { command: string; notificationId: string }).catch(
+          (error) => this.validationService.showError(error),
+        );
+      });
+    } catch (error) {
+      this.validationService.showError(error);
+    }
   }
 
   /**
