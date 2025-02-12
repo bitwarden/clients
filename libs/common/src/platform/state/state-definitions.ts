@@ -199,3 +199,4 @@ export const NEW_DEVICE_VERIFICATION_NOTICE = new StateDefinition(
 );
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
+export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
