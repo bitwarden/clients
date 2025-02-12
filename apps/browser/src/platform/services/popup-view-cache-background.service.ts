@@ -3,8 +3,11 @@
 import { switchMap, merge, delay, filter, concatMap, map, first, of } from "rxjs";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
-import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
-import { toScheduler } from "@bitwarden/common/platform/scheduling/task-scheduler.service";
+import {
+  ScheduledTaskNames,
+  TaskSchedulerService,
+  toScheduler,
+} from "@bitwarden/common/platform/scheduling";
 import {
   POPUP_VIEW_MEMORY,
   KeyDefinition,
