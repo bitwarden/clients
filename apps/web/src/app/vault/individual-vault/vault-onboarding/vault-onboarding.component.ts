@@ -52,8 +52,6 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
   isNewAccount: boolean;
   private readonly onboardingReleaseDate = new Date("2024-04-02");
 
-  protected currentTasks: VaultOnboardingTasks;
-
   protected onboardingTasks$: Observable<VaultOnboardingTasks>;
   protected showOnboarding = false;
 
@@ -80,6 +78,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
         importData: this.ciphers.length > 0,
         installExtension: currentTasks.installExtension,
       };
+      if (!Object.values(updatedTasks).includes(false)) {this.showOnboarding = false;}
       await this.vaultOnboardingService.setVaultOnboardingTasks(updatedTasks);
     }
   }
