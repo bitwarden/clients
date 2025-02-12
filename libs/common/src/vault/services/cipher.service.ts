@@ -406,6 +406,10 @@ export class CipherService implements CipherServiceAbstraction {
       return await this.getDecryptedCiphers();
     }
 
+    // if (!(window as any).markedCipherDecryptionStart) {
+    //   performance.mark("cipher-decryption-start");
+    //   (window as any).markedCipherDecryptionStart = true;
+    // }
     const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
 
     if (activeUserId == null) {
@@ -419,6 +423,11 @@ export class CipherService implements CipherServiceAbstraction {
 
     await this.setDecryptedCipherCache(newDecCiphers, activeUserId);
     await this.setFailedDecryptedCiphers(failedCiphers, activeUserId);
+
+    // if (!(window as any).markedCipherDecryptionEnd) {
+    //   performance.mark("cipher-decryption-end");
+    //   (window as any).markedCipherDecryptionEnd = true;
+    // }
 
     return newDecCiphers;
   }
