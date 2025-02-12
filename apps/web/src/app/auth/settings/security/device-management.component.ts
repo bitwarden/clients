@@ -66,6 +66,9 @@ export class DeviceManagementComponent {
     void this.initializeDevices();
   }
 
+  /**
+   * Initialize the devices list and set up the message listener
+   */
   private async initializeDevices(): Promise<void> {
     try {
       // Load devices
