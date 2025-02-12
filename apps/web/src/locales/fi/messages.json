@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Muokkaa kansiota"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "Pääverkkotunnus",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Kohteen nimi"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Et voi poistaa kokoelmia, joihin sinulla on vain tarkasteluoikeus: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "esim.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Kirjautuminen aloitettu"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "submit": {
     "message": "Jatka"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Laitteellesi on lähetetty ilmoitus."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Laitteeseesi lähetettiin ilmoitus"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "Versio $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Vältä epäselviä merkkejä",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Luo uusi salasana"
   },
   "length": {
     "message": "Pituus"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Hallitse"
   },
-  "canManage": {
-    "message": "Voi hallita"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "Poista käytöstä"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Suojausavainta luettaessa havaittiin ongelma. Yritä uudelleen."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Alustakohtaisten rajoitusten vuoksi WebAuthn-todennuslaiteet eivät ole käytettävissä kaikissa Bitwarden-sovelluksissa. Sinun tulisi määrittää eri kaksivaiheisen kirjautumisen todentaja, jotta pääset tilillesi myös silloin kun WebAuthn-laitteen käyttö ei ole mahdollista. Tuetut alustat:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Verkkoholvi ja selainlaajennukset pöytäkoneissa/kannettavissa, joissa on WebAuthn-tekniikkaa tukeva selain (Chrome, Opera, Vivaldi tai Firefox FIDO U2F käyttöön otettuna)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwardenin kaksivaiheisen kirjautumisen palautuskoodisi"
@@ -3339,10 +3378,10 @@
     }
   },
   "inviteSingleEmailDesc": {
-    "message": "You have 1 invite remaining."
+    "message": "Sinulla on 1 kutsu jäljellä."
   },
   "inviteZeroEmailDesc": {
-    "message": "You have 0 invites remaining."
+    "message": "Sinulla on 0 kutsua jäljellä."
   },
   "userUsingTwoStep": {
     "message": "Käyttäjä on suojannut tilinsä kaksivaiheisella kirjautumisella."
@@ -3847,22 +3886,22 @@
     "message": "Laite"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Kirjautumisen tila"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Ensimmäinen kirjautuminen"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Luotettu"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Vaatii hyväksynnän"
   },
   "areYouTryingtoLogin": {
-    "message": "Are you trying to log in?"
+    "message": "Yritätkö kirjautua sisään?"
   },
   "logInAttemptBy": {
-    "message": "Login attempt by $EMAIL$",
+    "message": "Kirjautumisyritys osoitteella $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3905,10 +3944,10 @@
     "message": "Login request has already expired."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Juuri nyt"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Pyydetty $MINUTES$ minuuttia sitten",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4709,9 +4748,6 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Aseta salasanageneraattorin vaatimukset."
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Yksi tai useampi organisaatiokäytäntö vaikuttaa generaattorisi asetuksiin."
   },
   "masterPasswordPolicyInEffect": {
     "message": "Yksi tai useampi organisaatiokäytäntö edellyttää, että pääsalasanasi täyttää seuraavat vaatimukset:"
@@ -5813,11 +5849,11 @@
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Ota yhteyttä asiakkaaseen",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "lisätietojen menettämisen välttämiseksi.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
@@ -6681,15 +6717,6 @@
     "message": "Generaattori",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Mitä haluat luoda?"
-  },
-  "passwordType": {
-    "message": "Salasanan tyyppi"
-  },
-  "regenerateUsername": {
-    "message": "Luo uusi käyttäjätunnus"
-  },
   "generateUsername": {
     "message": "Luo käyttäjätunnus"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Käyttäjätunnuksen tyyppi"
   },
   "plusAddressedEmail": {
     "message": "Plus+merkkinen sähköposti",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Isäntä",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API-käyttötunniste"
   },
   "deviceVerification": {
     "message": "Laitevahvistus"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Ei kokoelmaa"
-  },
-  "canView": {
-    "message": "Voi tarkastella"
-  },
-  "canViewExceptPass": {
-    "message": "Voi tarkastella (ei salasanoja)"
-  },
-  "canEdit": {
-    "message": "Voi muokata"
-  },
-  "canEditExceptPass": {
-    "message": "Voi muokata (ei salasanoja)"
   },
   "noCollectionsAdded": {
     "message": "Kokoelmia ei ole lisätty"
@@ -8677,9 +8686,6 @@
     "message": "Itse ylläpidetyn palvelimen URL-osoite",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Aliaksen verkkotunnus"
-  },
   "alreadyHaveAccount": {
     "message": "Onko sinulla jo tili?"
   },
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Oikeutesi eivät riitä kokoelman hallintaan."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "\"Voi hallita\" -käyttöoikeus puuttuu"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Myönnä ”Voi hallita” -oikeus, joka mahdollistaa kokoelman täydellisen hallinnan, mukaan lukien sen poistamisen."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Myönnä ryhmille tai henkilöille kokoelman käyttöoikeus."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Descriptor code"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Et voi poistaa kokoelmia, joihin sinulla on vain tarkasteluoikeus: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Tärkeä ilmoitus"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
   }
 }

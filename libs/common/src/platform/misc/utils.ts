@@ -8,9 +8,8 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { KeyService } from "@bitwarden/key-management";
+
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../abstractions/i18n.service";
 
