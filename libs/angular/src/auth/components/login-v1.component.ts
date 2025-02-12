@@ -160,6 +160,8 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
       return;
     }
 
+    await this.saveEmailSettings();
+
     try {
       const credentials = new PasswordLoginCredentials(
         this.formGroup.controls.email.value,
@@ -170,8 +172,6 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
 
       this.formPromise = this.loginStrategyService.logIn(credentials);
       const response = await this.formPromise;
-
-      await this.saveEmailSettings();
 
       if (this.handleCaptchaRequired(response)) {
         return;
@@ -193,7 +193,7 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.onSuccessfulLoginForceResetNavigate();
         } else {
-          this.loginEmailService.clearValues();
+          this.loginEmailService.clearLoginEmail();
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate([this.forcePasswordResetRoute]);
@@ -210,7 +210,7 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.onSuccessfulLoginNavigate(response.userId);
         } else {
-          this.loginEmailService.clearValues();
+          this.loginEmailService.clearLoginEmail();
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate([this.successRoute]);
@@ -320,21 +320,12 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
   }
 
   private async loadEmailSettings() {
-    // Try to load from memory first
-    const email = await firstValueFrom(this.loginEmailService.loginEmail$);
-    const rememberEmail = this.loginEmailService.getRememberEmail();
-
-    if (email) {
-      this.formGroup.controls.email.setValue(email);
-      this.formGroup.controls.rememberEmail.setValue(rememberEmail);
+    const rememberedEmail = await firstValueFrom(this.loginEmailService.rememberedEmail$);
+    if (rememberedEmail) {
+      this.formGroup.controls.email.setValue(rememberedEmail);
+      this.formGroup.controls.rememberEmail.setValue(true);
     } else {
-      // If not in memory, check email on disk
-      const storedEmail = await firstValueFrom(this.loginEmailService.storedEmail$);
-      if (storedEmail) {
-        // If we have a stored email, rememberEmail should default to true
-        this.formGroup.controls.email.setValue(storedEmail);
-        this.formGroup.controls.rememberEmail.setValue(true);
-      }
+      this.formGroup.controls.rememberEmail.setValue(false);
     }
   }
 
@@ -342,9 +333,11 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
     // Save off email for SSO
     await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
 
-    this.loginEmailService.setLoginEmail(this.formGroup.value.email);
-    this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
-    await this.loginEmailService.saveEmailSettings();
+    await this.loginEmailService.setLoginEmail(this.formGroup.value.email);
+    await this.loginEmailService.setRememberedEmailChoice(
+      this.formGroup.value.email,
+      this.formGroup.value.rememberEmail,
+    );
   }
 
   // Legacy accounts used the master key to encrypt data. Migration is required but only performed on web
