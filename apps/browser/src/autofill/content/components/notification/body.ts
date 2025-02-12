@@ -19,11 +19,13 @@ export function NotificationBody({
   ciphers,
   notificationType,
   theme = ThemeTypes.Light,
+  handleEditOrUpdateAction,
 }: {
   ciphers: NotificationCipherData[];
   customClasses?: string[];
   notificationType?: NotificationType;
   theme: Theme;
+  handleEditOrUpdateAction: (e: Event) => void;
 }) {
   // @TODO get client vendor from context
   const isSafari = false;
@@ -37,9 +39,7 @@ export function NotificationBody({
             cipher,
             notificationType,
             theme,
-            handleAction: () => {
-              // @TODO connect update or edit actions to handler
-            },
+            handleAction: handleEditOrUpdateAction,
           }),
         }),
       )}

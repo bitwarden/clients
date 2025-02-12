@@ -6,6 +6,7 @@ import { ButtonRow } from "../../rows/button-row";
 
 type Args = {
   theme: Theme;
+  buttonAction: (e: Event) => void;
 };
 
 export default {
