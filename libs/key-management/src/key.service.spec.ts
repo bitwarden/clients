@@ -1,82 +1,43 @@
 import { mock } from "jest-mock-extended";
 import { bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
 
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
+import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "../../auth/src/common/abstractions";
+import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { Encrypted } from "@bitwarden/common/platform/interfaces/encrypted";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
+import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
+import {
+  USER_ENCRYPTED_PRIVATE_KEY,
+  USER_EVER_HAD_USER_KEY,
+  USER_KEY,
+} from "@bitwarden/common/platform/services/key-state/user-key.state";
+import { UserKeyDefinition } from "@bitwarden/common/platform/state";
+import { VAULT_TIMEOUT } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.state";
 import {
   awaitAsync,
   makeEncString,
   makeStaticByteArray,
   makeSymmetricCryptoKey,
-} from "../../common/spec";
-import { FakeAccountService, mockAccountServiceWith } from "../../common/spec/fake-account-service";
-import { FakeActiveUserState, FakeSingleUserState } from "../../common/spec/fake-state";
-import { FakeStateProvider } from "../../common/spec/fake-state-provider";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { FakeMasterPasswordService } from "../../common/src/auth/services/master-password/fake-master-password.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService } from "../../common/src/platform/abstractions/key-generation.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { LogService } from "../../common/src/platform/abstractions/log.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PlatformUtilsService } from "../../common/src/platform/abstractions/platform-utils.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { StateService } from "../../common/src/platform/abstractions/state.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { Encrypted } from "../../common/src/platform/interfaces/encrypted";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { Utils } from "../../common/src/platform/misc/utils";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { EncString, EncryptedString } from "../../common/src/platform/models/domain/enc-string";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SymmetricCryptoKey } from "../../common/src/platform/models/domain/symmetric-crypto-key";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "../../common/src/platform/services/key-state/org-keys.state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { USER_ENCRYPTED_PROVIDER_KEYS } from "../../common/src/platform/services/key-state/provider-keys.state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import {
-  USER_ENCRYPTED_PRIVATE_KEY,
-  USER_EVER_HAD_USER_KEY,
-  USER_KEY,
-} from "../../common/src/platform/services/key-state/user-key.state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { UserKeyDefinition } from "../../common/src/platform/state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { VAULT_TIMEOUT } from "../../common/src/services/vault-timeout/vault-timeout-settings.state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { CsprngArray } from "../../common/src/types/csprng";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationId, UserId } from "../../common/src/types/guid";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { UserKey, MasterKey } from "../../common/src/types/key";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { VaultTimeoutStringType } from "../../common/src/types/vault-timeout.type";
+  FakeAccountService,
+  mockAccountServiceWith,
+  FakeStateProvider,
+  FakeActiveUserState,
+  FakeSingleUserState,
+} from "@bitwarden/common/spec";
+import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { UserPrivateKeyDecryptionFailedError } from "./abstractions/key.service";
