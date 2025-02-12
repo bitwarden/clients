@@ -5,10 +5,16 @@ import { asyncScheduler, SchedulerLike, Subscription } from "rxjs";
 import { ScheduledTaskName } from "./scheduled-task-name.enum";
 
 /**
+ * Creates a RXJS scheduler based on a {@link TaskSchedulerService}.
  *
- * @param taskScheduler
- * @param taskName
- * @returns
+ * @description On MV3 browser extensions this uses the `chrome.alarms` API. As such you need
+ * to be careful that you observable is subscribed to during startup of the service worker.
+ * This ensures that if the service worker dies and awakens for a chrome alarm event, then
+ * your code will be guaranteed to be added.
+ *
+ * @param taskScheduler The task scheduler service to use to shedule RXJS work.
+ * @param taskName The name of the task that the handler should be registered and scheduled based on.
+ * @returns A SchedulerLike object that can be passed in to RXJS operators like `delay` and `timeout`.
  */
 export function toScheduler(
   taskScheduler: TaskSchedulerService,
