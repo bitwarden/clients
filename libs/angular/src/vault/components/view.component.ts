@@ -18,6 +18,7 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -29,11 +30,11 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
@@ -66,7 +67,6 @@ export class ViewComponent implements OnDestroy, OnInit {
   showPrivateKey: boolean;
   canAccessPremium: boolean;
   showPremiumRequiredTotp: boolean;
-  showUpgradeRequiredTotp: boolean;
   fieldType = FieldType;
   checkPasswordPromise: Promise<number>;
   folder: FolderView;
@@ -75,7 +75,6 @@ export class ViewComponent implements OnDestroy, OnInit {
   private previousCipherId: string;
   private passwordReprompted = false;
 
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
   private destroyed$ = new Subject<void>();
 
   /**
@@ -145,9 +144,10 @@ export class ViewComponent implements OnDestroy, OnInit {
   async load() {
     this.cleanUp();
 
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     // Grab individual cipher from `cipherViews$` for the most up-to-date information
-    this.cipherService.cipherViews$
+    this.cipherService
+      .cipherViews$(activeUserId)
       .pipe(
         map((ciphers) => ciphers?.find((c) => c.id === this.cipherId)),
         filter((cipher) => !!cipher),
@@ -161,13 +161,10 @@ export class ViewComponent implements OnDestroy, OnInit {
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
     );
     this.showPremiumRequiredTotp =
-      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationId;
+      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
       this.collectionId as CollectionId,
     ]);
-
-    this.showUpgradeRequiredTotp =
-      this.cipher.login.totp && this.cipher.organizationId && !this.cipher.organizationUseTotp;
 
     if (this.cipher.folderId) {
       this.folder = await (
@@ -175,33 +172,33 @@ export class ViewComponent implements OnDestroy, OnInit {
       ).find((f) => f.id == this.cipher.folderId);
     }
 
-    const canGenerateTotp = this.cipher.organizationId
-      ? this.cipher.organizationUseTotp
-      : this.canAccessPremium;
+    const canGenerateTotp =
+      this.cipher.type === CipherType.Login &&
+      this.cipher.login.totp &&
+      (this.cipher.organizationUseTotp || this.canAccessPremium);
 
-    this.totpInfo$ =
-      this.cipher?.login?.totp && canGenerateTotp
-        ? this.totpService.getCode$(this.cipher.login.totp).pipe(
-            map((response) => {
-              const epoch = Math.round(new Date().getTime() / 1000.0);
-              const mod = epoch % response.period;
+    this.totpInfo$ = canGenerateTotp
+      ? this.totpService.getCode$(this.cipher.login.totp).pipe(
+          map((response) => {
+            const epoch = Math.round(new Date().getTime() / 1000.0);
+            const mod = epoch % response.period;
 
-              // Format code
-              const totpCodeFormatted =
-                response.code.length > 4
-                  ? `${response.code.slice(0, Math.floor(response.code.length / 2))} ${response.code.slice(Math.floor(response.code.length / 2))}`
-                  : response.code;
+            // Format code
+            const totpCodeFormatted =
+              response.code.length > 4
+                ? `${response.code.slice(0, Math.floor(response.code.length / 2))} ${response.code.slice(Math.floor(response.code.length / 2))}`
+                : response.code;
 
-              return {
-                totpCode: response.code,
-                totpCodeFormatted,
-                totpDash: +(Math.round(((78.6 / response.period) * mod + "e+2") as any) + "e-2"),
-                totpSec: response.period - mod,
-                totpLow: response.period - mod <= 7,
-              } as TotpInfo;
-            }),
-          )
-        : undefined;
+            return {
+              totpCode: response.code,
+              totpCodeFormatted,
+              totpDash: +(Math.round(((78.6 / response.period) * mod + "e+2") as any) + "e-2"),
+              totpSec: response.period - mod,
+              totpLow: response.period - mod <= 7,
+            } as TotpInfo;
+          }),
+        )
+      : undefined;
 
     if (this.previousCipherId !== this.cipherId) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -268,7 +265,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     try {
-      await this.deleteCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.deleteCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -290,7 +288,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     try {
-      await this.restoreCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.restoreCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -398,7 +397,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     if (cipherId) {
-      await this.cipherService.updateLastLaunchedDate(cipherId);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.cipherService.updateLastLaunchedDate(cipherId, activeUserId);
     }
 
     this.platformUtilsService.launchUri(uri.launchUri);
@@ -516,14 +516,14 @@ export class ViewComponent implements OnDestroy, OnInit {
     a.downloading = false;
   }
 
-  protected deleteCipher() {
+  protected deleteCipher(userId: UserId) {
     return this.cipher.isDeleted
-      ? this.cipherService.deleteWithServer(this.cipher.id)
-      : this.cipherService.softDeleteWithServer(this.cipher.id);
+      ? this.cipherService.deleteWithServer(this.cipher.id, userId)
+      : this.cipherService.softDeleteWithServer(this.cipher.id, userId);
   }
 
-  protected restoreCipher() {
-    return this.cipherService.restoreWithServer(this.cipher.id);
+  protected restoreCipher(userId: UserId) {
+    return this.cipherService.restoreWithServer(this.cipher.id, userId);
   }
 
   protected async promptPassword() {

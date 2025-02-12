@@ -62,6 +62,8 @@ describe("ContextMenuClickedHandler", () => {
     return cipherView;
   };
 
+  const mockUserId = "UserId" as UserId;
+
   let copyToClipboard: CopyToClipboardAction;
   let generatePasswordToClipboard: GeneratePasswordToClipboardAction;
   let autofill: AutofillAction;
@@ -80,7 +82,7 @@ describe("ContextMenuClickedHandler", () => {
     autofill = jest.fn<Promise<void>, [tab: chrome.tabs.Tab, cipher: CipherView]>();
     authService = mock();
     cipherService = mock();
-    accountService = mockAccountServiceWith("userId" as UserId);
+    accountService = mockAccountServiceWith(mockUserId as UserId);
     totpService = mock();
     eventCollectionService = mock();
 
@@ -198,7 +200,11 @@ describe("ContextMenuClickedHandler", () => {
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith("https://test.com", []);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+        "https://test.com",
+        mockUserId,
+        [],
+      );
 
       expect(copyToClipboard).toHaveBeenCalledTimes(1);
 
@@ -222,7 +228,11 @@ describe("ContextMenuClickedHandler", () => {
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith("https://test.com", []);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+        "https://test.com",
+        mockUserId,
+        [],
+      );
     });
   });
 });
