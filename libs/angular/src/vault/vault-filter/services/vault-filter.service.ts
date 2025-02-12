@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { firstValueFrom, from, map, mergeMap, Observable, switchMap } from "rxjs";
+import { firstValueFrom, from, map, mergeMap, Observable, switchMap, take } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -86,6 +86,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     };
 
     return this.activeUserId$.pipe(
+      take(1),
       switchMap((userId) => this.folderService.folderViews$(userId)),
       mergeMap((folders) => from(transformation(folders))),
     );
