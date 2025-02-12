@@ -54,6 +54,7 @@ export class CriticalApplicationsComponent implements OnInit {
   protected applicationSummary = {} as ApplicationHealthReportSummary;
   noItemsIcon = Icons.Security;
   isNotificationsFeatureEnabled: boolean = false;
+  enableRequestPasswordChange = false;
 
   async ngOnInit() {
     this.isNotificationsFeatureEnabled = await this.configService.getFeatureFlag(
@@ -79,6 +80,7 @@ export class CriticalApplicationsComponent implements OnInit {
         if (applications) {
           this.dataSource.data = applications;
           this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
+          this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
         }
       });
   }
@@ -115,9 +117,9 @@ export class CriticalApplicationsComponent implements OnInit {
 
   async requestPasswordChange() {
     const apps = this.dataSource.data;
-    const cipherIds = apps.flatMap((app) =>
-      app.atRiskMemberDetails.map((member) => member.cipherId),
-    );
+    const cipherIds = apps
+      .filter((_) => _.atRiskPasswordCount > 0)
+      .flatMap((app) => app.atRiskMemberDetails.map((member) => member.cipherId));
     const distinctCipherIds = Array.from(new Set(cipherIds));
     const tasks: CreateTasksRequest[] = distinctCipherIds.map((cipherId) => ({
       cipherId: cipherId as CipherId,
