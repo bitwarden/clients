@@ -1004,57 +1004,55 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     userId: UserId,
     legacySupport: boolean = false,
   ): Observable<CipherDecryptionKeys | null> {
-    return (
-      this.userPrivateKeyHelper$(userId, legacySupport)?.pipe(
-        switchMap((userKeys) => {
-          if (userKeys == null) {
-            return of(null);
-          }
+    return this.userPrivateKeyHelper$(userId, legacySupport)?.pipe(
+      switchMap((userKeys) => {
+        if (userKeys == null) {
+          return of(null);
+        }
 
-          const userPrivateKey = userKeys.userPrivateKey;
+        const userPrivateKey = userKeys.userPrivateKey;
 
-          if (userPrivateKey == null) {
-            // We can't do any org based decryption
-            return of({ userKey: userKeys.userKey, orgKeys: null });
-          }
+        if (userPrivateKey == null) {
+          // We can't do any org based decryption
+          return of({ userKey: userKeys.userKey, orgKeys: null });
+        }
 
-          return combineLatest([
-            this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
-            this.providerKeysHelper$(userId, userPrivateKey),
-          ]).pipe(
-            switchMap(async ([encryptedOrgKeys, providerKeys]) => {
-              const result: Record<OrganizationId, OrgKey> = {};
-              encryptedOrgKeys = encryptedOrgKeys ?? {};
-              for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
-                if (result[orgId] != null) {
-                  continue;
-                }
-                const encrypted = BaseEncryptedOrganizationKey.fromData(encryptedOrgKeys[orgId]);
-                if (encrypted == null) {
-                  continue;
-                }
-
-                let decrypted: OrgKey;
-
-                if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
-                  if (providerKeys == null) {
-                    throw new Error("No provider keys found.");
-                  }
-                  decrypted = await encrypted.decrypt(this.encryptService, providerKeys);
-                } else {
-                  decrypted = await encrypted.decrypt(this.encryptService, userPrivateKey);
-                }
-
-                result[orgId] = decrypted;
+        return combineLatest([
+          this.stateProvider.getUser(userId, USER_ENCRYPTED_ORGANIZATION_KEYS).state$,
+          this.providerKeysHelper$(userId, userPrivateKey),
+        ]).pipe(
+          switchMap(async ([encryptedOrgKeys, providerKeys]) => {
+            const result: Record<OrganizationId, OrgKey> = {};
+            encryptedOrgKeys = encryptedOrgKeys ?? {};
+            for (const orgId of Object.keys(encryptedOrgKeys) as OrganizationId[]) {
+              if (result[orgId] != null) {
+                continue;
+              }
+              const encrypted = BaseEncryptedOrganizationKey.fromData(encryptedOrgKeys[orgId]);
+              if (encrypted == null) {
+                continue;
               }
 
-              return result;
-            }),
-            // Combine them back together
-            map((orgKeys) => ({ userKey: userKeys.userKey, orgKeys: orgKeys })),
-          );
-        }),
-      ) ?? null
+              let decrypted: OrgKey;
+
+              if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
+                if (providerKeys == null) {
+                  throw new Error("No provider keys found.");
+                }
+                decrypted = await encrypted.decrypt(this.encryptService, providerKeys);
+              } else {
+                decrypted = await encrypted.decrypt(this.encryptService, userPrivateKey);
+              }
+
+              result[orgId] = decrypted;
+            }
+
+            return result;
+          }),
+          // Combine them back together
+          map((orgKeys) => ({ userKey: userKeys.userKey, orgKeys: orgKeys })),
+        );
+      }),
     );
   }
 }
