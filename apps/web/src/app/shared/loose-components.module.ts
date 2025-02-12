@@ -66,8 +66,6 @@ import { ProductSwitcherModule } from "../layouts/product-switcher/product-switc
 import { UserLayoutComponent } from "../layouts/user-layout.component";
 import { DomainRulesComponent } from "../settings/domain-rules.component";
 import { PreferencesComponent } from "../settings/preferences.component";
-import { GeneratorComponent } from "../tools/generator.component";
-import { PasswordGeneratorHistoryComponent } from "../tools/password-generator-history.component";
 import { AddEditComponent as SendAddEditComponent } from "../tools/send/add-edit.component";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
@@ -139,8 +137,6 @@ import { SharedModule } from "./shared.module";
     OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
-    GeneratorComponent,
-    PasswordGeneratorHistoryComponent,
     PreferencesComponent,
     PremiumBadgeComponent,
     ProfileComponent,
@@ -206,8 +202,6 @@ import { SharedModule } from "./shared.module";
     OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
-    GeneratorComponent,
-    PasswordGeneratorHistoryComponent,
     PreferencesComponent,
     PremiumBadgeComponent,
     ProfileComponent,

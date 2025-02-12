@@ -86,9 +86,13 @@ apps/web/src/app/shared @bitwarden/team-platform-dev
 apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 # Workflows
 .github/workflows/brew-bump-desktop.yml @bitwarden/team-platform-dev
+.github/workflows/build-browser-target.yml @bitwarden/team-platform-dev
 .github/workflows/build-browser.yml @bitwarden/team-platform-dev
+.github/workflows/build-cli-target.yml @bitwarden/team-platform-dev
 .github/workflows/build-cli.yml @bitwarden/team-platform-dev
+.github/workflows/build-desktop-target.yml @bitwarden/team-platform-dev
 .github/workflows/build-desktop.yml @bitwarden/team-platform-dev
+.github/workflows/build-web-target.yml @bitwarden/team-platform-dev
 .github/workflows/build-web.yml @bitwarden/team-platform-dev
 .github/workflows/chromatic.yml @bitwarden/team-platform-dev
 .github/workflows/lint.yml @bitwarden/team-platform-dev
@@ -134,7 +138,7 @@ libs/key-management @bitwarden/team-key-management-dev
 libs/key-management-ui @bitwarden/team-key-management-dev
 libs/common/src/key-management @bitwarden/team-key-management-dev
 
-apps/desktop/destkop_native/core/src/biometric/ @bitwarden/team-key-management-dev
+apps/desktop/desktop_native/core/src/biometric/ @bitwarden/team-key-management-dev
 apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-key-management-dev
 apps/browser/src/background/nativeMessaging.background.ts @bitwarden/team-key-management-dev
 apps/desktop/src/services/biometric-message-handler.service.ts @bitwarden/team-key-management-dev
