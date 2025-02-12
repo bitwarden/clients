@@ -80,9 +80,9 @@ export class DeviceManagementComponent {
           return;
         }
         // Handle inserting a new device when an auth request is received
-        this.handleAuthRequest(message as { command: string; notificationId: string }).catch(
-          (error) => this.validationService.showError(error),
-        );
+        this.upsertDeviceWithPendingAuthRequest(
+          message as { command: string; notificationId: string },
+        ).catch((error) => this.validationService.showError(error));
       });
     } catch (error) {
       this.validationService.showError(error);
@@ -93,7 +93,7 @@ export class DeviceManagementComponent {
    * Handle inserting a new device when an auth request is received
    * @param message - The auth request message
    */
-  private async handleAuthRequest(message: {
+  private async upsertDeviceWithPendingAuthRequest(message: {
     command: string;
     notificationId: string;
   }): Promise<void> {
