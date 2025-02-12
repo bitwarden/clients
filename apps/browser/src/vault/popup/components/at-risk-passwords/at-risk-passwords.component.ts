@@ -25,7 +25,6 @@ import {
 } from "@bitwarden/components";
 import {
   filterOutNullish,
-  OrgIconDirective,
   PasswordRepromptService,
   SecurityTaskType,
   TaskService,
@@ -49,7 +48,6 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
     JslibModule,
     BadgeComponent,
     TypographyModule,
-    OrgIconDirective,
     CalloutModule,
     ButtonModule,
   ],
@@ -74,7 +72,7 @@ export class AtRiskPasswordsComponent {
     switchMap((user) =>
       combineLatest([
         this.taskService.pendingTasks$(user.id),
-        this.cipherService.cipherViews$.pipe(
+        this.cipherService.cipherViews$(user.id).pipe(
           filterOutNullish(),
           map((ciphers) => Object.fromEntries(ciphers.map((c) => [c.id, c]))),
         ),
