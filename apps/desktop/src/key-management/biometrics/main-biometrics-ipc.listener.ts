@@ -32,6 +32,9 @@ export class MainBiometricsIPCListener {
           case BiometricAction.GetStatusForUser:
             return await this.biometricService.getBiometricsStatusForUser(message.userId as UserId);
           case BiometricAction.SetKeyForUser:
+            if (message.key == null) {
+              return;
+            }
             return await this.biometricService.setBiometricProtectedUnlockKeyForUser(
               message.userId as UserId,
               message.key,
@@ -41,6 +44,9 @@ export class MainBiometricsIPCListener {
               message.userId as UserId,
             );
           case BiometricAction.SetClientKeyHalf:
+            if (message.key == null) {
+              return;
+            }
             return await this.biometricService.setClientKeyHalfForUser(
               message.userId as UserId,
               message.key,
