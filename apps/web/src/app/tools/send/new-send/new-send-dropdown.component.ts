@@ -51,7 +51,7 @@ export class NewSendDropdownComponent implements OnInit {
       return await this.router.navigate(["settings/subscription/premium"]);
     }
 
-    const formConfig = await this.addEditFormConfigService.buildConfig("add", null, type);
+    const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
 
     await SendAddEditComponent.open(this.dialogService, { formConfig });
   }
