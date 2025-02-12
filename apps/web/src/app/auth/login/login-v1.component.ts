@@ -162,7 +162,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
       }
     }
 
-    this.loginEmailService.clearValues();
+    this.loginEmailService.clearLoginEmail();
     await this.router.navigate([this.successRoute]);
   }
 
