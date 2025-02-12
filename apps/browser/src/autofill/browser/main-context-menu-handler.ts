@@ -31,6 +31,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
 export class MainContextMenuHandler {
+  static existingMenuItems: Set<string> = new Set();
   initRunning = false;
   private initContextMenuItems: InitContextMenuItems[] = [
     {
@@ -213,12 +214,16 @@ export class MainContextMenuHandler {
     }
 
     return new Promise<void>((resolve, reject) => {
-      chrome.contextMenus.create(options, () => {
+      const itemId = chrome.contextMenus.create(options, () => {
         if (chrome.runtime.lastError) {
           return reject(chrome.runtime.lastError);
         }
         resolve();
       });
+
+      this.existingMenuItems.add(`${itemId}`);
+
+      return itemId;
     });
   };
 
@@ -232,12 +237,16 @@ export class MainContextMenuHandler {
 
         resolve();
       });
+
+      this.existingMenuItems = new Set();
+
+      return;
     });
   }
 
   static remove(menuItemId: string) {
     return new Promise<void>((resolve, reject) => {
-      chrome.contextMenus.remove(menuItemId, () => {
+      const itemId = chrome.contextMenus.remove(menuItemId, () => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
           return;
@@ -245,6 +254,10 @@ export class MainContextMenuHandler {
 
         resolve();
       });
+
+      this.existingMenuItems.delete(`${itemId}`);
+
+      return;
     });
   }
 
@@ -255,6 +268,11 @@ export class MainContextMenuHandler {
       const createChildItem = async (parentId: string) => {
         const menuItemId = `${parentId}_${optionId}`;
 
+        const itemAlreadyExists = MainContextMenuHandler.existingMenuItems.has(menuItemId);
+        if (itemAlreadyExists) {
+          return;
+        }
+
         return await MainContextMenuHandler.create({
           type: "normal",
           id: menuItemId,
@@ -263,6 +281,16 @@ export class MainContextMenuHandler {
           contexts: ["all"],
         });
       };
+
+      if (
+        !cipher ||
+        (cipher.type === CipherType.Login &&
+          (!Utils.isNullOrEmpty(cipher.login?.username) ||
+            !Utils.isNullOrEmpty(cipher.login?.password) ||
+            !Utils.isNullOrEmpty(cipher.login?.totp)))
+      ) {
+        await createChildItem(AUTOFILL_ID);
+      }
 
       if (
         !cipher ||
@@ -284,18 +312,8 @@ export class MainContextMenuHandler {
       const canAccessPremium = await firstValueFrom(
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       );
-      if (canAccessPremium && (!cipher || !Utils.isNullOrEmpty(cipher?.login?.totp))) {
+      if (canAccessPremium && (!cipher || !Utils.isNullOrEmpty(cipher.login?.totp))) {
         await createChildItem(COPY_VERIFICATION_CODE_ID);
-      }
-
-      if (
-        !cipher ||
-        (cipher.type === CipherType.Login &&
-          (!Utils.isNullOrEmpty(cipher.login?.username) ||
-            !Utils.isNullOrEmpty(cipher.login?.password) ||
-            !Utils.isNullOrEmpty(cipher.login?.totp)))
-      ) {
-        await createChildItem(AUTOFILL_ID);
       }
 
       if ((!cipher || cipher.type === CipherType.Card) && optionId !== CREATE_LOGIN_ID) {
