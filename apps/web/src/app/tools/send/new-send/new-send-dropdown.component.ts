@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -16,7 +16,7 @@ import { SendAddEditComponent } from "../send-add-edit.component";
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
   standalone: true,
-  imports: [JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule, BadgeModule],
+  imports: [JslibModule, CommonModule, ButtonModule, MenuModule, BadgeModule],
   providers: [DefaultSendFormConfigService],
 })
 export class NewSendDropdownComponent implements OnInit {
