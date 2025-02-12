@@ -9,20 +9,24 @@ import {
   EventEmitter,
   inject,
   Input,
-  OnInit,
   Output,
   Signal,
   signal,
   ViewChild,
+  computed,
+  OnInit,
+  ChangeDetectionStrategy,
+  input,
 } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
-import { map } from "rxjs";
+import { Router } from "@angular/router";
+import { firstValueFrom, Observable, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
@@ -62,7 +66,6 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     TypographyModule,
     JslibModule,
     SectionHeaderComponent,
-    RouterLink,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
@@ -74,6 +77,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   private compactModeService = inject(CompactModeService);
@@ -111,11 +115,51 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
    */
   private viewCipherTimeout: number | null;
 
+  ciphers = input<PopupCipherView[]>([]);
+
   /**
-   * The list of ciphers to display.
+   * If true, we will group ciphers by type (Login, Card, Identity)
+   * within subheadings in a single container, converted to a WritableSignal.
    */
-  @Input()
-  ciphers: PopupCipherView[] = [];
+  groupByType = input<boolean>(false);
+
+  /**
+   * Computed signal for a grouped list of ciphers with an optional header
+   */
+  cipherGroups$ = computed<
+    {
+      subHeaderKey?: string | null;
+      ciphers: PopupCipherView[];
+    }[]
+  >(() => {
+    const groups: { [key: string]: CipherView[] } = {};
+
+    this.ciphers().forEach((cipher) => {
+      let groupKey;
+
+      if (this.groupByType()) {
+        switch (cipher.type) {
+          case CipherType.Card:
+            groupKey = "cards";
+            break;
+          case CipherType.Identity:
+            groupKey = "identities";
+            break;
+        }
+      }
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+
+      groups[groupKey].push(cipher);
+    });
+
+    return Object.keys(groups).map((key) => ({
+      subHeaderKey: this.groupByType ? key : "",
+      ciphers: groups[key],
+    }));
+  });
 
   /**
    * Title for the vault list item section.
@@ -152,10 +196,39 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   onRefresh = new EventEmitter<void>();
 
   /**
+   * Flag indicating that the current tab location is blocked
+   */
+  currentURIIsBlocked$: Observable<boolean> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$;
+
+  /**
+   * Resolved i18n key to use for suggested cipher items
+   */
+  cipherItemTitleKey = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) =>
+      this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle",
+    ),
+  );
+
+  /**
    * Option to show the autofill button for each item.
    */
   @Input({ transform: booleanAttribute })
   showAutofillButton: boolean;
+
+  /**
+   * Flag indicating whether the suggested cipher item autofill button should be shown or not
+   */
+  hideAutofillButton$ = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) => !this.showAutofillButton || uriIsBlocked || this.primaryActionAutofill),
+  );
+
+  /**
+   * Flag indicating whether the cipher item autofill options should be shown or not
+   */
+  hideAutofillOptions$: Observable<boolean> = this.currentURIIsBlocked$.pipe(
+    map((uriIsBlocked) => uriIsBlocked || this.showAutofillButton),
+  );
 
   /**
    * Option to perform autofill operation as the primary action for autofill suggestions.
@@ -214,6 +287,14 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
+  }
+
+  async primaryActionOnSelect(cipher: CipherView) {
+    const isBlocked = await firstValueFrom(this.currentURIIsBlocked$);
+
+    return this.primaryActionAutofill && !isBlocked
+      ? this.doAutofill(cipher)
+      : this.onViewCipher(cipher);
   }
 
   /**

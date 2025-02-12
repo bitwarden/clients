@@ -22,7 +22,7 @@
       [routerLink]="[]"
       [queryParams]="{ itemId: cipher.id, action: clickAction }"
       queryParamsHandling="merge"
-      [replaceUrl]="extensionRefreshEnabled"
+      [replaceUrl]="true"
       title="{{ 'editItemWithName' | i18n: cipher.name }}"
       type="button"
       appStopProp

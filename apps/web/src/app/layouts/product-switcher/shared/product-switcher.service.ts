@@ -2,7 +2,16 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationStart, ParamMap, Router } from "@angular/router";
-import { combineLatest, concatMap, filter, map, Observable, ReplaySubject, startWith } from "rxjs";
+import {
+  combineLatest,
+  concatMap,
+  filter,
+  map,
+  Observable,
+  ReplaySubject,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import {
@@ -11,6 +20,8 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 
 export type ProductSwitcherItem = {
@@ -90,18 +101,21 @@ export class ProductSwitcherService {
     private router: Router,
     private i18n: I18nPipe,
     private syncService: SyncService,
+    private accountService: AccountService,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.pollUntilSynced();
   }
 
+  organizations$ = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    switchMap((id) => this.organizationService.organizations$(id)),
+  );
+
   products$: Observable<{
     bento: ProductSwitcherItem[];
     other: ProductSwitcherItem[];
-  }> = combineLatest([
-    this.organizationService.organizations$,
-    this.route.paramMap,
-    this.triggerProductUpdate$,
-  ]).pipe(
+  }> = combineLatest([this.organizations$, this.route.paramMap, this.triggerProductUpdate$]).pipe(
     map(([orgs, ...rest]): [Organization[], ParamMap, void] => {
       return [
         // Sort orgs by name to match the order within the sidebar
@@ -138,6 +152,16 @@ export class ProductSwitcherService {
 
       // TODO: This should be migrated to an Observable provided by the provider service and moved to the combineLatest above. See AC-2092.
       const providers = await this.providerService.getAll();
+
+      const orgsMarketingRoute = this.platformUtilsService.isSelfHost()
+        ? {
+            route: "https://bitwarden.com/products/business/",
+            external: true,
+          }
+        : {
+            route: "/create-organization",
+            external: false,
+          };
 
       const products = {
         pm: {
@@ -185,10 +209,7 @@ export class ProductSwitcherService {
         orgs: {
           name: "Organizations",
           icon: "bwi-business",
-          marketingRoute: {
-            route: "https://bitwarden.com/products/business/",
-            external: true,
-          },
+          marketingRoute: orgsMarketingRoute,
           otherProductOverrides: {
             name: "Share your passwords",
             supportingText: this.i18n.transform("protectYourFamilyOrBusiness"),

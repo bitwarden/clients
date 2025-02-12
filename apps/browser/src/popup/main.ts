@@ -4,7 +4,9 @@ import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("./scss/popup.scss");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("./scss/tailwind.css");
 
 import { AppModule } from "./app.module";

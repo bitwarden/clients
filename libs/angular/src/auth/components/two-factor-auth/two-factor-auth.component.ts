@@ -214,7 +214,7 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     }
   }
 
-  async selectOtherTwofactorMethod() {
+  async selectOtherTwoFactorMethod() {
     const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
     const response: TwoFactorOptionsDialogResultType = await lastValueFrom(dialogRef.closed);
     if (response.result === TwoFactorOptionsDialogResult.Provider) {
@@ -262,7 +262,8 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
     // - Browser SSO on extension open
-    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier);
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier, userId);
     this.loginEmailService.clearValues();
 
     // note: this flow affects both TDE & standard users

@@ -142,6 +142,13 @@ export class CipherView implements View, InitializerMetadata {
     );
   }
 
+  get canAssignToCollections(): boolean {
+    if (this.organizationId == null) {
+      return true;
+    }
+
+    return this.edit && this.viewPassword;
+  }
   /**
    * Determines if the cipher can be launched in a new browser tab.
    */
@@ -155,6 +162,8 @@ export class CipherView implements View, InitializerMetadata {
       return null;
     }
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const item = this.item;
     return this.item[linkedFieldOption.propertyKey as keyof typeof item];
   }

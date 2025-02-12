@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "short_name": "__MSG_appName__",
-  "version": "2025.1.0",
+  "version": "2025.2.1",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
   "author": "Bitwarden Inc.",
@@ -146,7 +146,6 @@
   },
   "web_accessible_resources": [
     "content/fido2-page-script.js",
-    "content/lp-suppress-import-download.js",
     "notification/bar.html",
     "images/icon38.png",
     "images/icon38_locked.png",

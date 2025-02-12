@@ -15,7 +15,7 @@ import {
   BiometricsStatus,
   BiometricStateService,
 } from "@bitwarden/key-management";
-import { UnlockOptions } from "@bitwarden/key-management/angular";
+import { UnlockOptions } from "@bitwarden/key-management-ui";
 
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 

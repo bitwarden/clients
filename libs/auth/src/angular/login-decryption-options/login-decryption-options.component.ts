@@ -107,7 +107,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private validationService: ValidationService,
   ) {
-    this.clientType === this.platformUtilsService.getClientType();
+    this.clientType = this.platformUtilsService.getClientType();
   }
 
   async ngOnInit() {
@@ -202,7 +202,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     });
 
     const autoEnrollStatus$ = defer(() =>
-      this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(),
+      this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(this.activeAccountId),
     ).pipe(
       switchMap((organizationIdentifier) => {
         if (organizationIdentifier == undefined) {

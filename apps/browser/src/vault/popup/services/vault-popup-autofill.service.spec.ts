@@ -4,6 +4,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -20,14 +21,12 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
 import {
   AutoFillOptions,
   AutofillService,
   PageDetail,
 } from "../../../autofill/services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 
@@ -44,6 +43,7 @@ describe("VaultPopupAutofillService", () => {
 
   // Create mocks for VaultPopupAutofillService
   const mockAutofillService = mock<AutofillService>();
+  const mockDomainSettingsService = mock<DomainSettingsService>();
   const mockI18nService = mock<I18nService>();
   const mockToastService = mock<ToastService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
@@ -71,6 +71,7 @@ describe("VaultPopupAutofillService", () => {
     testBed = TestBed.configureTestingModule({
       providers: [
         { provide: AutofillService, useValue: mockAutofillService },
+        { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ToastService, useValue: mockToastService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },

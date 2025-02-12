@@ -22,11 +22,6 @@ export abstract class SendApiService {
   postSend: (request: SendRequest) => Promise<SendResponse>;
   postFileTypeSend: (request: SendRequest) => Promise<SendFileUploadDataResponse>;
   postSendFile: (sendId: string, fileId: string, data: FormData) => Promise<any>;
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  postSendFileLegacy: (data: FormData) => Promise<SendResponse>;
   putSend: (id: string, request: SendRequest) => Promise<SendResponse>;
   putSendRemovePassword: (id: string) => Promise<SendResponse>;
   deleteSend: (id: string) => Promise<any>;

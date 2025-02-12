@@ -2,13 +2,11 @@
 // @ts-strict-ignore
 import { Observable, Subject, firstValueFrom, map, shareReplay, switchMap, merge } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { KeyService } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
