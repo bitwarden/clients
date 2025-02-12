@@ -261,10 +261,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
-
     this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
       FeatureFlag.ResellerManagedOrgAlert,
     );
