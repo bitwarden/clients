@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom } from "rxjs";
+import { Component, OnDestroy } from "@angular/core";
+import { combineLatest, firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { AuthRequestApiService } from "@bitwarden/auth/common";
@@ -48,11 +47,12 @@ interface DeviceTableData {
   standalone: true,
   imports: [CommonModule, SharedModule, TableModule, PopoverModule],
 })
-export class DeviceManagementComponent {
+export class DeviceManagementComponent implements OnDestroy {
   protected dataSource = new TableDataSource<DeviceTableData>();
   protected currentDevice: DeviceView | undefined;
   protected loading = true;
   protected asyncActionLoading = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private i18nService: I18nService,
@@ -66,16 +66,19 @@ export class DeviceManagementComponent {
     void this.initializeDevices();
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   /**
    * Initialize the devices list and set up the message listener
    */
   private async initializeDevices(): Promise<void> {
     try {
-      // Load devices
       await this.loadDevices();
 
-      // Listen for auth request messages
-      this.messageListener.allMessages$.pipe(takeUntilDestroyed()).subscribe((message) => {
+      this.messageListener.allMessages$.pipe(takeUntil(this.destroy$)).subscribe((message) => {
         if (message.command !== "openLoginApproval") {
           return;
         }
