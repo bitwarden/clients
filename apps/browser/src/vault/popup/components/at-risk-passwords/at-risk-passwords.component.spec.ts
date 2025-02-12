@@ -126,7 +126,7 @@ describe("AtRiskPasswordsComponent", () => {
         {
           provide: CipherService,
           useValue: {
-            cipherViews$: mockCiphers$,
+            cipherViews$: () => mockCiphers$,
           },
         },
         { provide: I18nService, useValue: { t: (key: string) => key } },
