@@ -68,7 +68,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     switchMap((userId) =>
       combineLatest([
         this.folderService.folderViews$(userId),
-        this.cipherService.cipherViews$,
+        this.cipherService.cipherViews$(userId),
         this._organizationFilter,
       ]),
     ),

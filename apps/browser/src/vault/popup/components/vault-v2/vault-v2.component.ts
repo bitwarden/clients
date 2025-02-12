@@ -3,9 +3,20 @@ import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { combineLatest, filter, map, Observable, shareReplay, switchMap, take } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  map,
+  firstValueFrom,
+  Observable,
+  shareReplay,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -96,6 +107,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
     private vaultScrollPositionService: VaultPopupScrollPositionService,
+    private accountService: AccountService,
     private destroyRef: DestroyRef,
     private cipherService: CipherService,
     private dialogService: DialogService,
@@ -136,7 +148,10 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.cipherService.failedToDecryptCiphers$
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    this.cipherService
+      .failedToDecryptCiphers$(activeUserId)
       .pipe(
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
