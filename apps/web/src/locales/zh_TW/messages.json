@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "編輯資料夾"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "基底網域",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "項目名"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "例如",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "登入已發起"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "submit": {
     "message": "送出"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "通知已傳送至您的裝置。"
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "已傳送通知至您的裝置"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "版本 $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "重新產生密碼"
   },
   "length": {
     "message": "長度"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "管理"
   },
-  "canManage": {
-    "message": "可以管理"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "停用"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "讀取安全鑰匙時發生問題。請再試一次。"
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "由於平台限制，無法於所有 Bitwarden 應用程式中使用 WebAuthn。請設定另一套兩步驟登入方式，以確保在 WebAuthn 無法使用時還能存取您的帳戶。支援的平台有："
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "桌上型電腦/筆記型電腦上支援 WebAuthn 功能的瀏覽器（啟用了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）上的網頁版密碼庫和瀏覽器擴充套件。"
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "您的 Bitwarden 兩步驟登入復原碼"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "設定密碼產生器要求。"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "一個或多個組織原則正影響密碼產生器設定。"
-  },
   "masterPasswordPolicyInEffect": {
     "message": "一個或多個組織原則要求您的主密碼須符合下列條件："
   },
@@ -6681,15 +6717,6 @@
     "message": "產生器",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "您想要產生什麼？"
-  },
-  "passwordType": {
-    "message": "密碼類型"
-  },
-  "regenerateUsername": {
-    "message": "重新產生使用者名稱"
-  },
   "generateUsername": {
     "message": "產生使用者名稱"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "使用者名稱類型"
   },
   "plusAddressedEmail": {
     "message": "加號地址電子郵件",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "主機名稱",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API 存取權杖"
   },
   "deviceVerification": {
     "message": "裝置驗證"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "沒有分類"
-  },
-  "canView": {
-    "message": "可以檢視"
-  },
-  "canViewExceptPass": {
-    "message": "可以檢視（除了密碼）"
-  },
-  "canEdit": {
-    "message": "可以編輯"
-  },
-  "canEditExceptPass": {
-    "message": "可以編輯（除了密碼）"
   },
   "noCollectionsAdded": {
     "message": "未新增任何分類"
@@ -8677,9 +8686,6 @@
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "別名網域"
-  },
   "alreadyHaveAccount": {
     "message": "已經有一個帳戶了嗎？"
   },
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Missing Can Manage Permissions"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Descriptor code"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Important notice"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
   }
 }

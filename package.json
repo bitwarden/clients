@@ -117,7 +117,7 @@
     "lint-staged": "15.4.1",
     "mini-css-extract-plugin": "2.9.2",
     "node-ipc": "9.2.1",
-    "postcss": "8.4.49",
+    "postcss": "8.5.1",
     "postcss-loader": "8.1.1",
     "prettier": "3.4.2",
     "prettier-plugin-tailwindcss": "0.6.10",

@@ -84,23 +84,25 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
-
     const themeType = getTheme(globalThis, theme);
 
     // There are other possible passed theme values, but for now, resolve to dark or light
     const resolvedTheme: Theme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
 
-    // @TODO use context to avoid prop drilling
-    return render(
-      NotificationContainer({
-        ...notificationBarIframeInitData,
-        type: notificationBarIframeInitData.type as NotificationType,
-        theme: resolvedTheme,
-        handleCloseNotification,
-        i18n,
-      }),
-      document.body,
-    );
+    sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, (cipherData) => {
+      // @TODO use context to avoid prop drilling
+      return render(
+        NotificationContainer({
+          ...notificationBarIframeInitData,
+          type: notificationBarIframeInitData.type as NotificationType,
+          theme: resolvedTheme,
+          handleCloseNotification,
+          i18n,
+          ciphers: cipherData,
+        }),
+        document.body,
+      );
+    });
   }
 
   setNotificationBarTheme();

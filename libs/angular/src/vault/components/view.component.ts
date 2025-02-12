@@ -11,7 +11,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { filter, firstValueFrom, map, Observable } from "rxjs";
+import { filter, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -33,7 +33,7 @@ import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
@@ -65,7 +65,6 @@ export class ViewComponent implements OnDestroy, OnInit {
   showPrivateKey: boolean;
   canAccessPremium: boolean;
   showPremiumRequiredTotp: boolean;
-  showUpgradeRequiredTotp: boolean;
   totpCode: string;
   totpCodeFormatted: string;
   totpDash: number;
@@ -81,6 +80,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   private passwordReprompted = false;
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+  private destroyed$ = new Subject<void>();
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -146,24 +146,24 @@ export class ViewComponent implements OnDestroy, OnInit {
 
     const activeUserId = await firstValueFrom(this.activeUserId$);
     // Grab individual cipher from `cipherViews$` for the most up-to-date information
-    this.cipher = await firstValueFrom(
-      this.cipherService.cipherViews$.pipe(
-        map((ciphers) => ciphers.find((c) => c.id === this.cipherId)),
+    this.cipherService.cipherViews$
+      .pipe(
+        map((ciphers) => ciphers?.find((c) => c.id === this.cipherId)),
         filter((cipher) => !!cipher),
-      ),
-    );
+        takeUntil(this.destroyed$),
+      )
+      .subscribe((cipher) => {
+        this.cipher = cipher;
+      });
 
     this.canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
     );
     this.showPremiumRequiredTotp =
-      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationId;
+      this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
       this.collectionId as CollectionId,
     ]);
-
-    this.showUpgradeRequiredTotp =
-      this.cipher.login.totp && this.cipher.organizationId && !this.cipher.organizationUseTotp;
 
     if (this.cipher.folderId) {
       this.folder = await (
@@ -171,11 +171,11 @@ export class ViewComponent implements OnDestroy, OnInit {
       ).find((f) => f.id == this.cipher.folderId);
     }
 
-    const canGenerateTotp = this.cipher.organizationId
-      ? this.cipher.organizationUseTotp
-      : this.canAccessPremium;
-
-    if (this.cipher.type === CipherType.Login && this.cipher.login.totp && canGenerateTotp) {
+    if (
+      this.cipher.type === CipherType.Login &&
+      this.cipher.login.totp &&
+      (this.cipher.organizationUseTotp || this.canAccessPremium)
+    ) {
       await this.totpUpdateCode();
       const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
       await this.totpTick(interval);
@@ -524,6 +524,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.showCardNumber = false;
     this.showCardCode = false;
     this.passwordReprompted = false;
+    this.destroyed$.next();
     if (this.totpInterval) {
       clearInterval(this.totpInterval);
     }

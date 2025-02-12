@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "Laitteellesi on lähetetty ilmoitus."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Laitteeseesi lähetettiin ilmoitus"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelausekkeen"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Sinulle ilmoitetaan, kun pyyntö on hyväksytty"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "Kirjautuminen aloitettu"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "Paljastunut pääsalasana"
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "Kohteen nimi"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Et voi poistaa kokoelmia, joihin sinulla on vain tarkasteluoikeus: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organisaatio on poistettu käytöstä"
   },
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "Erittäin leveä"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Et voi poistaa kokoelmia, joihin sinulla on vain tarkasteluoikeus: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Päivitä työpöytäsovellus"
