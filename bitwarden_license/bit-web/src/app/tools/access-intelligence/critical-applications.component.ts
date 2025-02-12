@@ -123,7 +123,21 @@ export class CriticalApplicationsComponent implements OnInit {
       cipherId: cipherId as CipherId,
       type: SecurityTaskType.UpdateAtRiskCredential,
     }));
-    await this.adminTaskService.bulkCreateTasks(this.organizationId as OrganizationId, tasks);
+
+    try {
+      await this.adminTaskService.bulkCreateTasks(this.organizationId as OrganizationId, tasks);
+      this.toastService.showToast({
+        message: this.i18nService.t("notifiedMembers"),
+        variant: "success",
+        title: this.i18nService.t("success"),
+      });
+    } catch {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        variant: "error",
+        title: this.i18nService.t("error"),
+      });
+    }
   }
 
   constructor(
