@@ -49,7 +49,6 @@ interface DeviceTableData {
   imports: [CommonModule, SharedModule, TableModule, PopoverModule],
 })
 export class DeviceManagementComponent {
-  protected readonly retableId = "device-management-table";
   protected dataSource = new TableDataSource<DeviceTableData>();
   protected currentDevice: DeviceView | undefined;
   protected loading = true;
