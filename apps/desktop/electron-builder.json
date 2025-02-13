@@ -137,7 +137,8 @@
     "extendInfo": {
       "LSMinimumSystemVersion": "12",
       "ElectronTeamID": "LTZ2PFU5D6"
-    }
+    },
+    "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile"
   },
   "nsisWeb": {
     "oneClick": false,
