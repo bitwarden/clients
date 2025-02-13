@@ -255,6 +255,7 @@ export class VaultPopupListFiltersService {
         }),
       ];
     }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
@@ -330,6 +331,7 @@ export class VaultPopupListFiltersService {
         ),
       );
     }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
@@ -366,6 +368,7 @@ export class VaultPopupListFiltersService {
     map((collections) =>
       collections.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection")),
     ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /** Organizations, collection, folders filters. */
