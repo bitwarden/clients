@@ -5,8 +5,9 @@ import { Overlay } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ButtonModule, DialogService } from "@bitwarden/components";
+import { AlgorithmInfo } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
@@ -38,13 +39,12 @@ export enum GeneratorDialogAction {
     CommonModule,
     CipherFormGeneratorComponent,
     ButtonModule,
+    I18nPipe,
   ],
 })
 export class VaultGeneratorDialogComponent {
-  protected title = this.i18nService.t(this.isPassword ? "passwordGenerator" : "usernameGenerator");
-  protected selectButtonText = this.i18nService.t(
-    this.isPassword ? "useThisPassword" : "useThisUsername",
-  );
+  protected selectButtonText: string | undefined;
+  protected titleKey = this.isPassword ? "passwordGenerator" : "usernameGenerator";
 
   /**
    * Whether the dialog is generating a password/passphrase. If false, it is generating a username.
@@ -63,7 +63,6 @@ export class VaultGeneratorDialogComponent {
   constructor(
     @Inject(DIALOG_DATA) protected params: GeneratorDialogParams,
     private dialogRef: DialogRef<GeneratorDialogResult>,
-    private i18nService: I18nService,
   ) {}
 
   /**
@@ -86,6 +85,16 @@ export class VaultGeneratorDialogComponent {
   onValueGenerated(value: string) {
     this.generatedValue = value;
   }
+
+  onAlgorithmSelected = (selected?: AlgorithmInfo) => {
+    if (selected) {
+      this.selectButtonText = selected.useGeneratedValue;
+    } else {
+      // clear the credential value when the user is
+      // selecting the credential generation algorithm
+      this.generatedValue = undefined;
+    }
+  };
 
   /**
    * Opens the vault generator dialog in a full screen dialog.
