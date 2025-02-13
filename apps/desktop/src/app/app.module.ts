@@ -15,7 +15,6 @@ import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { EnvironmentComponent } from "../auth/environment.component";
 import { HintComponent } from "../auth/hint.component";
 import { LoginModule } from "../auth/login/login.module";
-import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
@@ -80,7 +79,6 @@ import { SendComponent } from "./tools/send/send.component";
     NavComponent,
     PasswordHistoryComponent,
     PremiumComponent,
-    RegisterComponent,
     RemovePasswordComponent,
     SearchComponent,
     SendAddEditComponent,
