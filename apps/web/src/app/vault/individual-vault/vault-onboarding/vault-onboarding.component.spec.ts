@@ -13,11 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import {
-  FakeAccountService,
-  FakeStateProvider,
-  mockAccountServiceWith,
-} from "@bitwarden/common/spec";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
@@ -37,6 +33,7 @@ describe("VaultOnboardingComponent", () => {
   let individualVaultPolicyCheckSpy: any;
   let mockConfigService: MockProxy<ConfigService>;
   const mockAccountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
+  let mockStateProvider: Partial<StateProvider>;
 
   beforeEach(() => {
     mockPolicyService = mock<PolicyService>();
@@ -70,7 +67,6 @@ describe("VaultOnboardingComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: StateProvider, useValue: mockStateProvider },
-
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(VaultOnboardingComponent);
