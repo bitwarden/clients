@@ -363,7 +363,8 @@ describe("Cipher Service", () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
 
-      searchService.indexedEntityId$ = of(null);
+      searchService.indexedEntityId$.mockReturnValue(of(null));
+
       stateService.getUserId.mockResolvedValue(mockUserId);
 
       const keys = {

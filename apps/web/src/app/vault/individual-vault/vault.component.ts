@@ -348,8 +348,13 @@ export class VaultComponent implements OnInit, OnDestroy {
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
-        if (await this.searchService.isSearchable(searchText)) {
-          return await this.searchService.searchCiphers(searchText, [filterFunction], allCiphers);
+        if (await this.searchService.isSearchable(activeUserId, searchText)) {
+          return await this.searchService.searchCiphers(
+            activeUserId,
+            searchText,
+            [filterFunction],
+            allCiphers,
+          );
         }
 
         return allCiphers.filter(filterFunction);
@@ -378,7 +383,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
         }
 
-        if (await this.searchService.isSearchable(searchText)) {
+        if (await this.searchService.isSearchable(activeUserId, searchText)) {
           collectionsToReturn = this.searchPipe.transform(
             collectionsToReturn,
             searchText,
