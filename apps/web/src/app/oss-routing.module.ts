@@ -90,8 +90,7 @@ import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
 import { ReportsModule } from "./tools/reports";
-import { AccessComponent } from "./tools/send/access.component";
-import { SendAccessExplainerComponent } from "./tools/send/send-access-explainer.component";
+import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 

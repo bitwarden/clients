@@ -186,16 +186,6 @@
               </span>
             </div>
           </div>
-          <div class="box-content-row box-content-row-flex totp" *ngIf="showUpgradeRequiredTotp">
-            <div class="row-main">
-              <span class="row-label">{{ "verificationCodeTotp" | i18n }}</span>
-              <span class="row-label">
-                <a [routerLink]="" (click)="upgradeOrganization()"
-                  >{{ "organizationUpgradeRequired" | i18n }}
-                </a>
-              </span>
-            </div>
-          </div>
         </div>
         <!-- Card -->
         <div *ngIf="cipher.card">
