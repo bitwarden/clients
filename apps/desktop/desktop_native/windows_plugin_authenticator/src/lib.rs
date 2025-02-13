@@ -15,8 +15,9 @@ use pa::{
 };
 use std::ffi::c_uchar;
 use std::ptr;
-use windows::Win32::Foundation::*;
 use windows::Win32::System::Com::*;
+use windows::Win32::Foundation::*;
+use windows::Win32::System::LibraryLoader::*;
 use windows_core::*;
 
 pub fn register() -> i32 {
@@ -77,34 +78,109 @@ pub fn register() -> i32 {
 
     let mut pbPluginIdKey: u8 = 0;
 
+    /*
+        pub struct _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
+            pub pwszAuthenticatorName: LPCWSTR,
+            pub pwszPluginClsId: LPCWSTR,
+            pub pwszPluginRpId: LPCWSTR,
+            pub pwszLightThemeLogo: LPCWSTR,
+            pub pwszDarkThemeLogo: LPCWSTR,
+            pub cbAuthenticatorInfo: DWORD,
+            pub pbAuthenticatorInfo: PBYTE,
+            pub cbPluginIdKey: DWORD,
+            pub pbPluginIdKey: PBYTE,
+        }
+    */
+
+    // The following hex strings represent the encoding of
+    // {1: ["FIDO_2_0", "FIDO_2_1"], 2: ["prf", "hmac-secret"], 3: h'/* AAGUID */', 4: {"rk": true, "up": true, "uv": true}, 
+    // 9: ["internal"], 10: [{"alg": -7, "type": "public-key"}]}
+
+    // D548826E79B4DB40A3D811116F7E8349
+    let cbor_thing = "A60182684649444F5F325F30684649444F5F325F310282637072666B686D61632D7365637265740350D548826E79B4DB40A3D811116F7E834904A362726BF5627570F5627576F5098168696E7465726E616C0A81A263616C672664747970656A7075626C69632D6B6579";
+    let mut h = hex::decode(cbor_thing).unwrap();
+
     let mut add_options = _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
         pwszAuthenticatorName: authenticator_name_ptr,
         pwszPluginClsId: clsid_ptr,
-        pwszAaguid: aaguid_ptr,
         pwszPluginRpId: relying_party_id_ptr,
-        pwszLogo: ptr::null_mut(),
+        pwszLightThemeLogo: ptr::null_mut(),
+        pwszDarkThemeLogo: ptr::null_mut(),
+        cbAuthenticatorInfo: h.len() as u32,
+        pbAuthenticatorInfo: h.as_mut_ptr(),
         cbPluginIdKey: 0 as u32,
-        pbPluginIdKey: &mut pbPluginIdKey,
+        pbPluginIdKey: ptr::null_mut(),
     };
 
     // build the response
-    let cbUvPubKey: DWORD = 0;
-    let mut pbUvPubKey: c_uchar = 0;
-    let pbUvPubKey_ptr: PBYTE = &mut pbUvPubKey;
+
+    /*
+        pub struct _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
+            pub cbOpSignPubKey: DWORD,
+            pub pbOpSignPubKey: PBYTE,
+        }
+    */
+
+    let cbOpSignPubKey: DWORD = 0;
+    let mut pbOpSignPubKey: c_uchar = 0;
+    let pbOpSignPubKey_ptr: PBYTE = &mut pbOpSignPubKey;
 
     let mut add_response = EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE {
-        cbUvPubKey: cbUvPubKey,
-        pbUvPubKey: pbUvPubKey_ptr,
+        cbOpSignPubKey: cbOpSignPubKey,
+        pbOpSignPubKey: pbOpSignPubKey_ptr,
     };
 
     let mut add_response_ptr: *mut EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE = &mut add_response;
 
     // Add the authenticator
-    let r: i32 = unsafe { EXPERIMENTAL_WebAuthNPluginAddAuthenticator(&mut add_options, &mut add_response_ptr) };
+    //let r: i32 = unsafe { EXPERIMENTAL_WebAuthNPluginAddAuthenticator(&mut add_options, &mut add_response_ptr) };
 
-    println!("AddAuthenticator() -> {:?}/n{:?}", r, HRESULT(r).message());
+    //println!("AddAuthenticator() -> {:?}/n{:?}", r, HRESULT(r).message());
+
+    unsafe {
+        if let Some(api) = delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorType>(s!("webauthn.dll"), s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"))
+        {
+            let r: HRESULT = api(&mut add_options, &mut add_response_ptr);
+            println!("AddAuthenticator() -> {:?}/n{:?}", r, r.message());
+            let err = GetLastError();
+            println!("Last error: {:?}", err);
+        } else {
+            println!("Can't find API");
+        }
+    }
 
     8
+}
+
+/*
+unsafe extern "C" {
+    pub fn EXPERIMENTAL_WebAuthNPluginAddAuthenticator(
+        pPluginAddAuthenticatorOptions: EXPERIMENTAL_PCWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
+        ppPluginAddAuthenticatorResponse : * mut EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
+    ) -> HRESULT;
+}
+*/
+
+type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorType = unsafe extern "cdecl" fn(
+    pPluginAddAuthenticatorOptions: pa::EXPERIMENTAL_PCWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
+    ppPluginAddAuthenticatorResponse : *mut pa::EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
+) -> HRESULT;
+
+pub unsafe fn delay_load<T>(library: PCSTR, function: PCSTR) -> Option<T> {
+    let library = LoadLibraryExA(library, None, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+
+    let Ok(library) = library else {
+        return None;
+    };
+
+    let address = GetProcAddress(library, function);
+
+    if address.is_some() {
+        return Some(std::mem::transmute_copy(&address));
+    }
+
+    _ = FreeLibrary(library);
+    None
 }
 
 pub fn get_test_number() -> i32 {
