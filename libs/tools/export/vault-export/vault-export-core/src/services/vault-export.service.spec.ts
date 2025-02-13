@@ -197,7 +197,7 @@ describe("VaultExportService", () => {
   it("exports unencrypted user ciphers", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
 
-    const actual = await exportService.getExport("json");
+    const actual = (await exportService.getExport("json")) as string;
 
     expectEqualCiphers(UserCipherViews.slice(0, 1), actual);
   });
@@ -205,7 +205,7 @@ describe("VaultExportService", () => {
   it("exports encrypted json user ciphers", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
 
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = (await exportService.getExport("encrypted_json")) as string;
 
     expectEqualCiphers(UserCipherDomains.slice(0, 1), actual);
   });
@@ -213,7 +213,7 @@ describe("VaultExportService", () => {
   it("does not unencrypted export trashed user items", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews);
 
-    const actual = await exportService.getExport("json");
+    const actual = (await exportService.getExport("json")) as string;
 
     expectEqualCiphers(UserCipherViews.slice(0, 2), actual);
   });
@@ -221,7 +221,7 @@ describe("VaultExportService", () => {
   it("does not encrypted export trashed user items", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains);
 
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = (await exportService.getExport("encrypted_json")) as string;
 
     expectEqualCiphers(UserCipherDomains.slice(0, 2), actual);
   });
@@ -294,16 +294,14 @@ describe("VaultExportService", () => {
 
   it("exported unencrypted object contains folders", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
-
-    const actual = await exportService.getExport("json");
+    const actual = (await exportService.getExport("json")) as string;
 
     expectEqualFolderViews(UserFolderViews, actual);
   });
 
   it("exported encrypted json contains folders", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
-
-    const actual = await exportService.getExport("encrypted_json");
+    const actual = (await exportService.getExport("encrypted_json")) as string;
 
     expectEqualFolders(UserFolders, actual);
   });
