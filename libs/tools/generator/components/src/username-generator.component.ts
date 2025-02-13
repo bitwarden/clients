@@ -77,6 +77,12 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
   @Input()
   userId: UserId | null;
 
+  /**
+   * The website associated with the credential generation request.
+   */
+  @Input()
+  website: string | null = null;
+
   /** Emits credentials created from a generation request. */
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
@@ -435,7 +441,7 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
    *  origin in the debugger.
    */
   protected async generate(requestor: string) {
-    this.generate$.next({ source: requestor });
+    this.generate$.next({ source: requestor, website: this.website });
   }
 
   private toOptions(algorithms: AlgorithmInfo[]) {
