@@ -43,6 +43,7 @@ import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
+import { CliUtils } from "../../utils";
 
 export class LoginCommand {
   protected canInteract: boolean;
@@ -738,17 +739,23 @@ export class LoginCommand {
         try {
           this.ssoRedirectUri = "http://localhost:" + port;
           callbackServer.listen(port, () => {
-            this.platformUtilsService.launchUri(
+            let uri =
               webUrl +
-                "/#/sso?clientId=" +
-                "cli" +
-                "&redirectUri=" +
-                encodeURIComponent(this.ssoRedirectUri) +
-                "&state=" +
-                state +
-                "&codeChallenge=" +
-                codeChallenge,
-            );
+              "/#/sso?clientId=" +
+              "cli" +
+              "&redirectUri=" +
+              encodeURIComponent(this.ssoRedirectUri) +
+              "&state=" +
+              state +
+              "&codeChallenge=" +
+              codeChallenge;
+            if (this.options.sso != true) {
+              uri += "&identifier=" + this.options.sso;
+            }
+            if (process.env.BW_RAW != "true") {
+              CliUtils.writeLn(uri);
+            }
+            this.platformUtilsService.launchUri(uri);
           });
           foundPort = true;
           break;
