@@ -18,8 +18,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
@@ -58,14 +56,12 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
 
   protected onboardingTasks$: Observable<VaultOnboardingTasks>;
   protected showOnboarding = false;
-  protected extensionRefreshEnabled = false;
 
   constructor(
     protected platformUtilsService: PlatformUtilsService,
     protected policyService: PolicyService,
     private apiService: ApiService,
     private vaultOnboardingService: VaultOnboardingServiceAbstraction,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -74,9 +70,6 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
     this.setInstallExtLink();
     this.individualVaultPolicyCheck();
     this.checkForBrowserExtension();
-    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
   }
 
   async ngOnChanges(changes: SimpleChanges) {
