@@ -14,46 +14,52 @@
     <bit-section *ngIf="!isLoading">
       <bit-section-header>
         <h2 bitTypography="h6">{{ "domainsTitle" | i18n }}</h2>
-        <span bitTypography="body2" slot="end">{{ excludedDomainsState?.length || 0 }}</span>
+        <span bitTypography="body2" slot="end">{{
+          excludedDomainsState.length + domainForms.value.length
+        }}</span>
       </bit-section-header>
-
-      <ng-container *ngIf="excludedDomainsState">
-        <bit-item
-          *ngFor="let domain of excludedDomainsState; let i = index; trackBy: trackByFunction"
+      <bit-item
+        *ngFor="let domain of excludedDomainsState; let i = index; trackBy: trackByFunction"
+      >
+        <bit-item-content *ngIf="i < fieldsEditThreshold">
+          <div id="excludedDomain{{ i }}">{{ domain }}</div>
+        </bit-item-content>
+        <button
+          *ngIf="i < fieldsEditThreshold"
+          appA11yTitle="{{ 'remove' | i18n }}"
+          bitIconButton="bwi-minus-circle"
+          buttonType="danger"
+          size="small"
+          slot="end"
+          type="button"
+          (click)="removeDomain(i)"
+        ></button>
+      </bit-item>
+      <form [formGroup]="domainListForm">
+        <bit-card
+          formArrayName="domains"
+          *ngFor="let domain of domainForms.controls; let i = index"
         >
-          <bit-item-content>
-            <bit-label *ngIf="i >= fieldsEditThreshold">{{
-              "websiteItemLabel" | i18n: i + 1
-            }}</bit-label>
+          <bit-form-field disableMargin>
+            <bit-label>{{ "websiteItemLabel" | i18n: i + fieldsEditThreshold + 1 }}</bit-label>
             <input
-              *ngIf="i >= fieldsEditThreshold"
+              bitInput
               #uriInput
               appInputVerbatim
               bitInput
-              id="excludedDomain{{ i }}"
+              id="excludedDomain{{ i + fieldsEditThreshold }}"
               inputmode="url"
-              name="excludedDomain{{ i }}"
+              name="excludedDomain{{ i + fieldsEditThreshold }}"
               type="text"
               (change)="fieldChange()"
-              [(ngModel)]="excludedDomainsState[i]"
+              formControlName="{{ i }}"
             />
-            <div id="excludedDomain{{ i }}" *ngIf="i < fieldsEditThreshold">{{ domain }}</div>
-          </bit-item-content>
-          <button
-            *ngIf="i < fieldsEditThreshold"
-            appA11yTitle="{{ 'remove' | i18n }}"
-            bitIconButton="bwi-minus-circle"
-            buttonType="danger"
-            size="small"
-            slot="end"
-            type="button"
-            (click)="removeDomain(i)"
-          ></button>
-        </bit-item>
-      </ng-container>
-      <button bitLink class="tw-pt-2" type="button" linkType="primary" (click)="addNewDomain()">
-        <i class="bwi bwi-plus-circle bwi-fw" aria-hidden="true"></i> {{ "addDomain" | i18n }}
-      </button>
+          </bit-form-field>
+        </bit-card>
+        <button bitLink class="tw-pt-2" type="button" linkType="primary" (click)="addNewDomain()">
+          <i class="bwi bwi-plus-circle bwi-fw" aria-hidden="true"></i> {{ "addDomain" | i18n }}
+        </button>
+      </form>
     </bit-section>
   </div>
   <popup-footer slot="footer">
