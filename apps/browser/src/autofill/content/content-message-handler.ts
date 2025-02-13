@@ -1,4 +1,4 @@
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
   ContentMessageWindowData,
@@ -29,13 +29,14 @@ const windowMessageHandlers: ContentMessageWindowEventHandlers = {
   checkIfBWExtensionInstalled: () => handleExtensionInstallCheck(),
   duoResult: ({ data, referrer }: { data: any; referrer: string }) =>
     handleDuoResultMessage(data, referrer),
+  [VaultMessages.OpenPopup]: () => handleOpenPopupMessage(),
 };
 
 /**
  * Handles the post to the web vault showing the extension has been installed
  */
 function handleExtensionInstallCheck() {
-  window.postMessage({ command: VaultOnboardingMessages.HasBwInstalled });
+  window.postMessage({ command: VaultMessages.HasBwInstalled });
 }
 
 /**
@@ -69,6 +70,10 @@ async function handleDuoResultMessage(data: ContentMessageWindowData, referrer: 
 function handleWebAuthnResultMessage(data: ContentMessageWindowData, referrer: string) {
   const { command, remember } = data;
   sendExtensionRuntimeMessage({ command, data: data.data, remember, referrer });
+}
+
+function handleOpenPopupMessage() {
+  sendExtensionRuntimeMessage({ command: VaultMessages.OpenPopup });
 }
 
 /**

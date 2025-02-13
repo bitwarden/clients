@@ -1568,12 +1568,13 @@ export default class MainBackground {
   }
 
   async openPopup() {
-    // Chrome APIs cannot open popup
+    const browserAction = BrowserApi.getBrowserAction();
 
-    // TODO: Do we need to open this popup?
-    if (!this.isSafari) {
+    if ("openPopup" in browserAction && typeof browserAction.openPopup === "function") {
+      await browserAction.openPopup();
       return;
     }
+
     await SafariApp.sendMessageToApp("showPopover", null, true);
   }
 
