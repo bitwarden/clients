@@ -23,7 +23,7 @@ import { ScheduledTaskName } from "./scheduled-task-name.enum";
  *     messageListener.messages$(MY_MESSAGE).pipe(
  *        debounceTime(
  *          10 * 1000,
- *          toScheduler(taskScheduler),
+ *          toScheduler(taskScheduler, ShedulerTaskNames.myTaskName),
  *        ),
  *     )
  *       .subscribe((msg) => this.doThing(msg));
