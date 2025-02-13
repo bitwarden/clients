@@ -752,7 +752,9 @@ export class LoginCommand {
             if (this.options.sso != true) {
               uri += "&identifier=" + this.options.sso;
             }
-            CliUtils.writeLn(uri);
+            if (process.env.BW_RAW != "true") {
+              CliUtils.writeLn(uri);
+            }
             this.platformUtilsService.launchUri(uri);
           });
           foundPort = true;
