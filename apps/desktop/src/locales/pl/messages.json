@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Logowanie rozpoczęte"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "Powiadomienie zostało wysłane na urządzenie."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "Need another option?"
@@ -2782,11 +2791,11 @@
     "message": "Pokaż / Ukryj licznik znaków",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Próbujesz się zalogować?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "Próba logowania przez $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Godzina"
   },
-  "confirmLogIn": {
-    "message": "Potwierdź logowanie"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "Odrzuć logowanie"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Logowanie potwierdzone dla $EMAIL$ dnia $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Ta prośba nie jest już ważna."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Potwierdź próbę logowania dla $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Wysłano prośbę logowania"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Tworzenie konta na"

@@ -25,17 +25,15 @@ describe("ReusedPasswordsReportComponent", () => {
   let fixture: ComponentFixture<ReusedPasswordsReportComponent>;
   let organizationService: MockProxy<OrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
-  let accountService: FakeAccountService;
   let adminConsoleCipherFormConfigServiceMock: MockProxy<AdminConsoleCipherFormConfigService>;
   const userId = Utils.newGuid() as UserId;
+  const accountService: FakeAccountService = mockAccountServiceWith(userId);
 
   beforeEach(() => {
     let cipherFormConfigServiceMock: MockProxy<CipherFormConfigService>;
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
-    accountService = mockAccountServiceWith(userId);
-
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
