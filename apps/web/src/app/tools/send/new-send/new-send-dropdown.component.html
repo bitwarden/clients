@@ -10,7 +10,13 @@
   <a bitMenuItem (click)="createSend(sendType.File)">
     <i class="bwi bwi-file" slot="start" aria-hidden="true"></i>
     {{ "sendTypeFile" | i18n }}
-    <button type="button" slot="end" *ngIf="hasNoPremium" bitBadge variant="success">
+    <button
+      type="button"
+      slot="end"
+      *ngIf="!(canAccessPremium$ | async)"
+      bitBadge
+      variant="success"
+    >
       {{ "premium" | i18n }}
     </button>
   </a>

@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable, of, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -24,7 +24,8 @@ export class NewSendDropdownComponent implements OnInit {
 
   sendType = SendType;
 
-  hasNoPremium = false;
+  /** Indicates whether the user can access premium features. */
+  protected canAccessPremium$: Observable<boolean>;
 
   constructor(
     private router: Router,
@@ -35,19 +36,17 @@ export class NewSendDropdownComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const account = await firstValueFrom(this.accountService.activeAccount$);
-    if (!account) {
-      this.hasNoPremium = true;
-      return;
-    }
-
-    this.hasNoPremium = !(await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-    ));
+    this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account
+          ? this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id)
+          : of(false),
+      ),
+    );
   }
 
   async createSend(type: SendType) {
-    if (this.hasNoPremium && type === SendType.File) {
+    if (!(await firstValueFrom(this.canAccessPremium$)) && type === SendType.File) {
       return await this.router.navigate(["settings/subscription/premium"]);
     }
 
