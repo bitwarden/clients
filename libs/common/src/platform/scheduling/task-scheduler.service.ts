@@ -10,7 +10,26 @@ import { ScheduledTaskName } from "./scheduled-task-name.enum";
  * @description On MV3 browser extensions this uses the `chrome.alarms` API. As such you need
  * to be careful that you observable is subscribed to during startup of the service worker.
  * This ensures that if the service worker dies and awakens for a chrome alarm event, then
- * your code will be guaranteed to be added.
+ * your code will be guaranteed to be added. The scheduler returned here should behave
+ * similarly to the built in {@link https://rxjs.dev/api/index/const/asyncScheduler asyncScheduler}
+ * that is the default to many rxjs operators.
+ *
+ * @link https://rxjs.dev/guide/scheduler#using-schedulers
+ *
+ * @example
+ * ```ts
+ * class MyService {
+ *   constructor(messageListener: MessageListener, taskScheduler: TaskSchedulerService) {
+ *     messageListener.messages$(MY_MESSAGE).pipe(
+ *        debounceTime(
+ *          10 * 1000,
+ *          toScheduler(taskScheduler),
+ *        ),
+ *     )
+ *       .subscribe((msg) => this.doThing(msg));
+ *   }
+ * }
+ * ```
  *
  * @param taskScheduler The task scheduler service to use to shedule RXJS work.
  * @param taskName The name of the task that the handler should be registered and scheduled based on.
