@@ -1,6 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { isUrlIsInUriList } from "@bitwarden/common/autofill/utils";
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -47,10 +48,8 @@ export class BrowserScriptInjectorService extends ScriptInjectorService {
       this.domainSettingsService.blockedInteractionsUris$,
     );
 
-    if (blockedDomains && tabURL?.hostname) {
-      const blockedDomainsSet = new Set(Object.keys(blockedDomains));
-
-      injectionAllowedInTab = !(tabURL && blockedDomainsSet.has(tabURL.hostname));
+    if (blockedDomains && tab?.url) {
+      injectionAllowedInTab = !isUrlIsInUriList(tab?.url, blockedDomains);
     }
 
     if (!injectionAllowedInTab) {

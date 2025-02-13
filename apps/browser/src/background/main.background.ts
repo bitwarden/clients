@@ -70,6 +70,7 @@ import {
   UserNotificationSettingsService,
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { isUrlIsInUriList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -1387,14 +1388,7 @@ export default class MainBackground {
         this.domainSettingsService.blockedInteractionsUris$.pipe(
           map((blockedInteractionsUris) => {
             if (blockedInteractionsUris && tab?.url?.length) {
-              const tabURL = new URL(tab.url);
-              const tabIsBlocked = Object.keys(blockedInteractionsUris).some((blockedHostname) =>
-                tabURL.hostname.endsWith(blockedHostname),
-              );
-
-              if (tabIsBlocked) {
-                return true;
-              }
+              return isUrlIsInUriList(tab.url, blockedInteractionsUris);
             }
 
             return false;

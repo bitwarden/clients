@@ -1,6 +1,13 @@
+import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+
 import { CardView } from "../vault/models/view/card.view";
 
-import { normalizeExpiryYearFormat, isCardExpired, parseYearMonthExpiry } from "./utils";
+import {
+  normalizeExpiryYearFormat,
+  isCardExpired,
+  parseYearMonthExpiry,
+  isUrlIsInUriList,
+} from "./utils";
 
 function getExpiryYearValueFormats(currentCentury: string) {
   return [
@@ -279,5 +286,52 @@ describe("parseYearMonthExpiry", () => {
         expect(parsedValue).toStrictEqual(["2052", "4"]);
       }
     });
+  });
+});
+
+describe("isUrlIsInUriList", () => {
+  let mockUriList: NeverDomains;
+
+  it("returns false if the passed URI list is empty", () => {
+    const urlIsInUriList = isUrlIsInUriList("", mockUriList);
+
+    expect(urlIsInUriList).toEqual(false);
+  });
+
+  it("returns true if the URL hostname is on the passed URI list", () => {
+    mockUriList = {
+      ["bitwarden.com"]: { bannerIsDismissed: true },
+      ["duckduckgo.com"]: null,
+    };
+
+    const testPages = [
+      "https://www.bitwarden.com/landing-page?some_query_string_key=1&another_one=1",
+      " https://duckduckgo.com/pro  ",
+    ];
+
+    for (const pageUrl of testPages) {
+      const urlIsInUriList = isUrlIsInUriList(pageUrl, mockUriList);
+      expect(urlIsInUriList).toEqual(true);
+    }
+  });
+
+  it("returns false if the URL hostname is not on the passed URI list", () => {
+    const urlIsInUriList = isUrlIsInUriList("https://archive.org/", mockUriList);
+    expect(urlIsInUriList).toEqual(false);
+  });
+
+  it("returns false if the passed URL is empty", () => {
+    const urlIsInUriList = isUrlIsInUriList("", mockUriList);
+
+    expect(urlIsInUriList).toEqual(false);
+  });
+
+  it("returns false if the passed URI is not a valid URL", () => {
+    const testPages = ["twasbrillingandtheslithytoves", "/landing-page", undefined];
+
+    for (const pageUrl of testPages) {
+      const urlIsInUriList = isUrlIsInUriList(pageUrl, mockUriList);
+      expect(urlIsInUriList).toEqual(false);
+    }
   });
 });

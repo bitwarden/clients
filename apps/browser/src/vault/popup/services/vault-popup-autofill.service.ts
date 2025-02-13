@@ -16,6 +16,7 @@ import {
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { isUrlIsInUriList } from "@bitwarden/common/autofill/utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -71,13 +72,8 @@ export class VaultPopupAutofillService {
     this.currentAutofillTab$,
   ]).pipe(
     map(([blockedInteractionsUris, currentTab]) => {
-      if (blockedInteractionsUris && currentTab?.url?.length) {
-        const tabURL = new URL(currentTab.url);
-        const tabIsBlocked = Object.keys(blockedInteractionsUris).includes(tabURL.hostname);
-
-        if (tabIsBlocked) {
-          return true;
-        }
+      if (blockedInteractionsUris && currentTab) {
+        return isUrlIsInUriList(currentTab?.url, blockedInteractionsUris);
       }
 
       return false;
@@ -88,12 +84,11 @@ export class VaultPopupAutofillService {
   showCurrentTabIsBlockedBanner$: Observable<boolean> = combineLatest([
     this.domainSettingsService.blockedInteractionsUris$,
     this.currentAutofillTab$,
+    this.currentTabIsOnBlocklist$,
   ]).pipe(
-    map(([blockedInteractionsUris, currentTab]) => {
+    map(([blockedInteractionsUris, currentTab, tabIsBlocked]) => {
       if (blockedInteractionsUris && currentTab?.url?.length) {
         const tabURL = new URL(currentTab.url);
-        const tabIsBlocked = Object.keys(blockedInteractionsUris).includes(tabURL.hostname);
-
         const showScriptInjectionIsBlockedBanner =
           tabIsBlocked && !blockedInteractionsUris[tabURL.hostname]?.bannerIsDismissed;
 
