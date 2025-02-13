@@ -1,4 +1,4 @@
-export { ButtonType } from "./shared/button-like.abstraction";
+export { ButtonType, ButtonLikeAbstraction } from "./shared/button-like.abstraction";
 export * from "./a11y";
 export * from "./async-actions";
 export * from "./avatar";

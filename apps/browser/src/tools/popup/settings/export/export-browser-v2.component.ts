@@ -7,6 +7,7 @@ import { AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/compo
 import { ExportComponent } from "@bitwarden/vault-export-ui";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
+import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/popup-back.directive";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -25,6 +26,7 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
     PopupFooterComponent,
     PopupHeaderComponent,
     PopOutComponent,
+    PopupBackBrowserDirective,
   ],
 })
 export class ExportBrowserV2Component {
