@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component, model, signal } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { Input, HostBinding, Component, model } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
@@ -126,18 +126,13 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * We can't use `loading` for this, because we still need to disable the button during
    * the full `loading` state. I.e. we only want the spinner to be debounced, not the
    * loading state.
+   *
+   * This pattern of converting a signal to an observable and back to a signal is not
+   * recommended. TODO -- find better way to use debounce with signals (CL-596)
    */
-  protected showLoadingStyle$ = toObservable(this.loading).pipe(
-    debounce((isLoading) => interval(isLoading ? 75 : 0)),
+  protected showLoadingStyle = toSignal(
+    toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
-
-  protected showLoadingStyle = signal(false);
-
-  constructor() {
-    this.showLoadingStyle$.pipe(takeUntilDestroyed()).subscribe((showLoadingStyle) => {
-      this.showLoadingStyle.set(showLoadingStyle);
-    });
-  }
 
   @Input() disabled = false;
 }
