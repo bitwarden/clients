@@ -10,6 +10,10 @@ import {
   openTwoFactorAuthWebAuthnPopout,
   closeTwoFactorAuthWebAuthnPopout,
   closeSsoAuthResultPopout,
+  openTwoFactorAuthEmailPopout,
+  closeTwoFactorAuthEmailPopout,
+  openTwoFactorAuthDuoPopout,
+  closeTwoFactorAuthDuoPopout,
 } from "./auth-popout-window";
 
 describe("AuthPopoutWindow", () => {
@@ -122,6 +126,42 @@ describe("AuthPopoutWindow", () => {
       await closeTwoFactorAuthWebAuthnPopout();
 
       expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuthWebAuthn);
+    });
+  });
+
+  describe("openTwoFactorAuthEmailPopout", () => {
+    it("opens a window that facilitates two factor authentication via email", async () => {
+      await openTwoFactorAuthEmailPopout();
+
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/2fa", {
+        singleActionKey: AuthPopoutType.twoFactorAuthEmail,
+      });
+    });
+  });
+
+  describe("closeTwoFactorAuthEmailPopout", () => {
+    it("closes the two-factor authentication email window", async () => {
+      await closeTwoFactorAuthEmailPopout();
+
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuthEmail);
+    });
+  });
+
+  describe("openTwoFactorAuthDuoPopout", () => {
+    it("opens a window that facilitates two factor authentication via Duo", async () => {
+      await openTwoFactorAuthDuoPopout();
+
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/2fa", {
+        singleActionKey: AuthPopoutType.twoFactorAuthDuo,
+      });
+    });
+  });
+
+  describe("closeTwoFactorAuthDuoPopout", () => {
+    it("closes the two-factor authentication Duo window", async () => {
+      await closeTwoFactorAuthDuoPopout();
+
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuthDuo);
     });
   });
 });
