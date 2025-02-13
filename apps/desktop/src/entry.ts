@@ -1,9 +1,10 @@
 import { spawn } from "child_process";
 import * as path from "path";
 
+import { app } from "electron";
+
 import { passkey_authenticator } from "@bitwarden/desktop-napi";
 
-import { app } from "electron";
 
 if (
   process.platform === "darwin" &&
@@ -42,7 +43,7 @@ if (
   // eslint-disable-next-line
   const Main = require("./main").Main;
 
-  let value = passkey_authenticator.register();
+  passkey_authenticator.register();
 
   const main = new Main();
   main.bootstrap();
