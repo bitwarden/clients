@@ -306,17 +306,17 @@ describe("TwoFactorComponent", () => {
         expect(component.onSuccessfulLogin).toHaveBeenCalled();
       });
 
-      it("calls loginEmailService.clearValues() when login is successful", async () => {
+      it("calls loginEmailService.clearLoginEmail() when login is successful", async () => {
         // Arrange
         mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
-        // spy on loginEmailService.clearValues
-        const clearValuesSpy = jest.spyOn(mockLoginEmailService, "clearValues");
+        // spy on loginEmailService.clearLoginEmail
+        const clearEmailSpy = jest.spyOn(mockLoginEmailService, "clearLoginEmail");
 
         // Act
         await component.submit();
 
         // Assert
-        expect(clearValuesSpy).toHaveBeenCalled();
+        expect(clearEmailSpy).toHaveBeenCalled();
       });
 
       describe("Set Master Password scenarios", () => {
