@@ -99,10 +99,26 @@ export class SendAddEditComponent {
   /**
    * Handles the event when the send is updated.
    */
-  async onSendUpdated(_: SendView) {
+  async onSendUpdated(send: SendView) {
     this.dialogRef.close(SendItemDialogResult.Saved);
   }
 
+  /**
+   * Handles the event when the send is deleted.
+   */
+  async onSendDeleted() {
+    this.dialogRef.close(SendItemDialogResult.Deleted);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("deletedSend"),
+    });
+  }
+
+  /**
+   * Handles the deletion of the current Send.
+   */
   deleteSend = async () => {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "deleteSend" },
@@ -125,13 +141,7 @@ export class SendAddEditComponent {
       return;
     }
 
-    this.dialogRef.close(SendItemDialogResult.Deleted);
-
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("deletedSend"),
-    });
+    await this.onSendDeleted();
   };
 
   /**
@@ -153,9 +163,10 @@ export class SendAddEditComponent {
   }
 
   /**
-   * Opens the VaultItemDialog.
-   * @param dialogService
-   * @param params
+   * Opens the send add/edit dialog.
+   * @param dialogService Instance of the DialogService.
+   * @param params The parameters for the dialog.
+   * @returns The dialog result.
    */
   static open(dialogService: DialogService, params: SendItemDialogParams) {
     return dialogService.open<SendItemDialogResult, SendItemDialogParams>(SendAddEditComponent, {

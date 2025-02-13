@@ -20,9 +20,11 @@ import { SendAddEditComponent } from "../send-add-edit.component";
   providers: [DefaultSendFormConfigService],
 })
 export class NewSendDropdownComponent implements OnInit {
+  /** If true, the plus icon will be hidden */
   @Input() hideIcon: boolean = false;
 
-  sendType = SendType;
+  /** SendType provided for the markup to pass back the selected type of Send */
+  protected sendType = SendType;
 
   /** Indicates whether the user can access premium features. */
   protected canAccessPremium$: Observable<boolean>;
