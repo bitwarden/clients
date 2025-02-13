@@ -5,13 +5,14 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AUTOFILL_ID,
   COPY_PASSWORD_ID,
@@ -22,7 +23,9 @@ import {
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -35,14 +38,8 @@ import {
   SearchModule,
   ToastService,
 } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+import { CipherViewComponent, CopyCipherFieldService } from "@bitwarden/vault";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PremiumUpgradePromptService } from "../../../../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { CipherViewComponent } from "../../../../../../../../libs/vault/src/cipher-view";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
@@ -92,6 +89,8 @@ type LoadAction =
   ],
 })
 export class ViewV2Component {
+  private activeUserId: UserId;
+
   headerText: string;
   cipher: CipherView;
   organization$: Observable<Organization>;
@@ -122,14 +121,20 @@ export class ViewV2Component {
   subscribeToParams(): void {
     this.route.queryParams
       .pipe(
-        switchMap(async (params): Promise<CipherView> => {
+        switchMap(async (params) => {
           this.loadAction = params.action;
           this.senderTabId = params.senderTabId ? parseInt(params.senderTabId, 10) : undefined;
-          return await this.getCipherData(params.cipherId);
+
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
+          const cipher = await this.getCipherData(params.cipherId, activeUserId);
+          return { activeUserId, cipher };
         }),
-        switchMap(async (cipher) => {
+        switchMap(async ({ activeUserId, cipher }) => {
           this.cipher = cipher;
           this.headerText = this.setHeader(cipher.type);
+          this.activeUserId = activeUserId;
 
           if (this.loadAction) {
             await this._handleLoadAction(this.loadAction, this.senderTabId);
@@ -164,13 +169,10 @@ export class ViewV2Component {
     }
   }
 
-  async getCipherData(id: string) {
-    const cipher = await this.cipherService.get(id);
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+  async getCipherData(id: string, userId: UserId) {
+    const cipher = await this.cipherService.get(id, userId);
     return await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+      await this.cipherService.getKeyForCipherKeyDecryption(cipher, userId),
     );
   }
 
@@ -218,7 +220,7 @@ export class ViewV2Component {
 
   restore = async (): Promise<void> => {
     try {
-      await this.cipherService.restoreWithServer(this.cipher.id);
+      await this.cipherService.restoreWithServer(this.cipher.id, this.activeUserId);
     } catch (e) {
       this.logService.error(e);
     }
@@ -233,8 +235,8 @@ export class ViewV2Component {
 
   protected deleteCipher() {
     return this.cipher.isDeleted
-      ? this.cipherService.deleteWithServer(this.cipher.id)
-      : this.cipherService.softDeleteWithServer(this.cipher.id);
+      ? this.cipherService.deleteWithServer(this.cipher.id, this.activeUserId)
+      : this.cipherService.softDeleteWithServer(this.cipher.id, this.activeUserId);
   }
 
   protected showFooter(): boolean {

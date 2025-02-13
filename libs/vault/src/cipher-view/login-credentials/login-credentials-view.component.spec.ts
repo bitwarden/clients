@@ -16,13 +16,13 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { CopyClickDirective, BitFormFieldComponent, ToastService } from "@bitwarden/components";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { ColorPasswordComponent } from "@bitwarden/components/src/color-password/color-password.component";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { BitPasswordInputToggleDirective } from "@bitwarden/components/src/form-field/password-input-toggle.directive";
+import {
+  BitFormFieldComponent,
+  BitPasswordInputToggleDirective,
+  ColorPasswordComponent,
+  CopyClickDirective,
+  ToastService,
+} from "@bitwarden/components";
 
 import { LoginCredentialsViewComponent } from "./login-credentials-view.component";
 

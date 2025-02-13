@@ -1,0 +1,9 @@
+[package]
+name = "windows-plugin-authenticator"
+version = "0.0.0"
+edition = "2021"
+license = "GPL-3.0"
+publish = false
+
+[target.'cfg(target_os = "windows")'.build-dependencies]
+bindgen = "0.71.1"
