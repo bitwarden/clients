@@ -205,7 +205,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     try {
       const authResult = await this.loginStrategyService.logIn(credentials);
 
-      await this.persistLoginEmail();
       await this.handleAuthResult(authResult);
     } catch (error) {
       this.logService.error(error);
@@ -359,13 +358,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.persistLoginEmail();
     await this.router.navigate(["/login-with-device"]);
   }
 
   protected async validateEmail(): Promise<boolean> {
-    this.formGroup.controls.email.markAsTouched();
-    this.formGroup.controls.email.updateValueAndValidity({ onlySelf: true, emitEvent: true });
+    this.updateFormControls();
     return this.formGroup.controls.email.valid;
   }
 
@@ -421,7 +418,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   onEmailInput(event: Event) {
     const emailInput = event.target as HTMLInputElement;
     this.formGroup.controls.email.setValue(emailInput.value);
-    this.loginEmailService.setLoginEmail(emailInput.value);
+  }
+
+  onRememberMeInput(event: Event) {
+    const rememberMeInput = event.target as HTMLInputElement;
+    this.formGroup.controls.rememberEmail.setValue(rememberMeInput.checked);
   }
 
   isLoginWithPasskeySupported() {
@@ -429,20 +430,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   protected async goToHint(): Promise<void> {
-    await this.persistLoginEmail();
     await this.router.navigateByUrl("/hint");
-  }
-
-  protected async persistLoginEmail(): Promise<void> {
-    const email = this.formGroup.value.email;
-    const rememberEmail = this.formGroup.value.rememberEmail ?? false;
-    if (!email) {
-      this.logService.error("Email is required to persist to state.");
-      return;
-    }
-
-    await this.loginEmailService.setLoginEmail(email);
-    this.loginEmailService.setRememberedEmailChoice(email, rememberEmail);
   }
 
   /**
@@ -613,6 +601,20 @@ export class LoginComponent implements OnInit, OnDestroy {
   };
 
   /**
+   * Handle the Login with Passkey button click.
+   * We need a handler here in order to persist the remember email selection to state before routing.
+   * @param event - The event object.
+   */
+  async handleLoginWithPasskeyClick() {
+    this.updateFormControls();
+    const email = this.formGroup.value.email;
+    if (email) {
+      await this.persistLoginEmail();
+    }
+    await this.router.navigate(["/login-with-passkey"]);
+  }
+
+  /**
    * Handle the SSO button click.
    */
   async handleSsoClick() {
@@ -634,5 +636,36 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // Send the user to SSO, either through routing or through redirecting to the web app
     await this.loginComponentService.redirectToSsoLogin(email);
+  }
+
+  /**
+   *
+   * @returns
+   */
+  private async persistLoginEmail(): Promise<void> {
+    this.updateFormControls();
+
+    const email = this.formGroup.value.email;
+    const rememberEmail = this.formGroup.value.rememberEmail ?? false;
+    if (!email) {
+      this.logService.error("Email is required to persist to state.");
+      return;
+    }
+
+    await this.loginEmailService.setLoginEmail(email);
+    await this.loginEmailService.setRememberedEmailChoice(email, rememberEmail);
+  }
+
+  /**
+   * We only update the form controls onSubmit instead of onBlur because we don't want to show validation errors until
+   * the user submits. This is because currently our validation errors are shown below the input fields, and
+   * displaying them causes the screen to "jump".
+   */
+  private updateFormControls(): void {
+    this.formGroup.controls.email.markAsTouched();
+    this.formGroup.controls.email.updateValueAndValidity({ onlySelf: true, emitEvent: true });
+
+    this.formGroup.controls.rememberEmail.markAsTouched();
+    this.formGroup.controls.rememberEmail.updateValueAndValidity({ onlySelf: true });
   }
 }
