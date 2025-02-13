@@ -45,7 +45,7 @@ import { TwoFactorAuthComponent } from "./two-factor-auth.component";
 @Component({})
 class TestTwoFactorComponent extends TwoFactorAuthComponent {}
 
-describe("TwoFactorComponent", () => {
+describe("TwoFactorAuthComponent", () => {
   let component: TestTwoFactorComponent;
 
   let fixture: ComponentFixture<TestTwoFactorComponent>;
@@ -107,7 +107,6 @@ describe("TwoFactorComponent", () => {
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
-    mockTwoFactorAuthCompService.handle2faSuccess = undefined;
 
     mockEnvService = mock<EnvironmentService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
@@ -390,6 +389,7 @@ describe("TwoFactorComponent", () => {
             );
 
             const authResult = new AuthResult();
+            authResult.userId = userId;
             mockLoginStrategyService.logInTwoFactor.mockResolvedValue(authResult);
           });
 
