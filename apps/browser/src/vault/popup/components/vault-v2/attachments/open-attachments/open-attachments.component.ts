@@ -77,10 +77,10 @@ export class OpenAttachmentsComponent implements OnInit {
       return;
     }
 
-    const cipherDomain = await this.cipherService.get(this.cipherId);
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
+    const cipherDomain = await this.cipherService.get(this.cipherId, activeUserId);
     const cipher = await cipherDomain.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain, activeUserId),
     );

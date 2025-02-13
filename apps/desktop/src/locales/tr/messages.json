@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Giriş başlatıldı"
   },
+  "logInRequestSent": {
+    "message": "İstek gönderildi"
+  },
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildirim gönderildi."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Cihazınıza bir bildirim gönderildi"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lütfen hesabınızın kilidinin açık olduğundan ve parmak izi ifadesinin diğer cihazla eşleştiğinden emin olun"
+  "notificationSentDevicePart1": {
+    "message": "Bitwarden kilidini cihazınızdan veya "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web uygulamasından açın"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Onay vermeden önce parmak izi ifadesinin aşağıdakiyle eşleştiğini kontrol edin."
   },
   "needAnotherOptionV1": {
     "message": "Başka bir seçeneğe mi ihtiyacınız var?"
@@ -2782,11 +2791,11 @@
     "message": "Karakter sayacını aç/kapat",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Giriş yapmaya mı çalışıyorsunuz?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Hesabınıza erişmeye mi çalışıyorsunuz?"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ giriş denemesi",
+  "accessAttemptBy": {
+    "message": "$EMAIL$ erişim denemesi",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Saat"
   },
-  "confirmLogIn": {
-    "message": "Girişi onayla"
+  "confirmAccess": {
+    "message": "Erişimi onayla"
   },
-  "denyLogIn": {
-    "message": "Girişi reddet"
+  "denyAccess": {
+    "message": "Erişimi reddet"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "$DEVICE$ cihazında $EMAIL$ girişi onaylandı",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Bu istek artık geçerli değil."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "$EMAIL$ giriş isteğini onayla",
+  "confirmAccessAttempt": {
+    "message": "$EMAIL$ erişimini onayla",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Giriş istendi"
+  },
+  "accountAccessRequested": {
+    "message": "Hesap erişimi istendi"
   },
   "creatingAccountOn": {
     "message": "Hesap oluşturuluyor:"

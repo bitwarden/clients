@@ -9,13 +9,10 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { firstValueFrom } from "rxjs";
 
 import { Unassigned, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -50,7 +47,6 @@ export class VaultHeaderComponent implements OnInit {
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected CipherType = CipherType;
-  protected extensionRefreshEnabled: boolean;
 
   /**
    * Boolean to determine the loading state of the header.
@@ -85,16 +81,9 @@ export class VaultHeaderComponent implements OnInit {
   /** Emits an event when the delete collection button is clicked in the header */
   @Output() onDeleteCollection = new EventEmitter<void>();
 
-  constructor(
-    private i18nService: I18nService,
-    private configService: ConfigService,
-  ) {}
+  constructor(private i18nService: I18nService) {}
 
-  async ngOnInit() {
-    this.extensionRefreshEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
-    );
-  }
+  async ngOnInit() {}
 
   /**
    * The id of the organization that is currently being filtered on.

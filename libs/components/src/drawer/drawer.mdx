@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./drawer.stories";
 
@@ -83,13 +83,13 @@ directive:
 Only one drawer can be open at a time, and they do not stack. If a drawer is already open, opening
 another will close and replace the one already open.
 
-<Story of={stories.MultipleDrawers} />
+<Canvas of={stories.MultipleDrawers} />
 
 ## Headless
 
 Omitting `bit-drawer-header` and `bit-drawer-body` allows for fully customizable content.
 
-<Story of={stories.Headless} />
+<Canvas of={stories.Headless} />
 
 ## Accessibility
 
@@ -117,4 +117,4 @@ Omitting `bit-drawer-header` and `bit-drawer-body` allows for fully customizable
 
 ## Kitchen Sink
 
-<Story of={KitchenSink} autoplay />
+<Canvas of={KitchenSink} autoplay />
