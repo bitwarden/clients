@@ -16,6 +16,8 @@ import {
   firstValueFrom,
   of,
   filter,
+  catchError,
+  from,
 } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
@@ -32,6 +34,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
+import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { TrialFlowService } from "@bitwarden/web-vault/app/billing/services/trial-flow.service";
 import { FreeTrial } from "@bitwarden/web-vault/app/billing/types/free-trial";
 
@@ -126,6 +129,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private trialFlowService: TrialFlowService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   ngOnInit() {
@@ -161,12 +165,18 @@ export class OverviewComponent implements OnInit, OnDestroy {
         combineLatest([
           of(org),
           this.organizationApiService.getSubscription(org.id),
-          this.organizationBillingService.getPaymentSource(org.id),
+          from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
+            catchError((error: unknown) => {
+              this.billingNotificationService.handleError(error);
+              return of(null);
+            }),
+          ),
         ]),
       ),
       map(([org, sub, paymentSource]) => {
         return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource);
       }),
+      filter((result) => result !== null),
       takeUntil(this.destroy$),
     );
 
