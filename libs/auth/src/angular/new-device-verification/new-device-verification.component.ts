@@ -19,7 +19,6 @@ import {
 
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
 
-
 /**
  * Component for verifying a new device via a one-time password (OTP).
  */

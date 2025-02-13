@@ -181,6 +181,68 @@ export class LoginComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
+  private async defaultOnInit(): Promise<void> {
+    // If there's an existing org invite, use it to get the password policies
+    const orgPolicies = await this.loginComponentService.getOrgPolicies();
+
+    this.policies = orgPolicies?.policies;
+    this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled ?? false;
+
+    let paramEmailIsSet = false;
+
+    const params = await firstValueFrom(this.activatedRoute.queryParams);
+
+    if (params) {
+      const qParamsEmail = params.email;
+
+      // If there is an email in the query params, set that email as the form field value
+      if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
+        this.formGroup.controls.email.setValue(qParamsEmail);
+        paramEmailIsSet = true;
+      }
+    }
+
+    // If there are no params or no email in the query params, loadEmailSettings from state
+    if (!paramEmailIsSet) {
+      await this.loadRememberedEmail();
+    }
+
+    // Check to see if the device is known so that we can show the Login with Device option
+    if (this.emailFormControl.value) {
+      await this.getKnownDevice(this.emailFormControl.value);
+    }
+
+    // Backup check to handle unknown case where activatedRoute is not available
+    // This shouldn't happen under normal circumstances
+    if (!this.activatedRoute) {
+      await this.loadRememberedEmail();
+    }
+  }
+
+  private async desktopOnInit(): Promise<void> {
+    // TODO: refactor to not use deprecated broadcaster service.
+    this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
+      this.ngZone.run(() => {
+        switch (message.command) {
+          case "windowIsFocused":
+            if (this.deferFocus === null) {
+              this.deferFocus = !message.windowIsFocused;
+              if (!this.deferFocus) {
+                this.focusInput();
+              }
+            } else if (this.deferFocus && message.windowIsFocused) {
+              this.focusInput();
+              this.deferFocus = false;
+            }
+            break;
+          default:
+        }
+      });
+    });
+
+    this.messagingService.send("getWindowIsFocused");
+  }
+
   submit = async (): Promise<void> => {
     if (this.clientType === ClientType.Desktop) {
       if (this.loginUiState !== LoginUiState.MASTER_PASSWORD_ENTRY) {
@@ -362,7 +424,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   protected async validateEmail(): Promise<boolean> {
-    this.updateFormControls();
     return this.formGroup.controls.email.valid;
   }
 
@@ -411,20 +472,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Set the email value from the input field.
-   * @param event The event object from the input field.
-   */
-  onEmailInput(event: Event) {
-    const emailInput = event.target as HTMLInputElement;
-    this.formGroup.controls.email.setValue(emailInput.value);
-  }
-
-  onRememberMeInput(event: Event) {
-    const rememberMeInput = event.target as HTMLInputElement;
-    this.formGroup.controls.rememberEmail.setValue(rememberMeInput.checked);
-  }
-
   isLoginWithPasskeySupported() {
     return this.loginComponentService.isLoginWithPasskeySupported();
   }
@@ -451,9 +498,47 @@ export class LoginComponent implements OnInit, OnDestroy {
     const isEmailValid = await this.validateEmail();
 
     if (isEmailValid) {
-      await this.persistLoginEmail();
+      await this.persistEmail();
       await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
     }
+  }
+
+  /**
+   * Handle the Login with Passkey button click.
+   * We need a handler here in order to persist the remember email selection to state before routing.
+   * @param event - The event object.
+   */
+  async handleLoginWithPasskeyClick() {
+    const email = this.formGroup.value.email;
+    if (email) {
+      await this.persistEmail();
+    }
+    await this.router.navigate(["/login-with-passkey"]);
+  }
+
+  /**
+   * Handle the SSO button click.
+   * @param event - The event object.
+   */
+  async handleSsoClick() {
+    // Make sure the email is not empty, for type safety
+    const email = this.formGroup.value.email;
+    if (!email) {
+      this.logService.error("Email is required for SSO");
+      return;
+    }
+
+    // Make sure the email is valid
+    const isEmailValid = await this.validateEmail();
+    if (!isEmailValid) {
+      return;
+    }
+
+    // Save the email configuration for the login component
+    await this.persistEmail();
+
+    // Send the user to SSO, either through routing or through redirecting to the web app
+    await this.loginComponentService.redirectToSsoLogin(email);
   }
 
   /**
@@ -499,68 +584,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           : "masterPassword",
       )
       ?.focus();
-  }
-
-  private async defaultOnInit(): Promise<void> {
-    // If there's an existing org invite, use it to get the password policies
-    const orgPolicies = await this.loginComponentService.getOrgPolicies();
-
-    this.policies = orgPolicies?.policies;
-    this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled ?? false;
-
-    let paramEmailIsSet = false;
-
-    const params = await firstValueFrom(this.activatedRoute.queryParams);
-
-    if (params) {
-      const qParamsEmail = params.email;
-
-      // If there is an email in the query params, set that email as the form field value
-      if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
-        this.formGroup.controls.email.setValue(qParamsEmail);
-        paramEmailIsSet = true;
-      }
-    }
-
-    // If there are no params or no email in the query params, loadEmailSettings from state
-    if (!paramEmailIsSet) {
-      await this.loadRememberedEmail();
-    }
-
-    // Check to see if the device is known so that we can show the Login with Device option
-    if (this.emailFormControl.value) {
-      await this.getKnownDevice(this.emailFormControl.value);
-    }
-
-    // Backup check to handle unknown case where activatedRoute is not available
-    // This shouldn't happen under normal circumstances
-    if (!this.activatedRoute) {
-      await this.loadRememberedEmail();
-    }
-  }
-
-  private async desktopOnInit(): Promise<void> {
-    // TODO: refactor to not use deprecated broadcaster service.
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
-      this.ngZone.run(() => {
-        switch (message.command) {
-          case "windowIsFocused":
-            if (this.deferFocus === null) {
-              this.deferFocus = !message.windowIsFocused;
-              if (!this.deferFocus) {
-                this.focusInput();
-              }
-            } else if (this.deferFocus && message.windowIsFocused) {
-              this.focusInput();
-              this.deferFocus = false;
-            }
-            break;
-          default:
-        }
-      });
-    });
-
-    this.messagingService.send("getWindowIsFocused");
   }
 
   /**
@@ -639,12 +662,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
-   *
+   * Persist the entered email address and the user's choice to remember it to state.
    * @returns
+   
    */
-  private async persistLoginEmail(): Promise<void> {
-    this.updateFormControls();
-
+  private async persistEmail(): Promise<void> {
     const email = this.formGroup.value.email;
     const rememberEmail = this.formGroup.value.rememberEmail ?? false;
     if (!email) {
@@ -657,15 +679,26 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Set the email value from the input field.
    * We only update the form controls onSubmit instead of onBlur because we don't want to show validation errors until
    * the user submits. This is because currently our validation errors are shown below the input fields, and
    * displaying them causes the screen to "jump".
+   * @param event The event object from the input field.
    */
-  private updateFormControls(): void {
-    this.formGroup.controls.email.markAsTouched();
-    this.formGroup.controls.email.updateValueAndValidity({ onlySelf: true, emitEvent: true });
+  onEmailInput(event: Event) {
+    const emailInput = event.target as HTMLInputElement;
+    this.formGroup.controls.email.setValue(emailInput.value);
+  }
 
-    this.formGroup.controls.rememberEmail.markAsTouched();
-    this.formGroup.controls.rememberEmail.updateValueAndValidity({ onlySelf: true });
+  /**
+   * Set the Remember Email value from the input field.
+   * We only update the form controls onSubmit instead of onBlur because we don't want to show validation errors until
+   * the user submits. This is because currently our validation errors are shown below the input fields, and
+   * displaying them causes the screen to "jump".
+   * @param event The event object from the input field.
+   */
+  onRememberEmailInput(event: Event) {
+    const rememberEmailInput = event.target as HTMLInputElement;
+    this.formGroup.controls.rememberEmail.setValue(rememberEmailInput.checked);
   }
 }
