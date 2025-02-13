@@ -287,6 +287,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // TODO: PM-18269 - evaluate if we can combine this with the
+    // password evaluation done in the password login strategy.
     // If there's an existing org invite, use it to get the org's password policies
     // so we can evaluate the MP against the org policies
     if (this.loginComponentService.getOrgPoliciesFromOrgInvite) {
@@ -333,12 +335,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions,
   ): Promise<boolean> {
     try {
-      if (
-        enforcedPasswordPolicyOptions == undefined ||
-        !enforcedPasswordPolicyOptions.enforceOnLogin
-      ) {
+      if (enforcedPasswordPolicyOptions == undefined) {
         return false;
       }
+
+      // Note: we deliberately do not check enforcedPasswordPolicyOptions.enforceOnLogin
+      // as existing users who are logging in after getting an org invite should
+      // always be forced to set a password that meets the org's policy.
+      // Org Invite -> Registration also works this way for new BW users as well.
 
       const masterPassword = this.formGroup.controls.masterPassword.value;
 
