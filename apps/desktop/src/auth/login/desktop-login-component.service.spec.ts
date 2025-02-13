@@ -4,6 +4,7 @@ import { of } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import {
   Environment,
@@ -42,8 +43,6 @@ describe("DesktopLoginComponentService", () => {
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
 
-  let superLaunchSsoBrowserWindowSpy: jest.SpyInstance;
-
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
     environmentService = mock<EnvironmentService>();
@@ -60,6 +59,7 @@ describe("DesktopLoginComponentService", () => {
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
     i18nService = mock<I18nService>();
     toastService = mock<ToastService>();
+    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
 
     TestBed.configureTestingModule({
       providers: [
@@ -88,11 +88,6 @@ describe("DesktopLoginComponentService", () => {
     });
 
     service = TestBed.inject(DesktopLoginComponentService);
-
-    superLaunchSsoBrowserWindowSpy = jest.spyOn(
-      DefaultLoginComponentService.prototype,
-      "launchSsoBrowserWindow",
-    );
   });
 
   afterEach(() => {
@@ -106,7 +101,7 @@ describe("DesktopLoginComponentService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("launchSsoBrowserWindow", () => {
+  describe("redirectToSso", () => {
     // Array of all permutations of isAppImage, isSnapStore, and isDev
     const permutations = [
       [true, false, false], // Case 1: isAppImage true
@@ -125,36 +120,29 @@ describe("DesktopLoginComponentService", () => {
         (global as any).ipc.platform.isSnapStore = isSnapStore;
         (global as any).ipc.platform.isDev = isDev;
 
-        const email = "user@example.com";
-        const clientId = "desktop";
-        const codeChallenge = "testCodeChallenge";
-        const codeVerifier = "testCodeVerifier";
+        const email = "test@bitwarden.com";
         const state = "testState";
-        const codeVerifierHash = new Uint8Array(64);
+        const codeVerifier = "testCodeVerifier";
+        const codeChallenge = "testCodeChallenge";
+        const baseUrl = "https://webvault.bitwarden.com";
+        const expectedRedirectUri = "bitwarden://sso-callback";
 
         passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
         passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
-        cryptoFunctionService.hash.mockResolvedValueOnce(codeVerifierHash);
         jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
 
-        await service.launchSsoBrowserWindow(email, clientId);
+        await service.redirectToSsoLogin(email);
 
         if (isAppImage || isSnapStore || isDev) {
-          expect(superLaunchSsoBrowserWindowSpy).not.toHaveBeenCalled();
-
-          // Assert that the standard logic is executed
-          expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
-          expect(passwordGenerationService.generatePassword).toHaveBeenCalledTimes(2);
-          expect(cryptoFunctionService.hash).toHaveBeenCalledWith(codeVerifier, "sha256");
-          expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
-          expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
           expect(ipc.platform.localhostCallbackService.openSsoPrompt).toHaveBeenCalledWith(
             codeChallenge,
             state,
           );
         } else {
-          // If all values are false, expect the super method to be called
-          expect(superLaunchSsoBrowserWindowSpy).toHaveBeenCalledWith(email, clientId);
+          const expectedUrl = `${baseUrl}/#/sso?clientId=desktop&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
+          expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+          expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+          expect(platformUtilsService.launchUri).toHaveBeenCalledWith(expectedUrl);
         }
       });
     });
