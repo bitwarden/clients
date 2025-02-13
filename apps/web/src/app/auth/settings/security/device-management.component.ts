@@ -112,8 +112,8 @@ export class DeviceManagementComponent implements OnDestroy {
     }
 
     // Add new device to the table
-    const newDevice: DeviceTableData = {
-      id: authRequestResponse.id,
+    const upsertDevice: DeviceTableData = {
+      id: null,
       type: authRequestResponse.requestDeviceTypeValue,
       displayName: this.getHumanReadableDeviceType(authRequestResponse.requestDeviceTypeValue),
       loginStatus: this.i18nService.t("requestPending"),
@@ -127,17 +127,29 @@ export class DeviceManagementComponent implements OnDestroy {
       identifier: authRequestResponse.requestDeviceIdentifier,
     };
 
+    // If the device already exists in the DB, update the device id and first login date
+    if (authRequestResponse.requestDeviceIdentifier) {
+      const existingDevice = await firstValueFrom(
+        this.devicesService.getDeviceByIdentifier$(authRequestResponse.requestDeviceIdentifier),
+      );
+
+      if (existingDevice) {
+        upsertDevice.id = existingDevice.id;
+        upsertDevice.firstLogin = new Date(existingDevice.creationDate);
+      }
+    }
+
     const existingDeviceIndex = this.dataSource.data.findIndex(
-      (device) => device.identifier === newDevice.identifier,
+      (device) => device.identifier === upsertDevice.identifier,
     );
 
     if (existingDeviceIndex >= 0) {
       // Update existing device
-      this.dataSource.data[existingDeviceIndex] = newDevice;
+      this.dataSource.data[existingDeviceIndex] = upsertDevice;
       this.dataSource.data = [...this.dataSource.data];
     } else {
       // Add new device
-      this.dataSource.data = [newDevice, ...this.dataSource.data];
+      this.dataSource.data = [upsertDevice, ...this.dataSource.data];
     }
   }
 
