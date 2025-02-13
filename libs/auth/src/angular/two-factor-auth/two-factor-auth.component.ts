@@ -36,6 +36,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -415,7 +416,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     const tdeEnabled = await this.isTrustedDeviceEncEnabled(userDecryptionOpts.trustedDeviceOption);
 
     if (tdeEnabled) {
-      return await this.handleTrustedDeviceEncryptionEnabled(userDecryptionOpts);
+      return await this.handleTrustedDeviceEncryptionEnabled(authResult.userId, userDecryptionOpts);
     }
 
     // User must set password if they don't have one and they aren't using either TDE or key connector.
@@ -464,23 +465,27 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private async handleTrustedDeviceEncryptionEnabled(
+    userId: UserId,
     userDecryptionOpts: UserDecryptionOptions,
   ): Promise<void> {
-    // If user doesn't have a MP, but has reset password permission, they must set a MP
+    // Tde offboarding takes precedence
     if (
+      !userDecryptionOpts.hasMasterPassword &&
+      userDecryptionOpts.trustedDeviceOption?.isTdeOffboarding
+    ) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeOffboarding,
+        userId,
+      );
+    } else if (
       !userDecryptionOpts.hasMasterPassword &&
       userDecryptionOpts.trustedDeviceOption?.hasManageResetPasswordPermission
     ) {
+      // If user doesn't have a MP, but has reset password permission, they must set a MP
+
       // Set flag so that auth guard can redirect to set password screen after decryption (trusted or untrusted device)
       // Note: we cannot directly navigate to the set password screen in this scenario as we are in a pre-decryption state, and
       // if you try to set a new MP before decrypting, you will invalidate the user's data by making a new user key.
-      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
-      if (!userId) {
-        this.logService.error("User ID not found when setting TDE force set password reason");
-        return;
-      }
-
       await this.masterPasswordService.setForceSetPasswordReason(
         ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
         userId,
