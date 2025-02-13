@@ -12,8 +12,7 @@ if (!ipc.platform.isDev) {
   enableProdMode();
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-platformBrowserDynamic().bootstrapModule(AppModule);
+void platformBrowserDynamic().bootstrapModule(AppModule);
 
 // Disable drag and drop to prevent malicious links from executing in the context of the app
 document.addEventListener("dragover", (event) => event.preventDefault());

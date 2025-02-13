@@ -23,8 +23,7 @@ if (process.env.ENV === "production") {
 }
 
 function init() {
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  platformBrowserDynamic().bootstrapModule(AppModule);
+  void platformBrowserDynamic().bootstrapModule(AppModule);
 }
 
 init();

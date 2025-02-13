@@ -11,5 +11,4 @@ if (process.env.NODE_ENV === "production") {
   enableProdMode();
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-platformBrowserDynamic().bootstrapModule(AppModule);
+void platformBrowserDynamic().bootstrapModule(AppModule);
