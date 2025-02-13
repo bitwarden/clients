@@ -28,7 +28,14 @@
 <div class="tw-mt-4 tw-flex tw-flex-col" *ngIf="!loading && dataSource.data.length">
   <div class="tw-flex tw-justify-between tw-mb-4">
     <h2 bitTypography="h2">{{ "criticalApplications" | i18n }}</h2>
-    <button *ngIf="isNotificationsFeatureEnabled" bitButton buttonType="primary" type="button">
+    <button
+      *ngIf="isNotificationsFeatureEnabled"
+      bitButton
+      buttonType="primary"
+      type="button"
+      [disabled]="!enableRequestPasswordChange"
+      (click)="requestPasswordChange()"
+    >
       <i class="bwi bwi-envelope tw-mr-2"></i>
       {{ "requestPasswordChange" | i18n }}
     </button>
