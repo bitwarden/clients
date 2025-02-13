@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, of, switchMap } from "rxjs";
 
@@ -19,7 +19,7 @@ import { SendAddEditComponent } from "../send-add-edit.component";
   imports: [JslibModule, CommonModule, ButtonModule, MenuModule, BadgeModule],
   providers: [DefaultSendFormConfigService],
 })
-export class NewSendDropdownComponent implements OnInit {
+export class NewSendDropdownComponent {
   /** If true, the plus icon will be hidden */
   @Input() hideIcon: boolean = false;
 
@@ -35,9 +35,7 @@ export class NewSendDropdownComponent implements OnInit {
     private accountService: AccountService,
     private dialogService: DialogService,
     private addEditFormConfigService: DefaultSendFormConfigService,
-  ) {}
-
-  async ngOnInit() {
+  ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
         account
