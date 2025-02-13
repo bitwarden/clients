@@ -104,7 +104,7 @@
     *ngIf="filter.type !== 'trash' && filter.collectionId !== Unassigned && organization"
     class="tw-shrink-0"
   >
-    <!-- "New" menu is always shown unless the user cannot create a cipher -->
+    <!-- "New" menu is always shown unless the user cannot create a cipher and cannot create a collection-->
     <ng-container *ngIf="canCreateCipher || canCreateCollection">
       <div appListDropdown>
         <button
