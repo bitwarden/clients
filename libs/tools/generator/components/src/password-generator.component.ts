@@ -2,12 +2,23 @@
 // @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import {
   BehaviorSubject,
   catchError,
   distinctUntilChanged,
   filter,
+  firstValueFrom,
   map,
   ReplaySubject,
   Subject,
@@ -16,8 +27,13 @@ import {
   withLatestFrom,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  SemanticLogger,
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+} from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService, Option } from "@bitwarden/components";
 import {
@@ -29,6 +45,7 @@ import {
   AlgorithmInfo,
   isSameAlgorithm,
   GenerateRequest,
+  CredentialCategories,
 } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -37,7 +54,7 @@ import { GeneratorHistoryService } from "@bitwarden/generator-history";
   selector: "tools-password-generator",
   templateUrl: "password-generator.component.html",
 })
-export class PasswordGeneratorComponent implements OnInit, OnDestroy {
+export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private generatorService: CredentialGeneratorService,
     private generatorHistoryService: GeneratorHistoryService,
@@ -48,12 +65,38 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     private ariaLive: LiveAnnouncer,
   ) {}
 
-  /** Binds the component to a specific user's settings.
-   *  When this input is not provided, the form binds to the active
-   *  user
+  /** Binds the component to a specific user's settings. When this input is not provided,
+   * the form binds to the active user
    */
   @Input()
-  userId: UserId | null;
+  account: Account | null;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  /** Send structured debug logs from the credential generator component
+   *  to the debugger console.
+   *
+   *  @warning this may reveal sensitive information in plaintext.
+   */
+  @Input()
+  debug: boolean = false;
+
+  // this `log` initializer is overridden in `ngOnInit`
+  private log: SemanticLogger = disabledSemanticLoggerProvider({});
+
+  async ngOnChanges(changes: SimpleChanges) {
+    const account = changes?.account;
+    if (account?.previousValue?.id !== account?.currentValue?.id) {
+      this.log.debug(
+        {
+          previousUserId: account?.previousValue?.id as UserId,
+          currentUserId: account?.currentValue?.id as UserId,
+        },
+        "account input change detected",
+      );
+      this.account$.next(this.account);
+    }
+  }
 
   /** Removes bottom margin, passed to downstream components */
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
@@ -63,9 +106,6 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
 
   /** Emits the last generated value. */
   protected readonly value$ = new BehaviorSubject<string>("");
-
-  /** Emits when the userId changes */
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
 
   /** Emits when a new credential is requested */
   private readonly generate$ = new Subject<GenerateRequest>();
@@ -77,8 +117,10 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
    * @param requestor a label used to trace generation request
    *  origin in the debugger.
    */
-  protected async generate(requestor: string) {
-    this.generate$.next({ source: requestor });
+  protected async generate(source: string) {
+    this.log.debug({ source }, "generation requested");
+
+    this.generate$.next({ source });
   }
 
   /** Tracks changes to the selected credential type
@@ -102,20 +144,21 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   readonly onAlgorithm = new EventEmitter<AlgorithmInfo>();
 
   async ngOnInit() {
-    if (this.userId) {
-      this.userId$.next(this.userId);
-    } else {
-      this.accountService.activeAccount$
-        .pipe(
-          map((acct) => acct.id),
-          distinctUntilChanged(),
-          takeUntil(this.destroyed),
-        )
-        .subscribe(this.userId$);
+    this.log = ifEnabledSemanticLoggerProvider(this.debug, this.logService, {
+      type: "UsernameGeneratorComponent",
+    });
+
+    if (!this.account) {
+      this.account = await firstValueFrom(this.accountService.activeAccount$);
+      this.log.info(
+        { userId: this.account.id },
+        "account not specified; using active account settings",
+      );
+      this.account$.next(this.account);
     }
 
     this.generatorService
-      .algorithms$("password", { userId$: this.userId$ })
+      .algorithms$("password", { account$: this.account$ })
       .pipe(
         map((algorithms) => this.toOptions(algorithms)),
         takeUntil(this.destroyed),
@@ -141,12 +184,14 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$, this.algorithm$),
+        withLatestFrom(this.account$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId, algorithm]) => {
+      .subscribe(([generated, account, algorithm]) => {
+        this.log.debug({ source: generated.source }, "credential generated");
+
         this.generatorHistoryService
-          .track(userId, generated.credential, generated.category, generated.generationDate)
+          .track(account.id, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
             this.logService.error(e);
           });
@@ -164,7 +209,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
       });
 
     // assume the last-visible generator algorithm is the user's preferred one
-    const preferences = await this.generatorService.preferences({ singleUserId$: this.userId$ });
+    const preferences = await this.generatorService.preferences({ account$: this.account$ });
     this.credentialType$
       .pipe(
         filter((type) => !!type),
@@ -173,6 +218,10 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
       )
       .subscribe(([algorithm, preference]) => {
         if (isPasswordAlgorithm(algorithm)) {
+          this.log.info(
+            { algorithm, category: CredentialCategories.password },
+            "algorithm preferences updated",
+          );
           preference.password.algorithm = algorithm;
           preference.password.updated = new Date();
         } else {
@@ -190,6 +239,8 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
         takeUntil(this.destroyed),
       )
       .subscribe((algorithm) => {
+        this.log.debug(algorithm, "algorithm selected");
+
         // update navigation
         this.onCredentialTypeChanged(algorithm.id);
 
@@ -205,32 +256,40 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     this.algorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
       this.zone.run(() => {
         if (!a || a.onlyOnRequest) {
+          this.log.debug("autogeneration disabled; clearing generated credential");
           this.value$.next("-");
         } else {
-          this.generate("autogenerate").catch((e: unknown) => this.logService.error(e));
+          this.log.debug("autogeneration enabled");
+          this.generate("autogenerate").catch((e: unknown) => {
+            this.log.error(e as object, "a failure occurred during autogeneration");
+          });
         }
       });
     });
+
+    this.log.debug("component initialized");
   }
 
   private announce(message: string) {
     this.ariaLive.announce(message).catch((e) => this.logService.error(e));
   }
 
-  private typeToGenerator$(type: CredentialAlgorithm) {
+  private typeToGenerator$(algorithm: CredentialAlgorithm) {
     const dependencies = {
       on$: this.generate$,
-      userId$: this.userId$,
+      account$: this.account$,
     };
 
-    switch (type) {
+    this.log.debug({ algorithm }, "constructing generation stream");
+
+    switch (algorithm) {
       case "password":
         return this.generatorService.generate$(Generators.password, dependencies);
 
       case "passphrase":
         return this.generatorService.generate$(Generators.passphrase, dependencies);
       default:
-        throw new Error(`Invalid generator type: "${type}"`);
+        this.log.panic({ algorithm }, `Invalid generator type: "${algorithm}"`);
     }
   }
 
