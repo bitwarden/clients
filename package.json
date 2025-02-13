@@ -191,7 +191,7 @@
     "nord": "0.2.1",
     "oidc-client-ts": "2.4.1",
     "open": "8.4.2",
-    "papaparse": "5.4.1",
+    "papaparse": "5.5.2",
     "patch-package": "8.0.0",
     "popper.js": "1.16.1",
     "proper-lockfile": "4.1.2",
