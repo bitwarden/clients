@@ -207,8 +207,8 @@ export class VaultComponent implements OnInit, OnDestroy {
               tCipher.login.hasTotp &&
               this.userHasPremiumAccess
             ) {
-              const value = await this.totpService.getCode(tCipher.login.totp);
-              this.copyValue(tCipher, value, "verificationCodeTotp", "TOTP");
+              const value = await firstValueFrom(this.totpService.getCode$(tCipher.login.totp));
+              this.copyValue(tCipher, value.code, "verificationCodeTotp", "TOTP");
             }
             break;
           }
@@ -381,8 +381,8 @@ export class VaultComponent implements OnInit, OnDestroy {
           menu.push({
             label: this.i18nService.t("copyVerificationCodeTotp"),
             click: async () => {
-              const value = await this.totpService.getCode(cipher.login.totp);
-              this.copyValue(cipher, value, "verificationCodeTotp", "TOTP");
+              const value = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+              this.copyValue(cipher, value.code, "verificationCodeTotp", "TOTP");
             },
           });
         }
