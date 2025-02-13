@@ -1,15 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import {
   combineLatest,
   debounceTime,
   distinctUntilChanged,
-  filter,
   map,
   Observable,
+  of,
   shareReplay,
   startWith,
   switchMap,
@@ -47,11 +45,14 @@ const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "f
   deserializer: (obj) => obj,
 });
 
+/**
+ * Serialized state of the PopupListFilter for interfacing with the PopupViewCacheService
+ */
 export interface CachedFilterState {
   organizationId?: string;
   collectionId?: string;
   folderId?: string;
-  cipherType?: CipherType;
+  cipherType?: CipherType | null;
 }
 
 /** All available cipher filters */
@@ -142,7 +143,7 @@ export class VaultPopupListFiltersService {
           if (state.organizationId === MY_VAULT_ID) {
             patchValue.organization = { id: MY_VAULT_ID } as Organization;
           } else {
-            const orgOption = orgOptions.find((o) => o.value.id === state.organizationId);
+            const orgOption = orgOptions.find((o) => o.value?.id === state.organizationId);
             patchValue.organization = orgOption?.value || null;
           }
         }
@@ -150,14 +151,14 @@ export class VaultPopupListFiltersService {
         if (state.collectionId) {
           const collection = collectionOptions
             .flatMap((c) => this.flattenOptions(c))
-            .find((c) => c.value.id === state.collectionId)?.value;
+            .find((c) => c.value?.id === state.collectionId)?.value;
           patchValue.collection = collection || null;
         }
 
         if (state.folderId) {
           const folder = folderOptions
             .flatMap((f) => this.flattenOptions(f))
-            .find((f) => f.value.id === state.folderId)?.value;
+            .find((f) => f.value?.id === state.folderId)?.value;
           patchValue.folder = folder || null;
         }
 
@@ -195,10 +196,7 @@ export class VaultPopupListFiltersService {
       deserializer: (v) => v,
     });
 
-    // Load initial state from cache
-    toObservable(cachedFilters)
-      .pipe(filter((state) => Object.keys(state).length > 0))
-      .subscribe((state) => this.deserializeFilters(state));
+    this.deserializeFilters(cachedFilters());
 
     // Save changes to cache
     this.filterForm.valueChanges
@@ -231,14 +229,11 @@ export class VaultPopupListFiltersService {
             return false;
           }
 
-          if (
-            filters.collection !== null &&
-            !cipher.collectionIds?.includes(filters.collection.id)
-          ) {
+          if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
             return false;
           }
 
-          if (filters.folder !== null && cipher.folderId !== filters.folder.id) {
+          if (filters.folder && cipher.folderId !== filters.folder.id) {
             return false;
           }
 
@@ -248,7 +243,7 @@ export class VaultPopupListFiltersService {
             if (cipher.organizationId !== null) {
               return false;
             }
-          } else if (filters.organization !== null) {
+          } else if (filters.organization) {
             if (cipher.organizationId !== filters.organization.id) {
               return false;
             }
@@ -300,7 +295,9 @@ export class VaultPopupListFiltersService {
    */
   organizations$: Observable<ChipSelectOption<Organization>[]> = combineLatest([
     this.accountService.activeAccount$.pipe(
-      switchMap((account) => this.organizationService.memberOrganizations$(account?.id)),
+      switchMap((account) =>
+        account === null ? of([]) : this.organizationService.memberOrganizations$(account.id),
+      ),
     ),
     this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
   ]).pipe(
@@ -371,7 +368,7 @@ export class VaultPopupListFiltersService {
               previousFilter.organization?.id === currentFilter.organization?.id,
           ),
         ),
-        this.folderService.folderViews$(userId),
+        userId ? this.folderService.folderViews$(userId) : [],
         this.cipherViews$,
       ]).pipe(
         map(([filters, folders, cipherViews]): [PopupListFilter, FolderView[], CipherView[]] => {
@@ -500,7 +497,7 @@ export class VaultPopupListFiltersService {
       // Remove "/" from beginning and end of the folder name
       // then split the folder name by the delimiter
       const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NESTING_DELIMITER) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, null, NESTING_DELIMITER);
+      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, undefined, NESTING_DELIMITER);
     });
 
     return nodes;
@@ -519,7 +516,7 @@ export class VaultPopupListFiltersService {
     // When the organization filter changes and a collection is already selected,
     // reset the collection filter if the collection does not belong to the new organization filter
     if (currentFilters.collection && currentFilters.collection.organizationId !== organization.id) {
-      this.filterForm.get("collection").setValue(null);
+      this.filterForm.get("collection")?.setValue(null);
     }
 
     // When the organization filter changes and a folder is already selected,
@@ -534,12 +531,12 @@ export class VaultPopupListFiltersService {
 
       // Find any ciphers within the organization that belong to the current folder
       const newOrgContainsFolder = orgCiphers.some(
-        (oc) => oc.folderId === currentFilters.folder.id,
+        (oc) => oc.folderId === currentFilters?.folder?.id,
       );
 
       // If the new organization does not contain the current folder, reset the folder filter
       if (!newOrgContainsFolder) {
-        this.filterForm.get("folder").setValue(null);
+        this.filterForm.get("folder")?.setValue(null);
       }
     }
   }
