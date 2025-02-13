@@ -369,7 +369,7 @@ export class VaultPopupListFiltersService {
               previousFilter.organization?.id === currentFilter.organization?.id,
           ),
         ),
-        userId ? this.folderService.folderViews$(userId) : [],
+        this.folderService.folderViews$(userId),
         cipherViews$,
       ]).pipe(
         map(([filters, folders, cipherViews]): [PopupListFilter, FolderView[], CipherView[]] => {
