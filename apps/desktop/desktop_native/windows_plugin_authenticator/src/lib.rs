@@ -23,6 +23,21 @@ use windows_core::*;
 pub fn register() -> i32 {
     println!("register()");
 
+    unsafe {
+
+        type WebAuthNGetApiVersionNumberType = unsafe extern "cdecl" fn() -> u32;
+
+        if let Some(api) = delay_load::<WebAuthNGetApiVersionNumberType>(s!("webauthn.dll"), s!("WebAuthNGetApiVersionNumber"))
+        {
+            let r: u32 = api();
+            println!("GetVersion() -> {:?}", r);
+            let err = GetLastError();
+            println!("Last error: {:?}", err);
+        } else {
+            println!("Can't find API");
+        }
+    }
+
     let r = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) };
     println!("CoInitialize(): {:?}", r);
 
@@ -76,6 +91,17 @@ pub fn register() -> i32 {
     let relying_party_id: HSTRING = "bitwarden.com".into();
     let relying_party_id_ptr = PCWSTR(relying_party_id.as_ptr()).as_ptr();
 
+    let picture: HSTRING = "C:\\Users\\cdh-b\\Desktop\\shield.png".into();
+    let picture_ptr = PCWSTR(picture.as_ptr()).as_ptr();
+
+    // random 'ECDSA key NIST P-256' public key hex encoded
+    // chosen b/c this type was in the example: https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_ecckey_blob
+    let key_data = "0495cadb75b265c780311f6b201e003b844738f3718de09e7968e66169f16b10d8fc85f44136cb77422be84115834c90793c4c51ddc43055f5d0469680f6f144a9";
+    let mut key = hex::decode(key_data).unwrap();
+
+    let js: HSTRING = "PCEtLSBSZXBsYWNlIHRoZSBjb250ZW50cyBvZiB0aGlzIGVkaXRvciB3aXRoIHlvdXIgU1ZHIGNvZGUgLS0+Cgo8c3ZnIHJvbGU9ImltZyIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0wIDBoMjR2MjRIMFYwem0yMi4wMzQgMTguMjc2Yy0uMTc1LTEuMDk1LS44ODgtMi4wMTUtMy4wMDMtMi44NzMtLjczNi0uMzQ1LTEuNTU0LS41ODUtMS43OTctMS4xNC0uMDkxLS4zMy0uMTA1LS41MS0uMDQ2LS43MDUuMTUtLjY0Ni45MTUtLjg0IDEuNTE1LS42Ni4zOS4xMi43NS40Mi45NzYuOSAxLjAzNC0uNjc2IDEuMDM0LS42NzYgMS43NTUtMS4xMjUtLjI3LS40Mi0uNDA0LS42MDEtLjU4Ni0uNzgtLjYzLS43MDUtMS40NjktMS4wNjUtMi44MzQtMS4wMzRsLS43MDUuMDg5Yy0uNjc2LjE2NS0xLjMyLjUyNS0xLjcxIDEuMDA1LTEuMTQgMS4yOTEtLjgxMSAzLjU0MS41NjkgNC40NzEgMS4zNjUgMS4wMiAzLjM2MSAxLjI0NCAzLjYxNiAyLjIwNS4yNCAxLjE3LS44NyAxLjU0NS0xLjk2NiAxLjQxLS44MTEtLjE4LTEuMjYtLjU4Ni0xLjc1NS0xLjMzNmwtMS44MyAxLjA1MWMuMjEuNDguNDUuNjg5LjgxIDEuMTA5IDEuNzQgMS43NTYgNi4wOSAxLjY2NiA2Ljg3MS0xLjAwNC4wMjktLjA5LjI0LS43MDUuMDc0LTEuNjVsLjA0Ni4wNjd6bS04Ljk4My03LjI0NWgtMi4yNDhjMCAxLjkzOC0uMDA5IDMuODY0LS4wMDkgNS44MDUgMCAxLjIzMi4wNjMgMi4zNjMtLjEzOCAyLjcxMS0uMzMuNjg5LTEuMTguNjAxLTEuNTY2LjQ4LS4zOTYtLjE5Ni0uNTk3LS40NjYtLjgzLS44NTUtLjA2My0uMTA1LS4xMS0uMTk2LS4xMjctLjE5NmwtMS44MjUgMS4xMjVjLjMwNS42My43NSAxLjE3MiAxLjMyNCAxLjUxNy44NTUuNTEgMi4wMDQuNjc1IDMuMjA3LjQwNS43ODMtLjIyNiAxLjQ1OC0uNjkxIDEuODExLTEuNDExLjUxLS45My40MDItMi4wNy4zOTctMy4zNDYuMDEyLTIuMDU0IDAtNC4xMDkgMC02LjE3OWwuMDA0LS4wNTZ6Ii8+Cjwvc3ZnPg==".into();
+    let mut js_ptr = PCWSTR(js.as_ptr()).as_ptr();
+
     let mut pbPluginIdKey: u8 = 0;
 
     /*
@@ -104,12 +130,32 @@ pub fn register() -> i32 {
         pwszAuthenticatorName: authenticator_name_ptr,
         pwszPluginClsId: clsid_ptr,
         pwszPluginRpId: relying_party_id_ptr,
-        pwszLightThemeLogo: ptr::null_mut(),
-        pwszDarkThemeLogo: ptr::null_mut(),
+        pwszLightThemeLogo: js_ptr,
+        pwszDarkThemeLogo: js_ptr,
         cbAuthenticatorInfo: h.len() as u32,
         pbAuthenticatorInfo: h.as_mut_ptr(),
-        cbPluginIdKey: 0 as u32,
-        pbPluginIdKey: ptr::null_mut(),
+        cbPluginIdKey: key.len() as u32,
+        pbPluginIdKey: key.as_mut_ptr(),
+    };
+
+    let mut v2 = _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS_V2 {
+        pwszAuthenticatorName: authenticator_name_ptr,
+        pwszPluginClsId: clsid_ptr,
+        pwszPluginRpId: relying_party_id_ptr,
+        pwszAaguid: ptr::null(),
+        pwszLogo: js_ptr,
+        cbPluginIdKey: key.len() as u32,
+        pbPluginIdKey: key.as_mut_ptr(),
+    };
+
+    let mut v0 = _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS_V0 {
+        pwszAuthenticatorName: authenticator_name_ptr,
+        pwszPluginClsId: clsid_ptr,
+        pwszPluginRpId: relying_party_id_ptr,
+        pwszLightThemeLogo: js_ptr,
+        pwszDarkThemeLogo: js_ptr,
+        cbAuthenticatorInfo: h.len() as u32,
+        pbAuthenticatorInfo: h.as_mut_ptr(),
     };
 
     // build the response
@@ -138,9 +184,9 @@ pub fn register() -> i32 {
     //println!("AddAuthenticator() -> {:?}/n{:?}", r, HRESULT(r).message());
 
     unsafe {
-        if let Some(api) = delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorType>(s!("webauthn.dll"), s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"))
+        if let Some(api) = delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorTypeV0>(s!("webauthn.dll"), s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"))
         {
-            let r: HRESULT = api(&mut add_options, &mut add_response_ptr);
+            let r: HRESULT = api(&v0, &mut add_response_ptr);
             println!("AddAuthenticator() -> {:?}/n{:?}", r, r.message());
             let err = GetLastError();
             println!("Last error: {:?}", err);
@@ -148,6 +194,43 @@ pub fn register() -> i32 {
             println!("Can't find API");
         }
     }
+
+    // unsafe {
+    //     if let Some(api) = delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorType>(s!("webauthn.dll"), s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"))
+    //     {
+    //         let r: HRESULT = api(&add_options, &mut add_response_ptr);
+    //         println!("AddAuthenticator() -> {:?}/n{:?}", r, r.message());
+    //         let err = GetLastError();
+    //         println!("Last error: {:?}", err);
+    //     } else {
+    //         println!("Can't find API");
+    //     }
+    // }
+
+    // unsafe {
+    //     if let Some(api) = delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorTypeV2>(s!("webauthn.dll"), s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"))
+    //     {
+    //         let r: HRESULT = api(&v2, &mut add_response_ptr);
+    //         println!("AddAuthenticator() -> {:?}/n{:?}", r, r.message());
+    //         let err = GetLastError();
+    //         println!("Last error: {:?}", err);
+    //     } else {
+    //         println!("Can't find API");
+    //     }
+    // }
+
+    // seg fault, which makes sense
+    // unsafe {
+    //     if let Some(api) = delay_load::<EXPERIMENTAL_WebAuthNPluginAddAuthenticatorTypeV3>(s!("webauthn.dll"), s!("EXPERIMENTAL_WebAuthNPluginAddAuthenticator"))
+    //     {
+    //         let r: HRESULT = api();
+    //         println!("AddAuthenticator() -> {:?}/n{:?}", r, r.message());
+    //         let err = GetLastError();
+    //         println!("Last error: {:?}", err);
+    //     } else {
+    //         println!("Can't find API");
+    //     }
+    // }
 
     8
 }
@@ -161,10 +244,78 @@ unsafe extern "C" {
 }
 */
 
+/*
+typedef struct _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
+    // Authenticator Name
+    LPCWSTR pwszAuthenticatorName;
+
+    // Plugin COM ClsId
+    LPCWSTR pwszPluginClsId;
+
+    // Plugin RPID (Optional. Required for a nested WebAuthN call originating from a plugin)
+    LPCWSTR pwszPluginRpId;
+
+    // Plugin Authenticator Logo for the Light themes. base64 svg (Optional)
+    LPCWSTR pwszLightThemeLogo;
+
+    // Plugin Authenticator Logo for the Dark themes. base64 svg (Optional)
+    LPCWSTR pwszDarkThemeLogo;
+
+    // CTAP CBOR encoded authenticatorGetInfo
+    DWORD cbAuthenticatorInfo;
+    _Field_size_bytes_(cbAuthenticatorInfo)
+    PBYTE pbAuthenticatorInfo;
+
+} EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS, *EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS;
+typedef const EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS *EXPERIMENTAL_PCWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS;
+*/
+
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS_V0 {
+    pub pwszAuthenticatorName: *const u16,
+    pub pwszPluginClsId: *const u16,
+    pub pwszPluginRpId: *const u16,
+    pub pwszLightThemeLogo: *const u16,
+    pub pwszDarkThemeLogo: *const u16,
+    pub cbAuthenticatorInfo: u32,
+    pub pbAuthenticatorInfo: *const u8,
+}
+
+// ADD OPTIONS V2
+#[repr(C)]
+struct _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS_V2 {
+    // Authenticator Name
+    pwszAuthenticatorName: *const u16,
+    // Plugin COM ClsId
+    pwszPluginClsId: *const u16,
+    // Plugin Authenticator AAGUID (Optional)
+    pwszAaguid: *const u16,
+    // Plugin RPID (Optional)
+    pwszPluginRpId: *const u16,
+    // Plugin Authenticator Logo base64 svg (Optional)
+    pwszLogo: *const u16,
+    // Plugin Id Public Key
+    cbPluginIdKey: u32,
+    pbPluginIdKey: *const u8,
+}
+
+type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorTypeV0 = unsafe extern "cdecl" fn(
+    pPluginAddAuthenticatorOptions: *const _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS_V0,
+    ppPluginAddAuthenticatorResponse : *mut pa::EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
+) -> HRESULT;
+
 type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorType = unsafe extern "cdecl" fn(
     pPluginAddAuthenticatorOptions: pa::EXPERIMENTAL_PCWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
     ppPluginAddAuthenticatorResponse : *mut pa::EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
 ) -> HRESULT;
+
+type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorTypeV2 = unsafe extern "cdecl" fn(
+    pPluginAddAuthenticatorOptions: *const _EXPERIMENTAL_WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS_V2,
+    ppPluginAddAuthenticatorResponse : *mut pa::EXPERIMENTAL_PWEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
+) -> HRESULT;
+
+type EXPERIMENTAL_WebAuthNPluginAddAuthenticatorTypeV3 = unsafe extern "cdecl" fn() -> HRESULT;
 
 pub unsafe fn delay_load<T>(library: PCSTR, function: PCSTR) -> Option<T> {
     let library = LoadLibraryExA(library, None, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
