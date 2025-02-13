@@ -90,16 +90,19 @@ export class VaultPopupItemsService {
    * Observable that contains the list of all decrypted ciphers.
    * @private
    */
-  private _allDecryptedCiphers$: Observable<CipherView[]> = merge(
-    this.cipherService.ciphers$,
-    this.cipherService.localData$,
-  ).pipe(
-    runInsideAngular(inject(NgZone)), // Workaround to ensure cipher$ state provider emissions are run inside Angular
-    tap(() => this._ciphersLoading$.next()),
-    waitUntilSync(this.syncService),
-    switchMap(() => Utils.asyncToObservable(() => this.cipherService.getAllDecrypted())),
-    withLatestFrom(this.cipherService.failedToDecryptCiphers$),
-    map(([ciphers, failedToDecryptCiphers]) => [...failedToDecryptCiphers, ...ciphers]),
+  private _allDecryptedCiphers$: Observable<CipherView[]> = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    filter((userId) => userId != null),
+    switchMap((userId) =>
+      merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+        runInsideAngular(this.ngZone),
+        tap(() => this._ciphersLoading$.next()),
+        waitUntilSync(this.syncService),
+        switchMap(() => Utils.asyncToObservable(() => this.cipherService.getAllDecrypted(userId))),
+        withLatestFrom(this.cipherService.failedToDecryptCiphers$(userId)),
+        map(([ciphers, failedToDecryptCiphers]) => [...failedToDecryptCiphers, ...ciphers]),
+      ),
+    ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -218,6 +221,7 @@ export class VaultPopupItemsService {
     map(([hasSearchText, filters]) => {
       return hasSearchText || Object.values(filters).some((filter) => filter !== null);
     }),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   /**
@@ -284,6 +288,7 @@ export class VaultPopupItemsService {
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private syncService: SyncService,
     private accountService: AccountService,
+    private ngZone: NgZone,
   ) {}
 
   applyFilter(newSearchText: string | null) {
