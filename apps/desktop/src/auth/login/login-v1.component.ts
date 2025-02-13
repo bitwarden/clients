@@ -217,7 +217,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
   }
 
   async launchSsoBrowser(clientId: string, ssoRedirectUri: string) {
-    if (!ipc.platform.isAppImage && !ipc.platform.isSnapStore && !ipc.platform.isDev) {
+    if (!ipc.platform.isAppImage && !ipc.platform.isDev) {
       return super.launchSsoBrowser(clientId, ssoRedirectUri);
     }
 

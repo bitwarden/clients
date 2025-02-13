@@ -37,7 +37,7 @@ export class DesktopLoginComponentService
   }
 
   override async launchSsoBrowserWindow(email: string, clientId: "desktop"): Promise<void | null> {
-    if (!ipc.platform.isAppImage && !ipc.platform.isSnapStore && !ipc.platform.isDev) {
+    if (!ipc.platform.isAppImage && !ipc.platform.isDev) {
       return super.launchSsoBrowserWindow(email, clientId);
     }
 
