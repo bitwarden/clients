@@ -1,5 +1,7 @@
-<app-header></app-header>
-
+<app-header [isFreeOrFamilyOrg]="organization.isFreeOrFamilyOrg"></app-header>
+<div class="tw-text-muted tw-mb-4" *ngIf="organization.isFreeOrFamilyOrg">
+  {{ dummyEventsDisclaimer }}
+</div>
 <div class="tw-mb-4" [formGroup]="eventsForm">
   <div class="tw-mt-4 tw-flex tw-items-center">
     <bit-form-field>
@@ -31,6 +33,7 @@
         bitFormButton
         buttonType="primary"
         [bitAction]="refreshEvents"
+        [disabled]="organization.isFreeOrFamilyOrg"
       >
         {{ "update" | i18n }}
       </button>
@@ -42,7 +45,7 @@
         bitButton
         bitFormButton
         [bitAction]="exportEvents"
-        [disabled]="dirtyDates"
+        [disabled]="dirtyDates || organization.isFreeOrFamilyOrg"
       >
         <span>{{ "export" | i18n }}</span>
         <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
@@ -58,7 +61,7 @@
   ></i>
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
-<ng-container *ngIf="loaded">
+<ng-container *ngIf="loaded && !organization.isFreeOrFamilyOrg">
   <p *ngIf="!events || !events.length">{{ "noEventsInList" | i18n }}</p>
   <bit-table *ngIf="events && events.length">
     <ng-container header>
@@ -91,4 +94,56 @@
   >
     {{ "loadMore" | i18n }}
   </button>
+</ng-container>
+
+<ng-container *ngIf="loaded && organization.isFreeOrFamilyOrg">
+  <bit-table>
+    <ng-container header>
+      <tr>
+        <th bitCell>{{ "timestamp" | i18n }}</th>
+        <th bitCell>{{ "client" | i18n }}</th>
+        <th bitCell>{{ "member" | i18n }}</th>
+        <th bitCell>{{ "event" | i18n }}</th>
+      </tr>
+    </ng-container>
+
+    <ng-template body>
+      <tr bitRow *ngFor="let event of dummyEventsSorted" alignContent="top">
+        <td bitCell class="tw-whitespace-nowrap">{{ event.timeStamp }}</td>
+        <td bitCell>
+          <span title="{{ event.deviceType }}">{{ event.deviceType }}</span>
+        </td>
+        <td bitCell>
+          <span title="{{ event.member }}">{{ event.member }}</span>
+        </td>
+        <td bitCell [innerHTML]="formatEventText(event.event)">{{ event.event }}</td>
+      </tr>
+
+      <tr bitRow *ngFor="let _ of [].constructor(6)" alignContent="top">
+        <td bitCell>******</td>
+        <td bitCell>***</td>
+        <td bitCell>**********</td>
+        <td bitCell>**********</td>
+      </tr>
+    </ng-template>
+  </bit-table>
+
+  <div
+    class="tw-relative tw--top-72 tw-bg-[#ffffff] tw-bg-opacity-90 tw-pb-5 tw-flex tw-items-center tw-justify-center"
+  >
+    <div
+      class="tw-bg-[#ffffff] tw-max-w-xl tw-flex-col tw-justify-center tw-text-center tw-p-5 tw-px-10 tw-rounded tw-border-0 tw-border-b tw-border-secondary-300 tw-border-solid mt-5"
+    >
+      <i class="bwi bwi-2x bwi-business text-primary"></i>
+
+      <p class="tw-font-bold mt-2">{{ "limitedEventLogs" | i18n: getOrganizationPlan() }}</p>
+      <p>
+        {{ "upgradeForFullEvents" | i18n }}
+      </p>
+
+      <button type="button" class="tw-mt-1" bitButton buttonType="primary" (click)="changePlan()">
+        {{ "changeBillingPlan" | i18n }}
+      </button>
+    </div>
+  </div>
 </ng-container>
