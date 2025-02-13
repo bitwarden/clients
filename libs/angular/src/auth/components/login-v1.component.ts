@@ -160,8 +160,6 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
       return;
     }
 
-    await this.saveEmailSettings();
-
     try {
       const credentials = new PasswordLoginCredentials(
         this.formGroup.controls.email.value,
@@ -240,7 +238,6 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
       return;
     }
 
-    await this.saveEmailSettings();
     await this.router.navigate(["/login-with-device"]);
   }
 
@@ -291,6 +288,7 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
     const emailValid = this.formGroup.get("email").valid;
 
     if (emailValid) {
+      await this.saveEmailSettings();
       this.toggleValidateEmail(true);
       await this.getLoginWithDevice(this.loggedEmail);
     }
