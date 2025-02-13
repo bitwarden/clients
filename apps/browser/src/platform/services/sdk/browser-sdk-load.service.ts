@@ -60,8 +60,10 @@ async function importModule(): Promise<GlobalWithWasmInit["initSdk"]> {
   return (globalThis as GlobalWithWasmInit).initSdk;
 }
 
-export class BrowserSdkLoadService implements SdkLoadService {
-  constructor(readonly logService: LogService) {}
+export class BrowserSdkLoadService extends SdkLoadService {
+  constructor(readonly logService: LogService) {
+    super();
+  }
 
   async load(): Promise<void> {
     const startTime = performance.now();

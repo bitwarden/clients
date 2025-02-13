@@ -54,7 +54,7 @@ export class InitService {
 
   init() {
     return async () => {
-      await this.sdkLoadService.load();
+      await this.sdkLoadService.loadAndInit();
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.stateService.init({ runMigrations: false }); // Desktop will run them in main process
