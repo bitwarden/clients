@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { inject, Injectable, NgZone } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import {
@@ -27,7 +25,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -48,7 +46,7 @@ import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-fi
   providedIn: "root",
 })
 export class VaultPopupItemsService {
-  private cachedSearchText = inject(PopupViewCacheService).signal({
+  private cachedSearchText = inject(PopupViewCacheService).signal<string>({
     key: "vault-search-text",
     initialValue: "",
   });
@@ -61,8 +59,13 @@ export class VaultPopupItemsService {
    */
   private _ciphersLoading$ = new Subject<void>();
 
-  private organizations$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) => this.organizationService.organizations$(account?.id)),
+  private activeUserId$ = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    filter((userId): userId is UserId => userId !== null),
+  );
+
+  private organizations$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.organizationService.organizations$(userId)),
   );
   /**
    * Observable that contains the list of other cipher types that should be shown
@@ -92,7 +95,7 @@ export class VaultPopupItemsService {
    */
   private _allDecryptedCiphers$: Observable<CipherView[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
-    filter((userId) => userId != null),
+    filter((userId): userId is UserId => userId != null),
     switchMap((userId) =>
       merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
         runInsideAngular(this.ngZone),
@@ -146,7 +149,9 @@ export class VaultPopupItemsService {
     ]),
     switchMap(
       ([ciphers, searchText]) =>
-        this.searchService.searchCiphers(searchText, null, ciphers) as Promise<PopupCipherView[]>,
+        this.searchService.searchCiphers(searchText, undefined, ciphers) as Promise<
+          PopupCipherView[]
+        >,
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -163,7 +168,7 @@ export class VaultPopupItemsService {
     this.vaultPopupAutofillService.currentAutofillTab$,
   ]).pipe(
     switchMap(([ciphers, otherTypes, tab]) => {
-      if (!tab) {
+      if (!tab || !tab.url) {
         return of([]);
       }
       return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
@@ -248,7 +253,7 @@ export class VaultPopupItemsService {
         return false;
       }
 
-      const org = orgs.find((o) => o.id === filters.organization.id);
+      const org = orgs.find((o) => o.id === filters?.organization?.id);
       return org ? !org.enabled : false;
     }),
   );
@@ -291,7 +296,7 @@ export class VaultPopupItemsService {
     private ngZone: NgZone,
   ) {}
 
-  applyFilter(newSearchText: string | null) {
+  applyFilter(newSearchText: string) {
     this.cachedSearchText.set(newSearchText);
   }
 

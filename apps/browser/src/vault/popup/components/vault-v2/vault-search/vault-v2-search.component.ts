@@ -18,7 +18,7 @@ const SearchTextDebounceInterval = 200;
   templateUrl: "vault-v2-search.component.html",
 })
 export class VaultV2SearchComponent {
-  searchText: string | null = null;
+  searchText: string = "";
 
   private searchText$ = new Subject<string>();
 

@@ -109,7 +109,10 @@ export class VaultPopupListFiltersService {
    */
   private cipherViews: CipherView[] = [];
 
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+  private activeUserId$ = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    filter((userId): userId is UserId => userId !== null),
+  );
 
   private serializeFilters(): CachedFilterState {
     return {
@@ -351,7 +354,6 @@ export class VaultPopupListFiltersService {
    * Folder array structured to be directly passed to `ChipSelectComponent`
    */
   folders$: Observable<ChipSelectOption<FolderView>[]> = this.activeUserId$.pipe(
-    filter((userId): userId is UserId => userId !== null),
     switchMap((userId) => {
       // Observable of cipher views
       const cipherViews$ = this.cipherService.cipherViews$(userId).pipe(
