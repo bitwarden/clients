@@ -69,6 +69,7 @@ import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sd
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import {
   UnsupportedWebPushConnectionService,
@@ -116,6 +117,7 @@ import { I18nService } from "../core/i18n.service";
 import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
 import { WebBiometricsService } from "../key-management/web-biometric.service";
+import { WebIpcService } from "../platform/ipc/web-ipc.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
 import { WebSdkLoadService } from "../platform/web-sdk-load.service";
@@ -331,6 +333,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginDecryptionOptionsService,
     useClass: WebLoginDecryptionOptionsService,
     deps: [MessagingService, RouterService, AcceptOrganizationInviteService],
+  }),
+  safeProvider({
+    provide: IpcService,
+    useClass: WebIpcService,
+    deps: [SdkService],
   }),
 ];
 
