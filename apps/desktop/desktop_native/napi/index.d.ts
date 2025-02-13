@@ -145,6 +145,12 @@ export declare namespace autofill {
   }
   export interface PasskeyAssertionRequest {
     rpId: string
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+    allowedCredentials: Array<Array<number>>
+  }
+  export interface PasskeyAssertionWithoutUserInterfaceRequest {
+    rpId: string
     credentialId: Array<number>
     userName: string
     userHandle: Array<number>
@@ -167,7 +173,7 @@ export declare namespace autofill {
      * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
      * @param callback This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void): Promise<IpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
     getPath(): string
     /** Stop the IPC server. */

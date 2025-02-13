@@ -10,6 +10,7 @@ import {
   shareReplay,
   Subject,
   switchMap,
+  tap,
 } from "rxjs";
 import { SemVer } from "semver";
 
@@ -141,6 +142,7 @@ export class CipherService implements CipherServiceAbstraction {
     this.cipherViews$ = combineLatest([this.encryptedCiphersState.state$, this.localData$]).pipe(
       filter(([ciphers]) => ciphers != null), // Skip if ciphers haven't been loaded yor synced yet
       switchMap(() => merge(this.forceCipherViews$, this.getAllDecrypted())),
+      tap((v) => console.log("---- cipherViews$", v)),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
     this.addEditCipherInfo$ = this.addEditCipherInfoState.state$;
