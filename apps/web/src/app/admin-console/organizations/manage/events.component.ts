@@ -2,11 +2,12 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { concatMap, firstValueFrom, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
   OrganizationService,
@@ -15,14 +16,20 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { EventSystemUser } from "@bitwarden/common/enums";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
+import {
+  ChangePlanDialogResultType,
+  openChangePlanDialog,
+} from "../../../billing/organizations/change-plan-dialog.component";
 import { EventService } from "../../../core";
 import { EventExportService } from "../../../tools/event-export";
 import { BaseEventsComponent } from "../../common/base.events.component";
@@ -41,9 +48,52 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   exportFileName = "org-events";
   organizationId: string;
   organization: Organization;
+  sub: OrganizationSubscriptionResponse;
+  userOrg: Organization;
+  dummyEvents = [
+    {
+      timeStamp: this.getRandomDateTime(),
+      deviceType: "Extension - Firefox",
+      member: "Alice",
+      event: "Logged in",
+    },
+    {
+      timeStamp: this.getRandomDateTime(),
+      deviceType: "Mobile - iOS",
+      member: "Bob",
+      event: "Viewed item 000000",
+    },
+    {
+      timeStamp: this.getRandomDateTime(),
+      deviceType: "Desktop - Linux",
+      member: "Carlos",
+      event: "Login attempt failed with incorrect password",
+    },
+    {
+      timeStamp: this.getRandomDateTime(),
+      deviceType: "Web vault - Chrome",
+      member: "Ivan",
+      event: "Confirmed user 000000",
+    },
+    {
+      timeStamp: this.getRandomDateTime(),
+      deviceType: "Mobile - Android",
+      member: "Franz",
+      event: "Sent item 000000 to trash",
+    },
+  ];
+
+  dummyEventsSorted: {
+    timeStamp: string;
+    deviceType: string;
+    member: string;
+    event: string;
+  }[];
 
   private orgUsersUserIdMap = new Map<string, any>();
   private destroy$ = new Subject<void>();
+  readonly dummyEventsDisclaimer =
+    "These events are examples only and do not reflect real events within your Bitwarden organization.";
 
   constructor(
     private apiService: ApiService,
@@ -57,10 +107,12 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     private userNamePipe: UserNamePipe,
     private organizationService: OrganizationService,
     private organizationUserApiService: OrganizationUserApiService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
     private providerService: ProviderService,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
     private accountService: AccountService,
+    private dialogService: DialogService,
   ) {
     super(
       eventService,
@@ -84,10 +136,30 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
               .organizations$(userId)
               .pipe(getOrganizationById(this.organizationId)),
           );
-          if (this.organization == null || !this.organization.useEvents) {
+
+          if (
+            !this.organization ||
+            (!this.organization.useEvents && !this.organization.isFreeOrFamilyOrg)
+          ) {
+            //update true to isFamily
             await this.router.navigate(["/organizations", this.organizationId]);
             return;
           }
+
+          if (this.organization.isOwner && this.organization.isFreeOrFamilyOrg) {
+            this.eventsForm.get("start").disable();
+            this.eventsForm.get("end").disable();
+
+            this.sortDummyEvents();
+
+            this.userOrg = await firstValueFrom(
+              this.organizationService
+                .organizations$(userId)
+                .pipe(getOrganizationById(this.organizationId)),
+            );
+            this.sub = await this.organizationApiService.getSubscription(this.organizationId);
+          }
+
           await this.load();
         }),
         takeUntil(this.destroy$),
@@ -184,6 +256,57 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
   private getShortId(id: string) {
     return id?.substring(0, 8);
+  }
+
+  async changePlan() {
+    const reference = openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        subscription: this.sub,
+        productTierType: this.userOrg.productTierType,
+      },
+    });
+
+    const result = await lastValueFrom(reference.closed);
+
+    if (result === ChangePlanDialogResultType.Closed) {
+      return;
+    }
+    await this.load();
+  }
+
+  getRandomDateTime() {
+    const now = new Date();
+    const past24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const randomTime =
+      past24Hours.getTime() + Math.random() * (now.getTime() - past24Hours.getTime());
+    const randomDate = new Date(randomTime);
+
+    return randomDate.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  }
+
+  sortDummyEvents() {
+    this.dummyEventsSorted = this.dummyEvents.sort(
+      (a, b) => new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime(),
+    );
+  }
+
+  getOrganizationPlan() {
+    const tierValue = this.organization.productTierType;
+    const tierName = ProductTierType[tierValue];
+    return tierName;
+  }
+
+  formatEventText(event: string): string {
+    return event.replace(/000000/g, '<span class="tw-text-code">000000</span>');
   }
 
   ngOnDestroy() {

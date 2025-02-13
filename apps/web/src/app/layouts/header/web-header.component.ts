@@ -27,6 +27,9 @@ export class WebHeaderComponent {
    */
   @Input() icon: string;
 
+  /** Whether the current organization is a free or family organization */
+  @Input() isFreeOrFamilyOrg = false;
+
   protected routeData$: Observable<{ titleId: string }>;
   protected account$: Observable<User & { id: UserId }>;
   protected canLock$: Observable<boolean>;
