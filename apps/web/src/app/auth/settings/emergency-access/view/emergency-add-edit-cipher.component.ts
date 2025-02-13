@@ -23,7 +23,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
 
 import { AddEditComponent as BaseAddEditComponent } from "../../../../vault/individual-vault/add-edit.component";
 
@@ -59,6 +59,7 @@ export class EmergencyAddEditCipherComponent extends BaseAddEditComponent implem
     cipherAuthorizationService: CipherAuthorizationService,
     toastService: ToastService,
     sdkService: SdkService,
+    sshImportPromptService: SshImportPromptService,
   ) {
     super(
       cipherService,
@@ -83,6 +84,7 @@ export class EmergencyAddEditCipherComponent extends BaseAddEditComponent implem
       cipherAuthorizationService,
       toastService,
       sdkService,
+      sshImportPromptService,
     );
   }
 

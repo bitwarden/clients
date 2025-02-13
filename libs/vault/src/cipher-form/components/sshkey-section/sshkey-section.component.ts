@@ -7,7 +7,6 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
@@ -22,6 +21,7 @@ import {
 } from "@bitwarden/components";
 import { generate_ssh_key } from "@bitwarden/sdk-internal";
 
+import { SshImportPromptService } from "../../../services/ssh-import-prompt.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 @Component({
@@ -63,8 +63,8 @@ export class SshKeySectionComponent implements OnInit {
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
-    private i18nService: I18nService,
     private sdkService: SdkService,
+    private sshImportPromptService: SshImportPromptService,
   ) {
     this.cipherFormContainer.registerChildForm("sshKeyDetails", this.sshKeyForm);
     this.sshKeyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
@@ -98,6 +98,17 @@ export class SshKeySectionComponent implements OnInit {
       publicKey,
       keyFingerprint,
     });
+  }
+
+  async importSshKeyFromClipboard() {
+    const key = await this.sshImportPromptService.importSshKeyFromClipboard();
+    if (key != null) {
+      this.sshKeyForm.setValue({
+        privateKey: key.privateKey,
+        publicKey: key.publicKey,
+        keyFingerprint: key.keyFingerprint,
+      });
+    }
   }
 
   private async generateSshKey() {

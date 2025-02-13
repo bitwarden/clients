@@ -23,5 +23,7 @@ export { DecryptionFailureDialogComponent } from "./components/decryption-failur
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 export * as VaultIcons from "./icons";
-
 export * from "./tasks";
+
+export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
+export { SshImportPromptService } from "./services/ssh-import-prompt.service";

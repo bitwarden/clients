@@ -9,6 +9,7 @@
       // TODO: Remove once billing stops depending on components
       "@bitwarden/components": ["../components/src"],
       "@bitwarden/key-management": ["../key-management/src"],
+      "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"],
       "@bitwarden/platform": ["../platform/src"],
       // TODO: Remove once billing stops depending on components
       "@bitwarden/ui-common": ["../ui/common/src"]
