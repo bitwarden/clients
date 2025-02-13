@@ -689,7 +689,7 @@ function createSeededVaultPopupListFiltersService(
     }),
   } as any;
 
-  const accountServiceMock = mockAccountServiceWith("userId" as string);
+  const accountServiceMock = mockAccountServiceWith("userId" as UserId);
   const formBuilderInstance = new FormBuilder();
 
   const seededCachedSignal = createMockSignal<CachedFilterState>(cachedState);
