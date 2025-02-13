@@ -3,9 +3,9 @@
   *ngIf="{ enabled: accountDeprovisioningEnabled$ | async } as accountDeprovisioning"
 >
   <ng-container bitDialogTitle>
-    <h1 *ngIf="accountDeprovisioning.enabled; else nonMemberTitle">{{ bulkMemberTitle }}</h1>
+    <h3 *ngIf="accountDeprovisioning.enabled; else nonMemberTitle">{{ bulkMemberTitle }}</h3>
     <ng-template #nonMemberTitle>
-      <h1>{{ bulkTitle }}</h1>
+      <h3>{{ bulkTitle }}</h3>
     </ng-template>
   </ng-container>
 
@@ -46,10 +46,7 @@
     </ng-template>
 
     <ng-container *ngIf="!done">
-      <bit-callout type="warning" *ngIf="users.length > 0 && !error && isRevoking">
-        <p>{{ "revokeUsersWarning" | i18n }}</p>
-      </bit-callout>
-
+      <p *ngIf="users.length > 0 && !error && isRevoking">{{ "revokeUsersWarning" | i18n }}</p>
       <bit-table>
         <ng-container header>
           <tr>
@@ -109,7 +106,13 @@
     </ng-container>
   </div>
   <ng-container bitDialogFooter>
-    <button type="button" bitButton *ngIf="!done && users.length > 0" [bitAction]="submit">
+    <button
+      type="button"
+      bitButton
+      *ngIf="!done && users.length > 0"
+      [bitAction]="submit"
+      buttonType="primary"
+    >
       {{ accountDeprovisioning.enabled ? bulkMemberTitle : bulkTitle }}
     </button>
     <button type="button" bitButton buttonType="secondary" bitDialogClose>
