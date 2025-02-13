@@ -5,6 +5,7 @@ import {
   combineLatest,
   debounceTime,
   distinctUntilChanged,
+  filter,
   map,
   Observable,
   of,
@@ -30,6 +31,7 @@ import {
   StateProvider,
   VAULT_SETTINGS_DISK,
 } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -349,16 +351,15 @@ export class VaultPopupListFiltersService {
    * Folder array structured to be directly passed to `ChipSelectComponent`
    */
   folders$: Observable<ChipSelectOption<FolderView>[]> = this.activeUserId$.pipe(
+    filter((userId): userId is UserId => userId !== null),
     switchMap((userId) => {
       // Observable of cipher views
-      const cipherViews$ = userId
-        ? this.cipherService.cipherViews$(userId).pipe(
-            tap((cipherViews) => {
-              this.cipherViews = Object.values(cipherViews);
-            }),
-            map((ciphers) => Object.values(ciphers)),
-          )
-        : [];
+      const cipherViews$ = this.cipherService.cipherViews$(userId).pipe(
+        tap((cipherViews) => {
+          this.cipherViews = Object.values(cipherViews);
+        }),
+        map((ciphers) => Object.values(ciphers)),
+      );
 
       return combineLatest([
         this.filters$.pipe(
