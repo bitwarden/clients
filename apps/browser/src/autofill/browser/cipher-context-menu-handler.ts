@@ -21,7 +21,7 @@ export class CipherContextMenuHandler {
     private accountService: AccountService,
   ) {}
 
-  async update(url: string) {
+  async update(url: string, currentUriIsBlocked: boolean = false) {
     if (this.mainContextMenuHandler.initRunning) {
       return;
     }
@@ -87,6 +87,10 @@ export class CipherContextMenuHandler {
 
     for (const cipher of ciphers) {
       await this.updateForCipher(cipher);
+    }
+
+    if (currentUriIsBlocked) {
+      await this.mainContextMenuHandler.removeBlockedUriMenuItems();
     }
   }
 
