@@ -33,15 +33,16 @@
     <div class="tw-mb-3 tw-flex tw-flex-col tw-items-center tw-justify-center">
       <p class="tw-mb-3">{{ "or" | i18n }}</p>
 
-      <a
-        bitLink
+      <button
+        type="button"
+        bitButton
         block
-        linkType="primary"
-        routerLink="/login-with-passkey"
-        (mousedown)="$event.preventDefault()"
+        buttonType="primary"
+        (click)="handleLoginWithPasskeyClick()"
       >
-        <span><i class="bwi bwi-passkey"></i> {{ "logInWithPasskey" | i18n }}</span>
-      </a>
+        <i class="bwi bwi-passkey tw-mr-1"></i>
+        {{ "logInWithPasskey" | i18n }}
+      </button>
     </div>
 
     <hr />
