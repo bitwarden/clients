@@ -93,6 +93,8 @@ export class PasswordSettingsComponent implements OnInit, OnDestroy {
     [Controls.avoidAmbiguous]: [!Generators.password.settings.initial.ambiguous],
   });
 
+  protected minLength: number;
+
   private get numbers() {
     return this.settings.get(Controls.number);
   }
@@ -138,6 +140,8 @@ export class PasswordSettingsComponent implements OnInit, OnDestroy {
           );
         }
         this.lengthBoundariesHint.next(boundariesHint);
+
+        this.minLength = constraints?.minLength?.min ?? 5;
 
         // skips reactive event emissions to break a subscription cycle
         this.settings.patchValue(state, { emitEvent: false });
