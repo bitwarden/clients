@@ -1,10 +1,6 @@
 import { Observable } from "rxjs";
 
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-
-import { OrganizationEncryptor } from "./cryptography/organization-encryptor.abstraction";
-import { UserEncryptor } from "./cryptography/user-encryptor.abstraction";
 
 /** error emitted when the `SingleUserDependency` changes Ids */
 export type UserChangedError = {
@@ -22,22 +18,21 @@ export type OrganizationChangedError = {
   actualOrganizationId: OrganizationId;
 };
 
-/** A pattern for types that depend upon a dynamic policy stream and return
- *  an observable.
+/** A pattern for types that depend upon the lifetime of a fixed dependency.
+ *  The dependency's lifetime is tracked through the observable. The observable
+ *  emits the dependency once it becomes available and completes when the
+ *  dependency becomes unavailable.
  *
- *  Consumers of this dependency should emit when `policy$`
- *  emits, provided that the latest message materially
- *  changes the output of the consumer. If `policy$` emits
- *  an unrecoverable error, the consumer should continue using
- *  the last-emitted policy. If `policy$` completes, the consumer
- *  should continue using the last-emitted policy.
+ *  Consumers of this dependency should emit a `SequenceError` if the dependency emits
+ *  multiple times. When the dependency completes, the consumer should also
+ *  complete. When the dependency errors, the consumer should also error.
  */
-export type PolicyDependency = {
-  /** A stream that emits policies when subscribed and
-   *  when the policy changes. The stream should not
-   *  emit null or undefined.
+export type BoundDependency<Name extends string, T> = {
+  /** A stream that emits a dependency once it becomes available
+   *  and completes when the dependency becomes unavailable. The stream emits
+   *  only once per subscription and never emits null or undefined.
    */
-  policy$: Observable<Policy[]>;
+  [K in `${Name}$`]: Observable<T>;
 };
 
 /** A pattern for types that depend upon a dynamic userid and return
@@ -72,26 +67,6 @@ export type OrganizationBound<K extends keyof any, T> = { [P in K]: T } & {
   organizationId: OrganizationId;
 };
 
-/** A pattern for types that depend upon a fixed-key encryptor and return
- *  an observable.
- *
- * Consumers of this dependency should emit a `OrganizationChangedError` if
- * the bound OrganizationId changes or if the encryptor changes. If
- * `singleOrganizationEncryptor$` completes, the consumer should complete
- *  once all events received prior to the completion event are
- *  finished processing. The consumer should, where possible,
- *  prioritize these events in order to complete as soon as possible.
- *  If `singleOrganizationEncryptor$` emits an unrecoverable error, the consumer
- *  should also emit the error.
- */
-export type SingleOrganizationEncryptorDependency = {
-  /** A stream that emits an encryptor when subscribed and the org key
-   *  is available, and completes when the org key is no longer available.
-   *  The stream should not emit null or undefined.
-   */
-  singleOrgEncryptor$: Observable<OrganizationBound<"encryptor", OrganizationEncryptor>>;
-};
-
 /** A pattern for types that depend upon a fixed-value organizationId and return
  *  an observable.
  *
@@ -110,26 +85,6 @@ export type SingleOrganizationDependency = {
    *  The stream should not emit null or undefined.
    */
   singleOrganizationId$: Observable<UserBound<"organizationId", OrganizationId>>;
-};
-
-/** A pattern for types that depend upon a fixed-key encryptor and return
- *  an observable.
- *
- * Consumers of this dependency should emit a `UserChangedError` if
- * the bound UserId changes or if the encryptor changes. If
- * `singleUserEncryptor$` completes, the consumer should complete
- *  once all events received prior to the completion event are
- *  finished processing. The consumer should, where possible,
- *  prioritize these events in order to complete as soon as possible.
- *  If `singleUserEncryptor$` emits an unrecoverable error, the consumer
- *  should also emit the error.
- */
-export type SingleUserEncryptorDependency = {
-  /** A stream that emits an encryptor when subscribed and the user key
-   *  is available, and completes when the user key is no longer available.
-   *  The stream should not emit null or undefined.
-   */
-  singleUserEncryptor$: Observable<UserBound<"encryptor", UserEncryptor>>;
 };
 
 /** A pattern for types that depend upon a fixed-value userid and return
@@ -180,22 +135,6 @@ export type OnDependency<T = any> = {
 export type WhenDependency = {
   /** The stream to observe for true emissions. */
   when$: Observable<boolean>;
-};
-
-/** A pattern for types that allow their managed settings to
- *  be overridden.
- *
- *  Consumers of this dependency should emit when `settings$`
- *  change. If `settings$` completes, the consumer should also
- *  complete. If `settings$` errors, the consumer should also
- *  emit the error.
- */
-export type SettingsDependency<Settings> = {
-  /** A stream that emits settings when settings become available
-   *  and when they change. If the settings are not available, the
-   *  stream should wait to emit until they become available.
-   */
-  settings$: Observable<Settings>;
 };
 
 /** A pattern for types that accept an arbitrary dependency and

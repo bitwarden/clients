@@ -3,11 +3,11 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, distinctUntilChanged, firstValueFrom, map, switchMap } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { pin } from "@bitwarden/common/tools/rx";
 import { ButtonModule, ContainerComponent, DialogService } from "@bitwarden/components";
 import {
   CredentialGeneratorHistoryComponent as CredentialGeneratorHistoryToolsComponent,
@@ -39,7 +39,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 })
 export class CredentialGeneratorHistoryComponent {
   protected readonly hasHistory$ = new BehaviorSubject<boolean>(false);
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
+  protected readonly account$ = new BehaviorSubject<Account>(null);
 
   constructor(
     private accountService: AccountService,
@@ -48,19 +48,13 @@ export class CredentialGeneratorHistoryComponent {
   ) {
     this.accountService.activeAccount$
       .pipe(
+        pin({
+          name: () => "browser credential-generator-history.component",
+          distinct: (p, c) => p.id === c.id,
+        }),
         takeUntilDestroyed(),
-        map(({ id }) => id),
-        distinctUntilChanged(),
       )
-      .subscribe(this.userId$);
-
-    this.userId$
-      .pipe(
-        takeUntilDestroyed(),
-        switchMap((id) => id && this.history.credentials$(id)),
-        map((credentials) => credentials.length > 0),
-      )
-      .subscribe(this.hasHistory$);
+      .subscribe(this.account$);
   }
 
   clear = async () => {
@@ -73,7 +67,7 @@ export class CredentialGeneratorHistoryComponent {
     });
 
     if (confirmed) {
-      await this.history.clear(await firstValueFrom(this.userId$));
+      await this.history.clear((await firstValueFrom(this.account$)).id);
     }
   };
 }
