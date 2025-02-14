@@ -18,7 +18,7 @@ const supported = (() => {
   return false;
 })();
 
-export class WebSdkLoadService implements SdkLoadService {
+export class WebSdkLoadService extends SdkLoadService {
   async load(): Promise<void> {
     let module: any;
     if (supported) {
