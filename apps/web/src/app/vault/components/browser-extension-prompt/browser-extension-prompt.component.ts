@@ -1,9 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
-import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ButtonComponent } from "@bitwarden/components";
+import { ButtonComponent, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultIcons } from "@bitwarden/vault";
 
@@ -16,7 +14,7 @@ import {
   selector: "vault-browser-extension-prompt",
   templateUrl: "./browser-extension-prompt.component.html",
   standalone: true,
-  imports: [CommonModule, I18nPipe, ButtonComponent],
+  imports: [CommonModule, I18nPipe, ButtonComponent, IconModule],
 })
 export class BrowserExtensionPromptComponent implements OnInit {
   /** Current state of the prompt page */
@@ -25,18 +23,9 @@ export class BrowserExtensionPromptComponent implements OnInit {
   /** All available page states */
   protected BrowserPromptState = BrowserPromptState;
 
-  protected manualErrorMessage: SafeHtml = "";
+  protected BitwardenIcon = VaultIcons.BitwardenIcon;
 
-  constructor(
-    private browserExtensionPromptService: BrowserExtensionPromptService,
-    private sanitizer: DomSanitizer,
-    private i18nService: I18nService,
-  ) {
-    // The Bitwarden's icon is an SVG, and needs to bypass Angular's default sanitization.
-    this.manualErrorMessage = this.sanitizer.bypassSecurityTrustHtml(
-      this.i18nService.t("openExtensionManually", VaultIcons.BitwardenIcon.svg),
-    );
-  }
+  constructor(private browserExtensionPromptService: BrowserExtensionPromptService) {}
 
   ngOnInit(): void {
     this.browserExtensionPromptService.start();
