@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject, merge, of } from "rxjs";
+import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
@@ -11,21 +11,21 @@ import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/sa
 import {
   CLIENT_TYPE,
   DEFAULT_VAULT_TIMEOUT,
+  ENV_ADDITIONAL_REGIONS,
   INTRAPROCESS_MESSAGING_SUBJECT,
   MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
+  SafeInjectionToken,
   SECURE_STORAGE,
   SYSTEM_THEME_OBSERVABLE,
-  SafeInjectionToken,
-  ENV_ADDITIONAL_REGIONS,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
   AnonLayoutWrapperDataService,
   LoginComponentService,
-  SsoComponentService,
   LoginDecryptionOptionsService,
+  SsoComponentService,
 } from "@bitwarden/auth/angular";
 import { LockService, LoginEmailService, PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -111,10 +111,10 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
-  KdfConfigService,
-  KeyService,
   BiometricsService,
   DefaultKeyService,
+  KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
 import { PasswordRepromptService } from "@bitwarden/vault";

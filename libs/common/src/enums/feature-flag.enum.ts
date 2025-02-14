@@ -8,7 +8,6 @@ export enum FeatureFlag {
   ProviderClientVaultPrivacyBanner = "ac-2833-provider-client-vault-privacy-banner",
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
-  PM14505AdminConsoleIntegrationPage = "pm-14505-admin-console-integration-page",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
 
   /* Autofill */
@@ -69,7 +68,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ProviderClientVaultPrivacyBanner]: FALSE,
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
-  [FeatureFlag.PM14505AdminConsoleIntegrationPage]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
 
   /* Autofill */

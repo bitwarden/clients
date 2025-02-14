@@ -10,9 +10,9 @@ import {
 import { unauthUiRefreshRedirect } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-redirect";
 import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
+  activeAuthGuard,
   authGuard,
   lockGuard,
-  activeAuthGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
@@ -23,10 +23,14 @@ import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guard
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
-  LoginComponent,
-  LoginSecondaryContentComponent,
+  DevicesIcon,
+  DeviceVerificationIcon,
   LockIcon,
+  LoginComponent,
+  LoginDecryptionOptionsComponent,
+  LoginSecondaryContentComponent,
   LoginViaAuthRequestComponent,
+  NewDeviceVerificationComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationLockAltIcon,
@@ -35,14 +39,10 @@ import {
   RegistrationStartSecondaryComponentData,
   RegistrationUserAddIcon,
   SetPasswordJitComponent,
-  UserLockIcon,
-  VaultIcon,
-  LoginDecryptionOptionsComponent,
-  DevicesIcon,
   SsoComponent,
   TwoFactorTimeoutIcon,
-  NewDeviceVerificationComponent,
-  DeviceVerificationIcon,
+  UserLockIcon,
+  VaultIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management-ui";
@@ -90,7 +90,9 @@ import { MoreFromBitwardenPageV2Component } from "../tools/popup/settings/about-
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
+import { canAccessAtRiskPasswords } from "../vault/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
+import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/add-edit-v2.component";
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
 import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
@@ -751,6 +753,11 @@ const routes: Routes = [
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],
+  },
+  {
+    path: "at-risk-passwords",
+    component: AtRiskPasswordsComponent,
+    canActivate: [authGuard, canAccessAtRiskPasswords],
   },
   {
     path: "account-switcher",

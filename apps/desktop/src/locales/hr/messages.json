@@ -1127,7 +1127,7 @@
     "message": "Neispravna glavna lozinka"
   },
   "twoStepLoginConfirmation": {
-    "message": "Prijava dvostrukom autentifikacijom čini tvoj račun još sigurnijim tako što će zahtijevati potvrdu prijave putem drugog uređaja kao što su sigurnosni ključ, autentifikatorske aplikacije, SMS-om, pozivom ili e-poštom. Prijavu dvostrukom autentifikacijom možeš omogućiti na web trezoru. Želiš li sada posjetiti bitwarden.com?"
+    "message": "Prijava dvostrukom autentifikacijom čini tvoj račun još sigurnijim tako što će zahtijevati potvrdu prijave drugim uređajem kao što je sigurnosni ključ, autentifikatorska aplikacija, SMS, poziv ili e-pošta. Prijavu dvostrukom autentifikacijom možeš omogućiti na web trezoru. Želiš li sada posjetiti bitwarden.com?"
   },
   "twoStepLogin": {
     "message": "Prijava dvostrukom autentifikacijom"
@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "Promjeni e-poštu računa"
   },
-  "organizationUpgradeRequired": {
-    "message": "Potrebna nadogradnja organizacije"
+  "allowScreenshots": {
+    "message": "Dozvoli snimanje zaslona"
   },
-  "upgradeOrganization": {
-    "message": "Nadogradi organizaciju"
+  "allowScreenshotsDesc": {
+    "message": "Dozvoli da Bitwarden desktop aplikacija bude snimljena u snimkama zaslona i prikazana u sesijama udaljene radne površine. Onemogućavanje ove opcije onemogućit će pristup nekim vanjskim zaslonima."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Ova značajka nije dostupna organizacijama koje koriste besplatnu uslugu. Prebaci se na plaćeni paket za pristup ovoj i drugim značajkama."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Potvrdi prozor je još uvijek vidljiv"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Potvrdi da je prozor još uvijek vidljiv."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Potrebno je ažurirati proširenje"

@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "Mainīt konta e-pasta adresi"
   },
-  "organizationUpgradeRequired": {
-    "message": "Nepieciešams apvienības uzlabojums"
+  "allowScreenshots": {
+    "message": "Atļaut ekrāna tveršanu"
   },
-  "upgradeOrganization": {
-    "message": "Uzlabot apvienību"
+  "allowScreenshotsDesc": {
+    "message": "Ļaut Bitwarden darbvirsmas lietotni tvert ekrānuzņēmumos un rādīt attālās darbvirsmas sesijās. Atspējošana liegs piekļuvu atsevišķos ārējos ekrānos."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Šī iespēja nav pieejama bezmaksas apvienībām. Maksas plāna izvēle sniedz plašākas iespējas."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Apstirpināt, ka logs joprojām ir redzams"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Lūgums apstiprināt, ka logs joprojām ir redzams."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Nepieciešama paplašinājuma atjaunināšana"

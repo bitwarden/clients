@@ -8748,10 +8748,10 @@
     "message": "Não tem acesso para gerir esta coleção."
   },
   "grantManageCollectionWarningTitle": {
-    "message": "Missing Manage Collection Permissions"
+    "message": "Permissões de gestão de coleções em falta"
   },
   "grantManageCollectionWarning": {
-    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
+    "message": "Conceda permissões Gerir coleção para permitir a gestão completa da coleção, incluindo a eliminação da mesma."
   },
   "grantCollectionAccess": {
     "message": "Conceder a grupos ou membros acesso a esta coleção."
@@ -10298,13 +10298,13 @@
     }
   },
   "accountDeprovisioningNotification": {
-    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+    "message": "Os administradores têm agora a capacidade de eliminar contas de membros que pertençam a um domínio reivindicado."
   },
   "deleteManagedUserWarningDesc": {
-    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+    "message": "Esta ação elimina a conta do membro, incluindo todos os itens no seu cofre. Esta ação substitui a anterior Remover."
   },
   "deleteManagedUserWarning": {
-    "message": "Delete is a new action!"
+    "message": "Eliminar é uma nova ação!"
   },
   "seatsRemaining": {
     "message": "Tem $REMAINING$ lugares restantes dos $TOTAL$ lugares atribuídos a esta organização. Contacte o seu fornecedor para gerir a sua subscrição.",

@@ -1882,22 +1882,22 @@
     "message": "Pieteikšanās jaunā ierīcē"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "Izslēgt pieteikšanās jaunā ierīcē aizsardzību"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "Ieslēgt pieteikšanās jaunā ierīcē aizsardzību"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+    "message": "Turpināt zemāk, lai izslēgtu apliecināšanas e-pasta ziņojumus, ko Bitwarden sūta, kad notiek pieteikšanās jaunā ierīcē."
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+    "message": "Turpināt zemāk, lai Bitwarden sūtītu apliecināšanas e-pasta ziņojumus, kad notiek pieteikšanās jaunā ierīcē."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+    "message": "Ar izslēgtu pieteikšanās jaunā ierīcē aizsardzību ikviens ar Tavu galveno paroli var piekļūt kontam no jebkuras ierīces. Lai aizsargātu savu kontu bez apliecināšanas e-pasta ziņojumiem, jāiestata divpakāpju pieteikšanās."
   },
   "accountNewDeviceLoginProtectionSaved": {
-    "message": "New device login protection changes saved"
+    "message": "Pieteikšanās jaunā ierīcē aizsardzības izmaiņas saglabātas"
   },
   "sessionsDeauthorized": {
     "message": "Visu sesiju darbība ir atsaukta"
@@ -10212,7 +10212,7 @@
     }
   },
   "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
-    "message": "If you remove $EMAIL$, the sponsorship for this Family plan cannot be redeemed. Are you sure you want to continue?",
+    "message": "Ja tiks noņemta $EMAIL$, atbalstītājdarbība šim Ģimenes plānam nevarēs izmantot. Vai tiešām turpināt?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -10221,7 +10221,7 @@
     }
   },
   "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
-    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $40 + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
+    "message": "Ja tiks noņemta $EMAIL$, šī Ģimenes plāna atbalstītājdarbība beigsies, un $DATE$ ar saglabāto maksājumu veidu tiks veikta $40 apmaksa + piemērojamais nodoklis. Nebūs iespējams izmantot jaunu atbalstītājdarbību līdz $DATE$. Vai tiešām turpināt?",
     "placeholders": {
       "email": {
         "content": "$1",

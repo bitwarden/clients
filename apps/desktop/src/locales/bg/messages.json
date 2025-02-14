@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "Промяна на е-пощата"
   },
-  "organizationUpgradeRequired": {
-    "message": "Необходимо е надграждане на организацията"
+  "allowScreenshots": {
+    "message": "Позволяване на заснемането на екрана"
   },
-  "upgradeOrganization": {
-    "message": "Надграждане на организацията"
+  "allowScreenshotsDesc": {
+    "message": "Позволява настолното приложение на Битурден да бъде заснемано при правене на екранни снимки и видимо при достъп до компютъра чрез отдалечен работен плот. Изключването на това ще забрани достапа на някои външни екрани."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Безплатните планове нямат достъп до тази функционалност. Преминете към платен план, за да се възползвате от тази и много други възможности."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Потвърждаване, че прозорецът все още е видим"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Моля, потвърдете, че прозорецът все още е видим."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Необходимо е обновяване на добавката"

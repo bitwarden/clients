@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"
   },
-  "organizationUpgradeRequired": {
-    "message": "需要升级组织"
+  "allowScreenshots": {
+    "message": "允许屏幕截图"
   },
-  "upgradeOrganization": {
-    "message": "升级组织"
+  "allowScreenshotsDesc": {
+    "message": "允许捕获 Bitwarden 桌面应用程序屏幕截图并在远程桌面会话中查看。禁用后将阻止在某些外部显示器上访问。"
   },
-  "upgradeOrganizationDesc": {
-    "message": "此功能不适用于免费组织。请切换到付费计划以解锁更多功能。"
+  "confirmWindowStillVisibleTitle": {
+    "message": "确认窗口仍然可见"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "请确认窗口仍然可见。"
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "扩展需要更新"

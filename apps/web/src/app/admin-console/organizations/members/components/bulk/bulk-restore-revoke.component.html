@@ -3,9 +3,9 @@
   *ngIf="{ enabled: accountDeprovisioningEnabled$ | async } as accountDeprovisioning"
 >
   <ng-container bitDialogTitle>
-    <h3 *ngIf="accountDeprovisioning.enabled; else nonMemberTitle">{{ bulkMemberTitle }}</h3>
+    <span *ngIf="accountDeprovisioning.enabled; else nonMemberTitle">{{ bulkMemberTitle }}</span>
     <ng-template #nonMemberTitle>
-      <h3>{{ bulkTitle }}</h3>
+      {{ bulkTitle }}
     </ng-template>
   </ng-container>
 

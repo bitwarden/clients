@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "Hesabın e-poçtunu dəyişdir"
   },
-  "organizationUpgradeRequired": {
-    "message": "Təşkilat yüksəltmə tələb olunur"
+  "allowScreenshots": {
+    "message": "Ekranı çəkməyə icazə ver"
   },
-  "upgradeOrganization": {
-    "message": "Təşkilatı yüksəlt"
+  "allowScreenshotsDesc": {
+    "message": "Bitwarden masaüstü tətbiqinin ekran şəkillərində yaxalanmasına və remote desktop sessiyalarında görünməsinə icazə verin. Bunu sıradan çıxartsanız, bəzi xarici ekranlarda müraciət əngəllənəcək."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Bu özəllik, ödənişsiz təşkilatlar üçün əlçatan deyil. Daha çox özəlliyin kilidini açmaq üçün ödənişli plana keçin."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Pəncərənin hələ də göründüyünü təsdiqlə"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Lütfən, pəncərənin hələ də göründüyünü təsdiqləyin."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Uzantını güncəlləmək tələb olunur"

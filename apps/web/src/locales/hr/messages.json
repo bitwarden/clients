@@ -235,7 +235,7 @@
     "message": "Povijest stavke"
   },
   "authenticatorKey": {
-    "message": "Kôd za provjeru"
+    "message": "Ključ autentifikatora"
   },
   "autofillOptions": {
     "message": "Postavke auto-ispune"
@@ -405,7 +405,7 @@
     "message": "Bitwarden može pohraniti i ispuniti kodove za dvostruku autentifikaciju. Kopiraj i zalijepi ključ u ovo polje."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden može pohraniti i ispuniti kodove za dvostruku autentifikaciju. Odaberi ikonu kamere i označi QR kôd za provjeru autentičnosti ove web stranice ili kopiraj i zalijepi ključ u ovo polje."
+    "message": "Bitwarden može pohraniti i ispuniti kodove provjeru dvostruke autentifikacije. Odaberi ikonu kamere i označi QR kôd za provjeru autentičnosti ove web stranice ili kopiraj i zalijepi ključ u ovo polje."
   },
   "learnMoreAboutAuthenticators": {
     "message": "Više o autentifikatorima"
@@ -2255,7 +2255,7 @@
     "message": "Nastavi na bitwarden.com?"
   },
   "twoStepContinueToBitwardenUrlDesc": {
-    "message": "Bitwarden autentifikator omogućuje pohranu ključeva za autentifikaciju i generiranje TOTP kodova za dvostruku autentifikaciju. Saznaj više na bitwarden.com."
+    "message": "Bitwarden autentifikator omogućuje pohranu ključeva za autentifikator i generiranje TOTP kodova za provjeru dvostruke autentifikacije. Saznaj više na bitwarden.com."
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "Skeniraj donji QR kôd svojom autentifikatorskom aplikacijom ili unesi ključ."
@@ -8748,10 +8748,10 @@
     "message": "Nemaš pristup za upravljanje ovom zbirkom."
   },
   "grantManageCollectionWarningTitle": {
-    "message": "Missing Manage Collection Permissions"
+    "message": "Nedostaju prava za upravljanje zbirkom"
   },
   "grantManageCollectionWarning": {
-    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
+    "message": "Dodijeli potpuna prava upravljanja zbirkom što uključuje i brisanje."
   },
   "grantCollectionAccess": {
     "message": "Dodijeli grupama i članovima pristup ovoj zbirki."
@@ -10298,13 +10298,13 @@
     }
   },
   "accountDeprovisioningNotification": {
-    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+    "message": "Administratori sada imaju mogućnost obrisati članski račun koji pripada potvrđenoj domeni."
   },
   "deleteManagedUserWarningDesc": {
-    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+    "message": "Ovo će obrisati članski račun uključujući sve stavke u trezoru. Ovo zamjenjuje prethodnu radnju „Ukloni”."
   },
   "deleteManagedUserWarning": {
-    "message": "Delete is a new action!"
+    "message": "Brisanje je nova radnja!"
   },
   "seatsRemaining": {
     "message": "Imaš još $REMAINING$ preostalih sjedišta od $TOTAL$ dodijeljenih ovog organizaciji. Kontaktiraj svog pružatelja usluge za upravljanje pretplatom.",

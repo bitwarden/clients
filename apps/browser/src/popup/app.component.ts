@@ -35,9 +35,12 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   selector: "app-root",
   styles: [],
   animations: [routerTransition],
-  template: ` <div [@routerTransition]="getRouteElevation(outlet)">
-    <router-outlet #outlet="outlet"></router-outlet>
-  </div>`,
+  template: `
+    <div [@routerTransition]="getRouteElevation(outlet)">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
+    <bit-toast-container></bit-toast-container>
+  `,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private viewCacheService = inject(PopupViewCacheService);

@@ -129,10 +129,7 @@ export class OrganizationLayoutComponent implements OnInit {
       ),
     );
 
-    this.integrationPageEnabled$ = combineLatest(
-      this.organization$,
-      this.configService.getFeatureFlag$(FeatureFlag.PM14505AdminConsoleIntegrationPage),
-    ).pipe(map(([org, featureFlagEnabled]) => featureFlagEnabled && org.canAccessIntegrations));
+    this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
 
     this.domainVerificationNavigationTextKey = (await this.configService.getFeatureFlag(
       FeatureFlag.AccountDeprovisioning,

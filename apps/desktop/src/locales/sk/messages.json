@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "Zmeniť e-mail účtu"
   },
-  "organizationUpgradeRequired": {
-    "message": "Vyžaduje sa upgrade organizácie"
+  "allowScreenshots": {
+    "message": "Povoliť snímanie obrazovky"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organizácie"
+  "allowScreenshotsDesc": {
+    "message": "Umožní zachytenie Bitwardenu na snímkach obrazovky a jej zobrazenie v reláciách vzdialenej plochy. Zakázanie tejto funkcie zabráni prístupu na niektoré externé displeje."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Táto funkcia nie je k dispozícii pre bezplatné organizácie. Ak chcete odomknúť ďalšie funkcie, prejdite na platený plán."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Potvrdiť viditeľnosť okna"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Potvrďte, že okno je stále viditeľné."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Rozšírenie musíte aktualizovať"

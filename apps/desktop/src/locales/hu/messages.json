@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "Fiók email cím megváltoztatása"
   },
-  "organizationUpgradeRequired": {
-    "message": "A szervezet felminősítése szükséges."
+  "allowScreenshots": {
+    "message": "Képernyőrögzítés engedélyezése"
   },
-  "upgradeOrganization": {
-    "message": "Szervezeti áttérés"
+  "allowScreenshotsDesc": {
+    "message": "Engedélyezi a Bitwarden asztali alkalmazásnak a képernyőképek rögzítését és távoli asztali munkamenetekben megtekintését. Ennek letiltása megakadályozza a hozzáférést bizonyos külső kijelzőkhöz."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Ez a szolgáltatás nem elérhető ingyenes szervezeteknek. Váltás fizetős díjcsomagra a további funkciók feloldásához."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Erősítsük meg, hogy az ablak továbbra is látható."
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Ellenőrizzük, hogy az ablak továbbra is látható-e."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Kiterjesztés frissítés szükséges"
