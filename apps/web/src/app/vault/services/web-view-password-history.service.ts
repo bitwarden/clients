@@ -1,11 +1,9 @@
 import { Injectable } from "@angular/core";
 
+import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { ViewPasswordHistoryService } from "../../../../../../libs/common/src/vault/abstractions/view-password-history.service";
 import { openPasswordHistoryDialog } from "../individual-vault/password-history.component";
 
 /**

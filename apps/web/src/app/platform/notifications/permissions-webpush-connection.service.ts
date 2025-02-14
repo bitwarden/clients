@@ -1,6 +1,7 @@
 import { concat, defer, fromEvent, map, Observable, of, switchMap } from "rxjs";
 
 import { SupportStatus } from "@bitwarden/common/platform/misc/support-status";
+// eslint-disable-next-line no-restricted-imports -- In platform owned code.
 import {
   WebPushConnector,
   WorkerWebPushConnectionService,

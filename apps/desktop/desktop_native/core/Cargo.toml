@@ -13,13 +13,13 @@ default = [
   "dep:security-framework",
   "dep:security-framework-sys",
   "dep:zbus",
-  "dep:zbus_polkit"
+  "dep:zbus_polkit",
 ]
 manual_test = []
 
 [dependencies]
 aes = "=0.8.4"
-anyhow = "=1.0.94"
+anyhow.workspace = true
 arboard = { version = "=3.4.1", default-features = false, features = [
   "wayland-data-control",
 ] }
@@ -32,7 +32,7 @@ pin-project = "=1.1.8"
 dirs = "=6.0.0"
 futures = "=0.3.31"
 interprocess = { version = "=2.2.1", features = ["tokio"] }
-log = "=0.4.25"
+log.workspace = true
 rand = "=0.8.5"
 russh-cryptovec = "=0.7.3"
 scopeguard = "=1.2.0"
@@ -45,15 +45,15 @@ ssh-key = { version = "=0.6.7", default-features = false, features = [
   "getrandom",
 ] }
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "23b50e3bbe6d56ef19ab0e98e8bb1462cb6d77ae" }
-tokio = { version = "=1.41.1", features = ["io-util", "sync", "macros", "net"] }
-tokio-stream = { version = "=0.1.15", features = ["net"] }
-tokio-util = { version = "=0.7.12", features = ["codec"] }
-thiserror = "=1.0.69"
+tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
+tokio-stream = { workspace = true, features = ["net"] }
+tokio-util = { workspace = true, features = ["codec"] }
+thiserror.workspace = true
 typenum = "=1.17.0"
 pkcs8 = { version = "=0.10.2", features = ["alloc", "encryption", "pem"] }
 rsa = "=0.9.6"
 ed25519 = { version = "=2.2.3", features = ["pkcs8"] }
-sysinfo = { version = "0.32.0", features = ["windows"] }
+sysinfo = { version = "=0.33.1", features = ["windows"] }
 
 [target.'cfg(windows)'.dependencies]
 widestring = { version = "=1.1.0", optional = true }

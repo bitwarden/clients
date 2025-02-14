@@ -42,6 +42,7 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
   private activitySubject = new BehaviorSubject<"active" | "inactive">("active");
 
   constructor(
+    private readonly logService: LogService,
     private syncService: SyncService,
     private appIdService: AppIdService,
     private environmentService: EnvironmentService,
@@ -51,7 +52,6 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
     private readonly signalRConnectionService: SignalRConnectionService,
     private readonly authService: AuthService,
     private readonly webPushConnectionService: WebPushConnectionService,
-    private readonly logService: LogService,
   ) {
     this.notifications$ = this.accountService.activeAccount$.pipe(
       map((account) => account?.id),
@@ -151,11 +151,15 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         await this.syncService.syncUpsertCipher(
           notification.payload as SyncCipherNotification,
           notification.type === NotificationType.SyncCipherUpdate,
+          payloadUserId,
         );
         break;
       case NotificationType.SyncCipherDelete:
       case NotificationType.SyncLoginDelete:
-        await this.syncService.syncDeleteCipher(notification.payload as SyncCipherNotification);
+        await this.syncService.syncDeleteCipher(
+          notification.payload as SyncCipherNotification,
+          payloadUserId,
+        );
         break;
       case NotificationType.SyncFolderCreate:
       case NotificationType.SyncFolderUpdate:

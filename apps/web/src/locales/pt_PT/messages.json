@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Editar pasta"
   },
+  "newFolder": {
+    "message": "Nova pasta"
+  },
+  "folderName": {
+    "message": "Nome da pasta"
+  },
+  "folderHintText": {
+    "message": "Crie uma subpasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
+  },
+  "deleteFolderPermanently": {
+    "message": "Tem a certeza de que pretende eliminar permanentemente esta pasta?"
+  },
   "baseDomain": {
     "message": "Domínio de base",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Nome do item"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "ex.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "A preparar o início de sessão"
   },
+  "logInRequestSent": {
+    "message": "Pedido enviado"
+  },
   "submit": {
     "message": "Submeter"
   },
@@ -1219,7 +1225,7 @@
     "message": "Dica da palavra-passe mestra"
   },
   "masterPassHintText": {
-    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ caracteres.",
+    "message": "Se se esquecer da sua palavra-passe, a dica da palavra-passe pode ser enviada para o seu e-mail. Máximo de $CURRENT$/$MAXIMUM$ carateres.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -1268,7 +1274,7 @@
     "message": "É necessário reescrever a palavra-passe mestra."
   },
   "masterPasswordMinlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ caracteres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $VALUE$ carateres.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo."
   },
+  "notificationSentDevicePart1": {
+    "message": "Desbloqueie o Bitwarden no seu dispositivo ou no "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Está a tentar aceder à sua conta?"
+  },
+  "accessAttemptBy": {
+    "message": "Tentativa de acesso por $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirmar acesso"
+  },
+  "denyAccess": {
+    "message": "Recusar acesso"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "aplicação web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Certifique-se de que a frase da impressão digital corresponde à frase abaixo indicada antes de a aprovar."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Desbloqueie o Bitwarden no seu dispositivo. Certifique-se de que a frase da impressão digital corresponde à frase abaixo antes de a aprovar."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Certifique-se de que a sua conta está desbloqueada e que a frase de impressão digital corresponde à do outro dispositivo"
   },
   "versionNumber": {
     "message": "Versão $VERSION_NUMBER$",
@@ -1653,19 +1686,16 @@
     "message": "Mínimo de números"
   },
   "minSpecial": {
-    "message": "Mínimo de caracteres especiais",
+    "message": "Mínimo de carateres especiais",
     "description": "Minimum special characters"
   },
   "ambiguous": {
-    "message": "Evitar caracteres ambíguos",
+    "message": "Evitar carateres ambíguos",
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Evitar caracteres ambíguos",
+    "message": "Evitar carateres ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Regenerar palavra-passe"
   },
   "length": {
     "message": "Comprimento"
@@ -1686,7 +1716,7 @@
     "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Caracteres especiais (!@#$%^&*)"
+    "message": "Carateres especiais (!@#$%^&*)"
   },
   "numWords": {
     "message": "Número de palavras"
@@ -1839,12 +1869,6 @@
   "dangerZone": {
     "message": "Zona de risco"
   },
-  "dangerZoneDesc": {
-    "message": "Cuidado, estas ações são irreversíveis!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Cuidado, esta ação não é reversível!"
-  },
   "deauthorizeSessions": {
     "message": "Desautorizar sessões"
   },
@@ -1853,6 +1877,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Ao prosseguir, também terminará a sua sessão atual e terá de iniciar sessão novamente. Ser-lhe-á também pedido que volte efetuar a verificação de dois passos, se estiver configurada. As sessões ativas noutros dispositivos podem continuar ativas até uma hora."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Início de sessão de um novo dispositivo"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Desativar a proteção de início de sessão de novos dispositivos"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Ativar a proteção de início de sessão de novos dispositivos"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceda da seguinte forma para desativar os e-mails de verificação que o Bitwarden envia quando inicia sessão a partir de um novo dispositivo."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Proceda da seguinte forma para que o Bitwarden lhe envie e-mails de verificação quando iniciar sessão a partir de um novo dispositivo."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Com a proteção de início de sessão de novos dispositivos desativada, qualquer pessoa com a sua palavra-passe mestra pode aceder à sua conta a partir de qualquer dispositivo. Para proteger a sua conta sem e-mails de verificação, configure a verificação de dois passos."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Alterações na proteção do início de sessão do novo dispositivo guardadas"
   },
   "sessionsDeauthorized": {
     "message": "Todas as sessões desautorizadas"
@@ -2155,8 +2200,20 @@
   "manage": {
     "message": "Gerir"
   },
-  "canManage": {
-    "message": "Pode gerir"
+  "manageCollection": {
+    "message": "Gerir coleção"
+  },
+  "viewItems": {
+    "message": "Ver itens"
+  },
+  "viewItemsHidePass": {
+    "message": "Ver itens, palavras-passe ocultas"
+  },
+  "editItems": {
+    "message": "Editar itens"
+  },
+  "editItemsHidePass": {
+    "message": "Editar itens, palavras-passe ocultas"
   },
   "disable": {
     "message": "Desativar"
@@ -2353,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Ocorreu um problema ao ler a chave de segurança. Tente novamente."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Devido a limitações da plataforma, o WebAuthn não pode ser utilizado em todas as aplicações Bitwarden. Deve configurar outro fornecedor de verificação de dois passos para que possa aceder à sua conta quando o WebAuthn não puder ser utilizado. Plataformas suportadas:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Cofre web e extensões do navegador num computador de secretária/portátil com um navegador compatível com WebAuthn (Chrome, Opera, Vivaldi ou Firefox com FIDO U2F ativado)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Devido a limitações da plataforma, o WebAuthn não pode ser utilizado em todas as aplicações Bitwarden. Deve configurar outro fornecedor de verificação de dois passos para poder aceder à sua conta quando o WebAuthn não puder ser utilizado."
   },
   "twoFactorRecoveryYourCode": {
     "message": "O seu código Bitwarden de recuperação da verificação de dois passos"
@@ -4695,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Definir requisitos para o gerador de palavras-passe."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Uma ou mais políticas da organização estão a afetar as suas definições do gerador."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Uma ou mais políticas da organização exigem que a sua palavra-passe mestra cumpra os seguintes requisitos:"
   },
@@ -4720,16 +4771,16 @@
     }
   },
   "policyInEffectUppercase": {
-    "message": "Contém um ou mais caracteres em maiúsculas"
+    "message": "Contém um ou mais carateres em maiúsculas"
   },
   "policyInEffectLowercase": {
-    "message": "Contém um ou mais caracteres em minúsculas"
+    "message": "Contém um ou mais carateres em minúsculas"
   },
   "policyInEffectNumbers": {
     "message": "Contém um ou mais números"
   },
   "policyInEffectSpecial": {
-    "message": "Contém um ou mais dos seguintes caracteres especiais $CHARS$",
+    "message": "Contém um ou mais dos seguintes carateres especiais $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
@@ -6562,7 +6613,7 @@
     "message": "obrigatório"
   },
   "charactersCurrentAndMaximum": {
-    "message": "$CURRENT$/$MAX$ máximo de caracteres",
+    "message": "$CURRENT$/$MAX$ máximo de carateres",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -6575,7 +6626,7 @@
     }
   },
   "characterMaximum": {
-    "message": "Máximo de $MAX$ caracteres",
+    "message": "Máximo de $MAX$ carateres",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -6666,15 +6717,6 @@
     "message": "Gerador",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "O que é que gostaria de gerar?"
-  },
-  "passwordType": {
-    "message": "Tipo de palavra-passe"
-  },
-  "regenerateUsername": {
-    "message": "Regenerar nome de utilizador"
-  },
   "generateUsername": {
     "message": "Gerar nome de utilizador"
   },
@@ -6696,7 +6738,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Utilize $RECOMMENDED$ caracteres ou mais para gerar uma palavra-passe forte.",
+    "message": " Utilize $RECOMMENDED$ carateres ou mais para gerar uma palavra-passe forte.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -6715,9 +6757,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Tipo de nome de utilizador"
-  },
   "plusAddressedEmail": {
     "message": "E-mail com subendereço",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -6730,6 +6769,9 @@
   },
   "catchallEmailDesc": {
     "message": "Utilize a caixa de entrada de captura geral configurada para o seu domínio."
+  },
+  "useThisEmail": {
+    "message": "Utilizar este e-mail"
   },
   "random": {
     "message": "Aleatório",
@@ -6934,9 +6976,6 @@
     "message": "Nome de domínio",
     "description": "Part of a URL."
   },
-  "apiAccessToken": {
-    "message": "Token de acesso à API"
-  },
   "deviceVerification": {
     "message": "Verificação do dispositivo"
   },
@@ -7026,7 +7065,7 @@
     "message": "O campo não é um endereço de e-mail."
   },
   "inputMinLength": {
-    "message": "O campo deve ter pelo menos $COUNT$ caracteres.",
+    "message": "O campo deve ter pelo menos $COUNT$ carateres.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7035,7 +7074,7 @@
     }
   },
   "inputMaxLength": {
-    "message": "O campo não pode exceder os $COUNT$ caracteres de comprimento.",
+    "message": "O campo não pode exceder os $COUNT$ carateres de comprimento.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7044,7 +7083,7 @@
     }
   },
   "inputForbiddenCharacters": {
-    "message": "Não são permitidos os seguintes caracteres: $CHARACTERS$",
+    "message": "Não são permitidos os seguintes carateres: $CHARACTERS$",
     "placeholders": {
       "characters": {
         "content": "$1",
@@ -7053,7 +7092,7 @@
     }
   },
   "inputMinValue": {
-    "message": "O valor do campo tem de ser, pelo menos, $MIN$ caracteres.",
+    "message": "O valor do campo tem de ser, pelo menos, $MIN$ carateres.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -7062,7 +7101,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "O valor do campo não pode exceder os $MAX$ caracteres.",
+    "message": "O valor do campo não pode exceder os $MAX$ carateres.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -7194,11 +7233,11 @@
     "message": "Limpar tudo"
   },
   "toggleCharacterCount": {
-    "message": "Mostrar/ocultar contagem de caracteres",
+    "message": "Mostrar/ocultar contagem de carateres",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "passwordCharacterCount": {
-    "message": "Contagem de caracteres da palavra-passe",
+    "message": "Contagem de carateres da palavra-passe",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "hide": {
@@ -7647,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Sem coleções"
-  },
-  "canView": {
-    "message": "Pode ver"
-  },
-  "canViewExceptPass": {
-    "message": "Pode ver, excepto palavras-passe"
-  },
-  "canEdit": {
-    "message": "Pode editar"
-  },
-  "canEditExceptPass": {
-    "message": "Pode editar, excepto palavras-passe"
   },
   "noCollectionsAdded": {
     "message": "Não foram adicionadas coleções"
@@ -8202,7 +8229,7 @@
     "message": "Palavra-passe fraca identificada e encontrada numa violação de dados. Utilize uma palavra-passe forte e única para proteger a sua conta. Tem a certeza de que pretende utilizar esta palavra-passe?"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ caracteres no mínimo",
+    "message": "$LENGTH$ carateres no mínimo",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -8211,7 +8238,7 @@
     }
   },
   "masterPasswordMinimumlength": {
-    "message": "A palavra-passe mestra deve ter pelo menos $LENGTH$ caracteres.",
+    "message": "A palavra-passe mestra deve ter pelo menos $LENGTH$ carateres.",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -8607,6 +8634,9 @@
   "limitCollectionDeletionDesc": {
     "message": "Limitar a eliminação de coleções aos proprietários e administradores"
   },
+  "limitItemDeletionDesc": {
+    "message": "Limitar a eliminação de itens a membros com a permissão Pode gerir"
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Os proprietários e administradores podem gerir todas as coleções e itens"
   },
@@ -8655,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "URL do servidor auto-hospedado",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Alias de domínio"
   },
   "alreadyHaveAccount": {
     "message": "Já tem uma conta?"
@@ -8720,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Não tem acesso para gerir esta coleção."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Faltam permissões Pode gerir"
+  "grantManageCollectionWarningTitle": {
+    "message": "Permissões de gestão de coleções em falta"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Conceda permissões Pode gerir para permitir a gestão completa da coleção, incluindo a eliminação da coleção."
+  "grantManageCollectionWarning": {
+    "message": "Conceda permissões Gerir coleção para permitir a gestão completa da coleção, incluindo a eliminação da mesma."
   },
   "grantCollectionAccess": {
     "message": "Conceder a grupos ou membros acesso a esta coleção."
@@ -9897,10 +9924,10 @@
     "description": "The text, 'API', is an acronym and should not be translated."
   },
   "showCharacterCount": {
-    "message": "Mostrar contagem de caracteres"
+    "message": "Mostrar contagem de carateres"
   },
   "hideCharacterCount": {
-    "message": "Ocultar contagem de caracteres"
+    "message": "Ocultar contagem de carateres"
   },
   "editAccess": {
     "message": "Editar acesso"
@@ -9921,7 +9948,7 @@
     "message": "Introduza o ID do HTML, o nome, a aria-label ou o placeholder do campo."
   },
   "uppercaseDescription": {
-    "message": "Incluir caracteres em maiúsculas",
+    "message": "Incluir carateres em maiúsculas",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -9929,7 +9956,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Incluir caracteres em minúsculas",
+    "message": "Incluir carateres em minúsculas",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -9945,7 +9972,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Incluir caracteres especiais",
+    "message": "Incluir carateres especiais",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -10069,6 +10096,15 @@
   },
   "descriptorCode": {
     "message": "Código descritor"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "importantNotice": {
     "message": "Aviso importante"
@@ -10201,7 +10237,7 @@
     "message": "Domínio reivindicado"
   },
   "organizationNameMaxLength": {
-    "message": "O nome da organização não pode exceder 50 caracteres."
+    "message": "O nome da organização não pode exceder 50 carateres."
   },
   "resellerRenewalWarningMsg": {
     "message": "A sua subscrição será renovada em breve. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $RENEWAL_DATE$.",
@@ -10260,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Os administradores têm agora a capacidade de eliminar contas de membros que pertençam a um domínio reivindicado."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "Esta ação elimina a conta do membro, incluindo todos os itens no seu cofre. Esta ação substitui a anterior Remover."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Eliminar é uma nova ação!"
+  },
+  "seatsRemaining": {
+    "message": "Tem $REMAINING$ lugares restantes dos $TOTAL$ lugares atribuídos a esta organização. Contacte o seu fornecedor para gerir a sua subscrição.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Organização existente"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Selecione uma organização para adicionar ao seu Portal do fornecedor."
+  },
+  "noOrganizations": {
+    "message": "Não existem organizações para listar"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "A subscrição do fornecedor receberá um crédito por qualquer tempo restante na subscrição da organização."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Pretende adicionar esta organização a $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Organização existente adicionada"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Os lugares atribuídos excedem os lugares disponíveis."
   }
 }
