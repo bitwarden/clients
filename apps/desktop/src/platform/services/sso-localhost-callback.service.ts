@@ -5,7 +5,7 @@ import * as http from "http";
 import { ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
-import { buildSsoRedirectUrl } from "@bitwarden/auth/common";
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
@@ -20,6 +20,7 @@ export class SSOLocalhostCallbackService {
   constructor(
     private environmentService: EnvironmentService,
     private messagingService: MessageSender,
+    private ssoUrlService: SsoUrlService,
   ) {
     ipcMain.handle("openSsoPrompt", async (event, { codeChallenge, state, email }) => {
       const { ssoCode, recvState } = await this.openSsoPrompt(codeChallenge, state, email);
@@ -81,16 +82,17 @@ export class SSOLocalhostCallbackService {
       for (let port = 8065; port <= 8070; port++) {
         try {
           this.ssoRedirectUri = "http://localhost:" + port;
+          const ssoUrl = this.ssoUrlService.buildSsoUrl(
+            webUrl,
+            ClientType.Desktop,
+            this.ssoRedirectUri,
+            state,
+            codeChallenge,
+            email,
+          );
           callbackServer.listen(port, () => {
             this.messagingService.send("launchUri", {
-              url: buildSsoRedirectUrl(
-                webUrl,
-                ClientType.Desktop,
-                this.ssoRedirectUri,
-                state,
-                codeChallenge,
-                email,
-              ),
+              url: ssoUrl,
             });
           });
           foundPort = true;
