@@ -96,7 +96,6 @@ export class RecoverTwoFactorComponent implements OnInit {
       // Handle login after recovery if the feature flag is enabled
       await this.handleRecoveryLogin(request);
     } catch (e) {
-      // Using the extracted error message helper to simplify error handling
       const errorMessage = this.extractErrorMessage(e);
       this.toastService.showToast({
         variant: "error",
