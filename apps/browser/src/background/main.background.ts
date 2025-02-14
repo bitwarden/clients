@@ -1577,6 +1577,10 @@ export default class MainBackground {
     await SafariApp.sendMessageToApp("showPopover", null, true);
   }
 
+  async closeSafariPopup() {
+    await SafariApp.sendMessageToApp("closePopover", null, true);
+  }
+
   async reseedStorage() {
     if (
       !this.platformUtilsService.isChrome() &&
