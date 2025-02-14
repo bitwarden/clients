@@ -1,24 +1,24 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Sve aplikacije"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "Kritične aplikacije"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Pristupi inteligenciji"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "Uvid u rizik"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "Rizik od lozinke"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Pregledaj rizične lozinke (slabe, izložene ili ponovo korišćene) u aplikacijama. Izaberi svoje najkritičnije aplikacije da bi dao prioritet bezbednosnim radnjama kako bi tvoji korisnici adresirali rizične lozinke."
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "Podaci su poslednji put ažurirani: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -27,19 +27,19 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Obavešteni članovi"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "Ukloni članove"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "Vrati članove"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "Nije moguće povratiti pristup organizaciji"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Sve aplikacije ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -48,10 +48,10 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Kreirajte novu stavku za prijavu"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "Kritične aplikacije ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -60,7 +60,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "Obavešteni članovi ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -69,7 +69,7 @@
     }
   },
   "noAppsInOrgTitle": {
-    "message": "No applications found in $ORG NAME$",
+    "message": "Nije pronađena nijedna aplikacija u $ORG NAME$",
     "placeholders": {
       "org name": {
         "content": "$1",
@@ -78,7 +78,7 @@
     }
   },
   "noAppsInOrgDescription": {
-    "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
+    "message": "Dok korisnici čuvaju prijave, aplikacije se pojavljuju ovde, prikazujući sve rizične lozinke. Označite kritične aplikacije i obavestite korisnike da ažuriraju lozinke."
   },
   "noCriticalAppsTitle": {
     "message": "You haven't marked any applications as a Critical"

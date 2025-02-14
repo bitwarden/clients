@@ -1,6 +1,7 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./tabs.stories";
+import * as dialogStories from "../dialog/dialog/dialog.stories";
 
 <Meta of={stories} />
 
@@ -17,17 +18,17 @@ and 1rem of padding on the left and right.
 
 ## Content Tabs
 
-<Story of={stories.ContentTabs} />
+<Canvas of={stories.ContentTabs} />
 
 ## Navigation Tabs
 
-<Story of={stories.NavigationTabs} />
+<Canvas of={stories.NavigationTabs} />
 
 ## Content tabs in dialogs
 
 Tabs can be used in dialogs to separate related content.
 
-<Story id="component-library-dialogs-dialog--tab-content" />
+<Canvas of={dialogStories.TabContent} />
 
 ## Accessibility
 

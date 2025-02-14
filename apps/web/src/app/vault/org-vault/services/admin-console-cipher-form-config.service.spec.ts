@@ -7,7 +7,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
@@ -26,6 +27,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     isMember: true,
     enabled: true,
     status: OrganizationUserStatusType.Confirmed,
+    userId: "UserId",
   };
   const testOrg2 = {
     id: "333-999-888",
@@ -34,6 +36,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
     isMember: true,
     enabled: true,
     status: OrganizationUserStatusType.Confirmed,
+    userId: "UserId",
   };
   const policyAppliesToActiveUser$ = new BehaviorSubject<boolean>(true);
   const collection = {
@@ -80,17 +83,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
         },
         { provide: ApiService, useValue: { getCipherAdmin } },
         { provide: CipherService, useValue: { get: getCipher } },
-        {
-          provide: AccountService,
-          useValue: {
-            activeAccount$: new BehaviorSubject<Account>({
-              id: "123-456-789" as UserId,
-              email: "test@email.com",
-              emailVerified: true,
-              name: "Test User",
-            }),
-          },
-        },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
       ],
     });
     adminConsoleConfigService = TestBed.inject(AdminConsoleCipherFormConfigService);
@@ -207,7 +200,7 @@ describe("AdminConsoleCipherFormConfigService", () => {
       await adminConsoleConfigService.buildConfig("edit", cipherId);
 
       expect(getCipherAdmin).not.toHaveBeenCalled();
-      expect(getCipher).toHaveBeenCalledWith(cipherId);
+      expect(getCipher).toHaveBeenCalledWith(cipherId, "UserId");
     });
   });
 });

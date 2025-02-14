@@ -4,6 +4,7 @@ import {
   EMPTY,
   Subject,
   distinctUntilChanged,
+  filter,
   firstValueFrom,
   map,
   mergeMap,
@@ -12,6 +13,7 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -27,6 +29,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { getCredentialsForAutofill } from "@bitwarden/common/platform/services/fido2/fido2-autofill-utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { guidToRawFormat } from "@bitwarden/common/platform/services/fido2/guid-utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -60,7 +63,11 @@ export class DesktopAutofillService implements OnDestroy {
             return EMPTY;
           }
 
-          return this.cipherService.cipherViews$;
+          return this.accountService.activeAccount$.pipe(
+            map((account) => account?.id),
+            filter((userId): userId is UserId => userId != null),
+            switchMap((userId) => this.cipherService.cipherViews$(userId)),
+          );
         }),
         // TODO: This will unset all the autofill credentials on the OS
         // when the account locks. We should instead explicilty clear the credentials
@@ -164,16 +171,21 @@ export class DesktopAutofillService implements OnDestroy {
       // TODO: For some reason the credentialId is passed as an empty array in the request, so we need to
       // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
       if (request.recordIdentifier && request.credentialId.length === 0) {
-        const cipher = await this.cipherService.get(request.recordIdentifier);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getOptionalUserId),
+        );
+        if (!activeUserId) {
+          this.logService.error("listenPasskeyAssertion error", "Active user not found");
+          callback(new Error("Active user not found"), null);
+          return;
+        }
+
+        const cipher = await this.cipherService.get(request.recordIdentifier, activeUserId);
         if (!cipher) {
           this.logService.error("listenPasskeyAssertion error", "Cipher not found");
           callback(new Error("Cipher not found"), null);
           return;
         }
-
-        const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-        );
 
         const decrypted = await cipher.decrypt(
           await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
