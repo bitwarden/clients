@@ -2183,6 +2183,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Setting up two-step login can permanently lock you out of your Bitwarden account. A recovery code allows you to access your account in the event that you can no longer use your normal two-step login provider (example: you lose your device). Bitwarden support will not be able to assist you if you lose access to your account. We recommend you write down or print the recovery code and keep it in a safe place."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+  },
   "viewRecoveryCode": {
     "message": "View recovery code"
   },
@@ -4192,6 +4195,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "If you cannot access your account through your normal two-step login methods, you can use your two-step login recovery code to turn off all two-step providers on your account."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
   },
   "recoverAccountTwoStep": {
     "message": "Recover account two-step login"
