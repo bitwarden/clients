@@ -247,6 +247,9 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
       case PolicyType.FreeFamiliesSponsorshipPolicy:
         // free Bitwarden families policy applies to everyone
         return false;
+      case PolicyType.RemoveUnlockWithPin:
+        // free Remove Unlock with PIN policy applies to everyone
+        return false;
       default:
         return organization.canManagePolicies;
     }

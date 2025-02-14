@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, Observable, Subject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, Observable, Subject, firstValueFrom, of } from "rxjs";
 import {
   concatMap,
   debounceTime,
@@ -98,6 +98,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   userHasMasterPassword: boolean;
   userHasPinSet: boolean;
+
+  pinEnabled$: Observable<boolean> = of(true);
 
   form = this.formBuilder.group({
     // Security
@@ -261,6 +263,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // Load initial values
     this.userHasPinSet = await this.pinService.isPinSet(activeAccount.id);
+
+    this.pinEnabled$ = this.policyService.get$(PolicyType.RemoveUnlockWithPin).pipe(
+      map((policy) => {
+        return policy == null || !policy.enabled;
+      }),
+    );
 
     const initialValues = {
       vaultTimeout: await firstValueFrom(

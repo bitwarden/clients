@@ -33,6 +33,7 @@
         </bit-form-control>
         <bit-form-control
           [disableMargin]="!(this.form.value.pin && showMasterPasswordOnClientRestartOption)"
+          *ngIf="(pinEnabled$ | async) || this.form.value.pin"
         >
           <input bitCheckbox id="pin" type="checkbox" formControlName="pin" />
           <bit-label for="pin" class="tw-whitespace-normal">{{ "unlockWithPin" | i18n }}</bit-label>

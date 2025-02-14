@@ -111,7 +111,7 @@
                   }}</small>
                 </div>
               </ng-container>
-              <div class="form-group">
+              <div class="form-group" *ngIf="(pinEnabled$ | async) || this.form.value.pin">
                 <div class="checkbox">
                   <label for="pin">
                     <input id="pin" type="checkbox" formControlName="pin" />
@@ -163,7 +163,11 @@
                       formControlName="requirePasswordOnStart"
                       (change)="updateRequirePasswordOnStart()"
                     />
-                    {{ "requirePasswordOnStart" | i18n }}
+                    @if (pinEnabled$ | async) {
+                      {{ "requirePasswordOnStart" | i18n }}
+                    } @else {
+                      {{ "requirePasswordWithoutPinOnStart" | i18n }}
+                    }
                   </label>
                 </div>
                 <small class="help-block form-group-child" *ngIf="isWindows">{{
