@@ -103,7 +103,7 @@ describe("CipherAttachmentsComponent", () => {
     fixture = TestBed.createComponent(CipherAttachmentsComponent);
     component = fixture.componentInstance;
     component.cipherId = "5555-444-3333" as CipherId;
-    component.submitBtn = {} as ButtonComponent;
+    component.submitBtn = TestBed.createComponent(ButtonComponent).componentInstance;
     fixture.detectChanges();
   });
 
@@ -135,7 +135,7 @@ describe("CipherAttachmentsComponent", () => {
   describe("bitSubmit", () => {
     beforeEach(() => {
       component.submitBtn.disabled = undefined;
-      component.submitBtn.loading = undefined;
+      component.submitBtn.loading.set(undefined);
     });
 
     it("updates sets initial state of the submit button", async () => {
@@ -145,13 +145,17 @@ describe("CipherAttachmentsComponent", () => {
     });
 
     it("sets submitBtn loading state", () => {
+      jest.useFakeTimers();
+
       component.bitSubmit.loading = true;
 
-      expect(component.submitBtn.loading).toBe(true);
+      jest.runAllTimers();
+
+      expect(component.submitBtn.loading()).toBe(true);
 
       component.bitSubmit.loading = false;
 
-      expect(component.submitBtn.loading).toBe(false);
+      expect(component.submitBtn.loading()).toBe(false);
     });
 
     it("sets submitBtn disabled state", () => {
