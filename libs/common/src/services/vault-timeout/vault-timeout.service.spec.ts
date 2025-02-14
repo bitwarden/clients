@@ -11,8 +11,8 @@ import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/va
 import { AccountInfo } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
-import { FakeMasterPasswordService } from "../../auth/services/master-password/fake-master-password.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
+import { FakeMasterPasswordService } from "../../key-management/master-password/services/fake-master-password.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
