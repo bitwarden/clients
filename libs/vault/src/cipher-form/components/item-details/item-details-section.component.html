@@ -18,7 +18,7 @@
       <bit-label>{{ "itemName" | i18n }}</bit-label>
       <input bitInput formControlName="name" />
     </bit-form-field>
-    <bit-form-field *ngIf="showOwnership" [class.tw-col-span-2]="config.hideIndividualVaultFields">
+    <bit-form-field *ngIf="showOwnership">
       <bit-label>{{ "owner" | i18n }}</bit-label>
       <bit-select formControlName="organizationId">
         <bit-option
@@ -34,7 +34,6 @@
       </bit-select>
     </bit-form-field>
     <bit-form-field
-      [class.tw-col-span-2]="!showOwnership"
       [disableMargin]="!showCollectionsControl"
       *ngIf="!config.hideIndividualVaultFields"
     >
