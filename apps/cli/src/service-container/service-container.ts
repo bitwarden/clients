@@ -114,6 +114,7 @@ import { DefaultStateProvider } from "@bitwarden/common/platform/state/implement
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 /* eslint-enable import/no-restricted-paths */
+import { UnsupportedSecureStorageService } from "@bitwarden/common/platform/storage/secure-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service construction
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
@@ -380,11 +381,14 @@ export class ServiceContainer {
 
     this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
 
+    // TODO: CLI _DOES_ have a secure storage implementation but we report it as not supported
+    // in PlatformUtilsService.supportsSecureStorage
+    const secureStorage = new UnsupportedSecureStorageService("i-dont-know");
+
     this.tokenService = new TokenService(
       this.singleUserStateProvider,
       this.globalStateProvider,
-      this.platformUtilsService.supportsSecureStorage(),
-      this.secureStorageService,
+      secureStorage,
       this.keyGenerationService,
       this.encryptService,
       this.logService,
