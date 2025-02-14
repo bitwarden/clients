@@ -162,11 +162,9 @@ export class OrganizationUserResetPasswordService
 
     const entries: OrganizationUserResetPasswordEntry[] = [];
     for (const org of allOrgs) {
-      const entry = new OrganizationUserResetPasswordEntry();
-      entry.orgId = org.id;
-      entry.orgName = org.name;
       const publicKey = await this.organizationApiService.getKeys(org.id);
-      entry.publicKey = Utils.fromB64ToArray(publicKey.publicKey);
+      const encodedPublicKey = Utils.fromB64ToArray(publicKey.publicKey);
+      const entry = new OrganizationUserResetPasswordEntry(org.id, encodedPublicKey, org.name);
       entries.push(entry);
     }
     return entries;
