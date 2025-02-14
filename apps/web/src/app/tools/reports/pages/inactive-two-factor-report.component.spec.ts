@@ -26,6 +26,7 @@ describe("InactiveTwoFactorReportComponent", () => {
   let fixture: ComponentFixture<InactiveTwoFactorReportComponent>;
   let organizationService: MockProxy<OrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
+  let adminConsoleCipherFormConfigServiceMock: MockProxy<AdminConsoleCipherFormConfigService>;
   const userId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(userId);
 
