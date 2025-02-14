@@ -254,8 +254,8 @@ export class GetCommand extends DownloadCommand {
       return Response.error("No TOTP available for this login.");
     }
 
-    const totp = await this.totpService.getCode(cipher.login.totp);
-    if (totp == null) {
+    const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+    if (!totpResponse.code) {
       return Response.error("Couldn't generate TOTP code.");
     }
 
@@ -276,7 +276,7 @@ export class GetCommand extends DownloadCommand {
       }
     }
 
-    const res = new StringResponse(totp);
+    const res = new StringResponse(totpResponse.code);
     return Response.success(res);
   }
 

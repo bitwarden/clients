@@ -136,10 +136,10 @@ describe("CopyCipherFieldService", () => {
 
       it("should get TOTP code when allowed from premium", async () => {
         billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
-        totpService.getCode.mockResolvedValue("123456");
+        totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
         const result = await service.copy(valueToCopy, actionType, cipher, skipReprompt);
         expect(result).toBeTruthy();
-        expect(totpService.getCode).toHaveBeenCalledWith(valueToCopy);
+        expect(totpService.getCode$).toHaveBeenCalledWith(valueToCopy);
         expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("123456");
         expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
           userId,
@@ -148,10 +148,10 @@ describe("CopyCipherFieldService", () => {
 
       it("should get TOTP code when allowed from organization", async () => {
         cipher.organizationUseTotp = true;
-        totpService.getCode.mockResolvedValue("123456");
+        totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
         const result = await service.copy(valueToCopy, actionType, cipher, skipReprompt);
         expect(result).toBeTruthy();
-        expect(totpService.getCode).toHaveBeenCalledWith(valueToCopy);
+        expect(totpService.getCode$).toHaveBeenCalledWith(valueToCopy);
         expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("123456");
       });
 
@@ -159,7 +159,7 @@ describe("CopyCipherFieldService", () => {
         billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
         const result = await service.copy(valueToCopy, actionType, cipher, skipReprompt);
         expect(result).toBeFalsy();
-        expect(totpService.getCode).not.toHaveBeenCalled();
+        expect(totpService.getCode$).not.toHaveBeenCalled();
         expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
         expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
           userId,
@@ -170,7 +170,7 @@ describe("CopyCipherFieldService", () => {
         cipher.login.totp = null;
         const result = await service.copy(valueToCopy, actionType, cipher, skipReprompt);
         expect(result).toBeFalsy();
-        expect(totpService.getCode).not.toHaveBeenCalled();
+        expect(totpService.getCode$).not.toHaveBeenCalled();
         expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
       });
     });
