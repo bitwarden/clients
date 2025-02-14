@@ -1,5 +1,5 @@
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { ButtonModule } from "../../button";
 import { DialogModule } from "../dialog.module";
@@ -46,6 +46,22 @@ export const CustomIcon: Story = {
     template: `
       <bit-simple-dialog>
         <i bitDialogIcon class="bwi bwi-star tw-text-3xl tw-text-success" aria-hidden="true"></i>
+        <span bitDialogTitle>Premium Subscription Available</span>
+        <span bitDialogContent> Message Content</span>
+        <ng-container bitDialogFooter>
+          <button bitButton buttonType="primary">Yes</button>
+          <button bitButton buttonType="secondary">No</button>
+        </ng-container>
+      </bit-simple-dialog>
+    `,
+  }),
+};
+
+export const HideIcon: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-simple-dialog hideIcon>
         <span bitDialogTitle>Premium Subscription Available</span>
         <span bitDialogContent> Message Content</span>
         <ng-container bitDialogFooter>
