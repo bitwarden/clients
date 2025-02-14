@@ -10341,7 +10341,7 @@
     }
   },
   "addedExistingOrganization": {
-    "message": "Added existing organization"
+    "message": "Добавлена ​​существующая организация"
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
