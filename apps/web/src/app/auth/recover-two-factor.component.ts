@@ -67,7 +67,7 @@ export class RecoverTwoFactorComponent implements OnInit {
     return this.formGroup.value.recoveryCode;
   }
 
-  submit = async () => {
+  async submit() {
     this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
@@ -81,6 +81,7 @@ export class RecoverTwoFactorComponent implements OnInit {
 
     try {
       await this.apiService.postTwoFactorRecover(request);
+
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -92,55 +93,70 @@ export class RecoverTwoFactorComponent implements OnInit {
         return;
       }
 
-      const twoFactorRequest: TokenTwoFactorRequest = {
-        provider: TwoFactorProviderType.RecoveryCode,
-        token: request.recoveryCode,
-        remember: false,
-      };
-
-      const credentials = new PasswordLoginCredentials(
-        request.email,
-        this.masterPassword,
-        null,
-        twoFactorRequest,
-      );
-
-      try {
-        await this.loginStrategyService.logIn(credentials);
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("youHaveBeenLoggedIn"),
-        });
-        await this.router.navigate(["/settings/security/two-factor"]);
-      } catch (e) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("unexpectedError"),
-          message: e?.message,
-        });
-        // Redirect to login page if there are errors
-        await this.router.navigate(["/login"], { queryParams: { email: request.email } });
-      }
+      // Handle login after recovery if the feature flag is enabled
+      await this.handleRecoveryLogin(request);
     } catch (e) {
-      // Extract an error message from validationErrors
-      let errorMessage: string = this.i18nService.t("unexpectedError");
-      if (e?.validationErrors && typeof e.validationErrors === "object") {
-        errorMessage = Object.keys(e.validationErrors)
-          .map((key) => {
-            const messages = e.validationErrors[key];
-            return Array.isArray(messages) ? messages.join(" ") : messages;
-          })
-          .join(" ");
-      } else {
-        errorMessage = e?.message;
-      }
-
+      // Using the extracted error message helper to simplify error handling
+      const errorMessage = this.extractErrorMessage(e);
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("error"),
         message: errorMessage,
       });
     }
-  };
+  }
+
+  /**
+   * Handles the login process after a successful account recovery.
+   */
+  private async handleRecoveryLogin(request: TwoFactorRecoveryRequest) {
+    const twoFactorRequest: TokenTwoFactorRequest = {
+      provider: TwoFactorProviderType.RecoveryCode,
+      token: request.recoveryCode,
+      remember: false,
+    };
+
+    const credentials = new PasswordLoginCredentials(
+      request.email,
+      this.masterPassword,
+      null,
+      twoFactorRequest,
+    );
+
+    try {
+      await this.loginStrategyService.logIn(credentials);
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("youHaveBeenLoggedIn"),
+      });
+      await this.router.navigate(["/settings/security/two-factor"]);
+    } catch (error) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("unexpectedError"),
+        message: error?.message,
+      });
+      // Redirect to login page if there are errors during login
+      await this.router.navigate(["/login"], { queryParams: { email: request.email } });
+    }
+  }
+
+  /**
+   * Extracts an error message from the error object.
+   */
+  private extractErrorMessage(error: any): string {
+    let errorMessage: string = this.i18nService.t("unexpectedError");
+    if (error?.validationErrors && typeof error.validationErrors === "object") {
+      errorMessage = Object.keys(error.validationErrors)
+        .map((key) => {
+          const messages = error.validationErrors[key];
+          return Array.isArray(messages) ? messages.join(" ") : messages;
+        })
+        .join(" ");
+    } else if (error?.message) {
+      errorMessage = error.message;
+    }
+    return errorMessage;
+  }
 }
