@@ -223,45 +223,6 @@ export class StateService<
     await this.saveSecureStorageKey(partialKeys.userBiometricKey, value, options);
   }
 
-  /**
-   * @deprecated Use UserKeyAuto instead
-   */
-  async setCryptoMasterKeyAuto(value: string, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(
-      this.reconcileOptions(options, { keySuffix: "auto" }),
-      await this.defaultSecureStorageOptions(),
-    );
-    if (options?.userId == null) {
-      return;
-    }
-    await this.saveSecureStorageKey(partialKeys.autoKey, value, options);
-  }
-
-  /**
-   * @deprecated I don't see where this is even used
-   */
-  async getCryptoMasterKeyB64(options?: StorageOptions): Promise<string> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return null;
-    }
-    return await this.secureStorageService.get<string>(
-      `${options?.userId}${partialKeys.masterKey}`,
-      options,
-    );
-  }
-
-  /**
-   * @deprecated I don't see where this is even used
-   */
-  async setCryptoMasterKeyB64(value: string, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
-    if (options?.userId == null) {
-      return;
-    }
-    await this.saveSecureStorageKey(partialKeys.masterKey, value, options);
-  }
-
   async getDuckDuckGoSharedKey(options?: StorageOptions): Promise<string> {
     options = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
     if (options?.userId == null) {
@@ -620,8 +581,6 @@ export class StateService<
 
     await this.setUserKeyAutoUnlock(null, { userId: userId });
     await this.setUserKeyBiometric(null, { userId: userId });
-    await this.setCryptoMasterKeyAuto(null, { userId: userId });
-    await this.setCryptoMasterKeyB64(null, { userId: userId });
   }
 
   protected async removeAccountFromMemory(userId: string = null): Promise<void> {
