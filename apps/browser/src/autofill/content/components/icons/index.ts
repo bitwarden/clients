@@ -10,3 +10,4 @@ export { PartyHorn } from "./party-horn";
 export { PencilSquare } from "./pencil-square";
 export { Shield } from "./shield";
 export { User } from "./user";
+export { Warning } from "./warning";
