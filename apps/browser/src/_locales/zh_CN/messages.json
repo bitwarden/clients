@@ -766,7 +766,7 @@
     "message": "主密码提示"
   },
   "errorOccurred": {
-    "message": "发生了一个错误"
+    "message": "发生错误"
   },
   "emailRequired": {
     "message": "必须填写电子邮箱地址。"
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "在设置中更改它"
+  },
+  "change": {
+    "message": "更改"
+  },
+  "changeButtonTitle": {
+    "message": "更改密码 - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "有风险的密码"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ 要求您更改 $COUNT$ 个密码，因为它们存在风险。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "您的组织要求您更改 $COUNT$ 个密码，因为它们存在风险。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "审查并更改某个有风险的密码"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "审查并更改 $COUNT$ 个有风险的密码",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "尽快更改有风险的密码"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "更新您的设置，以便您可以快速自动填充密码并生成新的密码"
+  },
+  "turnOnAutofill": {
+    "message": "打开自动填充"
+  },
+  "turnedOnAutofill": {
+    "message": "已打开自动填充"
+  },
+  "dismiss": {
+    "message": "忽略"
   },
   "websiteItemLabel": {
     "message": "网站 $number$ (URI)",
