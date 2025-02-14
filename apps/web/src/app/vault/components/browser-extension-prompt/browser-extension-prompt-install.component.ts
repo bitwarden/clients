@@ -32,7 +32,7 @@ const WebStoreUrls: Partial<Record<DeviceType, string>> = {
   imports: [CommonModule, I18nPipe, LinkModule],
 })
 export class BrowserExtensionPromptInstallComponent implements OnInit {
-  /** The install link should only who for error states */
+  /** The install link should only show for the error states */
   protected shouldShow$ = this.browserExtensionPromptService.pageState$.pipe(
     map((state) => state === BrowserPromptState.Error || state === BrowserPromptState.ManualOpen),
   );
