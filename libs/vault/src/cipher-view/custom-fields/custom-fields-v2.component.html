@@ -47,6 +47,19 @@
           <bit-color-password class="tw-font-mono" [password]="field.value"></bit-color-password>
         </span>
         <button
+          *ngIf="canViewPassword && hiddenFieldRevealed"
+          bitIconButton="bwi-numbered-list"
+          bitSuffix
+          type="button"
+          data-testid="toggle-hidden-field-value-count"
+          [appA11yTitle]="
+            (showHiddenValueCount ? 'hideCharacterCount' : 'showCharacterCount') | i18n
+          "
+          [attr.aria-expanded]="showHiddenValueCount"
+          appStopClick
+          (click)="togglePasswordCount()"
+        ></button>
+        <button
           bitSuffix
           type="button"
           bitIconButton
@@ -66,6 +79,12 @@
           (click)="logCopyEvent()"
         ></button>
       </bit-form-field>
+      <div
+        *ngIf="showHiddenValueCount && hiddenFieldRevealed"
+        [ngClass]="{ 'tw-mt-3': true, 'tw-mb-2': true }"
+      >
+        <bit-color-password [password]="field.value" [showCount]="true"></bit-color-password>
+      </div>
       <bit-form-control *ngIf="field.type === fieldType.Boolean">
         <input
           bitCheckbox

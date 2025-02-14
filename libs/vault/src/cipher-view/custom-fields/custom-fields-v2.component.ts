@@ -52,6 +52,11 @@ export class CustomFieldV2Component implements OnInit {
    */
   hiddenFieldRevealed: boolean = false;
 
+  /**
+   * Indicates whether the hidden field count should be shown
+   */
+  showHiddenValueCount: boolean = false;
+
   constructor(
     private i18nService: I18nService,
     private eventCollectionService: EventCollectionService,
@@ -68,6 +73,10 @@ export class CustomFieldV2Component implements OnInit {
 
   get canViewPassword() {
     return this.cipher.viewPassword;
+  }
+
+  togglePasswordCount() {
+    this.showHiddenValueCount = !this.showHiddenValueCount;
   }
 
   async logHiddenEvent(hiddenFieldVisible: boolean) {
