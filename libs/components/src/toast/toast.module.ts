@@ -1,11 +1,12 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
 import { DefaultNoComponentGlobalConfig, GlobalConfig, TOAST_CONFIG } from "ngx-toastr";
 
+import { ToastContainerComponent } from "./toast-container.component";
 import { BitwardenToastrComponent } from "./toastr.component";
 
 @NgModule({
-  imports: [BitwardenToastrComponent],
-  exports: [BitwardenToastrComponent],
+  imports: [BitwardenToastrComponent, ToastContainerComponent],
+  exports: [BitwardenToastrComponent, ToastContainerComponent],
 })
 export class ToastModule {
   static forRoot(config: Partial<GlobalConfig> = {}): ModuleWithProviders<ToastModule> {

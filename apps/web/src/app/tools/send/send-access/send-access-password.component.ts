@@ -4,7 +4,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angu
 import { FormBuilder, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
-import { SharedModule } from "../../shared";
+import { SharedModule } from "../../../shared";
 
 @Component({
   selector: "app-send-access-password",
