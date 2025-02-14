@@ -24,7 +24,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LinkModule } from "@bitwarden/components";
 
@@ -106,12 +106,12 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
           void this.getMessages(event);
         });
 
-      window.postMessage({ command: VaultOnboardingMessages.checkBwInstalled });
+      window.postMessage({ command: VaultMessages.checkBwInstalled });
     }
   }
 
   async getMessages(event: any) {
-    if (event.data.command === VaultOnboardingMessages.HasBwInstalled && this.showOnboarding) {
+    if (event.data.command === VaultMessages.HasBwInstalled && this.showOnboarding) {
       const currentTasks = await firstValueFrom(this.onboardingTasks$);
       const updatedTasks = {
         createAccount: currentTasks.createAccount,

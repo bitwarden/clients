@@ -1,0 +1,44 @@
+<div class="tw-text-center" *ngIf="pageState$ | async as pageState">
+  <ng-container *ngIf="pageState === BrowserPromptState.Loading">
+    <i class="bwi bwi-spinner bwi-spin bwi-3x tw-text-primary-600" aria-hidden="true"></i>
+    <p bitTypography="body1" class="tw-mb-0 tw-mt-2">{{ "openingExtension" | i18n }}</p>
+  </ng-container>
+
+  <ng-container *ngIf="pageState === BrowserPromptState.Error">
+    <p bitTypography="body1" class="tw-mb-4 tw-text-xl">{{ "openingExtensionError" | i18n }}</p>
+    <button
+      bitButton
+      buttonType="primary"
+      type="button"
+      (click)="openExtension()"
+      id="bw-extension-prompt-button"
+    >
+      {{ "openExtension" | i18n }}
+      <i class="bwi bwi-external-link tw-ml-2" aria-hidden="true"></i>
+    </button>
+  </ng-container>
+
+  <ng-container *ngIf="pageState === BrowserPromptState.Success">
+    <i class="bwi tw-text-2xl bwi-check-circle tw-text-success-700" aria-hidden="true"></i>
+    <p bitTypography="body1" class="tw-mb-4 tw-text-xl">
+      {{ "openedExtensionViewAtRiskPasswords" | i18n }}
+    </p>
+  </ng-container>
+
+  <ng-container *ngIf="pageState === BrowserPromptState.ManualOpen">
+    <p bitTypography="body1" class="tw-mb-0 tw-text-xl">
+      {{ "openExtensionManuallyPart1" | i18n }}
+      <bit-icon
+        [icon]="BitwardenIcon"
+        class="[&>svg]:tw-align-baseline [&>svg]:-tw-mb-[2px]"
+      ></bit-icon>
+      {{ "openExtensionManuallyPart2" | i18n }}
+    </p>
+  </ng-container>
+
+  <ng-container *ngIf="pageState === BrowserPromptState.MobileBrowser">
+    <p bitTypography="body1" class="tw-mb-0 tw-text-xl">
+      {{ "reopenLinkOnDesktop" | i18n }}
+    </p>
+  </ng-container>
+</div>
