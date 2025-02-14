@@ -4,8 +4,9 @@ import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import { AlgorithmInfo } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 export interface WebVaultGeneratorDialogParams {
@@ -26,13 +27,11 @@ export enum WebVaultGeneratorDialogAction {
   selector: "web-vault-generator-dialog",
   templateUrl: "./web-generator-dialog.component.html",
   standalone: true,
-  imports: [CommonModule, CipherFormGeneratorComponent, ButtonModule, DialogModule],
+  imports: [CommonModule, CipherFormGeneratorComponent, ButtonModule, DialogModule, I18nPipe],
 })
 export class WebVaultGeneratorDialogComponent {
-  protected title = this.i18nService.t(this.isPassword ? "passwordGenerator" : "usernameGenerator");
-  protected selectButtonText = this.i18nService.t(
-    this.isPassword ? "useThisPassword" : "useThisUsername",
-  );
+  protected titleKey = this.isPassword ? "passwordGenerator" : "usernameGenerator";
+  protected buttonLabel: string | undefined;
 
   /**
    * Whether the dialog is generating a password/passphrase. If false, it is generating a username.
@@ -51,7 +50,6 @@ export class WebVaultGeneratorDialogComponent {
   constructor(
     @Inject(DIALOG_DATA) protected params: WebVaultGeneratorDialogParams,
     private dialogRef: DialogRef<WebVaultGeneratorDialogResult>,
-    private i18nService: I18nService,
   ) {}
 
   /**
@@ -74,6 +72,16 @@ export class WebVaultGeneratorDialogComponent {
   onValueGenerated(value: string) {
     this.generatedValue = value;
   }
+
+  onAlgorithmSelected = (selected?: AlgorithmInfo) => {
+    if (selected) {
+      this.buttonLabel = selected.useGeneratedValue;
+    } else {
+      // clear the credential value when the user is
+      // selecting the credential generation algorithm
+      this.generatedValue = undefined;
+    }
+  };
 
   /**
    * Opens the vault generator dialog.
