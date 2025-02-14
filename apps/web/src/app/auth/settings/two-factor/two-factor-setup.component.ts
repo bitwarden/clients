@@ -43,7 +43,6 @@ import { TwoFactorSetupWebAuthnComponent } from "./two-factor-setup-webauthn.com
 import { TwoFactorSetupYubiKeyComponent } from "./two-factor-setup-yubikey.component";
 import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 
-
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
