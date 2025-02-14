@@ -11,7 +11,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { filter, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { filter, firstValueFrom, map, Observable, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -141,21 +141,22 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.cleanUp();
   }
 
+  async fetchCipher() {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.cipher = await firstValueFrom(
+      this.cipherService.cipherViews$(activeUserId).pipe(
+        map((ciphers) => ciphers?.find((c) => c.id === this.cipherId)),
+        filter((cipher) => !!cipher),
+      ),
+    );
+  }
+
   async load() {
     this.cleanUp();
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     // Grab individual cipher from `cipherViews$` for the most up-to-date information
-    this.cipherService
-      .cipherViews$(activeUserId)
-      .pipe(
-        map((ciphers) => ciphers?.find((c) => c.id === this.cipherId)),
-        filter((cipher) => !!cipher),
-        takeUntil(this.destroyed$),
-      )
-      .subscribe((cipher) => {
-        this.cipher = cipher;
-      });
+    await this.fetchCipher();
 
     this.canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
