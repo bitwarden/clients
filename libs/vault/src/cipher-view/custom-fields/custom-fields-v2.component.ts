@@ -21,6 +21,7 @@ import {
   SectionHeaderComponent,
   TypographyModule,
   CheckboxModule,
+  ColorPasswordModule,
 } from "@bitwarden/components";
 
 @Component({
@@ -38,12 +39,18 @@ import {
     SectionHeaderComponent,
     TypographyModule,
     CheckboxModule,
+    ColorPasswordModule,
   ],
 })
 export class CustomFieldV2Component implements OnInit {
   @Input() cipher: CipherView;
   fieldType = FieldType;
   fieldOptions: any;
+
+  /**
+   * Indicates whether the hidden field is visible
+   */
+  hiddenFieldRevealed: boolean = false;
 
   constructor(
     private i18nService: I18nService,
@@ -64,6 +71,8 @@ export class CustomFieldV2Component implements OnInit {
   }
 
   async logHiddenEvent(hiddenFieldVisible: boolean) {
+    this.hiddenFieldRevealed = hiddenFieldVisible;
+
     if (hiddenFieldVisible) {
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledHiddenFieldVisible,
