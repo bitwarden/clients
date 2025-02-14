@@ -141,7 +141,10 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.cleanUp();
   }
 
-  async fetchCipher() {
+  async load() {
+    this.cleanUp();
+
+    // Grab individual cipher from `cipherViews$` for the most up-to-date information
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.cipher = await firstValueFrom(
       this.cipherService.cipherViews$(activeUserId).pipe(
@@ -149,14 +152,6 @@ export class ViewComponent implements OnDestroy, OnInit {
         filter((cipher) => !!cipher),
       ),
     );
-  }
-
-  async load() {
-    this.cleanUp();
-
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    // Grab individual cipher from `cipherViews$` for the most up-to-date information
-    await this.fetchCipher();
 
     this.canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
