@@ -8,9 +8,5 @@
 	<true/>
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
-	<!--
-	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
-	<true/>
-	-->
 </dict>
 </plist>
