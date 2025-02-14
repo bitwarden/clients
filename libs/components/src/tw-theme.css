@@ -244,3 +244,8 @@ summary.tw-list-none::-webkit-details-marker {
   height: 100%;
   overflow: hidden;
 }
+
+/** Used by CDK a11y services */
+.cdk-visually-hidden {
+  @apply tw-sr-only;
+}
