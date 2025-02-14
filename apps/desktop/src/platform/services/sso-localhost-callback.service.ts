@@ -5,6 +5,8 @@ import * as http from "http";
 import { ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
+import { buildSsoRedirectUrl } from "@bitwarden/auth/common";
+import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 
@@ -19,8 +21,8 @@ export class SSOLocalhostCallbackService {
     private environmentService: EnvironmentService,
     private messagingService: MessageSender,
   ) {
-    ipcMain.handle("openSsoPrompt", async (event, { codeChallenge, state }) => {
-      const { ssoCode, recvState } = await this.openSsoPrompt(codeChallenge, state);
+    ipcMain.handle("openSsoPrompt", async (event, { codeChallenge, state, email }) => {
+      const { ssoCode, recvState } = await this.openSsoPrompt(codeChallenge, state, email);
       this.messagingService.send("ssoCallback", {
         code: ssoCode,
         state: recvState,
@@ -32,6 +34,7 @@ export class SSOLocalhostCallbackService {
   private async openSsoPrompt(
     codeChallenge: string,
     state: string,
+    email: string,
   ): Promise<{ ssoCode: string; recvState: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
@@ -80,16 +83,14 @@ export class SSOLocalhostCallbackService {
           this.ssoRedirectUri = "http://localhost:" + port;
           callbackServer.listen(port, () => {
             this.messagingService.send("launchUri", {
-              url:
-                webUrl +
-                "/#/sso?clientId=" +
-                "desktop" +
-                "&redirectUri=" +
-                encodeURIComponent(this.ssoRedirectUri) +
-                "&state=" +
-                state +
-                "&codeChallenge=" +
+              url: buildSsoRedirectUrl(
+                webUrl,
+                ClientType.Desktop,
+                this.ssoRedirectUri,
+                state,
                 codeChallenge,
+                email,
+              ),
             });
           });
           foundPort = true;
@@ -110,15 +111,6 @@ export class SSOLocalhostCallbackService {
         5 * 60 * 1000,
       );
     });
-  }
-
-  private getOrgIdentifierFromState(state: string): string {
-    if (state === null || state === undefined) {
-      return null;
-    }
-
-    const stateSplit = state.split("_identifier=");
-    return stateSplit.length > 1 ? stateSplit[1] : null;
   }
 
   private checkState(state: string, checkState: string): boolean {

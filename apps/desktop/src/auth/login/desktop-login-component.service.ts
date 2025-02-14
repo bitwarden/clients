@@ -4,6 +4,7 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
+import { DESKTOP_SSO_CALLBACK, SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -25,6 +26,7 @@ export class DesktopLoginComponentService
     protected ssoLoginService: SsoLoginServiceAbstraction,
     protected i18nService: I18nService,
     protected toastService: ToastService,
+    protected ssoUrlService: SsoUrlService,
   ) {
     super(
       cryptoFunctionService,
@@ -50,35 +52,33 @@ export class DesktopLoginComponentService
     // For platforms that cannot support a protocol-based (e.g. bitwarden://) callback, we use a localhost callback
     // Otherwise, we launch the SSO component in a browser window and wait for the callback
     if (ipc.platform.isAppImage || ipc.platform.isSnapStore || ipc.platform.isDev) {
-      await this.initiateSsoThroughLocalhostCallback(state, codeChallenge);
+      await this.initiateSsoThroughLocalhostCallback(email, state, codeChallenge);
     } else {
       const env = await firstValueFrom(this.environmentService.environment$);
       const webVaultUrl = env.getWebVaultUrl();
 
-      const redirectUri = "bitwarden://sso-callback";
+      const redirectUri = DESKTOP_SSO_CALLBACK;
 
-      this.platformUtilsService.launchUri(
-        webVaultUrl +
-          "/#/sso?clientId=" +
-          this.clientType +
-          "&redirectUri=" +
-          encodeURIComponent(redirectUri) +
-          "&state=" +
-          state +
-          "&codeChallenge=" +
-          codeChallenge +
-          "&email=" +
-          encodeURIComponent(email),
+      const ssoWebAppUrl = this.ssoUrlService.buildSsoUrl(
+        webVaultUrl,
+        this.clientType,
+        redirectUri,
+        state,
+        codeChallenge,
+        email,
       );
+
+      this.platformUtilsService.launchUri(ssoWebAppUrl);
     }
   }
 
   private async initiateSsoThroughLocalhostCallback(
+    email: string,
     state: string,
     challenge: string,
   ): Promise<void> {
     try {
-      await ipc.platform.localhostCallbackService.openSsoPrompt(challenge, state);
+      await ipc.platform.localhostCallbackService.openSsoPrompt(challenge, state, email);
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {

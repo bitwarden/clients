@@ -19,6 +19,7 @@ import {
   PinService,
   PinServiceAbstraction,
   UserDecryptionOptionsService,
+  SsoUrlService,
 } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
@@ -274,6 +275,7 @@ export class ServiceContainer {
   sdkService: SdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
+  ssoUrlService: SsoUrlService;
 
   constructor() {
     let p = null;

@@ -4,6 +4,7 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -24,6 +25,7 @@ export class ExtensionLoginComponentService
     platformUtilsService: PlatformUtilsService,
     ssoLoginService: SsoLoginServiceAbstraction,
     private extensionAnonLayoutWrapperDataService: ExtensionAnonLayoutWrapperDataService,
+    private ssoUrlService: SsoUrlService,
   ) {
     super(
       cryptoFunctionService,
@@ -51,19 +53,16 @@ export class ExtensionLoginComponentService
 
     const redirectUri = webVaultUrl + "/sso-connector.html";
 
-    this.platformUtilsService.launchUri(
-      webVaultUrl +
-        "/#/sso?clientId=" +
-        this.clientType +
-        "&redirectUri=" +
-        encodeURIComponent(redirectUri) +
-        "&state=" +
-        state +
-        "&codeChallenge=" +
-        codeChallenge +
-        "&email=" +
-        encodeURIComponent(email),
+    const webAppSsoUrl = this.ssoUrlService.buildSsoUrl(
+      webVaultUrl,
+      this.clientType,
+      redirectUri,
+      state,
+      codeChallenge,
+      email,
     );
+
+    this.platformUtilsService.launchUri(webAppSsoUrl);
   }
 
   showBackButton(showBackButton: boolean): void {

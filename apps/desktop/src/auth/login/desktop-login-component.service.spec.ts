@@ -3,6 +3,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -42,6 +43,7 @@ describe("DesktopLoginComponentService", () => {
   let ssoLoginService: MockProxy<SsoLoginServiceAbstraction>;
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
+  let ssoUrlService: MockProxy<SsoUrlService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -60,6 +62,7 @@ describe("DesktopLoginComponentService", () => {
     i18nService = mock<I18nService>();
     toastService = mock<ToastService>();
     platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+    ssoUrlService = mock<SsoUrlService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -74,6 +77,7 @@ describe("DesktopLoginComponentService", () => {
               ssoLoginService,
               i18nService,
               toastService,
+              ssoUrlService,
             ),
         },
         { provide: DefaultLoginComponentService, useExisting: DesktopLoginComponentService },
@@ -84,6 +88,7 @@ describe("DesktopLoginComponentService", () => {
         { provide: SsoLoginServiceAbstraction, useValue: ssoLoginService },
         { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: toastService },
+        { provide: SsoUrlService, useValue: ssoUrlService },
       ],
     });
 
@@ -124,8 +129,6 @@ describe("DesktopLoginComponentService", () => {
         const state = "testState";
         const codeVerifier = "testCodeVerifier";
         const codeChallenge = "testCodeChallenge";
-        const baseUrl = "https://webvault.bitwarden.com";
-        const expectedRedirectUri = "bitwarden://sso-callback";
 
         passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
         passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
@@ -137,12 +140,12 @@ describe("DesktopLoginComponentService", () => {
           expect(ipc.platform.localhostCallbackService.openSsoPrompt).toHaveBeenCalledWith(
             codeChallenge,
             state,
+            email,
           );
         } else {
-          const expectedUrl = `${baseUrl}/#/sso?clientId=desktop&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
           expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
           expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
-          expect(platformUtilsService.launchUri).toHaveBeenCalledWith(expectedUrl);
+          expect(platformUtilsService.launchUri).toHaveBeenCalled();
         }
       });
     });
