@@ -1575,7 +1575,9 @@ export default class MainBackground {
       return;
     }
 
-    await SafariApp.sendMessageToApp("showPopover", null, true);
+    if (this.isSafari) {
+      await SafariApp.sendMessageToApp("showPopover", null, true);
+    }
   }
 
   async reseedStorage() {
