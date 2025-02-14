@@ -1,0 +1,30 @@
+<bit-simple-dialog>
+  <i bitDialogIcon class="bwi bwi-info-circle tw-text-3xl" aria-hidden="true"></i>
+  <span bitDialogTitle>
+    <strong>Untrusted encryption keys</strong>
+  </span>
+  <span bitDialogContent>
+    Rotating your encryption keys will require you to trust keys of any organizations that can
+    recover your account, and any contacts that can you have enabled emergency access for. To
+    continue, make sure you can verify the following:
+
+    <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+      <li *ngIf="params.orgName != null">
+        Fingerprint phrase for <b>{{ params.orgName }}</b> for which you have enabled account
+        recovery.
+      </li>
+      <li *ngIf="params.numberOfEmergencyAccessUsers > 0">
+        Fingerprint phrase for {{ params.numberOfEmergencyAccessUsers }} contacts for which you have
+        enabled emergency access.
+      </li>
+    </ul>
+  </span>
+  <ng-container bitDialogFooter>
+    <a bitButton target="_blank" rel="noreferrer" buttonType="primary" (click)="submit()">
+      {{ "continue" | i18n }}
+    </a>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

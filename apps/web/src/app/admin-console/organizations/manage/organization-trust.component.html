@@ -1,0 +1,33 @@
+<form [formGroup]="confirmForm" [bitSubmit]="submit">
+  <bit-dialog dialogSize="large" [loading]="loading">
+    <span bitDialogTitle>
+      {{ "trustOrganization" | i18n }}
+      <small class="tw-text-muted">{{ params.name }}</small>
+    </span>
+    <div bitDialogContent>
+      <bit-callout type="warning">{{ "orgTrustWarning" | i18n }}</bit-callout>
+      <p bitTypography="body1">
+        {{ "fingerprintEnsureIntegrityVerify" | i18n }}
+        <a
+          bitLink
+          href="https://bitwarden.com/help/fingerprint-phrase/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {{ "learnMore" | i18n }}</a
+        >
+      </p>
+      <p bitTypography="body1">
+        <code>{{ fingerprint }}</code>
+      </p>
+    </div>
+    <div bitDialogFooter>
+      <button type="submit" buttonType="primary" bitButton bitFormButton>
+        <span>{{ "trust" | i18n }}</span>
+      </button>
+      <button bitButton bitFormButton buttonType="secondary" type="button" bitDialogClose>
+        {{ "doNotTrust" | i18n }}
+      </button>
+    </div>
+  </bit-dialog>
+</form>
