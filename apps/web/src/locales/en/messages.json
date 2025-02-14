@@ -10382,5 +10382,11 @@
   },
   "upgradeForFullEvents": {
     "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle" : {
+    "message" : "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage":{
+    "message" : "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

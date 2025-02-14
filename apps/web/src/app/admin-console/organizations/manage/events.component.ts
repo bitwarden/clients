@@ -198,7 +198,6 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
         this.logService.warning(e);
       }
     }
-
     await this.refreshEvents();
     this.loaded = true;
   }

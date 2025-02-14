@@ -1,7 +1,5 @@
 <app-header [isFreeOrFamilyOrg]="organization.isFreeOrFamilyOrg"></app-header>
-<div class="tw-text-muted tw-mb-4" *ngIf="organization.isFreeOrFamilyOrg">
-  {{ dummyEventsDisclaimer }}
-</div>
+
 <div class="tw-mb-4" [formGroup]="eventsForm">
   <div class="tw-mt-4 tw-flex tw-items-center">
     <bit-form-field>
@@ -53,6 +51,13 @@
     </form>
   </div>
 </div>
+<bit-callout
+  type="info"
+  [title]="'upgradeEventLogTitle' | i18n"
+  *ngIf="organization.isFreeOrFamilyOrg"
+>
+  {{ "upgradeEventLogMessage" | i18n }}
+</bit-callout>
 <ng-container *ngIf="!loaded">
   <i
     class="bwi bwi-spinner bwi-spin tw-text-muted"
