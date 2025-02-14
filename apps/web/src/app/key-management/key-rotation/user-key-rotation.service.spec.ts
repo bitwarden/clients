@@ -4,17 +4,15 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/admin-console/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -55,12 +53,9 @@ describe("KeyRotationService", () => {
   let mockWebauthnLoginAdminService: MockProxy<WebauthnLoginAdminService>;
   let mockLogService: MockProxy<LogService>;
   let mockVaultTimeoutService: MockProxy<VaultTimeoutService>;
-  let mockeDialogService: MockProxy<DialogService>;
-  let mockFullApiService: MockProxy<ApiService>;
-  let mockTokenService: MockProxy<TokenService>;
+  let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
   let mockI18nService: MockProxy<I18nService>;
-  let mockInternalMasterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
 
   const mockUser = {
     id: "mockUserId" as UserId,
@@ -69,6 +64,8 @@ describe("KeyRotationService", () => {
     name: "mockName",
   };
 
+  const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("test-public-key")];
+
   beforeAll(() => {
     mockUserVerificationService = mock<UserVerificationService>();
     mockApiService = mock<UserKeyRotationApiService>();
@@ -76,7 +73,23 @@ describe("KeyRotationService", () => {
     mockFolderService = mock<FolderService>();
     mockSendService = mock<SendService>();
     mockEmergencyAccessService = mock<EmergencyAccessService>();
+    mockEmergencyAccessService.getPublicKeys.mockResolvedValue(
+      mockTrustedPublicKeys.map((key) => {
+        return {
+          publicKey: key,
+        };
+      }),
+    );
     mockResetPasswordService = mock<OrganizationUserResetPasswordService>();
+    mockResetPasswordService.getPublicKeys.mockResolvedValue(
+      mockTrustedPublicKeys.map((key) => {
+        return {
+          publicKey: key,
+          orgId: "mockOrgId",
+          orgName: "mockOrgName",
+        };
+      }),
+    );
     mockDeviceTrustService = mock<DeviceTrustServiceAbstraction>();
     mockKeyService = mock<KeyService>();
     mockEncryptService = mock<EncryptService>();
@@ -85,12 +98,9 @@ describe("KeyRotationService", () => {
     mockWebauthnLoginAdminService = mock<WebauthnLoginAdminService>();
     mockLogService = mock<LogService>();
     mockVaultTimeoutService = mock<VaultTimeoutService>();
-    mockeDialogService = mock<DialogService>();
-    mockFullApiService = mock<ApiService>();
-    mockTokenService = mock<TokenService>();
     mockToastService = mock<ToastService>();
     mockI18nService = mock<I18nService>();
-    mockInternalMasterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    mockDialogService = mock<DialogService>();
 
     keyRotationService = new UserKeyRotationService(
       mockUserVerificationService,
@@ -107,12 +117,9 @@ describe("KeyRotationService", () => {
       mockWebauthnLoginAdminService,
       mockLogService,
       mockVaultTimeoutService,
-      mockeDialogService,
-      mockFullApiService,
-      mockTokenService,
       mockToastService,
       mockI18nService,
-      mockInternalMasterPasswordService,
+      mockDialogService,
     );
   });
 

@@ -302,18 +302,6 @@ export class UserKeyRotationService {
 
     const emergencyAccessGrantees = await this.emergencyAccessService.getPublicKeys();
     const orgs = await this.resetPasswordService.getPublicKeys(user.id);
-    if (orgs.length > 0 || emergencyAccessGrantees.length > 0) {
-      const trustInfoDialog = KeyRotationTrustInfoComponent.open(this.dialogService, {
-        data: {
-          numberOfEmergencyAccessUsers: emergencyAccessGrantees.length,
-          orgName: orgs.length > 0 ? orgs[0].orgName : undefined,
-        },
-      });
-      const result = await firstValueFrom(trustInfoDialog.closed);
-      if (!result) {
-        return;
-      }
-    }
 
     // Verify master password
     // UV service sets master key on success since it is stored in memory and can be lost on refresh
