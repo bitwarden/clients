@@ -32,6 +32,9 @@
     slot="above-scroll-area"
     *ngIf="vaultState !== VaultStateEnum.Empty && !(loading$ | async)"
   >
+    <vault-at-risk-password-callout
+      *appIfFeature="FeatureFlag.SecurityTasks"
+    ></vault-at-risk-password-callout>
     <app-vault-header-v2></app-vault-header-v2>
   </ng-container>
 
