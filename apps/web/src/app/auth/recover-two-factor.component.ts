@@ -2,7 +2,11 @@ import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
-import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
+import {
+  LoginStrategyServiceAbstraction,
+  PasswordLoginCredentials,
+  LoginSuccessHandlerService,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -10,6 +14,7 @@ import { TwoFactorRecoveryRequest } from "@bitwarden/common/auth/models/request/
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -44,6 +49,8 @@ export class RecoverTwoFactorComponent implements OnInit {
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private toastService: ToastService,
     private configService: ConfigService,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -67,7 +74,10 @@ export class RecoverTwoFactorComponent implements OnInit {
     return this.formGroup.value.recoveryCode;
   }
 
-  async submit() {
+  /**
+   * Handles the submission of the recovery code form.
+   */
+  submit = async () => {
     this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
@@ -103,12 +113,13 @@ export class RecoverTwoFactorComponent implements OnInit {
         message: errorMessage,
       });
     }
-  }
+  };
 
   /**
    * Handles the login process after a successful account recovery.
    */
   private async handleRecoveryLogin(request: TwoFactorRecoveryRequest) {
+    // Build two-factor request to pass into PasswordLoginCredentials request using the 2FA recovery code and RecoveryCode type
     const twoFactorRequest: TokenTwoFactorRequest = {
       provider: TwoFactorProviderType.RecoveryCode,
       token: request.recoveryCode,
@@ -123,20 +134,17 @@ export class RecoverTwoFactorComponent implements OnInit {
     );
 
     try {
-      await this.loginStrategyService.logIn(credentials);
+      const authResult = await this.loginStrategyService.logIn(credentials);
       this.toastService.showToast({
         variant: "success",
         title: null,
         message: this.i18nService.t("youHaveBeenLoggedIn"),
       });
+      await this.loginSuccessHandlerService.run(authResult.userId);
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("unexpectedError"),
-        message: error?.message,
-      });
-      // Redirect to login page if there are errors during login
+      // If login errors, redirect to login page per product. Don't show error
+      this.logService.error("Error logging in automatically: ", error.message);
       await this.router.navigate(["/login"], { queryParams: { email: request.email } });
     }
   }
