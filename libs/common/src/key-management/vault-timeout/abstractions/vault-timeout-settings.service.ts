@@ -2,7 +2,8 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { UserId } from "../../../types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
+
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout } from "../types/vault-timeout.type";
 

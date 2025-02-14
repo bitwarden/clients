@@ -17,12 +17,12 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { BiometricsService } from "@bitwarden/key-management";
 
-import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
 

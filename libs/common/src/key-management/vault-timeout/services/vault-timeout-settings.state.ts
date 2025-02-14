@@ -1,4 +1,8 @@
-import { UserKeyDefinition, VAULT_TIMEOUT_SETTINGS_DISK_LOCAL } from "../../../platform/state";
+import {
+  UserKeyDefinition,
+  VAULT_TIMEOUT_SETTINGS_DISK_LOCAL,
+} from "@bitwarden/common/platform/state";
+
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout } from "../types/vault-timeout.type";
 

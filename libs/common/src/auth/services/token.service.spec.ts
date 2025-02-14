@@ -4,14 +4,14 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
-
-import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutStringType,
-} from "../../key-management/vault-timeout";
+} from "@bitwarden/common/key-management/vault-timeout";
+
+import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";

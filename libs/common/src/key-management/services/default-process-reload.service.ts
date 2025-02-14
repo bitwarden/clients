@@ -3,6 +3,10 @@
 import { firstValueFrom, map, timeout } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -12,7 +16,6 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { UserId } from "../../types/guid";
 import { ProcessReloadServiceAbstraction } from "../abstractions/process-reload.service";
-import { VaultTimeoutAction, VaultTimeoutSettingsService } from "../vault-timeout";
 
 export class DefaultProcessReloadService implements ProcessReloadServiceAbstraction {
   private reloadInterval: any = null;

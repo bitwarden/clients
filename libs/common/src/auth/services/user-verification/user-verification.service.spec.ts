@@ -7,6 +7,7 @@ import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import {
   BiometricsService,
   BiometricsStatus,
@@ -16,7 +17,6 @@ import {
 } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
-import { VaultTimeoutSettingsService } from "../../../key-management/vault-timeout";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { HashPurpose } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
