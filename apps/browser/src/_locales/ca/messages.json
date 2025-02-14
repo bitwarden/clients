@@ -879,7 +879,7 @@
     "message": "Enllaç caducat"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Reinicieu el registre o proveu d'iniciar sessió."
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "És possible que ja tingueu un compte"
@@ -2062,7 +2062,7 @@
     "message": "Generador de nom d'usuari"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Utilitza aquest correu"
   },
   "useThisPassword": {
     "message": "Utilitzeu aquesta contrasenya"
@@ -2826,7 +2826,7 @@
     "message": "Error de desxifrat"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden no ha pogut desxifrar els elements de la caixa forta que s'indiquen a continuació."
   },
   "contactCSToAvoidDataLossPart1": {
     "message": "Contacteu amb el servei d'atenció al client",
@@ -3123,11 +3123,17 @@
   "notificationSentDevice": {
     "message": "S'ha enviat una notificació al vostre dispositiu."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "S'ha enviat una notificació al vostre dispositiu"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assegureu-vos que la vostra caixa forta estiga desbloquejada i que la frase d'empremta digital coincidisca en l'altre dispositiu"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Se us notificarà un vegada s'haja aprovat la sol·licitud"
@@ -3137,6 +3143,9 @@
   },
   "loginInitiated": {
     "message": "S'ha iniciat la sessió"
+  },
+  "logInRequestSent": {
+    "message": "Sol·licitud enviada"
   },
   "exposedMasterPassword": {
     "message": "Contrasenya mestra exposada"
@@ -3917,7 +3926,7 @@
     "description": "Label indicating the most common import formats"
   },
   "confirmContinueToBrowserSettingsTitle": {
-    "message": "Continue to browser settings?",
+    "message": "Voleu continuar a la configuració del navegador?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
   },
   "confirmContinueToHelpCenter": {
@@ -4146,15 +4155,6 @@
   "itemName": {
     "message": "Nom d'element"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organization is deactivated"
   },
@@ -4184,7 +4184,7 @@
     "message": "Enllaçat"
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Còpia correcta"
   },
   "upload": {
     "message": "Puja"
@@ -4196,7 +4196,7 @@
     "message": "La mida màxima del fitxer és de 500 MB"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "Suprimeix adjunt $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4214,7 +4214,7 @@
     }
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Esteu segur que voleu suprimir definitivament aquest adjunt?"
   },
   "premium": {
     "message": "Premium"
@@ -4511,13 +4511,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Col·leccions assignades correctament"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "No heu seleccionat res."
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "Els elements seleccionats s'han desplaçat a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4526,7 +4526,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "S'han desplaçat elements a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4535,7 +4535,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "S'ha desplaçat un element a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4564,16 +4564,16 @@
     "message": "Item Location"
   },
   "fileSend": {
-    "message": "File Send"
+    "message": "Send de fitxer"
   },
   "fileSends": {
-    "message": "File Sends"
+    "message": "Sends de fitxer"
   },
   "textSend": {
-    "message": "Text Send"
+    "message": "Send de text"
   },
   "textSends": {
-    "message": "Text Sends"
+    "message": "Sends de text"
   },
   "accountActions": {
     "message": "Account actions"
@@ -4585,10 +4585,10 @@
     "message": "Mostra accions de còpia ràpida a la caixa forta"
   },
   "systemDefault": {
-    "message": "System default"
+    "message": "Per defecte del sistema"
   },
   "enterprisePolicyRequirementsApplied": {
-    "message": "Enterprise policy requirements have been applied to this setting"
+    "message": "Els requisits de la política empresarial s'han aplicat a aquesta configuració"
   },
   "sshPrivateKey": {
     "message": "Clau privada"
@@ -4618,7 +4618,7 @@
     "message": "Torneu-ho a provar"
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "El temps d'espera personalitzat mínim és d'1 minut."
   },
   "additionalContentAvailable": {
     "message": "Additional content is available"
@@ -4627,10 +4627,10 @@
     "message": "File saved to device. Manage from your device downloads."
   },
   "showCharacterCount": {
-    "message": "Show character count"
+    "message": "Mostra el recompte de caràcters"
   },
   "hideCharacterCount": {
-    "message": "Hide character count"
+    "message": "Amaga el recompte de caràcters"
   },
   "itemsInTrash": {
     "message": "Items in trash"
@@ -4642,7 +4642,7 @@
     "message": "Items you delete will appear here and be permanently deleted after 30 days"
   },
   "trashWarning": {
-    "message": "Items that have been in trash more than 30 days will automatically be deleted"
+    "message": "Els elements que porten més de 30 dies a la paperera se suprimiran automàticament"
   },
   "restore": {
     "message": "Restaura"
@@ -4651,7 +4651,7 @@
     "message": "Suprimeix per sempre"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "No tens permisos per editar aquest fitxer"
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
@@ -4688,7 +4688,7 @@
     "description": "Heading for the password generator within the inline menu"
   },
   "passwordRegenerated": {
-    "message": "Password regenerated",
+    "message": "Contrasenya regenerada",
     "description": "Notification message for when a password has been regenerated"
   },
   "saveLoginToBitwarden": {
@@ -4696,7 +4696,7 @@
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
-    "message": "Space",
+    "message": "Espai",
     "description": "Represents the space key in screen reader content as a readable word"
   },
   "tildeCharacterDescriptor": {
@@ -4708,7 +4708,7 @@
     "description": "Represents the ` key in screen reader content as a readable word"
   },
   "exclamationCharacterDescriptor": {
-    "message": "Exclamation mark",
+    "message": "Signe d'exclamació",
     "description": "Represents the ! key in screen reader content as a readable word"
   },
   "atSignCharacterDescriptor": {
@@ -4867,13 +4867,13 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "No, jo no"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
     "message": "Yes, I can reliably access my email"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Activa l'inici de sessió en dos passos"
   },
   "changeAcctEmail": {
     "message": "Change account email"
@@ -4886,6 +4886,15 @@
   },
   "extraWide": {
     "message": "Extra wide"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Please update your desktop application"
