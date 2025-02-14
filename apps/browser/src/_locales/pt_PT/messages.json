@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Alterar esta opção nas definições"
   },
+  "change": {
+    "message": "Alterar"
+  },
+  "changeButtonTitle": {
+    "message": "Alterar palavra-passe - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Palavras-passe em risco"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "A $ORGANIZATION$ pede-lhe que altere as $COUNT$ palavras-passe por estarem em risco.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "As suas organizações pedem-lhe que altere as $COUNT$ palavras-passe por estarem em risco.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Rever e alterar uma palavra-passe em risco"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Rever e alterar as $COUNT$ palavras-passe em risco",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Alterar mais rapidamente as palavras-passe em risco"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Atualize as suas definições para poder preencher automaticamente as suas palavras-passe e gerar novas palavras-passe"
+  },
+  "turnOnAutofill": {
+    "message": "Ativar o preenchimento automático"
+  },
+  "turnedOnAutofill": {
+    "message": "Preenchimento automático ativado"
+  },
+  "dismiss": {
+    "message": "Dispensar"
+  },
   "websiteItemLabel": {
     "message": "Site $number$ (URI)",
     "placeholders": {

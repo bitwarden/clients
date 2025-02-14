@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Dit aanpassen in instellingen"
   },
+  "change": {
+    "message": "Wijzigen"
+  },
+  "changeButtonTitle": {
+    "message": "Wachtwoord wijzigen - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Wachtwoorden in gevaar"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ vraagt je om de $COUNT$ wachtwoorden te wijzigen omdat ze een risico vormen.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Je organisatie(s) vragen je de $COUNT$ wachtwoorden te wijzigen omdat ze een risico vormen.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Eén risicovol wachtwoord controleren en wijzigen"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "$COUNT$ risicovolle wachtwoorden controleren en wijzigen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Risicovolle wachtwoorden sneller wijzigen"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Werk je instellingen bij voor het snel automatisch invullen van je wachtwoorden en genereren van nieuwe"
+  },
+  "turnOnAutofill": {
+    "message": "Automatisch invullen inschakelen"
+  },
+  "turnedOnAutofill": {
+    "message": "Automatisch invullen ingeschakeld"
+  },
+  "dismiss": {
+    "message": "Sluiten"
+  },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
     "placeholders": {

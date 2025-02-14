@@ -14,7 +14,7 @@
     "message": "Logga in eller skapa ett nytt konto för att komma åt ditt säkra valv."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Inbjudan accepterades"
   },
   "createAccount": {
     "message": "Skapa konto"
@@ -81,10 +81,10 @@
     "message": "Huvudlösenordsledtråd (valfri)"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Gå med i organisation"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Gå med i $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -193,7 +193,7 @@
     "message": "Autofyll identitet"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Fyll i verifieringskod"
   },
   "fillVerificationCodeAria": {
     "message": "Fill Verification Code",
@@ -239,7 +239,7 @@
     "message": "Lägg till objekt"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Kontots e-post"
   },
   "requestHint": {
     "message": "Begär ledtråd"
@@ -446,16 +446,16 @@
     "message": "Generera lösenfras"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Lösenord genererades"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Lösenordsfras genererades"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Användarnamn genererades"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "E-post genererades"
   },
   "regeneratePassword": {
     "message": "Återskapa lösenord"
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Change this in settings"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Webbplats $number$ (URI)",

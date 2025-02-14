@@ -2085,7 +2085,7 @@
     "message": "Acció quan acabe el temps d'espera de la caixa forta"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Acció després del temps d'espera"
   },
   "lock": {
     "message": "Bloqueja",
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Canvieu-ho a la configuració"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -4576,7 +4640,7 @@
     "message": "Sends de text"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Accions del compte"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Mostra el nombre de suggeriments d'emplenament automàtic d'inici de sessió a la icona d'extensió"
@@ -4879,13 +4943,13 @@
     "message": "Change account email"
   },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Amplada d'extensió"
   },
   "wide": {
     "message": "Ample"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Extra ample"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",

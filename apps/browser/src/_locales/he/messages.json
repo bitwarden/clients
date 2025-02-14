@@ -3,39 +3,39 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "מנהל סיסמאות Bitwarden",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "בבית, בעבודה, או בדרך, Bitwarden מאבטח בקלות את כל הסיסמאות, מפתחות הגישה, והמידע הרגיש שלך",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "צור חשבון חדש או התחבר כדי לגשת לכספת המאובטחת שלך."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "ההזמנה התקבלה"
   },
   "createAccount": {
     "message": "צור חשבון"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "חדש ב-Bitwarden?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "התחבר עם מפתח גישה"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "השתמש בהזדהות חד פעמית"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "ברוך שובך"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "הגדר סיסמה חזקה"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "סיים ליצור את החשבון שלך על ידי הגדרת סיסמה"
   },
   "enterpriseSingleSignOn": {
     "message": "כניסה ארגונית אחידה"
@@ -62,7 +62,7 @@
     "message": "ניתן להשתמש ברמז לסיסמה הראשית אם שכחת אותה."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "אם תשכח את הסיסמה שלך, רמז לסיסמה יכול להישלח לדוא\"ל שלך. $CURRENT$/$MAXIMUM$ תווים לכל היותר.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -81,7 +81,7 @@
     "message": "רמז לסיסמה ראשית (אופציונאלי)"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "הצטרף לארגון"
   },
   "joinOrganizationName": {
     "message": "הצטרפות אל $ORGANIZATIONNAME$",
@@ -93,7 +93,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "סיים להצטרף לארגון זה על ידי הגדרת סיסמת מאסטר."
   },
   "tab": {
     "message": "לשונית"
@@ -120,7 +120,7 @@
     "message": "העתק סיסמה"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "העתק ביטוי סיסמה"
   },
   "copyNote": {
     "message": "העתק פתק"
@@ -138,31 +138,31 @@
     "message": "העתק קוד אבטחה"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "העתק שם"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "העתק חברה"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "העתק מספר תעודת זהות"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "העתק מספר דרכון"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "העתק מספר רישיון"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "העתק מפתח פרטי"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "העתק מפתח ציבורי"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "העתק טביעת אצבע"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "העתק $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -171,13 +171,13 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "העתק אתר אינטרנט"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "העתק הערות"
   },
   "fill": {
-    "message": "Fill",
+    "message": "מילוי",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -193,10 +193,10 @@
     "message": "מילוי פרטי זיהוי אוטומטית"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "מילוי קוד אימות"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "מילוי קוד אימות",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -239,16 +239,16 @@
     "message": "הוסף פריט"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "דוא\"ל חשבון"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "בקש רמז"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "בקש רמז לסיסמה"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "הזן את כתובת דוא\"ל החשבון שלך והרמז לסיסמה שלך יישלח אליך"
   },
   "passwordHint": {
     "message": "רמז לסיסמה"
@@ -281,25 +281,25 @@
     "message": "החלף סיסמה ראשית"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "להמשיך ליישום רשת?"
   },
   "continueToWebAppDesc": {
-    "message": "Explore more features of your Bitwarden account on the web app."
+    "message": "גלה עוד תכונות של חשבון ה-Bitwarden שלך ביישום הרשת."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "להמשיך למרכז עזרה?"
   },
   "continueToHelpCenterDesc": {
-    "message": "Learn more about how to use Bitwarden on the Help Center."
+    "message": "למד עוד אודות אופן השימוש ב-Bitwarden במרכז העזרה."
   },
   "continueToBrowserExtensionStore": {
-    "message": "Continue to browser extension store?"
+    "message": "להמשיך לחנות הרחבות דפדפן?"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "Help others find out if Bitwarden is right for them. Visit your browser's extension store and leave a rating now."
+    "message": "עזור לאחרים לגלות אם Bitwarden מתאים להם. בקר בחנות הרחבות הדפדפן שלך והשאר דירוג עכשיו."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
+    "message": "אתה יכול לשנות את סיסמת המאסטר שלך ביישום הרשת של Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "סיסמת טביעת אצבע",
@@ -316,43 +316,43 @@
     "message": "התנתק"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "אודות Bitwarden"
   },
   "about": {
     "message": "אודות"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "עוד מאת Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "להמשיך אל bitwarden.com?"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden for Business"
+    "message": "Bitwarden לעסקים"
   },
   "bitwardenAuthenticator": {
-    "message": "Bitwarden Authenticator"
+    "message": "מאמת Bitwarden"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
+    "message": "מאמת Bitwarden מאפשר לך לאחסון מפתחות מאמת וליצור קודי TOTP עבור זרימת אימות דו-שלבית. למד עוד באתר האינטרנט bitwarden.com"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "מנהל סודות Bitwarden"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "Securely store, manage, and share developer secrets with Bitwarden Secrets Manager. Learn more on the bitwarden.com website."
+    "message": "אחסן, נהל, ושתף בבטחה סודות מפתח עם מנהל סודות Bitwarden. למד עוד באתר האינטרנט bitwarden.com."
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
   },
   "continueToPasswordlessDotDevPageDesc": {
-    "message": "Create smooth and secure login experiences free from traditional passwords with Passwordless.dev. Learn more on the bitwarden.com website."
+    "message": "צור חוויית התחברות חלקה ובטוחה חופשית מסיסמאות מסורתיות עם Passwordless.dev. למד עוד באתר האינטרנט bitwarden.com."
   },
   "freeBitwardenFamilies": {
-    "message": "Free Bitwarden Families"
+    "message": "משפחות Bitwarden בחינם"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "You are eligible for Free Bitwarden Families. Redeem this offer today in the web app."
+    "message": "אתה זכאי למשפחות Bitwarden בחינם. ממש הצעה זו היום ביישום הרשת."
   },
   "version": {
     "message": "גירסה"
@@ -373,22 +373,22 @@
     "message": "ערוך תיקייה"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "תיקיה חדשה"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "שם תיקיה"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "קונן תיקיה על ידי הוספת שם תיקיית האב ואחריו “/”. דוגמה: חברתי/פורומים"
   },
   "noFoldersAdded": {
-    "message": "No folders added"
+    "message": "לא נוספו תיקיות"
   },
   "createFoldersToOrganize": {
-    "message": "Create folders to organize your vault items"
+    "message": "צור תיקיות כדי לארגן את פריטי הכספת שלך"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "האם אתה בטוח שברצונך למחוק תיקיה זו לצמיתות?"
   },
   "deleteFolder": {
     "message": "מחק תיקייה"
@@ -406,10 +406,10 @@
     "message": "מרכז העזרה של Bitwarden"
   },
   "communityForums": {
-    "message": "Explore Bitwarden community forums"
+    "message": "גלה את פורומי קהילת Bitwarden"
   },
   "contactSupport": {
-    "message": "Contact Bitwarden support"
+    "message": "פנה לתמיכת Bitwarden"
   },
   "sync": {
     "message": "סנכרן"
@@ -431,7 +431,7 @@
     "message": "צור אוטומטית סיסמאות חזקות ויחודיות עבור פרטי הכניסה שלך."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
+    "message": "יישום רשת Bitwarden"
   },
   "importItems": {
     "message": "יבא פריטים"
@@ -443,19 +443,19 @@
     "message": "צור סיסמה"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "צור ביטוי סיסמה"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "נוצרה סיסמה"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "נוצר ביטוי סיסמה"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "נוצר שם משתמש"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "נוצר דוא\"ל"
   },
   "regeneratePassword": {
     "message": "צור סיסמה חדשה"
@@ -467,27 +467,27 @@
     "message": "אורך"
   },
   "uppercase": {
-    "message": "Uppercase (A-Z)",
+    "message": "אות גדולה (A-Z)",
     "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Lowercase (a-z)",
+    "message": "אות קטנה (a-z)",
     "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Numbers (0-9)",
+    "message": "מספרים (0-9)",
     "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Special characters (!@#$%^&*)",
+    "message": "תווים מיוחדים (*&^%$#@!)",
     "description": "deprecated. Use specialCharactersLabel instead."
   },
   "include": {
-    "message": "Include",
+    "message": "כלול",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "כלול תווי אות גדולה",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -495,7 +495,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "כלול תווי אות קטנה",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -503,7 +503,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "כלול מספרים",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -511,11 +511,11 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "כלול תווים מיוחדים",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
-    "message": "!@#$%^&*",
+    "message": "*&^%$#@!",
     "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
@@ -538,11 +538,11 @@
     "message": "מינימום תוים מיוחדים"
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "הימנע מתווים דו-משמעיים",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "דרישות מדיניות ארגונית חלו על אפשרויות המחולל שלך.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Change this in settings"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",

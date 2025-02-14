@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Zmień to w ustawieniach"
   },
+  "change": {
+    "message": "Zmień"
+  },
+  "changeButtonTitle": {
+    "message": "Zmień hasło - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Zagrożone hasła"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ prosi o zmianę $COUNT$ haseł, ponieważ są one zagrożone.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Twoje organizacje proszą o zmianę $COUNT$ haseł, ponieważ są one zagrożone.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Przejrzyj i zmień jedno zagrożone hasło"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Przejrzyj i zmień $COUNT$ zagrożonych haseł  ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Zmień zagrożone hasła szybciej"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Zaktualizuj swoje ustawienia, aby szybko autouzupełniać hasła i generować nowe"
+  },
+  "turnOnAutofill": {
+    "message": "Włącz autouzupełnienie"
+  },
+  "turnedOnAutofill": {
+    "message": "Włączono autouzupełnianie"
+  },
+  "dismiss": {
+    "message": "Odrzuć"
+  },
   "websiteItemLabel": {
     "message": "Strona internetowa $number$ (URI)",
     "placeholders": {
