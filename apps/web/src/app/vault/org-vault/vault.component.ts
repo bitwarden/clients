@@ -24,6 +24,7 @@ import {
   switchMap,
   takeUntil,
   tap,
+  catchError,
 } from "rxjs/operators";
 
 import {
@@ -78,6 +79,7 @@ import {
 
 import { GroupApiService, GroupView } from "../../admin-console/organizations/core";
 import { openEntityEventsDialog } from "../../admin-console/organizations/manage/entity-events.component";
+import { BillingNotificationService } from "../../billing/services/billing-notification.service";
 import {
   ResellerWarning,
   ResellerWarningService,
@@ -255,6 +257,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private resellerWarningService: ResellerWarningService,
     private accountService: AccountService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit() {
@@ -628,12 +631,21 @@ export class VaultComponent implements OnInit, OnDestroy {
         combineLatest([
           of(org),
           this.organizationApiService.getSubscription(org.id),
-          this.organizationBillingService.getPaymentSource(org.id),
+          from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
+            catchError((error: unknown) => {
+              this.billingNotificationService.handleError(error);
+              return of(null);
+            }),
+          ),
         ]),
       ),
       map(([org, sub, paymentSource]) => {
+        if (!paymentSource) {
+          return null;
+        }
         return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(org, sub, paymentSource);
       }),
+      filter((result) => result !== null),
     );
 
     this.resellerWarning$ = organization$.pipe(
