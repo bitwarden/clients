@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "Alterar o e-mail da conta"
   },
-  "organizationUpgradeRequired": {
-    "message": "Atualização da organização necessária"
+  "allowScreenshots": {
+    "message": "Permitir a captura de ecrã"
   },
-  "upgradeOrganization": {
-    "message": "Atualizar organização"
+  "allowScreenshotsDesc": {
+    "message": "Permitir capturas de ecrã à aplicação para computador do Bitwarden e que seja vista em sessões remotas no computador. Desativar esta opção impedirá o acesso de alguns monitores externos."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Esta funcionalidade não está disponível para organizações gratuitas. Mude para um plano pago para desbloquear mais funcionalidades."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Janela de confirmação ainda visível"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Por favor, confirme se a janela ainda está visível."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Atualização da extensão necessária"
