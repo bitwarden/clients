@@ -48,9 +48,11 @@ export class OrganizationUserResetPasswordService
   ) {}
 
   /**
-   * Returns the user key encrypted by the organization's public key.
-   * Intended for use in enrollment
+   * Builds a recovery key for a user to recover their account.
+   *
    * @param orgId desired organization
+   * @param userKey user key
+   * @param trustedPublicKeys public keys of organizations that the user trusts
    */
   async buildRecoveryKey(
     orgId: string,
