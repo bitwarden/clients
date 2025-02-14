@@ -28,7 +28,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -90,6 +90,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   deleted = false;
   userHasPremiumAccess = false;
   activeFilter: VaultFilter = new VaultFilter();
+  activeUserId: UserId;
 
   private modal: ModalRef = null;
   private componentIsDestroyed$ = new Subject<boolean>();
@@ -237,12 +238,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
     }
 
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.cipherService
-      .failedToDecryptCiphers$(activeUserId)
+      .failedToDecryptCiphers$(this.activeUserId)
       .pipe(
-        map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
+        map((ciphers) => ciphers?.filter((c) => !c.isDeleted) ?? []),
         filter((ciphers) => ciphers.length > 0),
         take(1),
         takeUntil(this.componentIsDestroyed$),
@@ -494,8 +495,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   async savedCipher(cipher: CipherView) {
     this.cipherId = cipher.id;
     this.action = "view";
-    this.go();
     await this.vaultItemsComponent.refresh();
+    await this.cipherService.clearCache(this.activeUserId);
+    await this.viewComponent.load();
+    this.go();
   }
 
   async deletedCipher(cipher: CipherView) {
