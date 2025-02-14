@@ -25,19 +25,39 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TwoFactorAuthAuthenticatorComponent } from "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-authenticator.component";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TwoFactorAuthEmailComponent } from "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-email.component";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TwoFactorAuthWebAuthnComponent } from "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-webauthn.component";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TwoFactorAuthYubikeyComponent } from "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-yubikey.component";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TwoFactorAuthComponent as BaseTwoFactorAuthComponent } from "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth.component";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { TwoFactorOptionsComponent } from "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-options.component";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "../../../../../libs/auth/src/common/abstractions";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { AsyncActionsModule } from "../../../../../libs/components/src/async-actions";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { ButtonModule } from "../../../../../libs/components/src/button";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { FormFieldModule } from "../../../../../libs/components/src/form-field";
 
 import { TwoFactorAuthDuoComponent } from "./two-factor-auth-duo.component";

@@ -275,6 +275,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Redirect to device verification if this is an unknown device
+    if (authResult.requiresDeviceVerification) {
+      await this.router.navigate(["device-verification"]);
+      return;
+    }
+
     await this.loginSuccessHandlerService.run(authResult.userId);
 
     if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
@@ -484,6 +490,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     try {
       const deviceIdentifier = await this.appIdService.getAppId();
       this.isKnownDevice = await this.devicesApiService.getKnownDevice(email, deviceIdentifier);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.isKnownDevice = false;
     }

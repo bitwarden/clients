@@ -25,10 +25,6 @@ export class MainBiometricsService extends DesktopBiometricsService {
     private biometricStateService: BiometricStateService,
   ) {
     super();
-    this.loadOsBiometricService(this.platform);
-  }
-
-  private loadOsBiometricService(platform: NodeJS.Platform) {
     if (platform === "win32") {
       // eslint-disable-next-line
       const OsBiometricsServiceWindows = require("./os-biometrics-windows.service").default;
@@ -60,6 +56,8 @@ export class MainBiometricsService extends DesktopBiometricsService {
    */
   async getBiometricsStatus(): Promise<BiometricsStatus> {
     if (!(await this.osBiometricsService.osSupportsBiometric())) {
+      return BiometricsStatus.HardwareUnavailable;
+    } else {
       if (await this.osBiometricsService.osBiometricsNeedsSetup()) {
         if (await this.osBiometricsService.osBiometricsCanAutoSetup()) {
           return BiometricsStatus.AutoSetupNeeded;
@@ -67,8 +65,6 @@ export class MainBiometricsService extends DesktopBiometricsService {
           return BiometricsStatus.ManualSetupNeeded;
         }
       }
-
-      return BiometricsStatus.HardwareUnavailable;
     }
     return BiometricsStatus.Available;
   }
@@ -117,13 +113,16 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
-    return SymmetricCryptoKey.fromString(
-      await this.osBiometricsService.getBiometricKey(
-        "Bitwarden_biometric",
-        `${userId}_user_biometric`,
-        this.clientKeyHalves.get(userId),
-      ),
-    ) as UserKey;
+    const biometricKey = await this.osBiometricsService.getBiometricKey(
+      "Bitwarden_biometric",
+      `${userId}_user_biometric`,
+      this.clientKeyHalves.get(userId),
+    );
+    if (biometricKey == null) {
+      return null;
+    }
+
+    return SymmetricCryptoKey.fromString(biometricKey) as UserKey;
   }
 
   async setBiometricProtectedUnlockKeyForUser(userId: UserId, value: string): Promise<void> {

@@ -5,6 +5,7 @@ import {
   BehaviorSubject,
   combineLatest,
   combineLatestWith,
+  filter,
   firstValueFrom,
   map,
   Observable,
@@ -48,8 +49,12 @@ const NestingDelimiter = "/";
 export class VaultFilterService implements VaultFilterServiceAbstraction {
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
+  memberOrganizations$ = this.activeUserId$.pipe(
+    switchMap((id) => this.organizationService.memberOrganizations$(id)),
+  );
+
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
-    this.organizationService.memberOrganizations$,
+    this.memberOrganizations$,
     this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
     this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
   ]).pipe(
@@ -64,14 +69,16 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     switchMap((userId) =>
       combineLatest([
         this.folderService.folderViews$(userId),
-        this.cipherService.cipherViews$,
+        this.cipherService.cipherViews$(userId),
         this._organizationFilter,
       ]),
     ),
+    filter(([folders, ciphers, org]) => !!ciphers), // ciphers may be null, meaning decryption is in progress. Ignore this emission
     switchMap(([folders, ciphers, org]) => {
       return this.filterFolders(folders, ciphers, org);
     }),
   );
+
   folderTree$: Observable<TreeNode<FolderFilter>> = this.filteredFolders$.pipe(
     map((folders) => this.buildFolderTree(folders)),
   );
@@ -270,6 +277,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       folderCopy.id = f.id;
       folderCopy.revisionDate = f.revisionDate;
       folderCopy.icon = "bwi-folder";
+      folderCopy.fullName = f.name; // save full folder name before separating it into parts
       const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
       ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, null, NestingDelimiter);
     });

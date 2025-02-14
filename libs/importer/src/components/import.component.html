@@ -94,6 +94,8 @@
           <p bitTypography="body1">
             {{ "seeDetailedInstructions" | i18n }}
             <a
+              bitLink
+              linkType="primary"
               target="_blank"
               rel="noreferrer"
               href="https://bitwarden.com/help/import-from-lastpass/"
@@ -169,13 +171,21 @@
             The process is exactly the same as importing from Google Chrome.
           </span>
           See detailed instructions on our help site at
-          <a target="_blank" rel="noreferrer" href="https://bitwarden.com/help/import-from-chrome/">
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/import-from-chrome/"
+          >
             https://bitwarden.com/help/import-from-chrome/</a
           >
         </ng-container>
         <ng-container *ngIf="format === 'firefoxcsv'">
           See detailed instructions on our help site at
           <a
+            bitLink
+            linkType="primary"
             target="_blank"
             rel="noreferrer"
             href="https://bitwarden.com/help/import-from-firefox/"
@@ -185,7 +195,13 @@
         </ng-container>
         <ng-container *ngIf="format === 'safaricsv'">
           See detailed instructions on our help site at
-          <a target="_blank" rel="noreferrer" href="https://bitwarden.com/help/import-from-safari/">
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/import-from-safari/"
+          >
             https://bitwarden.com/help/import-from-safari/</a
           >.
         </ng-container>
@@ -199,6 +215,8 @@
         >
           See detailed instructions on our help site at
           <a
+            bitLink
+            linkType="primary"
             target="_blank"
             rel="noreferrer"
             href="https://bitwarden.com/help/import-from-1password/"
@@ -289,7 +307,12 @@
         </ng-container>
         <ng-container *ngIf="format === 'gnomejson'">
           Make sure you have python-keyring and python-gnomekeyring installed. Save the
-          <a target="_blank" rel="noreferrer" href="https://bit.ly/2GpOMTg"
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://github.com/spookylukey/gnome-keyring-import-export"
             >GNOME Keyring Import/Export</a
           >
           python script to your desktop as <code>pw_helper.py</code>. Open terminal and run
@@ -395,6 +418,11 @@
           Open the FullClient, go to the Main Menu and select Export. Start the export passwords
           wizard and follow the instructions to export a CSV file.
         </ng-container>
+        <ng-container *ngIf="format === 'nordpasscsv'">
+          Log in to NordPass and open Settings &rarr; Scroll down to the Import and Export section
+          and select Export items &rarr; Enter your Master Password and select Continue. &rarr; Save
+          the CSV file on your device.
+        </ng-container>
       </bit-callout>
       <import-lastpass
         *ngIf="showLastPassOptions"
@@ -404,7 +432,7 @@
       <div [hidden]="showLastPassOptions">
         <bit-form-field>
           <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
-          <div class="file-selector tw-pt-2 tw-pb-1">
+          <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
             <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
               {{ "chooseFile" | i18n }}
             </button>

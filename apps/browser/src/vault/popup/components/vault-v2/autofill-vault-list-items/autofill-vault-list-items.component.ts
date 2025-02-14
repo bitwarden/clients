@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -48,6 +49,10 @@ export class AutofillVaultListItemsComponent implements OnInit {
 
   clickItemsToAutofillVaultView = false;
 
+  protected groupByType = toSignal(
+    this.vaultPopupItemsService.hasFilterApplied$.pipe(map((hasFilter) => !hasFilter)),
+  );
+
   /**
    * Observable that determines whether the empty autofill tip should be shown.
    * The tip is shown when there are no login ciphers to autofill, no filter is applied, and autofill is allowed in
@@ -64,6 +69,12 @@ export class AutofillVaultListItemsComponent implements OnInit {
         !hasFilter && canAutoFill && ciphers.filter((c) => c.type == CipherType.Login).length === 0,
     ),
   );
+
+  /**
+   * Flag indicating that the current tab location is blocked
+   */
+  currentURIIsBlocked$: Observable<boolean> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,

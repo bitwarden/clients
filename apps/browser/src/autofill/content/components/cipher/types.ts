@@ -1,4 +1,4 @@
-const CipherTypes = {
+export const CipherTypes = {
   Login: 1,
   SecureNote: 2,
   Card: 3,
@@ -7,7 +7,7 @@ const CipherTypes = {
 
 type CipherType = (typeof CipherTypes)[keyof typeof CipherTypes];
 
-const CipherRepromptTypes = {
+export const CipherRepromptTypes = {
   None: 0,
   Password: 1,
 } as const;
@@ -21,13 +21,16 @@ export type WebsiteIconData = {
   icon: string;
 };
 
-export type CipherData = {
+type BaseCipherData<CipherTypeValue> = {
   id: string;
   name: string;
-  type: CipherType;
+  type: CipherTypeValue;
   reprompt: CipherRepromptType;
   favorite: boolean;
   icon: WebsiteIconData;
+};
+
+export type CipherData = BaseCipherData<CipherType> & {
   accountCreationFieldType?: string;
   login?: {
     username: string;
@@ -40,5 +43,11 @@ export type CipherData = {
   identity?: {
     fullName: string;
     username?: string;
+  };
+};
+
+export type NotificationCipherData = BaseCipherData<typeof CipherTypes.Login> & {
+  login?: {
+    username: string;
   };
 };

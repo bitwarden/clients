@@ -1,25 +1,25 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
-import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
-import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
-import { InvoicesResponse } from "@bitwarden/common/billing/models/response/invoices.response";
-import { PaymentMethodResponse } from "@bitwarden/common/billing/models/response/payment-method.response";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
 
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
-import { BillingApiServiceAbstraction } from "../../billing/abstractions";
-import { PaymentMethodType } from "../../billing/enums";
-import { ExpandedTaxInfoUpdateRequest } from "../../billing/models/request/expanded-tax-info-update.request";
-import { SubscriptionCancellationRequest } from "../../billing/models/request/subscription-cancellation.request";
-import { OrganizationBillingMetadataResponse } from "../../billing/models/response/organization-billing-metadata.response";
-import { PlanResponse } from "../../billing/models/response/plan.response";
+import { ProviderOrganizationOrganizationDetailsResponse } from "../../admin-console/models/response/provider/provider-organization.response";
+import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
+import { LogService } from "../../platform/abstractions/log.service";
+import { BillingApiServiceAbstraction } from "../abstractions";
+import { PaymentMethodType } from "../enums";
 import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
+import { ExpandedTaxInfoUpdateRequest } from "../models/request/expanded-tax-info-update.request";
+import { SubscriptionCancellationRequest } from "../models/request/subscription-cancellation.request";
 import { UpdateClientOrganizationRequest } from "../models/request/update-client-organization.request";
+import { UpdatePaymentMethodRequest } from "../models/request/update-payment-method.request";
+import { VerifyBankAccountRequest } from "../models/request/verify-bank-account.request";
+import { InvoicesResponse } from "../models/response/invoices.response";
+import { OrganizationBillingMetadataResponse } from "../models/response/organization-billing-metadata.response";
+import { PaymentMethodResponse } from "../models/response/payment-method.response";
+import { PlanResponse } from "../models/response/plan.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export class BillingApiService implements BillingApiServiceAbstraction {

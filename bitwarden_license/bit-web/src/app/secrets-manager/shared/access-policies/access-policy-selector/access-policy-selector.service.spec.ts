@@ -1,8 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { AccessPolicySelectorService } from "./access-policy-selector.service";
 import { ApItemValueType } from "./models/ap-item-value.type";
@@ -12,13 +17,16 @@ import { ApPermissionEnum } from "./models/enums/ap-permission.enum";
 
 describe("AccessPolicySelectorService", () => {
   let organizationService: MockProxy<OrganizationService>;
+  let accountService: FakeAccountService;
+  const userId = Utils.newGuid() as UserId;
 
   let sut: AccessPolicySelectorService;
 
   beforeEach(() => {
     organizationService = mock<OrganizationService>();
+    accountService = mockAccountServiceWith(userId);
 
-    sut = new AccessPolicySelectorService(organizationService);
+    sut = new AccessPolicySelectorService(organizationService, accountService as AccountService);
   });
 
   afterEach(() => jest.resetAllMocks());
@@ -26,7 +34,7 @@ describe("AccessPolicySelectorService", () => {
   describe("showAccessRemovalWarning", () => {
     it("returns false when current user is admin", async () => {
       const org = orgFactory();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [];
 
@@ -38,7 +46,7 @@ describe("AccessPolicySelectorService", () => {
     it("returns false when current user is owner", async () => {
       const org = orgFactory();
       org.type = OrganizationUserType.Owner;
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [];
 
@@ -49,7 +57,7 @@ describe("AccessPolicySelectorService", () => {
 
     it("returns true when current user isn't owner/admin and all policies are removed", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [];
 
@@ -60,7 +68,7 @@ describe("AccessPolicySelectorService", () => {
 
     it("returns true when current user isn't owner/admin and user policy is set to canRead", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [];
       selectedPolicyValues.push(
@@ -79,7 +87,7 @@ describe("AccessPolicySelectorService", () => {
 
     it("returns false when current user isn't owner/admin and user policy is set to canReadWrite", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [
         createApItemValueType(
@@ -97,7 +105,7 @@ describe("AccessPolicySelectorService", () => {
 
     it("returns true when current user isn't owner/admin and a group Read policy is submitted that the user is a member of", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [
         createApItemValueType(
@@ -118,7 +126,7 @@ describe("AccessPolicySelectorService", () => {
 
     it("returns false when current user isn't owner/admin and a group ReadWrite policy is submitted that the user is a member of", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [
         createApItemValueType(
@@ -139,7 +147,7 @@ describe("AccessPolicySelectorService", () => {
 
     it("returns true when current user isn't owner/admin and a group ReadWrite policy is submitted that the user is not a member of", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [
         createApItemValueType(
@@ -160,7 +168,7 @@ describe("AccessPolicySelectorService", () => {
 
     it("returns false when current user isn't owner/admin, user policy is set to CanRead, and user is in read write group", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [
         createApItemValueType(
@@ -187,7 +195,7 @@ describe("AccessPolicySelectorService", () => {
 
     it("returns true when current user isn't owner/admin, user policy is set to CanRead, and user is not in ReadWrite group", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [
         createApItemValueType(
@@ -214,7 +222,7 @@ describe("AccessPolicySelectorService", () => {
 
     it("returns true when current user isn't owner/admin, user policy is set to CanRead, and user is in Read group", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const selectedPolicyValues: ApItemValueType[] = [
         createApItemValueType(
@@ -242,7 +250,7 @@ describe("AccessPolicySelectorService", () => {
   describe("showSecretAccessRemovalWarning", () => {
     it("returns false when there are no current access policies", async () => {
       const org = orgFactory();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const currentAccessPolicies: ApItemViewType[] = [];
       const selectedPolicyValues: ApItemValueType[] = [];
@@ -257,7 +265,7 @@ describe("AccessPolicySelectorService", () => {
     });
     it("returns false when current user is admin", async () => {
       const org = orgFactory();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const currentAccessPolicies: ApItemViewType[] = [
         createApItemViewType(
@@ -281,7 +289,7 @@ describe("AccessPolicySelectorService", () => {
     it("returns false when current user is owner", async () => {
       const org = orgFactory();
       org.type = OrganizationUserType.Owner;
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const currentAccessPolicies: ApItemViewType[] = [
         createApItemViewType(
@@ -304,7 +312,7 @@ describe("AccessPolicySelectorService", () => {
     });
     it("returns false when current non-admin user doesn't have Read, Write access with current access policies -- user policy", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const currentAccessPolicies: ApItemViewType[] = [
         createApItemViewType(
@@ -327,7 +335,7 @@ describe("AccessPolicySelectorService", () => {
     });
     it("returns false when current non-admin user doesn't have Read, Write access with current access policies -- group policy", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const currentAccessPolicies: ApItemViewType[] = [
         createApItemViewType(
@@ -352,7 +360,7 @@ describe("AccessPolicySelectorService", () => {
     });
     it("returns true when current non-admin user has Read, Write access with current access policies and doesn't with selected -- user policy", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const currentAccessPolicies: ApItemViewType[] = [
         createApItemViewType(
@@ -381,7 +389,7 @@ describe("AccessPolicySelectorService", () => {
     });
     it("returns true when current non-admin user has Read, Write access with current access policies and doesn't with selected -- group policy", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const currentAccessPolicies: ApItemViewType[] = [
         createApItemViewType(
@@ -415,7 +423,7 @@ describe("AccessPolicySelectorService", () => {
     });
     it("returns false when current non-admin user has Read, Write access with current access policies and does with selected -- user policy", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const currentAccessPolicies: ApItemViewType[] = [
         createApItemViewType(
@@ -446,7 +454,7 @@ describe("AccessPolicySelectorService", () => {
     });
     it("returns false when current non-admin user has Read, Write access with current access policies and does with selected -- group policy", async () => {
       const org = setupUserOrg();
-      organizationService.get.calledWith(org.id).mockResolvedValue(org);
+      organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
 
       const currentAccessPolicies: ApItemViewType[] = [
         createApItemViewType(

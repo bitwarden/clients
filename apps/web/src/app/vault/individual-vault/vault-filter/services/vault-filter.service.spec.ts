@@ -62,7 +62,7 @@ describe("vault filter service", () => {
     personalOwnershipPolicy = new ReplaySubject<boolean>(1);
     singleOrgPolicy = new ReplaySubject<boolean>(1);
 
-    organizationService.memberOrganizations$ = organizations;
+    organizationService.memberOrganizations$.mockReturnValue(organizations);
     folderService.folderViews$.mockReturnValue(folderViews);
     collectionService.decryptedCollections$ = collectionViews;
     policyService.policyAppliesToActiveUser$
@@ -71,7 +71,7 @@ describe("vault filter service", () => {
     policyService.policyAppliesToActiveUser$
       .calledWith(PolicyType.SingleOrg)
       .mockReturnValue(singleOrgPolicy);
-    cipherService.cipherViews$ = cipherViews;
+    cipherService.cipherViews$.mockReturnValue(cipherViews);
 
     vaultFilterService = new VaultFilterService(
       organizationService,

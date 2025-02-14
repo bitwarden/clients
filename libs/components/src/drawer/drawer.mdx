@@ -1,0 +1,120 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./drawer.stories";
+
+import { DrawerOpen as KitchenSink } from "../stories/kitchen-sink/kitchen-sink.stories";
+
+<Meta of={stories} />
+
+```ts
+import { DrawerComponent } from "@bitwarden/components";
+```
+
+# Drawer
+
+A drawer is a panel of supplementary content that is adjacent to the page's main content.
+
+<Primary />
+
+<Controls />
+
+## Usage
+
+A `bit-drawer` in a template will not render inline, but rather will render adjacent to the main
+page content.
+
+```html
+<bit-drawer [open]="true">
+  <bit-drawer-header title="Hello Bitwaaaaaaaaaaaaaaaaaaaaaaaaarden!"></bit-drawer-header>
+  <bit-drawer-body>
+    <p>Lorem ipsum dolor...</p>
+  </bit-drawer-body>
+</bit-drawer>
+```
+
+`bit-drawer` must be a descendant of `bit-layout`, but it does not need to be a direct descendant.
+
+## Header and body
+
+Header and body content can be provided with the `bit-drawer-header` and `bit-drawer-body`
+components, respectively.
+
+A title can be passed to the header by input:
+`<bit-drawer-header title="Foobar"></bit-drawer-header>`
+
+Custom content can be rendered before the title with the header's `start` slot:
+
+```html
+<bit-drawer-header title="Foobar">
+  <i slot="start" class="bwi bwi-key" aria-hidden="true"></i>
+</bit-drawer-header>
+```
+
+## Opening and closing
+
+`bit-drawer` opens when its `open` input is `true`:
+
+```html
+<bit-drawer [open]="true">...</bit-drawer>
+```
+
+Note: Model inputs do not support implicit boolean transformation (see Angular reasoning
+[here](https://github.com/angular/angular/issues/55166#issuecomment-2032150999)). `open` must be
+bound explicitly `<bit-drawer [open]="true">` instead of just `<bit-drawer open>`.
+
+Buttons can be made to open/toggle drawers by referencing a template variable, or by manipulating
+state that is bound to `open`:
+
+```html
+<button (click)="myDrawer.toggle()"></button> <bit-drawer #myDrawer>...</bit-drawer>
+```
+
+For convenience, close buttons can be created _inside_ the drawer with the `bitDrawerClose`
+directive:
+
+```html
+<bit-drawer>
+  <button type="button" bitDrawerClose>Close</button>
+</bit-drawer>
+```
+
+## Multiple Drawers
+
+Only one drawer can be open at a time, and they do not stack. If a drawer is already open, opening
+another will close and replace the one already open.
+
+<Canvas of={stories.MultipleDrawers} />
+
+## Headless
+
+Omitting `bit-drawer-header` and `bit-drawer-body` allows for fully customizable content.
+
+<Canvas of={stories.Headless} />
+
+## Accessibility
+
+- The drawer should contain an h2 element. If you are using `bit-drawer-header`, this is created for
+  you via the `title` input:
+
+```html
+<bit-drawer>
+  <h2 bitTypography="h2">Hello world!</h2>
+</bit-drawer>
+
+<!-- or -->
+
+<bit-drawer>
+  <bit-drawer-header title="Hello world!"></bit-drawer-header>
+</bit-drawer>
+```
+
+- The ARIA role of the drawer can be set with the `role` attribute:
+  - [complementary](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/complementary_role)
+    (default)
+    - For drawers that contain content that is complementary to the page's main content.
+  - [navigation](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/navigation_role)
+    - For drawers that primary contain links to other content.
+
+## Kitchen Sink
+
+<Canvas of={KitchenSink} autoplay />

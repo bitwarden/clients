@@ -885,6 +885,15 @@
     "message": "Verifica con Duo Security per la tua organizzazione usando l'app Duo Mobile, SMS, chiamata telefonica, o chiave di sicurezza U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Verifica la tua identità"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Non riconosciamo questo dispositivo. Inserisci il codice inviato alla tua e-mail per verificare la tua identità."
+  },
+  "continueLoggingIn": {
+    "message": "Continua l'accesso"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -1378,9 +1387,6 @@
   },
   "premiumPurchase": {
     "message": "Passa a Premium"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Puoi acquistare il un abbonamento Premium dalla cassaforte web su bitwarden.com. Vuoi visitare il sito?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Puoi acquistare Premium dalle impostazioni del tuo account sull'app web Bitwarden."
@@ -2544,6 +2550,9 @@
   "catchallEmailDesc": {
     "message": "Usa la casella di posta catch-all di dominio."
   },
+  "useThisEmail": {
+    "message": "Usa questa e-mail"
+  },
   "random": {
     "message": "Casuale"
   },
@@ -2736,14 +2745,23 @@
   "loginInitiated": {
     "message": "Accesso avviato"
   },
+  "logInRequestSent": {
+    "message": "Richiesta inviata"
+  },
   "notificationSentDevice": {
     "message": "Una notifica è stata inviata al tuo dispositivo."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Una notifica è stata inviata al tuo dispositivo"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assicurati che il tuo account sia sbloccato e che la frase dell'impronta digitale corrisponda nell'altro dispositivo"
+  "notificationSentDevicePart1": {
+    "message": "Sblocca Bitwarden sul tuo dispositivo o su "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "app web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Assicurarsi che la frase di impronta digitale corrisponda a quella sottostante prima dell'approvazione."
   },
   "needAnotherOptionV1": {
     "message": "Bisogno di un'altra opzione?"
@@ -2773,10 +2791,10 @@
     "message": "Attiva/disattiva conteggio caratteri",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Stai cercando di accedere?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Stai cercando di accedere al tuo account?"
   },
-  "logInAttemptBy": {
+  "accessAttemptBy": {
     "message": "Tentativo di accesso di $EMAIL$",
     "placeholders": {
       "email": {
@@ -2794,10 +2812,10 @@
   "time": {
     "message": "Ora"
   },
-  "confirmLogIn": {
-    "message": "Consenti accesso"
+  "confirmAccess": {
+    "message": "Conferma accesso"
   },
-  "denyLogIn": {
+  "denyAccess": {
     "message": "Nega accesso"
   },
   "logInConfirmedForEmailOnDevice": {
@@ -2834,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "La richiesta non è più valida."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Conferma il tentativo di accesso di $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Conferma il tentativo di accesso per $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2845,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Accesso richiesto"
+  },
+  "accountAccessRequested": {
+    "message": "Accesso all'account richiesto"
   },
   "creatingAccountOn": {
     "message": "Creazione account su"
@@ -3467,12 +3488,30 @@
     "message": "No, non ce l'ho"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Sì, posso accedere in modo affidabile alla mia e-mail"
+    "message": "Sì, riesco ad accedere all'email"
   },
   "turnOnTwoStepLogin": {
     "message": "Attiva accesso in due passaggi"
   },
   "changeAcctEmail": {
     "message": "Cambia l'e-mail dell'account"
+  },
+  "allowScreenshots": {
+    "message": "Permetti cattura dello schermo"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Consenti all' applicazione desktop Bitwarden di essere catturata in schermate e visualizzata in sessioni desktop remote. Disattivando questa opzione si impedirà l'accesso in alcuni schermi esterni."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Conferma la finestra ancora visibile"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Si prega di confermare che la finestra è ancora visibile."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Aggiornamento estensione richiesto"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "L'estensione del browser che stai usando non è aggiornata. Aggiornala o disabilita la convalida dell'impronta digitale per l'integrazione del browser nelle impostazioni dell'app desktop."
   }
 }

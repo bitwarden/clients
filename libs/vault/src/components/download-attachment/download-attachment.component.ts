@@ -7,8 +7,8 @@ import { NEVER, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
@@ -98,6 +98,8 @@ export class DownloadAttachmentComponent {
         fileName: this.attachment.fileName,
         blobData: decBuf,
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

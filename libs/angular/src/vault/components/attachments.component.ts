@@ -1,13 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,6 +17,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -26,7 +28,7 @@ import { KeyService } from "@bitwarden/key-management";
 export class AttachmentsComponent implements OnInit {
   @Input() cipherId: string;
   @Input() viewOnly: boolean;
-  @Output() onUploadedAttachment = new EventEmitter();
+  @Output() onUploadedAttachment = new EventEmitter<CipherView>();
   @Output() onDeletedAttachment = new EventEmitter();
   @Output() onReuploadedAttachment = new EventEmitter();
 
@@ -34,7 +36,7 @@ export class AttachmentsComponent implements OnInit {
   cipherDomain: Cipher;
   canAccessAttachments: boolean;
   formPromise: Promise<any>;
-  deletePromises: { [id: string]: Promise<any> } = {};
+  deletePromises: { [id: string]: Promise<CipherData> } = {};
   reuploadPromises: { [id: string]: Promise<any> } = {};
   emergencyAccessId?: string = null;
   protected componentName = "";
@@ -64,35 +66,37 @@ export class AttachmentsComponent implements OnInit {
     const fileEl = document.getElementById("file") as HTMLInputElement;
     const files = fileEl.files;
     if (files == null || files.length === 0) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectFile"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
       return;
     }
 
     if (files[0].size > 524288000) {
       // 500 MB
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("maxFileSize"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("maxFileSize"),
+      });
       return;
     }
 
     try {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       this.formPromise = this.saveCipherAttachment(files[0], activeUserId);
       this.cipherDomain = await this.formPromise;
       this.cipher = await this.cipherDomain.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
       );
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("attachmentSaved"));
-      this.onUploadedAttachment.emit();
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("attachmentSaved"),
+      });
+      this.onUploadedAttachment.emit(this.cipher);
     } catch (e) {
       this.logService.error(e);
     }
@@ -120,9 +124,21 @@ export class AttachmentsComponent implements OnInit {
     }
 
     try {
-      this.deletePromises[attachment.id] = this.deleteCipherAttachment(attachment.id);
-      await this.deletePromises[attachment.id];
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("deletedAttachment"));
+      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+      this.deletePromises[attachment.id] = this.deleteCipherAttachment(attachment.id, activeUserId);
+      const updatedCipher = await this.deletePromises[attachment.id];
+
+      const cipher = new Cipher(updatedCipher);
+      this.cipher = await cipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+      );
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("deletedAttachment"),
+      });
       const i = this.cipher.attachments.indexOf(attachment);
       if (i > -1) {
         this.cipher.attachments.splice(i, 1);
@@ -132,7 +148,7 @@ export class AttachmentsComponent implements OnInit {
     }
 
     this.deletePromises[attachment.id] = null;
-    this.onDeletedAttachment.emit();
+    this.onDeletedAttachment.emit(this.cipher);
   }
 
   async download(attachment: AttachmentView) {
@@ -142,11 +158,11 @@ export class AttachmentsComponent implements OnInit {
     }
 
     if (!this.canAccessAttachments) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("premiumRequired"),
-        this.i18nService.t("premiumRequiredDesc"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("premiumRequired"),
+        message: this.i18nService.t("premiumRequiredDesc"),
+      });
       return;
     }
 
@@ -171,7 +187,11 @@ export class AttachmentsComponent implements OnInit {
     a.downloading = true;
     const response = await fetch(new Request(url, { cache: "no-store" }));
     if (response.status !== 200) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
       a.downloading = false;
       return;
     }
@@ -192,18 +212,22 @@ export class AttachmentsComponent implements OnInit {
         title: null,
         message: this.i18nService.t("fileSavedToDevice"),
       });
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
     }
 
     a.downloading = false;
   }
 
   protected async init() {
-    this.cipherDomain = await this.loadCipher();
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.cipherDomain = await this.loadCipher(activeUserId);
     this.cipher = await this.cipherDomain.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
     );
@@ -241,7 +265,11 @@ export class AttachmentsComponent implements OnInit {
         a.downloading = true;
         const response = await fetch(new Request(attachment.url, { cache: "no-store" }));
         if (response.status !== 200) {
-          this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+          this.toastService.showToast({
+            variant: "error",
+            title: null,
+            message: this.i18nService.t("errorOccurred"),
+          });
           a.downloading = false;
           return;
         }
@@ -255,7 +283,7 @@ export class AttachmentsComponent implements OnInit {
               : await this.keyService.getOrgKey(this.cipher.organizationId);
           const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
           const activeUserId = await firstValueFrom(
-            this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+            this.accountService.activeAccount$.pipe(getUserId),
           );
           this.cipherDomain = await this.cipherService.saveAttachmentRawWithServer(
             this.cipherDomain,
@@ -269,7 +297,10 @@ export class AttachmentsComponent implements OnInit {
           );
 
           // 3. Delete old
-          this.deletePromises[attachment.id] = this.deleteCipherAttachment(attachment.id);
+          this.deletePromises[attachment.id] = this.deleteCipherAttachment(
+            attachment.id,
+            activeUserId,
+          );
           await this.deletePromises[attachment.id];
           const foundAttachment = this.cipher.attachments.filter((a2) => a2.id === attachment.id);
           if (foundAttachment.length > 0) {
@@ -279,14 +310,20 @@ export class AttachmentsComponent implements OnInit {
             }
           }
 
-          this.platformUtilsService.showToast(
-            "success",
-            null,
-            this.i18nService.t("attachmentSaved"),
-          );
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("attachmentSaved"),
+          });
           this.onReuploadedAttachment.emit();
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
-          this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+          this.toastService.showToast({
+            variant: "error",
+            title: null,
+            message: this.i18nService.t("errorOccurred"),
+          });
         }
 
         a.downloading = false;
@@ -297,16 +334,16 @@ export class AttachmentsComponent implements OnInit {
     }
   }
 
-  protected loadCipher() {
-    return this.cipherService.get(this.cipherId);
+  protected loadCipher(userId: UserId) {
+    return this.cipherService.get(this.cipherId, userId);
   }
 
   protected saveCipherAttachment(file: File, userId: UserId) {
     return this.cipherService.saveAttachmentWithServer(this.cipherDomain, file, userId);
   }
 
-  protected deleteCipherAttachment(attachmentId: string) {
-    return this.cipherService.deleteAttachmentWithServer(this.cipher.id, attachmentId);
+  protected deleteCipherAttachment(attachmentId: string, userId: UserId) {
+    return this.cipherService.deleteAttachmentWithServer(this.cipher.id, attachmentId, userId);
   }
 
   protected async reupload(attachment: AttachmentView) {

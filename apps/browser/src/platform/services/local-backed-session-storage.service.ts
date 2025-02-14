@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Subject } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -198,6 +198,8 @@ export class LocalBackedSessionStorageService
   private compareValues<T>(value1: T, value2: T): boolean {
     try {
       return compareValues(value1, value2);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.error(
         `error comparing values\n${JSON.stringify(value1)}\n${JSON.stringify(value2)}`,

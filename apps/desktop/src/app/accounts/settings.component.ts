@@ -3,7 +3,16 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, Observable, Subject, firstValueFrom } from "rxjs";
-import { concatMap, debounceTime, filter, map, switchMap, takeUntil, tap } from "rxjs/operators";
+import {
+  concatMap,
+  debounceTime,
+  filter,
+  map,
+  switchMap,
+  takeUntil,
+  tap,
+  timeout,
+} from "rxjs/operators";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
@@ -116,6 +125,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }),
     enableHardwareAcceleration: true,
     enableSshAgent: false,
+    allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
     theme: [null as ThemeType | null],
     locale: [null as string | null],
@@ -287,6 +297,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.hardwareAcceleration$,
       ),
       enableSshAgent: await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$),
+      allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -362,12 +373,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.supportsBiometric =
-      (await this.biometricsService.getBiometricsStatus()) === BiometricsStatus.Available;
+    this.supportsBiometric = this.shouldAllowBiometricSetup(
+      await this.biometricsService.getBiometricsStatus(),
+    );
     this.timerId = setInterval(async () => {
-      this.supportsBiometric =
-        (await this.biometricsService.getBiometricsStatus()) === BiometricsStatus.Available;
+      this.supportsBiometric = this.shouldAllowBiometricSetup(
+        await this.biometricsService.getBiometricsStatus(),
+      );
     }, 1000);
+  }
+
+  private shouldAllowBiometricSetup(biometricStatus: BiometricsStatus): boolean {
+    return [
+      BiometricsStatus.Available,
+      BiometricsStatus.AutoSetupNeeded,
+      BiometricsStatus.ManualSetupNeeded,
+    ].includes(biometricStatus);
   }
 
   async saveVaultTimeout(newValue: VaultTimeout) {
@@ -650,7 +671,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const skipSupportedPlatformCheck =
       ipc.platform.allowBrowserintegrationOverride || ipc.platform.isDev;
 
-    if (skipSupportedPlatformCheck) {
+    if (!skipSupportedPlatformCheck) {
       if (
         ipc.platform.deviceType === DeviceType.MacOsDesktop &&
         !this.platformUtilsService.isMacAppStore()
@@ -757,6 +778,33 @@ export class SettingsComponent implements OnInit, OnDestroy {
   async saveSshAgent() {
     this.logService.debug("Saving Ssh Agent settings", this.form.value.enableSshAgent);
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+  }
+
+  async savePreventScreenshots() {
+    await this.desktopSettingsService.setPreventScreenshots(!this.form.value.allowScreenshots);
+
+    if (!this.form.value.allowScreenshots) {
+      const dialogRef = this.dialogService.openSimpleDialogRef({
+        title: { key: "confirmWindowStillVisibleTitle" },
+        content: { key: "confirmWindowStillVisibleContent" },
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+        type: "info",
+      });
+      let enabled = true;
+      try {
+        enabled = await firstValueFrom(dialogRef.closed.pipe(timeout(10000)));
+      } catch {
+        enabled = false;
+      } finally {
+        dialogRef.close();
+      }
+
+      if (!enabled) {
+        await this.desktopSettingsService.setPreventScreenshots(false);
+        this.form.controls.allowScreenshots.setValue(true, { emitEvent: false });
+      }
+    }
   }
 
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {

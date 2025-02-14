@@ -52,7 +52,8 @@ export class CredentialGeneratorHistoryDialogComponent {
       .subscribe(this.hasHistory$);
   }
 
-  clear = async () => {
+  /** Launches clear history flow */
+  protected async clear() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "clearGeneratorHistoryTitle" },
       content: { key: "cleargGeneratorHistoryDescription" },
@@ -64,5 +65,5 @@ export class CredentialGeneratorHistoryDialogComponent {
     if (confirmed) {
       await this.history.clear(await firstValueFrom(this.userId$));
     }
-  };
+  }
 }
