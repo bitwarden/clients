@@ -253,6 +253,7 @@ import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
@@ -278,7 +279,6 @@ import { BrowserStorageServiceProvider } from "../platform/storage/browser-stora
 import { OffscreenStorageService } from "../platform/storage/offscreen-storage.service";
 import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
-import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";

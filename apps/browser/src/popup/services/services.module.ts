@@ -131,6 +131,7 @@ import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
+import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
@@ -154,7 +155,6 @@ import { BrowserStorageServiceProvider } from "../../platform/storage/browser-st
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { ForegroundSyncService } from "../../platform/sync/foreground-sync.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
-import { ForegroundVaultTimeoutService } from "../../services/vault-timeout/foreground-vault-timeout.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { VaultBrowserStateService } from "../../vault/services/vault-browser-state.service";
