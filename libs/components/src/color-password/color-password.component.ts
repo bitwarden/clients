@@ -22,7 +22,6 @@ enum CharacterType {
       }
     </span>
   }`,
-  preserveWhitespaces: false,
   standalone: true,
 })
 export class ColorPasswordComponent {
