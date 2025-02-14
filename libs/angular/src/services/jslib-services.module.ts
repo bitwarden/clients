@@ -692,6 +692,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       LOGOUT_CALLBACK,
       VaultTimeoutSettingsServiceAbstraction,
+      I18nServiceAbstraction,
     ],
   }),
   safeProvider({
