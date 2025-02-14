@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "Изменить email аккаунта"
   },
-  "organizationUpgradeRequired": {
-    "message": "Требуется обновление организации"
+  "allowScreenshots": {
+    "message": "Разрешить захват экрана"
   },
-  "upgradeOrganization": {
-    "message": "Обновить организацию"
+  "allowScreenshotsDesc": {
+    "message": "Разрешить приложению Bitwarden захват экрана для скриншотов и просмотра в сеансах удаленного рабочего стола. Отключение параметра запретит доступ на некоторых внешних дисплеях."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Эта функция недоступна для бесплатных организаций. Переключитесь на платный план, чтобы разблокировать дополнительные возможности."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Окно подтверждения остается видимым"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Убедитесь, что окно по-прежнему видно."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Необходимо обновить расширение"
