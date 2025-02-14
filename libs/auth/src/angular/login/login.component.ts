@@ -301,6 +301,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Evaluates the master password against the enforced policy options.
+   * If the password does not meet the requirements, the user is redirected to the update-password page.
+   */
   protected async evaluatePassword(): Promise<void> {
     try {
       // If we do not have any saved policies, attempt to load them from the service
