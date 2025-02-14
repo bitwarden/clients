@@ -3496,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "E-mailadres van het account veranderen"
   },
-  "organizationUpgradeRequired": {
-    "message": "Organisatie-upgrade vereist"
+  "allowScreenshots": {
+    "message": "Schermopname toestaan"
   },
-  "upgradeOrganization": {
-    "message": "Organisatie upgraden"
+  "allowScreenshotsDesc": {
+    "message": "Toestaan dat de Bitwarden desktopapplicatie wordt vastgelegd in schermafbeeldingen en bekeken in externe desktopsessies. Als je dit uitgeschakeld, wordt de toegang van sommige externe monitors geblokkeerd."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Deze mogelijkheid is niet beschikbaar voor gratis organisaties. Schakel over naar een betaald abonnement om meer mogelijkheden te ontgrendelen."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Venster is nog zichtbaar"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Bevestig dat het venster nog zichtbaar is."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Extensie update vereist"

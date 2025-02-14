@@ -21,7 +21,7 @@ import { NoItemsModule, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ExpiredSendIcon } from "@bitwarden/send-ui";
 
-import { SharedModule } from "../../shared";
+import { SharedModule } from "../../../shared";
 
 import { SendAccessFileComponent } from "./send-access-file.component";
 import { SendAccessPasswordComponent } from "./send-access-password.component";
