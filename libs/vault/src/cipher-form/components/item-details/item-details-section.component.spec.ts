@@ -244,6 +244,7 @@ describe("ItemDetailsSectionComponent", () => {
 
   describe("showOwnership", () => {
     it("should return true if ownership change is allowed or in edit mode with at least one organization", () => {
+      component.config.allowPersonalOwnership = true;
       jest.spyOn(component, "allowOwnershipChange", "get").mockReturnValue(true);
       expect(component.showOwnership).toBe(true);
 
@@ -254,6 +255,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should hide the ownership control if showOwnership is false", async () => {
+      component.config.allowPersonalOwnership = true;
       jest.spyOn(component, "showOwnership", "get").mockReturnValue(false);
       fixture.detectChanges();
       await fixture.whenStable();
@@ -264,6 +266,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
 
     it("should show the ownership control if showOwnership is true", async () => {
+      component.config.allowPersonalOwnership = true;
       jest.spyOn(component, "allowOwnershipChange", "get").mockReturnValue(true);
       fixture.detectChanges();
       await fixture.whenStable();
