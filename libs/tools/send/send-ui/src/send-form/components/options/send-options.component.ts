@@ -12,6 +12,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { pin } from "@bitwarden/common/tools/rx";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import {
@@ -122,8 +123,11 @@ export class SendOptionsComponent implements OnInit {
 
   generatePassword = async () => {
     const on$ = new BehaviorSubject<GenerateRequest>({ source: "send" });
+    const account$ = this.accountService.activeAccount$.pipe(
+      pin({ name: () => "send-options.component", distinct: (p, c) => p.id === c.id }),
+    );
     const generatedCredential = await firstValueFrom(
-      this.generatorService.generate$(Generators.password, { on$ }),
+      this.generatorService.generate$(Generators.password, { on$, account$ }),
     );
 
     this.sendOptionsForm.patchValue({
