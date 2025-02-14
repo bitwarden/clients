@@ -1,6 +1,5 @@
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { VaultTimeout, VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { Region } from "@bitwarden/common/platform/abstractions/environment.service";
-import { VaultTimeout } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 export type UserSettings = {

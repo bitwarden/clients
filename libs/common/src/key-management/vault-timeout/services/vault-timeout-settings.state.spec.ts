@@ -1,6 +1,6 @@
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { UserKeyDefinition } from "../../platform/state";
-import { VaultTimeout } from "../../types/vault-timeout.type";
+import { UserKeyDefinition } from "../../../platform/state";
+import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
+import { VaultTimeout } from "../types/vault-timeout.type";
 
 import { VAULT_TIMEOUT, VAULT_TIMEOUT_ACTION } from "./vault-timeout-settings.state";
 
