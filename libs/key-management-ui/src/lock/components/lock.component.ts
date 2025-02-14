@@ -551,7 +551,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
   private async setUserKeyAndContinue(key: UserKey, evaluatePasswordAfterUnlock = false) {
     if (this.activeAccount == null) {
-      return;
+      throw new Error("No active user.");
     }
 
     await this.keyService.setUserKey(key, this.activeAccount.id);
@@ -565,13 +565,18 @@ export class LockComponent implements OnInit, OnDestroy {
 
   private async doContinue(evaluatePasswordAfterUnlock: boolean) {
     if (this.activeAccount == null) {
-      return;
+      throw new Error("No active user.");
     }
 
     await this.biometricStateService.resetUserPromptCancelled();
     this.messagingService.send("unlocked");
 
     if (evaluatePasswordAfterUnlock) {
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      if (userId == null) {
+        throw new Error("No active user.");
+      }
+
       try {
         // If we do not have any saved policies, attempt to load them from the service
         if (this.enforcedMasterPasswordOptions == undefined) {
@@ -581,13 +586,10 @@ export class LockComponent implements OnInit, OnDestroy {
         }
 
         if (this.requirePasswordChange()) {
-          const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-          if (userId != null) {
-            await this.masterPasswordService.setForceSetPasswordReason(
-              ForceSetPasswordReason.WeakMasterPassword,
-              userId,
-            );
-          }
+          await this.masterPasswordService.setForceSetPasswordReason(
+            ForceSetPasswordReason.WeakMasterPassword,
+            userId,
+          );
           await this.router.navigate([this.forcePasswordResetRoute]);
           return;
         }

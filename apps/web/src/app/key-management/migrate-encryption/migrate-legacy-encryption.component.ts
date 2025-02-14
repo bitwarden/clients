@@ -58,10 +58,7 @@ export class MigrateFromLegacyEncryptionComponent {
       throw new Error("User key already exists, cannot migrate legacy encryption.");
     }
 
-    const masterPassword = this.formGroup.value.masterPassword;
-    if (masterPassword == null) {
-      return;
-    }
+    const masterPassword = this.formGroup.value.masterPassword!;
 
     try {
       await this.syncService.fullSync(false, true);
