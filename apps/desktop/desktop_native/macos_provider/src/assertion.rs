@@ -8,6 +8,16 @@ use crate::{BitwardenError, Callback, UserVerification};
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionRequest {
     rp_id: String,
+    client_data_hash: Vec<u8>,
+    user_verification: UserVerification,
+    allowed_credentials: Vec<Vec<u8>>,
+    //extension_input: Vec<u8>, TODO: Implement support for extensions
+}
+
+#[derive(uniffi::Record, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PasskeyAssertionWithoutUserInterfaceRequest {
+    rp_id: String,
     credential_id: Vec<u8>,
     user_name: String,
     user_handle: Vec<u8>,
