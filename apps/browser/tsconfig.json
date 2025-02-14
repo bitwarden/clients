@@ -24,8 +24,8 @@
       "@bitwarden/generator-history": ["../../libs/tools/generator/extensions/history/src"],
       "@bitwarden/generator-legacy": ["../../libs/tools/generator/extensions/legacy/src"],
       "@bitwarden/generator-navigation": ["../../libs/tools/generator/extensions/navigation/src"],
-      "@bitwarden/importer/core": ["../../libs/importer/src"],
-      "@bitwarden/importer/ui": ["../../libs/importer/src/components"],
+      "@bitwarden/importer-core": ["../../libs/importer/src"],
+      "@bitwarden/importer-ui": ["../../libs/importer/src/components"],
       "@bitwarden/key-management": ["../../libs/key-management/src"],
       "@bitwarden/key-management-ui": ["../../libs/key-management-ui/src"],
       "@bitwarden/platform": ["../../libs/platform/src"],
@@ -51,8 +51,8 @@
   },
   "include": [
     "src",
-    "../../libs/common/src/platform/services/**/*.worker.ts",
     "../../libs/common/src/autofill/constants",
-    "../../libs/common/custom-matchers.d.ts"
+    "../../libs/common/custom-matchers.d.ts",
+    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"
   ]
 }

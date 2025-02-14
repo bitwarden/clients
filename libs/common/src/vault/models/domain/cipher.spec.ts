@@ -4,8 +4,8 @@ import { Jsonify } from "type-fest";
 import { KeyService } from "@bitwarden/key-management";
 
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";

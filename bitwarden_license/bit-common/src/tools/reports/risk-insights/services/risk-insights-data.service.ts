@@ -28,6 +28,7 @@ export class RiskInsightsDataService {
   dataLastUpdated$ = this.dataLastUpdatedSubject.asObservable();
 
   openDrawer = false;
+  drawerInvokerId: string = "";
   activeDrawerType: DrawerType = DrawerType.None;
   atRiskMemberDetails: AtRiskMemberDetail[] = [];
   appAtRiskMembers: AppAtRiskMembersDialogParams | null = null;
@@ -73,25 +74,35 @@ export class RiskInsightsDataService {
     return this.activeDrawerType === drawerType;
   };
 
-  setDrawerForOrgAtRiskMembers = (atRiskMemberDetails: AtRiskMemberDetail[]): void => {
+  setDrawerForOrgAtRiskMembers = (
+    atRiskMemberDetails: AtRiskMemberDetail[],
+    invokerId: string = "",
+  ): void => {
     this.resetDrawer(DrawerType.OrgAtRiskMembers);
     this.activeDrawerType = DrawerType.OrgAtRiskMembers;
+    this.drawerInvokerId = invokerId;
     this.atRiskMemberDetails = atRiskMemberDetails;
     this.openDrawer = !this.openDrawer;
   };
 
   setDrawerForAppAtRiskMembers = (
     atRiskMembersDialogParams: AppAtRiskMembersDialogParams,
+    invokerId: string = "",
   ): void => {
     this.resetDrawer(DrawerType.None);
     this.activeDrawerType = DrawerType.AppAtRiskMembers;
+    this.drawerInvokerId = invokerId;
     this.appAtRiskMembers = atRiskMembersDialogParams;
     this.openDrawer = !this.openDrawer;
   };
 
-  setDrawerForOrgAtRiskApps = (atRiskApps: AtRiskApplicationDetail[]): void => {
+  setDrawerForOrgAtRiskApps = (
+    atRiskApps: AtRiskApplicationDetail[],
+    invokerId: string = "",
+  ): void => {
     this.resetDrawer(DrawerType.OrgAtRiskApps);
     this.activeDrawerType = DrawerType.OrgAtRiskApps;
+    this.drawerInvokerId = invokerId;
     this.atRiskAppDetails = atRiskApps;
     this.openDrawer = !this.openDrawer;
   };
@@ -109,5 +120,6 @@ export class RiskInsightsDataService {
     this.atRiskMemberDetails = [];
     this.appAtRiskMembers = null;
     this.atRiskAppDetails = null;
+    this.drawerInvokerId = "";
   };
 }
