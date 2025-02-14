@@ -21,6 +21,9 @@ export class CipherFormGeneratorComponent {
   @Input()
   onAlgorithmSelected: (selected: AlgorithmInfo) => void;
 
+  @Input()
+  uri: string = "";
+
   /**
    * The type of generator form to show.
    */
