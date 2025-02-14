@@ -24,8 +24,8 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherWithIdRequest } from "@bitwarden/common/vault/models/request/cipher-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
-import { ToastService } from "@bitwarden/components";
-import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { KeyService, DEFAULT_KDF_CONFIG } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../core";
@@ -53,6 +53,7 @@ describe("KeyRotationService", () => {
   let mockWebauthnLoginAdminService: MockProxy<WebauthnLoginAdminService>;
   let mockLogService: MockProxy<LogService>;
   let mockVaultTimeoutService: MockProxy<VaultTimeoutService>;
+  let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
   let mockI18nService: MockProxy<I18nService>;
 
@@ -63,6 +64,8 @@ describe("KeyRotationService", () => {
     name: "mockName",
   };
 
+  const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("test-public-key")];
+
   beforeAll(() => {
     mockUserVerificationService = mock<UserVerificationService>();
     mockApiService = mock<UserKeyRotationApiService>();
@@ -70,7 +73,23 @@ describe("KeyRotationService", () => {
     mockFolderService = mock<FolderService>();
     mockSendService = mock<SendService>();
     mockEmergencyAccessService = mock<EmergencyAccessService>();
+    mockEmergencyAccessService.getPublicKeys.mockResolvedValue(
+      mockTrustedPublicKeys.map((key) => {
+        return {
+          publicKey: key,
+        };
+      }),
+    );
     mockResetPasswordService = mock<OrganizationUserResetPasswordService>();
+    mockResetPasswordService.getPublicKeys.mockResolvedValue(
+      mockTrustedPublicKeys.map((key) => {
+        return {
+          publicKey: key,
+          orgId: "mockOrgId",
+          orgName: "mockOrgName",
+        };
+      }),
+    );
     mockDeviceTrustService = mock<DeviceTrustServiceAbstraction>();
     mockKeyService = mock<KeyService>();
     mockEncryptService = mock<EncryptService>();
@@ -81,6 +100,7 @@ describe("KeyRotationService", () => {
     mockVaultTimeoutService = mock<VaultTimeoutService>();
     mockToastService = mock<ToastService>();
     mockI18nService = mock<I18nService>();
+    mockDialogService = mock<DialogService>();
 
     keyRotationService = new UserKeyRotationService(
       mockUserVerificationService,
@@ -99,6 +119,7 @@ describe("KeyRotationService", () => {
       mockVaultTimeoutService,
       mockToastService,
       mockI18nService,
+      mockDialogService,
     );
   });
 
@@ -170,7 +191,7 @@ describe("KeyRotationService", () => {
       mockWebauthnLoginAdminService.getRotatedData.mockResolvedValue(webauthn);
     });
 
-    it("rotates the user key and encrypted data legacy", async () => {
+    it("rotates the user key and encrypted data", async () => {
       await keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser);
 
       expect(mockApiService.postUserKeyUpdate).toHaveBeenCalled();
@@ -183,30 +204,6 @@ describe("KeyRotationService", () => {
       expect(arg.emergencyAccessKeys.length).toBe(1);
       expect(arg.resetPasswordKeys.length).toBe(1);
       expect(arg.webauthnKeys.length).toBe(2);
-    });
-
-    it("rotates the user key and encrypted data", async () => {
-      await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
-        "mockMasterPassword",
-        "mockNewMasterPassword",
-        mockUser,
-      );
-
-      expect(mockApiService.postUserKeyUpdateV2).toHaveBeenCalled();
-      const arg = mockApiService.postUserKeyUpdateV2.mock.calls[0][0];
-      expect(arg.oldMasterKeyAuthenticationHash).toBe("mockMasterPasswordHash");
-      expect(arg.accountUnlockData.masterPasswordUnlockData.email).toBe("mockEmail");
-      expect(arg.accountUnlockData.masterPasswordUnlockData.kdfType).toBe(
-        DEFAULT_KDF_CONFIG.kdfType,
-      );
-      expect(arg.accountUnlockData.masterPasswordUnlockData.kdfIterations).toBe(
-        DEFAULT_KDF_CONFIG.iterations,
-      );
-      expect(arg.accountKeys.accountPublicKey).toBe(Utils.fromUtf8ToB64("mockPublicKey"));
-      expect(arg.accountKeys.userKeyEncryptedAccountPrivateKey).toBe("mockEncryptedData");
-      expect(arg.accountData.ciphers.length).toBe(2);
-      expect(arg.accountData.folders.length).toBe(2);
-      expect(arg.accountData.sends.length).toBe(2);
     });
 
     it("legacy throws if master password provided is falsey", async () => {

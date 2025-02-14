@@ -14,6 +14,7 @@ import { OrganizationApiService } from "@bitwarden/common/admin-console/services
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -22,6 +23,9 @@ import { UserKey, OrgKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfType, KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
+
+const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
+const mockPublicKeys = [Utils.fromUtf8ToArray("test-public-key")];
 
 describe("OrganizationUserResetPasswordService", () => {
   let sut: OrganizationUserResetPasswordService;
@@ -66,13 +70,9 @@ describe("OrganizationUserResetPasswordService", () => {
       organizationApiService.getKeys.mockResolvedValue(
         new OrganizationKeysResponse({
           privateKey: "test-private-key",
-          publicKey: "test-public-key",
+          publicKey: Utils.fromUtf8ToArray("test-public-key"),
         }),
       );
-
-      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-      const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-      keyService.getUserKey.mockResolvedValue(mockUserKey);
 
       encryptService.rsaEncrypt.mockResolvedValue(
         new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "mockEncryptedUserKey"),
@@ -80,32 +80,22 @@ describe("OrganizationUserResetPasswordService", () => {
     });
 
     it("should return an encrypted user key", async () => {
-      const encryptedString = await sut.buildRecoveryKey(mockOrgId);
+      const encryptedString = await sut.buildRecoveryKey(mockOrgId, mockUserKey, mockPublicKeys);
       expect(encryptedString).toBeDefined();
-    });
-
-    it("should only use the user key from memory if one is not provided", async () => {
-      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-      const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-
-      await sut.buildRecoveryKey(mockOrgId, mockUserKey);
-
-      expect(keyService.getUserKey).not.toHaveBeenCalled();
     });
 
     it("should throw an error if the organization keys are null", async () => {
       organizationApiService.getKeys.mockResolvedValue(null);
-      await expect(sut.buildRecoveryKey(mockOrgId)).rejects.toThrow();
+      await expect(sut.buildRecoveryKey(mockOrgId, mockUserKey, mockPublicKeys)).rejects.toThrow();
     });
 
     it("should throw an error if the user key can't be found", async () => {
       keyService.getUserKey.mockResolvedValue(null);
-      await expect(sut.buildRecoveryKey(mockOrgId)).rejects.toThrow();
+      await expect(sut.buildRecoveryKey(mockOrgId, null, mockPublicKeys)).rejects.toThrow();
     });
 
     it("should rsa encrypt the user key", async () => {
-      await sut.buildRecoveryKey(mockOrgId);
-
+      await sut.buildRecoveryKey(mockOrgId, mockUserKey, mockPublicKeys);
       expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(expect.anything(), expect.anything());
     });
   });
@@ -171,7 +161,7 @@ describe("OrganizationUserResetPasswordService", () => {
       organizationApiService.getKeys.mockResolvedValue(
         new OrganizationKeysResponse({
           privateKey: "test-private-key",
-          publicKey: "test-public-key",
+          publicKey: Utils.fromUtf8ToArray("test-public-key"),
         }),
       );
       encryptService.rsaEncrypt.mockResolvedValue(
@@ -182,7 +172,7 @@ describe("OrganizationUserResetPasswordService", () => {
     it("should return all re-encrypted account recovery keys", async () => {
       const result = await sut.getRotatedData(
         new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-        new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+        mockPublicKeys,
         "mockUserId" as UserId,
       );
 
@@ -191,11 +181,7 @@ describe("OrganizationUserResetPasswordService", () => {
 
     it("throws if the new user key is null", async () => {
       await expect(
-        sut.getRotatedData(
-          new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
-          null,
-          "mockUserId" as UserId,
-        ),
+        sut.getRotatedData(null, mockPublicKeys, "mockUserId" as UserId),
       ).rejects.toThrow("New user key is required for rotation.");
     });
   });
