@@ -11,7 +11,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { filter, firstValueFrom, map, Observable, Subject } from "rxjs";
+import { filter, firstValueFrom, map, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -79,8 +79,6 @@ export class ViewComponent implements OnDestroy, OnInit {
   private totpInterval: any;
   private previousCipherId: string;
   private passwordReprompted = false;
-
-  private destroyed$ = new Subject<void>();
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -524,7 +522,6 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.showCardNumber = false;
     this.showCardCode = false;
     this.passwordReprompted = false;
-    this.destroyed$.next();
     if (this.totpInterval) {
       clearInterval(this.totpInterval);
     }
