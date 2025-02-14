@@ -7,12 +7,13 @@ import { ScheduledTaskName } from "./scheduled-task-name.enum";
 /**
  * Creates a RXJS scheduler based on a {@link TaskSchedulerService}.
  *
- * @description On MV3 browser extensions this uses the `chrome.alarms` API. As such you need
- * to be careful that you observable is subscribed to during startup of the service worker.
- * This ensures that if the service worker dies and awakens for a chrome alarm event, then
- * your code will be guaranteed to be added. The scheduler returned here should behave
- * similarly to the built in {@link https://rxjs.dev/api/index/const/asyncScheduler asyncScheduler}
- * that is the default to many rxjs operators.
+ * @description This API defers to `TaskSchedulerService` to schedule a task to be ran
+ * in the future but the task that is ran is NOT the remainder of your RXJS pipeline. The
+ * task you want ran must instead be registered in a location reachable on a service worker
+ * startup (on browser). An example of an acceptible location is the constructor of a service
+ * you know is created in `MainBackground`. Uses of this API is other clients _can_ have the
+ * `registerTaskHandler` call in more places, but in order to have it work across clients
+ * it is recommended to register it according to the rules of browser.
  *
  * @link https://rxjs.dev/guide/scheduler#using-schedulers
  *
@@ -20,13 +21,18 @@ import { ScheduledTaskName } from "./scheduled-task-name.enum";
  * ```ts
  * class MyService {
  *   constructor(messageListener: MessageListener, taskScheduler: TaskSchedulerService) {
+ *    // VERY IMPORTANT!
+ *    this.taskSchedulerService.registerTaskHandler(SchedulerTaskNames.myTaskName, async () => {
+ *      await this.runEvent();
+ *    });
+ *
  *     messageListener.messages$(MY_MESSAGE).pipe(
  *        debounceTime(
  *          10 * 1000,
  *          toScheduler(taskScheduler, ShedulerTaskNames.myTaskName),
  *        ),
+ *        switchMap(() => this.runEvent()),
  *     )
- *       .subscribe((msg) => this.doThing(msg));
  *   }
  * }
  * ```
@@ -49,7 +55,6 @@ class TaskSchedulerSheduler implements SchedulerLike {
   ) {}
 
   schedule<T>(work: (state?: T) => void, delay?: number, state?: T): Subscription {
-    this.taskSchedulerService.registerTaskHandler(this.taskName, () => work(state));
     return this.taskSchedulerService.setTimeout(this.taskName, delay ?? 0);
   }
 

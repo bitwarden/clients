@@ -51,7 +51,14 @@ export class PopupViewCacheBackgroundService {
     private messageListener: MessageListener,
     private globalStateProvider: GlobalStateProvider,
     private readonly taskSchedulerService: TaskSchedulerService,
-  ) {}
+  ) {
+    this.taskSchedulerService.registerTaskHandler(
+      ScheduledTaskNames.clearPopupViewCache,
+      async () => {
+        await this.clearState();
+      },
+    );
+  }
 
   startObservingTabChanges() {
     this.messageListener
