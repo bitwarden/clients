@@ -55,12 +55,10 @@ import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token
 import { TokenTwoFactorRequest } from "../auth/models/request/identity-token/token-two-factor.request";
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token/webauthn-login-token.request";
-import { KeyConnectorUserKeyRequest } from "../auth/models/request/key-connector-user-key.request";
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
 import { PasswordRequest } from "../auth/models/request/password.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
-import { SetKeyConnectorKeyRequest } from "../auth/models/request/set-key-connector-key.request";
 import { SetPasswordRequest } from "../auth/models/request/set-password.request";
 import { TwoFactorEmailRequest } from "../auth/models/request/two-factor-email.request";
 import { TwoFactorProviderRequest } from "../auth/models/request/two-factor-provider.request";
@@ -106,6 +104,8 @@ import { SubscriptionResponse } from "../billing/models/response/subscription.re
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { DeviceType } from "../enums";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
+import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
+import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
