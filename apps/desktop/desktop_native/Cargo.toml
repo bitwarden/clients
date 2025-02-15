@@ -3,7 +3,7 @@ resolver = "2"
 members = ["napi", "core", "proxy", "macos_provider", "windows-plugin-authenticator"]
 
 [workspace.dependencies]
-anyhow = "=1.0.94"
+anyhow = "=1.0.95"
 log = "=0.4.25"
 serde = "=1.0.209"
 serde_json = "=1.0.127"
