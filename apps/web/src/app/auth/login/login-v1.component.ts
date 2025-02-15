@@ -162,12 +162,11 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
       }
     }
 
-    this.loginEmailService.clearValues();
+    this.loginEmailService.clearLoginEmail();
     await this.router.navigate([this.successRoute]);
   }
 
   async goToHint() {
-    await this.saveEmailSettings();
     await this.router.navigateByUrl("/hint");
   }
 
@@ -180,6 +179,19 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
     }
 
     await this.router.navigate(["/signup"]);
+  }
+
+  /**
+   * Handle the Login with Passkey button click.
+   * We need a handler here in order to persist the remember email selection to state before routing.
+   * @param event - The event object.
+   */
+  async handleLoginWithPasskeyClick() {
+    const email = this.formGroup.value.email;
+    if (email) {
+      await this.saveEmailSettings();
+    }
+    await this.router.navigate(["/login-with-passkey"]);
   }
 
   protected override async handleMigrateEncryptionKey(result: AuthResult): Promise<boolean> {
