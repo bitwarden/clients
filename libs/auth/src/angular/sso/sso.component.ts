@@ -144,11 +144,9 @@ export class SsoComponent implements OnInit {
     const qParams: QueryParams = await firstValueFrom(this.route.queryParams);
 
     // SSO on web uses a service to provide the email via state that's set on login,
-    // but because we have clients that delegate SSO to web we have to accept the email in the query params as well
+    // but because we have clients that delegate SSO to web we have to accept the email in the query params as well.
+    // We also can't require the email, because it isn't provided in the CLI SSO flow.
     this.email = qParams.email ?? (await this.ssoLoginService.getSsoEmail());
-    if (!this.email) {
-      throw new Error("Email is required for SSO authentication");
-    }
 
     // Detect if we are on the second portion of the SSO flow,
     // where the user has already authenticated with the identity provider

@@ -10,7 +10,7 @@ export class SsoUrlService {
    * @param redirectUri The redirect URI or callback that will receive the SSO code after authentication
    * @param state A state value that will be peristed through the SSO flow
    * @param codeChallenge A challenge value that will be used to verify the SSO code after authentication
-   * @param email The email adddress of the user initiating SSO, which will be used to look up the org SSO identifier
+   * @param email The optional email adddress of the user initiating SSO, which will be used to look up the org SSO identifier
    * @returns The URL for redirecting users to the web app SSO component
    */
   buildSsoUrl(
@@ -19,9 +19,9 @@ export class SsoUrlService {
     redirectUri: string,
     state: string,
     codeChallenge: string,
-    email: string,
+    email?: string,
   ): string {
-    return (
+    let url =
       webAppUrl +
       "/#/sso?clientId=" +
       clientType +
@@ -30,9 +30,12 @@ export class SsoUrlService {
       "&state=" +
       state +
       "&codeChallenge=" +
-      codeChallenge +
-      "&email=" +
-      encodeURIComponent(email)
-    );
+      codeChallenge;
+
+    if (email) {
+      url += "&email=" + encodeURIComponent(email);
+    }
+
+    return url;
   }
 }

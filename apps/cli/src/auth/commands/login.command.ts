@@ -747,7 +747,6 @@ export class LoginCommand {
               this.ssoRedirectUri,
               state,
               codeChallenge,
-              this.email,
             );
             this.platformUtilsService.launchUri(webAppSsoUrl);
           });
