@@ -3,8 +3,18 @@ import { ClientType } from "@bitwarden/common/enums";
 export const DESKTOP_SSO_CALLBACK: string = "bitwarden://sso-callback";
 
 export class SsoUrlService {
+  /**
+   * Builds a URL for redirecting users to the web app SSO component to complete SSO
+   * @param webAppUrl The URL of the web app
+   * @param clientType The client type that is initiating SSO, which will drive how the response is handled
+   * @param redirectUri The redirect URI or callback that will receive the SSO code after authentication
+   * @param state A state value that will be peristed through the SSO flow
+   * @param codeChallenge A challenge value that will be used to verify the SSO code after authentication
+   * @param email The email adddress of the user initiating SSO, which will be used to look up the org SSO identifier
+   * @returns The URL for redirecting users to the web app SSO component
+   */
   buildSsoUrl(
-    baseUrl: string,
+    webAppUrl: string,
     clientType: ClientType,
     redirectUri: string,
     state: string,
@@ -12,7 +22,7 @@ export class SsoUrlService {
     email: string,
   ): string {
     return (
-      baseUrl +
+      webAppUrl +
       "/#/sso?clientId=" +
       clientType +
       "&redirectUri=" +
