@@ -263,6 +263,8 @@ export class Main {
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
 
     new EphemeralValueStorageService();
+
+    this.ssoUrlService = new SsoUrlService();
     new SSOLocalhostCallbackService(
       this.environmentService,
       this.messagingService,
