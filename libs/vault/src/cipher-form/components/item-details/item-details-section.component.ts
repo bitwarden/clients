@@ -91,7 +91,7 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get organizations(): Organization[] {
-    return this.config.organizations;
+    return this.config.organizations.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   get allowPersonalOwnership() {

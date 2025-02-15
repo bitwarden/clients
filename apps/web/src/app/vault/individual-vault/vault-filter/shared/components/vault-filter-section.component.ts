@@ -57,7 +57,7 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   }
 
   get filters() {
-    return this.data?.children;
+    return this.data?.children.sort((a, b) => a.node.name.localeCompare(b.node.name));
   }
 
   get isOrganizationFilter() {
