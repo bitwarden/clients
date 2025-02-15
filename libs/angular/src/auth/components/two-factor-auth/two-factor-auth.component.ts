@@ -110,7 +110,7 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     await this.submit();
   };
   goAfterLogIn = async () => {
-    this.loginEmailService.clearValues();
+    this.loginEmailService.clearLoginEmail();
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([this.successRoute], {
@@ -264,7 +264,7 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     // - Browser SSO on extension open
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier, userId);
-    this.loginEmailService.clearValues();
+    this.loginEmailService.clearLoginEmail();
 
     // note: this flow affects both TDE & standard users
     if (this.isForcePasswordResetRequired(authResult)) {

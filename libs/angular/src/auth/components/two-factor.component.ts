@@ -290,7 +290,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     // - Browser SSO on extension open
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier, userId);
-    this.loginEmailService.clearValues();
+    this.loginEmailService.clearLoginEmail();
 
     // note: this flow affects both TDE & standard users
     if (this.isForcePasswordResetRequired(authResult)) {
