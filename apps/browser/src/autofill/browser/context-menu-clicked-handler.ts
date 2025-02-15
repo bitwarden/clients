@@ -205,8 +205,9 @@ export class ContextMenuClickedHandler {
             action: COPY_VERIFICATION_CODE_ID,
           });
         } else {
+          const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
           this.copyToClipboard({
-            text: await this.totpService.getCode(cipher.login.totp),
+            text: totpResponse.code,
             tab: tab,
           });
         }
