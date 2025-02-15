@@ -623,7 +623,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   /**
    * Handle the SSO button click.
-   * @param event - The event object.
    */
   async handleSsoClick() {
     // Make sure the email is not empty, for type safety
