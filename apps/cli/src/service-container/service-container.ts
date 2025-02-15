@@ -459,6 +459,7 @@ export class ServiceContainer {
 
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
+    this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
