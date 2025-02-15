@@ -4,6 +4,11 @@ import { switchMap, merge, delay, filter, concatMap, map, first, of } from "rxjs
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import {
+  ScheduledTaskNames,
+  TaskSchedulerService,
+  toScheduler,
+} from "@bitwarden/common/platform/scheduling";
+import {
   POPUP_VIEW_MEMORY,
   KeyDefinition,
   GlobalStateProvider,
@@ -45,6 +50,7 @@ export class PopupViewCacheBackgroundService {
   constructor(
     private messageListener: MessageListener,
     private globalStateProvider: GlobalStateProvider,
+    private readonly taskSchedulerService: TaskSchedulerService,
   ) {}
 
   startObservingTabChanges() {
@@ -87,7 +93,14 @@ export class PopupViewCacheBackgroundService {
       // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
       fromChromeEvent(chrome.runtime.onConnect).pipe(
         filter(([port]) => port.name === popupClosedPortName),
-        switchMap(([port]) => fromChromeEvent(port.onDisconnect).pipe(delay(1000 * 60 * 2))),
+        switchMap(([port]) =>
+          fromChromeEvent(port.onDisconnect).pipe(
+            delay(
+              1000 * 60 * 2,
+              toScheduler(this.taskSchedulerService, ScheduledTaskNames.clearPopupViewCache),
+            ),
+          ),
+        ),
       ),
     )
       .pipe(switchMap(() => this.clearState()))
