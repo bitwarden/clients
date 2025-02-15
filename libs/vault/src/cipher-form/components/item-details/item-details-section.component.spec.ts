@@ -184,7 +184,7 @@ describe("ItemDetailsSectionComponent", () => {
 
     it("should allow ownership change if personal ownership is allowed and there is at least one organization", () => {
       component.config.allowPersonalOwnership = true;
-      component.config.organizations = [{ id: "org1" } as Organization];
+      component.config.organizations = [{ id: "org1", name: "org1" } as Organization];
       expect(component.allowOwnershipChange).toBe(true);
     });
 
@@ -322,8 +322,8 @@ describe("ItemDetailsSectionComponent", () => {
     it("should select the first organization if personal ownership is not allowed", async () => {
       component.config.allowPersonalOwnership = false;
       component.config.organizations = [
-        { id: "org1" } as Organization,
-        { id: "org2" } as Organization,
+        { id: "org1", name: "org1" } as Organization,
+        { id: "org2", name: "org2" } as Organization,
       ];
       component.originalCipherView = {
         name: "cipher1",
@@ -515,6 +515,25 @@ describe("ItemDetailsSectionComponent", () => {
       await component.ngOnInit();
       fixture.detectChanges();
       expect(component["readOnlyCollectionsNames"]).toEqual(["Collection 1", "Collection 3"]);
+    });
+  });
+
+  describe("organizationOptions", () => {
+    it("should sort the organizations by name", async () => {
+      component.config.mode = "edit";
+      component.config.organizations = [
+        { id: "org2", name: "org2" } as Organization,
+        { id: "org1", name: "org1" } as Organization,
+      ];
+      component.originalCipherView = {} as CipherView;
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const select = fixture.debugElement.query(By.directive(SelectComponent));
+      const { label } = select.componentInstance.items[0];
+
+      expect(label).toBe("org1");
     });
   });
 });
