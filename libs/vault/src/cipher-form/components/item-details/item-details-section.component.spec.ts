@@ -191,8 +191,8 @@ describe("ItemDetailsSectionComponent", () => {
     it("should allow ownership change if personal ownership is not allowed but there is more than one organization", () => {
       component.config.allowPersonalOwnership = false;
       component.config.organizations = [
-        { id: "org1" } as Organization,
-        { id: "org2" } as Organization,
+        { id: "org1", name: "org1" } as Organization,
+        { id: "org2", name: "org2" } as Organization,
       ];
       expect(component.allowOwnershipChange).toBe(true);
     });
