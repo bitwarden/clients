@@ -194,6 +194,9 @@
   --tw-ring-offset-color: #002b36;
 }
 
+/** Used by CDK a11y services */
+@import "@angular/cdk/a11y-prebuilt.css";
+
 @import "./popover/popover.component.css";
 @import "./search/search.component.css";
 
@@ -243,9 +246,4 @@ summary.tw-list-none::-webkit-details-marker {
   position: relative;
   height: 100%;
   overflow: hidden;
-}
-
-/** Used by CDK a11y services */
-.cdk-visually-hidden {
-  @apply tw-sr-only;
 }
