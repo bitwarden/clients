@@ -7,6 +7,7 @@ const HtmlWebpackInjector = require("html-webpack-injector");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const { SubresourceIntegrityPlugin } = require("webpack-subresource-integrity");
 const webpack = require("webpack");
 
 const config = require("./config.js");
@@ -85,6 +86,13 @@ const moduleRules = [
 ];
 
 const plugins = [
+  new SubresourceIntegrityPlugin({
+    // Only enable SRI in production, otherwise it might break hot reloading.
+    // If for some reason you need to enable it in development, make sure to also set
+    // optimization.realContentHash to true in the webpack config.
+    enabled: NODE_ENV === "production",
+    hashFuncNames: ["sha512"],
+  }),
   new HtmlWebpackPlugin({
     template: "./src/index.html",
     filename: "index.html",
@@ -382,6 +390,7 @@ const webpackConfig = {
     filename: "[name].[contenthash].js",
     path: path.resolve(__dirname, "build"),
     clean: true,
+    crossOriginLoading: "anonymous",
   },
   module: {
     noParse: /argon2(-simd)?\.wasm$/,

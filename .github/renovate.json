@@ -179,7 +179,8 @@
         "webpack",
         "webpack-cli",
         "webpack-dev-server",
-        "webpack-node-externals"
+        "webpack-node-externals",
+        "webpack-subresource-integrity"
       ],
       "description": "Platform owned dependencies",
       "commitMessagePrefix": "[deps] Platform:",
