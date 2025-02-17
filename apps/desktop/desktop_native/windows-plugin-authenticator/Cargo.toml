@@ -6,4 +6,4 @@ license = "GPL-3.0"
 publish = false
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
-bindgen = "0.71.1"
+bindgen = "=0.71.1"
