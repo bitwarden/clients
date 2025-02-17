@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, firstValueFrom, lastValueFrom, map } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -196,7 +196,7 @@ export class AcceptOrganizationInviteService {
           publicKey,
         },
       });
-      const result = await lastValueFrom(dialogRef.closed);
+      const result = await firstValueFrom(dialogRef.closed);
       if (result !== true) {
         throw new Error("Organization not trusted, aborting user key rotation");
       }
