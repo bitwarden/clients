@@ -1,4 +1,4 @@
-<app-header [isFreeOrFamilyOrg]="organization.isFreeOrFamilyOrg"></app-header>
+<app-header></app-header>
 
 <div class="tw-mb-4" [formGroup]="eventsForm">
   <div class="tw-mt-4 tw-flex tw-items-center">
@@ -31,7 +31,7 @@
         bitFormButton
         buttonType="primary"
         [bitAction]="refreshEvents"
-        [disabled]="organization.isFreeOrFamilyOrg"
+        [disabled]="!organization?.useEvents"
       >
         {{ "update" | i18n }}
       </button>
@@ -43,7 +43,7 @@
         bitButton
         bitFormButton
         [bitAction]="exportEvents"
-        [disabled]="dirtyDates || organization.isFreeOrFamilyOrg"
+        [disabled]="dirtyDates || !organization?.useEvents"
       >
         <span>{{ "export" | i18n }}</span>
         <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
@@ -51,14 +51,10 @@
     </form>
   </div>
 </div>
-<bit-callout
-  type="info"
-  [title]="'upgradeEventLogTitle' | i18n"
-  *ngIf="organization.isFreeOrFamilyOrg"
->
+<bit-callout type="info" [title]="'upgradeEventLogTitle' | i18n" *ngIf="!organization?.useEvents">
   {{ "upgradeEventLogMessage" | i18n }}
 </bit-callout>
-<ng-container *ngIf="!loaded">
+<ng-container *ngIf="!loaded && organization?.useEvents">
   <i
     class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
@@ -66,7 +62,7 @@
   ></i>
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
-<ng-container *ngIf="loaded && !organization.isFreeOrFamilyOrg">
+<ng-container *ngIf="loaded && organization?.useEvents">
   <p *ngIf="!events || !events.length">{{ "noEventsInList" | i18n }}</p>
   <bit-table *ngIf="events && events.length">
     <ng-container header>
@@ -101,7 +97,7 @@
   </button>
 </ng-container>
 
-<ng-container *ngIf="loaded && organization.isFreeOrFamilyOrg">
+<ng-container *ngIf="!organization?.useEvents">
   <bit-table>
     <ng-container header>
       <tr>
@@ -113,7 +109,7 @@
     </ng-container>
 
     <ng-template body>
-      <tr bitRow *ngFor="let event of dummyEventsSorted" alignContent="top">
+      <tr bitRow *ngFor="let event of dummyEvents" alignContent="top">
         <td bitCell class="tw-whitespace-nowrap">{{ event.timeStamp }}</td>
         <td bitCell>
           <span title="{{ event.deviceType }}">{{ event.deviceType }}</span>
@@ -121,7 +117,7 @@
         <td bitCell>
           <span title="{{ event.member }}">{{ event.member }}</span>
         </td>
-        <td bitCell [innerHTML]="formatEventText(event.event)">{{ event.event }}</td>
+        <td bitCell [innerHTML]="event.event"></td>
       </tr>
 
       <tr bitRow *ngFor="let _ of [].constructor(6)" alignContent="top">
@@ -141,7 +137,9 @@
     >
       <i class="bwi bwi-2x bwi-business text-primary"></i>
 
-      <p class="tw-font-bold mt-2">{{ "limitedEventLogs" | i18n: getOrganizationPlan() }}</p>
+      <p class="tw-font-bold mt-2">
+        {{ "limitedEventLogs" | i18n: ProductTierType[organization.productTierType] }}
+      </p>
       <p>
         {{ "upgradeForFullEvents" | i18n }}
       </p>

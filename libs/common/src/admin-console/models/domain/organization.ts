@@ -172,10 +172,7 @@ export class Organization {
   }
 
   get canAccessEventLogs() {
-    return (
-      ((this.isAdmin || this.permissions.accessEventLogs) && this.useEvents) ||
-      (this.isOwner && this.isFreeOrFamilyOrg)
-    );
+    return ((this.isAdmin || this.permissions.accessEventLogs) && this.useEvents) || this.isOwner;
   }
 
   /**
@@ -350,11 +347,6 @@ export class Organization {
   get isFreeOrg() {
     // return true if organization needs to be upgraded from a free org
     return !this.useTotp;
-  }
-
-  get isFreeOrFamilyOrg() {
-    // return true if organization is on free or family tier
-    return [ProductTierType.Free, ProductTierType.Families].includes(this.productTierType);
   }
 
   get canManageSponsorships() {

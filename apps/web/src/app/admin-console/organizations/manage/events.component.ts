@@ -34,6 +34,8 @@ import { EventService } from "../../../core";
 import { EventExportService } from "../../../tools/event-export";
 import { BaseEventsComponent } from "../../common/base.events.component";
 
+import { dummyEvents } from "./dummy-events";
+
 const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.SCIM]: null, // SCIM acronym not able to be translated so just display SCIM
   [EventSystemUser.DomainVerification]: "domainVerification",
@@ -49,51 +51,15 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   organizationId: string;
   organization: Organization;
   sub: OrganizationSubscriptionResponse;
-  userOrg: Organization;
-  dummyEvents = [
-    {
-      timeStamp: this.getRandomDateTime(),
-      deviceType: "Extension - Firefox",
-      member: "Alice",
-      event: "Logged in",
-    },
-    {
-      timeStamp: this.getRandomDateTime(),
-      deviceType: "Mobile - iOS",
-      member: "Bob",
-      event: "Viewed item 000000",
-    },
-    {
-      timeStamp: this.getRandomDateTime(),
-      deviceType: "Desktop - Linux",
-      member: "Carlos",
-      event: "Login attempt failed with incorrect password",
-    },
-    {
-      timeStamp: this.getRandomDateTime(),
-      deviceType: "Web vault - Chrome",
-      member: "Ivan",
-      event: "Confirmed user 000000",
-    },
-    {
-      timeStamp: this.getRandomDateTime(),
-      deviceType: "Mobile - Android",
-      member: "Franz",
-      event: "Sent item 000000 to trash",
-    },
-  ];
 
-  dummyEventsSorted: {
-    timeStamp: string;
-    deviceType: string;
-    member: string;
-    event: string;
-  }[];
+  dummyEvents = dummyEvents;
 
   private orgUsersUserIdMap = new Map<string, any>();
   private destroy$ = new Subject<void>();
   readonly dummyEventsDisclaimer =
     "These events are examples only and do not reflect real events within your Bitwarden organization.";
+
+  readonly ProductTierType = ProductTierType;
 
   constructor(
     private apiService: ApiService,
@@ -137,26 +103,10 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
               .pipe(getOrganizationById(this.organizationId)),
           );
 
-          if (
-            !this.organization ||
-            (!this.organization.useEvents && !this.organization.isFreeOrFamilyOrg)
-          ) {
-            //update true to isFamily
-            await this.router.navigate(["/organizations", this.organizationId]);
-            return;
-          }
-
-          if (this.organization.isOwner && this.organization.isFreeOrFamilyOrg) {
+          if (this.organization.isOwner && !this.organization.useEvents) {
             this.eventsForm.get("start").disable();
             this.eventsForm.get("end").disable();
 
-            this.sortDummyEvents();
-
-            this.userOrg = await firstValueFrom(
-              this.organizationService
-                .organizations$(userId)
-                .pipe(getOrganizationById(this.organizationId)),
-            );
             this.sub = await this.organizationApiService.getSubscription(this.organizationId);
           }
 
@@ -262,7 +212,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       data: {
         organizationId: this.organizationId,
         subscription: this.sub,
-        productTierType: this.userOrg.productTierType,
+        productTierType: this.organization.productTierType,
       },
     });
 
@@ -272,40 +222,6 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       return;
     }
     await this.load();
-  }
-
-  getRandomDateTime() {
-    const now = new Date();
-    const past24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const randomTime =
-      past24Hours.getTime() + Math.random() * (now.getTime() - past24Hours.getTime());
-    const randomDate = new Date(randomTime);
-
-    return randomDate.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    });
-  }
-
-  sortDummyEvents() {
-    this.dummyEventsSorted = this.dummyEvents.sort(
-      (a, b) => new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime(),
-    );
-  }
-
-  getOrganizationPlan() {
-    const tierValue = this.organization.productTierType;
-    const tierName = ProductTierType[tierValue];
-    return tierName;
-  }
-
-  formatEventText(event: string): string {
-    return event.replace(/000000/g, '<span class="tw-text-code">000000</span>');
   }
 
   ngOnDestroy() {

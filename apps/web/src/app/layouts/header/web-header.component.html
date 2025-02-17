@@ -17,7 +17,7 @@
       >
         <i *ngIf="icon" class="bwi {{ icon }}" aria-hidden="true"></i>
         {{ title || (routeData.titleId | i18n) }}
-        <span bitBadge variant="primary" class="tw-mt-0" *ngIf="isFreeOrFamilyOrg">
+        <span bitBadge variant="primary" class="tw-mt-0" *ngIf="!organization?.useEvents">
           {{ "upgrade" | i18n }}
         </span>
         <ng-content select="[slot=title-suffix]"></ng-content>
