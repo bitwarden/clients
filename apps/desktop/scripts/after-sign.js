@@ -73,11 +73,9 @@ async function run(context) {
         context.packager.platformSpecificBuildOptions,
         context.packager.config.mas,
       );
-      if (context.targets.some((e) => e.name === "mas-dev")) {
-        deepAssign(masBuildOptions, {
-        
-        });
-      }
+      // if (context.targets.some((e) => e.name === "mas-dev")) {
+      //   deepAssign(masBuildOptions, {});
+      // }
       if (context.packager.packagerOptions.prepackaged == null) {
         console.log("Signing using .sign()", masBuildOptions);
         await context.packager.sign(appPath, context.appOutDir, masBuildOptions, context.arch);
