@@ -1,9 +1,12 @@
+import { Injectable } from "@angular/core";
+
 import { IpcMessage, isIpcMessage } from "@bitwarden/common/platform/ipc";
 import { MessageQueue } from "@bitwarden/common/platform/ipc/message-queue";
-import { CommunicationProvider, Message } from "@bitwarden/sdk-internal";
+import { CommunicationBackend, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
-export class WebCommunicationProvider implements CommunicationProvider {
-  private queue = new MessageQueue<Message>();
+@Injectable({ providedIn: "root" })
+export class WebCommunicationProvider implements CommunicationBackend {
+  private queue = new MessageQueue<IncomingMessage>();
 
   constructor() {
     window.addEventListener("message", async (event: MessageEvent) => {
@@ -12,11 +15,11 @@ export class WebCommunicationProvider implements CommunicationProvider {
         return;
       }
 
-      await this.queue.enqueue(message.message);
+      await this.queue.enqueue({ ...message.message, source: "BrowserBackground" });
     });
   }
 
-  async send(message: Message): Promise<void> {
+  async send(message: OutgoingMessage): Promise<void> {
     if (message.destination === "BrowserBackground") {
       window.postMessage(
         { type: "bitwarden-ipc-message", message } satisfies IpcMessage,
@@ -28,7 +31,7 @@ export class WebCommunicationProvider implements CommunicationProvider {
     throw new Error(`Destination not supported: ${message.destination}`);
   }
 
-  receive(): Promise<Message> {
+  receive(): Promise<IncomingMessage> {
     return this.queue.dequeue();
   }
 }

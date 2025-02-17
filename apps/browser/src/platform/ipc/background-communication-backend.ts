@@ -1,11 +1,11 @@
 import { IpcMessage, isIpcMessage } from "@bitwarden/common/platform/ipc";
 import { MessageQueue } from "@bitwarden/common/platform/ipc/message-queue";
-import { CommunicationProvider, Message } from "@bitwarden/sdk-internal";
+import { CommunicationBackend, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../browser/browser-api";
 
-export class BackgroundCommunicationProvider implements CommunicationProvider {
-  private queue = new MessageQueue<Message>();
+export class BackgroundCommunicationBackend implements CommunicationBackend {
+  private queue = new MessageQueue<IncomingMessage>();
 
   constructor() {
     BrowserApi.messageListener("platform.ipc", (message, sender) => {
@@ -17,7 +17,7 @@ export class BackgroundCommunicationProvider implements CommunicationProvider {
     });
   }
 
-  async send(message: Message): Promise<void> {
+  async send(message: OutgoingMessage): Promise<void> {
     if (typeof message.destination === "object") {
       await BrowserApi.tabSendMessage(
         { id: message.destination.Web } as chrome.tabs.Tab,
@@ -30,7 +30,7 @@ export class BackgroundCommunicationProvider implements CommunicationProvider {
     throw new Error("Destination not supported.");
   }
 
-  async receive(): Promise<Message> {
+  async receive(): Promise<IncomingMessage> {
     return this.queue.dequeue();
   }
 }

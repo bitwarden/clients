@@ -128,7 +128,6 @@ import { InitService } from "./init.service";
 import { ENV_URLS } from "./injection-tokens";
 import { ModalService } from "./modal.service";
 import { RouterService } from "./router.service";
-import { WebFileDownloadService } from "./web-file-download.service";
 import { WebPlatformUtilsService } from "./web-platform-utils.service";
 
 /**
@@ -337,7 +336,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: IpcService,
     useClass: WebIpcService,
-    deps: [SdkService],
+    deps: [],
   }),
 ];
 

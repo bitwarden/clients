@@ -1,20 +1,20 @@
 import { Observable, shareReplay } from "rxjs";
 
-import { Manager, Message } from "@bitwarden/sdk-internal";
+import { IpcClient, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
 
 export abstract class IpcService {
-  protected manager: Manager;
+  protected client: IpcClient;
 
-  messages$: Observable<Message>;
+  messages$: Observable<IncomingMessage>;
 
   async init(): Promise<void> {
-    this.messages$ = new Observable<Message>((subscriber) => {
+    this.messages$ = new Observable<IncomingMessage>((subscriber) => {
       let isSubscribed = true;
 
       const receiveLoop = async () => {
         while (isSubscribed) {
           try {
-            const message = await this.manager.receive();
+            const message = await this.client.receive();
             subscriber.next(message);
           } catch (error) {
             subscriber.error(error);
@@ -30,7 +30,7 @@ export abstract class IpcService {
     }).pipe(shareReplay({ bufferSize: 1, refCount: true }));
   }
 
-  async send(message: Message) {
-    await this.manager.send(message);
+  async send(message: OutgoingMessage) {
+    await this.client.send(message);
   }
 }
