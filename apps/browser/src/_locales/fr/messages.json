@@ -455,7 +455,7 @@
     "message": "Nom d'utilisateur généré"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Courriel généré"
   },
   "regeneratePassword": {
     "message": "Régénérer un mot de passe"
@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Change this in settings"
   },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
+  },
   "websiteItemLabel": {
     "message": "Site web $number$ (URI)",
     "placeholders": {
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Une notification a été envoyée à votre appareil."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Une notification a été envoyée à votre appareil"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assurez-vous que votre compte est déverrouillé et que la phrase d'empreinte correspond à l'autre appareil"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Vous serez notifié une fois que la demande sera approuvée"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Connexion initiée"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "Mot de passe principal exposé"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Nom de l’élément"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Vous ne pouvez pas supprimer des collections avec les autorisations d'affichage uniquement : $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "L'organisation est désactivée"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Très large"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Vous ne pouvez pas supprimer des collections avec les autorisations d'affichage uniquement : $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Please update your desktop application"

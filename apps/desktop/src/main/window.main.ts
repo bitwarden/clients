@@ -94,6 +94,13 @@ export class WindowMain {
       )
       .subscribe();
 
+    this.desktopSettingsService.preventScreenshots$.subscribe((prevent) => {
+      if (this.win == null) {
+        return;
+      }
+      this.win.setContentProtection(prevent);
+    });
+
     return new Promise<void>((resolve, reject) => {
       try {
         if (!isMacAppStore()) {
@@ -360,6 +367,14 @@ export class WindowMain {
         windowIsFocused: true,
       });
     });
+
+    firstValueFrom(this.desktopSettingsService.preventScreenshots$)
+      .then((preventScreenshots) => {
+        this.win.setContentProtection(preventScreenshots);
+      })
+      .catch((e) => {
+        this.logService.error(e);
+      });
 
     if (this.createWindowCallback) {
       this.createWindowCallback(this.win);

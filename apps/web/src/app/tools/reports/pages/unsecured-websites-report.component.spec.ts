@@ -25,15 +25,14 @@ describe("UnsecuredWebsitesReportComponent", () => {
   let organizationService: MockProxy<OrganizationService>;
   let syncServiceMock: MockProxy<SyncService>;
   let collectionService: MockProxy<CollectionService>;
-  let accountService: FakeAccountService;
   const userId = Utils.newGuid() as UserId;
+  const accountService: FakeAccountService = mockAccountServiceWith(userId);
 
   beforeEach(() => {
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
     collectionService = mock<CollectionService>();
-    accountService = mockAccountServiceWith(userId);
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
