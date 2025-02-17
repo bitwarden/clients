@@ -60,6 +60,18 @@ export class NativeAutofillMain {
           request,
         });
       },
+      // AssertionWihtoutUserInterfaceCallback
+      (error, clientId, sequenceNumber, request) => {
+        if (error) {
+          this.logService.error("autofill.IpcServer.assertion", error);
+          return;
+        }
+        this.windowMain.win.webContents.send("autofill.passkeyAssertionWithoutUserInterface", {
+          clientId,
+          sequenceNumber,
+          request,
+        });
+      },
     );
 
     ipcMain.on("autofill.completePasskeyRegistration", (event, data) => {
@@ -77,7 +89,7 @@ export class NativeAutofillMain {
     ipcMain.on("autofill.completeError", (event, data) => {
       this.logService.warning("autofill.completeError", data);
       const { clientId, sequenceNumber, error } = data;
-      this.ipcServer.completeAssertion(clientId, sequenceNumber, error);
+      this.ipcServer.completeError(clientId, sequenceNumber, error);
     });
   }
 
