@@ -5,7 +5,6 @@ const path = require("path");
 const { notarize } = require("@electron/notarize");
 const { deepAssign } = require("builder-util");
 const fse = require("fs-extra");
-const { identity } = require("rxjs");
 
 exports.default = run;
 
@@ -89,7 +88,7 @@ async function run(context) {
     }
   }
 
-  if (macBuild) {
+  if (macBuild || copyAutofillExtension) {
     console.log("### Notarizing " + appPath);
     if (process.env.APP_STORE_CONNECT_TEAM_ISSUER) {
       const appleApiIssuer = process.env.APP_STORE_CONNECT_TEAM_ISSUER;
