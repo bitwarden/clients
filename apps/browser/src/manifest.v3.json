@@ -26,7 +26,7 @@
     {
       "all_frames": true,
       "css": ["content/autofill.css"],
-      "js": ["content/trigger-autofill-script-injection.js", "content/misc-utils.js"],
+      "js": ["content/trigger-autofill-script-injection.js"],
       "matches": ["*://*/*", "file:///*"],
       "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
       "run_at": "document_start"
