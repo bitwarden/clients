@@ -5,7 +5,7 @@ members = ["napi", "core", "proxy", "macos_provider", "windows-plugin-authentica
 [workspace.dependencies]
 anyhow = "=1.0.94"
 log = "=0.4.25"
-serde = "=1.0.209"
+serde = "=1.0.217"
 serde_json = "=1.0.127"
 tokio = "=1.43.0"
 tokio-util = "=0.7.13"
