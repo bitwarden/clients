@@ -114,7 +114,7 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Set up Node
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -284,7 +284,7 @@ jobs:
       - name: Build Docker image
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: build-docker
-        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6.13.0
         with:
           context: apps/web
           file: apps/web/Dockerfile
@@ -296,7 +296,7 @@ jobs:
 
       - name: Install Cosign
         if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
+        uses: sigstore/cosign-installer@c56c2d3e59e4281cc41dea2217323ba5694b171e # v3.8.0
 
       - name: Sign image with Cosign
         if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
