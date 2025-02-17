@@ -21,16 +21,22 @@ import {
   Argon2KdfConfig,
   KdfConfig,
   PBKDF2KdfConfig,
-  UserKeyRotationDataProvider,
+  UserKeyRotationKeyRecoveryProvider,
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
+
+import { OrganizationUserResetPasswordEntry } from "./organization-user-reset-password-entry";
 
 @Injectable({
   providedIn: "root",
 })
 export class OrganizationUserResetPasswordService
-  implements UserKeyRotationDataProvider<OrganizationUserResetPasswordWithIdRequest>
+  implements
+    UserKeyRotationKeyRecoveryProvider<
+      OrganizationUserResetPasswordWithIdRequest,
+      OrganizationUserResetPasswordEntry
+    >
 {
   constructor(
     private keyService: KeyService,
@@ -42,11 +48,17 @@ export class OrganizationUserResetPasswordService
   ) {}
 
   /**
-   * Returns the user key encrypted by the organization's public key.
-   * Intended for use in enrollment
+   * Builds a recovery key for a user to recover their account.
+   *
    * @param orgId desired organization
+   * @param userKey user key
+   * @param trustedPublicKeys public keys of organizations that the user trusts
    */
-  async buildRecoveryKey(orgId: string, userKey?: UserKey): Promise<EncryptedString> {
+  async buildRecoveryKey(
+    orgId: string,
+    userKey: UserKey,
+    trustedPublicKeys: Uint8Array[],
+  ): Promise<EncryptedString> {
     // Retrieve Public Key
     const orgKeys = await this.organizationApiService.getKeys(orgId);
     if (orgKeys == null) {
@@ -55,13 +67,16 @@ export class OrganizationUserResetPasswordService
 
     const publicKey = Utils.fromB64ToArray(orgKeys.publicKey);
 
-    // RSA Encrypt user key with organization's public key
-    userKey ??= await this.keyService.getUserKey();
-    if (userKey == null) {
-      throw new Error("No user key found");
+    if (
+      !trustedPublicKeys.some(
+        (key) => Utils.fromBufferToHex(key) === Utils.fromBufferToHex(publicKey),
+      )
+    ) {
+      throw new Error("Untrusted public key");
     }
-    const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
 
+    // RSA Encrypt user key with organization's public key
+    const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
     return encryptedKey.encryptedString;
   }
 
@@ -138,6 +153,21 @@ export class OrganizationUserResetPasswordService
     );
   }
 
+  async getPublicKeys(userId: UserId): Promise<OrganizationUserResetPasswordEntry[]> {
+    const allOrgs = (await firstValueFrom(this.organizationService.organizations$(userId))).filter(
+      (org) => org.resetPasswordEnrolled,
+    );
+
+    const entries: OrganizationUserResetPasswordEntry[] = [];
+    for (const org of allOrgs) {
+      const publicKey = await this.organizationApiService.getKeys(org.id);
+      const encodedPublicKey = Utils.fromB64ToArray(publicKey.publicKey);
+      const entry = new OrganizationUserResetPasswordEntry(org.id, encodedPublicKey, org.name);
+      entries.push(entry);
+    }
+    return entries;
+  }
+
   /**
    * Returns existing account recovery keys re-encrypted with the new user key.
    * @param originalUserKey the original user key
@@ -147,8 +177,8 @@ export class OrganizationUserResetPasswordService
    * @returns a list of account recovery keys that have been re-encrypted with the new user key
    */
   async getRotatedData(
-    originalUserKey: UserKey,
     newUserKey: UserKey,
+    trustedPublicKeys: Uint8Array[],
     userId: UserId,
   ): Promise<OrganizationUserResetPasswordWithIdRequest[] | null> {
     if (newUserKey == null) {
@@ -156,9 +186,8 @@ export class OrganizationUserResetPasswordService
     }
 
     const allOrgs = await firstValueFrom(this.organizationService.organizations$(userId));
-
     if (!allOrgs) {
-      return;
+      throw new Error("Could not get organizations");
     }
 
     const requests: OrganizationUserResetPasswordWithIdRequest[] = [];
@@ -169,7 +198,7 @@ export class OrganizationUserResetPasswordService
       }
 
       // Re-enroll - encrypt user key with organization public key
-      const encryptedKey = await this.buildRecoveryKey(org.id, newUserKey);
+      const encryptedKey = await this.buildRecoveryKey(org.id, newUserKey, trustedPublicKeys);
 
       // Create/Execute request
       const request = new OrganizationUserResetPasswordWithIdRequest();
