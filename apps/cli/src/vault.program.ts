@@ -347,7 +347,10 @@ export class VaultProgram extends BaseProgram {
         }
 
         await this.exitIfLocked();
-        const command = new RestoreCommand(this.serviceContainer.cipherService);
+        const command = new RestoreCommand(
+          this.serviceContainer.cipherService,
+          this.serviceContainer.accountService,
+        );
         const response = await command.run(object, id);
         this.processResponse(response);
       });

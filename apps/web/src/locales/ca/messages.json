@@ -102,7 +102,7 @@
     "message": "At-risk passwords"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "Sol·licita canvi de contrasenya"
   },
   "totalPasswords": {
     "message": "Contrasenyes totals"
@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Edita la carpeta"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "Domini base",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Nom d'element"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "ex.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "S'ha iniciat la sessió"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "submit": {
     "message": "Envia"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "S'ha enviat una notificació al vostre dispositiu."
   },
-  "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirmeu l'accés"
+  },
+  "denyAccess": {
+    "message": "Denega l'accés"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "aplicació web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "S'ha enviat una notificació al vostre dispositiu"
   },
   "versionNumber": {
     "message": "Versió $VERSION_NUMBER$",
@@ -1480,7 +1513,7 @@
     "message": "Correu electrònic"
   },
   "emailDescV2": {
-    "message": "Enter a code sent to your email."
+    "message": "Introduïu el codi que us hem enviat al correu electrònic."
   },
   "continue": {
     "message": "Continua"
@@ -1661,11 +1694,8 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Eviteu caràcters ambigus",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Regenera contrasenya"
   },
   "length": {
     "message": "Longitud"
@@ -1702,7 +1732,7 @@
     "message": "Inclou número"
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "Els requisits de la política empresarial s'han aplicat a les opcions del generador.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "passwordHistory": {
@@ -1767,10 +1797,10 @@
     "message": "Torneu a iniciar sessió."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Sessió actual"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Sol·licitud pendent"
   },
   "logBackInOthersToo": {
     "message": "Torneu a iniciar la sessió. Si esteu utilitzant altres aplicacions Bitwarden, tanqueu-les i torneu-les a obrir també."
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Administra"
   },
-  "canManage": {
-    "message": "Pot gestionar"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "Inhabilita"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Hi ha hagut un problema en llegir la clau de seguretat. Torneu-ho a provar."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "A causa de les limitacions de la plataforma, WebAuthn no es pot utilitzar en totes les aplicacions Bitwarden. Heu d’habilitar un altre proveïdor d’inici de sessió en dos passos perquè pugueu accedir al vostre compte quan no es puga utilitzar WebAuthn. Plataformes compatibles:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Caixa forta web i extensions de navegador en un escriptori/portàtil amb un navegador compatible amb WebAuthn (Chrome, Opera, Vivaldi, o Firefox amb FIDO U2F activat)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "El codi de recuperació d'inici de sessió en dues passes de Bitwarden"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Estableix els requisits mínims per a la configuració del generador de contrasenyes."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Una o més polítiques d’organització afecten la configuració del generador."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Una o més polítiques d’organització requereixen que la vostra contrasenya principal complisca els requisits següents:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Generador",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Què voleu generar?"
-  },
-  "passwordType": {
-    "message": "Tipus de contrasenya"
-  },
-  "regenerateUsername": {
-    "message": "Regenera el nom d'usuari"
-  },
   "generateUsername": {
     "message": "Genera un nom d'usuari"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Tipus de nom d'usuari"
   },
   "plusAddressedEmail": {
     "message": "Adreça amb sufix",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Nom de l'amfitrió",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Token d'accés a l'API"
   },
   "deviceVerification": {
     "message": "Verificació del dispositiu"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Cap col·lecció"
-  },
-  "canView": {
-    "message": "Pot veure"
-  },
-  "canViewExceptPass": {
-    "message": "Pot veure, excepte les contrasenyes"
-  },
-  "canEdit": {
-    "message": "Pot editar"
-  },
-  "canEditExceptPass": {
-    "message": "Pot editar, excepte les contrasenyes"
   },
   "noCollectionsAdded": {
     "message": "No s'han afegit col·leccions"
@@ -8677,9 +8686,6 @@
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Alies de domini"
-  },
   "alreadyHaveAccount": {
     "message": "Ja tens un compte?"
   },
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "No teniu accés per gestionar aquesta col·lecció."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Missing Can Manage Permissions"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Concedeix als grups o membres l'accés a aquesta col·lecció."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Descriptor code"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Important notice"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
   }
 }

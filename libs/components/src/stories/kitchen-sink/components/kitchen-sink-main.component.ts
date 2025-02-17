@@ -56,12 +56,6 @@ class KitchenSinkDialog {
         isolated stories. The stories for the Kitchen Sink exist to be tested by the Chromatic UI
         tests.
       </p>
-
-      <p bitTypography="body1">
-        NOTE: These stories will treat "Light & Dark" mode as "Light" mode. This is done to avoid a
-        bug with the way that we render the same component twice in the same iframe and how that
-        interacts with the <code>router-outlet</code>.
-      </p>
     </bit-callout>
 
     <bit-tab-group label="Main content tabs" class="tw-text-main">
