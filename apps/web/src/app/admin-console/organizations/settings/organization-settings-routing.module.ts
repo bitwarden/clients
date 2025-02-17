@@ -52,7 +52,9 @@ const routes: Routes = [
           {
             path: "import",
             loadComponent: () =>
-              import("./org-import.component").then((mod) => mod.OrgImportComponent),
+              import("../../../tools/import/org-import.component").then(
+                (mod) => mod.OrgImportComponent,
+              ),
             canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
             data: {
               titleId: "importData",
