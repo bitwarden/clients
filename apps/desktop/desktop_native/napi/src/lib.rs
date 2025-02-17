@@ -805,3 +805,11 @@ pub mod crypto {
             .map(Buffer::from)
     }
 }
+
+#[napi]
+pub mod passkey_authenticator {
+    #[napi]
+    pub fn register() -> i32 {
+        windows_plugin_authenticator::register()
+    }
+}
