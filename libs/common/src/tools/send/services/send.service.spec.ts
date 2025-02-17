@@ -10,7 +10,7 @@ import {
   awaitAsync,
   mockAccountServiceWith,
 } from "../../../../spec";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { spawn } from "child_process";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -138,21 +136,25 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
 
   // Nulls out key material in order to force a re-derive. This should only be used in getBiometricKey
   // when we want to force a re-derive of the key material.
-  private setIv(iv: string) {
-    this._iv = iv;
+  private setIv(iv?: string) {
+    this._iv = iv ?? null;
     this._osKeyHalf = null;
   }
 
   private async getStorageDetails({
     clientKeyHalfB64,
   }: {
-    clientKeyHalfB64: string;
+    clientKeyHalfB64: string | undefined;
   }): Promise<{ key_material: biometrics.KeyMaterial; ivB64: string }> {
     if (this._osKeyHalf == null) {
       const keyMaterial = await biometrics.deriveKeyMaterial(this._iv);
-      // osKeyHalf is based on the iv and in contrast to windows is not locked behind user verefication!
+      // osKeyHalf is based on the iv and in contrast to windows is not locked behind user verification!
       this._osKeyHalf = keyMaterial.keyB64;
       this._iv = keyMaterial.ivB64;
+    }
+
+    if (this._iv == null) {
+      throw new Error("Initialization Vector is null");
     }
 
     return {
