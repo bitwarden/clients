@@ -124,8 +124,6 @@ export const themes = {
 
   // For compatibility
   system: lightTheme,
-  nord: lightTheme,
-  solarizedDark: darkTheme,
 };
 
 export const spacing = {
