@@ -161,7 +161,7 @@
     "@koa/router": "13.1.0",
     "@microsoft/signalr": "8.0.7",
     "@microsoft/signalr-protocol-msgpack": "8.0.7",
-    "@ng-select/ng-select": "13.9.1",
+    "@ng-select/ng-select": "14.2.2",
     "argon2": "0.41.1",
     "argon2-browser": "1.18.0",
     "big-integer": "1.6.52",
