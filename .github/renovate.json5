@@ -70,8 +70,15 @@
       enabled: false,
     },
     {
-      // Renovate should manage patch updates for TypeScript and Zone.js, despite ignoring major and minor
-      matchPackageNames: ["typescript", "zone.js"],
+      // Ignore all patch updates for npm-managed packages
+      matchManagers: ["npm"],
+      matchUpdateTypes: ["patch"],
+      enabled: false,
+    },
+    {
+      // Re-enable patch updates for packages that we want to have particular attention
+      matchManagers: ["npm"],
+      matchPackageNames: ["browserslist", "electron", "rxjs", "typescript", "webpack", "zone.js"],
       matchUpdateTypes: "patch",
     },
     {
