@@ -19,10 +19,6 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-export enum EmergencyAccessTrustDialogResult {
-  Trusted = "trusted",
-  NotTrusted = "not-trusted",
-}
 type EmergencyAccessTrustDialogData = {
   /** display name of the user */
   name: string;
@@ -59,7 +55,7 @@ export class EmergencyAccessTrustComponent implements OnInit {
     private formBuilder: FormBuilder,
     private keyService: KeyService,
     private logService: LogService,
-    private dialogRef: DialogRef<EmergencyAccessTrustDialogResult>,
+    private dialogRef: DialogRef<boolean>,
   ) {}
 
   async ngOnInit() {
@@ -77,20 +73,12 @@ export class EmergencyAccessTrustComponent implements OnInit {
     this.loading = false;
   }
 
-  async submit(trusted: boolean) {
+  async submit() {
     if (this.loading) {
       return;
     }
 
-    try {
-      if (trusted) {
-        this.dialogRef.close(EmergencyAccessTrustDialogResult.Trusted);
-      } else {
-        this.dialogRef.close(EmergencyAccessTrustDialogResult.NotTrusted);
-      }
-    } catch (e) {
-      this.logService.error(e);
-    }
+    this.dialogRef.close(true);
   }
   /**
    * Strongly typed helper to open a EmergencyAccessTrustComponent
@@ -98,9 +86,6 @@ export class EmergencyAccessTrustComponent implements OnInit {
    * @param config Configuration for the dialog
    */
   static open(dialogService: DialogService, config: DialogConfig<EmergencyAccessTrustDialogData>) {
-    return dialogService.open<EmergencyAccessTrustDialogResult>(
-      EmergencyAccessTrustComponent,
-      config,
-    );
+    return dialogService.open<boolean>(EmergencyAccessTrustComponent, config);
   }
 }

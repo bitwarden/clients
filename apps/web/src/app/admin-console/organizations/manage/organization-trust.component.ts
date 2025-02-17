@@ -36,7 +36,7 @@ export class OrganizationTrustComponent implements OnInit {
     private keyService: KeyService,
     protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
     private logService: LogService,
-    private dialogRef: DialogRef<OrganizationTrustDialogResult>,
+    private dialogRef: DialogRef<boolean>,
   ) {}
 
   async ngOnInit() {
@@ -54,27 +54,24 @@ export class OrganizationTrustComponent implements OnInit {
     this.loading = false;
   }
 
-  async submit(trusted: boolean) {
+  async submit() {
     if (this.loading) {
       return;
     }
 
     try {
-      if (trusted) {
-        this.dialogRef.close(OrganizationTrustDialogResult.Trusted);
-      } else {
-        this.dialogRef.close(OrganizationTrustDialogResult.NotTrusted);
-      }
+      this.dialogRef.close(true);
     } catch (e) {
       this.logService.error(e);
     }
   }
+
   /**
    * Strongly typed helper to open a OrganizationTrustComponent
    * @param dialogService Instance of the dialog service that will be used to open the dialog
    * @param config Configuration for the dialog
    */
   static open(dialogService: DialogService, config: DialogConfig<OrganizationTrustDialogData>) {
-    return dialogService.open<OrganizationTrustDialogResult>(OrganizationTrustComponent, config);
+    return dialogService.open<boolean>(OrganizationTrustComponent, config);
   }
 }

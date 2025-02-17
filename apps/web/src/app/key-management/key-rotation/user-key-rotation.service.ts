@@ -25,9 +25,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import {
   AccountRecoveryTrustComponent,
-  AccountRecoveryTrustDialogResult,
   EmergencyAccessTrustComponent,
-  EmergencyAccessTrustDialogResult,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 
@@ -102,6 +100,7 @@ export class UserKeyRotationService {
       });
       const result = await firstValueFrom(trustInfoDialog.closed);
       if (!result) {
+        this.logService.info("[Userkey rotation] Trust info dialog closed. Aborting!");
         return;
       }
     }
@@ -186,7 +185,7 @@ export class UserKeyRotationService {
         },
       });
       const result = await firstValueFrom(dialogRef.closed);
-      if (result === EmergencyAccessTrustDialogResult.Trusted) {
+      if (result === true) {
         this.logService.info("[Userkey rotation] Emergency access grantee confirmed");
       } else {
         this.logService.info("[Userkey rotation] Emergency access grantee not confirmed");
@@ -224,7 +223,7 @@ export class UserKeyRotationService {
         },
       });
       const result = await firstValueFrom(dialogRef.closed);
-      if (result === AccountRecoveryTrustDialogResult.Trusted) {
+      if (result === true) {
         this.logService.info("[Userkey rotation] Organization trusted");
       } else {
         this.logService.info("[Userkey rotation] Organization not trusted");

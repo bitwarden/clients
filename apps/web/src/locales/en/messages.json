@@ -10408,11 +10408,11 @@
     }
   },
   "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
-    "message": "Fingerprint phrase for $NUM_ORGS$ organizations for which you have enabled account recovery.",
+    "message": "Fingerprint phrase for the organization $ORG_NAME$ for which you have enabled account recovery.",
     "placeholders": {
-      "num_orgs": {
+      "org_name": {
         "content": "$1",
-        "example": "5"
+        "example": "My org"
       }
     }
   },

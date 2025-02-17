@@ -4,7 +4,7 @@
     <small class="tw-text-muted">{{ params.name }}</small>
   </span>
   <div bitDialogContent>
-    <bit-callout type="warning">{{ "emergencyAccessTrustWarning" | i18n }}</bit-callout>
+    <bit-callout type="warning">{{ "orgTrustWarning" | i18n }}</bit-callout>
     <p bitTypography="body1">
       {{ "fingerprintEnsureIntegrityVerify" | i18n }}
       <a
@@ -21,17 +21,10 @@
     </p>
   </div>
   <div bitDialogFooter>
-    <button buttonType="primary" bitButton bitFormButton type="button" (click)="submit(true)">
+    <button buttonType="primary" bitButton bitFormButton type="button" (click)="submit()">
       <span>{{ "trust" | i18n }}</span>
     </button>
-    <button
-      bitButton
-      bitFormButton
-      buttonType="secondary"
-      type="button"
-      bitDialogClose
-      (click)="submit(false)"
-    >
+    <button bitButton bitFormButton buttonType="secondary" type="button" bitDialogClose>
       {{ "doNotTrust" | i18n }}
     </button>
   </div>

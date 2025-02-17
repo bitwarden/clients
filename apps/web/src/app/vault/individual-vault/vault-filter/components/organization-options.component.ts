@@ -204,7 +204,6 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         { organization: org },
         this.resetPasswordService,
         this.organizationUserApiService,
-        this.platformUtilsService,
         this.i18nService,
         this.syncService,
         this.logService,

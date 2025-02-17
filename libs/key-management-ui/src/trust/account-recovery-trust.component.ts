@@ -19,10 +19,6 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-export enum AccountRecoveryTrustDialogResult {
-  Trusted = "trusted",
-  NotTrusted = "not-trusted",
-}
 type AccountRecoveryTrustDialogData = {
   /** display name of the user */
   name: string;
@@ -59,7 +55,7 @@ export class AccountRecoveryTrustComponent implements OnInit {
     private formBuilder: FormBuilder,
     private keyService: KeyService,
     private logService: LogService,
-    private dialogRef: DialogRef<AccountRecoveryTrustDialogResult>,
+    private dialogRef: DialogRef<boolean>,
   ) {}
 
   async ngOnInit() {
@@ -77,20 +73,12 @@ export class AccountRecoveryTrustComponent implements OnInit {
     this.loading = false;
   }
 
-  async submit(trusted: boolean) {
+  async submit() {
     if (this.loading) {
       return;
     }
 
-    try {
-      if (trusted) {
-        this.dialogRef.close(AccountRecoveryTrustDialogResult.Trusted);
-      } else {
-        this.dialogRef.close(AccountRecoveryTrustDialogResult.NotTrusted);
-      }
-    } catch (e) {
-      this.logService.error(e);
-    }
+    this.dialogRef.close(true);
   }
   /**
    * Strongly typed helper to open a AccountRecoveryTrustComponent
@@ -98,9 +86,6 @@ export class AccountRecoveryTrustComponent implements OnInit {
    * @param config Configuration for the dialog
    */
   static open(dialogService: DialogService, config: DialogConfig<AccountRecoveryTrustDialogData>) {
-    return dialogService.open<AccountRecoveryTrustDialogResult>(
-      AccountRecoveryTrustComponent,
-      config,
-    );
+    return dialogService.open<boolean>(AccountRecoveryTrustComponent, config);
   }
 }

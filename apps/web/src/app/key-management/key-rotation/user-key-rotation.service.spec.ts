@@ -28,9 +28,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, DEFAULT_KDF_CONFIG } from "@bitwarden/key-management";
 import {
   AccountRecoveryTrustComponent,
-  AccountRecoveryTrustDialogResult,
   EmergencyAccessTrustComponent,
-  EmergencyAccessTrustDialogResult,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 
@@ -51,20 +49,20 @@ initialPromptedOpenFalse.mockReturnValue({ closed: new BehaviorSubject(false) })
 
 const emergencyAccessTrustOpenTrusted = jest.fn();
 emergencyAccessTrustOpenTrusted.mockReturnValue({
-  closed: new BehaviorSubject(EmergencyAccessTrustDialogResult.Trusted),
+  closed: new BehaviorSubject(true),
 });
 const emergencyAccessTrustOpenUntrusted = jest.fn();
 emergencyAccessTrustOpenUntrusted.mockReturnValue({
-  closed: new BehaviorSubject(EmergencyAccessTrustDialogResult.NotTrusted),
+  closed: new BehaviorSubject(false),
 });
 
 const accountRecoveryTrustOpenTrusted = jest.fn();
 accountRecoveryTrustOpenTrusted.mockReturnValue({
-  closed: new BehaviorSubject(AccountRecoveryTrustDialogResult.Trusted),
+  closed: new BehaviorSubject(true),
 });
 const accountRecoveryTrustOpenUntrusted = jest.fn();
 accountRecoveryTrustOpenUntrusted.mockReturnValue({
-  closed: new BehaviorSubject(AccountRecoveryTrustDialogResult.NotTrusted),
+  closed: new BehaviorSubject(false),
 });
 
 describe("KeyRotationService", () => {

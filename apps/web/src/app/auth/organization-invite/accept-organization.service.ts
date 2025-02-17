@@ -31,10 +31,7 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import {
-  OrganizationTrustComponent,
-  OrganizationTrustDialogResult,
-} from "../../admin-console/organizations/manage/organization-trust.component";
+import { OrganizationTrustComponent } from "../../admin-console/organizations/manage/organization-trust.component";
 
 import { OrganizationInvite } from "./organization-invite";
 
@@ -200,7 +197,7 @@ export class AcceptOrganizationInviteService {
         },
       });
       const result = await lastValueFrom(dialogRef.closed);
-      if (result !== OrganizationTrustDialogResult.Trusted) {
+      if (result !== true) {
         throw new Error("Organization not trusted, aborting user key rotation");
       }
 

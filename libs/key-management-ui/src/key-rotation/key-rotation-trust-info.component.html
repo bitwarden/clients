@@ -1,11 +1,9 @@
-<bit-simple-dialog>
-  <i bitDialogIcon class="bwi bwi-info-circle tw-text-3xl" aria-hidden="true"></i>
+<bit-dialog dialogSize="large">
   <span bitDialogTitle>
     <strong> {{ "userkeyRotationDisclaimerTitle" | i18n }} </strong>
   </span>
   <span bitDialogContent>
     {{ "userkeyRotationDisclaimerDescription" | i18n }}
-
     <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
       <li *ngIf="params.orgName != null">
         {{ "userkeyRotationDisclaimerAccountRecoveryOrgsText" | i18n: params.orgName }}
@@ -25,4 +23,4 @@
       {{ "close" | i18n }}
     </button>
   </ng-container>
-</bit-simple-dialog>
+</bit-dialog>
