@@ -65,11 +65,14 @@ export class ListCommand {
 
   private async listCiphers(options: Options) {
     let ciphers: CipherView[];
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     options.trash = options.trash || false;
     if (options.url != null && options.url.trim() !== "") {
-      ciphers = await this.cipherService.getAllDecryptedForUrl(options.url);
+      ciphers = await this.cipherService.getAllDecryptedForUrl(options.url, activeUserId);
     } else {
-      ciphers = await this.cipherService.getAllDecrypted();
+      ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     }
 
     if (
@@ -138,9 +141,8 @@ export class ListCommand {
   }
 
   private async listFolders(options: Options) {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
 
     if (options.search != null && options.search.trim() !== "") {

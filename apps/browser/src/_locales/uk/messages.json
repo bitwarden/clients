@@ -1618,10 +1618,10 @@
     "message": "Показувати піктограми вебсайтів"
   },
   "faviconDesc": {
-    "message": "Показувати впізнаване зображення біля кожного запису."
+    "message": "Показувати зображення біля кожного запису."
   },
   "faviconDescAlt": {
-    "message": "Показати впізнаване зображення поруч з кожним записом. Застосовується для всіх облікових записів, до яких виконано вхід."
+    "message": "Показувати зображення поруч з кожним записом. Застосовується для всіх облікових записів, до яких виконано вхід."
   },
   "enableBadgeCounter": {
     "message": "Показувати лічильник"
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Змінити в налаштуваннях"
+  },
+  "change": {
+    "message": "Змінити"
+  },
+  "changeButtonTitle": {
+    "message": "Змінити пароль – $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Ризиковані паролі"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ вимагає зміни $COUNT$ паролів, оскільки вони ризиковані.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Ваші організації вимагають зміни $COUNT$ паролів, оскільки вони ризиковані.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Перегляньте і змініть один ризикований пароль"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Перегляньте і змініть $COUNT$ ризикованих паролів",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Швидше змінюйте ризиковані паролі"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Оновіть налаштування, щоб швидше автоматично заповнювати й створювати паролі"
+  },
+  "turnOnAutofill": {
+    "message": "Увімкніть автозаповнення"
+  },
+  "turnedOnAutofill": {
+    "message": "Автозаповнення увімкнено"
+  },
+  "dismiss": {
+    "message": "Відхилити"
   },
   "websiteItemLabel": {
     "message": "Вебсайт $number$ (URI)",
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Сповіщення було надіслано на ваш пристрій."
   },
+  "notificationSentDevicePart1": {
+    "message": "Розблокуйте Bitwarden на своєму пристрої або у"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "вебпрограмі"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Перш ніж підтверджувати, обов'язково перевірте відповідність зазначеної нижче фрази відбитка."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Сповіщення надіслано на ваш пристрій"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Переконайтеся, що ваш обліковий запис розблоковано і фраза відбитка на іншому пристрої збігається"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Після схвалення запиту ви отримаєте сповіщення"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Ініційовано вхід"
+  },
+  "logInRequestSent": {
+    "message": "Запит надіслано"
   },
   "exposedMasterPassword": {
     "message": "Головний пароль викрито"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Назва запису"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Організацію деактивовано"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Дуже широке"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Оновіть свою комп'ютерну програму"

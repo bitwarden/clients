@@ -7,46 +7,25 @@ setCompodocJson(docJson);
 
 const decorator = componentWrapperDecorator(
   (story) => {
-    return `
-    <ng-template #lightPreview>
+    return /*html*/ `
       <div
-        class="theme_light tw-border-2 tw-border-solid tw-border-secondary-300 tw-bg-[#ffffff] tw-px-5 tw-py-10 tw-mb-5"
-        *ngIf="theme == 'both' || theme == 'light'"
+        class="tw-border-2 tw-border-solid tw-px-5 tw-py-10"
+        [ngClass]="{
+          'tw-bg-[#ffffff] tw-border-secondary-300': theme === 'light',
+          'tw-bg-[#1f242e]': theme === 'dark',
+        }"
       >
         ${story}
       </div>
-    </ng-template>
-    <ng-template #darkPreview>
-      <div
-        class="theme_dark tw-border-2 tw-border-solid tw-bg-[#1f242e] tw-px-5 tw-py-10"
-        *ngIf="theme == 'both' || theme == 'dark'"
-      >
-        ${story}
-      </div>
-    </ng-template>
-    <ng-template #nordPreview>
-      <div
-        class="theme_nord tw-border-2 tw-border-solid tw-bg-[#434C5E] tw-px-5 tw-py-10"
-        *ngIf="theme == 'nord'">
-        ${story}
-      </div>
-    </ng-template>
-    <ng-template #solarizedPreview>
-      <div
-        class="theme_solarized tw-border-2 tw-border-solid tw-bg-[#002b36] tw-px-5 tw-py-10"
-        *ngIf="theme == 'solarized'"
-      >
-        ${story}
-      </div>
-    </ng-template>
-
-    <ng-container *ngTemplateOutlet="lightPreview"></ng-container>
-    <ng-container *ngTemplateOutlet="darkPreview"></ng-container>
-    <ng-container *ngTemplateOutlet="nordPreview"></ng-container>
-    <ng-container *ngTemplateOutlet="solarizedPreview"></ng-container>
   `;
   },
   ({ globals }) => {
+    // We need to add the theme class to the body to support body-appended content like popovers and menus
+    document.body.classList.remove("theme_light");
+    document.body.classList.remove("theme_dark");
+
+    document.body.classList.add(`theme_${globals["theme"]}`);
+
     return { theme: `${globals["theme"]}` };
   },
 );
@@ -56,16 +35,11 @@ const preview: Preview = {
   globalTypes: {
     theme: {
       description: "Global theme for components",
-      defaultValue: "both",
+      defaultValue: "light",
       toolbar: {
         title: "Theme",
         icon: "circlehollow",
         items: [
-          {
-            title: "Light & Dark",
-            value: "both",
-            icon: "sidebyside",
-          },
           {
             title: "Light",
             value: "light",
@@ -75,16 +49,6 @@ const preview: Preview = {
             title: "Dark",
             value: "dark",
             icon: "moon",
-          },
-          {
-            title: "Nord",
-            value: "nord",
-            left: "⛰",
-          },
-          {
-            title: "Solarized",
-            value: "solarized",
-            left: "☯",
           },
         ],
         dynamicTitle: true,
