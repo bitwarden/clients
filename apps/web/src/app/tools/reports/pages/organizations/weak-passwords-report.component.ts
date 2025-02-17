@@ -12,6 +12,7 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -19,31 +20,33 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 // eslint-disable-next-line no-restricted-imports
-import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } from "../../../tools/reports/pages/reused-passwords-report.component";
+import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from "../weak-passwords-report.component";
 
 @Component({
-  selector: "app-reused-passwords-report",
-  templateUrl: "../../../tools/reports/pages/reused-passwords-report.component.html",
+  selector: "app-weak-passwords-report",
+  templateUrl: "../weak-passwords-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class ReusedPasswordsReportComponent
-  extends BaseReusedPasswordsReportComponent
+export class WeakPasswordsReportComponent
+  extends BaseWeakPasswordsReportComponent
   implements OnInit
 {
   manageableCiphers: Cipher[];
 
   constructor(
     cipherService: CipherService,
+    passwordStrengthService: PasswordStrengthServiceAbstraction,
     modalService: ModalService,
     private route: ActivatedRoute,
     organizationService: OrganizationService,
-    protected accountService: AccountService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
+    protected accountService: AccountService,
   ) {
     super(
       cipherService,
+      passwordStrengthService,
       organizationService,
       accountService,
       modalService,
@@ -58,6 +61,7 @@ export class ReusedPasswordsReportComponent
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
       this.organization = await firstValueFrom(
         this.organizationService
           .organizations$(userId)

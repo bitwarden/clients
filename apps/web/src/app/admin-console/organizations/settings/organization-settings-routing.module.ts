@@ -61,7 +61,7 @@ const routes: Routes = [
           {
             path: "export",
             loadComponent: () =>
-              import("../tools/vault-export/org-vault-export.component").then(
+              import("../../../tools/vault-export/org-vault-export.component").then(
                 (mod) => mod.OrganizationVaultExportComponent,
               ),
             canActivate: [organizationPermissionsGuard((org) => org.canAccessExport)],

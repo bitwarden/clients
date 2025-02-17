@@ -18,11 +18,11 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 // eslint-disable-next-line no-restricted-imports
-import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../../../tools/reports/pages/inactive-two-factor-report.component";
+import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../inactive-two-factor-report.component";
 
 @Component({
   selector: "app-inactive-two-factor-report",
-  templateUrl: "../../../tools/reports/pages/inactive-two-factor-report.component.html",
+  templateUrl: "../inactive-two-factor-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class InactiveTwoFactorReportComponent
