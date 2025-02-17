@@ -8,9 +8,9 @@ setCompodocJson(docJson);
 
 const wrapperDecorator = componentWrapperDecorator((story) => {
   return /*html*/ `
-      <div class="tw-border-2 tw-border-solid tw-border-secondary-300 tw-px-5 tw-py-10 story-wrapper">
-        ${story}
-      </div>
+    <div class="tw-bg-background tw-px-5 tw-py-10">
+      ${story}
+    </div>
   `;
 });
 
@@ -18,8 +18,8 @@ const preview: Preview = {
   decorators: [
     withThemeByClassName({
       themes: {
-        light: "theme_light [&_.story-wrapper]:tw-bg-[#ffffff]",
-        dark: "theme_dark [&_.story-wrapper]:tw-bg-[#1f242e]",
+        light: "theme_light",
+        dark: "theme_dark",
       },
       defaultTheme: "light",
     }),
@@ -39,6 +39,9 @@ const preview: Preview = {
       },
     },
     docs: { source: { type: "dynamic", excludeDecorators: true } },
+    backgrounds: {
+      disable: true,
+    },
   },
   tags: ["autodocs"],
 };
