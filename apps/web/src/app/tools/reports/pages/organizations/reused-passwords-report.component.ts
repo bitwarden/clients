@@ -18,7 +18,6 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-// eslint-disable-next-line no-restricted-imports
 import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } from "../reused-passwords-report.component";
 
 @Component({
