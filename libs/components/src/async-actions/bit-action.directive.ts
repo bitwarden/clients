@@ -49,7 +49,7 @@ export class BitActionDirective implements OnDestroy {
 
   @HostListener("click")
   protected async onClick() {
-    if (!this.handler || this.loading || this.disabled || this.buttonComponent.disabled) {
+    if (!this.handler || this.loading || this.disabled || this.buttonComponent.disabled()) {
       return;
     }
 

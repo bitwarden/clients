@@ -221,7 +221,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         return;
       }
 
-      this.submitBtn.disabled = disabled;
+      this.submitBtn.disabled.set(disabled);
     });
   }
 

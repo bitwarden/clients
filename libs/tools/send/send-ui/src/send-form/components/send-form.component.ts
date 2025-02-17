@@ -124,7 +124,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
       });
 
       this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
-        this.submitBtn.disabled = disabled;
+        this.submitBtn.disabled.set(disabled);
       });
     }
   }

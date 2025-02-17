@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component, model } from "@angular/core";
+import { Input, HostBinding, Component, model, computed } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
@@ -51,6 +51,9 @@ const buttonStyles: Record<ButtonType, string[]> = {
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
   standalone: true,
   imports: [NgClass],
+  host: {
+    "[attr.disabled]": "disabledAttr()",
+  },
 })
 export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
@@ -85,11 +88,10 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       );
   }
 
-  @HostBinding("attr.disabled")
-  get disabledAttr() {
-    const disabled = this.disabled != null && this.disabled !== false;
+  protected disabledAttr = computed(() => {
+    const disabled = this.disabled != null && this.disabled() !== false;
     return disabled || this.loading() ? true : null;
-  }
+  });
 
   /**
    * Determine whether it is appropriate to display the disabled styles. We only want to show
@@ -99,9 +101,9 @@ export class ButtonComponent implements ButtonLikeAbstraction {
    * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
    * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
    */
-  protected showDisabledStyles() {
-    return this.showLoadingStyle() || (this.disabledAttr && this.loading() === false);
-  }
+  protected showDisabledStyles = computed(() => {
+    return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
+  });
 
   @Input() buttonType: ButtonType;
 
@@ -134,5 +136,5 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
 
-  @Input() disabled = false;
+  disabled = model<boolean>(false);
 }

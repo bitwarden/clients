@@ -144,7 +144,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       });
 
       this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
-        this.submitBtn.disabled = disabled;
+        this.submitBtn.disabled.set(disabled);
       });
     }
   }

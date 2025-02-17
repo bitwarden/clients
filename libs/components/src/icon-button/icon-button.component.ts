@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { Component, ElementRef, HostBinding, Input, model } from "@angular/core";
+import { Component, computed, ElementRef, HostBinding, Input, model } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
@@ -157,6 +157,9 @@ const sizes: Record<IconButtonSize, string[]> = {
   ],
   standalone: true,
   imports: [NgClass],
+  host: {
+    "[attr.disabled]": "disabledAttr()",
+  },
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   @Input("bitIconButton") icon: string;
@@ -184,11 +187,10 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return [this.icon, "!tw-m-0"];
   }
 
-  @HostBinding("attr.disabled")
-  get disabledAttr() {
-    const disabled = this.disabled != null && this.disabled !== false;
+  protected disabledAttr = computed(() => {
+    const disabled = this.disabled != null && this.disabled() !== false;
     return disabled || this.loading() ? true : null;
-  }
+  });
 
   /**
    * Determine whether it is appropriate to display the disabled styles. We only want to show
@@ -198,9 +200,9 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
    * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
    * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
    */
-  protected showDisabledStyles() {
-    return this.showLoadingStyle() || (this.disabledAttr && this.loading() === false);
-  }
+  protected showDisabledStyles = computed(() => {
+    return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
+  });
 
   loading = model(false);
 
@@ -220,7 +222,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
 
-  @Input() disabled = false;
+  disabled = model<boolean>(false);
 
   getFocusTarget() {
     return this.elementRef.nativeElement;

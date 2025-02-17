@@ -6,5 +6,5 @@ export type ButtonType = "primary" | "secondary" | "danger" | "unstyled";
 
 export abstract class ButtonLikeAbstraction {
   loading: ModelSignal<boolean>;
-  disabled: boolean;
+  disabled: ModelSignal<boolean>;
 }
