@@ -109,9 +109,8 @@
       <!-- Key Connector -->
       <ng-container
         *ngIf="
-          true ||
-          (ssoConfigForm.value.memberDecryptionType === memberDecryptionType.KeyConnector &&
-            showKeyConnectorOptions)
+          ssoConfigForm.value.memberDecryptionType === memberDecryptionType.KeyConnector &&
+          showKeyConnectorOptions
         "
       >
         <bit-callout type="warning" [useAlertRole]="true">
