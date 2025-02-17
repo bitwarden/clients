@@ -32,8 +32,8 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-import { CreateTasksRequest } from "../../../app/vault/services/abstractions/admin-task.abstraction";
-import { DefaultAdminTaskService } from "../../../app/vault/services/default-admin-task.service";
+import { CreateTasksRequest } from "../../vault/services/abstractions/admin-task.abstraction";
+import { DefaultAdminTaskService } from "../../vault/services/default-admin-task.service";
 
 import { RiskInsightsTabType } from "./risk-insights.component";
 
