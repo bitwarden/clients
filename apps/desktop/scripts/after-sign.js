@@ -86,7 +86,7 @@ async function run(context) {
     }
   }
 
-  if (macBuild) {
+  if (macBuild || copyAutofillExtension) {
     console.log("### Notarizing " + appPath);
     if (process.env.APP_STORE_CONNECT_TEAM_ISSUER) {
       const appleApiIssuer = process.env.APP_STORE_CONNECT_TEAM_ISSUER;
