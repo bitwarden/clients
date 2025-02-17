@@ -1618,10 +1618,10 @@
     "message": "Показувати піктограми вебсайтів"
   },
   "faviconDesc": {
-    "message": "Показувати впізнаване зображення біля кожного запису."
+    "message": "Показувати зображення біля кожного запису."
   },
   "faviconDescAlt": {
-    "message": "Показати впізнаване зображення поруч з кожним записом. Застосовується для всіх облікових записів, до яких виконано вхід."
+    "message": "Показувати зображення поруч з кожним записом. Застосовується для всіх облікових записів, до яких виконано вхід."
   },
   "enableBadgeCounter": {
     "message": "Показувати лічильник"
@@ -2364,10 +2364,10 @@
     "message": "Змінити в налаштуваннях"
   },
   "change": {
-    "message": "Change"
+    "message": "Змінити"
   },
   "changeButtonTitle": {
-    "message": "Change password - $ITEMNAME$",
+    "message": "Змінити пароль – $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2376,10 +2376,10 @@
     }
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Ризиковані паролі"
   },
   "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "message": "$ORGANIZATION$ вимагає зміни $COUNT$ паролів, оскільки вони ризиковані.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2392,7 +2392,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrg": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "message": "Ваші організації вимагають зміни $COUNT$ паролів, оскільки вони ризиковані.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2401,10 +2401,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "Перегляньте і змініть один ризикований пароль"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "Перегляньте і змініть $COUNT$ ризикованих паролів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2413,19 +2413,19 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Change at-risk passwords faster"
+    "message": "Швидше змінюйте ризиковані паролі"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+    "message": "Оновіть налаштування, щоб швидше автоматично заповнювати й створювати паролі"
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Увімкніть автозаповнення"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Автозаповнення увімкнено"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Відхилити"
   },
   "websiteItemLabel": {
     "message": "Вебсайт $number$ (URI)",
@@ -3188,13 +3188,13 @@
     "message": "Сповіщення було надіслано на ваш пристрій."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "Розблокуйте Bitwarden на своєму пристрої або у"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "вебпрограмі"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Перш ніж підтверджувати, обов'язково перевірте відповідність зазначеної нижче фрази відбитка."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Сповіщення надіслано на ваш пристрій"
@@ -3209,7 +3209,7 @@
     "message": "Ініційовано вхід"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Запит надіслано"
   },
   "exposedMasterPassword": {
     "message": "Головний пароль викрито"

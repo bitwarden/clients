@@ -2401,10 +2401,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Eén risicovol wachtwoord controleren en wijzigen"
+    "message": "Eén risicovol wachtwoord beoordelen en wijzigen"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "$COUNT$ risicovolle wachtwoorden controleren en wijzigen",
+    "message": "$COUNT$ risicovolle wachtwoorden beoordelen en wijzigen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3194,7 +3194,7 @@
     "message": "webapp"
   },
   "notificationSentDevicePart2": {
-    "message": "Zorg ervoor dat de Vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
+    "message": "Zorg ervoor dat de vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Er is een melding naar je apparaat verzonden"

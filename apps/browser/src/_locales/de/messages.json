@@ -2364,10 +2364,10 @@
     "message": "Dies in den Einstellungen ändern"
   },
   "change": {
-    "message": "Change"
+    "message": "Ändern"
   },
   "changeButtonTitle": {
-    "message": "Change password - $ITEMNAME$",
+    "message": "Passwort ändern - $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2376,10 +2376,10 @@
     }
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Risikoreiche Passwörter"
   },
   "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "message": "$ORGANIZATION$ fordert dich auf, diese $COUNT$ Passwörter zu ändern, da diese in risikoreich sind.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2392,7 +2392,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrg": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "message": "Deine Organisationen fordern dich auf, diese $COUNT$ Passwörter zu ändern, da diese risikoreich sind.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2401,10 +2401,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "Überprüfe und ändere ein risikoreiches Passwort"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "Überprüfe und ändere $COUNT$ risikoreiche Passwörter",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2413,19 +2413,19 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Change at-risk passwords faster"
+    "message": "Ändere risikoreiche Passwörter schneller"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+    "message": "Aktualisiere deine Einstellungen, damit du deine Passwörter schnell automatisch ausfüllen kannst und neue generieren kannst"
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Auto-Ausfüllen aktivieren"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Auto-Ausfüllen aktiviert"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Verwerfen"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",

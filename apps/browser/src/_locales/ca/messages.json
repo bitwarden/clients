@@ -2364,7 +2364,7 @@
     "message": "Canvieu-ho a la configuració"
   },
   "change": {
-    "message": "Change"
+    "message": "Canvia"
   },
   "changeButtonTitle": {
     "message": "Change password - $ITEMNAME$",
@@ -2425,7 +2425,7 @@
     "message": "Turned on autofill"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Descarta"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -3191,7 +3191,7 @@
     "message": "Unlock Bitwarden on your device or on the"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "aplicació web"
   },
   "notificationSentDevicePart2": {
     "message": "Make sure the Fingerprint phrase matches the one below before approving."
@@ -4792,7 +4792,7 @@
     "description": "Represents the % key in screen reader content as a readable word"
   },
   "caretCharacterDescriptor": {
-    "message": "Caret",
+    "message": "Circumflex",
     "description": "Represents the ^ key in screen reader content as a readable word"
   },
   "ampersandCharacterDescriptor": {
@@ -4812,11 +4812,11 @@
     "description": "Represents the ) key in screen reader content as a readable word"
   },
   "hyphenCharacterDescriptor": {
-    "message": "Underscore",
+    "message": "Subratllat",
     "description": "Represents the _ key in screen reader content as a readable word"
   },
   "underscoreCharacterDescriptor": {
-    "message": "Hyphen",
+    "message": "Guió",
     "description": "Represents the - key in screen reader content as a readable word"
   },
   "plusCharacterDescriptor": {
@@ -4828,19 +4828,19 @@
     "description": "Represents the = key in screen reader content as a readable word"
   },
   "braceLeftCharacterDescriptor": {
-    "message": "Left brace",
+    "message": "Clau esquerra",
     "description": "Represents the { key in screen reader content as a readable word"
   },
   "braceRightCharacterDescriptor": {
-    "message": "Right brace",
+    "message": "Clau dreta",
     "description": "Represents the } key in screen reader content as a readable word"
   },
   "bracketLeftCharacterDescriptor": {
-    "message": "Left bracket",
+    "message": "Claudàtor esquerra",
     "description": "Represents the [ key in screen reader content as a readable word"
   },
   "bracketRightCharacterDescriptor": {
-    "message": "Right bracket",
+    "message": "Claudàtor dret",
     "description": "Represents the ] key in screen reader content as a readable word"
   },
   "pipeCharacterDescriptor": {

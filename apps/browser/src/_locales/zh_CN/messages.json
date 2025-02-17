@@ -3194,7 +3194,7 @@
     "message": "网页 App"
   },
   "notificationSentDevicePart2": {
-    "message": "在批准前，请确保指纹短语与下面的一致。"
+    "message": "在批准前，请确保指纹短语与下面的相匹配。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
