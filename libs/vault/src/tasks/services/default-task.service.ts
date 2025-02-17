@@ -1,9 +1,11 @@
 import { Injectable } from "@angular/core";
-import { map, switchMap } from "rxjs";
+import { combineLatest, map, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 import { SecurityTask, SecurityTaskStatus, TaskService } from "@bitwarden/vault";
@@ -19,12 +21,16 @@ export class DefaultTaskService implements TaskService {
     private stateProvider: StateProvider,
     private apiService: ApiService,
     private organizationService: OrganizationService,
+    private configService: ConfigService,
   ) {}
 
   tasksEnabled$ = perUserCache$((userId) => {
-    return this.organizationService
-      .organizations$(userId)
-      .pipe(map((orgs) => orgs.some((o) => o.useRiskInsights)));
+    return combineLatest([
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((orgs) => orgs.some((o) => o.useRiskInsights))),
+      this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks),
+    ]).pipe(map(([atLeastOneOrgEnabled, flagEnabled]) => atLeastOneOrgEnabled && flagEnabled));
   });
 
   tasks$ = perUserCache$((userId) => {

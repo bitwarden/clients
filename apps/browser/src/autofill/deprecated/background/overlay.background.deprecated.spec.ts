@@ -110,6 +110,7 @@ describe("OverlayBackground", () => {
       i18nService,
       platformUtilsService,
       themeStateService,
+      accountService,
     );
 
     jest
@@ -205,7 +206,7 @@ describe("OverlayBackground", () => {
       await overlayBackground.updateOverlayCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, mockUserId);
       expect(overlayBackground["cipherService"].sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["overlayLoginCiphers"]).toStrictEqual(
         new Map([
