@@ -21,10 +21,10 @@ serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 tokio = { workspace = true, features = ["sync"] }
 tokio-util.workspace = true
-uniffi = { version = "=0.28.3", features = ["cli"] }
+uniffi = { version = "=0.29.0", features = ["cli"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 oslog = "=0.2.0"
 
 [build-dependencies]
-uniffi = { version = "=0.28.3", features = ["build"] }
+uniffi = { version = "=0.29.0", features = ["build"] }
