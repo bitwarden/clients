@@ -5,7 +5,6 @@ import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -19,34 +18,31 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-// eslint-disable-next-line no-restricted-imports
-import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent } from "../../../tools/reports/pages/exposed-passwords-report.component";
+import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } from "../reused-passwords-report.component";
 
 @Component({
-  selector: "app-org-exposed-passwords-report",
-  templateUrl: "../../../tools/reports/pages/exposed-passwords-report.component.html",
+  selector: "app-reused-passwords-report",
+  templateUrl: "../reused-passwords-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class ExposedPasswordsReportComponent
-  extends BaseExposedPasswordsReportComponent
+export class ReusedPasswordsReportComponent
+  extends BaseReusedPasswordsReportComponent
   implements OnInit
 {
   manageableCiphers: Cipher[];
 
   constructor(
     cipherService: CipherService,
-    auditService: AuditService,
     modalService: ModalService,
+    private route: ActivatedRoute,
     organizationService: OrganizationService,
     protected accountService: AccountService,
-    private route: ActivatedRoute,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
   ) {
     super(
       cipherService,
-      auditService,
       organizationService,
       accountService,
       modalService,
@@ -67,6 +63,7 @@ export class ExposedPasswordsReportComponent
           .pipe(getOrganizationById(params.organizationId)),
       );
       this.manageableCiphers = await this.cipherService.getAll(userId);
+      await super.ngOnInit();
     });
   }
 

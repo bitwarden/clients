@@ -5,7 +5,7 @@ import { ActivatedRoute } from "@angular/router";
 
 import { ExportComponent } from "@bitwarden/vault-export-ui";
 
-import { LooseComponentsModule, SharedModule } from "../../../../shared";
+import { LooseComponentsModule, SharedModule } from "../../shared";
 
 @Component({
   templateUrl: "org-vault-export.component.html",

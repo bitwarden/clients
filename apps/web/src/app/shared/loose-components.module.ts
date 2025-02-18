@@ -12,11 +12,6 @@ import { EventsComponent as OrgEventsComponent } from "../admin-console/organiza
 import { UserConfirmComponent as OrgUserConfirmComponent } from "../admin-console/organizations/manage/user-confirm.component";
 import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
-import { ExposedPasswordsReportComponent as OrgExposedPasswordsReportComponent } from "../admin-console/organizations/tools/exposed-passwords-report.component";
-import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent } from "../admin-console/organizations/tools/inactive-two-factor-report.component";
-import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../admin-console/organizations/tools/reused-passwords-report.component";
-import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../admin-console/organizations/tools/unsecured-websites-report.component";
-import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../admin-console/organizations/tools/weak-passwords-report.component";
 import { HintComponent } from "../auth/hint.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
@@ -65,6 +60,13 @@ import { ProductSwitcherModule } from "../layouts/product-switcher/product-switc
 import { UserLayoutComponent } from "../layouts/user-layout.component";
 import { DomainRulesComponent } from "../settings/domain-rules.component";
 import { PreferencesComponent } from "../settings/preferences.component";
+/* eslint no-restricted-imports: "off" -- Temporarily disabled until Tools refactors these out of this module */
+import { ExposedPasswordsReportComponent as OrgExposedPasswordsReportComponent } from "../tools/reports/pages/organizations/exposed-passwords-report.component";
+import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent } from "../tools/reports/pages/organizations/inactive-two-factor-report.component";
+import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../tools/reports/pages/organizations/reused-passwords-report.component";
+import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../tools/reports/pages/organizations/unsecured-websites-report.component";
+import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../tools/reports/pages/organizations/weak-passwords-report.component";
+/* eslint no-restricted-imports: "error" */
 import { AddEditComponent as SendAddEditComponent } from "../tools/send/add-edit.component";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";

@@ -19,12 +19,11 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-// eslint-disable-next-line no-restricted-imports
-import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from "../../../tools/reports/pages/weak-passwords-report.component";
+import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from "../weak-passwords-report.component";
 
 @Component({
   selector: "app-weak-passwords-report",
-  templateUrl: "../../../tools/reports/pages/weak-passwords-report.component.html",
+  templateUrl: "../weak-passwords-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class WeakPasswordsReportComponent
