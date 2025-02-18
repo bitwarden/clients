@@ -50,7 +50,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
   private deferFocus: boolean = null;
 
   get loggedEmail() {
-    return this.formGroup.value.email;
+    return this.formGroup.controls.email.value;
   }
 
   constructor(
@@ -191,7 +191,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     if (!this.formGroup.controls.email.valid) {
       this.toastService.showToast({
         variant: "error",
-        title: this.i18nService.t("errorOccured"),
+        title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("invalidEmail"),
       });
       return;
@@ -249,7 +249,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     } catch (err) {
       this.platformUtilsService.showToast(
         "error",
-        this.i18nService.t("errorOccured"),
+        this.i18nService.t("errorOccurred"),
         this.i18nService.t("ssoError"),
       );
     }

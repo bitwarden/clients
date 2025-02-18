@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, NgZone, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -82,15 +80,9 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
     await this.validateEmail();
   }
 
-  settings() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["environment"]);
-  }
-
   async launchSsoBrowser() {
     // Save off email for SSO
-    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
+    await this.ssoLoginService.setSsoEmail(this.formGroup.controls.email.value);
 
     // Generate necessary sso params
     const passwordOptions: any = {

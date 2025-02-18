@@ -136,7 +136,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   }
 
   async goAfterLogIn(userId: UserId) {
-    const masterPassword = this.formGroup.value.masterPassword;
+    const masterPassword = this.formGroup.controls.masterPassword.value;
 
     // Check master password against policy
     if (this.enforcedPasswordPolicyOptions != null) {

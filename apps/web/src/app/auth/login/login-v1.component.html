@@ -122,7 +122,7 @@
     <hr />
 
     <div class="tw-m-0 tw-text-sm">
-      <p class="tw-mb-1">{{ "loggingInAs" | i18n }} {{ loggedEmail }}</p>
+      <p class="tw-mb-1">{{ "loggingInAs" | i18n }} {{ this.formGroup.controls.email.value }}</p>
       <a bitLink [routerLink]="[]" (click)="toggleValidateEmail(false)">{{ "notYou" | i18n }}</a>
     </div>
   </div>

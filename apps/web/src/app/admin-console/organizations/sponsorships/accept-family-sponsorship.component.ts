@@ -1,10 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, inject } from "@angular/core";
 import { Params } from "@angular/router";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
-import { OrganizationSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/organization-sponsorship.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ToastService } from "@bitwarden/components";
 
@@ -25,7 +22,6 @@ export class AcceptFamilySponsorshipComponent extends BaseAcceptComponent {
 
   requiredParameters = ["email", "token"];
 
-  policyResponse!: OrganizationSponsorshipResponse;
   policyApiService = inject(PolicyApiServiceAbstraction);
   configService = inject(ConfigService);
   toastService = inject(ToastService);

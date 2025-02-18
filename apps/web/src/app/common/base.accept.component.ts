@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { Subject, firstValueFrom } from "rxjs";
@@ -8,7 +6,7 @@ import { first, switchMap, takeUntil } from "rxjs/operators";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 @Directive()
 export abstract class BaseAcceptComponent implements OnInit {
@@ -25,10 +23,10 @@ export abstract class BaseAcceptComponent implements OnInit {
 
   constructor(
     protected router: Router,
-    protected platformUtilService: PlatformUtilsService,
     protected i18nService: I18nService,
     protected route: ActivatedRoute,
     protected authService: AuthService,
+    protected toastService: ToastService,
   ) {}
 
   abstract authedHandler(qParams: Params): Promise<void>;
@@ -43,7 +41,7 @@ export abstract class BaseAcceptComponent implements OnInit {
           let error = this.requiredParameters.some(
             (e) => qParams?.[e] == null || qParams[e] === "",
           );
-          let errorMessage: string = null;
+          let errorMessage: string | null = null;
           if (!error) {
             this.email = qParams.email;
 
@@ -51,7 +49,7 @@ export abstract class BaseAcceptComponent implements OnInit {
             if (status !== AuthenticationStatus.LoggedOut) {
               try {
                 await this.authedHandler(qParams);
-              } catch (e) {
+              } catch (e: { message: string } | any) {
                 error = true;
                 errorMessage = e.message;
               }
@@ -65,7 +63,13 @@ export abstract class BaseAcceptComponent implements OnInit {
               errorMessage != null
                 ? this.i18nService.t(this.failedShortMessage, errorMessage)
                 : this.i18nService.t(this.failedMessage);
-            this.platformUtilService.showToast("error", null, message, { timeout: 10000 });
+
+            this.toastService.showToast({
+              variant: "error",
+              title: null,
+              message,
+            });
+
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["/"]);
