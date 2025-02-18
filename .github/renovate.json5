@@ -224,6 +224,7 @@
         "electron-updater",
         "html-webpack-injector",
         "html-webpack-plugin",
+        "json5",
         "lowdb",
         "node-forge",
         "node-ipc",
