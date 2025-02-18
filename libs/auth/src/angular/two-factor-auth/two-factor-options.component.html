@@ -43,7 +43,7 @@
     </bit-item-group>
   </ng-container>
   <ng-container bitDialogFooter>
-    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+    <button bitButton type="button" buttonType="secondary" (click)="cancel()">
       {{ "cancel" | i18n }}
     </button>
   </ng-container>

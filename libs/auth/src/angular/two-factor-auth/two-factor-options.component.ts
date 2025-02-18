@@ -1,6 +1,6 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, OnInit, Output } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
@@ -22,13 +22,7 @@ import {
   TwoFactorAuthYubicoIcon,
 } from "../icons/two-factor-auth";
 
-export enum TwoFactorOptionsDialogResult {
-  Provider = "Provider selected",
-  Recover = "Recover selected",
-}
-
-export type TwoFactorOptionsDialogResultType = {
-  result: TwoFactorOptionsDialogResult;
+export type TwoFactorOptionsDialogResult = {
   type: TwoFactorProviderType;
 };
 
@@ -48,9 +42,6 @@ export type TwoFactorOptionsDialogResultType = {
   providers: [],
 })
 export class TwoFactorOptionsComponent implements OnInit {
-  @Output() onProviderSelected = new EventEmitter<TwoFactorProviderType>();
-  @Output() onRecoverSelected = new EventEmitter();
-
   providers: any[] = [];
   TwoFactorProviderType = TwoFactorProviderType;
 
@@ -74,11 +65,14 @@ export class TwoFactorOptionsComponent implements OnInit {
   }
 
   async choose(p: any) {
-    this.onProviderSelected.emit(p.type);
-    this.dialogRef.close({ result: TwoFactorOptionsDialogResult.Provider, type: p.type });
+    this.dialogRef.close({ type: p.type });
   }
 
   static open(dialogService: DialogService) {
-    return dialogService.open<TwoFactorOptionsDialogResultType>(TwoFactorOptionsComponent);
+    return dialogService.open<TwoFactorOptionsDialogResult>(TwoFactorOptionsComponent);
+  }
+
+  cancel() {
+    this.dialogRef.close();
   }
 }

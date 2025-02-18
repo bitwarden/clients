@@ -66,9 +66,8 @@ import {
   TwoFactorAuthComponentService,
 } from "./two-factor-auth-component.service";
 import {
-  TwoFactorOptionsDialogResult,
   TwoFactorOptionsComponent,
-  TwoFactorOptionsDialogResultType,
+  TwoFactorOptionsDialogResult,
 } from "./two-factor-options.component";
 
 @Component({
@@ -289,15 +288,11 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
 
   async selectOtherTwofactorMethod() {
     const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
-    const response: TwoFactorOptionsDialogResultType | undefined = await lastValueFrom(
+    const response: TwoFactorOptionsDialogResult | string | undefined = await lastValueFrom(
       dialogRef.closed,
     );
 
-    if (
-      response !== undefined &&
-      response !== null &&
-      response.result === TwoFactorOptionsDialogResult.Provider
-    ) {
+    if (response !== undefined && response !== null && typeof response !== "string") {
       const providerData = await this.twoFactorService.getProviders().then((providers) => {
         return providers?.get(response.type);
       });
