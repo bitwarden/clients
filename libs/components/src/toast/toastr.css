@@ -1,5 +1,5 @@
-@import "~ngx-toastr/toastr";
 @import "./toast.tokens.css";
+@import "ngx-toastr/toastr";
 
 /* Override all default styles from `ngx-toaster` */
 .toast-container .ngx-toastr {

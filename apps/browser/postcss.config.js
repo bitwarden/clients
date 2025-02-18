@@ -1,4 +1,9 @@
 /* eslint-disable no-undef, @typescript-eslint/no-require-imports */
 module.exports = {
-  plugins: [require("tailwindcss"), require("autoprefixer"), require("postcss-nested")],
+  plugins: [
+    require("postcss-import"),
+    require("postcss-nested"),
+    require("tailwindcss"),
+    require("autoprefixer"),
+  ],
 };

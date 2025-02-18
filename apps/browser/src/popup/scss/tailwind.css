@@ -1,8 +1,8 @@
+@import "../../../../../libs/components/src/tw-theme.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "../../../../../libs/components/src/tw-theme.css";
 
 @layer components {
   /** Safari Support */
