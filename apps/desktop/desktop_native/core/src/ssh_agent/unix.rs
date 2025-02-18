@@ -47,11 +47,21 @@ impl BitwardenDesktopAgent {
                             return;
                         }
                     };
-                    ssh_agent_directory
-                        .join(".bitwarden-ssh-agent.sock")
-                        .to_str()
-                        .expect("Path should be valid")
-                        .to_owned()
+
+                    let is_flatpak = std::env::var("container") == Ok("flatpak".to_string());
+                    if !is_flatpak {
+                        ssh_agent_directory
+                            .join(".bitwarden-ssh-agent.sock")
+                            .to_str()
+                            .expect("Path should be valid")
+                            .to_owned()
+                    } else {
+                        ssh_agent_directory
+                            .join(".var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock")
+                            .to_str()
+                            .expect("Path should be valid")
+                            .to_owned()
+                    }
                 }
             };
 
