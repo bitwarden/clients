@@ -132,18 +132,6 @@
             {{ "showIdentitiesInVaultViewV2" | i18n }}
           </bit-label>
         </bit-form-control>
-        <bit-form-control disableMargin>
-          <input
-            bitCheckbox
-            id="clickToAutofill"
-            type="checkbox"
-            (change)="updateClickItemsVaultView()"
-            [(ngModel)]="clickItemsVaultView"
-          />
-          <bit-label for="clickToAutofill" class="tw-whitespace-normal">
-            {{ "clickToAutofillOnVault" | i18n }}
-          </bit-label>
-        </bit-form-control>
       </bit-card>
     </bit-section>
     <bit-section>

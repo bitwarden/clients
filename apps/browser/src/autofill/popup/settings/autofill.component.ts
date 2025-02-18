@@ -211,10 +211,6 @@ export class AutofillComponent implements OnInit {
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
     );
-
-    this.clickItemsVaultView = await firstValueFrom(
-      this.vaultSettingsService.clickItemsToAutofillVaultView$,
-    );
   }
 
   async updateInlineMenuVisibility() {
