@@ -158,6 +158,7 @@ import { InlineDerivedStateProvider } from "@bitwarden/common/platform/state/imp
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 /* eslint-enable import/no-restricted-paths */
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
+import { UnsupportedSecureStorageService } from "@bitwarden/common/platform/storage/secure-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
@@ -593,11 +594,12 @@ export default class MainBackground {
 
     this.userNotificationSettingsService = new UserNotificationSettingsService(this.stateProvider);
 
+    const secureStorage = new UnsupportedSecureStorageService("no-browser-api");
+
     this.tokenService = new TokenService(
       this.singleUserStateProvider,
       this.globalStateProvider,
-      this.platformUtilsService.supportsSecureStorage(),
-      this.secureStorageService,
+      secureStorage,
       this.keyGenerationService,
       this.encryptService,
       this.logService,
