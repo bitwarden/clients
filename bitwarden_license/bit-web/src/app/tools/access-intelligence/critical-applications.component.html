@@ -73,63 +73,68 @@
       [formControl]="searchControl"
     ></bit-search>
   </div>
-  <bit-table [dataSource]="dataSource">
+  <bit-table-scroll
+    [dataSource]="dataSource"
+    [rowSize]="53"
+    class="tw-table tw-w-full table-hover table-list"
+  >
     <ng-container header>
-      <tr>
-        <th></th>
-        <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
-        <th bitSortable="atRiskPasswordCount" bitCell>{{ "atRiskPasswords" | i18n }}</th>
-        <th bitSortable="passwordCount" bitCell>{{ "totalPasswords" | i18n }}</th>
-        <th bitSortable="atRiskMemberCount" bitCell>{{ "atRiskMembers" | i18n }}</th>
-        <th bitSortable="memberCount" bitCell>{{ "totalMembers" | i18n }}</th>
-      </tr>
+      <th></th>
+      <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
+      <th bitSortable="atRiskPasswordCount" bitCell>{{ "atRiskPasswords" | i18n }}</th>
+      <th bitSortable="passwordCount" bitCell>{{ "totalPasswords" | i18n }}</th>
+      <th bitSortable="atRiskMemberCount" bitCell>{{ "atRiskMembers" | i18n }}</th>
+      <th bitSortable="memberCount" bitCell>{{ "totalMembers" | i18n }}</th>
     </ng-container>
-    <ng-template body let-rows$>
-      <tr
-        bitRow
-        *ngFor="let r of rows$ | async; trackBy: trackByFunction"
-        [ngClass]="{ 'tw-bg-primary-100': dataService.drawerInvokerId === r.applicationName }"
+    <ng-template bitRowDef let-row>
+      <td bitCell [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }">
+        <i class="bwi bwi-star-f" *ngIf="row.isMarkedAsCritical"></i>
+      </td>
+      <td
+        class="tw-cursor-pointer"
+        [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }"
+        (click)="showAppAtRiskMembers(row.applicationName)"
+        bitCell
       >
-        <td>
-          <i class="bwi bwi-star-f" *ngIf="r.isMarkedAsCritical"></i>
-        </td>
-        <td class="tw-cursor-pointer" (click)="showAppAtRiskMembers(r.applicationName)" bitCell>
-          <span>{{ r.applicationName }}</span>
-        </td>
-        <td bitCell>
-          <span>
-            {{ r.atRiskPasswordCount }}
-          </span>
-        </td>
-        <td bitCell>
-          <span>
-            {{ r.passwordCount }}
-          </span>
-        </td>
-        <td bitCell>
-          <span>
-            {{ r.atRiskMemberCount }}
-          </span>
-        </td>
-        <td bitCell data-testid="total-membership">
-          {{ r.memberCount }}
-        </td>
-        <td bitCell>
-          <button
-            [bitMenuTriggerFor]="rowMenu"
-            type="button"
-            bitIconButton="bwi-ellipsis-v"
-            size="small"
-            appA11yTitle="{{ 'options' | i18n }}"
-          ></button>
+        <span>{{ row.applicationName }}</span>
+      </td>
+      <td bitCell [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }">
+        <span>
+          {{ row.atRiskPasswordCount }}
+        </span>
+      </td>
+      <td bitCell [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }">
+        <span>
+          {{ row.passwordCount }}
+        </span>
+      </td>
+      <td bitCell [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }">
+        <span>
+          {{ row.atRiskMemberCount }}
+        </span>
+      </td>
+      <td
+        bitCell
+        data-testid="total-membership"
+        [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }"
+      >
+        {{ row.memberCount }}
+      </td>
+      <td bitCell [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }">
+        <button
+          [bitMenuTriggerFor]="rowMenu"
+          type="button"
+          bitIconButton="bwi-ellipsis-v"
+          size="small"
+          appA11yTitle="{{ 'options' | i18n }}"
+        ></button>
 
-          <bit-menu #rowMenu>
-            <button type="button" bitMenuItem (click)="unmarkAsCriticalApp(r.applicationName)">
-              <i aria-hidden="true" class="bwi bwi-star-f"></i> {{ "unmarkAsCriticalApp" | i18n }}
-            </button>
-          </bit-menu>
-        </td>
-      </tr>
+        <bit-menu #rowMenu>
+          <button type="button" bitMenuItem (click)="unmarkAsCriticalApp(row.applicationName)">
+            <i aria-hidden="true" class="bwi bwi-star-f"></i> {{ "unmarkAsCriticalApp" | i18n }}
+          </button>
+        </bit-menu>
+      </td>
     </ng-template>
-  </bit-table>
+  </bit-table-scroll>
 </div>
