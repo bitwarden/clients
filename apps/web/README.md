@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/web-vault-macbook.png" alt="" width="600" height="358" />
+    <img src="https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/web-vault.png" alt="" width="600" height="358" />
 </p>
 <p align="center">
     The Bitwarden web project is an Angular application that powers the web vault (https://vault.bitwarden.com/).
