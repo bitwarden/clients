@@ -28,3 +28,22 @@ export function disabledSemanticLoggerProvider<Context extends object>(
 export function consoleSemanticLoggerProvider(logger: LogService): SemanticLogger {
   return new DefaultSemanticLogger(logger, {});
 }
+
+/** Instantiates a semantic logger that emits logs to the console.
+ *  @param context a static payload that is cloned when the logger
+ *   logs a message. The `messages`, `level`, and `content` fields
+ *   are reserved for use by loggers.
+ *  @param settings specializes how the semantic logger functions.
+ *   If this is omitted, the logger suppresses debug messages.
+ */
+export function ifEnabledSemanticLoggerProvider<Context extends object>(
+  enable: boolean,
+  logger: LogService,
+  context: Jsonify<Context>,
+) {
+  if (enable) {
+    return new DefaultSemanticLogger(logger, context);
+  } else {
+    return disabledSemanticLoggerProvider(context);
+  }
+}
