@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Megváltoztatás a beállításokban"
   },
+  "change": {
+    "message": "Módosítás"
+  },
+  "changeButtonTitle": {
+    "message": "Jelszó módosítás - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Veszélyes jelszavak"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ $COUNT$ jelszó meegváltoztatását kéri, mert veszélyben vannak.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "A szervezetek $COUNT$ jelszó meegváltoztatását kérik, mert veszélyben vannak.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Tekintsük át és módosítsuk az egyik veszélyeztetett jelszót."
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Tekintsük át és módosítsunk $COUNT$ kockázatnak kitett jelszót.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Változtassuk meg gyorsabban a veszélyeztetett jelszavakat."
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Frissítsük a beállításokat, hogy gyorsan automatikusan kitölthessük a jelszavakat és újakat generálhassunk."
+  },
+  "turnOnAutofill": {
+    "message": "Automatikus kitöltés bekapcsolása"
+  },
+  "turnedOnAutofill": {
+    "message": "Az automatikus kitöltés bekapcsolásra került."
+  },
+  "dismiss": {
+    "message": "Elvetés"
+  },
   "websiteItemLabel": {
     "message": "Webhely $number$ (URI)",
     "placeholders": {

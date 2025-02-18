@@ -319,9 +319,6 @@ if (manifestVersion == 2) {
 } else {
   // Firefox does not use the offscreen API
   if (browser !== "firefox") {
-    // Manifest v3 needs an extra helper for utilities in the content script.
-    // The javascript output of this should be added to manifest.v3.json
-    mainConfig.entry["content/misc-utils"] = "./src/autofill/content/misc-utils.ts";
     mainConfig.entry["offscreen-document/offscreen-document"] =
       "./src/platform/offscreen-document/offscreen-document.ts";
 
