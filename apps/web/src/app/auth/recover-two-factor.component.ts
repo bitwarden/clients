@@ -25,20 +25,20 @@ import { KeyService } from "@bitwarden/key-management";
 })
 export class RecoverTwoFactorComponent implements OnInit {
   protected formGroup = new FormGroup({
-    email: new FormControl(null, [Validators.required]),
-    masterPassword: new FormControl(null, [Validators.required]),
-    recoveryCode: new FormControl(null, [Validators.required]),
+    email: new FormControl("", [Validators.required]),
+    masterPassword: new FormControl("", [Validators.required]),
+    recoveryCode: new FormControl("", [Validators.required]),
   });
 
   /**
    * Message to display to the user about the recovery code
    */
-  recoveryCodeMessage: string;
+  recoveryCodeMessage = "";
 
   /**
    * Whether the recovery code login feature flag is enabled
    */
-  private recoveryCodeLoginFeatureFlagEnabled: boolean;
+  private recoveryCodeLoginFeatureFlagEnabled = false;
 
   constructor(
     private router: Router,
@@ -63,15 +63,15 @@ export class RecoverTwoFactorComponent implements OnInit {
   }
 
   get email(): string {
-    return this.formGroup.value.email;
+    return this.formGroup.get("email")?.value ?? "";
   }
 
   get masterPassword(): string {
-    return this.formGroup.value.masterPassword;
+    return this.formGroup.get("masterPassword")?.value ?? "";
   }
 
   get recoveryCode(): string {
-    return this.formGroup.value.recoveryCode;
+    return this.formGroup.get("recoveryCode")?.value ?? "";
   }
 
   /**
@@ -94,7 +94,7 @@ export class RecoverTwoFactorComponent implements OnInit {
 
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t("twoStepRecoverDisabled"),
       });
 
@@ -129,7 +129,7 @@ export class RecoverTwoFactorComponent implements OnInit {
     const credentials = new PasswordLoginCredentials(
       request.email,
       this.masterPassword,
-      null,
+      "",
       twoFactorRequest,
     );
 
@@ -137,14 +137,14 @@ export class RecoverTwoFactorComponent implements OnInit {
       const authResult = await this.loginStrategyService.logIn(credentials);
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t("youHaveBeenLoggedIn"),
       });
       await this.loginSuccessHandlerService.run(authResult.userId);
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error) {
       // If login errors, redirect to login page per product. Don't show error
-      this.logService.error("Error logging in automatically: ", error.message);
+      this.logService.error("Error logging in automatically: ", (error as Error).message);
       await this.router.navigate(["/login"], { queryParams: { email: request.email } });
     }
   }
@@ -152,16 +152,24 @@ export class RecoverTwoFactorComponent implements OnInit {
   /**
    * Extracts an error message from the error object.
    */
-  private extractErrorMessage(error: any): string {
+  private extractErrorMessage(error: unknown): string {
     let errorMessage: string = this.i18nService.t("unexpectedError");
-    if (error?.validationErrors && typeof error.validationErrors === "object") {
-      errorMessage = Object.keys(error.validationErrors)
-        .map((key) => {
-          const messages = error.validationErrors[key];
-          return Array.isArray(messages) ? messages.join(" ") : messages;
-        })
-        .join(" ");
-    } else if (error?.message) {
+    if (error && typeof error === "object" && "validationErrors" in error) {
+      const validationErrors = error.validationErrors;
+      if (validationErrors && typeof validationErrors === "object") {
+        errorMessage = Object.keys(validationErrors)
+          .map((key) => {
+            const messages = (validationErrors as Record<string, string | string[]>)[key];
+            return Array.isArray(messages) ? messages.join(" ") : messages;
+          })
+          .join(" ");
+      }
+    } else if (
+      error &&
+      typeof error === "object" &&
+      "message" in error &&
+      typeof error.message === "string"
+    ) {
       errorMessage = error.message;
     }
     return errorMessage;
