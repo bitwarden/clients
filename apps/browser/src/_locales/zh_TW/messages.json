@@ -35,7 +35,7 @@
     "message": "設定一個強密碼"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "設定密碼以完成創建您的帳戶。"
+    "message": "設定密碼以完成建立您的帳號"
   },
   "enterpriseSingleSignOn": {
     "message": "企業單一登入"
@@ -446,7 +446,7 @@
     "message": "產生密碼短語"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "已產生密碼"
   },
   "passphraseGenerated": {
     "message": "Passphrase generated"
@@ -660,10 +660,10 @@
     "message": "驗證身份"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "我們無法識別此裝置。請輸入已傳送到您電子郵件的驗證碼以驗證您的身分。"
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "繼續登入"
   },
   "yourVaultIsLocked": {
     "message": "您的密碼庫已鎖定。請驗證身分以繼續。"
@@ -763,7 +763,7 @@
     "message": "若您忘記主密碼，將會無法找回！"
   },
   "masterPassHintLabel": {
-    "message": "您已成功創建新帳戶！"
+    "message": "主密碼提示"
   },
   "errorOccurred": {
     "message": "發生錯誤"
@@ -797,7 +797,7 @@
     "message": "帳戶已建立！現在可以登入了。"
   },
   "newAccountCreated2": {
-    "message": "您已成功創建新帳戶！"
+    "message": "您已成功建立新帳號！"
   },
   "youHaveBeenLoggedIn": {
     "message": "你已經登入！"
@@ -1005,7 +1005,7 @@
     "message": "如果在您的密碼庫中找不到項目，則詢問是否新增項目。適用於所有已登入的帳戶。"
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "一律在密碼庫介面中顯示支付卡自動填入建議"
   },
   "showCardsCurrentTab": {
     "message": "於分頁頁面顯示支付卡"
@@ -1014,7 +1014,7 @@
     "message": "於分頁頁面顯示信用卡以便於自動填入。"
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "一律在密碼庫介面中顯示身分自動填入建議"
   },
   "showIdentitiesCurrentTab": {
     "message": "於分頁頁面顯示身分"
@@ -1279,9 +1279,6 @@
   },
   "premiumPurchase": {
     "message": "升級為進階會員"
-  },
-  "premiumPurchaseAlert": {
-    "message": "您可以在 bitwarden.com 網頁版密碼庫購買進階會員資格。現在要前往嗎？"
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 網頁 App 的帳號設定中購買進階版。"
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "使用者名稱產生器"
   },
+  "useThisEmail": {
+    "message": "使用此電子郵件"
+  },
   "useThisPassword": {
     "message": "使用此密碼"
   },
@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "您可以於設定中進行更改"
   },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
+  },
   "websiteItemLabel": {
     "message": "網站 $number$ (URI)",
     "placeholders": {
@@ -2529,7 +2593,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSendSuccessfully": {
-    "message": "Send 創建成功！",
+    "message": "Send 建立成功！",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHoursSingle": {
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "已傳送通知至您的裝置。"
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "網頁應用程式"
+  },
+  "notificationSentDevicePart2": {
+    "message": "在核准前請確保您的指紋短語與下面完全相符。"
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "已傳送通知至您的裝置"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "請確保您的帳號已解鎖，並且指紋短語與其他裝置一致。"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "一旦您的請求被通過，您會獲得通知。"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "登入已啟動"
+  },
+  "logInRequestSent": {
+    "message": "已傳送請求"
   },
   "exposedMasterPassword": {
     "message": "已洩露的主密碼"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "項目名稱"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "組織已被停用"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "更寬"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "請更新您的桌面應用程式"

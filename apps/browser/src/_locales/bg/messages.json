@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Покупка на платен абонамент"
   },
-  "premiumPurchaseAlert": {
-    "message": "Може да платите абонамента си през сайта bitwarden.com. Искате ли да го посетите сега?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Можете да закупите платената версия от настройките на регистрацията си, в приложението по уеб на Битуорден."
   },
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Генератор на потребителски имена"
   },
+  "useThisEmail": {
+    "message": "Използване на тази е-поща"
+  },
   "useThisPassword": {
     "message": "Използване на тази парола"
   },
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Променете това в настройките"
+  },
+  "change": {
+    "message": "Промяна"
+  },
+  "changeButtonTitle": {
+    "message": "Промяна на паролата – $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Пароли в риск"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ изисква да промените $COUNT$ пароли, тъй като са в риск.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Вашата организация изисква да промените $COUNT$ пароли, тъй като са в риск.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Преглед и промяна на една парола в риск"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Преглед и промяна на $COUNT$ пароли в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "По-бърза промяна на паролите в риск"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Променете настройките си, така че да можете бързо да попълвате автоматично паролите си, както и да генерирате нови"
+  },
+  "turnOnAutofill": {
+    "message": "Включване на автоматичното попълване"
+  },
+  "turnedOnAutofill": {
+    "message": "Автоматичното попълване беше включено"
+  },
+  "dismiss": {
+    "message": "Отхвърляне"
   },
   "websiteItemLabel": {
     "message": "Уеб сайт $number$ (адрес)",
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Към устройството Ви е изпратено известие."
   },
+  "notificationSentDevicePart1": {
+    "message": "Отключете Битоурден на устройството си или в"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "приложението по уеб"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Уверете се, че уникалната фраза съвпада с тази по-долу, преди да одобрите."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Към устройството Ви е изпратено известие"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Уверете се, че регистрацията Ви е отключена и че уникалната фраза съвпада с другото устройство"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Ще получите уведомление когато заявката бъде одобрена"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Вписването е стартирано"
+  },
+  "logInRequestSent": {
+    "message": "Заявката е изпратена"
   },
   "exposedMasterPassword": {
     "message": "Разобличена главна парола"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Име на елемента"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Организацията е деактивирана"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Много широко"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Моля, обновете самостоятелното приложение"

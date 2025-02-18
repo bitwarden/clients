@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Zakoupit členství Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Prémiové členství můžete zakoupit na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Premium si můžete zakoupit v nastavení účtu ve webové aplikaci Bitwarden."
   },
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Generátor uživatelského jména"
   },
+  "useThisEmail": {
+    "message": "Použít tento e-mail"
+  },
   "useThisPassword": {
     "message": "Použít toto heslo"
   },
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Změňte to v nastavení"
+  },
+  "change": {
+    "message": "Změnit"
+  },
+  "changeButtonTitle": {
+    "message": "Změnit heslo - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Ohrožená hesla"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ Vás žádá o změnu $COUNT$ hesel, protože jsou v ohrožení.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Vaše organizace Vás žádají o změnu $COUNT$ hesel, protože jsou v ohrožení.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Zkontrolovat a změnit jedno ohrožené heslo"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Zkontrolovat a změnit $COUNT$ ohrožených hesel",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Změnit ohrožená hesla rychleji"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Aktualizujte svá nastavení, abyste mohli rychle automaticky vyplňovat hesla a generovat nová hesla."
+  },
+  "turnOnAutofill": {
+    "message": "Zapnout automatické vyplňování"
+  },
+  "turnedOnAutofill": {
+    "message": "Automatické vyplňování bylo zapnuto"
+  },
+  "dismiss": {
+    "message": "Zavřít"
   },
   "websiteItemLabel": {
     "message": "Webová stránka $number$ (URI)",
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení."
   },
+  "notificationSentDevicePart1": {
+    "message": "Odemknout Bitwarden na Vašem zařízení nebo na"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webová aplikace"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Před schválením se ujistěte, že fráze otisku prstu odpovídá frázi níže."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Ujistěte se, že je Váš trezor odemčen a fráze otisku prstu se shodují s druhým zařízením"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Budete upozorněni, jakmile bude žádost schválena"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Bylo zahájeno přihlášení"
+  },
+  "logInRequestSent": {
+    "message": "Požadavek odeslán"
   },
   "exposedMasterPassword": {
     "message": "Odhalené hlavní heslo"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Název položky"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Nemůžete odebrat kolekce s oprávněními jen pro zobrazení: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organizace je deaktivována"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Extra široký"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Nemůžete odebrat kolekce s oprávněními jen pro zobrazení: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Aktualizujte aplikaci pro stolní počítač"

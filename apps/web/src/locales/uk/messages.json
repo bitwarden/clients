@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Редагування"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "Основний домен",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Назва запису"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "зразок",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Ініційовано вхід"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "submit": {
     "message": "Відправити"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Сповіщення було надіслано на ваш пристрій."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Сповіщення надіслано на ваш пристрій"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Переконайтеся, що ваш обліковий запис розблоковано і фраза відбитка на іншому пристрої збігається"
   },
   "versionNumber": {
     "message": "Версія $VERSION_NUMBER$",
@@ -1664,9 +1697,6 @@
     "message": "Уникати неоднозначних символів",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Генерувати новий"
-  },
   "length": {
     "message": "Довжина"
   },
@@ -1839,12 +1869,6 @@
   "dangerZone": {
     "message": "Небезпечна зона"
   },
-  "dangerZoneDesc": {
-    "message": "Обережно, ці дії неможливо скасувати!"
-  },
-  "dangerZoneDescSingular": {
-    "message": "Обережно, цю дію неможливо скасувати!"
-  },
   "deauthorizeSessions": {
     "message": "Завершити сеанси"
   },
@@ -1853,6 +1877,27 @@
   },
   "deauthorizeSessionsWarning": {
     "message": "Продовжуючи, ви також вийдете з поточного сеансу і необхідно буде виконати вхід знову. Ви також отримаєте повторний запит двоетапної перевірки, якщо вона увімкнена. Активні сеанси на інших пристроях можуть залишатися активними протягом години."
+  },
+  "newDeviceLoginProtection": {
+    "message": "Вхід з нового пристрою"
+  },
+  "turnOffNewDeviceLoginProtection": {
+    "message": "Вимкнути захист входу з нового пристрою"
+  },
+  "turnOnNewDeviceLoginProtection": {
+    "message": "Увімкнути захист входу з нового пристрою"
+  },
+  "turnOffNewDeviceLoginProtectionModalDesc": {
+    "message": "Виконайте наведені нижче дії, щоб вимкнути надсилання підтверджень під час входу з нового пристрою."
+  },
+  "turnOnNewDeviceLoginProtectionModalDesc": {
+    "message": "Виконайте наведені нижче дії, щоб увімкнути надсилання підтверджень під час входу з нового пристрою."
+  },
+  "turnOffNewDeviceLoginProtectionWarning": {
+    "message": "Якщо захист входу з нового пристрою вимкнено, будь-хто може отримати доступ до вашого облікового запису з будь-якого пристрою, знаючи головний пароль. Щоб захистити свій обліковий запис і не вмикати надсилання підтверджень, налаштуйте двоетапну перевірку."
+  },
+  "accountNewDeviceLoginProtectionSaved": {
+    "message": "Зміни захисту входу з нового пристрою збережено"
   },
   "sessionsDeauthorized": {
     "message": "Усі сеанси завершено"
@@ -2045,7 +2090,7 @@
     "message": "Показувати піктограми вебсайтів"
   },
   "faviconDesc": {
-    "message": "Показувати впізнаване зображення біля кожного запису."
+    "message": "Показувати зображення біля кожного запису."
   },
   "default": {
     "message": "Типово"
@@ -2155,8 +2200,20 @@
   "manage": {
     "message": "Керувати"
   },
-  "canManage": {
-    "message": "Може керувати"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "Вимкнути"
@@ -2353,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Сталася проблема при читанні ключа безпеки. Спробуйте знову."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "У зв'язку з обмеженнями платформи, WebAuthn не можна використовувати в усіх програмах Bitwarden. Вам слід активувати іншого провайдера двоетапної перевірки, щоб мати змогу отримати доступ до свого облікового запису, коли неможливо скористатися WebAuthn. Підтримувані платформи:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Вебсховище і розширення браузера на комп'ютерах і ноутбуках з браузерами, що мають підтримку WebAuthn (Chrome, Opera, Vivaldi, або Firefox з увімкненим FIDO U2F)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Ваш код відновлення двоетапної перевірки Bitwarden"
@@ -4695,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Встановити вимоги для генерування пароля."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "На параметри генератора впливають одна чи декілька політик організації."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Політика однієї або декількох організацій зобов'язує дотримання таких вимог для головного пароля:"
   },
@@ -6666,15 +6717,6 @@
     "message": "Генератор",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Що ви бажаєте згенерувати?"
-  },
-  "passwordType": {
-    "message": "Тип пароля"
-  },
-  "regenerateUsername": {
-    "message": "Повторно генерувати ім'я користувача"
-  },
   "generateUsername": {
     "message": "Генерувати ім'я користувача"
   },
@@ -6715,9 +6757,6 @@
       }
     }
   },
-  "usernameType": {
-    "message": "Тип імені користувача"
-  },
   "plusAddressedEmail": {
     "message": "Адреса е-пошти з плюсом",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
@@ -6730,6 +6769,9 @@
   },
   "catchallEmailDesc": {
     "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
+  },
+  "useThisEmail": {
+    "message": "Використати цю е-пошту"
   },
   "random": {
     "message": "Випадково",
@@ -6933,9 +6975,6 @@
   "hostname": {
     "message": "Ім'я вузла",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Токен доступу до API"
   },
   "deviceVerification": {
     "message": "Перевірка пристрою"
@@ -7648,18 +7687,6 @@
   "noCollection": {
     "message": "Немає збірки"
   },
-  "canView": {
-    "message": "Може переглядати"
-  },
-  "canViewExceptPass": {
-    "message": "Може переглядати, крім паролів"
-  },
-  "canEdit": {
-    "message": "Може редагувати"
-  },
-  "canEditExceptPass": {
-    "message": "Може редагувати, крім паролів"
-  },
   "noCollectionsAdded": {
     "message": "Не додано жодної збірки"
   },
@@ -8284,31 +8311,31 @@
     "message": "Довірені пристрої"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "message": "Учасникам не потрібен головний пароль під час входу з використанням SSO. Натомість використовується ключ шифрування, що зберігається на пристрої, роблячи цей пристрій довіреним. Перший пристрій, на якому учасник реєструється і входить до системи, буде довіреним. Нові пристрої необхідно схвалити за допомогою наявного довіреного пристрою або адміністратором.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
-    "message": "single organization",
+    "message": "Політику єдиної",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart2": {
-    "message": "policy,",
+    "message": "організації,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink2": {
-    "message": "SSO required",
+    "message": "політику обов'язкового",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart3": {
-    "message": "policy, and",
+    "message": "SSO та",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink3": {
-    "message": "account recovery administration",
+    "message": "політику адміністрування облікового",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart4": {
-    "message": "policy will turn on when this option is used.",
+    "message": "запису буде ввімкнено, якщо використовується цей параметр.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -8387,16 +8414,16 @@
     "message": "Схвалити запит"
   },
   "deviceApproved": {
-    "message": "Device approved"
+    "message": "Пристрій схвалено"
   },
   "deviceRemoved": {
-    "message": "Device removed"
+    "message": "Пристрій вилучено"
   },
   "removeDevice": {
-    "message": "Remove device"
+    "message": "Вилучити пристрій"
   },
   "removeDeviceConfirmation": {
-    "message": "Are you sure you want to remove this device?"
+    "message": "Ви дійсно хочете вилучити цей пристрій?"
   },
   "noDeviceRequests": {
     "message": "Немає запитів з пристрою"
@@ -8607,6 +8634,9 @@
   "limitCollectionDeletionDesc": {
     "message": "Дозволити видалення збірок лише власникам та адміністраторам"
   },
+  "limitItemDeletionDesc": {
+    "message": "Обмежити видалення записів для учасників, які мають дозвіл \"Може керувати\""
+  },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Власники та адміністратори можуть керувати всіма збірками та записами"
   },
@@ -8655,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "URL-адреса власного сервера",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Псевдонім домену"
   },
   "alreadyHaveAccount": {
     "message": "Вже маєте обліковий запис?"
@@ -8720,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "У вас немає доступу до керування цією збіркою."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Немає дозволу \"Може керувати\""
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Надайте дозвіл \"Може керувати\" для можливості повноцінного керування збірками, включно з видаленням."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Надайте групам або учасникам доступ до цієї збірки."
@@ -9286,7 +9313,7 @@
     "message": "на місяць за учасника"
   },
   "monthPerMemberBilledAnnually": {
-    "message": "month per member billed annually"
+    "message": "місяць за учасника сплачується щороку"
   },
   "seats": {
     "message": "Місця"
@@ -9809,13 +9836,13 @@
     "message": "Алгоритм ключа"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Закритий ключ"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Відкритий ключ"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Цифровий відбиток"
   },
   "sshKeyFingerprint": {
     "message": "Цифровий відбиток"
@@ -10070,6 +10097,15 @@
   "descriptorCode": {
     "message": "Код дескриптора"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Важлива інформація"
   },
@@ -10110,13 +10146,13 @@
     "message": "Вилучити учасників"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Пристрої"
   },
   "deviceListDescription": {
-    "message": "Your account was logged in to each of the devices below. If you do not recognize a device, remove it now."
+    "message": "Вхід у ваш обліковий запис виконано на пристроях, зазначених нижче. Якщо ви не розпізнаєте пристрій, вилучіть його."
   },
   "deviceListDescriptionTemp": {
-    "message": "Your account was logged in to each of the devices below."
+    "message": "Вхід у ваш обліковий запис виконано на пристроях, зазначених нижче."
   },
   "claimedDomains": {
     "message": "Заявлені домени"
@@ -10204,7 +10240,7 @@
     "message": "Назва організації не може перевищувати 50 символів."
   },
   "resellerRenewalWarningMsg": {
-    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
+    "message": "Ваша передплата невдовзі поновиться. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $RENEWAL_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10217,7 +10253,7 @@
     }
   },
   "resellerOpenInvoiceWarningMgs": {
-    "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
+    "message": "Рахунок за вашу передплату випущено $ISSUED_DATE$. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $DUE_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10234,7 +10270,7 @@
     }
   },
   "resellerPastDueWarningMsg": {
-    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $GRACE_PERIOD_END$.",
+    "message": "Рахунок за вашу передплату ще не сплачено. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $GRACE_PERIOD_END$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10247,18 +10283,67 @@
     }
   },
   "restartOrganizationSubscription": {
-    "message": "Organization subscription restarted"
+    "message": "Передплату організації розпочато повторно"
   },
   "restartSubscription": {
-    "message": "Restart your subscription"
+    "message": "Розпочніть повторно свою передплату"
   },
   "suspendedManagedOrgMessage": {
-    "message": "Contact $PROVIDER$ for assistance.",
+    "message": "Звернутися до $PROVIDER$ по допомогу.",
     "placeholders": {
       "provider": {
         "content": "$1",
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
   }
 }

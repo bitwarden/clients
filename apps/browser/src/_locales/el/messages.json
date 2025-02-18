@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Αγορά Premium έκδοσης"
   },
-  "premiumPurchaseAlert": {
-    "message": "Μπορείτε να αγοράσετε συνδρομή Premium στο διαδικτυακό θησαυ/κιο του bitwarden.com. Θέλετε να επισκεφθείτε την ιστοσελίδα τώρα;"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Μπορείτε να αγοράσετε το Premium από τις ρυθμίσεις του λογαριασμού σας στην διαδικτυακή εφαρμογή Bitwarden."
   },
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Γεννήτρια ονόματος χρήστη"
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "useThisPassword": {
     "message": "Χρήση αυτού του κωδικού πρόσβασης"
   },
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Change this in settings"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Ιστοσελίδα $number$ (URI)",
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Μια ειδοποίηση έχει σταλεί στη συσκευή σας."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Μια ειδοποίηση στάλθηκε στη συσκευή σας"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Βεβαιωθείτε ότι ο λογαριασμός σας είναι ξεκλείδωτος και ότι η φράση δακτυλικού αποτυπώματος ταιριάζει στην άλλη συσκευή"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Θα ειδοποιηθείτε μόλις εγκριθεί η αίτηση"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Η σύνδεση ξεκίνησε"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "Εκτεθειμένος Κύριος Κωδικός Πρόσβασης"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Όνομα αντικειμένου"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Δεν μπορείτε να αφαιρέσετε συλλογές που έχουν μόνο δικαιώματα Προβολής: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Ο οργανισμός απενεργοποιήθηκε"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Εξαιρετικά φαρδύ"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Δεν μπορείτε να αφαιρέσετε συλλογές που έχουν μόνο δικαιώματα Προβολής: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Please update your desktop application"

@@ -15,7 +15,6 @@ import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { EnvironmentComponent } from "../auth/environment.component";
 import { HintComponent } from "../auth/hint.component";
 import { LoginModule } from "../auth/login/login.module";
-import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
@@ -47,8 +46,6 @@ import { HeaderComponent } from "./layout/header.component";
 import { NavComponent } from "./layout/nav.component";
 import { SearchComponent } from "./layout/search/search.component";
 import { SharedModule } from "./shared/shared.module";
-import { GeneratorComponent } from "./tools/generator.component";
-import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 import { AddEditComponent as SendAddEditComponent } from "./tools/send/add-edit.component";
 import { SendComponent } from "./tools/send/send.component";
 
@@ -80,11 +77,8 @@ import { SendComponent } from "./tools/send/send.component";
     HeaderComponent,
     HintComponent,
     NavComponent,
-    GeneratorComponent,
-    PasswordGeneratorHistoryComponent,
     PasswordHistoryComponent,
     PremiumComponent,
-    RegisterComponent,
     RemovePasswordComponent,
     SearchComponent,
     SendAddEditComponent,

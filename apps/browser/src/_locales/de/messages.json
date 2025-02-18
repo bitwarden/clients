@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Premium-Mitgliedschaft kaufen"
   },
-  "premiumPurchaseAlert": {
-    "message": "Du kannst deine Premium-Mitgliedschaft im Bitwarden.com Web-Tresor kaufen. Möchtest du die Website jetzt besuchen?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Du kannst Premium über deine Kontoeinstellungen in der Bitwarden Web-App kaufen."
   },
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Benutzernamen-Generator"
   },
+  "useThisEmail": {
+    "message": "Diese E-Mail-Adresse verwenden"
+  },
   "useThisPassword": {
     "message": "Dieses Passwort verwenden"
   },
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Dies in den Einstellungen ändern"
+  },
+  "change": {
+    "message": "Ändern"
+  },
+  "changeButtonTitle": {
+    "message": "Passwort ändern - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Risikoreiche Passwörter"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ fordert dich auf, diese $COUNT$ Passwörter zu ändern, da diese in risikoreich sind.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Deine Organisationen fordern dich auf, diese $COUNT$ Passwörter zu ändern, da diese risikoreich sind.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Überprüfe und ändere ein risikoreiches Passwort"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Überprüfe und ändere $COUNT$ risikoreiche Passwörter",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Ändere risikoreiche Passwörter schneller"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Aktualisiere deine Einstellungen, damit du deine Passwörter schnell automatisch ausfüllen kannst und neue generieren kannst"
+  },
+  "turnOnAutofill": {
+    "message": "Auto-Ausfüllen aktivieren"
+  },
+  "turnedOnAutofill": {
+    "message": "Auto-Ausfüllen aktiviert"
+  },
+  "dismiss": {
+    "message": "Verwerfen"
   },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
   },
+  "notificationSentDevicePart1": {
+    "message": "Entsperre Bitwarden auf deinem Gerät oder mit der"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "Web-App"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Stelle vor der Genehmigung sicher, dass die Fingerabdruck-Phrase mit der unten stehenden übereinstimmt."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Stelle sicher, dass dein Konto entsperrt ist und die Fingerabdruck-Phrase mit der vom anderen Gerät übereinstimmt"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Du wirst benachrichtigt, sobald die Anfrage genehmigt wurde"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Anmeldung eingeleitet"
+  },
+  "logInRequestSent": {
+    "message": "Anfrage gesendet"
   },
   "exposedMasterPassword": {
     "message": "Kompromittiertes Master-Passwort"
@@ -3945,7 +4018,7 @@
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
-    "message": "Das Ignorieren dieser Option kann zu Konflikten zwischen dem Bitwarden Auto-Ausfüllen Menü und dem Browser führen.",
+    "message": "Das Ignorieren dieser Option kann zu Konflikten zwischen den Bitwarden Vorschlägen zum Auto-Ausfüllen und denen deines Browsers führen.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutoFillSettings": {
@@ -3994,7 +4067,7 @@
     "message": "Passkey entfernt"
   },
   "autofillSuggestions": {
-    "message": "Vorschläge zum Auto-Ausfüllen"
+    "message": "Auto-Ausfüllen-Vorschläge"
   },
   "itemSuggestions": {
     "message": "Vorgeschlagene Einträge"
@@ -4145,15 +4218,6 @@
   },
   "itemName": {
     "message": "Eintrags-Name"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "organizationIsDeactivated": {
     "message": "Organisation ist deaktiviert"
@@ -4579,7 +4643,7 @@
     "message": "Konto-Aktionen"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "Anzahl der Vorschläge zum Auto-Ausfüllen von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
+    "message": "Anzahl der Auto-Ausfüllen-Vorschläge von Zugangsdaten auf dem Erweiterungssymbol anzeigen"
   },
   "showQuickCopyActions": {
     "message": "Schnellkopier-Aktionen im Tresor anzeigen"
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Extra breit"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Bitte aktualisiere deine Desktop-Anwendung"

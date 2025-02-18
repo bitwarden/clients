@@ -159,7 +159,7 @@
     "message": "Копирај јавни кључ"
   },
   "copyFingerprint": {
-    "message": "Копирати отисак"
+    "message": "Копирај отисак прста"
   },
   "copyCustomField": {
     "message": "Копирати $FIELD$",
@@ -446,16 +446,16 @@
     "message": "Генеришите приступну фразу"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Лозинка генерисана"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Приступна фраза је генерисана"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Корисничко име генерисано"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Имејл генерисан"
   },
   "regeneratePassword": {
     "message": "Поново генериши лозинку"
@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Купити премијум"
   },
-  "premiumPurchaseAlert": {
-    "message": "Можете купити премијум претплату на bitwarden.com. Да ли желите да посетите веб сајт сада?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Можете да купите Премиум у подешавањима налога у веб апликацији Bitwarden."
   },
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Генератор корисничког имена"
   },
+  "useThisEmail": {
+    "message": "Користи ову епошту"
+  },
   "useThisPassword": {
     "message": "Употреби ову лозинку"
   },
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Промените ово у подешавањима"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Сајт $number$ (УРЛ)",
@@ -2829,11 +2893,11 @@
     "message": "Bitwarden није могао да декриптује ставке из трезора наведене испод."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Обратите се корисничкој подршци",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "да бисте избегли додатни губитак података.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Обавештење је послато на ваш уређај."
   },
+  "notificationSentDevicePart1": {
+    "message": "Откључај Bitwarden на твом уређају или на"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "веб апликација"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Потврдите да се фраза отиска прста поклапа са овом испод пре одобравања."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Обавештење је послато на ваш уређај"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Уверите се да је ваш налог откључан и да се фраза отиска подудара на другом уређају"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Бићете обавештени када захтев буде одобрен"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Пријава је покренута"
+  },
+  "logInRequestSent": {
+    "message": "Захтев је послат"
   },
   "exposedMasterPassword": {
     "message": "Изложена главна лозинка"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Име ставке"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Не можете уклонити колекције са дозволама само за приказ: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Организација је деактивирана"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Врло широко"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Не можете уклонити колекције са дозволама само за приказ: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Молим вас надоградите вашу апликацију на рачунару"

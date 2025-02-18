@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Beli Keanggotaan Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Anda dapat membeli keanggotaan premium di brankas web bitwarden.com. Anda ingin mengunjungi situs web sekarang?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Anda dapat membeli Premium dari pilihan akun Anda pada aplikasi web Bitwarden."
   },
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Pembuat nama pengguna"
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
   "useThisPassword": {
     "message": "Gunakan kata sandi ini"
   },
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Change this in settings"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Situs web $number$ (URI)",
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Sebuah pemberitahuan dikirim ke perangkat Anda."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Sebuah pemberitahuan telah dikirim ke perangkat Anda"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Pastikan akun Anda terbuka dan frasa sidik jari cocok pada perangkat lainnya"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Anda akan diberitahu setelah permintaan disetujui"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Memulai login"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "Kata Sandi Utama yang Terpapar"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Nama benda"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Anda tidak dapat menghapus koleksi dengan izin hanya lihat: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organisasi dinonaktifkan"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Ekstra lebar"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Anda tidak dapat menghapus koleksi dengan izin hanya lihat: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Please update your desktop application"

@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Zakúpiť Prémiový účet"
   },
-  "premiumPurchaseAlert": {
-    "message": "Svoje prémiové členstvo si môžete zakúpiť vo webovom trezore bitwarden.com. Chcete navštíviť túto stránku teraz?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Prémiové členstvo si môžete zakúpiť v nastaveniach svojho účtu vo webovej aplikácii Bitwarden."
   },
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Generátor používateľského mena"
   },
+  "useThisEmail": {
+    "message": "Použiť tento e-mail"
+  },
   "useThisPassword": {
     "message": "Použiť toto heslo"
   },
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Zmeňte to v nastaveniach"
+  },
+  "change": {
+    "message": "Zmeniť"
+  },
+  "changeButtonTitle": {
+    "message": "Zmeniť heslo - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Rizikové heslá"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ vás žiada o zmenu $COUNT$ hesiel, pretože sú ohrozené.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Vaše organizácie vás žiadajú o zmenu $COUNT$ hesiel, pretože sú ohrozené.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Skontrolujte a zmeňte jedno ohrozené heslo"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Skontrolujte a zmeňte $COUNT$ ohrozené heslá",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Zmeňte rizikové heslá rýchlejšie"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Aktualizujte nastavenia, aby ste mohli rýchlo vypĺňať svoje heslá a vygenerovať nové"
+  },
+  "turnOnAutofill": {
+    "message": "Zapnúť automatické vypĺňanie"
+  },
+  "turnedOnAutofill": {
+    "message": "Zapnuté automatické vypĺňanie"
+  },
+  "dismiss": {
+    "message": "Zrušiť"
   },
   "websiteItemLabel": {
     "message": "Webstránka $number$ (URI)",
@@ -2902,7 +2966,7 @@
     "message": "Služba"
   },
   "forwardedEmail": {
-    "message": "Alias preposlaného e-mailu"
+    "message": "Alias presmerovaného e-mailu"
   },
   "forwardedEmailDesc": {
     "message": "Vytvoriť e-mailový alias pomocou externej služby preposielania."
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie."
   },
+  "notificationSentDevicePart1": {
+    "message": "Odomknúť Bitwarden vo svojom zariadení alebo vo"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webovej aplikácii"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pred schválením sa uistite, že sa odtlačok prístupovej frázy zhoduje s tou uvedenou nižšie."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Uistite sa, že je váš účet odomknutý a fráza odtlačku prsta sa zhoduje s frázou na druhom zariadení"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Po schválení žiadosti budete informovaní"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Iniciované prihlásenie"
+  },
+  "logInRequestSent": {
+    "message": "Požiadavka bola odoslaná"
   },
   "exposedMasterPassword": {
     "message": "Odhalené hlavné heslo"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Názov položky"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organizácia je vypnutá"
   },
@@ -4858,7 +4922,7 @@
     "message": "Pripomenúť neskôr"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
+    "message": "Máte zaručený prístup k e-mailu $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4870,7 +4934,7 @@
     "message": "Nie, nemám"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
+    "message": "Áno, mám zaručený prístup k e-mailu"
   },
   "turnOnTwoStepLogin": {
     "message": "Zapnúť dvojstupňové prihlásenie"
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Aktualizujte desktopovú aplikáciu"

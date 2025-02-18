@@ -17,7 +17,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService } from "../../dialog";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
-import { disableBothThemeDecorator, positionFixedWrapperDecorator } from "../storybook-decorators";
+import { positionFixedWrapperDecorator } from "../storybook-decorators";
 
 import { DialogVirtualScrollBlockComponent } from "./components/dialog-virtual-scroll-block.component";
 import { KitchenSinkForm } from "./components/kitchen-sink-form.component";
@@ -31,7 +31,6 @@ export default {
   component: LayoutComponent,
   decorators: [
     positionFixedWrapperDecorator(),
-    disableBothThemeDecorator,
     moduleMetadata({
       imports: [
         KitchenSinkSharedModule,

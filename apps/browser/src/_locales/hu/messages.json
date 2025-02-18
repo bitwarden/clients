@@ -1280,9 +1280,6 @@
   "premiumPurchase": {
     "message": "Prémium funkció megvásárlása"
   },
-  "premiumPurchaseAlert": {
-    "message": "A prémium tagság megvásárolható a bitwarden.com webes széfben. Szeretnénk felkeresni a webhelyet most?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Prémium szolgáltatást vásárolhatunk a Bitwarden webalkalmazás fiókbeállításai között."
   },
@@ -2064,6 +2061,9 @@
   "usernameGenerator": {
     "message": "Felhasználónév generátor"
   },
+  "useThisEmail": {
+    "message": "Ezen email használata"
+  },
   "useThisPassword": {
     "message": "Jelszó használata"
   },
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Megváltoztatás a beállításokban"
+  },
+  "change": {
+    "message": "Módosítás"
+  },
+  "changeButtonTitle": {
+    "message": "Jelszó módosítás - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Veszélyes jelszavak"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ $COUNT$ jelszó meegváltoztatását kéri, mert veszélyben vannak.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "A szervezetek $COUNT$ jelszó meegváltoztatását kérik, mert veszélyben vannak.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Tekintsük át és módosítsuk az egyik veszélyeztetett jelszót."
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Tekintsük át és módosítsunk $COUNT$ kockázatnak kitett jelszót.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Változtassuk meg gyorsabban a veszélyeztetett jelszavakat."
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Frissítsük a beállításokat, hogy gyorsan automatikusan kitölthessük a jelszavakat és újakat generálhassunk."
+  },
+  "turnOnAutofill": {
+    "message": "Automatikus kitöltés bekapcsolása"
+  },
+  "turnedOnAutofill": {
+    "message": "Az automatikus kitöltés bekapcsolásra került."
+  },
+  "dismiss": {
+    "message": "Elvetés"
   },
   "websiteItemLabel": {
     "message": "Webhely $number$ (URI)",
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Egy értesítés lett elküldve az eszközre."
   },
+  "notificationSentDevicePart1": {
+    "message": "A Bitwarden zárolás feloldása az eszközön vagy: "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webalkalmazás"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Jóváhagyás előtt győződjünk meg arról, hogy az ujjlenyomat kifejezés megegyezik az alábbi kifejezéssel."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Egy értesítés lett elküldve az eszközre."
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Ellenőrizzük, hogy a széf feloldásra került és az ujjlenyomat kifejezés egyezik a másik eszközön levővel."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "A kérelem jóváhagyása után értesítés érkezik."
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "A bejelentkezés elindításra került."
+  },
+  "logInRequestSent": {
+    "message": "A kérés elküldésre került."
   },
   "exposedMasterPassword": {
     "message": "Kiszivárgott mesterjelszó"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Elem neve"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Organization is deactivated"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Extra széles"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Frissítsük az asztali alkalmazást."
