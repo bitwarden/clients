@@ -317,6 +317,7 @@ describe("CollectAutofillContentService", () => {
           __form__0: {
             opid: "__form__0",
             htmlAction: formAction,
+            htmlClass: null,
             htmlName: formName,
             htmlID: formId,
             htmlMethod: formMethod,
@@ -544,6 +545,7 @@ describe("CollectAutofillContentService", () => {
         __form__0: {
           opid: "__form__0",
           htmlAction: formAction1,
+          htmlClass: null,
           htmlName: formName1,
           htmlID: formId1,
           htmlMethod: formMethod1,
@@ -551,6 +553,7 @@ describe("CollectAutofillContentService", () => {
         __form__1: {
           opid: "__form__1",
           htmlAction: formAction2,
+          htmlClass: null,
           htmlName: formName2,
           htmlID: formId2,
           htmlMethod: formMethod2,

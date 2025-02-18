@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Редактиране на папка"
   },
+  "newFolder": {
+    "message": "Нова папка"
+  },
+  "folderName": {
+    "message": "Име на папката"
+  },
+  "folderHintText": {
+    "message": "Можете да вложите една папка в друга като въведете името на горната папка, а след това „/“. Пример: Социални/Форуми"
+  },
+  "deleteFolderPermanently": {
+    "message": "Наистина ли искате да изтриете тази папка окончателно?"
+  },
   "baseDomain": {
     "message": "Основен домейн",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Име на елемента"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "напр.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Вписването е стартирано"
   },
+  "logInRequestSent": {
+    "message": "Заявката е изпратена"
+  },
   "submit": {
     "message": "Подаване"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Към устройството Ви е изпратено известие."
   },
+  "notificationSentDevicePart1": {
+    "message": "Отключете Битоурден на устройството си или в "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Опитвате ли се да получите достъп до акаунта си?"
+  },
+  "accessAttemptBy": {
+    "message": "Опит за достъп от $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Разрешаване на достъпа"
+  },
+  "denyAccess": {
+    "message": "Отказване на достъпа"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "приложението по уеб"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Уверете се, че уникалната фраза съвпада с тази по-долу, преди да одобрите."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Отключете Битоурден на устройството си. Уверете се, че уникалната фраза съвпада с тази по-долу, преди да одобрите."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Към устройството Ви е изпратено известие"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Уверете се, че регистрацията Ви е отключена и че уникалната фраза съвпада с другото устройство"
   },
   "versionNumber": {
     "message": "Версия $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Без нееднозначни знаци",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Друга парола"
   },
   "length": {
     "message": "Дължина"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Управление"
   },
-  "canManage": {
-    "message": "Може да управлява"
+  "manageCollection": {
+    "message": "Управление на колекцията"
+  },
+  "viewItems": {
+    "message": "Преглед на елементите"
+  },
+  "viewItemsHidePass": {
+    "message": "Преглед на елементите, със скрити пароли"
+  },
+  "editItems": {
+    "message": "Редактиране на елементите"
+  },
+  "editItemsHidePass": {
+    "message": "Редактиране на елементите, със скрити пароли"
   },
   "disable": {
     "message": "Изключване"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Проблем при изчитането на ключа за сигурност. Пробвайте отново."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Поради платформени ограничения устройствата на WebAuthn не могат да се използват с всички приложения на Битуорден. В такъв случай ще трябва да добавите друг доставчик на двустепенно удостоверяване, за да имате достъп до абонамента си, дори когато WebAuthn не работи. Поддържани платформи:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Трезорът по уеб както и разширенията за браузърите с поддръжка на WebAuthn (Chrome, Opera, Vivaldi и Firefox с поддръжка на FIDO U2F)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Поради платформени ограничения устройствата на WebAuthn не могат да се използват с всички приложения на Битуорден. Ще трябва да настроите друг доставчик на двустепенно удостоверяване, за да имате достъп до акаунта си, когато WebAuthn не може да се ползва."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Код за възстановяване на достъпа до Битуорден при двустепенна идентификация"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Задаване на минимална сила на генератора на пароли."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Поне една политика на организация влияе на настройките на генерирането на паролите."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Поне една политика на организация има следните изисквания към главната ви парола:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Генератор",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Какво бихте искали да генерирате?"
-  },
-  "passwordType": {
-    "message": "Тип парола"
-  },
-  "regenerateUsername": {
-    "message": "Повторно генериране на потр. име"
-  },
   "generateUsername": {
     "message": "Генериране на потр. име"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Тип потребителско име"
   },
   "plusAddressedEmail": {
     "message": "Адрес на е-поща с плюс",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Име на сървъра",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Идентификатор за достъп до API"
   },
   "deviceVerification": {
     "message": "Потвърждаване на устройствата"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Няма колекция"
-  },
-  "canView": {
-    "message": "Може да преглежда"
-  },
-  "canViewExceptPass": {
-    "message": "Може да преглежда, без пароли"
-  },
-  "canEdit": {
-    "message": "Може да редактира"
-  },
-  "canEditExceptPass": {
-    "message": "Може да редактира, без пароли"
   },
   "noCollectionsAdded": {
     "message": "Няма добавени колекции"
@@ -8626,7 +8635,7 @@
     "message": "Ограничаване на изтриването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "Ограничаване на изтриването на елементи, така че да може да се извършва само от членове с правомощие за управление"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Собствениците и администраторите могат да управляват всички колекции и елементи"
@@ -8676,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "Адрес на собствения сървър",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Псевдонимен домейн"
   },
   "alreadyHaveAccount": {
     "message": "Вече имате регистрация?"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Нямате достъп за управление на тази колекция."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Липсват правомощия за управление"
+  "grantManageCollectionWarningTitle": {
+    "message": "Липсват правомощия за управление на колекции"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Дайте правомощия за управление, за да позволите пълното управление на колекции, включително изтриването им."
+  "grantManageCollectionWarning": {
+    "message": "Дайте правомощия за управление на колекциите, за да позволите пълното управление на колекции, включително изтриването им."
   },
   "grantCollectionAccess": {
     "message": "Дайте права на групи и членове до тази колекция."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Код от описанието"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Важно съобщение"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Администраторите вече имат възможността да изтриват акаунтите на членовете, които принадлежат към присвоен домейн."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "Това действие ще изтрие акаунта на члена, включително всички елементи в неговия трезор. Това заменя предишното действие за Премахване."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Изтриването е ново действие!"
+  },
+  "seatsRemaining": {
+    "message": "Остават Ви $REMAINING$ от общо $TOTAL$ места в тази организация. Свържете се с доставчика си, ако искате да управлявате абонамента си.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Съществуваща организация"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Изберете организацията, която искате да добавите към своя Портал за доставчици."
+  },
+  "noOrganizations": {
+    "message": "Няма организации за показване"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Вашият абонамент за доставчик ще получи кредит за оставащото време в абонамента на организацията, ако има такова."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Искате ли да добавите тази организация към $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Добавена е съществуваща организация"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Назначените места превишават наличния брой."
   }
 }

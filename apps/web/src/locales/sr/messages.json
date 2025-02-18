@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Уреди фасциклу"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "Главни домен",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Име ставке"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Не можете уклонити колекције са дозволама само за приказ: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "нпр.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Пријава је покренута"
   },
+  "logInRequestSent": {
+    "message": "Захтев је послат"
+  },
   "submit": {
     "message": "Пошаљи"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Обавештење је послато на ваш уређај."
   },
+  "notificationSentDevicePart1": {
+    "message": "Откључај Bitwarden на твом уређају или на "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Да ли покушавате да приступите вашем налогу?"
+  },
+  "accessAttemptBy": {
+    "message": "Покушај приступа са $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Потврди приступ"
+  },
+  "denyAccess": {
+    "message": "Одбиј приступ"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Потврдите да се фраза отиска прста поклапа са овом испод пре одобравања."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Октључај Bitwarden на твом уређају. Потврдите да се фраза отиска прста поклапа са овом испод пре одобравања."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Обавештење је послато на ваш уређај"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Уверите се да је ваш налог откључан и да се фраза отиска подудара на другом уређају"
   },
   "versionNumber": {
     "message": "Верзија $VERSION_NUMBER$",
@@ -1664,9 +1697,6 @@
     "message": "Избегавај двосмислене карактере",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Поново генериши лозинку"
-  },
   "length": {
     "message": "Дужина"
   },
@@ -1849,13 +1879,13 @@
     "message": "Наставак ће вас такође одјавити из тренутне сесије, што захтева поновно пријављивање. Од вас ће такође бити затражено да се поново пријавите у два корака, ако је омогућено. Активне сесије на другим уређајима могу да остану активне још један сат."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "Пријава на новом уређају"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "Искључи заштиту пријаве на новом уређају"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "Укључи заштиту пријаве на новом уређају"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
     "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Управљати"
   },
-  "canManage": {
-    "message": "Може управљати"
+  "manageCollection": {
+    "message": "Управљај колекцијом"
+  },
+  "viewItems": {
+    "message": "Прикажи ставке"
+  },
+  "viewItemsHidePass": {
+    "message": "Прикажи ставке, сакривене лозинке"
+  },
+  "editItems": {
+    "message": "Уреди ставке"
+  },
+  "editItemsHidePass": {
+    "message": "Уреди ставке, сакривене лозинке"
   },
   "disable": {
     "message": "Онемогући"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Догодила се грешка приликом читања безбедносног кључа. Покушајте поново."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Због ограничења платформе, WebAuthn се не могу користити на свим Bitwarden апликацијама. Требали бисте омогућити другог добављача услуге пријављивања у два корака како бисте могли да приступите свом налогу када WebAuthn не могу да се користе. Подржане платформе:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Веб сеф и додатке прегледача на рачунару са WebAuthn омогућен прегледач (Chrome, Opera, Vivaldi, или Firefox са FIDO U2F омогућено)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Ваш Bitwarden код за опоравак пријаве у два корака"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Поставите минималне захтеве за конфигурацију генератора лозинки."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Једна или више смерница организације утичу на поставке вашег генератора."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Једна или више смерница организације захтевају да ваша главна лозинка да би испуњавали следеће захтеве:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Генератор",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Шта желите да генеришете?"
-  },
-  "passwordType": {
-    "message": "Тип лозинке"
-  },
-  "regenerateUsername": {
-    "message": "Поново генериши име"
-  },
   "generateUsername": {
     "message": "Генериши име"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Тип имена"
   },
   "plusAddressedEmail": {
     "message": "Плус имејл адресе",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Име домаћина",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Приступни АПИ токен"
   },
   "deviceVerification": {
     "message": "Провера уређаја"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Нема колекције"
-  },
-  "canView": {
-    "message": "Може прегледати"
-  },
-  "canViewExceptPass": {
-    "message": "Може видетим осим лозинке"
-  },
-  "canEdit": {
-    "message": "Може уређивати"
-  },
-  "canEditExceptPass": {
-    "message": "Ноже уређивати осим лозинке"
   },
   "noCollectionsAdded": {
     "message": "Ниједна колекција додата"
@@ -8677,9 +8686,6 @@
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Домен алијаса"
-  },
   "alreadyHaveAccount": {
     "message": "Већ имате налог?"
   },
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Немате приступ за управљање овом колекцијом."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Фале дозволе „Може да управља“"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Додатје дозволе „Може да управља“ да би се омогућило потпуно управљање наплатом укључујући брисање колекције."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Одобрите групама или члановима приступ овој колекцији."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Кôд дескриптора"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Не можете уклонити колекције са дозволама само за приказ: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Важно обавештење"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
   }
 }

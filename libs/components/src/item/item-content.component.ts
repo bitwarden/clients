@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
+import { NgClass } from "@angular/common";
 import {
   AfterContentChecked,
   ChangeDetectionStrategy,
@@ -16,7 +17,7 @@ import { TypographyModule } from "../typography";
 @Component({
   selector: "bit-item-content, [bit-item-content]",
   standalone: true,
-  imports: [TypographyModule],
+  imports: [TypographyModule, NgClass],
   templateUrl: `item-content.component.html`,
   host: {
     class:
