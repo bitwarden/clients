@@ -1,41 +1,98 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["github>bitwarden/renovate-config"], // Extends our base config for pinned dependencies
+  extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
   enabledManagers: ["cargo", "github-actions", "npm"],
   packageRules: [
     {
-      groupName: "github-action minor",
+      // Ignore all patch updates for GitHub Actions
       matchManagers: ["github-actions"],
-      matchUpdateTypes: ["minor"],
+      updateTypes: ["patch"],
+      enabled: false,
     },
     {
+      // Group all build/test/lint workflows for GitHub Actions together for Platform
+      // Since they are code owners we don't need to assign a review team in Renovate
+      // Any changes here should also be reflected in CODEOWNERS
+      groupName: "github-action minor",
+      matchManagers: ["github-actions"],
+      matchFileNames: [
+        "./github/workflows/automatic-issue-responses.yml",
+        "./github/workflows/automatic-pull-request-responses.yml",
+        "./github/workflows/build-browser.yml",
+        "./github/workflows/build-cli.yml",
+        "./github/workflows/build-desktop.yml",
+        "./github/workflows/build-web.yml",
+        "./github/workflows/chromatic.yml",
+        "./github/workflows/crowdin-pull.yml",
+        "./github/workflows/enforce-labels.yml",
+        "./github/workflows/lint.yml",
+        "./github/workflows/locales-lint.yml",
+        "./github/workflows/repository-management.yml",
+        "./github/workflows/scan.yml",
+        "./github/workflows/stale-bot.yml",
+        "./github/workflows/test.yml",
+        "./github/workflows/version-auto-bump.yml",
+      ],
+      matchUpdateTypes: ["minor"],
+      commitMessagePrefix: "[deps] Platform:",
+    },
+    {
+      // Group all release-related workflows for GitHub Actions together for BRE
+      // Since they are code owners we don't need to assign a review team in Renovate
+      // Any changes here should also be reflected in CODEOWNERS
+      groupName: "github-action minor",
+      matchManagers: ["github-actions"],
+      matchFileNames: [
+        "./github/workflows/brew-bump-desktop.yml",
+        "./github/workflows/deploy-web.yml",
+        "./github/workflows/publish-cli.yml",
+        "./github/workflows/publish-desktop.yml",
+        "./github/workflows/publish-web.yml",
+        "./github/workflows/retrieve-current-desktop-rollout.yml",
+        "./github/workflows/staged-rollout-desktop.yml",
+        "./github/workflows/release-cli.yml",
+        "./github/workflows/release-desktop-beta.yml",
+        "./github/workflows/release-desktop.yml",
+        "./github/workflows/release-web.yml",
+      ],
+      matchUpdateTypes: ["minor"],
+      commitMessagePrefix: "[deps] BRE:",
+    },
+    {
+      // The desktop_native module is code-owned by Platform, so we're applying the Platform
+      // prefix to ensure that the PR has the right prefix on it for automation
       matchManagers: ["cargo"],
       commitMessagePrefix: "[deps] Platform:",
     },
     {
-      groupName: "napi",
-      matchPackageNames: ["napi", "napi-build", "napi-derive"],
-    },
-    {
+      // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: ["major", "minor"],
       description: "Determined by Angular",
       enabled: false,
     },
     {
+      // Renovate should manage patch updates for TypeScript and Zone.js, despite ignoring major and minor
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: "patch",
     },
     {
+      // We need to update all the Jest-related packages together, to reduce PR noise
       groupName: "jest",
       matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
-      matchUpdateTypes: "major",
     },
     {
+      // We want to group all napi-related packages together for all updates, to reduce PR noise
+      groupName: "napi",
+      matchPackageNames: ["napi", "napi-build", "napi-derive"],
+    },
+    {
+      // We want to group all macOS/iOS binding-related packages together for all updates, to reduce PR noise
       groupName: "macOS/iOS bindings",
       matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
     },
     {
+      // We want to group all zbus-related packages together for all updates, to reduce PR noise
       groupName: "zbus",
       matchPackageNames: ["zbus", "zbus_polkit"],
     },
