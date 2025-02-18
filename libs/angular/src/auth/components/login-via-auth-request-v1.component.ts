@@ -107,7 +107,6 @@ export class LoginViaAuthRequestComponentV1
     this.authRequestService.authRequestPushNotification$
       .pipe(takeUntil(this.destroy$))
       .subscribe((id) => {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.verifyAndHandleApprovedAuthReq(id).catch((e: Error) => {
           this.toastService.showToast({
             variant: "error",

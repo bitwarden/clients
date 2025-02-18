@@ -43,7 +43,6 @@ import {
   selector: "emergency-access",
   templateUrl: "emergency-access.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EmergencyAccessComponent implements OnInit {
   @ViewChild("addEdit", { read: ViewContainerRef, static: true }) addEditModalRef: ViewContainerRef;
   @ViewChild("takeoverTemplate", { read: ViewContainerRef, static: true })

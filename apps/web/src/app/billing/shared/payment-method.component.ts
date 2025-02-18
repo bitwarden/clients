@@ -36,7 +36,6 @@ import {
 @Component({
   templateUrl: "payment-method.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class PaymentMethodComponent implements OnInit, OnDestroy {
   loading = false;
   firstLoaded = false;

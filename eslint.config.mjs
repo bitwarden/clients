@@ -27,6 +27,9 @@ export default tseslint.config(
       importPlugin.flatConfigs.typescript,
       eslintConfigPrettier, // Disables rules that conflict with Prettier
     ],
+    linterOptions: {
+      reportUnusedDisableDirectives: "error",
+    },
     plugins: {
       rxjs: rxjs,
       "rxjs-angular": angularRxjs,

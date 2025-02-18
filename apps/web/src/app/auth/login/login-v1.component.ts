@@ -40,7 +40,6 @@ import { OrganizationInvite } from "../organization-invite/organization-invite";
   selector: "app-login",
   templateUrl: "login-v1.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   showResetPasswordAutoEnrollWarning = false;
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;

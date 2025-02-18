@@ -26,7 +26,6 @@ import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from
   selector: "app-weak-passwords-report",
   templateUrl: "../../../tools/reports/pages/weak-passwords-report.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class WeakPasswordsReportComponent
   extends BaseWeakPasswordsReportComponent
   implements OnInit

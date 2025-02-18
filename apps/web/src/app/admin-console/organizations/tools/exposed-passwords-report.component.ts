@@ -26,7 +26,6 @@ import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent 
   selector: "app-org-exposed-passwords-report",
   templateUrl: "../../../tools/reports/pages/exposed-passwords-report.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class ExposedPasswordsReportComponent
   extends BaseExposedPasswordsReportComponent
   implements OnInit

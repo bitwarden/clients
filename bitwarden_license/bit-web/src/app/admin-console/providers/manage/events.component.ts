@@ -20,7 +20,6 @@ import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export"
   selector: "provider-events",
   templateUrl: "events.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EventsComponent extends BaseEventsComponent implements OnInit {
   exportFileName = "provider-events";
   providerId: string;

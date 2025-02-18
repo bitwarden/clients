@@ -37,7 +37,6 @@ import {
   selector: "app-two-factor",
   templateUrl: "two-factor.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit, OnDestroy {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;

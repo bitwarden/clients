@@ -97,7 +97,6 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     VaultTimeoutInputComponent,
   ],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class AccountSecurityComponent implements OnInit, OnDestroy {
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 

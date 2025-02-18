@@ -91,7 +91,6 @@ export class WindowMain {
             app.quit();
             return;
           } else {
-            // eslint-disable-next-line
             app.on("second-instance", (event, argv, workingDirectory) => {
               // Someone tried to run a second instance, we should focus our window.
               if (this.win != null) {

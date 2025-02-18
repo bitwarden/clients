@@ -85,7 +85,6 @@ describe("BrowserTaskSchedulerService", () => {
       callback,
     );
     // @ts-expect-error mocking global browser object
-    // eslint-disable-next-line no-global-assign
     globalThis.browser = {};
     chrome.alarms.get = jest.fn().mockImplementation((_name, callback) => callback(undefined));
   });
@@ -95,7 +94,7 @@ describe("BrowserTaskSchedulerService", () => {
     jest.clearAllTimers();
     jest.useRealTimers();
 
-    // eslint-disable-next-line no-global-assign
+    // @ts-expect-error mocking global browser object
     globalThis.browser = undefined;
   });
 
