@@ -286,7 +286,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     }
   };
 
-  async selectOtherTwofactorMethod() {
+  async selectOtherTwoFactorMethod() {
     const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
     const response: TwoFactorOptionsDialogResult | string | undefined = await lastValueFrom(
       dialogRef.closed,
