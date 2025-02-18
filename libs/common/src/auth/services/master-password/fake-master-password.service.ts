@@ -13,9 +13,9 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
   mock = mock<InternalMasterPasswordServiceAbstraction>();
 
   // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
-  masterKeySubject = new ReplaySubject<MasterKey>(1);
+  masterKeySubject = new ReplaySubject<MasterKey | null>(1);
   // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
-  masterKeyHashSubject = new ReplaySubject<string>(1);
+  masterKeyHashSubject = new ReplaySubject<string | null>(1);
   // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
   forceSetPasswordReasonSubject = new ReplaySubject<ForceSetPasswordReason>(1);
 
