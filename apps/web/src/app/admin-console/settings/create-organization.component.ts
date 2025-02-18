@@ -15,7 +15,6 @@ import { SharedModule } from "../../shared";
   standalone: true,
   imports: [SharedModule, OrganizationPlansComponent, HeaderModule],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class CreateOrganizationComponent implements OnInit {
   @ViewChild(OrganizationPlansComponent, { static: true })
   orgPlansComponent: OrganizationPlansComponent;

@@ -39,7 +39,6 @@ import { SendAccessTextComponent } from "./send-access-text.component";
     NoItemsModule,
   ],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class AccessComponent implements OnInit {
   protected send: SendAccessView;
   protected sendType = SendType;

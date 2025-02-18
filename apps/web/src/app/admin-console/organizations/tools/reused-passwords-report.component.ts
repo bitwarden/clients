@@ -25,7 +25,6 @@ import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } 
   selector: "app-reused-passwords-report",
   templateUrl: "../../../tools/reports/pages/reused-passwords-report.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class ReusedPasswordsReportComponent
   extends BaseReusedPasswordsReportComponent
   implements OnInit
