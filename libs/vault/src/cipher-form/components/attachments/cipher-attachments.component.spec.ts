@@ -134,14 +134,14 @@ describe("CipherAttachmentsComponent", () => {
 
   describe("bitSubmit", () => {
     beforeEach(() => {
-      component.submitBtn.disabled = undefined;
+      component.submitBtn.disabled.set(undefined);
       component.submitBtn.loading.set(undefined);
     });
 
     it("updates sets initial state of the submit button", async () => {
       await component.ngOnInit();
 
-      expect(component.submitBtn.disabled).toBe(true);
+      expect(component.submitBtn.disabled()).toBe(true);
     });
 
     it("sets submitBtn loading state", () => {
@@ -161,11 +161,11 @@ describe("CipherAttachmentsComponent", () => {
     it("sets submitBtn disabled state", () => {
       component.bitSubmit.disabled = true;
 
-      expect(component.submitBtn.disabled).toBe(true);
+      expect(component.submitBtn.disabled()).toBe(true);
 
       component.bitSubmit.disabled = false;
 
-      expect(component.submitBtn.disabled).toBe(false);
+      expect(component.submitBtn.disabled()).toBe(false);
     });
   });
 
@@ -173,7 +173,7 @@ describe("CipherAttachmentsComponent", () => {
     let file: File;
 
     beforeEach(() => {
-      component.submitBtn.disabled = undefined;
+      component.submitBtn.disabled.set(undefined);
       file = new File([""], "attachment.txt", { type: "text/plain" });
 
       const inputElement = fixture.debugElement.query(By.css("input[type=file]"));
@@ -193,7 +193,7 @@ describe("CipherAttachmentsComponent", () => {
     });
 
     it("updates disabled state of submit button", () => {
-      expect(component.submitBtn.disabled).toBe(false);
+      expect(component.submitBtn.disabled()).toBe(false);
     });
   });
 
