@@ -181,4 +181,7 @@ export class CriticalApplicationsComponent implements OnInit {
   trackByFunction(_: number, item: ApplicationHealthReportDetailWithCriticalFlag) {
     return item.applicationName;
   }
+  isDrawerOpenForTableRow = (applicationName: string) => {
+    return this.dataService.drawerInvokerId === applicationName;
+  };
 }
