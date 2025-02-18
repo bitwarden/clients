@@ -12,6 +12,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 
 import { PopupCompactModeService } from "../../../platform/popup/layout/popup-compact-mode.service";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -36,7 +37,9 @@ class MockPopupHeaderComponent {
   selector: "popup-page",
   template: `<ng-content></ng-content>`,
 })
-class MockPopupPageComponent {}
+class MockPopupPageComponent {
+  @Input() loading: boolean;
+}
 
 describe("AppearanceV2Component", () => {
   let component: AppearanceV2Component;
@@ -97,6 +100,10 @@ describe("AppearanceV2Component", () => {
         {
           provide: PopupSizeService,
           useValue: mockWidthService,
+        },
+        {
+          provide: VaultSettingsService,
+          useValue: mock<VaultSettingsService>(),
         },
       ],
     })
