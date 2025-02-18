@@ -51,6 +51,7 @@ describe("AppearanceV2Component", () => {
   const enableRoutingAnimation$ = new BehaviorSubject<boolean>(true);
   const enableCompactMode$ = new BehaviorSubject<boolean>(false);
   const showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
+  const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(false);
   const setSelectedTheme = jest.fn().mockResolvedValue(undefined);
   const setShowFavicons = jest.fn().mockResolvedValue(undefined);
   const setEnableBadgeCounter = jest.fn().mockResolvedValue(undefined);
@@ -103,7 +104,10 @@ describe("AppearanceV2Component", () => {
         },
         {
           provide: VaultSettingsService,
-          useValue: mock<VaultSettingsService>(),
+          useValue: {
+            clickItemsToAutofillVaultView$,
+            setClickItemsToAutofillVaultView: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
     })
@@ -122,7 +126,10 @@ describe("AppearanceV2Component", () => {
     fixture.detectChanges();
   });
 
-  it("populates the form with the user's current settings", () => {
+  it("populates the form with the user's current settings", async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
     expect(component.appearanceForm.value).toEqual({
       enableAnimations: true,
       enableFavicon: true,
@@ -131,6 +138,7 @@ describe("AppearanceV2Component", () => {
       enableCompactMode: false,
       showQuickCopyActions: false,
       width: "default",
+      clickItemsToAutofillVaultView: false,
     });
   });
 
