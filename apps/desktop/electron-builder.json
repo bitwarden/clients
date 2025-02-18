@@ -78,7 +78,11 @@
         "to": "MacOS/desktop_proxy.inherit"
       }
     ],
-    "signIgnore": ["MacOS/desktop_proxy", "MacOS/desktop_proxy.inherit"],
+    "signIgnore": [
+      "MacOS/desktop_proxy",
+      "MacOS/desktop_proxy.inherit",
+      "Contents/Plugins/autofill-extension.appex"
+    ],
     "target": ["dmg", "zip"]
   },
   "win": {
@@ -137,7 +141,8 @@
     "extendInfo": {
       "LSMinimumSystemVersion": "12",
       "ElectronTeamID": "LTZ2PFU5D6"
-    }
+    },
+    "provisioningProfile": "bitwarden_desktop_appstore.provisionprofile"
   },
   "nsisWeb": {
     "oneClick": false,
