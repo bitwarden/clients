@@ -11,7 +11,7 @@ import { ProviderAddOrganizationRequest } from "@bitwarden/common/admin-console/
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { CreateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/create-client-organization.request";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";

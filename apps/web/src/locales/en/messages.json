@@ -1718,9 +1718,6 @@
     "message": "Avoid ambiguous characters",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "Regenerate password"
-  },
   "length": {
     "message": "Length"
   },
@@ -4773,9 +4770,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Set requirements for password generator."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "One or more organization policies are affecting your generator settings."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"
   },
@@ -6744,15 +6738,6 @@
     "message": "Generator",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "What would you like to generate?"
-  },
-  "passwordType": {
-    "message": "Password type"
-  },
-  "regenerateUsername": {
-    "message": "Regenerate username"
-  },
   "generateUsername": {
     "message": "Generate username"
   },
@@ -6792,9 +6777,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Username type"
   },
   "plusAddressedEmail": {
     "message": "Plus addressed email",
@@ -7014,9 +6996,6 @@
   "hostname": {
     "message": "Hostname",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API access token"
   },
   "deviceVerification": {
     "message": "Device verification"
@@ -8728,9 +8707,6 @@
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Alias domain"
-  },
   "alreadyHaveAccount": {
     "message": "Already have an account?"
   },
@@ -8792,11 +8768,11 @@
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Missing Can Manage Permissions"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
@@ -10345,6 +10321,15 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification" : {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
   },
   "seatsRemaining": {
     "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",

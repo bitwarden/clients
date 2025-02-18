@@ -114,7 +114,7 @@
     "message": "Membres à risque"
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "Membres à risque ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -132,13 +132,13 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "These members are logging into applications with weak, exposed, or reused passwords."
+    "message": "Ces membres se connectent à des applications avec des mots de passe faibles, exposés ou réutilisés."
   },
   "atRiskApplicationsDescription": {
     "message": "Ces applications ont des mots de passe faibles, exposés ou réutilisés."
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "message": "Ces membres se connectent à $APPNAME$ avec des mots de passe faibles, exposés ou réutilisés.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Modifier le dossier"
   },
+  "newFolder": {
+    "message": "Nouveau dossier"
+  },
+  "folderName": {
+    "message": "Nom de dossier"
+  },
+  "folderHintText": {
+    "message": "Créez un sous-dossier en ajoutant le nom du dossier parent suivi d'un \"/\". Par exemple : Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Êtes-vous sûr de vouloir supprimer définitivement ce dossier ?"
+  },
   "baseDomain": {
     "message": "Domaine de base",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Nom de l’élément"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Vous ne pouvez pas supprimer des collections avec les autorisations d'affichage uniquement : $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "ex.",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "Connexion initiée"
   },
+  "logInRequestSent": {
+    "message": "Demande envoyée"
+  },
   "submit": {
     "message": "Soumettre"
   },
@@ -1342,7 +1348,7 @@
     "message": "Aucun élément à afficher."
   },
   "noPermissionToViewAllCollectionItems": {
-    "message": "Vous n'avez pas la permission de voir tous les éléments de cette collection."
+    "message": "Vous n'avez pas l'autorisation d'afficher tous les éléments de cette collection."
   },
   "youDoNotHavePermissions": {
     "message": "Vous n'avez pas les autorisations pour cette collection"
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "Une notification a été envoyée à votre appareil."
   },
+  "notificationSentDevicePart1": {
+    "message": "Déverrouillez Bitwarden sur votre appareil ou sur le "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Essayez-vous d'accéder à votre compte ?"
+  },
+  "accessAttemptBy": {
+    "message": "Tentative d'accès par $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirmer l'accès"
+  },
+  "denyAccess": {
+    "message": "Refuser l'accès"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "application web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Assurez-vous que la phrase d'empreinte correspond à celle ci-dessous avant d'approuver."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Déverrouillez Bitwarden sur votre appareil. Assurez-vous que la phrase d'empreinte correspond à celle ci-dessous avant d'approuver."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Une notification a été envoyée à votre appareil"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assurez-vous que votre compte est déverrouillé et que la phrase d'empreinte correspond à l'autre appareil"
   },
   "versionNumber": {
     "message": "Version $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Éviter les caractères ambigus",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Régénérer un mot de passe"
   },
   "length": {
     "message": "Longueur"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Gérer"
   },
-  "canManage": {
-    "message": "Peut gérer"
+  "manageCollection": {
+    "message": "Gérer la collection"
+  },
+  "viewItems": {
+    "message": "Afficher les éléments"
+  },
+  "viewItemsHidePass": {
+    "message": "Afficher les éléments, les mots de passe cachés"
+  },
+  "editItems": {
+    "message": "Modifier les items"
+  },
+  "editItemsHidePass": {
+    "message": "Modifier les éléments, les mots de passe cachés"
   },
   "disable": {
     "message": "Désactiver"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Un problème est survenu lors de la lecture de la clé de sécurité. Veuillez réessayer."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "En raison des limitations de la plate-forme, WebAuthn ne peut pas être utilisé sur toutes les applications Bitwarden. Vous devriez mettre en place un autre fournisseur d'authentification à deux facteurs afin de pouvoir accéder à votre compte lorsque WebAuthn ne peut pas être utilisé. Plateformes supportées :"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Coffre web et extensions sur un ordinateur fixe/portable avec un navigateur compatible WebAuthn (Chrome, Opera, Vivaldi ou Firefox avec FIDO U2F activé)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "En raison des limitations de plate-forme, WebAuthn ne peut pas être utilisé sur toutes les applications Bitwarden. Vous devriez mettre en place un autre fournisseur d'authentification à deux facteurs afin de pouvoir accéder à votre compte lorsque WebAuthn ne peut pas être utilisé."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Votre code de récupération de d'authentification à deux facteurs Bitwarden"
@@ -3339,7 +3378,7 @@
     }
   },
   "inviteSingleEmailDesc": {
-    "message": "You have 1 invite remaining."
+    "message": "Il vous reste 1 invitation."
   },
   "inviteZeroEmailDesc": {
     "message": "Il vous reste 0 invitations."
@@ -3363,7 +3402,7 @@
     "message": "Propriétaire"
   },
   "ownerDesc": {
-    "message": "L’utilisateur avec l’accès le plus élevé qui peut gérer tous les aspects de votre organisation."
+    "message": "Gérer tous les aspects de votre organisation, y compris la facturation et les abonnements"
   },
   "clientOwnerDesc": {
     "message": "Cet utilisateur doit être indépendant du fournisseur. Si le fournisseur est dissocié de l'organisation, cet utilisateur conservera la propriété de l'organisation."
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Définir les exigences pour le générateur de mot de passe."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Une ou plusieurs politiques de sécurité de l'organisation affectent les paramètres de votre générateur."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Une ou plusieurs politiques de sécurité de l'organisation exigent que votre mot de passe principal réponde aux exigences suivantes :"
   },
@@ -5132,7 +5168,7 @@
     "message": "Accordez et gérez l'accès d'urgence pour les contacts de confiance. Les contacts de confiance peuvent demander l'accès pour afficher ou reprendre le contrôle de votre compte en cas d'urgence. Consultez notre page d'aide pour plus d'informations et de détails sur le fonctionnement du partage à divulgation nulle de connaissance (zero knowledge sharing)."
   },
   "emergencyAccessOwnerWarning": {
-    "message": "Vous êtes propriétaire d'une ou de plusieurs organisations. Si vous autorisez la prise de contrôle à un contact d'urgence, il sera en mesure d'utiliser toutes vos permissions de propriétaire après la prise de contrôle."
+    "message": "Vous êtes propriétaire d'une ou de plusieurs organisations. Si vous autorisez la prise de contrôle à un contact d'urgence, il sera en mesure d'utiliser toutes vos autorisations de propriétaire après la prise de contrôle."
   },
   "trustedEmergencyContacts": {
     "message": "Contacts d'urgence de confiance"
@@ -5359,7 +5395,7 @@
     "message": "Permissions"
   },
   "permission": {
-    "message": "Permission"
+    "message": "Autorisation"
   },
   "accessEventLogs": {
     "message": "Accéder aux journaux d'événements"
@@ -6641,7 +6677,7 @@
     }
   },
   "accessDenied": {
-    "message": "Accès Refusé. Vous n'avez pas la permission de voir cette page."
+    "message": "Accès Refusé. Vous n'avez pas l'autorisation d'afficher cette page."
   },
   "masterPassword": {
     "message": "Mot de passe principal"
@@ -6680,15 +6716,6 @@
   "generator": {
     "message": "Générateur",
     "description": "Short for 'credential generator'."
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Que souhaitez-vous générer ?"
-  },
-  "passwordType": {
-    "message": "Type de mot de passe"
-  },
-  "regenerateUsername": {
-    "message": "Régénérer le Nom d'Utilisateur"
   },
   "generateUsername": {
     "message": "Générer le Nom d'Utilisateur"
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Type de Nom d'Utilisateur"
   },
   "plusAddressedEmail": {
     "message": "Courriel Adressé Plus",
@@ -6780,7 +6804,7 @@
     "message": "Service"
   },
   "unknownCipher": {
-    "message": "Élément inconnu, vous devrez peut-être vous connecter avec un autre compte pour accéder à cet élément."
+    "message": "Élément inconnu, vous devrez peut-être demander l'autorisation d'accéder à cet élément."
   },
   "cannotSponsorSelf": {
     "message": "Vous ne pouvez pas réclamer pour le compte actif. Saisissez un courriel différent."
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Nom d'hôte",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "Jetons d'accès API"
   },
   "deviceVerification": {
     "message": "Vérification de l'Appareil"
@@ -7666,18 +7687,6 @@
   "noCollection": {
     "message": "Aucune collection"
   },
-  "canView": {
-    "message": "Peut voir"
-  },
-  "canViewExceptPass": {
-    "message": "Peut voir, sauf les mots de passe"
-  },
-  "canEdit": {
-    "message": "Peut modifier"
-  },
-  "canEditExceptPass": {
-    "message": "Peut modifier, sauf les mots de passe"
-  },
   "noCollectionsAdded": {
     "message": "Pas de collections ajoutées"
   },
@@ -7868,7 +7877,7 @@
     "message": "Sélectionner les groupes"
   },
   "userPermissionOverrideHelperDesc": {
-    "message": "Les permissions définies pour un membre remplaceront les permissions définies par le groupe de ce membre."
+    "message": "Les autorisations définies pour un membre remplaceront les autorisations définies par le groupe de ce membre."
   },
   "noMembersOrGroupsAdded": {
     "message": "Aucun membre ou groupe ajouté"
@@ -8255,7 +8264,7 @@
     "message": "Exiger que les membres existants changent leurs mots de passe"
   },
   "smProjectDeleteAccessRestricted": {
-    "message": "Vous n'avez pas les droits pour supprimer ce projet",
+    "message": "Vous n'avez pas les autorisations pour supprimer ce projet",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
   },
   "smProjectsDeleteBulkConfirmation": {
@@ -8626,7 +8635,7 @@
     "message": "Limiter la suppression de collections aux propriétaires et administrateurs"
   },
   "limitItemDeletionDesc": {
-    "message": "Limite la suppression de l'élément aux membres avc l'autorisation Peut gérer"
+    "message": "Limite la suppression de l'élément aux membres avec l'autorisation Peut gérer"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Les propriétaires et les administrateurs peuvent gérer toutes les collections et tous les éléments"
@@ -8677,9 +8686,6 @@
     "message": "URL du serveur auto-hébergé",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Domaine de l'alias"
-  },
   "alreadyHaveAccount": {
     "message": "Vous avez déjà un compte ?"
   },
@@ -8690,7 +8696,7 @@
     "message": "Sauter directement au contenu"
   },
   "managePermissionRequired": {
-    "message": "Au moins un membre ou un groupe doit avoir la permission peut gérer."
+    "message": "Au moins un membre ou un groupe doit avoir l'autorisation peut gérer."
   },
   "typePasskey": {
     "message": "Passkey"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Vous n'avez pas accès à la gestion de cette collection."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "\"Peut Gérer les Permissions\" manquant"
+  "grantManageCollectionWarningTitle": {
+    "message": "Autorisations pour Gérer la Collection manquantes"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Accorder \"Peut Gérer les Permissions\" pour permettre une gestion complète de la collection, y compris la suppression de la collection."
+  "grantManageCollectionWarning": {
+    "message": "Accorde les autorisations pour Gérer la collection pour permettre la gestion complète de la collection incluant sa suppression."
   },
   "grantCollectionAccess": {
     "message": "Accorder l'accès à cette collection aux groupes ou aux membres."
@@ -9458,16 +9464,16 @@
     "message": "Informations sur les taxes mises à jour"
   },
   "billingInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "ID de taxe non valide, si vous pensez qu'il s'agit d'une erreur, veuillez contacter le support."
   },
   "billingTaxIdTypeInferenceError": {
-    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
+    "message": "Nous n'avons pu valider votre ID de taxes. Si vous pensez que c'est une erreur, veuillez contacter le support s'il-vous-plaît."
   },
   "billingPreviewInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
+    "message": "ID de taxe non valide, si vous pensez qu'il s'agit d'une erreur, veuillez contacter le support."
   },
   "billingPreviewInvoiceError": {
-    "message": "An error occurred while previewing the invoice. Please try again later."
+    "message": "Une erreur s'est produite lors de la prévisualisation de la facture. Veuillez réessayer plus tard."
   },
   "unverified": {
     "message": "Non vérifié"
@@ -9510,7 +9516,7 @@
     "message": "(Aucune collection)"
   },
   "memberAccessReportNoCollectionPermission": {
-    "message": "(Aucune permission de collection)"
+    "message": "(Aucune Autorisation de Collection)"
   },
   "memberAccessReportNoGroup": {
     "message": "(Aucun groupe)"
@@ -9552,7 +9558,7 @@
     "message": " Contactez le Support Client pour rétablir votre abonnement."
   },
   "secretPeopleDescription": {
-    "message": "Autoriser les groupes ou les personnes à accéder à ce secret. Les permissions définies pour les personnes remplaceront les permissions définies par les groupes."
+    "message": "Autoriser les groupes ou les personnes à accéder à ce secret. Les autorisations définies pour les personnes remplaceront les autorisations définies par les groupes."
   },
   "secretPeopleEmptyMessage": {
     "message": "Ajouter des personnes ou des groupes pour partager l'accès à ce secret"
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Code descripteur"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Vous ne pouvez pas supprimer des collections avec les autorisations d'affichage uniquement : $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Avis important"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Les administrateurs ont maintenant la possibilité de supprimer les comptes de membre qui appartiennent à un domaine revendiqué."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "Cette action supprimera le compte du membre, incluant tous les éléments de son coffre. Cela remplace l'action précédente de Supprimer."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Supprimer est une nouvelle action !"
+  },
+  "seatsRemaining": {
+    "message": "Vous avez $REMAINING$ places restantes sur $TOTAL$ attribuées à cette organisation. Contactez votre fournisseur pour gérer votre abonnement.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Organisation existante"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Sélectionnez une organisation à ajouter à votre Portail fournisseur."
+  },
+  "noOrganizations": {
+    "message": "Il n'y a aucune organisation à lister"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Votre abonnement à un fournisseur recevra un crédit pour tout temps restant dans l'abonnement de l'organisation."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Voulez-vous ajouter cette organisation à $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Organisation existante ajoutée"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Les places assignées dépassent les places disponibles."
   }
 }

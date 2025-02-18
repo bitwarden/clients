@@ -1,6 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 
 import { VaultProfileService } from "./vault-profile.service";
 
@@ -13,6 +14,12 @@ describe("VaultProfileService", () => {
     creationDate: hardcodedDateString,
     twoFactorEnabled: true,
     id: "new-user-id",
+    organizations: [
+      {
+        ssoBound: true,
+        type: OrganizationUserType.Admin,
+      },
+    ],
   });
 
   beforeEach(() => {
@@ -88,6 +95,66 @@ describe("VaultProfileService", () => {
       const twoFactorEnabled = await service.getProfileTwoFactorEnabled(userId);
 
       expect(twoFactorEnabled).toBe(false);
+      expect(getProfile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getUserSSOBound", () => {
+    it("calls `getProfile` when stored ssoBound property is not stored", async () => {
+      expect(service["userIsSsoBound"]).toBeNull();
+
+      const userIsSsoBound = await service.getUserSSOBound(userId);
+
+      expect(userIsSsoBound).toBe(true);
+      expect(getProfile).toHaveBeenCalled();
+    });
+
+    it("calls `getProfile` when stored profile id does not match", async () => {
+      service["userIsSsoBound"] = false;
+      service["userId"] = "old-user-id";
+
+      const userIsSsoBound = await service.getUserSSOBound(userId);
+
+      expect(userIsSsoBound).toBe(true);
+      expect(getProfile).toHaveBeenCalled();
+    });
+
+    it("does not call `getProfile` when ssoBound property is already stored", async () => {
+      service["userIsSsoBound"] = false;
+
+      const userIsSsoBound = await service.getUserSSOBound(userId);
+
+      expect(userIsSsoBound).toBe(false);
+      expect(getProfile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getUserSSOBoundAdminOwner", () => {
+    it("calls `getProfile` when stored userIsSsoBoundAdminOwner property is not stored", async () => {
+      expect(service["userIsSsoBoundAdminOwner"]).toBeNull();
+
+      const userIsSsoBoundAdminOwner = await service.getUserSSOBoundAdminOwner(userId);
+
+      expect(userIsSsoBoundAdminOwner).toBe(true);
+      expect(getProfile).toHaveBeenCalled();
+    });
+
+    it("calls `getProfile` when stored profile id does not match", async () => {
+      service["userIsSsoBoundAdminOwner"] = false;
+      service["userId"] = "old-user-id";
+
+      const userIsSsoBoundAdminOwner = await service.getUserSSOBoundAdminOwner(userId);
+
+      expect(userIsSsoBoundAdminOwner).toBe(true);
+      expect(getProfile).toHaveBeenCalled();
+    });
+
+    it("does not call `getProfile` when userIsSsoBoundAdminOwner property is already stored", async () => {
+      service["userIsSsoBoundAdminOwner"] = false;
+
+      const userIsSsoBoundAdminOwner = await service.getUserSSOBoundAdminOwner(userId);
+
+      expect(userIsSsoBoundAdminOwner).toBe(false);
       expect(getProfile).not.toHaveBeenCalled();
     });
   });
