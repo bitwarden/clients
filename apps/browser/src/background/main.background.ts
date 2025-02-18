@@ -674,7 +674,7 @@ export default class MainBackground {
       this.messagingService,
     );
 
-    this.appIdService = new AppIdService(this.storageService, this.logService);
+    this.appIdService = new AppIdService(this.storageService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
     this.organizationService = new DefaultOrganizationService(this.stateProvider);

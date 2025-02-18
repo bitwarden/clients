@@ -1,7 +1,4 @@
-import { mock } from "jest-mock-extended";
-
 import { FakeStorageService } from "../../../spec";
-import { LogService } from "../abstractions/log.service";
 import { Utils } from "../misc/utils";
 
 import { ANONYMOUS_APP_ID_KEY, APP_ID_KEY, AppIdService } from "./app-id.service";
@@ -12,7 +9,7 @@ describe("AppIdService", () => {
 
   beforeEach(() => {
     fakeStorageService = new FakeStorageService();
-    sut = new AppIdService(fakeStorageService, mock<LogService>());
+    sut = new AppIdService(fakeStorageService);
   });
 
   afterEach(() => {
