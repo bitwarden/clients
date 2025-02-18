@@ -51,19 +51,19 @@ describe("RestClient", () => {
       expect(api.nativeFetch).toHaveBeenCalledWith(expectedRpc.fetchRequest);
     });
 
-    it.each([[401] /*,[403]*/])(
-      "throws an invalid token error when HTTP status is %i",
-      async (status) => {
-        const client = new RestClient(api, i18n);
-        const request: IntegrationRequest = { website: null };
-        const response = mock<Response>({ status, statusText: null });
-        api.nativeFetch.mockResolvedValue(response);
+    it.each([
+      [401, "forwaderInvalidToken"],
+      [403, "forwaderInvalidOperation"],
+    ])("throws an invalid token error when HTTP status is %i", async (status, messageKey) => {
+      const client = new RestClient(api, i18n);
+      const request: IntegrationRequest = { website: null };
+      const response = mock<Response>({ status, statusText: null });
+      api.nativeFetch.mockResolvedValue(response);
 
-        const result = client.fetchJson(rpc, request);
+      const result = client.fetchJson(rpc, request);
 
-        await expect(result).rejects.toEqual("forwaderInvalidToken");
-      },
-    );
+      await expect(result).rejects.toEqual(messageKey);
+    });
 
     it.each([
       [401, null, null, "forwaderInvalidToken"],
