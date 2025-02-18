@@ -164,7 +164,7 @@ const sizes: Record<IconButtonSize, string[]> = {
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   @Input("bitIconButton") icon: string;
 
-  @Input() buttonType: IconButtonType;
+  @Input() buttonType: IconButtonType = "main";
 
   @Input() size: IconButtonSize = "default";
 
@@ -178,9 +178,9 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       "hover:tw-no-underline",
       "focus:tw-outline-none",
     ]
-      .concat(styles[this.buttonType ?? "main"])
+      .concat(styles[this.buttonType])
       .concat(sizes[this.size])
-      .concat(this.showDisabledStyles() || this.disabled ? disabledStyles[this.buttonType] : []);
+      .concat(this.showDisabledStyles() || this.disabled() ? disabledStyles[this.buttonType] : []);
   }
 
   get iconClass() {
@@ -188,7 +188,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
   }
 
   protected disabledAttr = computed(() => {
-    const disabled = this.disabled != null && this.disabled() !== false;
+    const disabled = this.disabled() != null && this.disabled() !== false;
     return disabled || this.loading() ? true : null;
   });
 

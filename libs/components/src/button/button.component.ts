@@ -73,7 +73,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
       .concat(buttonStyles[this.buttonType ?? "secondary"])
       .concat(
-        this.showDisabledStyles() || this.disabled
+        this.showDisabledStyles() || this.disabled()
           ? [
               "disabled:tw-bg-secondary-300",
               "disabled:hover:tw-bg-secondary-300",
@@ -89,7 +89,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   }
 
   protected disabledAttr = computed(() => {
-    const disabled = this.disabled != null && this.disabled() !== false;
+    const disabled = this.disabled() != null && this.disabled() !== false;
     return disabled || this.loading() ? true : null;
   });
 
