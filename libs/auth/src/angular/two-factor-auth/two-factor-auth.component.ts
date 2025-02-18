@@ -101,7 +101,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   loading = true;
 
   orgSsoIdentifier: string | undefined = undefined;
-  inSsoFlow = false;
 
   providerType = TwoFactorProviderType;
   selectedProviderType: TwoFactorProviderType = TwoFactorProviderType.Authenticator;
@@ -165,8 +164,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.inSsoFlow = this.activatedRoute.snapshot.queryParamMap.get("sso") === "true";
-
     this.orgSsoIdentifier =
       this.activatedRoute.snapshot.queryParamMap.get("identifier") ?? undefined;
 
