@@ -14,6 +14,8 @@ import {
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -79,9 +81,12 @@ export class SendComponent implements OnInit, OnDestroy {
     protected sendApiService: SendApiService,
     protected dialogService: DialogService,
     protected toastService: ToastService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this.policyService
       .policyAppliesToActiveUser$(PolicyType.DisableSend)
       .pipe(takeUntil(this.destroy$))
@@ -91,7 +96,7 @@ export class SendComponent implements OnInit, OnDestroy {
 
     this._searchText$
       .pipe(
-        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
+        switchMap((searchText) => from(this.searchService.isSearchable(userId, searchText))),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {

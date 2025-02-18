@@ -178,6 +178,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected freeTrial$: Observable<FreeTrial>;
   protected resellerWarning$: Observable<ResellerWarning | null>;
   protected prevCipherId: string | null = null;
+  protected userId: UserId;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -258,6 +259,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
       FeatureFlag.ResellerManagedOrgAlert,
     );
@@ -401,7 +404,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
         }
 
-        await this.searchService.indexCiphers(ciphers, organization.id);
+        await this.searchService.indexCiphers(this.userId, ciphers, organization.id);
         return ciphers;
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -445,7 +448,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
         }
 
-        if (await this.searchService.isSearchable(searchText)) {
+        if (await this.searchService.isSearchable(this.userId, searchText)) {
           collectionsToReturn = this.searchPipe.transform(
             collectionsToReturn,
             searchText,
@@ -519,8 +522,13 @@ export class VaultComponent implements OnInit, OnDestroy {
 
         const filterFunction = createFilterFunction(filter);
 
-        if (await this.searchService.isSearchable(searchText)) {
-          return await this.searchService.searchCiphers(searchText, [filterFunction], ciphers);
+        if (await this.searchService.isSearchable(this.userId, searchText)) {
+          return await this.searchService.searchCiphers(
+            this.userId,
+            searchText,
+            [filterFunction],
+            ciphers,
+          );
         }
 
         return ciphers.filter(filterFunction);
