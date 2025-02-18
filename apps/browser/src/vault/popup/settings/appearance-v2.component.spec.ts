@@ -58,6 +58,7 @@ describe("AppearanceV2Component", () => {
   const setEnableRoutingAnimation = jest.fn().mockResolvedValue(undefined);
   const setEnableCompactMode = jest.fn().mockResolvedValue(undefined);
   const setShowQuickCopyActions = jest.fn().mockResolvedValue(undefined);
+  const setClickItemsToAutofillVaultView = jest.fn().mockResolvedValue(undefined);
 
   const mockWidthService: Partial<PopupSizeService> = {
     width$: new BehaviorSubject("default"),
@@ -106,7 +107,7 @@ describe("AppearanceV2Component", () => {
           provide: VaultSettingsService,
           useValue: {
             clickItemsToAutofillVaultView$,
-            setClickItemsToAutofillVaultView: jest.fn().mockResolvedValue(undefined),
+            setClickItemsToAutofillVaultView,
           },
         },
       ],
@@ -165,6 +166,30 @@ describe("AppearanceV2Component", () => {
       component.appearanceForm.controls.enableAnimations.setValue(false);
 
       expect(setEnableRoutingAnimation).toHaveBeenCalledWith(false);
+    });
+
+    it("updates the compact mode setting", () => {
+      component.appearanceForm.controls.enableCompactMode.setValue(true);
+
+      expect(setEnableCompactMode).toHaveBeenCalledWith(true);
+    });
+
+    it("updates the quick copy actions setting", () => {
+      component.appearanceForm.controls.showQuickCopyActions.setValue(true);
+
+      expect(setShowQuickCopyActions).toHaveBeenCalledWith(true);
+    });
+
+    it("updates the width setting", () => {
+      component.appearanceForm.controls.width.setValue("wide");
+
+      expect(mockWidthService.setWidth).toHaveBeenCalledWith("wide");
+    });
+
+    it("updates the click items to autofill vault view setting", () => {
+      component.appearanceForm.controls.clickItemsToAutofillVaultView.setValue(true);
+
+      expect(setClickItemsToAutofillVaultView).toHaveBeenCalledWith(true);
     });
   });
 });
