@@ -624,47 +624,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   };
 
   /**
-   * Handle the Login with Passkey button click.
-   * We need a handler here in order to persist the remember email selection to state before routing.
-   * @param event - The event object.
-   */
-  async handleLoginWithPasskeyClick() {
-    this.updateFormControls();
-    const email = this.formGroup.value.email;
-    if (email) {
-      await this.persistLoginEmail();
-    }
-    await this.router.navigate(["/login-with-passkey"]);
-  }
-
-  /**
-   * Handle the SSO button click.
-   */
-  async handleSsoClick() {
-    // Make sure the email is not empty, for type safety
-    const email = this.formGroup.value.email;
-    if (!email) {
-      this.logService.error("Email is required for SSO");
-      return;
-    }
-
-    // Make sure the email is valid
-    const isEmailValid = await this.validateEmail();
-    if (!isEmailValid) {
-      return;
-    }
-
-    // Save the email configuration for the login component
-    await this.persistLoginEmail();
-
-    // Send the user to SSO, either through routing or through redirecting to the web app
-    await this.loginComponentService.redirectToSsoLogin(email);
-  }
-
-  /**
    * Persist the entered email address and the user's choice to remember it to state.
-   * @returns
-   
    */
   private async persistEmail(): Promise<void> {
     const email = this.formGroup.value.email;
