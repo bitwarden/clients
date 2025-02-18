@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, of, shareReplay, startWith, switchMap } from "rxjs";
 
@@ -16,7 +16,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  BadgeComponent,
+  BadgeModule,
   ButtonModule,
   CalloutModule,
   ItemModule,
@@ -24,6 +24,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
+  ChangeLoginPasswordService,
+  DefaultChangeLoginPasswordService,
   filterOutNullish,
   PasswordRepromptService,
   SecurityTaskType,
@@ -37,8 +39,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 
 @Component({
-  selector: "vault-at-risk-passwords",
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -46,12 +46,17 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
     ItemModule,
     CommonModule,
     JslibModule,
-    BadgeComponent,
     TypographyModule,
     CalloutModule,
     ButtonModule,
+    BadgeModule,
   ],
-  providers: [AtRiskPasswordPageService],
+  providers: [
+    AtRiskPasswordPageService,
+    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+  ],
+  selector: "vault-at-risk-passwords",
+  standalone: true,
   templateUrl: "./at-risk-passwords.component.html",
 })
 export class AtRiskPasswordsComponent {
@@ -60,12 +65,20 @@ export class AtRiskPasswordsComponent {
   private cipherService = inject(CipherService);
   private i18nService = inject(I18nService);
   private accountService = inject(AccountService);
-  private platformUtilsService = inject(PlatformUtilsService);
   private passwordRepromptService = inject(PasswordRepromptService);
   private router = inject(Router);
   private autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
   private toastService = inject(ToastService);
   private atRiskPasswordPageService = inject(AtRiskPasswordPageService);
+  private changeLoginPasswordService = inject(ChangeLoginPasswordService);
+  private platformUtilsService = inject(PlatformUtilsService);
+
+  /**
+   * The cipher that is currently being launched. Used to show a loading spinner on the badge button.
+   * The UI utilize a bitBadge which does not support async actions (like bitButton does).
+   * @protected
+   */
+  protected launchingCipher = signal<CipherView | null>(null);
 
   private activeUserData$ = this.accountService.activeAccount$.pipe(
     filterOutNullish(),
@@ -138,12 +151,6 @@ export class AtRiskPasswordsComponent {
     });
   }
 
-  async launchChangePassword(cipher: CipherView) {
-    if (cipher.login?.uri) {
-      this.platformUtilsService.launchUri(cipher.login.uri);
-    }
-  }
-
   async activateInlineAutofillMenuVisibility() {
     await this.autofillSettingsService.setInlineMenuVisibility(
       AutofillOverlayVisibility.OnButtonClick,
@@ -159,4 +166,19 @@ export class AtRiskPasswordsComponent {
     const { userId } = await firstValueFrom(this.activeUserData$);
     await this.atRiskPasswordPageService.dismissCallout(userId);
   }
+
+  launchChangePassword = async (cipher: CipherView) => {
+    try {
+      this.launchingCipher.set(cipher);
+      const url = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
+
+      if (url == null) {
+        return;
+      }
+
+      this.platformUtilsService.launchUri(url);
+    } finally {
+      this.launchingCipher.set(null);
+    }
+  };
 }
