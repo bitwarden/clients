@@ -674,12 +674,6 @@ jobs:
 
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
-      - name: Set up provisioning profiles
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        run: |
-          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
-
       - name: Increment version
         shell: pwsh
         env:
