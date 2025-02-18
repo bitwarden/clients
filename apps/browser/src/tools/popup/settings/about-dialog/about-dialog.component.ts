@@ -1,20 +1,24 @@
+import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, ElementRef, ViewChild } from "@angular/core";
 import { Observable, combineLatest, defer, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { ButtonModule, DialogModule } from "@bitwarden/components";
+import { ButtonModule, DialogModule, ToastService, TypographyModule } from "@bitwarden/components";
 
 @Component({
   templateUrl: "about-dialog.component.html",
   standalone: true,
-  imports: [CommonModule, JslibModule, DialogModule, ButtonModule],
+  imports: [CommonModule, JslibModule, DialogModule, ButtonModule, TypographyModule],
 })
 export class AboutDialogComponent {
+  @ViewChild("version") protected version!: ElementRef;
+
   protected year = new Date().getFullYear();
   protected version$: Observable<string>;
 
@@ -26,11 +30,23 @@ export class AboutDialogComponent {
   protected sdkVersion$ = this.sdkService.version$;
 
   constructor(
+    private dialogRef: DialogRef,
     private configService: ConfigService,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
     private sdkService: SdkService,
   ) {
     this.version$ = defer(() => this.platformUtilsService.getApplicationVersion());
+  }
+
+  protected copyVersion() {
+    this.platformUtilsService.copyToClipboard(this.version.nativeElement.innerText);
+    this.toastService.showToast({
+      message: this.i18nService.t("copySuccessful"),
+      variant: "success",
+    });
+    this.dialogRef.close();
   }
 }
