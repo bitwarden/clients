@@ -150,17 +150,14 @@ export class InlineMenuFieldQualificationService
     this.identityPostalCodeAutocompleteValue,
   ]);
   private totpFieldAutocompleteValue = "one-time-code";
-  private inlineMenuFieldQualificationFlagSet = false;
   private inlineMenuTotpFeatureFlag = false;
   private premiumEnabled = false;
 
   constructor() {
     void Promise.all([
-      sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag"),
       sendExtensionMessage("getInlineMenuTotpFeatureFlag"),
       sendExtensionMessage("getUserPremiumStatus"),
-    ]).then(([fieldQualificationFlag, totpFeatureFlag, premiumStatus]) => {
-      this.inlineMenuFieldQualificationFlagSet = !!fieldQualificationFlag?.result;
+    ]).then(([totpFeatureFlag, premiumStatus]) => {
       this.inlineMenuTotpFeatureFlag = !!totpFeatureFlag?.result;
       this.premiumEnabled = !!premiumStatus?.result;
     });
@@ -173,10 +170,6 @@ export class InlineMenuFieldQualificationService
    * @param pageDetails - The details of the page that the field is on.
    */
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
-    if (!this.inlineMenuFieldQualificationFlagSet) {
-      return this.isFieldForLoginFormFallback(field);
-    }
-
     /**
      * Totp inline menu is available only for premium users.
      */
@@ -1225,19 +1218,5 @@ export class InlineMenuFieldQualificationService
     }
 
     return false;
-  }
-
-  /**
-   * This method represents the previous rudimentary approach to qualifying fields for login forms.
-   *
-   * @param field - The field to validate
-   * @deprecated - This method will only be used when the fallback flag is set to true.
-   */
-  private isFieldForLoginFormFallback(field: AutofillField): boolean {
-    if (field.type === "password") {
-      return true;
-    }
-
-    return this.isUsernameField(field);
   }
 }
