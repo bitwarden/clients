@@ -1,46 +1,46 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>bitwarden/renovate-config"],
-  "enabledManagers": ["cargo", "github-actions", "npm"],
-  "packageRules": [
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["github>bitwarden/renovate-config"], // Extends our base config for pinned dependencies
+  enabledManagers: ["cargo", "github-actions", "npm"],
+  packageRules: [
     {
-      "groupName": "github-action minor",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor"]
+      groupName: "github-action minor",
+      matchManagers: ["github-actions"],
+      matchUpdateTypes: ["minor"],
     },
     {
-      "matchManagers": ["cargo"],
-      "commitMessagePrefix": "[deps] Platform:"
+      matchManagers: ["cargo"],
+      commitMessagePrefix: "[deps] Platform:",
     },
     {
-      "groupName": "napi",
-      "matchPackageNames": ["napi", "napi-build", "napi-derive"]
+      groupName: "napi",
+      matchPackageNames: ["napi", "napi-build", "napi-derive"],
     },
     {
-      "matchPackageNames": ["typescript", "zone.js"],
-      "matchUpdateTypes": ["major", "minor"],
-      "description": "Determined by Angular",
-      "enabled": false
+      matchPackageNames: ["typescript", "zone.js"],
+      matchUpdateTypes: ["major", "minor"],
+      description: "Determined by Angular",
+      enabled: false,
     },
     {
-      "matchPackageNames": ["typescript", "zone.js"],
-      "matchUpdateTypes": "patch"
+      matchPackageNames: ["typescript", "zone.js"],
+      matchUpdateTypes: "patch",
     },
     {
-      "groupName": "jest",
-      "matchPackageNames": ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
-      "matchUpdateTypes": "major"
+      groupName: "jest",
+      matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
+      matchUpdateTypes: "major",
     },
     {
-      "groupName": "macOS/iOS bindings",
-      "matchPackageNames": ["core-foundation", "security-framework", "security-framework-sys"]
+      groupName: "macOS/iOS bindings",
+      matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
     },
     {
-      "groupName": "zbus",
-      "matchPackageNames": ["zbus", "zbus_polkit"]
+      groupName: "zbus",
+      matchPackageNames: ["zbus", "zbus_polkit"],
     },
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "base64-loader",
         "buffer",
         "bufferutil",
@@ -56,20 +56,20 @@
         "style-loader",
         "ts-loader",
         "url",
-        "util"
+        "util",
       ],
-      "description": "Admin Console owned dependencies",
-      "commitMessagePrefix": "[deps] AC:",
-      "reviewers": ["team:team-admin-console-dev"]
+      description: "Admin Console owned dependencies",
+      commitMessagePrefix: "[deps] AC:",
+      reviewers: ["team:team-admin-console-dev"],
     },
     {
-      "matchPackageNames": ["qrious"],
-      "description": "Auth owned dependencies",
-      "commitMessagePrefix": "[deps] Auth:",
-      "reviewers": ["team:team-auth-dev"]
+      matchPackageNames: ["qrious"],
+      description: "Auth owned dependencies",
+      commitMessagePrefix: "[deps] Auth:",
+      reviewers: ["team:team-auth-dev"],
     },
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "@angular-eslint/schematics",
         "angular-eslint",
         "eslint-config-prettier",
@@ -82,14 +82,14 @@
         "eslint",
         "husky",
         "lint-staged",
-        "typescript-eslint"
+        "typescript-eslint",
       ],
-      "description": "Architecture owned dependencies",
-      "commitMessagePrefix": "[deps] Architecture:",
-      "reviewers": ["team:dept-architecture"]
+      description: "Architecture owned dependencies",
+      commitMessagePrefix: "[deps] Architecture:",
+      reviewers: ["team:dept-architecture"],
     },
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "@angular-eslint/eslint-plugin-template",
         "@angular-eslint/eslint-plugin",
         "@angular-eslint/schematics",
@@ -105,13 +105,13 @@
         "eslint-plugin-tailwindcss",
         "eslint",
         "husky",
-        "lint-staged"
+        "lint-staged",
       ],
-      "groupName": "Linting minor-patch",
-      "matchUpdateTypes": ["minor", "patch"]
+      groupName: "Linting minor-patch",
+      matchUpdateTypes: ["minor", "patch"],
     },
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "@emotion/css",
         "@webcomponents/custom-elements",
         "concurrently",
@@ -126,20 +126,20 @@
         "@storybook/web-components-webpack5",
         "tabbable",
         "tldts",
-        "wait-on"
+        "wait-on",
       ],
-      "description": "Autofill owned dependencies",
-      "commitMessagePrefix": "[deps] Autofill:",
-      "reviewers": ["team:team-autofill-dev"]
+      description: "Autofill owned dependencies",
+      commitMessagePrefix: "[deps] Autofill:",
+      reviewers: ["team:team-autofill-dev"],
     },
     {
-      "matchPackageNames": ["braintree-web-drop-in"],
-      "description": "Billing owned dependencies",
-      "commitMessagePrefix": "[deps] Billing:",
-      "reviewers": ["team:team-billing-dev"]
+      matchPackageNames: ["braintree-web-drop-in"],
+      description: "Billing owned dependencies",
+      commitMessagePrefix: "[deps] Billing:",
+      reviewers: ["team:team-billing-dev"],
     },
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "@babel/core",
         "@babel/preset-env",
         "@bitwarden/sdk-internal",
@@ -167,6 +167,7 @@
         "electron-updater",
         "html-webpack-injector",
         "html-webpack-plugin",
+        "json5",
         "lowdb",
         "node-forge",
         "node-ipc",
@@ -179,14 +180,14 @@
         "webpack",
         "webpack-cli",
         "webpack-dev-server",
-        "webpack-node-externals"
+        "webpack-node-externals",
       ],
-      "description": "Platform owned dependencies",
-      "commitMessagePrefix": "[deps] Platform:",
-      "reviewers": ["team:team-platform-dev"]
+      description: "Platform owned dependencies",
+      commitMessagePrefix: "[deps] Platform:",
+      reviewers: ["team:team-platform-dev"],
     },
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "@angular-devkit/build-angular",
         "@angular/animations",
         "@angular/cdk",
@@ -225,27 +226,27 @@
         "remark-gfm",
         "storybook",
         "tailwindcss",
-        "zone.js"
+        "zone.js",
       ],
-      "description": "UI Foundation owned dependencies",
-      "commitMessagePrefix": "[deps] UI Foundation:",
-      "reviewers": ["team:team-ui-foundation"]
+      description: "UI Foundation owned dependencies",
+      commitMessagePrefix: "[deps] UI Foundation:",
+      reviewers: ["team:team-ui-foundation"],
     },
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "@types/jest",
         "jest-junit",
         "jest-mock-extended",
         "jest-preset-angular",
         "jest-diff",
-        "ts-jest"
+        "ts-jest",
       ],
-      "description": "Secrets Manager owned dependencies",
-      "commitMessagePrefix": "[deps] SM:",
-      "reviewers": ["team:team-secrets-manager-dev"]
+      description: "Secrets Manager owned dependencies",
+      commitMessagePrefix: "[deps] SM:",
+      reviewers: ["team:team-secrets-manager-dev"],
     },
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "@microsoft/signalr-protocol-msgpack",
         "@microsoft/signalr",
         "@types/jsdom",
@@ -256,14 +257,14 @@
         "oidc-client-ts",
         "papaparse",
         "utf-8-validate",
-        "zxcvbn"
+        "zxcvbn",
       ],
-      "description": "Tools owned dependencies",
-      "commitMessagePrefix": "[deps] Tools:",
-      "reviewers": ["team:team-tools-dev"]
+      description: "Tools owned dependencies",
+      commitMessagePrefix: "[deps] Tools:",
+      reviewers: ["team:team-tools-dev"],
     },
     {
-      "matchPackageNames": [
+      matchPackageNames: [
         "@koa/multer",
         "@koa/router",
         "@types/inquirer",
@@ -289,18 +290,18 @@
         "node-fetch",
         "open",
         "proper-lockfile",
-        "qrcode-parser"
+        "qrcode-parser",
       ],
-      "description": "Vault owned dependencies",
-      "commitMessagePrefix": "[deps] Vault:",
-      "reviewers": ["team:team-vault-dev"]
+      description: "Vault owned dependencies",
+      commitMessagePrefix: "[deps] Vault:",
+      reviewers: ["team:team-vault-dev"],
     },
     {
-      "matchPackageNames": ["@types/argon2-browser", "argon2", "argon2-browser", "big-integer"],
-      "description": "Key Management owned dependencies",
-      "commitMessagePrefix": "[deps] KM:",
-      "reviewers": ["team:team-key-management-dev"]
-    }
+      matchPackageNames: ["@types/argon2-browser", "argon2", "argon2-browser", "big-integer"],
+      description: "Key Management owned dependencies",
+      commitMessagePrefix: "[deps] KM:",
+      reviewers: ["team:team-key-management-dev"],
+    },
   ],
-  "ignoreDeps": ["@types/koa-bodyparser", "bootstrap", "node-ipc", "node", "npm"]
+  ignoreDeps: ["@types/koa-bodyparser", "bootstrap", "node-ipc", "node", "npm"],
 }

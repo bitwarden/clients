@@ -12,7 +12,7 @@ export const positionFixedWrapperDecorator = (wrapper?: (story: string) => strin
      */
     (story) =>
       /* HTML */ `<div
-        class="tw-scale-100 tw-h-screen tw-border-2 tw-border-solid tw-border-secondary-300 tw-overflow-auto"
+        class="tw-scale-100 tw-h-screen tw-border-2 tw-border-solid tw-border-secondary-300 tw-overflow-auto tw-box-content"
       >
         ${wrapper ? wrapper(story) : story}
       </div>`,

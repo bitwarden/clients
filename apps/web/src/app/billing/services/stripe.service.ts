@@ -55,15 +55,21 @@ export class StripeService {
    * Re-mounts previously created Stripe credit card [elements]{@link https://docs.stripe.com/js/elements_object/create} into the HTML elements
    * specified during the {@link loadStripe} call. This is useful for when those HTML elements are removed from the DOM by Angular.
    */
-  mountElements() {
+  mountElements(i: number = 0) {
     setTimeout(() => {
+      if (!document.querySelector(this.elementIds.cardNumber) && i < 10) {
+        this.logService.warning("Stripe container missing, retrying...");
+        this.mountElements(i + 1);
+        return;
+      }
+
       const cardNumber = this.elements.getElement("cardNumber");
       const cardExpiry = this.elements.getElement("cardExpiry");
       const cardCvc = this.elements.getElement("cardCvc");
       cardNumber.mount(this.elementIds.cardNumber);
       cardExpiry.mount(this.elementIds.cardExpiry);
       cardCvc.mount(this.elementIds.cardCvc);
-    });
+    }, 50);
   }
 
   /**
