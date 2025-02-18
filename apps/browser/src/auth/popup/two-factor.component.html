@@ -104,7 +104,24 @@
     <ng-container *ngIf="selectedProviderType === providerType.WebAuthn && webAuthnNewTab">
       <div class="content text-center" *ngIf="webAuthnNewTab">
         <p class="text-center">{{ "webAuthnNewTab" | i18n }}</p>
-        <button type="button" class="btn primary block" (click)="authWebAuthn()" appStopClick>
+        <button
+          bitButton
+          type="button"
+          buttonType="primary"
+          [block]="true"
+          (click)="authPasskey()"
+          appStopClick
+        >
+          {{ "Use passkey" }}
+        </button>
+        <button
+          bitButton
+          type="button"
+          buttonType="secondary"
+          [block]="true"
+          (click)="authWebAuthn()"
+          appStopClick
+        >
           {{ "webAuthnNewTabOpen" | i18n }}
         </button>
       </div>
