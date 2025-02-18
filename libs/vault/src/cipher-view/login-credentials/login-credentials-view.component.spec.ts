@@ -24,6 +24,7 @@ import {
   CopyClickDirective,
   ToastService,
 } from "@bitwarden/components";
+import { DefaultTaskService } from "@bitwarden/vault";
 
 import { LoginCredentialsViewComponent } from "./login-credentials-view.component";
 
@@ -80,6 +81,10 @@ describe("LoginCredentialsViewComponent", () => {
           useValue: {
             canManageCipher$: jest.fn(),
           },
+        },
+        {
+          provide: DefaultTaskService,
+          useValue: mock<DefaultTaskService>(),
         },
       ],
     }).compileComponents();

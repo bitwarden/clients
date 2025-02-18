@@ -1,9 +1,11 @@
 import { ComponentFixture, fakeAsync, flush, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { Subject } from "rxjs";
+import { of, Subject } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   AUTOFILL_ID,
@@ -17,6 +19,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -24,7 +27,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+import { CopyCipherFieldService, DefaultTaskService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -51,6 +54,8 @@ describe("ViewV2Component", () => {
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
   const stop = jest.fn();
   const showToast = jest.fn();
+  let mockDefaultTaskService: Partial<DefaultTaskService>;
+  let mockApiService: Partial<ApiService>;
 
   const mockCipher = {
     id: "122-333-444",
@@ -90,6 +95,12 @@ describe("ViewV2Component", () => {
     openSimpleDialog.mockClear();
     back.mockClear();
     showToast.mockClear();
+    mockApiService = {
+      send: jest.fn(),
+    };
+    // mockDefaultTaskService = {
+    //   tasks$: jest.fn().mockImplementation(() => of([]))
+    // }
 
     await TestBed.configureTestingModule({
       imports: [ViewV2Component],
@@ -131,6 +142,10 @@ describe("ViewV2Component", () => {
           provide: CopyCipherFieldService,
           useValue: mockCopyCipherFieldService,
         },
+        { provide: DefaultTaskService, useValue: mockDefaultTaskService },
+        { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: ApiService, useValue: mockApiService },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
       ],
     })
       .overrideProvider(DialogService, {
@@ -143,6 +158,7 @@ describe("ViewV2Component", () => {
     fixture = TestBed.createComponent(ViewV2Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    jest.spyOn(component, "checkPendingTasks$").mockReturnValue(of(true));
   });
 
   describe("queryParams", () => {

@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Observable, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -39,7 +39,7 @@ import {
   ToastService,
   CalloutModule,
 } from "@bitwarden/components";
-import { CipherViewComponent, CopyCipherFieldService } from "@bitwarden/vault";
+import { CipherViewComponent, CopyCipherFieldService, DefaultTaskService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -88,6 +88,7 @@ type LoadAction =
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
+    { provide: DefaultTaskService, useClass: DefaultTaskService },
   ],
 })
 export class ViewV2Component {
@@ -100,7 +101,7 @@ export class ViewV2Component {
   collections$: Observable<CollectionView[]>;
   loadAction: LoadAction;
   senderTabId?: number;
-  canManageCipher$: Observable<boolean>;
+  hasPendingTasks$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -117,6 +118,7 @@ export class ViewV2Component {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
+    private defaultTaskService: DefaultTaskService,
   ) {
     this.subscribeToParams();
   }
@@ -152,7 +154,7 @@ export class ViewV2Component {
             cipher.organizationId,
           );
 
-          this.canManageCipher$ = this.cipherAuthorizationService.canManageCipher$(this.cipher);
+          this.hasPendingTasks$ = this.checkPendingTasks$();
         }),
         takeUntilDestroyed(),
       )
@@ -172,6 +174,25 @@ export class ViewV2Component {
       case CipherType.SshKey:
         return this.i18nService.t("viewItemHeader", this.i18nService.t("typeSshkey"));
     }
+  }
+
+  checkPendingTasks$(): Observable<boolean> {
+    return combineLatest([
+      this.defaultTaskService.pendingTasks$(this.activeUserId),
+      this.cipherAuthorizationService.canManageCipher$(this.cipher),
+    ]).pipe(
+      map(([tasks, canManage]) => {
+        let hasTasks = false;
+
+        if (tasks?.length > 0) {
+          hasTasks =
+            tasks.filter((task) => {
+              return task.cipherId === this.cipher.id;
+            }).length > 0;
+        }
+        return hasTasks && canManage;
+      }),
+    );
   }
 
   async getCipherData(id: string, userId: UserId) {

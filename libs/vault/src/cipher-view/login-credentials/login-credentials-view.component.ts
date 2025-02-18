@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
 import { Component, inject, Input, OnInit } from "@angular/core";
-import { Observable, switchMap } from "rxjs";
+import { combineLatest, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -10,6 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -23,6 +24,7 @@ import {
   BadgeModule,
   ColorPasswordModule,
 } from "@bitwarden/components";
+import { DefaultTaskService } from "@bitwarden/vault";
 
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
@@ -53,6 +55,7 @@ type TotpCodeValues = {
 })
 export class LoginCredentialsViewComponent implements OnInit {
   @Input() cipher: CipherView;
+  @Input() activeUserId: UserId;
 
   isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
@@ -62,7 +65,8 @@ export class LoginCredentialsViewComponent implements OnInit {
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
   totpCodeCopyObj: TotpCodeValues;
-  canManageCipher$: Observable<boolean>;
+  hasPendingTasks$: Observable<boolean>;
+
   private datePipe = inject(DatePipe);
 
   constructor(
@@ -72,10 +76,26 @@ export class LoginCredentialsViewComponent implements OnInit {
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private defaultTaskService: DefaultTaskService,
   ) {}
 
   ngOnInit() {
-    this.canManageCipher$ = this.cipherAuthorizationService.canManageCipher$(this.cipher);
+    this.hasPendingTasks$ = combineLatest([
+      this.defaultTaskService.pendingTasks$(this.activeUserId),
+      this.cipherAuthorizationService.canManageCipher$(this.cipher),
+    ]).pipe(
+      map(([tasks, canManage]) => {
+        let hasTasks = false;
+
+        if (tasks?.length > 0) {
+          hasTasks =
+            tasks.filter((task) => {
+              return task.cipherId === this.cipher.id;
+            }).length > 0;
+        }
+        return hasTasks && canManage;
+      }),
+    );
   }
 
   get fido2CredentialCreationDateValue(): string {

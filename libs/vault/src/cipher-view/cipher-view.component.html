@@ -23,7 +23,11 @@
   </app-item-details-v2>
 
   <!-- LOGIN CREDENTIALS -->
-  <app-login-credentials-view *ngIf="hasLogin" [cipher]="cipher"></app-login-credentials-view>
+  <app-login-credentials-view
+    *ngIf="hasLogin"
+    [cipher]="cipher"
+    [activeUserId]="activeUserId$ | async"
+  ></app-login-credentials-view>
 
   <!-- AUTOFILL OPTIONS -->
   <app-autofill-options-view

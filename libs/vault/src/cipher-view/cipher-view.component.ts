@@ -53,7 +53,7 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
 export class CipherViewComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) cipher: CipherView | null = null;
 
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+  activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
