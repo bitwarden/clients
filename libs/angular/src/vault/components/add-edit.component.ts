@@ -827,9 +827,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private async generateSshKey(showNotification: boolean = true) {
     await firstValueFrom(this.sdkService.client$);
     const sshKey = generate_ssh_key("Ed25519");
-    this.cipher.sshKey.privateKey = sshKey.private_key;
-    this.cipher.sshKey.publicKey = sshKey.public_key;
-    this.cipher.sshKey.keyFingerprint = sshKey.key_fingerprint;
+    this.cipher.sshKey.privateKey = sshKey.privateKey;
+    this.cipher.sshKey.publicKey = sshKey.publicKey;
+    this.cipher.sshKey.keyFingerprint = sshKey.fingerprint;
 
     if (showNotification) {
       this.toastService.showToast({
