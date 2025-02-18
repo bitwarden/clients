@@ -54,14 +54,7 @@ export class SendAccess extends Domain {
   async decrypt(key: SymmetricCryptoKey): Promise<SendAccessView> {
     const model = new SendAccessView(this);
 
-    await this.decryptObj(
-      model,
-      {
-        name: null,
-      },
-      null,
-      key,
-    );
+    await this.decryptObj<SendAccess, SendAccessView>(this, model, ["name"], null, key);
 
     switch (this.type) {
       case SendType.File:
