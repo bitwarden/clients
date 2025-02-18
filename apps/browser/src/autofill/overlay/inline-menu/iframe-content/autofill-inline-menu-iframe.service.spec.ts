@@ -302,38 +302,6 @@ describe("AutofillInlineMenuIframeService", () => {
             },
           );
         });
-
-        it("updates the border to match the `nord` theme", () => {
-          const message = {
-            command: "initAutofillInlineMenuList",
-            theme: ThemeType.Nord,
-          };
-
-          sendPortMessage(portSpy, message);
-
-          expect(updateElementStylesSpy).toHaveBeenCalledWith(
-            autofillInlineMenuIframeService["iframe"],
-            {
-              borderColor: "#2E3440",
-            },
-          );
-        });
-
-        it("updates the border to match the `solarizedDark` theme", () => {
-          const message = {
-            command: "initAutofillInlineMenuList",
-            theme: ThemeType.SolarizedDark,
-          };
-
-          sendPortMessage(portSpy, message);
-
-          expect(updateElementStylesSpy).toHaveBeenCalledWith(
-            autofillInlineMenuIframeService["iframe"],
-            {
-              borderColor: "#073642",
-            },
-          );
-        });
       });
 
       describe("updating the iframe's position", () => {
