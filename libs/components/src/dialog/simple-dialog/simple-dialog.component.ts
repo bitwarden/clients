@@ -1,5 +1,4 @@
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, ContentChild, Directive, input } from "@angular/core";
+import { booleanAttribute, Component, ContentChild, Directive, input } from "@angular/core";
 
 import { TypographyDirective } from "../../typography/typography.directive";
 import { fadeIn } from "../animations";
@@ -24,7 +23,7 @@ export class SimpleDialogComponent {
   /**
    * Optional flag to hide the dialog's center icon. Defaults to false.
    */
-  hideIcon = input(false, { transform: coerceBooleanProperty });
+  hideIcon = input(false, { transform: booleanAttribute });
 
   get hasIcon() {
     return this.icon != null;
