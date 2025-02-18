@@ -1,6 +1,7 @@
-import { Meta } from "@storybook/addon-docs";
+import { Meta, Story } from "@storybook/addon-docs";
+import * as stories from "./standalone.stories.ts";
 
-<Meta title="Component Library/Async Actions/Standalone/Documentation" />
+<Meta of={stories} />
 
 # Standalone Async Actions
 
@@ -8,9 +9,13 @@ These directives should be used when building a standalone button that triggers 
 in the background, eg. Refresh buttons. For non-submit buttons that are associated with forms see
 [Async Actions In Forms](?path=/story/component-library-async-actions-in-forms-documentation--page).
 
+If the long running background task resolves quickly (e.g. less than 75 ms), the loading spinner
+will not display on the button. This prevents an undesirable "flicker" of the loading spinner when
+it is not necessary for the user to see it.
+
 ## Usage
 
-Adding async actions to standalone buttons requires the following 2 steps
+Adding async actions to standalone buttons requires the following 2 steps:
 
 ### 1. Add a handler to your `Component`
 
@@ -60,3 +65,21 @@ from how click handlers are usually defined with the output syntax `(click)="han
 
 <button bitIconButton="bwi-trash" [bitAction]="handler"></button>`;
 ```
+
+## Stories
+
+### Promise resolves -- loading spinner is displayed
+
+<Story of={stories.UsingPromise} />
+
+### Promise resolves -- quickly without loading spinner
+
+<Story of={stories.ActionResolvesQuickly} />
+
+### Promise rejects
+
+<Story of={stories.RejectedPromise} />
+
+### Observable
+
+<Story of={stories.UsingObservable} />
