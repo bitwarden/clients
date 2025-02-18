@@ -1,9 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, Output } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -14,7 +17,15 @@ import { TwoFactorResponse } from "@bitwarden/common/auth/types/two-factor-respo
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService } from "@bitwarden/components";
+import {
+  DialogService,
+  DialogModule,
+  FormFieldModule,
+  ButtonModule,
+  AsyncActionsModule,
+} from "@bitwarden/components";
+
+import { UserVerificationModule } from "../../shared/components/user-verification";
 
 type TwoFactorVerifyDialogData = {
   type: TwoFactorProviderType;
@@ -24,6 +35,18 @@ type TwoFactorVerifyDialogData = {
 @Component({
   selector: "app-two-factor-verify",
   templateUrl: "two-factor-verify.component.html",
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    JslibModule,
+    UserVerificationModule,
+    DialogModule,
+    FormFieldModule,
+    ButtonModule,
+    AsyncActionsModule,
+    UserVerificationFormInputComponent,
+  ],
 })
 export class TwoFactorVerifyComponent {
   type: TwoFactorProviderType;

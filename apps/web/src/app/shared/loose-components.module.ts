@@ -39,14 +39,6 @@ import { ApiKeyComponent } from "../auth/settings/security/api-key.component";
 import { ChangeKdfModule } from "../auth/settings/security/change-kdf/change-kdf.module";
 import { SecurityKeysComponent } from "../auth/settings/security/security-keys.component";
 import { SecurityComponent } from "../auth/settings/security/security.component";
-import { TwoFactorRecoveryComponent } from "../auth/settings/two-factor/two-factor-recovery.component";
-import { TwoFactorSetupAuthenticatorComponent } from "../auth/settings/two-factor/two-factor-setup-authenticator.component";
-import { TwoFactorSetupDuoComponent } from "../auth/settings/two-factor/two-factor-setup-duo.component";
-import { TwoFactorSetupEmailComponent } from "../auth/settings/two-factor/two-factor-setup-email.component";
-import { TwoFactorSetupWebAuthnComponent } from "../auth/settings/two-factor/two-factor-setup-webauthn.component";
-import { TwoFactorSetupYubiKeyComponent } from "../auth/settings/two-factor/two-factor-setup-yubikey.component";
-import { TwoFactorSetupComponent } from "../auth/settings/two-factor/two-factor-setup.component";
-import { TwoFactorVerifyComponent } from "../auth/settings/two-factor/two-factor-verify.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
 import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
@@ -110,7 +102,6 @@ import { SharedModule } from "./shared.module";
     AccountComponent,
     AddEditComponent,
     AddEditCustomFieldsComponent,
-    AddEditCustomFieldsComponent,
     ApiKeyComponent,
     AttachmentsComponent,
     ChangeEmailComponent,
@@ -151,16 +142,8 @@ import { SharedModule } from "./shared.module";
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
     SsoComponentV1,
-    TwoFactorSetupAuthenticatorComponent,
     TwoFactorComponent,
-    TwoFactorSetupDuoComponent,
-    TwoFactorSetupEmailComponent,
     TwoFactorOptionsComponent,
-    TwoFactorRecoveryComponent,
-    TwoFactorSetupComponent,
-    TwoFactorVerifyComponent,
-    TwoFactorSetupWebAuthnComponent,
-    TwoFactorSetupYubiKeyComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
     VerifyEmailTokenComponent,
@@ -171,7 +154,6 @@ import { SharedModule } from "./shared.module";
     PremiumBadgeComponent,
     AccountComponent,
     AddEditComponent,
-    AddEditCustomFieldsComponent,
     AddEditCustomFieldsComponent,
     ApiKeyComponent,
     AttachmentsComponent,
@@ -215,16 +197,8 @@ import { SharedModule } from "./shared.module";
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
     SsoComponentV1,
-    TwoFactorSetupAuthenticatorComponent,
     TwoFactorComponent,
-    TwoFactorSetupDuoComponent,
-    TwoFactorSetupEmailComponent,
     TwoFactorOptionsComponent,
-    TwoFactorRecoveryComponent,
-    TwoFactorSetupComponent,
-    TwoFactorVerifyComponent,
-    TwoFactorSetupWebAuthnComponent,
-    TwoFactorSetupYubiKeyComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
     UserLayoutComponent,

@@ -45,15 +45,12 @@
   <bit-callout type="warning" *ngIf="showPolicyWarning">
     {{ "twoStepLoginPolicyUserWarning" | i18n }}
   </bit-callout>
-  <ul class="tw-m-0 tw-p-0 tw-list-none">
-    <li
-      *ngFor="let p of providers"
-      class="tw-flex tw-items-center tw-p-3 tw-mb-2 tw-border tw-border-solid tw-border-secondary-300 dark:tw-border-secondary-700 tw-rounded"
-    >
-      <div class="tw-min-w-[120px] tw-flex tw-justify-center">
+  <bit-item-group>
+    <bit-item *ngFor="let p of providers" class="tw-py-4">
+      <div slot="start" class="tw-min-w-[120px] tw-flex tw-justify-center">
         <auth-two-factor-icon [provider]="p.type" [name]="p.name" />
       </div>
-      <div class="tw-mx-4">
+      <div bit-item-content class="tw-px-4">
         <h3 class="tw-mb-0">
           <div
             class="tw-font-semibold tw-text-base"
@@ -73,7 +70,7 @@
         </h3>
         {{ p.description }}
       </div>
-      <div class="tw-ml-auto">
+      <bit-item-action slot="end">
         <button
           type="button"
           bitButton
@@ -83,9 +80,9 @@
         >
           {{ "manage" | i18n }}
         </button>
-      </div>
-    </li>
-  </ul>
+      </bit-item-action>
+    </bit-item>
+  </bit-item-group>
 </bit-container>
 
 <ng-template #duoTemplate></ng-template>
