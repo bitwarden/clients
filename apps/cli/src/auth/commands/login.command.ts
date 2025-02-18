@@ -11,6 +11,7 @@ import {
   LoginStrategyServiceAbstraction,
   PasswordLoginCredentials,
   SsoLoginCredentials,
+  SsoUrlService,
   UserApiLoginCredentials,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -28,6 +29,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import { ClientType } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -71,6 +73,7 @@ export class LoginCommand {
     protected orgService: OrganizationService,
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
+    protected ssoUrlService: SsoUrlService,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -738,17 +741,14 @@ export class LoginCommand {
         try {
           this.ssoRedirectUri = "http://localhost:" + port;
           callbackServer.listen(port, () => {
-            this.platformUtilsService.launchUri(
-              webUrl +
-                "/#/sso?clientId=" +
-                "cli" +
-                "&redirectUri=" +
-                encodeURIComponent(this.ssoRedirectUri) +
-                "&state=" +
-                state +
-                "&codeChallenge=" +
-                codeChallenge,
+            const webAppSsoUrl = this.ssoUrlService.buildSsoUrl(
+              webUrl,
+              ClientType.Cli,
+              this.ssoRedirectUri,
+              state,
+              codeChallenge,
             );
+            this.platformUtilsService.launchUri(webAppSsoUrl);
           });
           foundPort = true;
           break;

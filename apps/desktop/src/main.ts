@@ -5,6 +5,7 @@ import * as path from "path";
 import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -66,6 +67,7 @@ export class Main {
   desktopSettingsService: DesktopSettingsService;
   mainCryptoFunctionService: MainCryptoFunctionService;
   migrationRunner: MigrationRunner;
+  ssoUrlService: SsoUrlService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -261,7 +263,13 @@ export class Main {
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
 
     new EphemeralValueStorageService();
-    new SSOLocalhostCallbackService(this.environmentService, this.messagingService);
+
+    this.ssoUrlService = new SsoUrlService();
+    new SSOLocalhostCallbackService(
+      this.environmentService,
+      this.messagingService,
+      this.ssoUrlService,
+    );
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
