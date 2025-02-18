@@ -37,7 +37,6 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
   selector: "app-sso",
   templateUrl: "sso-v1.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SsoComponentV1 extends BaseSsoComponent implements OnInit {
   protected formGroup = new FormGroup({
     identifier: new FormControl(null, [Validators.required]),

@@ -24,7 +24,6 @@ import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponen
   selector: "app-unsecured-websites-report",
   templateUrl: "../../../tools/reports/pages/unsecured-websites-report.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class UnsecuredWebsitesReportComponent
   extends BaseUnsecuredWebsitesReportComponent
   implements OnInit

@@ -24,7 +24,6 @@ import { SharedModule } from "../../shared";
   standalone: true,
   imports: [SharedModule],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class TaxInfoComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
@@ -91,7 +90,7 @@ export class TaxInfoComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     // Provider setup
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
+    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.route.queryParams.subscribe((params) => {
       this.providerId = params.providerId;
     });

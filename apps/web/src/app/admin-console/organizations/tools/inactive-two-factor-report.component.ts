@@ -24,7 +24,6 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
   selector: "app-inactive-two-factor-report",
   templateUrl: "../../../tools/reports/pages/inactive-two-factor-report.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class InactiveTwoFactorReportComponent
   extends BaseInactiveTwoFactorReportComponent
   implements OnInit

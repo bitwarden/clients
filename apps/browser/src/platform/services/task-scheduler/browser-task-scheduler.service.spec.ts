@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable } from "rxjs";
 
@@ -85,7 +87,6 @@ describe("BrowserTaskSchedulerService", () => {
       callback,
     );
     // @ts-expect-error mocking global browser object
-    // eslint-disable-next-line no-global-assign
     globalThis.browser = {};
     chrome.alarms.get = jest.fn().mockImplementation((_name, callback) => callback(undefined));
   });
@@ -95,7 +96,6 @@ describe("BrowserTaskSchedulerService", () => {
     jest.clearAllTimers();
     jest.useRealTimers();
 
-    // eslint-disable-next-line no-global-assign
     globalThis.browser = undefined;
   });
 

@@ -53,7 +53,6 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   selector: "app-settings",
   templateUrl: "settings.component.html",
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SettingsComponent implements OnInit, OnDestroy {
   // For use in template
   protected readonly VaultTimeoutAction = VaultTimeoutAction;

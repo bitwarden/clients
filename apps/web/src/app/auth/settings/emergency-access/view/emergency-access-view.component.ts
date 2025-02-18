@@ -18,7 +18,6 @@ import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component"
   templateUrl: "emergency-access-view.component.html",
   providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EmergencyAccessViewComponent implements OnInit {
   @ViewChild("attachments", { read: ViewContainerRef, static: true })
   attachmentsModalRef: ViewContainerRef;
