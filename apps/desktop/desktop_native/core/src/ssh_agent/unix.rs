@@ -28,7 +28,7 @@ impl BitwardenDesktopAgent {
             show_ui_request_tx: auth_request_tx,
             get_ui_response_rx: auth_response_rx,
             request_id: Arc::new(AtomicU32::new(0)),
-            needs_unlock: Arc::new(AtomicBool::new(false)),
+            needs_unlock: Arc::new(AtomicBool::new(true)),
             is_running: Arc::new(AtomicBool::new(false)),
         };
         let cloned_agent_state = agent.clone();
