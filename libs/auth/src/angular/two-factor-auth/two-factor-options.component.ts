@@ -3,7 +3,10 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import {
+  TwoFactorProviderDetails,
+  TwoFactorService,
+} from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import {
   ButtonModule,
@@ -42,7 +45,7 @@ export type TwoFactorOptionsDialogResult = {
   providers: [],
 })
 export class TwoFactorOptionsComponent implements OnInit {
-  providers: any[] = [];
+  providers: TwoFactorProviderDetails[] = [];
   TwoFactorProviderType = TwoFactorProviderType;
 
   readonly Icons = {
@@ -60,11 +63,11 @@ export class TwoFactorOptionsComponent implements OnInit {
 
   async ngOnInit() {
     const providers = await this.twoFactorService.getSupportedProviders(window);
-    providers.sort((a: any, b: any) => a.sort - b.sort);
+    providers.sort((a: TwoFactorProviderDetails, b: TwoFactorProviderDetails) => a.sort - b.sort);
     this.providers = providers;
   }
 
-  async choose(p: any) {
+  async choose(p: TwoFactorProviderDetails) {
     this.dialogRef.close({ type: p.type });
   }
 
