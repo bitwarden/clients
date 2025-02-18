@@ -9,9 +9,7 @@ import {
 } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { I18nService } from "@bitwarden/common/src/platform/abstractions/i18n.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BadgeModule } from "../badge";
 import { FormControlModule } from "../form-control";
