@@ -45,8 +45,7 @@
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
-    "strictTemplates": true,
-    "preserveWhitespaces": true
+    "strictTemplates": true
   },
   "include": ["src", "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"]
 }
