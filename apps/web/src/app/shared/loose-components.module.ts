@@ -225,6 +225,7 @@ import { SharedModule } from "./shared.module";
     TwoFactorSetupWebAuthnComponent,
     TwoFactorSetupYubiKeyComponent,
     UpdateTempPasswordComponent,
+    UpdatePasswordComponent,
     UserLayoutComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,
