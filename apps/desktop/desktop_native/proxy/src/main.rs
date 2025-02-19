@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use desktop_core::ipc::{MESSAGE_CHANNEL_BUFFER, NATIVE_MESSAGING_BUFFER_SIZE};
-use futures::{FutureExt, SinkExt, StreamExt};
+use futures::{SinkExt, StreamExt};
 use log::*;
 use tokio_util::codec::LengthDelimitedCodec;
 
@@ -92,10 +92,12 @@ async fn main() {
     let (in_send, in_recv) = tokio::sync::mpsc::channel(MESSAGE_CHANNEL_BUFFER);
     let (out_send, mut out_recv) = tokio::sync::mpsc::channel(MESSAGE_CHANNEL_BUFFER);
 
-    let mut handle = tokio::spawn(
-        desktop_core::ipc::client::connect(sock_path, out_send, in_recv)
-            .map(|r| r.map_err(|e| e.to_string())),
-    );
+    let mut handle = tokio::spawn(async {
+        desktop_core::ipc::client::Client::new(sock_path, out_send, in_recv)
+            .connect()
+            .await
+            .map_err(|e| e.to_string())
+    });
 
     // Create a new codec for reading and writing messages from stdin/stdout.
     let mut stdin = LengthDelimitedCodec::builder()

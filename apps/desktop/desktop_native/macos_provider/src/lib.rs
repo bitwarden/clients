@@ -6,7 +6,6 @@ use std::{
     time::Instant,
 };
 
-use futures::FutureExt;
 use log::{error, info};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
@@ -43,6 +42,8 @@ trait Callback: Send + Sync {
 pub struct MacOSProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
 
+    ipc_client: Arc<desktop_core::ipc::client::Client>,
+
     // We need to keep track of the callbacks so we can call them when we receive a response
     response_callbacks_counter: AtomicU32,
     #[allow(clippy::type_complexity)]
@@ -60,26 +61,29 @@ impl MacOSProviderClient {
         let (from_server_send, mut from_server_recv) = tokio::sync::mpsc::channel(32);
         let (to_server_send, to_server_recv) = tokio::sync::mpsc::channel(32);
 
+        let path = desktop_core::ipc::path("autofill");
+
         let client = MacOSProviderClient {
             to_server_send,
             response_callbacks_counter: AtomicU32::new(0),
             response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
+            ipc_client: Arc::new(desktop_core::ipc::client::Client::new(
+                path,
+                from_server_send,
+                to_server_recv,
+            )),
         };
-
-        let path = desktop_core::ipc::path("autofill");
 
         let queue = client.response_callbacks_queue.clone();
 
+        let ipc_client = client.ipc_client.clone();
         std::thread::spawn(move || {
             let rt = tokio::runtime::Builder::new_current_thread()
                 .enable_all()
                 .build()
                 .expect("Can't create runtime");
 
-            rt.spawn(
-                desktop_core::ipc::client::connect(path, from_server_send, to_server_recv)
-                    .map(|r| r.map_err(|e| e.to_string())),
-            );
+            rt.spawn(async move { ipc_client.connect().await.map_err(|e| e.to_string()) });
 
             rt.block_on(async move {
                 while let Some(message) = from_server_recv.recv().await {
@@ -140,6 +144,10 @@ impl MacOSProviderClient {
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
         self.send_message(request, Box::new(callback));
+    }
+
+    pub fn is_connected(&self) -> bool {
+        self.ipc_client.is_connected()
     }
 }
 
