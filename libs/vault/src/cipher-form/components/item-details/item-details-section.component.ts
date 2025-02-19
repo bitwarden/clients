@@ -185,6 +185,10 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.organizations = this.config.organizations.sort(
+      Utils.getSortFunction(this.i18nService, "name"),
+    );
+
     if (!this.allowPersonalOwnership && this.organizations.length === 0) {
       throw new Error("No organizations available for ownership.");
     }
@@ -207,10 +211,6 @@ export class ItemDetailsSectionComponent implements OnInit {
     if (!this.allowOwnershipChange) {
       this.itemDetailsForm.controls.organizationId.disable();
     }
-
-    this.organizations = this.config.organizations.sort(
-      Utils.getSortFunction(this.i18nService, "name"),
-    );
 
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
