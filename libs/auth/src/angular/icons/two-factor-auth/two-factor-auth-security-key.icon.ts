@@ -31,7 +31,7 @@ export const TwoFactorAuthSecurityKeyIcon = svgIcon`
         <path class="tw-fill-art-primary"" fill-rule="evenodd"
             d="M13.281 25.298h-3.68V23.81h3.68v1.488ZM19.907 25.298h-3.68V23.81h3.68v1.488Z"
             clip-rule="evenodd" />
-        <path stroke="#2CDDE9" stroke-width=".784"
+        <path class="tw-stroke-art-accent" stroke-width=".784"
             d="M20.079 63.907c0 2.913-2.336 5.267-5.21 5.267-2.872 0-5.208-2.355-5.208-5.268s2.336-5.267 5.209-5.267c2.873 0 5.209 2.354 5.209 5.267Z" />
         <path class="tw-fill-art-accent" fill-rule="evenodd"
             d="M11.37 63.14a.378.378 0 0 0 0 .53c.146.146.38.146.525 0a4.442 4.442 0 0 1 6.329 0c.145.146.38.146.524 0a.377.377 0 0 0 0-.53 5.179 5.179 0 0 0-7.377 0Z"
