@@ -74,7 +74,7 @@ export const HideIcon: Story = {
 };
 
 export const ScrollingContent: Story = {
-  render: (args: SimpleDialogComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-simple-dialog>
