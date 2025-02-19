@@ -26,7 +26,7 @@ import {
 @Component({
   standalone: true,
   selector: "app-two-factor-auth-duo",
-  templateUrl: "two-factor-auth-duo.component.html",
+  template: "",
   imports: [
     CommonModule,
     JslibModule,
