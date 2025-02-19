@@ -22,7 +22,7 @@
             bitBadge
             variant="primary"
             class="tw-mt-0"
-            *ngIf="routeData.titleId == 'eventLogs' && !organization?.useEvents"
+            *ngIf="!organization?.useEvents && routeData.titleId == 'eventLogs'"
           >
             {{ "upgrade" | i18n }}
           </span>

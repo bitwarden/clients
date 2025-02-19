@@ -51,6 +51,7 @@ export enum FeatureFlag {
   NewDeviceVerification = "new-device-verification",
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
   RecoveryCodeLogin = "pm-17128-recovery-code-login",
+  PM13127_BreadcrumbEventLogs = "PM-13127-breadcrumb-event-logs",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -112,6 +113,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NewDeviceVerification]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
   [FeatureFlag.RecoveryCodeLogin]: FALSE,
+  [FeatureFlag.PM13127_BreadcrumbEventLogs]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
