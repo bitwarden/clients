@@ -2,7 +2,7 @@ import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrol
 import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import {
   combineLatest,
   filter,
@@ -15,18 +15,22 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   BannerComponent,
   ButtonModule,
   DialogService,
+  IconButtonModule,
   Icons,
   NoItemsModule,
+  PopoverModule,
+  SharedModule,
 } from "@bitwarden/components";
 import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
@@ -45,6 +49,7 @@ import {
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown-v2.component";
 import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
+import { VaultPageService } from "./vault-page.service";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -60,6 +65,7 @@ enum VaultState {
   standalone: true,
   imports: [
     BlockedInjectionBanner,
+    PopoverModule,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
@@ -72,12 +78,15 @@ enum VaultState {
     ButtonModule,
     RouterLink,
     NewItemDropdownV2Component,
+    IconButtonModule,
     ScrollingModule,
     VaultHeaderV2Component,
     DecryptionFailureDialogComponent,
     BannerComponent,
     AtRiskPasswordCalloutComponent,
+    SharedModule,
   ],
+  providers: [VaultPageService],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
@@ -110,6 +119,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
 
   protected VaultStateEnum = VaultState;
+  protected showNewCustomizationSettingsCallout = true;
+  protected activeUserId: UserId | null = null;
 
   private allFilters$ = this.vaultPopupListFiltersService.allFilters$;
 
@@ -121,6 +132,9 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private destroyRef: DestroyRef,
     private cipherService: CipherService,
     private dialogService: DialogService,
+    private vaultProfileService: VaultProfileService,
+    private vaultPageService: VaultPageService,
+    private router: Router,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -158,10 +172,10 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.cipherService
-      .failedToDecryptCiphers$(activeUserId)
+      .failedToDecryptCiphers$(this.activeUserId)
       .pipe(
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
@@ -173,10 +187,22 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
           cipherIds: ciphers.map((c) => c.id as CipherId),
         });
       });
+
+    // const profileCreatedDate = await this.vaultProfileService.getProfileCreationDate(
+    //   this.activeUserId,
+    // );
+    // const hasCalloutBeenDismissed = this.vaultPageService.isCalloutDismissed(this.activeUserId);
+    // Show the new customization settings callout if the user has not dismissed it and the account was created before December 25, 2024
+    this.showNewCustomizationSettingsCallout = true;
+    // this.showNewCustomizationSettingsCallout =
+    //   !hasCalloutBeenDismissed && profileCreatedDate < new Date("2024-12-25");
   }
 
-  ngOnDestroy(): void {
+  async ngOnDestroy() {
     this.vaultScrollPositionService.stop();
+    if (this.activeUserId) {
+      await this.vaultPageService.dismissCallout(this.activeUserId);
+    }
   }
 
   protected readonly FeatureFlag = FeatureFlag;

@@ -194,11 +194,11 @@
   --tw-ring-offset-color: #002b36;
 }
 
-@import "./popover/popover.component.css";
 @import "./search/search.component.css";
 
 @import "./toast/toast.tokens.css";
 @import "./toast/toastr.css";
+@import "./popover/popover.component.css";
 
 /**
  * tw-break-words does not work with table cells:
