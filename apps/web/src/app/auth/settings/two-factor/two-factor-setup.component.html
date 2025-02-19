@@ -1,7 +1,7 @@
 <app-header *ngIf="organizationId != null"></app-header>
 
 <bit-container>
-  <div class="tabbed-header" *ngIf="organizationId == null">
+  <div class="tw-mt-6 tw-mb-2 tw-pb-2" *ngIf="organizationId == null">
     <h1 *ngIf="!organizationId || !isEnterpriseOrg">{{ "twoStepLogin" | i18n }}</h1>
     <h1 *ngIf="organizationId && isEnterpriseOrg">{{ "twoStepLoginEnforcement" | i18n }}</h1>
   </div>
@@ -35,7 +35,7 @@
     {{ "providers" | i18n }}
     <small *ngIf="loading">
       <i
-        class="bwi bwi-spinner bwi-spin bwi-fw text-muted"
+        class="bwi bwi-spinner bwi-spin bwi-fw tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
       ></i>
@@ -45,22 +45,22 @@
   <bit-callout type="warning" *ngIf="showPolicyWarning">
     {{ "twoStepLoginPolicyUserWarning" | i18n }}
   </bit-callout>
-  <ul class="list-group list-group-2fa">
-    <li *ngFor="let p of providers" class="list-group-item d-flex align-items-center">
-      <div class="logo-2fa d-flex justify-content-center">
+  <ul class="tw-divide-y">
+    <li *ngFor="let p of providers" class="tw-flex tw-items-center tw-p-4">
+      <div class="tw-flex tw-justify-center">
         <auth-two-factor-icon [provider]="p.type" [name]="p.name" />
       </div>
-      <div class="mx-4">
-        <h3 class="mb-0">
+      <div class="tw-mx-4">
+        <h3 class="tw-mb-0">
           <div
-            class="font-weight-semibold tw-text-base"
+            class="tw-font-semibold tw-text-base"
             [style]="p.enabled || p.premium ? 'display:inline-block' : ''"
           >
             {{ p.name }}
           </div>
           <ng-container *ngIf="p.enabled">
             <i
-              class="bwi bwi-check text-success bwi-fw"
+              class="bwi bwi-check tw-text-success bwi-fw"
               title="{{ 'enabled' | i18n }}"
               aria-hidden="true"
             ></i>
@@ -70,7 +70,7 @@
         </h3>
         {{ p.description }}
       </div>
-      <div class="ml-auto">
+      <div class="tw-ml-auto">
         <button
           type="button"
           bitButton
