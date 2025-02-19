@@ -66,7 +66,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     protected messagingService: MessagingService,
     eventCollectionService: EventCollectionService,
     protected policyService: PolicyService,
-    protected organizationService: OrganizationService,
+    organizationService: OrganizationService,
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     dialogService: DialogService,
@@ -303,8 +303,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       this.cipher.type === CipherType.Login &&
       this.cipher.login.totp &&
       this.organization?.productTierType != ProductTierType.Free &&
-      ((this.canAccessPremium && this.cipher.organizationId == null) ||
-        this.cipher.organizationUseTotp)
+      (this.cipher.organizationUseTotp || this.canAccessPremium)
     );
   }
 

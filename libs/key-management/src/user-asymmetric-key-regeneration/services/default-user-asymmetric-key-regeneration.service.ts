@@ -103,7 +103,7 @@ export class DefaultUserAsymmetricKeysRegenerationService
     }
 
     // The private isn't decryptable, check to see if we can decrypt something with the userKey.
-    const userKeyCanDecrypt = await this.userKeyCanDecrypt(userKey);
+    const userKeyCanDecrypt = await this.userKeyCanDecrypt(userKey, userId);
     if (userKeyCanDecrypt) {
       this.logService.info(
         "[UserAsymmetricKeyRegeneration] User Asymmetric Key decryption failure detected, attempting regeneration.",
@@ -155,8 +155,8 @@ export class DefaultUserAsymmetricKeysRegenerationService
     );
   }
 
-  private async userKeyCanDecrypt(userKey: UserKey): Promise<boolean> {
-    const ciphers = await this.cipherService.getAll();
+  private async userKeyCanDecrypt(userKey: UserKey, userId: UserId): Promise<boolean> {
+    const ciphers = await this.cipherService.getAll(userId);
     const cipher = ciphers.find((cipher) => cipher.organizationId == null);
 
     if (cipher != null) {
