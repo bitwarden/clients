@@ -1384,7 +1384,7 @@
   },  
   "selectAnotherMethod": {
     "message": "Select another method",
-    "desccription": "Select another two-step login method"
+    "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
