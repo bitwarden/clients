@@ -43,15 +43,6 @@ export abstract class CipherAuthorizationService {
    * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can clone the cipher.
    */
   canCloneCipher$: (cipher: CipherLike, isAdminConsoleAction?: boolean) => Observable<boolean>;
-
-  /**
-   * Determines if the user has canManage permissions on specified cipher.
-   *
-   * @param {CipherLike} cipher - The cipher object checking manage permissions.
-   *
-   * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can manage the cipher.
-   */
-  canManageCipher$: (cipher: CipherLike) => Observable<boolean>;
 }
 
 /**
@@ -136,39 +127,5 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
       }),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
-  }
-
-  /**
-   * {@link CipherAuthorizationService.canManageCiphers$}
-   */
-  canManageCipher$(cipher: CipherLike): Observable<boolean> {
-    if (cipher.organizationId == null) {
-      return of(true);
-    }
-
-    if (cipher.organizationId) {
-      return this.organization$(cipher).pipe(
-        switchMap((org) => {
-          if (
-            org?.permissions.editAnyCollection ||
-            (org?.allowAdminAccessToAllCollectionItems && org.isAdmin)
-          ) {
-            return of(true);
-          }
-
-          if (cipher.collectionIds.length > 0) {
-            return this.collectionService
-              .decryptedCollectionViews$(cipher.collectionIds as CollectionId[])
-              .pipe(
-                map((collections) => {
-                  return collections.some((collection) => collection.manage);
-                }),
-              );
-          }
-
-          return of(false);
-        }),
-      );
-    }
   }
 }
