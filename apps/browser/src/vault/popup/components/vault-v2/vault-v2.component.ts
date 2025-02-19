@@ -161,11 +161,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.loading$ = combineLatest([this.vaultPopupItemsService.loading$, this.allFilters$]).pipe(
-      map(([loading, filters]) => loading || !filters),
-      takeUntilDestroyed(this.destroyRef),
-    );
-
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.cipherService
