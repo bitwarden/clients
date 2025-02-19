@@ -2239,7 +2239,7 @@
     "message": "已过期"
   },
   "pendingDeletion": {
-    "message": "等待删除"
+    "message": "待删除"
   },
   "webAuthnAuthenticate": {
     "message": "验证 WebAuthn"
@@ -2761,7 +2761,7 @@
     "message": "网页 App"
   },
   "notificationSentDevicePart2": {
-    "message": "在批准前，请确保指纹短语与下面的一致。"
+    "message": "在批准前，请确保指纹短语与下面的相匹配。"
   },
   "needAnotherOptionV1": {
     "message": "需要其他选项吗？"

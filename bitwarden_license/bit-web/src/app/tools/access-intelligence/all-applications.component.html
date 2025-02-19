@@ -4,7 +4,7 @@
 <div class="tw-mt-4" *ngIf="!(isLoading$ | async) && !dataSource.data.length">
   <bit-no-items [icon]="noItemsIcon" class="tw-text-main">
     <ng-container slot="title">
-      <h2 class="tw-font-semibold mt-4">
+      <h2 class="tw-font-semibold tw-mt-4">
         {{ "noAppsInOrgTitle" | i18n: organization?.name }}
       </h2>
     </ng-container>
@@ -13,7 +13,7 @@
         <span class="tw-text-muted">
           {{ "noAppsInOrgDescription" | i18n }}
         </span>
-        <a class="text-primary" routerLink="/login">{{ "learnMore" | i18n }}</a>
+        <a class="tw-text-primary-600" routerLink="/login">{{ "learnMore" | i18n }}</a>
       </div>
     </ng-container>
     <ng-container slot="button">
