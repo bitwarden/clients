@@ -113,7 +113,7 @@ export class DeviceManagementComponent implements OnDestroy {
 
     // Add new device to the table
     const upsertDevice: DeviceTableData = {
-      id: null,
+      id: "",
       type: authRequestResponse.requestDeviceTypeValue,
       displayName: this.getHumanReadableDeviceType(authRequestResponse.requestDeviceTypeValue),
       loginStatus: this.i18nService.t("requestPending"),
@@ -133,7 +133,7 @@ export class DeviceManagementComponent implements OnDestroy {
         this.devicesService.getDeviceByIdentifier$(authRequestResponse.requestDeviceIdentifier),
       );
 
-      if (existingDevice) {
+      if (existingDevice?.id && existingDevice.creationDate) {
         upsertDevice.id = existingDevice.id;
         upsertDevice.firstLogin = new Date(existingDevice.creationDate);
       }
@@ -200,7 +200,7 @@ export class DeviceManagementComponent implements OnDestroy {
           trusted: device?.response?.isTrusted ?? false,
           devicePendingAuthRequest: device?.response?.devicePendingAuthRequest ?? null,
           hasPendingAuthRequest: hasPendingRequest,
-          identifier: device.identifier,
+          identifier: device.identifier ?? "",
         };
       })
       .filter((device): device is DeviceTableData => device !== null);
