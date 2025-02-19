@@ -59,6 +59,9 @@ describe("ItemDetailsSectionComponent", () => {
       initializedWithCachedCipher,
     });
     i18nService = mock<I18nService>();
+    i18nService.collator = {
+      compare: (a: string, b: string) => a.localeCompare(b),
+    } as Intl.Collator;
 
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
@@ -185,6 +188,7 @@ describe("ItemDetailsSectionComponent", () => {
     it("should allow ownership change if personal ownership is allowed and there is at least one organization", () => {
       component.config.allowPersonalOwnership = true;
       component.config.organizations = [{ id: "org1", name: "org1" } as Organization];
+      fixture.detectChanges();
       expect(component.allowOwnershipChange).toBe(true);
     });
 
@@ -194,6 +198,7 @@ describe("ItemDetailsSectionComponent", () => {
         { id: "org1", name: "org1" } as Organization,
         { id: "org2", name: "org2" } as Organization,
       ];
+      fixture.detectChanges();
       expect(component.allowOwnershipChange).toBe(true);
     });
   });
@@ -206,7 +211,8 @@ describe("ItemDetailsSectionComponent", () => {
 
     it("should return the first organization id if personal ownership is not allowed", () => {
       component.config.allowPersonalOwnership = false;
-      component.config.organizations = [{ id: "org1" } as Organization];
+      component.config.organizations = [{ id: "org1", name: "Organization 1" } as Organization];
+      fixture.detectChanges();
       expect(component.defaultOwner).toBe("org1");
     });
   });
@@ -250,6 +256,7 @@ describe("ItemDetailsSectionComponent", () => {
       jest.spyOn(component, "allowOwnershipChange", "get").mockReturnValue(false);
       component.config.mode = "edit";
       component.config.organizations = [{ id: "org1" } as Organization];
+      fixture.detectChanges();
       expect(component.showOwnership).toBe(true);
     });
 
