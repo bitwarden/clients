@@ -27,7 +27,12 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CopyCipherFieldService, DefaultTaskService } from "@bitwarden/vault";
+import {
+  ChangeLoginPasswordService,
+  CopyCipherFieldService,
+  DefaultChangeLoginPasswordService,
+  DefaultTaskService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -84,6 +89,14 @@ describe("ViewV2Component", () => {
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
   };
 
+  const mockPlatformUtilsService = {
+    launchUri: jest.fn(),
+  };
+
+  const mockChangeLoginPasswordService = {
+    getChangePasswordUrl: jest.fn(),
+  };
+
   beforeEach(async () => {
     mockCipherService.deleteWithServer.mockClear();
     mockCipherService.softDeleteWithServer.mockClear();
@@ -98,9 +111,6 @@ describe("ViewV2Component", () => {
     mockApiService = {
       send: jest.fn(),
     };
-    // mockDefaultTaskService = {
-    //   tasks$: jest.fn().mockImplementation(() => of([]))
-    // }
 
     await TestBed.configureTestingModule({
       imports: [ViewV2Component],
@@ -108,7 +118,7 @@ describe("ViewV2Component", () => {
         { provide: Router, useValue: { navigate: mockNavigate } },
         { provide: CipherService, useValue: mockCipherService },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>({ back }) },
         { provide: ActivatedRoute, useValue: { queryParams: params$ } },
@@ -148,6 +158,21 @@ describe("ViewV2Component", () => {
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
       ],
     })
+      .overrideComponent(ViewV2Component, {
+        remove: {
+          providers: [
+            { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+          ],
+        },
+        add: {
+          providers: [
+            {
+              provide: ChangeLoginPasswordService,
+              useValue: mockChangeLoginPasswordService,
+            },
+          ],
+        },
+      })
       .overrideProvider(DialogService, {
         useValue: {
           openSimpleDialog,
@@ -387,6 +412,20 @@ describe("ViewV2Component", () => {
           });
         });
       });
+    });
+  });
+
+  describe("launch URI", () => {
+    it("should open url if cipher contains url", async () => {
+      const url = "https://example.com";
+      component.cipher = {
+        ...mockCipher,
+        login: { ...mockCipher.login, uris: [{ uri: url }] },
+      } as CipherView;
+      jest.spyOn(mockChangeLoginPasswordService, "getChangePasswordUrl").mockResolvedValue(url);
+      await component.launchChangePassword(component.cipher);
+
+      expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(url);
     });
   });
 });

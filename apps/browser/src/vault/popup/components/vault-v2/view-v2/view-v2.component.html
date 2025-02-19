@@ -4,7 +4,7 @@
   </popup-header>
 
   <bit-callout
-    *ngIf="cipher.login.uris.length > 0 && hasPendingTasks$ | async"
+    *ngIf="cipher?.login.uris.length > 0 && hasPendingTasks$ | async"
     type="warning"
     [title]=""
   >

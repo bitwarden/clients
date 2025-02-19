@@ -24,7 +24,7 @@ import {
   CopyClickDirective,
   ToastService,
 } from "@bitwarden/components";
-import { DefaultTaskService } from "@bitwarden/vault";
+import { ChangeLoginPasswordService, DefaultTaskService } from "@bitwarden/vault";
 
 import { LoginCredentialsViewComponent } from "./login-credentials-view.component";
 
@@ -44,6 +44,14 @@ describe("LoginCredentialsViewComponent", () => {
     kdfIterations: 0,
   };
   const activeAccount$ = new BehaviorSubject(mockAccount);
+
+  const mockPlatformUtilsService = {
+    launchUri: jest.fn(),
+  };
+
+  const mockChangeLoginPasswordService = {
+    getChangePasswordUrl: jest.fn(),
+  };
 
   const cipher = {
     id: "cipher-id",
@@ -73,7 +81,7 @@ describe("LoginCredentialsViewComponent", () => {
         { provide: AccountService, useValue: mock<AccountService>({ activeAccount$ }) },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: EventCollectionService, useValue: mock<EventCollectionService>({ collect }) },
-        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
         {
@@ -85,6 +93,10 @@ describe("LoginCredentialsViewComponent", () => {
         {
           provide: DefaultTaskService,
           useValue: mock<DefaultTaskService>(),
+        },
+        {
+          provide: ChangeLoginPasswordService,
+          useValue: mockChangeLoginPasswordService,
         },
       ],
     }).compileComponents();
@@ -224,6 +236,20 @@ describe("LoginCredentialsViewComponent", () => {
       const fido2Input = fido2Field.query(By.css("input")).nativeElement;
 
       expect(fido2Input.value).toBe("dateCreated 2/2/24 6:00PM");
+    });
+  });
+
+  describe("launch URI", () => {
+    it("should open url if cipher contains url", async () => {
+      const url = "https://example.com";
+      component.cipher = {
+        ...cipher,
+        login: { ...cipher.login, uris: [{ uri: url }] },
+      } as CipherView;
+      jest.spyOn(mockChangeLoginPasswordService, "getChangePasswordUrl").mockResolvedValue(url);
+      await component.launchChangePassword(component.cipher);
+
+      expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(url);
     });
   });
 });
