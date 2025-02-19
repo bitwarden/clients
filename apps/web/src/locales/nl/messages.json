@@ -1399,13 +1399,13 @@
     "message": "Toegang weigeren"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web-app"
+    "message": "webapp"
   },
   "notificationSentDevicePart2": {
-    "message": "Zorg ervoor dat de Vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
+    "message": "Zorg ervoor dat de vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
   },
   "notificationSentDeviceComplete": {
-    "message": "Ontgrendel Bitwarden op je apparaat. Zorg ervoor dat de vingerafdruk-zin overeenkomt met de onderstaande zin voordat je deze goedkeurt."
+    "message": "Ontgrendel Bitwarden op je apparaat. Zorg ervoor dat de vingerafdrukzin overeenkomt met de onderstaande voor je deze goedkeurt."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Er is een melding naar je apparaat verzonden"
@@ -1888,10 +1888,10 @@
     "message": "Inlogbescherming nieuwe apparaten inschakelen"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Ga hieronder verder voor het uitschakelen van de e-mailverificatieberichten die Bitwarden stuurt wanneer je inlogt vanaf een nieuw apparaat."
+    "message": "Ga hieronder verder voor het uitschakelen van de verificatie e-mails die Bitwarden stuurt wanneer je inlogt vanaf een nieuw apparaat."
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Ga hieronder verder om Bitwarden verificatie e-mails te sturen wanneer je inlogt vanaf een nieuw apparaat.\n\nGa hieronder verder om Bitwarden e-mailverificatieberichten te laten sturen wanneer je inlogt vanaf een nieuw apparaat."
+    "message": "Ga hieronder verder om Bitwarden verificatie e-mails te sturen wanneer je inlogt vanaf een nieuw apparaat."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
     "message": "Als je inlogbescherming voor nieuwe apparaten uitschakelt, kan iedereen op ieder apparaat met je hoofdwachtwoord inloggen. Stel tweestapsaanmelding in om je account te beschermen zonder e-mailverificatieberichten."
@@ -10320,7 +10320,7 @@
     }
   },
   "existingOrganization": {
-    "message": "Bestaande toevoegen"
+    "message": "Bestaande organisatie"
   },
   "selectOrganizationProviderPortal": {
     "message": "Kies een organisatie om aan je providerportaal toe te voegen."

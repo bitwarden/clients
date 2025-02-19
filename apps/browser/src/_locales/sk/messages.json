@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Zmeňte to v nastaveniach"
   },
+  "change": {
+    "message": "Zmeniť"
+  },
+  "changeButtonTitle": {
+    "message": "Zmeniť heslo - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Rizikové heslá"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ vás žiada o zmenu $COUNT$ hesiel, pretože sú ohrozené.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Vaše organizácie vás žiadajú o zmenu $COUNT$ hesiel, pretože sú ohrozené.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Skontrolujte a zmeňte jedno ohrozené heslo"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Skontrolujte a zmeňte $COUNT$ ohrozené heslá",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Zmeňte rizikové heslá rýchlejšie"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Aktualizujte nastavenia, aby ste mohli rýchlo vypĺňať svoje heslá a vygenerovať nové"
+  },
+  "turnOnAutofill": {
+    "message": "Zapnúť automatické vypĺňanie"
+  },
+  "turnedOnAutofill": {
+    "message": "Zapnuté automatické vypĺňanie"
+  },
+  "dismiss": {
+    "message": "Zrušiť"
+  },
   "websiteItemLabel": {
     "message": "Webstránka $number$ (URI)",
     "placeholders": {
