@@ -43,6 +43,12 @@ export class DefaultAdminTaskService implements AdminTaskService {
     organizationId: OrganizationId,
     tasks: CreateTasksRequest[],
   ): Promise<void> {
-    await this.apiService.send("POST", `/tasks/${organizationId}/bulk-create`, tasks, true, true);
+    await this.apiService.send(
+      "POST",
+      `/tasks/${organizationId}/bulk-create`,
+      { tasks },
+      true,
+      true,
+    );
   }
 }

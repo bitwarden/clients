@@ -28,8 +28,8 @@
       "@bitwarden/generator-history": ["./libs/tools/generator/extensions/history/src"],
       "@bitwarden/generator-legacy": ["./libs/tools/generator/extensions/legacy/src"],
       "@bitwarden/generator-navigation": ["./libs/tools/generator/extensions/navigation/src"],
-      "@bitwarden/importer/core": ["./libs/importer/src"],
-      "@bitwarden/importer/ui": ["./libs/importer/src/components"],
+      "@bitwarden/importer-core": ["./libs/importer/src"],
+      "@bitwarden/importer-ui": ["./libs/importer/src/components"],
       "@bitwarden/key-management": ["./libs/key-management/src"],
       "@bitwarden/key-management-ui": ["./libs/key-management-ui/src/index,ts"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
@@ -40,12 +40,7 @@
       "@bitwarden/vault-export-core": [".libs/tools/export/vault-export/vault-export-core/src"],
       "@bitwarden/vault-export-ui": [".libs/tools/export/vault-export/vault-export-ui/src"],
       "@bitwarden/vault": ["./libs/vault/src"]
-    },
-    "plugins": [
-      {
-        "transform": "typescript-transform-paths"
-      }
-    ]
+    }
   },
   "files": [
     ".storybook/main.ts",

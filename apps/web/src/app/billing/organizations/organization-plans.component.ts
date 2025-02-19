@@ -42,8 +42,8 @@ import { BillingResponse } from "@bitwarden/common/billing/models/response/billi
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -110,6 +110,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this._plan = plan;
     this.formGroup?.controls?.plan?.setValue(plan);
   }
+  @Input() enableSecretsManagerByDefault: boolean;
 
   private _plan = PlanType.Free;
   @Input() providerId?: string;
@@ -269,6 +270,14 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.refreshSalesTax();
       });
+
+    if (this.enableSecretsManagerByDefault && this.selectedSecretsManagerPlan) {
+      this.secretsManagerSubscription.patchValue({
+        enabled: true,
+        userSeats: 1,
+        additionalServiceAccounts: 0,
+      });
+    }
   }
 
   ngOnDestroy() {

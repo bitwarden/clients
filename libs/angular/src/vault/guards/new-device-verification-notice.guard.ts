@@ -2,9 +2,8 @@ import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from "@angular/router";
 import { firstValueFrom, Observable } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -20,8 +19,8 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
   const newDeviceVerificationNoticeService = inject(NewDeviceVerificationNoticeService);
   const accountService = inject(AccountService);
   const platformUtilsService = inject(PlatformUtilsService);
-  const policyService = inject(PolicyService);
   const vaultProfileService = inject(VaultProfileService);
+  const userVerificationService = inject(UserVerificationService);
 
   if (route.queryParams["fromNewDeviceVerification"]) {
     return true;
@@ -47,7 +46,11 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
 
   try {
     const isSelfHosted = platformUtilsService.isSelfHost();
-    const requiresSSO = await isSSORequired(policyService);
+    const userIsSSOUser = await ssoAppliesToUser(
+      userVerificationService,
+      vaultProfileService,
+      currentAcct.id,
+    );
     const has2FAEnabled = await hasATwoFactorProviderEnabled(vaultProfileService, currentAcct.id);
     const isProfileLessThanWeekOld = await profileIsLessThanWeekOld(
       vaultProfileService,
@@ -55,8 +58,9 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
     );
 
     // When any of the following are true, the device verification notice is
-    // not applicable for the user.
-    if (has2FAEnabled || isSelfHosted || requiresSSO || isProfileLessThanWeekOld) {
+    // not applicable for the user. When the user has *not* logged in with their
+    // master password, assume they logged in with SSO.
+    if (has2FAEnabled || isSelfHosted || userIsSSOUser || isProfileLessThanWeekOld) {
       return true;
     }
   } catch {
@@ -105,9 +109,39 @@ async function profileIsLessThanWeekOld(
   return !isMoreThan7DaysAgo(creationDate);
 }
 
-/** Returns true when the user is required to login via SSO */
-async function isSSORequired(policyService: PolicyService) {
-  return firstValueFrom(policyService.policyAppliesToActiveUser$(PolicyType.RequireSso));
+/**
+ * Returns true when either:
+ * - The user is SSO bound to an organization and is not an Admin or Owner
+ * - The user is an Admin or Owner of an organization with SSO bound and has not logged in with their master password
+ *
+ * NOTE: There are edge cases where this does not satisfy the original requirement of showing the notice to
+ * users who are subject to the SSO required policy. When Owners and Admins log in with their MP they will see the notice
+ * when they log in with SSO they will not. This is a concession made because the original logic references policies would not work for TDE users.
+ * When this guard is run for those users a sync hasn't occurred and thus the policies are not available.
+ */
+async function ssoAppliesToUser(
+  userVerificationService: UserVerificationService,
+  vaultProfileService: VaultProfileService,
+  userId: string,
+) {
+  const userSSOBound = await vaultProfileService.getUserSSOBound(userId);
+  const userSSOBoundAdminOwner = await vaultProfileService.getUserSSOBoundAdminOwner(userId);
+  const userLoggedInWithMP = await userLoggedInWithMasterPassword(userVerificationService, userId);
+
+  const nonOwnerAdminSsoUser = userSSOBound && !userSSOBoundAdminOwner;
+  const ssoAdminOwnerLoggedInWithMP = userSSOBoundAdminOwner && !userLoggedInWithMP;
+
+  return nonOwnerAdminSsoUser || ssoAdminOwnerLoggedInWithMP;
+}
+
+/**
+ * Returns true when the user logged in with their master password.
+ */
+async function userLoggedInWithMasterPassword(
+  userVerificationService: UserVerificationService,
+  userId: string,
+) {
+  return userVerificationService.hasMasterPasswordAndMasterKeyHash(userId);
 }
 
 /** Returns the true when the date given is older than 7 days */

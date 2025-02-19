@@ -464,6 +464,18 @@
   "editFolder": {
     "message": "Mappa szerkesztése"
   },
+  "newFolder": {
+    "message": "Új mappa"
+  },
+  "folderName": {
+    "message": "Mappanév"
+  },
+  "folderHintText": {
+    "message": "Mappa beágyazása a szülőmappa nevének hozzáadásával, majd egy “/” karakterrel. Példa: Közösségi/Fórumok"
+  },
+  "deleteFolderPermanently": {
+    "message": "Biztosan véglegesen törlésre kerüljön ez a mappa?"
+  },
   "baseDomain": {
     "message": "Alap domain",
     "description": "Domain name. Example: website.com"
@@ -727,15 +739,6 @@
   },
   "itemName": {
     "message": "Elem neve"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "Példa:",
@@ -1182,6 +1185,9 @@
   "logInInitiated": {
     "message": "A bejelentkezés elindításra került."
   },
+  "logInRequestSent": {
+    "message": "A kérés elküldésre került."
+  },
   "submit": {
     "message": "Elküldés"
   },
@@ -1371,11 +1377,38 @@
   "notificationSentDevice": {
     "message": "A rendszer értesítést küldött az eszközre."
   },
+  "notificationSentDevicePart1": {
+    "message": "A Bitwarden zárolás feloldása az eszközön vagy: "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "A fiókhoz próbálunk hozzáférni?"
+  },
+  "accessAttemptBy": {
+    "message": "Bejelentkezési kísérlet $EMAIL$ segítségével",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Hozzáférés megerősítése"
+  },
+  "denyAccess": {
+    "message": "Hozzáférés megtagadása"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webalkalmazás"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Jóváhagyás előtt győződjünk meg arról, hogy az ujjlenyomat kifejezés megegyezik az alábbi kifejezéssel."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Oldjuk fel a Bitwarden zárolását az eszközön. Jóváhagyás előtt győződjünk meg arról, hogy az ujjlenyomat kifejezés megegyezik az alábbi kifejezéssel."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Egy értesítés lett elküldve az eszközre."
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Ellenőrizzük, hogy a széf feloldásra került és az ujjlenyomat kifejezés egyezik a másik eszközön levővel."
   },
   "versionNumber": {
     "message": "Verzió: $VERSION_NUMBER$",
@@ -1663,9 +1696,6 @@
   "avoidAmbiguous": {
     "message": "Félreérthető karakterek mellőzése",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "Jelszó újragenerálása"
   },
   "length": {
     "message": "Hossz"
@@ -2170,8 +2200,20 @@
   "manage": {
     "message": "Kezelés"
   },
-  "canManage": {
-    "message": "Kezelhet"
+  "manageCollection": {
+    "message": "Gyűjtemény kezelése"
+  },
+  "viewItems": {
+    "message": "Elemek megtekintése"
+  },
+  "viewItemsHidePass": {
+    "message": "Elemek megtekintése, rejtett jelszavak"
+  },
+  "editItems": {
+    "message": "Elemek szerkesztése"
+  },
+  "editItemsHidePass": {
+    "message": "Elemek szerkesztése, rejtett jelszavak"
   },
   "disable": {
     "message": "Letiltás"
@@ -2368,11 +2410,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "Probléma lépett fel a biztonsági kulcs olvasásakor. Próbáljuk újra."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "A platform korlátozások miatt nem lehetséges minden Bitwarden alkalmazásban YubiKey eszközt használni. Engedélyezzünk egy másik kétlépcsős bejelentkezés szolgáltatót, hogy hozzáférhessünk a fiókhoz akkor is, ha a YubiKey nem használható. Támogatott platformok:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Web széf és böngésző kiegészítők asztali gépen / laptopon engedélyezett U2F böngészővel (Chrome, Opera, Vivaldi, vagy Firefox bekapcsolt FIDO U2F-fel)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "A platform korlátozások miatt nem lehetséges minden Bitwarden alkalmazásban a WebAuthn használata. Be kell üzemelni egy másik kétlépcsős bejelentkezés szolgáltatót, hogy hozzáférhessünk a fiókhoz akkor is, ha a WebAuthn nem használható."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden kétlépcsős bejelentkezés helyreállító kód"
@@ -4710,9 +4749,6 @@
   "passwordGeneratorPolicyDesc": {
     "message": "A minimális követelmények beállítása a jelszó generáló konfigurációhoz."
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "Egy vagy több szervezeti szabály érinti a generátor beállításokat."
-  },
   "masterPasswordPolicyInEffect": {
     "message": "Egy vagy több szervezeti szabály előírja a mesterjelszóhoz a következő követelményeket:"
   },
@@ -6681,15 +6717,6 @@
     "message": "Generátor",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "Mit szeretnénk generálni?"
-  },
-  "passwordType": {
-    "message": "Jelszótípus"
-  },
-  "regenerateUsername": {
-    "message": "Felhasználónév ismételt generálása"
-  },
   "generateUsername": {
     "message": "Felhasználónév generálása"
   },
@@ -6729,9 +6756,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Felhasználónév típusa"
   },
   "plusAddressedEmail": {
     "message": "További címzési email cím",
@@ -6951,9 +6975,6 @@
   "hostname": {
     "message": "Kiszolglónév",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API hozzáférési vezérjel"
   },
   "deviceVerification": {
     "message": "Eszköz ellenőrzés"
@@ -7665,18 +7686,6 @@
   },
   "noCollection": {
     "message": "Nincs gyűjtemény."
-  },
-  "canView": {
-    "message": "Megtekintheti"
-  },
-  "canViewExceptPass": {
-    "message": "Megtekintheti, kivéve a jelszavakat"
-  },
-  "canEdit": {
-    "message": "Szerkesztheti"
-  },
-  "canEditExceptPass": {
-    "message": "Szerkesztheti, kivéve a jelszavakat"
   },
   "noCollectionsAdded": {
     "message": "Nem lett gyűjtemény hozzáadva."
@@ -8626,7 +8635,7 @@
     "message": "A gyűjtemény törlésének korlátozása tulajdonosokra és adminisztrátorokra"
   },
   "limitItemDeletionDesc": {
-    "message": "Limit item deletion to members with the Can manage permission"
+    "message": "Az elemek törlésének korlátozása a Kezelheti jogosultsággal rendelkező tagokra"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
@@ -8676,9 +8685,6 @@
   "selfHostBaseUrl": {
     "message": "Saját üzemeltetésű szerver webcím",
     "description": "Label for field requesting a self-hosted integration service URL"
-  },
-  "aliasDomain": {
-    "message": "Áldomain"
   },
   "alreadyHaveAccount": {
     "message": "Van már saját fiók?"
@@ -8741,11 +8747,11 @@
   "readOnlyCollectionAccess": {
     "message": "Nincs jogosultság ennek a gyűjteménynek a kezelésére."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Missing Can Manage Permissions"
+  "grantManageCollectionWarningTitle": {
+    "message": "Hiányzó gyűjtemény kezelési engedélyek"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  "grantManageCollectionWarning": {
+    "message": "Adjunk gyűjtemény kezelési engedélyeket, hogy lehetővé tegyük a teljes gyűjtemény kezelést, beleértve a gyűjtemény törlését is."
   },
   "grantCollectionAccess": {
     "message": "Adjunk hozzáférést csoportoknak vagy személyeknek eennél a gyűjteménynél."
@@ -10091,6 +10097,15 @@
   "descriptorCode": {
     "message": "Leíró kód"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Fontos megjegyzés"
   },
@@ -10281,5 +10296,54 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Az adminisztrátorok mostantól törölhetik az igényelt tartományhoz tartozó tagi fiókokat."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "Ez a művelet törli a tagi fiókot, beleértve a tárolókban lévő összes elemet. Ez felváltja az előző Eltávolítás műveletet."
+  },
+  "deleteManagedUserWarning": {
+    "message": "A törlés új művelet!"
+  },
+  "seatsRemaining": {
+    "message": "$REMAINING$ hely maradt a szervezethez rendelt $TOTAL$ helyből. Az előfizetés kezeléséhez forduljunk a szolgáltatóhoz.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Létező szervezet"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Válasszuk ki a szolgáltatói portálhoz hozzáadni kívánt szervezetet."
+  },
+  "noOrganizations": {
+    "message": "Nincsenek listázható szervezetek."
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "A szolgáltatói előfizetés jóváírást kap a szervezet előfizetésből hátralévő időre."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Hozzáadásra kerüljön ez a szervezet $PROVIDER$ szolgáltatáshoz?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "A létező szervezet hozzáadásra került."
+  },
+  "assignedExceedsAvailable": {
+    "message": "A hozzárendelt helyek száma meghaladja a rendelkezésre álló helyek számát."
   }
 }

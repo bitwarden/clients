@@ -8,7 +8,7 @@ import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractio
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
