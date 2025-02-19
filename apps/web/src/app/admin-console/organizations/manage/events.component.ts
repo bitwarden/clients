@@ -20,6 +20,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { EventSystemUser } from "@bitwarden/common/enums";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
+import { EventView } from "@bitwarden/common/models/view/event.view";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -52,7 +53,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   organization: Organization;
   sub: OrganizationSubscriptionResponse;
 
-  dummyEvents = dummyEvents;
+  dummyEvents = dummyEvents as EventView[];
 
   private orgUsersUserIdMap = new Map<string, any>();
   private destroy$ = new Subject<void>();

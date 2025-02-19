@@ -51,10 +51,14 @@
     </form>
   </div>
 </div>
-<bit-callout type="info" [title]="'upgradeEventLogTitle' | i18n" *ngIf="!organization?.useEvents">
+<bit-callout
+  type="info"
+  [title]="'upgradeEventLogTitle' | i18n"
+  *ngIf="loaded && !organization?.useEvents"
+>
   {{ "upgradeEventLogMessage" | i18n }}
 </bit-callout>
-<ng-container *ngIf="!loaded && organization?.useEvents">
+<ng-container *ngIf="!loaded">
   <i
     class="bwi bwi-spinner bwi-spin tw-text-muted"
     title="{{ 'loading' | i18n }}"
@@ -62,9 +66,11 @@
   ></i>
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
-<ng-container *ngIf="loaded && organization?.useEvents">
-  <p *ngIf="!events || !events.length">{{ "noEventsInList" | i18n }}</p>
-  <bit-table *ngIf="events && events.length">
+<ng-container *ngIf="loaded">
+  @let displayedEvents = organization?.useEvents ? events : dummyEvents;
+
+  <p *ngIf="!displayedEvents || !displayedEvents.length">{{ "noEventsInList" | i18n }}</p>
+  <bit-table *ngIf="displayedEvents && displayedEvents.length">
     <ng-container header>
       <tr>
         <th bitCell>{{ "timestamp" | i18n }}</th>
@@ -74,7 +80,7 @@
       </tr>
     </ng-container>
     <ng-template body>
-      <tr bitRow *ngFor="let e of events" alignContent="top">
+      <tr bitRow *ngFor="let e of displayedEvents" alignContent="top">
         <td bitCell class="tw-whitespace-nowrap">{{ e.date | date: "medium" }}</td>
         <td bitCell>
           <span title="{{ e.appName }}, {{ e.ip }}">{{ e.appName }}</span>
@@ -97,29 +103,9 @@
   </button>
 </ng-container>
 
-<ng-container *ngIf="!organization?.useEvents">
+<ng-container *ngIf="loaded && !organization?.useEvents">
   <bit-table>
-    <ng-container header>
-      <tr>
-        <th bitCell>{{ "timestamp" | i18n }}</th>
-        <th bitCell>{{ "client" | i18n }}</th>
-        <th bitCell>{{ "member" | i18n }}</th>
-        <th bitCell>{{ "event" | i18n }}</th>
-      </tr>
-    </ng-container>
-
     <ng-template body>
-      <tr bitRow *ngFor="let event of dummyEvents" alignContent="top">
-        <td bitCell class="tw-whitespace-nowrap">{{ event.timeStamp }}</td>
-        <td bitCell>
-          <span title="{{ event.deviceType }}">{{ event.deviceType }}</span>
-        </td>
-        <td bitCell>
-          <span title="{{ event.member }}">{{ event.member }}</span>
-        </td>
-        <td bitCell [innerHTML]="event.event"></td>
-      </tr>
-
       <tr bitRow *ngFor="let _ of [].constructor(6)" alignContent="top">
         <td bitCell>******</td>
         <td bitCell>***</td>
@@ -138,7 +124,7 @@
       <i class="bwi bwi-2x bwi-business text-primary"></i>
 
       <p class="tw-font-bold mt-2">
-        {{ "limitedEventLogs" | i18n: ProductTierType[organization.productTierType] }}
+        {{ "limitedEventLogs" | i18n: ProductTierType[organization?.productTierType] }}
       </p>
       <p>
         {{ "upgradeForFullEvents" | i18n }}
