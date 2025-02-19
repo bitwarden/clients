@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 
-import { SharedModule } from "../../shared";
+import { SharedModule } from "../../../shared";
 
 @Component({
   selector: "app-send-access-explainer",
