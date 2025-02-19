@@ -30,6 +30,7 @@ import {
   Icons,
   NoItemsModule,
   PopoverModule,
+  SharedModule,
 } from "@bitwarden/components";
 import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
@@ -83,6 +84,7 @@ enum VaultState {
     DecryptionFailureDialogComponent,
     BannerComponent,
     AtRiskPasswordCalloutComponent,
+    SharedModule,
   ],
   providers: [VaultPageService],
 })
