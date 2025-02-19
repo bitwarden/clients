@@ -48,8 +48,8 @@ describe("ExtensionTwoFactorAuthDuoComponentService", () => {
         token: `${message.code}|${message.state}`,
       };
 
-      const messsageStream$ = new BehaviorSubject(message);
-      browserMessagingApi.messageListener$.mockReturnValue(messsageStream$);
+      const messageStream$ = new BehaviorSubject(message);
+      browserMessagingApi.messageListener$.mockReturnValue(messageStream$);
 
       const duo2faResult = await firstValueFrom(
         extensionTwoFactorAuthDuoComponentService.listenForDuo2faResult$(),
