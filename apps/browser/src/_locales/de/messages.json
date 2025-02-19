@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Dies in den Einstellungen ändern"
   },
+  "change": {
+    "message": "Ändern"
+  },
+  "changeButtonTitle": {
+    "message": "Passwort ändern - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Risikoreiche Passwörter"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ fordert dich auf, diese $COUNT$ Passwörter zu ändern, da diese in risikoreich sind.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Deine Organisationen fordern dich auf, diese $COUNT$ Passwörter zu ändern, da diese risikoreich sind.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Überprüfe und ändere ein risikoreiches Passwort"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Überprüfe und ändere $COUNT$ risikoreiche Passwörter",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Ändere risikoreiche Passwörter schneller"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Aktualisiere deine Einstellungen, damit du deine Passwörter schnell automatisch ausfüllen kannst und neue generieren kannst"
+  },
+  "turnOnAutofill": {
+    "message": "Auto-Ausfüllen aktivieren"
+  },
+  "turnedOnAutofill": {
+    "message": "Auto-Ausfüllen aktiviert"
+  },
+  "dismiss": {
+    "message": "Verwerfen"
+  },
   "websiteItemLabel": {
     "message": "Website $number$ (URI)",
     "placeholders": {

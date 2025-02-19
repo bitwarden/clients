@@ -1402,10 +1402,10 @@
     "message": "网页 App"
   },
   "notificationSentDevicePart2": {
-    "message": "在批准前，请确保指纹短语与下面的一致。"
+    "message": "在批准前，请确保指纹短语与下面的相匹配。"
   },
   "notificationSentDeviceComplete": {
-    "message": "在您的设备上解锁 Bitwarden。在批准前，请确保指纹短语与下面的一致。"
+    "message": "在您的设备上解锁 Bitwarden。在批准前，请确保指纹短语与下面的相匹配。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
@@ -2959,7 +2959,7 @@
     "description": "Noun. A refunded payment that was charged."
   },
   "chargesStatement": {
-    "message": "任何费用将以 $STATEMENT_NAME$ 出现在您的账单上。",
+    "message": "任何费用将以 $STATEMENT_NAME$ 出现在您的对账单上。",
     "placeholders": {
       "statement_name": {
         "content": "$1",
@@ -5125,7 +5125,7 @@
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "pendingDeletion": {
-    "message": "等待删除"
+    "message": "待删除"
   },
   "expired": {
     "message": "已过期"
@@ -7365,7 +7365,7 @@
     "description": "Message to encourage the user to start creating service accounts."
   },
   "serviceAccountsNoItemsTitle": {
-    "message": "还没有要显示的内容",
+    "message": "还没有可显示的内容",
     "description": "Title to indicate that there are no service accounts to display."
   },
   "searchSecrets": {
@@ -9002,7 +9002,7 @@
     "description": "Message to encourage the user to start creating machine accounts."
   },
   "machineAccountsNoItemsTitle": {
-    "message": "暂无要显示的内容",
+    "message": "还没有可显示的内容",
     "description": "Title to indicate that there are no machine accounts to display."
   },
   "deleteMachineAccounts": {
@@ -10089,10 +10089,10 @@
     "message": "不允许成员通过此组织兑换家庭计划。"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
-    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的语句描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
   },
   "verifyBankAccountWithStatementDescriptorInstructions": {
-    "message": "我们已向您的银行账户存入了一笔小额转账（可能需要 1-2 个工作日到账）。请输入转账说明中以 \"SM\" 开头的六位数代码。验证银行账户失败将会错过支付，您的订阅将失效。"
+    "message": "我们已向您的银行账户存入了一笔小额转账（可能需要 1-2 个工作日到账）。请输入转账描述中以「SM」开头的六位数代码。验证银行账户失败将会错过支付，您的订阅将失效。"
   },
   "descriptorCode": {
     "message": "描述符代码"
