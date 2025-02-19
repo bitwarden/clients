@@ -23,6 +23,7 @@ import {
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -38,8 +39,15 @@ import {
   SearchModule,
   ToastService,
   CalloutModule,
+  AnchorLinkDirective,
 } from "@bitwarden/components";
-import { CipherViewComponent, CopyCipherFieldService, DefaultTaskService } from "@bitwarden/vault";
+import {
+  ChangeLoginPasswordService,
+  CipherViewComponent,
+  CopyCipherFieldService,
+  DefaultChangeLoginPasswordService,
+  DefaultTaskService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -84,11 +92,13 @@ type LoadAction =
     AsyncActionsModule,
     PopOutComponent,
     CalloutModule,
+    AnchorLinkDirective,
   ],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
     { provide: DefaultTaskService, useClass: DefaultTaskService },
+    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class ViewV2Component {
@@ -119,6 +129,8 @@ export class ViewV2Component {
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
     private defaultTaskService: DefaultTaskService,
+    private platformUtilsService: PlatformUtilsService,
+    private changeLoginPasswordService: ChangeLoginPasswordService,
   ) {
     this.subscribeToParams();
   }
@@ -272,6 +284,15 @@ export class ViewV2Component {
         (this.cipher.isDeleted && this.cipher.edit && this.cipher.viewPassword))
     );
   }
+
+  launchChangePassword = async (cipher: CipherView) => {
+    const url = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
+    if (url == null) {
+      return;
+    }
+
+    this.platformUtilsService.launchUri(url);
+  };
 
   /**
    * Handles the load action for the view vault item popout. These actions are typically triggered

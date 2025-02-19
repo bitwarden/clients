@@ -10,6 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -24,7 +25,7 @@ import {
   BadgeModule,
   ColorPasswordModule,
 } from "@bitwarden/components";
-import { DefaultTaskService } from "@bitwarden/vault";
+import { ChangeLoginPasswordService, DefaultTaskService } from "@bitwarden/vault";
 
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
@@ -77,6 +78,8 @@ export class LoginCredentialsViewComponent implements OnInit {
     private accountService: AccountService,
     private cipherAuthorizationService: CipherAuthorizationService,
     private defaultTaskService: DefaultTaskService,
+    private platformUtilsService: PlatformUtilsService,
+    private changeLoginPasswordService: ChangeLoginPasswordService,
   ) {}
 
   ngOnInit() {
@@ -97,6 +100,15 @@ export class LoginCredentialsViewComponent implements OnInit {
       }),
     );
   }
+
+  launchChangePassword = async (cipher: CipherView) => {
+    const url = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
+    if (url == null) {
+      return;
+    }
+
+    this.platformUtilsService.launchUri(url);
+  };
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");

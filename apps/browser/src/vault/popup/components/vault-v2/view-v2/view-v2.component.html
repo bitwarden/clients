@@ -4,10 +4,13 @@
   </popup-header>
 
   <bit-callout
-    *ngIf="hasPendingTasks$ | async"
+    *ngIf="cipher.login.uris.length > 0 && hasPendingTasks$ | async"
     type="warning"
-    [title]="'changeAtRiskPassword' | i18n"
+    [title]=""
   >
+    <a bitLink (click)="launchChangePassword(cipher)">
+      {{ "changeAtRiskPassword" | i18n }}
+    </a>
   </bit-callout>
 
   <app-cipher-view *ngIf="cipher" [cipher]="cipher"></app-cipher-view>
