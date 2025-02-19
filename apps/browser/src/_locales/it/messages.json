@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Modifica questo nelle impostazioni"
   },
+  "change": {
+    "message": "Cambia"
+  },
+  "changeButtonTitle": {
+    "message": "Cambia parola d'accesso - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Parola d'accesso a rischio"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ ti sta richiedendo di modificare $COUNT$ parole d'accesso perché sono a rischio.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Le tue organizzazioni ti chiedono di modificare le $COUNT$ parole d'accesso perché sono a rischio.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Rivedi e modifica una parola d'accesso a rischio"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Rivedi e modifica $COUNT$ parole d'accesso a rischio",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Cambia le parole d'accesso a rischio più velocemente"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Aggiorna le impostazioni in modo da poter rapidamente riempire automaticamente le parole d'accesso e generarne di nuove"
+  },
+  "turnOnAutofill": {
+    "message": "Attiva riempimento automatico"
+  },
+  "turnedOnAutofill": {
+    "message": "Riempimento automatico attivato"
+  },
+  "dismiss": {
+    "message": "Ignora"
+  },
   "websiteItemLabel": {
     "message": "Sito $number$ (URI)",
     "placeholders": {

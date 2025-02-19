@@ -1374,17 +1374,41 @@ export default class MainBackground {
       return;
     }
 
-    await this.mainContextMenuHandler?.init();
+    const contextMenuIsEnabled = await this.mainContextMenuHandler?.init();
+    if (!contextMenuIsEnabled) {
+      this.onUpdatedRan = this.onReplacedRan = false;
+      return;
+    }
 
     const tab = await BrowserApi.getTabFromCurrentWindow();
+
     if (tab) {
-      await this.cipherContextMenuHandler?.update(tab.url);
+      const currentUriIsBlocked = await firstValueFrom(
+        this.domainSettingsService.blockedInteractionsUris$.pipe(
+          map((blockedInteractionsUris) => {
+            if (blockedInteractionsUris && tab?.url?.length) {
+              const tabURL = new URL(tab.url);
+              const tabIsBlocked = Object.keys(blockedInteractionsUris).some((blockedHostname) =>
+                tabURL.hostname.endsWith(blockedHostname),
+              );
+
+              if (tabIsBlocked) {
+                return true;
+              }
+            }
+
+            return false;
+          }),
+        ),
+      );
+
+      await this.cipherContextMenuHandler?.update(tab.url, currentUriIsBlocked);
       this.onUpdatedRan = this.onReplacedRan = false;
     }
   }
 
   async updateOverlayCiphers() {
-    // overlayBackground null in popup only contexts
+    // `overlayBackground` is null in popup only contexts
     if (this.overlayBackground) {
       await this.overlayBackground.updateOverlayCiphers();
     }

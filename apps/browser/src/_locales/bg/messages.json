@@ -2363,6 +2363,70 @@
   "autofillBlockedNoticeGuidance": {
     "message": "Променете това в настройките"
   },
+  "change": {
+    "message": "Промяна"
+  },
+  "changeButtonTitle": {
+    "message": "Промяна на паролата – $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Пароли в риск"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ изисква да промените $COUNT$ пароли, тъй като са в риск.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Вашата организация изисква да промените $COUNT$ пароли, тъй като са в риск.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Преглед и промяна на една парола в риск"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Преглед и промяна на $COUNT$ пароли в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "По-бърза промяна на паролите в риск"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Променете настройките си, така че да можете бързо да попълвате автоматично паролите си, както и да генерирате нови"
+  },
+  "turnOnAutofill": {
+    "message": "Включване на автоматичното попълване"
+  },
+  "turnedOnAutofill": {
+    "message": "Автоматичното попълване беше включено"
+  },
+  "dismiss": {
+    "message": "Отхвърляне"
+  },
   "websiteItemLabel": {
     "message": "Уеб сайт $number$ (адрес)",
     "placeholders": {

@@ -1204,7 +1204,7 @@
     "message": "Показувати піктограми вебсайтів"
   },
   "faviconDesc": {
-    "message": "Показувати впізнаване зображення біля кожного запису."
+    "message": "Показувати зображення біля кожного запису."
   },
   "enableMinToTray": {
     "message": "Згортати до системного лотка"
@@ -2551,7 +2551,7 @@
     "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Використати цю е-пошту"
   },
   "random": {
     "message": "Випадково"
@@ -2746,7 +2746,7 @@
     "message": "Ініційовано вхід"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Запит надіслано"
   },
   "notificationSentDevice": {
     "message": "Сповіщення було надіслано на ваш пристрій."
@@ -2755,13 +2755,13 @@
     "message": "Сповіщення надіслано на ваш пристрій"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Розблокуйте Bitwarden на своєму пристрої або у "
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "вебпрограмі"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Перш ніж підтверджувати, обов'язково перевірте відповідність зазначеної нижче фрази відбитка."
   },
   "needAnotherOptionV1": {
     "message": "Потрібен інший варіант?"
@@ -2792,10 +2792,10 @@
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Ви намагаєтесь отримати доступ до свого облікового запису?"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Спроба доступу з $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2813,10 +2813,10 @@
     "message": "Час"
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Підтвердити доступ"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Заборонити доступ"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
@@ -2853,7 +2853,7 @@
     "message": "Цей запит більше недійсний."
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Підтвердити спробу доступу для $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2865,7 +2865,7 @@
     "message": "Виконано запит входу"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Запитано доступ до облікового запису"
   },
   "creatingAccountOn": {
     "message": "Створення облікового запису"
@@ -3497,16 +3497,16 @@
     "message": "Змінити адресу е-пошти"
   },
   "allowScreenshots": {
-    "message": "Allow screen capture"
+    "message": "Дозволити захоплення екрана"
   },
   "allowScreenshotsDesc": {
-    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+    "message": "Дозволити захоплення екрана і перегляд у віддаленому доступі комп'ютерної програми Bitwarden. Вимкнення цього параметра запобігає доступу на деяких зовнішніх дисплеях."
   },
   "confirmWindowStillVisibleTitle": {
-    "message": "Confirm window still visible"
+    "message": "Вікно підтвердження все ще видиме"
   },
   "confirmWindowStillVisibleContent": {
-    "message": "Please confirm that the window is still visible."
+    "message": "Підтвердьте, що вікно все ще видиме."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Необхідно оновити розширення"
