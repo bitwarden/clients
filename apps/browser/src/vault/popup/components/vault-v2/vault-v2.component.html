@@ -85,4 +85,21 @@
       ></app-vault-list-items-container>
     </div>
   </ng-container>
+  <button
+    type="button"
+    style="position: absolute; bottom: 15px; right: 40px"
+    [bitPopoverTriggerFor]="newCustomizationOptionsCallout"
+    [position]="'above-end'"
+    [popoverOpen]="showNewCustomizationSettingsCallout"
+    #triggerRef="popoverTrigger"
+  ></button>
+  <bit-popover
+    [title]="'newCustomizationOptionsCalloutTitle' | i18n"
+    #newCustomizationOptionsCallout
+  >
+    {{ "newCustomizationOptionsCalloutContent" | i18n }}
+    <a routerLink="/tabs/settings">
+      {{ "newCustomizationOptionsCalloutLink" | i18n }}
+    </a>
+  </bit-popover>
 </popup-page>
