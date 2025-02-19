@@ -36,12 +36,21 @@ import { CreateTasksRequest } from "../../vault/services/abstractions/admin-task
 import { DefaultAdminTaskService } from "../../vault/services/default-admin-task.service";
 
 import { RiskInsightsTabType } from "./risk-insights.component";
+import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.component";
 
 @Component({
   standalone: true,
   selector: "tools-critical-applications",
   templateUrl: "./critical-applications.component.html",
-  imports: [CardComponent, HeaderModule, SearchModule, NoItemsModule, PipesModule, SharedModule],
+  imports: [
+    CardComponent,
+    HeaderModule,
+    SearchModule,
+    NoItemsModule,
+    PipesModule,
+    SharedModule,
+    AppTableRowScrollableComponent,
+  ],
   providers: [DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {

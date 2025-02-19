@@ -69,64 +69,15 @@
       {{ "markAppAsCritical" | i18n }}
     </button>
   </div>
-  <bit-table-scroll
+
+  <app-table-row-scrollable
     [dataSource]="dataSource"
-    [rowSize]="53"
-    class="tw-table tw-w-full table-hover table-list"
-  >
-    <ng-container header>
-      <th *ngIf="isCriticalAppsFeatureEnabled"></th>
-      <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
-      <th bitSortable="atRiskPasswordCount" bitCell>{{ "atRiskPasswords" | i18n }}</th>
-      <th bitSortable="passwordCount" bitCell>{{ "totalPasswords" | i18n }}</th>
-      <th bitSortable="atRiskMemberCount" bitCell>{{ "atRiskMembers" | i18n }}</th>
-      <th bitSortable="memberCount" bitCell>{{ "totalMembers" | i18n }}</th>
-    </ng-container>
-    <ng-template bitRowDef let-row>
-      <td
-        bitCell
-        *ngIf="isCriticalAppsFeatureEnabled"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }"
-      >
-        <input
-          bitCheckbox
-          type="checkbox"
-          *ngIf="!row.isMarkedAsCritical"
-          [checked]="selectedUrls.has(row.applicationName)"
-          (change)="onCheckboxChange(row.applicationName, $event)"
-        />
-        <i class="bwi bwi-star-f" *ngIf="row.isMarkedAsCritical"></i>
-      </td>
-      <td
-        class="tw-cursor-pointer"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }"
-        (click)="showAppAtRiskMembers(row.applicationName)"
-        bitCell
-      >
-        <span>{{ row.applicationName }}</span>
-      </td>
-      <td bitCell [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }">
-        <span>
-          {{ row.atRiskPasswordCount }}
-        </span>
-      </td>
-      <td bitCell [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }">
-        <span>
-          {{ row.passwordCount }}
-        </span>
-      </td>
-      <td bitCell [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }">
-        <span>
-          {{ row.atRiskMemberCount }}
-        </span>
-      </td>
-      <td
-        bitCell
-        data-testid="total-membership"
-        [ngClass]="{ 'tw-bg-primary-100': isDrawerOpenForTableRow(row.applicationName) }"
-      >
-        {{ row.memberCount }}
-      </td>
-    </ng-template>
-  </bit-table-scroll>
+    [showRowCheckBox]="true"
+    [showRowMenuForCriticalApps]="false"
+    [selectedUrls]="selectedUrls"
+    [isCriticalAppsFeatureEnabled]="isCriticalAppsFeatureEnabled"
+    [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
+    [checkboxChange]="onCheckboxChange"
+    [showAppAtRiskMembers]="showAppAtRiskMembers"
+  ></app-table-row-scrollable>
 </div>

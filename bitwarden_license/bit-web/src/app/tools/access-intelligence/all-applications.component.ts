@@ -38,6 +38,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
+import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.component";
 
 @Component({
   standalone: true,
@@ -51,6 +52,7 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
     PipesModule,
     NoItemsModule,
     SharedModule,
+    AppTableRowScrollableComponent,
   ],
 })
 export class AllApplicationsComponent implements OnInit {
@@ -190,18 +192,18 @@ export class AllApplicationsComponent implements OnInit {
     this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
 
-  onCheckboxChange(applicationName: string, event: Event) {
+  onCheckboxChange = (applicationName: string, event: Event) => {
     const isChecked = (event.target as HTMLInputElement).checked;
     if (isChecked) {
       this.selectedUrls.add(applicationName);
     } else {
       this.selectedUrls.delete(applicationName);
     }
-  }
+  };
 
   getSelectedUrls = () => Array.from(this.selectedUrls);
 
-  isDrawerOpenForTableRow = (applicationName: string) => {
+  isDrawerOpenForTableRow = (applicationName: string): boolean => {
     return this.dataService.drawerInvokerId === applicationName;
   };
 }
