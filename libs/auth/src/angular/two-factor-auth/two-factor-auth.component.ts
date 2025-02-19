@@ -262,7 +262,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
         return;
       }
 
-      tokenValue = tokenFormValue;
+      tokenValue = tokenFormValue.trim();
     }
 
     // In all flows but WebAuthn, the remember value is taken from the form.
