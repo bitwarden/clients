@@ -174,9 +174,7 @@
       [formGroup]="openIdForm"
     >
       <div>
-        <h2
-          class="tw-mb-4 tw-pb-2.5 tw-mt-16 tw-border-0 tw-border-b tw-border-solid tw-border-b-secondary-300 dark:tw-border-b-secondary-700"
-        >
+        <h2 bitTypography="h2">
           {{ "openIdConnectConfig" | i18n }}
         </h2>
 
@@ -320,9 +318,8 @@
     <div *ngIf="ssoConfigForm.get('configType').value === ssoType.Saml2" [formGroup]="samlForm">
       <!-- SAML2 SP -->
       <div>
-        <h2
-          class="tw-mb-4 tw-pb-2.5 tw-mt-16 tw-border-0 tw-border-b tw-border-solid tw-border-b-secondary-300 dark:tw-border-b-secondary-700"
-        >
+        <h2 bitTypography="h2">
+          >
           {{ "samlSpConfig" | i18n }}
         </h2>
 
