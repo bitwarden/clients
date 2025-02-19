@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./button.stories";
 
@@ -43,14 +43,14 @@ There are 3 main styles for the button: Primary, Secondary, and Danger.
 
 ### Primary
 
-<Story of={stories.Primary} />
+<Canvas of={stories.Primary} />
 
 Use the primary button styling for all Primary call to actions. An action is "primary" if it relates
 to the main purpose of a page. There should never be 2 primary styled buttons next to each other.
 
 ### Secondary
 
-<Story of={stories.Secondary} />
+<Canvas of={stories.Secondary} />
 
 The secondary styling should be used for secondary calls to action. An action is "secondary" if it
 relates indirectly to the purpose of a page. There may be multiple secondary buttons next to each
@@ -58,20 +58,20 @@ other; however, generally there should only be 1 or 2 calls to action per page.
 
 ### Danger
 
-<Story of={stories.Danger} />
+<Canvas of={stories.Danger} />
 
 Use the danger styling only in settings when the user may preform a permanent action.
 
 ## Disabled UI
 
-<Story of={stories.Disabled} />
+<Canvas of={stories.Disabled} />
 
 ## Block
 
 Typically button widths expand with their text. In some causes though buttons may need to be block
 where the width is fixed and the text wraps to 2 lines if exceeding the button’s width.
 
-<Story of={stories.Block} />
+<Canvas of={stories.Block} />
 
 ## Accessibility
 
@@ -96,7 +96,7 @@ Both submit and async action buttons use a loading button state while an action 
 button is preforming a long running task in the background like a server API call, be sure to review
 the [Async Actions Directive](?path=/story/component-library-async-actions-overview--page).
 
-<Story of={stories.Loading} />
+<Canvas of={stories.Loading} />
 
 ### appA11yTitle
 

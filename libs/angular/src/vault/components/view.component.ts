@@ -11,13 +11,14 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { filter, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { filter, firstValueFrom, map, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -29,7 +30,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -78,9 +79,6 @@ export class ViewComponent implements OnDestroy, OnInit {
   private totpInterval: any;
   private previousCipherId: string;
   private passwordReprompted = false;
-
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
-  private destroyed$ = new Subject<void>();
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -144,17 +142,14 @@ export class ViewComponent implements OnDestroy, OnInit {
   async load() {
     this.cleanUp();
 
-    const activeUserId = await firstValueFrom(this.activeUserId$);
     // Grab individual cipher from `cipherViews$` for the most up-to-date information
-    this.cipherService.cipherViews$
-      .pipe(
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.cipher = await firstValueFrom(
+      this.cipherService.cipherViews$(activeUserId).pipe(
         map((ciphers) => ciphers?.find((c) => c.id === this.cipherId)),
         filter((cipher) => !!cipher),
-        takeUntil(this.destroyed$),
-      )
-      .subscribe((cipher) => {
-        this.cipher = cipher;
-      });
+      ),
+    );
 
     this.canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
@@ -250,7 +245,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     try {
-      await this.deleteCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.deleteCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -272,7 +268,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     try {
-      await this.restoreCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.restoreCipher(activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -380,7 +377,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     if (cipherId) {
-      await this.cipherService.updateLastLaunchedDate(cipherId);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.cipherService.updateLastLaunchedDate(cipherId, activeUserId);
     }
 
     this.platformUtilsService.launchUri(uri.launchUri);
@@ -498,14 +496,14 @@ export class ViewComponent implements OnDestroy, OnInit {
     a.downloading = false;
   }
 
-  protected deleteCipher() {
+  protected deleteCipher(userId: UserId) {
     return this.cipher.isDeleted
-      ? this.cipherService.deleteWithServer(this.cipher.id)
-      : this.cipherService.softDeleteWithServer(this.cipher.id);
+      ? this.cipherService.deleteWithServer(this.cipher.id, userId)
+      : this.cipherService.softDeleteWithServer(this.cipher.id, userId);
   }
 
-  protected restoreCipher() {
-    return this.cipherService.restoreWithServer(this.cipher.id);
+  protected restoreCipher(userId: UserId) {
+    return this.cipherService.restoreWithServer(this.cipher.id, userId);
   }
 
   protected async promptPassword() {
@@ -524,7 +522,6 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.showCardNumber = false;
     this.showCardCode = false;
     this.passwordReprompted = false;
-    this.destroyed$.next();
     if (this.totpInterval) {
       clearInterval(this.totpInterval);
     }
