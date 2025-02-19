@@ -2,7 +2,7 @@ import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -16,7 +16,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   BitFormFieldComponent,
   BitPasswordInputToggleDirective,
@@ -85,12 +84,6 @@ describe("LoginCredentialsViewComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
         {
-          provide: CipherAuthorizationService,
-          useValue: {
-            canManageCipher$: jest.fn(),
-          },
-        },
-        {
           provide: DefaultTaskService,
           useValue: mock<DefaultTaskService>(),
         },
@@ -104,6 +97,7 @@ describe("LoginCredentialsViewComponent", () => {
     fixture = TestBed.createComponent(LoginCredentialsViewComponent);
     component = fixture.componentInstance;
     component.cipher = cipher;
+    jest.spyOn(component, "checkPendingTasks$").mockImplementation(() => of(true));
     fixture.detectChanges();
   });
 

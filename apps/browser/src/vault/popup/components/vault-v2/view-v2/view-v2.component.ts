@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -189,11 +189,8 @@ export class ViewV2Component {
   }
 
   checkPendingTasks$(): Observable<boolean> {
-    return combineLatest([
-      this.defaultTaskService.pendingTasks$(this.activeUserId),
-      this.cipherAuthorizationService.canManageCipher$(this.cipher),
-    ]).pipe(
-      map(([tasks, canManage]) => {
+    return this.defaultTaskService.pendingTasks$(this.activeUserId).pipe(
+      map((tasks) => {
         let hasTasks = false;
 
         if (tasks?.length > 0) {
@@ -202,7 +199,7 @@ export class ViewV2Component {
               return task.cipherId === this.cipher.id;
             }).length > 0;
         }
-        return hasTasks && canManage;
+        return hasTasks && this.cipher.edit && this.cipher.viewPassword;
       }),
     );
   }
@@ -290,7 +287,6 @@ export class ViewV2Component {
     if (url == null) {
       return;
     }
-
     this.platformUtilsService.launchUri(url);
   };
 

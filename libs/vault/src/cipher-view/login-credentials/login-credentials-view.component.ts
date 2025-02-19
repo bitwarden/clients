@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
 import { Component, inject, Input, OnInit } from "@angular/core";
-import { combineLatest, map, Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -14,7 +14,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   FormFieldModule,
   SectionComponent,
@@ -76,18 +75,18 @@ export class LoginCredentialsViewComponent implements OnInit {
     private premiumUpgradeService: PremiumUpgradePromptService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
-    private cipherAuthorizationService: CipherAuthorizationService,
     private defaultTaskService: DefaultTaskService,
     private platformUtilsService: PlatformUtilsService,
     private changeLoginPasswordService: ChangeLoginPasswordService,
   ) {}
 
   ngOnInit() {
-    this.hasPendingTasks$ = combineLatest([
-      this.defaultTaskService.pendingTasks$(this.activeUserId),
-      this.cipherAuthorizationService.canManageCipher$(this.cipher),
-    ]).pipe(
-      map(([tasks, canManage]) => {
+    this.hasPendingTasks$ = this.checkPendingTasks$();
+  }
+
+  checkPendingTasks$(): Observable<boolean> {
+    return this.defaultTaskService.pendingTasks$(this.activeUserId).pipe(
+      map((tasks) => {
         let hasTasks = false;
 
         if (tasks?.length > 0) {
@@ -96,7 +95,7 @@ export class LoginCredentialsViewComponent implements OnInit {
               return task.cipherId === this.cipher.id;
             }).length > 0;
         }
-        return hasTasks && canManage;
+        return hasTasks && this.cipher.edit && this.cipher.viewPassword;
       }),
     );
   }
@@ -106,7 +105,6 @@ export class LoginCredentialsViewComponent implements OnInit {
     if (url == null) {
       return;
     }
-
     this.platformUtilsService.launchUri(url);
   };
 

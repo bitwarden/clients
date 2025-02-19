@@ -6,7 +6,7 @@
   <bit-callout
     *ngIf="cipher?.login.uris.length > 0 && hasPendingTasks$ | async"
     type="warning"
-    [title]=""
+    [title]="''"
   >
     <a bitLink (click)="launchChangePassword(cipher)">
       {{ "changeAtRiskPassword" | i18n }}
