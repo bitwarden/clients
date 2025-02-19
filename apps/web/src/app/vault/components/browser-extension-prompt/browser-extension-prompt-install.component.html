@@ -1,0 +1,4 @@
+<div class="tw-text-center" *ngIf="shouldShow$ | async">
+  <p class="tw-mb-0">{{ "doNotHaveExtension" | i18n }}</p>
+  <a bitLink [href]="webStoreUrl">{{ "installExtension" | i18n }}</a>
+</div>
