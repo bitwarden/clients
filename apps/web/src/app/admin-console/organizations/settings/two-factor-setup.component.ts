@@ -16,6 +16,8 @@ import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService, ItemModule } from "@bitwarden/components";
 
@@ -44,6 +46,8 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     private organizationService: OrganizationService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     protected accountService: AccountService,
+    configService: ConfigService,
+    i18nService: I18nService,
   ) {
     super(
       dialogService,
@@ -52,6 +56,8 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
       policyService,
       billingAccountProfileStateService,
       accountService,
+      configService,
+      i18nService,
     );
   }
 

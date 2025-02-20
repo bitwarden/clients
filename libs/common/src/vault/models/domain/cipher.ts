@@ -12,7 +12,10 @@ import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherData } from "../data/cipher.data";
 import { LocalData } from "../data/local.data";
+import { AttachmentView } from "../view/attachment.view";
 import { CipherView } from "../view/cipher.view";
+import { FieldView } from "../view/field.view";
+import { PasswordHistoryView } from "../view/password-history.view";
 
 import { Attachment } from "./attachment";
 import { Card } from "./card";
@@ -136,6 +139,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
+
       const keyBytes = await encryptService.decryptToBytes(
         this.key,
         encKey,
@@ -198,44 +202,28 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     if (this.attachments != null && this.attachments.length > 0) {
-      const attachments: any[] = [];
-      await this.attachments.reduce((promise, attachment) => {
-        return promise
-          .then(() => {
-            return attachment.decrypt(this.organizationId, `Cipher Id: ${this.id}`, encKey);
-          })
-          .then((decAttachment) => {
-            attachments.push(decAttachment);
-          });
-      }, Promise.resolve());
+      const attachments: AttachmentView[] = [];
+      for (const attachment of this.attachments) {
+        attachments.push(
+          await attachment.decrypt(this.organizationId, `Cipher Id: ${this.id}`, encKey),
+        );
+      }
       model.attachments = attachments;
     }
 
     if (this.fields != null && this.fields.length > 0) {
-      const fields: any[] = [];
-      await this.fields.reduce((promise, field) => {
-        return promise
-          .then(() => {
-            return field.decrypt(this.organizationId, encKey);
-          })
-          .then((decField) => {
-            fields.push(decField);
-          });
-      }, Promise.resolve());
+      const fields: FieldView[] = [];
+      for (const field of this.fields) {
+        fields.push(await field.decrypt(this.organizationId, encKey));
+      }
       model.fields = fields;
     }
 
     if (this.passwordHistory != null && this.passwordHistory.length > 0) {
-      const passwordHistory: any[] = [];
-      await this.passwordHistory.reduce((promise, ph) => {
-        return promise
-          .then(() => {
-            return ph.decrypt(this.organizationId, encKey);
-          })
-          .then((decPh) => {
-            passwordHistory.push(decPh);
-          });
-      }, Promise.resolve());
+      const passwordHistory: PasswordHistoryView[] = [];
+      for (const ph of this.passwordHistory) {
+        passwordHistory.push(await ph.decrypt(this.organizationId, encKey));
+      }
       model.passwordHistory = passwordHistory;
     }
 

@@ -74,10 +74,10 @@ describe("WebLoginComponentService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("getOrgPolicies", () => {
+  describe("getOrgPoliciesFromOrgInvite", () => {
     it("returns undefined if organization invite is null", async () => {
       acceptOrganizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-      const result = await service.getOrgPolicies();
+      const result = await service.getOrgPoliciesFromOrgInvite();
       expect(result).toBeUndefined();
     });
 
@@ -94,7 +94,7 @@ describe("WebLoginComponentService", () => {
         organizationName: "org-name",
       });
       policyApiService.getPoliciesByToken.mockRejectedValue(error);
-      await service.getOrgPolicies();
+      await service.getOrgPoliciesFromOrgInvite();
       expect(logService.error).toHaveBeenCalledWith(error);
     });
 
@@ -130,7 +130,7 @@ describe("WebLoginComponentService", () => {
           of(masterPasswordPolicyOptions),
         );
 
-        const result = await service.getOrgPolicies();
+        const result = await service.getOrgPoliciesFromOrgInvite();
 
         expect(result).toEqual({
           policies: policies,

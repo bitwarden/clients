@@ -51,52 +51,52 @@ describe("RestClient", () => {
       expect(api.nativeFetch).toHaveBeenCalledWith(expectedRpc.fetchRequest);
     });
 
-    it.each([[401] /*,[403]*/])(
-      "throws an invalid token error when HTTP status is %i",
-      async (status) => {
-        const client = new RestClient(api, i18n);
-        const request: IntegrationRequest = { website: null };
-        const response = mock<Response>({ status, statusText: null });
-        api.nativeFetch.mockResolvedValue(response);
+    it.each([
+      [401, "forwaderInvalidToken"],
+      [403, "forwaderInvalidOperation"],
+    ])("throws an invalid token error when HTTP status is %i", async (status, messageKey) => {
+      const client = new RestClient(api, i18n);
+      const request: IntegrationRequest = { website: null };
+      const response = mock<Response>({ status, statusText: null });
+      api.nativeFetch.mockResolvedValue(response);
 
-        const result = client.fetchJson(rpc, request);
+      const result = client.fetchJson(rpc, request);
 
-        await expect(result).rejects.toEqual("forwaderInvalidToken");
-      },
-    );
+      await expect(result).rejects.toEqual(messageKey);
+    });
 
     it.each([
-      [401, null, null],
-      [401, undefined, undefined],
-      [401, undefined, null],
-      [403, null, null],
-      [403, undefined, undefined],
-      [403, undefined, null],
+      [401, null, null, "forwaderInvalidToken"],
+      [401, undefined, undefined, "forwaderInvalidToken"],
+      [401, undefined, null, "forwaderInvalidToken"],
+      [403, null, null, "forwaderInvalidOperation"],
+      [403, undefined, undefined, "forwaderInvalidOperation"],
+      [403, undefined, null, "forwaderInvalidOperation"],
     ])(
       "throws an invalid token error when HTTP status is %i, message is %p, and error is %p",
-      async (status) => {
+      async (status, message, error, messageKey) => {
         const client = new RestClient(api, i18n);
         const request: IntegrationRequest = { website: null };
         const response = mock<Response>({
           status,
-          text: () => Promise.resolve(`{ "message": null, "error": null }`),
+          text: () => Promise.resolve(JSON.stringify({ message, error })),
         });
         api.nativeFetch.mockResolvedValue(response);
 
         const result = client.fetchJson(rpc, request);
 
-        await expect(result).rejects.toEqual("forwaderInvalidToken");
+        await expect(result).rejects.toEqual(messageKey);
       },
     );
 
     it.each([
-      [401, "message"],
-      [403, "message"],
-      [401, "error"],
-      [403, "error"],
+      [401, "message", "forwaderInvalidTokenWithMessage"],
+      [403, "message", "forwaderInvalidOperationWithMessage"],
+      [401, "error", "forwaderInvalidTokenWithMessage"],
+      [403, "error", "forwaderInvalidOperationWithMessage"],
     ])(
       "throws an invalid token detailed error when HTTP status is %i and the payload has a %s",
-      async (status, property) => {
+      async (status, property, messageKey) => {
         const client = new RestClient(api, i18n);
         const request: IntegrationRequest = { website: null };
         const response = mock<Response>({
@@ -107,18 +107,17 @@ describe("RestClient", () => {
 
         const result = client.fetchJson(rpc, request);
 
-        await expect(result).rejects.toEqual("forwaderInvalidTokenWithMessage");
-        expect(i18n.t).toHaveBeenCalledWith(
-          "forwaderInvalidTokenWithMessage",
-          "mock",
-          "expected message",
-        );
+        await expect(result).rejects.toEqual(messageKey);
+        expect(i18n.t).toHaveBeenCalledWith(messageKey, "mock", "expected message");
       },
     );
 
-    it.each([[401], [403]])(
+    it.each([
+      [401, "forwaderInvalidTokenWithMessage"],
+      [403, "forwaderInvalidOperationWithMessage"],
+    ])(
       "throws an invalid token detailed error when HTTP status is %i and the payload has a %s",
-      async (status) => {
+      async (status, messageKey) => {
         const client = new RestClient(api, i18n);
         const request: IntegrationRequest = { website: null };
         const response = mock<Response>({
@@ -130,12 +129,8 @@ describe("RestClient", () => {
 
         const result = client.fetchJson(rpc, request);
 
-        await expect(result).rejects.toEqual("forwaderInvalidTokenWithMessage");
-        expect(i18n.t).toHaveBeenCalledWith(
-          "forwaderInvalidTokenWithMessage",
-          "mock",
-          "that happened: expected message",
-        );
+        await expect(result).rejects.toEqual(messageKey);
+        expect(i18n.t).toHaveBeenCalledWith(messageKey, "mock", "that happened: expected message");
       },
     );
 
