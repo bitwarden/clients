@@ -17,12 +17,11 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-// eslint-disable-next-line no-restricted-imports
-import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponent } from "../../../tools/reports/pages/unsecured-websites-report.component";
+import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponent } from "../unsecured-websites-report.component";
 
 @Component({
   selector: "app-unsecured-websites-report",
-  templateUrl: "../../../tools/reports/pages/unsecured-websites-report.component.html",
+  templateUrl: "../unsecured-websites-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class UnsecuredWebsitesReportComponent

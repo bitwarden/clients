@@ -14,8 +14,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ImportCollectionServiceAbstraction } from "@bitwarden/importer-core";
 import { ImportComponent } from "@bitwarden/importer-ui";
 
-import { LooseComponentsModule, SharedModule } from "../../../shared";
-import { ImportCollectionAdminService } from "../../../tools/import/import-collection-admin.service";
+import { LooseComponentsModule, SharedModule } from "../../shared";
+
+import { ImportCollectionAdminService } from "./import-collection-admin.service";
 
 @Component({
   templateUrl: "org-import.component.html",
