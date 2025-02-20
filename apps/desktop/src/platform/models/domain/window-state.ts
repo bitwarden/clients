@@ -11,3 +11,8 @@ export class WindowState {
   y?: number;
   zoomFactor?: number;
 }
+
+export class ModalModeState {
+  isModalModeActive: boolean;
+  modalPosition?: [number, number]; // Modal position is often passed from the native UI
+}

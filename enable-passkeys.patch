@@ -1,0 +1,78 @@
+diff --git a/apps/desktop/resources/entitlements.mas.inherit.plist b/apps/desktop/resources/entitlements.mas.inherit.plist
+index 7e957fce7c..e9a28f8f32 100644
+--- a/apps/desktop/resources/entitlements.mas.inherit.plist
++++ b/apps/desktop/resources/entitlements.mas.inherit.plist
+@@ -8,9 +8,7 @@
+ 	<true/>
+ 	<key>com.apple.security.cs.allow-jit</key>
+ 	<true/>
+-	<!--
+ 	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
+ 	<true/>
+-	-->
+ </dict>
+ </plist>
+diff --git a/apps/desktop/resources/entitlements.mas.plist b/apps/desktop/resources/entitlements.mas.plist
+index 0450111beb..5bb95f76af 100644
+--- a/apps/desktop/resources/entitlements.mas.plist
++++ b/apps/desktop/resources/entitlements.mas.plist
+@@ -16,10 +16,8 @@
+ 	<true/>
+ 	<key>com.apple.security.files.user-selected.read-write</key>
+ 	<true/>
+-	<!--
+ 	<key>com.apple.developer.authentication-services.autofill-credential-provider</key>
+ 	<true/>
+-	-->
+ 	<key>com.apple.security.temporary-exception.files.home-relative-path.read-write</key>
+ 	<array>
+ 		<string>/Library/Application Support/Mozilla/NativeMessagingHosts/</string>
+diff --git a/apps/desktop/src/autofill/services/desktop-autofill.service.ts b/apps/desktop/src/autofill/services/desktop-autofill.service.ts
+index 1ce58596b3..86f7ef0a43 100644
+--- a/apps/desktop/src/autofill/services/desktop-autofill.service.ts
++++ b/apps/desktop/src/autofill/services/desktop-autofill.service.ts
+@@ -1,14 +1,13 @@
+ import { Injectable, OnDestroy } from "@angular/core";
+ import { autofill } from "desktop_native/napi";
+ import {
+-  EMPTY,
+   Subject,
+   distinctUntilChanged,
+   firstValueFrom,
+   map,
+   mergeMap,
+   switchMap,
+-  takeUntil,
++  takeUntil
+ } from "rxjs";
+ 
+ import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+@@ -56,9 +55,9 @@ export class DesktopAutofillService implements OnDestroy {
+       .pipe(
+         distinctUntilChanged(),
+         switchMap((enabled) => {
+-          if (!enabled) {
++          /*if (!enabled) {
+             return EMPTY;
+-          }
++          }*/
+ 
+           return this.cipherService.cipherViews$;
+         }),
+diff --git a/apps/desktop/src/utils.ts b/apps/desktop/src/utils.ts
+index c798faac36..d203998ed4 100644
+--- a/apps/desktop/src/utils.ts
++++ b/apps/desktop/src/utils.ts
+@@ -20,11 +20,7 @@ export function invokeMenu(menu: RendererMenuItem[]) {
+ }
+ 
+ export function isDev() {
+-  // ref: https://github.com/sindresorhus/electron-is-dev
+-  if ("ELECTRON_IS_DEV" in process.env) {
+-    return parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
+-  }
+-  return process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath);
++  return true;
+ }
+ 
+ export function isLinux() {

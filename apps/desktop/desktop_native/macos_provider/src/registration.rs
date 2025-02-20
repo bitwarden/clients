@@ -13,6 +13,7 @@ pub struct PasskeyRegistrationRequest {
     client_data_hash: Vec<u8>,
     user_verification: UserVerification,
     supported_algorithms: Vec<i32>,
+    window_xy: Vec<i32>,
 }
 
 #[derive(uniffi::Record, Serialize, Deserialize)]
