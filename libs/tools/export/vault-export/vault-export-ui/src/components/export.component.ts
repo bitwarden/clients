@@ -223,9 +223,13 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     // Wire up the password generation for the password-protected export
     const account$ = this.accountService.activeAccount$.pipe(
       pin({
-        name() { return "active export account"; },
-        distinct(previous, current) { return previous.id === current.id }
-      })
+        name() {
+          return "active export account";
+        },
+        distinct(previous, current) {
+          return previous.id === current.id;
+        },
+      }),
     );
     this.generatorService
       .generate$(Generators.password, { on$: this.onGenerate$, account$ })
