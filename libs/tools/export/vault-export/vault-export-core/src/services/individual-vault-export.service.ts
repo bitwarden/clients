@@ -71,8 +71,10 @@ export class IndividualVaultExportService
 
     const attachmentsFolder = zip.folder("attachments");
 
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     // attachments
-    for (const cipher of await this.cipherService.getAllDecrypted()) {
+    for (const cipher of await this.cipherService.getAllDecrypted(activeUserId)) {
       if (!cipher.attachments || cipher.attachments.length === 0 || cipher.deletedDate != null) {
         continue;
       }
