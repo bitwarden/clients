@@ -7,6 +7,7 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
+import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
@@ -22,12 +23,46 @@ const logService = new ConsoleLogService(false);
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
 let windowMessageOrigin: string;
 let useComponentBar = false;
+
+const i18n = {
+  appName: chrome.i18n.getMessage("appName"),
+  close: chrome.i18n.getMessage("close"),
+  never: chrome.i18n.getMessage("never"),
+  folder: chrome.i18n.getMessage("folder"),
+  notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
+  notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
+  notificationEdit: chrome.i18n.getMessage("edit"),
+  notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
+  notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
+  notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
+  notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+
+  // @TODO move values to message catalog
+  saveAction: "Save",
+  saveAsNewLoginAction: "Save as new login",
+  updateLoginAction: "Update login",
+  saveLoginPrompt: "Save login?",
+  updateLoginPrompt: "Update existing login?",
+  loginSaveSuccess: "Login saved",
+  loginSaveSuccessDetails: "Login saved to Bitwarden.",
+  loginUpdateSuccess: "Login updated",
+  loginUpdateSuccessDetails: "Login updated in Bitwarden.",
+  saveFailure: "Error saving",
+  saveFailureDetails: "Oh no! We couldn't save this. Try entering the details as a New item",
+  newItem: "New item",
+  view: "View",
+};
+
 const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers = {
   initNotificationBar: ({ message }) => initNotificationBar(message),
-  saveCipherAttemptCompleted: ({ message }) => handleSaveCipherAttemptCompletedMessage(message),
+  saveCipherAttemptCompleted: ({ message }) =>
+    useComponentBar
+      ? handleSaveCipherConfirmation(message)
+      : handleSaveCipherAttemptCompletedMessage(message),
 };
 
 globalThis.addEventListener("load", load);
+
 function load() {
   setupWindowMessageListener();
   sendPlatformMessage({ command: "notificationRefreshFlagValue" }, (flagValue) => {
@@ -35,7 +70,6 @@ function load() {
     applyNotificationBarStyle();
   });
 }
-
 function applyNotificationBarStyle() {
   if (!useComponentBar) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -52,33 +86,6 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
 
   notificationBarIframeInitData = initData;
   const { isVaultLocked, theme } = notificationBarIframeInitData;
-
-  const i18n = {
-    appName: chrome.i18n.getMessage("appName"),
-    close: chrome.i18n.getMessage("close"),
-    never: chrome.i18n.getMessage("never"),
-    folder: chrome.i18n.getMessage("folder"),
-    notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
-    notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
-    notificationEdit: chrome.i18n.getMessage("edit"),
-    notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
-    notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
-    notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
-    notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
-
-    // @TODO move values to message catalog
-    saveAction: "Save",
-    saveAsNewLoginAction: "Save as new login",
-    updateLoginAction: "Update login",
-    saveLoginPrompt: "Save login?",
-    updateLoginPrompt: "Update existing login?",
-    loginSaveSuccess: "Login saved",
-    loginSaveSuccessDetails: "Login saved to Bitwarden.",
-    loginUpdateSuccess: "Login saved",
-    loginUpdateSuccessDetails: "Login updated in Bitwarden.",
-    saveFailure: "Error saving",
-    saveFailureDetails: "Oh no! We couldn't save this. Try entering the details as a New item",
-  };
 
   if (useComponentBar) {
     document.body.innerHTML = "";
@@ -171,17 +178,18 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
 
   globalThis.addEventListener("resize", adjustHeight);
   adjustHeight();
-  function handleCloseNotification(e: Event) {
-    e.preventDefault();
-    sendPlatformMessage({
-      command: "bgCloseNotificationBar",
-    });
-  }
+
   function handleEditOrUpdateAction(e: Event) {
     const notificationType = initData.type;
     e.preventDefault();
     notificationType === "add" ? sendSaveCipherMessage(true) : sendSaveCipherMessage(false);
   }
+}
+function handleCloseNotification(e: Event) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgCloseNotificationBar",
+  });
 }
 
 function handleSaveAction(e: Event) {
@@ -279,6 +287,28 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   globalThis.setTimeout(
     () => sendPlatformMessage({ command: "bgCloseNotificationBar", fadeOutNotification: true }),
     3000,
+  );
+}
+
+function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
+  const { theme, type } = notificationBarIframeInitData;
+  const { error } = message;
+
+  const themeType = getTheme(globalThis, theme);
+
+  // There are other possible passed theme values, but for now, resolve to dark or light
+  const resolvedTheme: Theme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
+
+  return render(
+    NotificationConfirmationContainer({
+      ...notificationBarIframeInitData,
+      type: type as NotificationType,
+      theme: resolvedTheme,
+      handleCloseNotification,
+      i18n,
+      error,
+    }),
+    document.body,
   );
 }
 
