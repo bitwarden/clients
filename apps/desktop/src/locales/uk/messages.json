@@ -1204,7 +1204,7 @@
     "message": "Показувати піктограми вебсайтів"
   },
   "faviconDesc": {
-    "message": "Показувати впізнаване зображення біля кожного запису."
+    "message": "Показувати зображення біля кожного запису."
   },
   "enableMinToTray": {
     "message": "Згортати до системного лотка"
@@ -2551,7 +2551,7 @@
     "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Використати цю е-пошту"
   },
   "random": {
     "message": "Випадково"
@@ -2745,14 +2745,23 @@
   "loginInitiated": {
     "message": "Ініційовано вхід"
   },
+  "logInRequestSent": {
+    "message": "Запит надіслано"
+  },
   "notificationSentDevice": {
     "message": "Сповіщення було надіслано на ваш пристрій."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Сповіщення надіслано на ваш пристрій"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Переконайтеся, що ваш обліковий запис розблоковано і фраза відбитка на іншому пристрої збігається"
+  "notificationSentDevicePart1": {
+    "message": "Розблокуйте Bitwarden на своєму пристрої або у "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "вебпрограмі"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Перш ніж підтверджувати, обов'язково перевірте відповідність зазначеної нижче фрази відбитка."
   },
   "needAnotherOptionV1": {
     "message": "Потрібен інший варіант?"
@@ -2782,11 +2791,11 @@
     "message": "Перемкнути лічильник символів",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Ви намагаєтесь увійти?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Ви намагаєтесь отримати доступ до свого облікового запису?"
   },
-  "logInAttemptBy": {
-    "message": "Спроба входу з $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Спроба доступу з $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2812,11 @@
   "time": {
     "message": "Час"
   },
-  "confirmLogIn": {
-    "message": "Підтвердити вхід"
+  "confirmAccess": {
+    "message": "Підтвердити доступ"
   },
-  "denyLogIn": {
-    "message": "Заборонити вхід"
+  "denyAccess": {
+    "message": "Заборонити доступ"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
@@ -2843,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Цей запит більше недійсний."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Підтвердити спробу входу для $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Підтвердити спробу доступу для $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Виконано запит входу"
+  },
+  "accountAccessRequested": {
+    "message": "Запитано доступ до облікового запису"
   },
   "creatingAccountOn": {
     "message": "Створення облікового запису"
@@ -3484,14 +3496,17 @@
   "changeAcctEmail": {
     "message": "Змінити адресу е-пошти"
   },
-  "organizationUpgradeRequired": {
-    "message": "Необхідне оновлення організації"
+  "allowScreenshots": {
+    "message": "Дозволити захоплення екрана"
   },
-  "upgradeOrganization": {
-    "message": "Підвищити рівень організації"
+  "allowScreenshotsDesc": {
+    "message": "Дозволити захоплення екрана і перегляд у віддаленому доступі комп'ютерної програми Bitwarden. Вимкнення цього параметра запобігає доступу на деяких зовнішніх дисплеях."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Ця функція недоступна для безплатних організацій. Передплатіть тарифний план, щоб розблокувати додаткові можливості."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Вікно підтвердження все ще видиме"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Підтвердьте, що вікно все ще видиме."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Необхідно оновити розширення"

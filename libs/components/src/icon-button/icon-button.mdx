@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./icon-button.stories";
 
@@ -38,48 +38,48 @@ button component styles.
 
 Used for general icon buttons appearing on the theme’s main `background`
 
-<Story of={stories.Main} />
+<Canvas of={stories.Main} />
 
 ### Muted
 
 Used for low emphasis icon buttons appearing on the theme’s main `background`
 
-<Story of={stories.Muted} />
+<Canvas of={stories.Muted} />
 
 ### Contrast
 
 Used on a theme’s colored or contrasting backgrounds such as in the navigation or on toasts and
 banners.
 
-<Story of={stories.Contrast} />
+<Canvas of={stories.Contrast} />
 
 ### Danger
 
 Danger is used for “trash” actions throughout the experience, most commonly in the bottom right of
 the dialog component.
 
-<Story of={stories.Danger} />
+<Canvas of={stories.Danger} />
 
 ### Primary
 
 Used in place of the main button component if no text is used. This allows the button to display
 square.
 
-<Story of={stories.Primary} />
+<Canvas of={stories.Primary} />
 
 ### Secondary
 
 Used in place of the main button component if no text is used. This allows the button to display
 square.
 
-<Story of={stories.Secondary} />
+<Canvas of={stories.Secondary} />
 
 ### Light
 
 Used on a background that is dark in both light theme and dark theme. Example: end user navigation
 styles.
 
-<Story of={stories.Light} />
+<Canvas of={stories.Light} />
 
 **Note:** Main and contrast styles appear on backgrounds where using `primary-700` as a focus
 indicator does not meet WCAG graphic contrast guidelines.
@@ -93,11 +93,11 @@ with less padding around the icon, such as in the navigation component.
 
 ### Small
 
-<Story of={stories.Small} />
+<Canvas of={stories.Small} />
 
 ### Default
 
-<Story of={stories.Default} />
+<Canvas of={stories.Default} />
 
 ## Accessibility
 

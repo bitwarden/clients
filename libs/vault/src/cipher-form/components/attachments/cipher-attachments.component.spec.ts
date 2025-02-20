@@ -110,7 +110,7 @@ describe("CipherAttachmentsComponent", () => {
   it("fetches cipherView using `cipherId`", async () => {
     await component.ngOnInit();
 
-    expect(cipherServiceGet).toHaveBeenCalledWith("5555-444-3333");
+    expect(cipherServiceGet).toHaveBeenCalledWith("5555-444-3333", mockUserId);
     expect(component.cipher).toEqual(cipherView);
   });
 

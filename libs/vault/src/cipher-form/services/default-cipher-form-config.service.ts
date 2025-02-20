@@ -8,6 +8,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -34,14 +35,12 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
   private collectionService: CollectionService = inject(CollectionService);
   private accountService = inject(AccountService);
 
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
-
   async buildConfig(
     mode: CipherFormMode,
     cipherId?: CipherId,
     cipherType?: CipherType,
   ): Promise<CipherFormConfig> {
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const [organizations, collections, allowPersonalOwnership, folders, cipher] =
       await firstValueFrom(
@@ -62,7 +61,7 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
               ),
             ),
           ),
-          this.getCipher(cipherId),
+          this.getCipher(activeUserId, cipherId),
         ]),
       );
 
@@ -94,10 +93,10 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
     .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
     .pipe(map((p) => !p));
 
-  private getCipher(id?: CipherId): Promise<Cipher | null> {
+  private getCipher(userId: UserId, id?: CipherId): Promise<Cipher | null> {
     if (id == null) {
       return Promise.resolve(null);
     }
-    return this.cipherService.get(id);
+    return this.cipherService.get(id, userId);
   }
 }

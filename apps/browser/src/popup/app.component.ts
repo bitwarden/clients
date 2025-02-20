@@ -35,9 +35,12 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   selector: "app-root",
   styles: [],
   animations: [routerTransition],
-  template: ` <div [@routerTransition]="getRouteElevation(outlet)">
-    <router-outlet #outlet="outlet"></router-outlet>
-  </div>`,
+  template: `
+    <div [@routerTransition]="getRouteElevation(outlet)">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
+    <bit-toast-container></bit-toast-container>
+  `,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private viewCacheService = inject(PopupViewCacheService);
@@ -179,7 +182,7 @@ export class AppComponent implements OnInit, OnDestroy {
           await this.clearComponentStates();
         }
         if (url.startsWith("/tabs/")) {
-          await this.cipherService.setAddEditCipherInfo(null);
+          await this.cipherService.setAddEditCipherInfo(null, this.activeUserId);
         }
         (window as any).previousPopupUrl = url;
 

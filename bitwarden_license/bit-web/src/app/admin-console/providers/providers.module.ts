@@ -6,7 +6,7 @@ import { FormsModule } from "@angular/forms";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchModule } from "@bitwarden/components";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
-import { OrganizationPlansComponent, TaxInfoComponent } from "@bitwarden/web-vault/app/billing";
+import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 
 import {
@@ -47,7 +47,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     OrganizationPlansComponent,
     SearchModule,
     ProvidersLayoutComponent,
-    TaxInfoComponent,
     DangerZoneComponent,
     ScrollingModule,
   ],

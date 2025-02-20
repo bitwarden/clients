@@ -2,11 +2,15 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { DialogService, ToastService } from "@bitwarden/components";
+
+import { mockAccountServiceWith } from "../../../../../../common/spec";
 
 import { DeleteAttachmentComponent } from "./delete-attachment.component";
 
@@ -42,6 +46,7 @@ describe("DeleteAttachmentComponent", () => {
         },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
       ],
     })
       .overrideProvider(DialogService, {
@@ -90,7 +95,11 @@ describe("DeleteAttachmentComponent", () => {
     });
 
     // Called with cipher id and attachment id
-    expect(deleteAttachmentWithServer).toHaveBeenCalledWith("5555-444-3333", "222-3333-4444");
+    expect(deleteAttachmentWithServer).toHaveBeenCalledWith(
+      "5555-444-3333",
+      "222-3333-4444",
+      "UserId",
+    );
   });
 
   it("shows toast message on successful deletion", async () => {

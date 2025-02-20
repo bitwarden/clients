@@ -34,6 +34,6 @@ export class ExportBrowserV2Component {
   constructor(private router: Router) {}
 
   protected async onSuccessfulExport(organizationId: string): Promise<void> {
-    await this.router.navigate(["/vault-settings"]);
+    await this.router.navigate(["/tabs/settings"]);
   }
 }

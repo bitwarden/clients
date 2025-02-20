@@ -124,7 +124,10 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.organizationUserApiService,
     );
-    this.restoreCommand = new RestoreCommand(this.serviceContainer.cipherService);
+    this.restoreCommand = new RestoreCommand(
+      this.serviceContainer.cipherService,
+      this.serviceContainer.accountService,
+    );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,

@@ -1,0 +1,33 @@
+name: Build Browser on PR Target
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches-ignore:
+      - 'l10n_master'
+      - 'cf-pages'
+    paths:
+      - 'apps/browser/**'
+      - 'libs/**'
+      - '*'
+      - '!*.md'
+      - '!*.txt'
+  workflow_call:
+    inputs: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+
+  run-workflow:
+    name: Run Build Browser on PR Target
+    needs: check-run
+    if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+    uses: ./.github/workflows/build-browser.yml
+    secrets: inherit
+

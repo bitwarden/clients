@@ -2,8 +2,10 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -22,6 +24,7 @@ export class UpdateBadge {
   private authService: AuthService;
   private badgeSettingsService: BadgeSettingsServiceAbstraction;
   private cipherService: CipherService;
+  private accountService: AccountService;
   private badgeAction: typeof chrome.action | typeof chrome.browserAction;
   private sidebarAction: OperaSidebarAction | FirefoxSidebarAction;
   private win: Window & typeof globalThis;
@@ -34,6 +37,7 @@ export class UpdateBadge {
     this.badgeSettingsService = services.badgeSettingsService;
     this.authService = services.authService;
     this.cipherService = services.cipherService;
+    this.accountService = services.accountService;
   }
 
   async run(opts?: { tabId?: number; windowId?: number }): Promise<void> {
@@ -87,7 +91,14 @@ export class UpdateBadge {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(opts?.tab?.url);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (!activeUserId) {
+      return;
+    }
+
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(opts?.tab?.url, activeUserId);
     let countText = ciphers.length == 0 ? "" : ciphers.length.toString();
     if (ciphers.length > 9) {
       countText = "9+";
@@ -162,6 +173,13 @@ export class UpdateBadge {
 
   private async setSidebarActionIcon(options: IconDetails) {
     if (!this.sidebarAction?.setIcon) {
+      return;
+    }
+
+    if ("opr" in this.win && BrowserApi.isManifestVersion(3)) {
+      // setIcon API is currenly broken for Opera MV3 extensions
+      // https://forums.opera.com/topic/75680/opr-sidebaraction-seticon-api-is-broken-access-to-extension-api-denied?_=1738349261570
+      // The API currently crashes on MacOS
       return;
     }
 

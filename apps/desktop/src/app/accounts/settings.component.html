@@ -436,6 +436,23 @@
                   "enableSshAgentDesc" | i18n
                 }}</small>
               </div>
+              <div class="form-group" *ngIf="!isLinux">
+                <div class="checkbox">
+                  <label for="allowScreenshots">
+                    <input
+                      id="allowScreenshots"
+                      type="checkbox"
+                      aria-describedby="allowScreenshotsHelp"
+                      formControlName="allowScreenshots"
+                      (change)="savePreventScreenshots()"
+                    />
+                    {{ "allowScreenshots" | i18n }}
+                  </label>
+                </div>
+                <small id="allowScreenshotsHelp" class="help-block">{{
+                  "allowScreenshotsDesc" | i18n
+                }}</small>
+              </div>
               <div class="form-group" *ngIf="showDuckDuckGoIntegrationOption">
                 <div class="checkbox">
                   <label for="enableDuckDuckGoBrowserIntegration">

@@ -649,7 +649,7 @@ export class MemberDialogComponent implements OnDestroy {
       map(
         ([organization, acknowledged, featureFlagEnabled]) =>
           featureFlagEnabled &&
-          organization.isOwner &&
+          organization.canManageUsers &&
           organization.productTierType === ProductTierType.Enterprise &&
           !acknowledged,
       ),

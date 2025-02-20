@@ -177,17 +177,17 @@ export class AllApplicationsComponent implements OnInit {
           ?.atRiskMemberDetails ?? [],
       applicationName,
     };
-    this.dataService.setDrawerForAppAtRiskMembers(info);
+    this.dataService.setDrawerForAppAtRiskMembers(info, applicationName);
   };
 
-  showOrgAtRiskMembers = async () => {
+  showOrgAtRiskMembers = async (invokerId: string) => {
     const dialogData = this.reportService.generateAtRiskMemberList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskMembers(dialogData);
+    this.dataService.setDrawerForOrgAtRiskMembers(dialogData, invokerId);
   };
 
-  showOrgAtRiskApps = async () => {
+  showOrgAtRiskApps = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskApps(data);
+    this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
 
   onCheckboxChange(applicationName: string, event: Event) {

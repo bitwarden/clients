@@ -87,7 +87,7 @@ describe("SSOLoginService ", () => {
     const orgIdentifier = "test-active-org-identifier";
     await sut.setActiveUserOrganizationSsoIdentifier(orgIdentifier, undefined);
 
-    expect(mockLogService.warning).toHaveBeenCalledWith(
+    expect(mockLogService.error).toHaveBeenCalledWith(
       "Tried to set a user organization sso identifier with an undefined user id.",
     );
   });

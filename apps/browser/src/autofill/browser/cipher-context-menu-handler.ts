@@ -1,5 +1,9 @@
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -14,6 +18,7 @@ export class CipherContextMenuHandler {
     private mainContextMenuHandler: MainContextMenuHandler,
     private authService: AuthService,
     private cipherService: CipherService,
+    private accountService: AccountService,
   ) {}
 
   async update(url: string) {
@@ -35,7 +40,14 @@ export class CipherContextMenuHandler {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, [
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
+      return;
+    }
+
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
       CipherType.Card,
       CipherType.Identity,
     ]);

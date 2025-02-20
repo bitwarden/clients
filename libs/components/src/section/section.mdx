@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls, Canvas } from "@storybook/addon-docs";
+import { Meta, Primary, Controls, Canvas } from "@storybook/addon-docs";
 
 import * as stories from "./section.stories";
 
@@ -26,9 +26,7 @@ the `disableMargin` input.
 <bit-section disableMargin></bit-section>
 ```
 
-<Canvas>
-  <Story of={stories.Default} />
-</Canvas>
+<Canvas of={stories.Default} />
 
 ## Section Header
 
@@ -61,16 +59,12 @@ padding to align the header with the border radius of the card/item.
 </bit-section>
 ```
 
-<Canvas>
-  <Story of={stories.HeaderWithPadding} />
-</Canvas>
+<Canvas of={stories.HeaderWithPadding} />
 
 If placed inside of a section without a `bit-card` or `bit-item`, or with a `bit-card`/`bit-item`
 that is not a descendant of the immediate next sibling, the padding is not applied.
 
-<Canvas>
-  <Story of={stories.HeaderWithoutPadding} />
-</Canvas>
+<Canvas of={stories.HeaderWithoutPadding} />
 
 ### Section Header Content Slots
 
@@ -89,14 +83,10 @@ Anything passed to the default slot will display as part of the title. The title
 Title suffixes (typically an icon or icon button) can be added as well. A gap is automatically
 applied between the children of the default slot.
 
-<Canvas>
-  <Story of={stories.HeaderVariants} />
-</Canvas>
+<Canvas of={stories.HeaderVariants} />
 
 #### End slot
 
 The `end` slot will typically be used for text or an icon button.
 
-<Canvas>
-  <Story of={stories.HeaderEndSlotVariants} />
-</Canvas>
+<Canvas of={stories.HeaderEndSlotVariants} />

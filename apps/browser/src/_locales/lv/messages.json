@@ -2062,7 +2062,7 @@
     "message": "Lietotājvārdu veidotājs"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Izmantot šo e-pasta adresi"
   },
   "useThisPassword": {
     "message": "Izmantot šo paroli"
@@ -2362,6 +2362,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "To var mainīt iestatījumos"
+  },
+  "change": {
+    "message": "Mainīt"
+  },
+  "changeButtonTitle": {
+    "message": "Mainīt paroli - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Riskam pakļautās paroles"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ pieprasa mainīt $COUNT$ paroles, jo tās ir pakļautas riskam.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Apvienības pieprasa mainīt $COUNT$ paroles, jo tās ir pakļautas riskam.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Pārskatīt un mainīt vienu riskam pakļautu paroli"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Pārskatīt un mainīt $COUNT$ riskam pakļautās paroles",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Mainīt riskam pakļautās paroles ātrāk"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Jāatjaunina savi iestatījumi, lai varētu veikli aizpildīt paroles automātiski un izveidot jaunas"
+  },
+  "turnOnAutofill": {
+    "message": "Ieslēgt automātisko aizpildi"
+  },
+  "turnedOnAutofill": {
+    "message": "Automātiskā aizpilde ieslēgta"
+  },
+  "dismiss": {
+    "message": "Noraidīt"
   },
   "websiteItemLabel": {
     "message": "Tīmekļvietne $number$ (URI)",
@@ -3123,11 +3187,17 @@
   "notificationSentDevice": {
     "message": "Uz ierīci ir nosūtīts paziņojums."
   },
+  "notificationSentDevicePart1": {
+    "message": "Bitwarden jāatslēdz savā ierīcē vai"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "tīmekļa lietotnē"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pirms apstiprināšanas jāpārliecinās, ka pirkstu nospieduma vārdkopa atbilst zemāk esošajai."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Uz ierīci tika nosūtīts paziņojums"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lūgums pārliecināties, ka konts ir atslēgts un atpazīšanas vārdkopa ir tāda pati arī otrā ierīcē"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Tiks paziņots, tiklīdz pieprasījums būs apstiprināts"
@@ -3137,6 +3207,9 @@
   },
   "loginInitiated": {
     "message": "Uzsākta pieteikšanās"
+  },
+  "logInRequestSent": {
+    "message": "Pieprasījums nosūtīts"
   },
   "exposedMasterPassword": {
     "message": "Noplūdusi galvenā parole"
@@ -4146,15 +4219,6 @@
   "itemName": {
     "message": "Vienuma nosaukums"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Apvienība ir atspējota"
   },
@@ -4886,6 +4950,15 @@
   },
   "extraWide": {
     "message": "Ļoti plats"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Lūgums atjaunināt darbvirsmas lietotni"

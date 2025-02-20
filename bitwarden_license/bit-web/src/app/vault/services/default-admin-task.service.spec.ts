@@ -56,7 +56,7 @@ describe("DefaultAdminTaskService", () => {
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
         `/tasks/${organizationId}/bulk-create`,
-        tasks,
+        { tasks },
         true,
         true,
       );

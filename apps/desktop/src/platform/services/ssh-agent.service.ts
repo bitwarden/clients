@@ -29,6 +29,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -92,14 +93,14 @@ export class SshAgentService implements OnDestroy {
         }),
         filter(({ enabled }) => enabled),
         map(({ message }) => message),
-        withLatestFrom(this.authService.activeAccountStatus$),
+        withLatestFrom(this.authService.activeAccountStatus$, this.accountService.activeAccount$),
         // This switchMap handles unlocking the vault if it is locked:
         //   - If the vault is locked, we will wait for it to be unlocked.
         //   - If the vault is not unlocked within the timeout, we will abort the flow.
         //   - If the vault is unlocked, we will continue with the flow.
         // switchMap is used here to prevent multiple requests from being processed at the same time,
         // and will cancel the previous request if a new one is received.
-        switchMap(([message, status]) => {
+        switchMap(([message, status, account]) => {
           if (status !== AuthenticationStatus.Unlocked) {
             ipc.platform.focusWindow();
             this.toastService.showToast({
@@ -133,11 +134,11 @@ export class SshAgentService implements OnDestroy {
             );
           }
 
-          return of(message);
+          return of([message, account.id]);
         }),
         // This switchMap handles fetching the ciphers from the vault.
-        switchMap((message) =>
-          from(this.cipherService.getAllDecrypted()).pipe(
+        switchMap(([message, userId]: [Record<string, unknown>, UserId]) =>
+          from(this.cipherService.getAllDecrypted(userId)).pipe(
             map((ciphers) => [message, ciphers] as const),
           ),
         ),
@@ -245,7 +246,7 @@ export class SshAgentService implements OnDestroy {
             return;
           }
 
-          const ciphers = await this.cipherService.getAllDecrypted();
+          const ciphers = await this.cipherService.getAllDecrypted(activeAccount.id);
           if (ciphers == null) {
             await ipc.platform.sshAgent.lock();
             return;

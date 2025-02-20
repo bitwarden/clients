@@ -76,12 +76,10 @@
           ></app-avatar>
           <div class="accountInfo">
             <span class="sr-only">{{ "switchAccount" | i18n }}:&nbsp;</span>
-            <span class="email" aria-hidden="true">{{ account.value.email }}</span>
-            <span class="server" aria-hidden="true">
-              <span class="sr-only"> / </span>{{ account.value.server }}
-            </span>
-            <span class="status" aria-hidden="true"
-              ><span class="sr-only">&nbsp;(</span
+            <span class="email">{{ account.value.email }}</span>
+            <span class="server"> <span class="sr-only"> / </span>{{ account.value.server }} </span>
+            <span class="status">
+              <span class="sr-only">&nbsp;(</span
               >{{
                 (account.value.authenticationStatus === authStatus.Unlocked ? "unlocked" : "locked")
                   | i18n

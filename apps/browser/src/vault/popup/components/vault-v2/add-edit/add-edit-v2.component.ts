@@ -9,10 +9,12 @@ import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -180,6 +182,7 @@ export class AddEditV2Component implements OnInit {
     private toastService: ToastService,
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
+    private accountService: AccountService,
   ) {
     this.subscribeToParams();
   }
@@ -281,9 +284,15 @@ export class AddEditV2Component implements OnInit {
 
           config.initialValues = this.setInitialValuesFromParams(params);
 
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
+
           // The browser notification bar and overlay use addEditCipherInfo$ to pass modified cipher details to the form
           // Attempt to fetch them here and overwrite the initialValues if present
-          const cachedCipherInfo = await firstValueFrom(this.cipherService.addEditCipherInfo$);
+          const cachedCipherInfo = await firstValueFrom(
+            this.cipherService.addEditCipherInfo$(activeUserId),
+          );
 
           if (cachedCipherInfo != null) {
             // Cached cipher info has priority over queryParams
@@ -292,7 +301,7 @@ export class AddEditV2Component implements OnInit {
               ...mapAddEditCipherInfoToInitialValues(cachedCipherInfo),
             };
             // Be sure to clear the "cached" cipher info, so it doesn't get used again
-            await this.cipherService.setAddEditCipherInfo(null);
+            await this.cipherService.setAddEditCipherInfo(null, activeUserId);
           }
 
           if (["edit", "partial-edit"].includes(config.mode) && config.originalCipher?.id) {
@@ -371,7 +380,8 @@ export class AddEditV2Component implements OnInit {
     }
 
     try {
-      await this.deleteCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.deleteCipher(activeUserId);
     } catch (e) {
       this.logService.error(e);
       return false;
@@ -388,10 +398,10 @@ export class AddEditV2Component implements OnInit {
     return true;
   };
 
-  protected deleteCipher() {
+  protected deleteCipher(userId: UserId) {
     return this.config.originalCipher.deletedDate
-      ? this.cipherService.deleteWithServer(this.config.originalCipher.id)
-      : this.cipherService.softDeleteWithServer(this.config.originalCipher.id);
+      ? this.cipherService.deleteWithServer(this.config.originalCipher.id, userId)
+      : this.cipherService.softDeleteWithServer(this.config.originalCipher.id, userId);
   }
 }
 

@@ -41,7 +41,7 @@ describe("VaultPopupListFiltersService", () => {
   } as unknown as FolderService;
 
   const cipherService = {
-    cipherViews$,
+    cipherViews$: () => cipherViews$,
   } as unknown as CipherService;
 
   const organizationService = {

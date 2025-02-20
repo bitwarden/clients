@@ -1,7 +1,8 @@
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -44,7 +45,9 @@ export class DeleteCommand {
   }
 
   private async deleteCipher(id: string, options: Options) {
-    const cipher = await this.cipherService.get(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {
       return Response.notFound();
     }
@@ -59,9 +62,9 @@ export class DeleteCommand {
 
     try {
       if (options.permanent) {
-        await this.cipherService.deleteWithServer(id);
+        await this.cipherService.deleteWithServer(id, activeUserId);
       } else {
-        await this.cipherService.softDeleteWithServer(id);
+        await this.cipherService.softDeleteWithServer(id, activeUserId);
       }
       return Response.success();
     } catch (e) {
@@ -74,8 +77,10 @@ export class DeleteCommand {
       return Response.badRequest("`itemid` option is required.");
     }
 
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     const itemId = options.itemId.toLowerCase();
-    const cipher = await this.cipherService.get(itemId);
+    const cipher = await this.cipherService.get(itemId, activeUserId);
     if (cipher == null) {
       return Response.notFound();
     }
@@ -89,16 +94,19 @@ export class DeleteCommand {
       return Response.error("Attachment `" + id + "` was not found.");
     }
 
-    const account = await firstValueFrom(this.accountService.activeAccount$);
     const canAccessPremium = await firstValueFrom(
-      this.accountProfileService.hasPremiumFromAnySource$(account.id),
+      this.accountProfileService.hasPremiumFromAnySource$(activeUserId),
     );
     if (cipher.organizationId == null && !canAccessPremium) {
       return Response.error("Premium status is required to use this feature.");
     }
 
     try {
-      await this.cipherService.deleteAttachmentWithServer(cipher.id, attachments[0].id);
+      await this.cipherService.deleteAttachmentWithServer(
+        cipher.id,
+        attachments[0].id,
+        activeUserId,
+      );
       return Response.success();
     } catch (e) {
       return Response.error(e);
@@ -106,9 +114,7 @@ export class DeleteCommand {
   }
 
   private async deleteFolder(id: string) {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const folder = await this.folderService.getFromState(id, activeUserId);
     if (folder == null) {
       return Response.notFound();

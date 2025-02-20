@@ -18,7 +18,7 @@ base64 = "=0.22.1"
 hex = "=0.4.3"
 anyhow = "=1.0.94"
 desktop_core = { path = "../core" }
-napi = { version = "=2.16.13", features = ["async"] }
+napi = { version = "=2.16.15", features = ["async"] }
 napi-derive = "=2.16.13"
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true

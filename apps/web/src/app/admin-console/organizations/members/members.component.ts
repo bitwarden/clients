@@ -594,7 +594,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
       if (
         !warningAcknowledged &&
-        this.organization.isOwner &&
+        this.organization.canManageUsers &&
         this.organization.productTierType === ProductTierType.Enterprise
       ) {
         const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
@@ -800,7 +800,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
       if (
         !warningAcknowledged &&
-        this.organization.isOwner &&
+        this.organization.canManageUsers &&
         this.organization.productTierType === ProductTierType.Enterprise
       ) {
         const acknowledged = await this.deleteManagedMemberWarningService.showWarning();

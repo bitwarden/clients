@@ -5,11 +5,11 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 
 import { NotificationType } from "../../../../notification/abstractions/notification-bar";
-import { CipherData } from "../../cipher/types";
+import { NotificationCipherData } from "../../cipher/types";
 import { NotificationBody } from "../../notification/body";
 
 type Args = {
-  ciphers: CipherData[];
+  ciphers: NotificationCipherData[];
   notificationType: NotificationType;
   theme: Theme;
 };
@@ -38,7 +38,7 @@ export default {
           fallbackImage: "https://example.com/fallback.png",
           icon: "icon-class",
         },
-        login: { username: "user@example.com", passkey: null },
+        login: { username: "user@example.com" },
       },
     ],
     theme: ThemeTypes.Light,

@@ -10,9 +10,9 @@ import {
 import { unauthUiRefreshRedirect } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-redirect";
 import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
+  activeAuthGuard,
   authGuard,
   lockGuard,
-  activeAuthGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
@@ -23,10 +23,14 @@ import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guard
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
-  LoginComponent,
-  LoginSecondaryContentComponent,
+  DevicesIcon,
+  DeviceVerificationIcon,
   LockIcon,
+  LoginComponent,
+  LoginDecryptionOptionsComponent,
+  LoginSecondaryContentComponent,
   LoginViaAuthRequestComponent,
+  NewDeviceVerificationComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationLockAltIcon,
@@ -35,14 +39,10 @@ import {
   RegistrationStartSecondaryComponentData,
   RegistrationUserAddIcon,
   SetPasswordJitComponent,
-  UserLockIcon,
-  VaultIcon,
-  LoginDecryptionOptionsComponent,
-  DevicesIcon,
   SsoComponent,
   TwoFactorTimeoutIcon,
-  NewDeviceVerificationComponent,
-  DeviceVerificationIcon,
+  UserLockIcon,
+  VaultIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management-ui";
@@ -64,7 +64,6 @@ import { HomeComponent } from "../auth/popup/home.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/popup/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
-import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
@@ -91,7 +90,9 @@ import { MoreFromBitwardenPageV2Component } from "../tools/popup/settings/about-
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
+import { canAccessAtRiskPasswords } from "../vault/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
+import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/add-edit-v2.component";
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
 import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
@@ -268,12 +269,6 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: "register",
-    component: RegisterComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides)],
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  },
-  {
     path: "environment",
     component: EnvironmentComponent,
     canActivate: [unauthGuardFn(unauthRouteOverrides)],
@@ -292,7 +287,7 @@ const routes: Routes = [
     path: "cipher-password-history",
     component: PasswordHistoryV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
     path: "add-cipher",
@@ -315,7 +310,7 @@ const routes: Routes = [
     path: "attachments",
     component: AttachmentsV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
     path: "generator",
@@ -387,7 +382,7 @@ const routes: Routes = [
     path: "premium",
     component: PremiumV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 3 } satisfies RouteDataProperties,
   },
   {
     path: "appearance",
@@ -758,6 +753,11 @@ const routes: Routes = [
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],
+  },
+  {
+    path: "at-risk-passwords",
+    component: AtRiskPasswordsComponent,
+    canActivate: [authGuard, canAccessAtRiskPasswords],
   },
   {
     path: "account-switcher",
