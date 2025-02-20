@@ -42,8 +42,6 @@ export const NEW_DEVICE_VERIFICATION_NOTICE_KEY =
     },
   );
 
-// skip new device verification, clear on logout
-
 export const SKIP_NEW_DEVICE_VERIFICATION_NOTICE = new UserKeyDefinition<boolean>(
   NEW_DEVICE_VERIFICATION_NOTICE,
   "shouldSkip",
