@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { inject } from "@angular/core";
 import { combineLatest, defer, firstValueFrom, map, Observable } from "rxjs";
 
@@ -26,7 +24,7 @@ export class ExtensionLockComponentService implements LockComponentService {
   private readonly biometricStateService = inject(BiometricStateService);
 
   getPreviousUrl(): string | null {
-    return this.routerService.getPreviousUrl();
+    return this.routerService.getPreviousUrl() ?? null;
   }
 
   getBiometricsError(error: any): string | null {
@@ -71,7 +69,7 @@ export class ExtensionLockComponentService implements LockComponentService {
       map(([biometricsStatus, userDecryptionOptions, pinDecryptionAvailable]) => {
         const unlockOpts: UnlockOptions = {
           masterPassword: {
-            enabled: userDecryptionOptions.hasMasterPassword,
+            enabled: userDecryptionOptions?.hasMasterPassword,
           },
           pin: {
             enabled: pinDecryptionAvailable,

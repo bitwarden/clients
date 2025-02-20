@@ -121,6 +121,12 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
     }
   }
 
+  /**
+   * The website associated with the credential generation request.
+   */
+  @Input()
+  website: string | null = null;
+
   /** Emits credentials created from a generation request. */
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
@@ -496,13 +502,13 @@ export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy 
   protected readonly USER_REQUEST = "user request";
 
   /** Request a new value from the generator
-   * @param requestor a label used to trace generation request
+   * @param source a label used to trace generation request
    *  origin in the debugger.
    */
   protected async generate(source: string) {
-    this.log.debug({ source }, "generation requested");
-
-    this.generate$.next({ source });
+    const request = { source, website: this.website };
+    this.log.debug(request, "generation requested");
+    this.generate$.next(request);
   }
 
   private toOptions(algorithms: AlgorithmInfo[]) {
