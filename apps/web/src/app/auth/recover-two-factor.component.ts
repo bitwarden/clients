@@ -89,29 +89,16 @@ export class RecoverTwoFactorComponent implements OnInit {
     const key = await this.loginStrategyService.makePreloginKey(this.masterPassword, request.email);
     request.masterPasswordHash = await this.keyService.hashMasterKey(this.masterPassword, key);
 
-    try {
+    if (this.recoveryCodeLoginFeatureFlagEnabled) {
+      await this.handleRecoveryLogin(request);
+    } else {
       await this.apiService.postTwoFactorRecover(request);
-
       this.toastService.showToast({
         variant: "success",
         title: "",
         message: this.i18nService.t("twoStepRecoverDisabled"),
       });
-
-      if (!this.recoveryCodeLoginFeatureFlagEnabled) {
-        await this.router.navigate(["/"]);
-        return;
-      }
-
-      // Handle login after recovery if the feature flag is enabled
-      await this.handleRecoveryLogin(request);
-    } catch (e) {
-      const errorMessage = this.extractErrorMessage(e);
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("error"),
-        message: errorMessage,
-      });
+      await this.router.navigate(["/"]);
     }
   };
 
@@ -140,6 +127,12 @@ export class RecoverTwoFactorComponent implements OnInit {
         title: "",
         message: this.i18nService.t("youHaveBeenLoggedIn"),
       });
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("twoStepRecoverDisabled"),
+      });
+
       await this.loginSuccessHandlerService.run(authResult.userId);
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error) {
