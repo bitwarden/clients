@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -90,42 +88,41 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  activeAccount: Account | null;
+  activeAccount: Account | null = null;
 
-  clientType: ClientType;
-  ClientType = ClientType;
+  clientType?: ClientType;
 
-  unlockOptions: UnlockOptions = null;
+  unlockOptions: UnlockOptions | null = null;
 
   UnlockOption = UnlockOption;
 
-  private _activeUnlockOptionBSubject: BehaviorSubject<UnlockOptionValue> =
-    new BehaviorSubject<UnlockOptionValue>(null);
+  private _activeUnlockOptionBSubject: BehaviorSubject<UnlockOptionValue | null> =
+    new BehaviorSubject<UnlockOptionValue | null>(null);
 
   activeUnlockOption$ = this._activeUnlockOptionBSubject.asObservable();
 
-  set activeUnlockOption(value: UnlockOptionValue) {
+  set activeUnlockOption(value: UnlockOptionValue | null) {
     this._activeUnlockOptionBSubject.next(value);
   }
 
-  get activeUnlockOption(): UnlockOptionValue {
+  get activeUnlockOption(): UnlockOptionValue | null {
     return this._activeUnlockOptionBSubject.value;
   }
 
   private invalidPinAttempts = 0;
 
-  biometricUnlockBtnText: string;
+  biometricUnlockBtnText?: string;
 
   // masterPassword = "";
   showPassword = false;
-  private enforcedMasterPasswordOptions: MasterPasswordPolicyOptions = undefined;
+  private enforcedMasterPasswordOptions?: MasterPasswordPolicyOptions = undefined;
 
   forcePasswordResetRoute = "update-temp-password";
 
-  formGroup: FormGroup;
+  formGroup: FormGroup | null = null;
 
   // Desktop properties:
-  private deferFocus: boolean = null;
+  private deferFocus: boolean | null = null;
   private biometricAsked = false;
 
   defaultUnlockOptionSetForUser = false;
@@ -174,7 +171,7 @@ export class LockComponent implements OnInit, OnDestroy {
     // Identify client
     this.clientType = this.platformUtilsService.getClientType();
 
-    if (this.clientType === "desktop") {
+    if (this.clientType === ClientType.Desktop) {
       await this.desktopOnInit();
     } else if (this.clientType === ClientType.Browser) {
       this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
@@ -185,9 +182,11 @@ export class LockComponent implements OnInit, OnDestroy {
     interval(1000)
       .pipe(
         mergeMap(async () => {
-          this.unlockOptions = await firstValueFrom(
-            this.lockComponentService.getAvailableUnlockOptions$(this.activeAccount.id),
-          );
+          if (this.activeAccount?.id != null) {
+            this.unlockOptions = await firstValueFrom(
+              this.lockComponentService.getAvailableUnlockOptions$(this.activeAccount.id),
+            );
+          }
         }),
         takeUntil(this.destroy$),
       )
@@ -198,7 +197,7 @@ export class LockComponent implements OnInit, OnDestroy {
   private listenForActiveUnlockOptionChanges() {
     this.activeUnlockOption$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((activeUnlockOption: UnlockOptionValue) => {
+      .subscribe((activeUnlockOption: UnlockOptionValue | null) => {
         if (activeUnlockOption === UnlockOption.Pin) {
           this.buildPinForm();
         } else if (activeUnlockOption === UnlockOption.MasterPassword) {
@@ -257,7 +256,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
     this.setDefaultActiveUnlockOption(this.unlockOptions);
 
-    if (this.unlockOptions.biometrics.enabled) {
+    if (this.unlockOptions?.biometrics.enabled) {
       await this.handleBiometricsUnlockEnabled();
     }
   }
@@ -278,13 +277,13 @@ export class LockComponent implements OnInit, OnDestroy {
     });
   }
 
-  private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions) {
+  private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions | null) {
     // Priorities should be Biometrics > Pin > Master Password for speed
-    if (unlockOptions.biometrics.enabled) {
+    if (unlockOptions?.biometrics.enabled) {
       this.activeUnlockOption = UnlockOption.Biometrics;
-    } else if (unlockOptions.pin.enabled) {
+    } else if (unlockOptions?.pin.enabled) {
       this.activeUnlockOption = UnlockOption.Pin;
-    } else if (unlockOptions.masterPassword.enabled) {
+    } else if (unlockOptions?.masterPassword.enabled) {
       this.activeUnlockOption = UnlockOption.MasterPassword;
     }
   }
@@ -311,7 +310,7 @@ export class LockComponent implements OnInit, OnDestroy {
       }
 
       if (
-        this.unlockOptions.biometrics.enabled &&
+        this.unlockOptions?.biometrics.enabled &&
         autoPromptBiometrics &&
         (await this.biometricService.getShouldAutopromptNow())
       ) {
@@ -347,7 +346,7 @@ export class LockComponent implements OnInit, OnDestroy {
       type: "warning",
     });
 
-    if (confirmed) {
+    if (confirmed && this.activeAccount != null) {
       this.messagingService.send("logout", { userId: this.activeAccount.id });
     }
   }
@@ -355,7 +354,11 @@ export class LockComponent implements OnInit, OnDestroy {
   async unlockViaBiometrics(): Promise<void> {
     this.unlockingViaBiometrics = true;
 
-    if (!this.unlockOptions.biometrics.enabled) {
+    if (
+      this.unlockOptions == null ||
+      !this.unlockOptions.biometrics.enabled ||
+      this.activeAccount == null
+    ) {
       this.unlockingViaBiometrics = false;
       return;
     }
@@ -374,7 +377,7 @@ export class LockComponent implements OnInit, OnDestroy {
       this.unlockingViaBiometrics = false;
     } catch (e) {
       // Cancelling is a valid action.
-      if (e?.message === "canceled") {
+      if (e instanceof Error && e.message === "canceled") {
         this.unlockingViaBiometrics = false;
         return;
       }
@@ -413,8 +416,13 @@ export class LockComponent implements OnInit, OnDestroy {
   togglePassword() {
     this.showPassword = !this.showPassword;
     const input = document.getElementById(
-      this.unlockOptions.pin.enabled ? "pin" : "masterPassword",
+      this.unlockOptions?.pin.enabled ? "pin" : "masterPassword",
     );
+
+    if (input == null) {
+      return;
+    }
+
     if (this.ngZone.isStable) {
       input.focus();
     } else {
@@ -424,7 +432,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private validatePin(): boolean {
-    if (this.formGroup.invalid) {
+    if (this.formGroup?.invalid) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
@@ -437,7 +445,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private async unlockViaPin() {
-    if (!this.validatePin()) {
+    if (!this.validatePin() || this.formGroup == null || this.activeAccount == null) {
       return;
     }
 
@@ -460,7 +468,6 @@ export class LockComponent implements OnInit, OnDestroy {
       if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
         this.toastService.showToast({
           variant: "error",
-          title: null,
           message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
         });
         this.messagingService.send("logout");
@@ -482,7 +489,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private validateMasterPassword(): boolean {
-    if (this.formGroup.invalid) {
+    if (this.formGroup?.invalid) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
@@ -495,7 +502,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private async unlockViaMasterPassword() {
-    if (!this.validateMasterPassword()) {
+    if (!this.validateMasterPassword() || this.formGroup == null || this.activeAccount == null) {
       return;
     }
 
@@ -507,7 +514,7 @@ export class LockComponent implements OnInit, OnDestroy {
     } as MasterPasswordVerification;
 
     let passwordValid = false;
-    let masterPasswordVerificationResponse: MasterPasswordVerificationResponse;
+    let masterPasswordVerificationResponse: MasterPasswordVerificationResponse | null = null;
     try {
       masterPasswordVerificationResponse =
         await this.userVerificationService.verifyUserByMasterPassword(
@@ -516,10 +523,12 @@ export class LockComponent implements OnInit, OnDestroy {
           this.activeAccount.email,
         );
 
-      this.enforcedMasterPasswordOptions = MasterPasswordPolicyOptions.fromResponse(
-        masterPasswordVerificationResponse.policyOptions,
-      );
-      passwordValid = true;
+      if (masterPasswordVerificationResponse?.policyOptions != null) {
+        this.enforcedMasterPasswordOptions = MasterPasswordPolicyOptions.fromResponse(
+          masterPasswordVerificationResponse.policyOptions,
+        );
+        passwordValid = true;
+      }
     } catch (e) {
       this.logService.error(e);
     }
@@ -534,13 +543,17 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      masterPasswordVerificationResponse.masterKey,
+      masterPasswordVerificationResponse!.masterKey,
       this.activeAccount.id,
     );
     await this.setUserKeyAndContinue(userKey, true);
   }
 
   private async setUserKeyAndContinue(key: UserKey, evaluatePasswordAfterUnlock = false) {
+    if (this.activeAccount == null) {
+      throw new Error("No active user.");
+    }
+
     await this.keyService.setUserKey(key, this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we
@@ -551,10 +564,19 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private async doContinue(evaluatePasswordAfterUnlock: boolean) {
+    if (this.activeAccount == null) {
+      throw new Error("No active user.");
+    }
+
     await this.biometricStateService.resetUserPromptCancelled();
     this.messagingService.send("unlocked");
 
     if (evaluatePasswordAfterUnlock) {
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      if (userId == null) {
+        throw new Error("No active user.");
+      }
+
       try {
         // If we do not have any saved policies, attempt to load them from the service
         if (this.enforcedMasterPasswordOptions == undefined) {
@@ -564,7 +586,6 @@ export class LockComponent implements OnInit, OnDestroy {
         }
 
         if (this.requirePasswordChange()) {
-          const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
           await this.masterPasswordService.setForceSetPasswordReason(
             ForceSetPasswordReason.WeakMasterPassword,
             userId,
@@ -597,8 +618,10 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     // determine success route based on client type
-    const successRoute = clientTypeToSuccessRouteRecord[this.clientType];
-    await this.router.navigate([successRoute]);
+    if (this.clientType != null) {
+      const successRoute = clientTypeToSuccessRouteRecord[this.clientType];
+      await this.router.navigate([successRoute]);
+    }
   }
 
   /**
@@ -608,7 +631,9 @@ export class LockComponent implements OnInit, OnDestroy {
   private requirePasswordChange(): boolean {
     if (
       this.enforcedMasterPasswordOptions == undefined ||
-      !this.enforcedMasterPasswordOptions.enforceOnLogin
+      !this.enforcedMasterPasswordOptions.enforceOnLogin ||
+      this.formGroup == null ||
+      this.activeAccount == null
     ) {
       return false;
     }
@@ -703,10 +728,13 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   get biometricsAvailable(): boolean {
-    return this.unlockOptions.biometrics.enabled;
+    return this.unlockOptions?.biometrics.enabled ?? false;
   }
 
   get showBiometrics(): boolean {
+    if (this.unlockOptions == null) {
+      return false;
+    }
     return (
       this.unlockOptions.biometrics.biometricsStatus !== BiometricsStatus.PlatformUnsupported &&
       this.unlockOptions.biometrics.biometricsStatus !== BiometricsStatus.NotEnabledLocally
@@ -714,7 +742,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   get biometricUnavailabilityReason(): string {
-    switch (this.unlockOptions.biometrics.biometricsStatus) {
+    switch (this.unlockOptions?.biometrics.biometricsStatus) {
       case BiometricsStatus.Available:
         return "";
       case BiometricsStatus.UnlockNeeded:
@@ -728,19 +756,19 @@ export class LockComponent implements OnInit, OnDestroy {
       case BiometricsStatus.NotEnabledInConnectedDesktopApp:
         return this.i18nService.t(
           "biometricsStatusHelptextNotEnabledInDesktop",
-          this.activeAccount.email,
+          this.activeAccount?.email,
         );
       case BiometricsStatus.NotEnabledLocally:
         return this.i18nService.t(
           "biometricsStatusHelptextNotEnabledInDesktop",
-          this.activeAccount.email,
+          this.activeAccount?.email,
         );
       case BiometricsStatus.DesktopDisconnected:
         return this.i18nService.t("biometricsStatusHelptextDesktopDisconnected");
       default:
         return (
           this.i18nService.t("biometricsStatusHelptextUnavailableReasonUnknown") +
-          this.unlockOptions.biometrics.biometricsStatus
+          this.unlockOptions?.biometrics.biometricsStatus
         );
     }
   }
