@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
-import { LoginComponentService, PasswordPolicies } from "@bitwarden/auth/angular";
+import { LoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -22,10 +22,6 @@ export class DefaultLoginComponentService implements LoginComponentService {
     protected platformUtilsService: PlatformUtilsService,
     protected ssoLoginService: SsoLoginServiceAbstraction,
   ) {}
-
-  async getOrgPolicies(): Promise<PasswordPolicies | null> {
-    return null;
-  }
 
   isLoginWithPasskeySupported(): boolean {
     return this.clientType === ClientType.Web;
