@@ -465,10 +465,10 @@
     "message": "Edita la carpeta"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Carpeta nova"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Nom de la carpeta"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -2210,7 +2210,7 @@
     "message": "View items, hidden passwords"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Edita elements"
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
