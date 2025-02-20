@@ -69,6 +69,10 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
     return true;
   }
 
+  if (await firstValueFrom(newDeviceVerificationNoticeService.skipState$(currentAcct.id))) {
+    return true;
+  }
+
   const userItems$ = newDeviceVerificationNoticeService.noticeState$(currentAcct.id);
   const userItems = await firstValueFrom(userItems$);
 

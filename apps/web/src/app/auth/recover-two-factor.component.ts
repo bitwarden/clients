@@ -18,6 +18,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { NewDeviceVerificationNoticeService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-recover-two-factor",
@@ -51,6 +52,7 @@ export class RecoverTwoFactorComponent implements OnInit {
     private configService: ConfigService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private logService: LogService,
+    private newDeviceVerificationNoticeService: NewDeviceVerificationNoticeService,
   ) {}
 
   async ngOnInit() {
@@ -134,6 +136,13 @@ export class RecoverTwoFactorComponent implements OnInit {
       });
 
       await this.loginSuccessHandlerService.run(authResult.userId);
+
+      // Before routing, set the state to skip the new device notification.
+      await this.newDeviceVerificationNoticeService.updateNewDeviceVerificationSkipNoticeState(
+        authResult.userId,
+        true,
+      );
+
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error) {
       // If login errors, redirect to login page per product. Don't show error
