@@ -33,8 +33,8 @@
         ></bit-option>
       </bit-select>
     </bit-form-field>
-    <ng-container *ngIf="showCollectionsControl" [disableMargin]="config.hideIndividualVaultFields">
-      <bit-form-field class="tw-w-full">
+    <ng-container *ngIf="showCollectionsControl">
+      <bit-form-field class="tw-w-full" [disableMargin]="config.hideIndividualVaultFields">
         <bit-label>{{ "collections" | i18n }}</bit-label>
         <bit-multi-select
           class="tw-w-full"
