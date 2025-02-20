@@ -29,6 +29,7 @@ const config: StorybookConfig = {
     getAbsolutePath("@storybook/addon-a11y"),
     getAbsolutePath("@storybook/addon-designs"),
     getAbsolutePath("@storybook/addon-interactions"),
+    getAbsolutePath("@storybook/addon-themes"),
     {
       // @storybook/addon-docs is part of @storybook/addon-essentials
       // eslint-disable-next-line storybook/no-uninstalled-addons

@@ -9,10 +9,7 @@ import { ButtonModule } from "../button";
 import { CalloutModule } from "../callout";
 import { LayoutComponent } from "../layout";
 import { mockLayoutI18n } from "../layout/mocks";
-import {
-  disableBothThemeDecorator,
-  positionFixedWrapperDecorator,
-} from "../stories/storybook-decorators";
+import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { TypographyModule } from "../typography";
 import { I18nMockService } from "../utils";
 
@@ -30,7 +27,6 @@ export default {
   },
   decorators: [
     positionFixedWrapperDecorator(),
-    disableBothThemeDecorator,
     moduleMetadata({
       imports: [
         RouterTestingModule,
