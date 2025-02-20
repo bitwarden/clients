@@ -17,7 +17,7 @@ const { css } = createEmotion({
 
 export function NotificationHeader({
   message,
-  standalone,
+  standalone = false,
   theme = ThemeTypes.Light,
   handleCloseNotification,
 }: {
