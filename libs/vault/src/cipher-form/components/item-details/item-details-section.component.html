@@ -33,21 +33,8 @@
         ></bit-option>
       </bit-select>
     </bit-form-field>
-    <bit-form-field
-      [disableMargin]="!showCollectionsControl"
-      *ngIf="!config.hideIndividualVaultFields"
-    >
-      <bit-label>{{ "folder" | i18n }}</bit-label>
-      <bit-select formControlName="folderId">
-        <bit-option
-          *ngFor="let folder of config.folders"
-          [value]="folder.id"
-          [label]="folder.name"
-        ></bit-option>
-      </bit-select>
-    </bit-form-field>
-    <ng-container *ngIf="showCollectionsControl">
-      <bit-form-field class="tw-w-full" disableMargin>
+    <ng-container *ngIf="showCollectionsControl" [disableMargin]="config.hideIndividualVaultFields">
+      <bit-form-field class="tw-w-full">
         <bit-label>{{ "collections" | i18n }}</bit-label>
         <bit-multi-select
           class="tw-w-full"
@@ -59,5 +46,15 @@
         </bit-hint>
       </bit-form-field>
     </ng-container>
+    <bit-form-field *ngIf="!config.hideIndividualVaultFields" disableMargin>
+      <bit-label>{{ "folder" | i18n }}</bit-label>
+      <bit-select formControlName="folderId">
+        <bit-option
+          *ngFor="let folder of config.folders"
+          [value]="folder.id"
+          [label]="folder.name"
+        ></bit-option>
+      </bit-select>
+    </bit-form-field>
   </bit-card>
 </bit-section>
