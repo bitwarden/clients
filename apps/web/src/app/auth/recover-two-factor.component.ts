@@ -137,7 +137,8 @@ export class RecoverTwoFactorComponent implements OnInit {
 
       await this.loginSuccessHandlerService.run(authResult.userId);
 
-      // Before routing, set the state to skip the new device notification.
+      // Before routing, set the state to skip the new device notification. This is a temporary
+      // fix and will be cleaned up in PM-18485.
       await this.newDeviceVerificationNoticeService.updateNewDeviceVerificationSkipNoticeState(
         authResult.userId,
         true,
@@ -149,31 +150,5 @@ export class RecoverTwoFactorComponent implements OnInit {
       this.logService.error("Error logging in automatically: ", (error as Error).message);
       await this.router.navigate(["/login"], { queryParams: { email: request.email } });
     }
-  }
-
-  /**
-   * Extracts an error message from the error object.
-   */
-  private extractErrorMessage(error: unknown): string {
-    let errorMessage: string = this.i18nService.t("unexpectedError");
-    if (error && typeof error === "object" && "validationErrors" in error) {
-      const validationErrors = error.validationErrors;
-      if (validationErrors && typeof validationErrors === "object") {
-        errorMessage = Object.keys(validationErrors)
-          .map((key) => {
-            const messages = (validationErrors as Record<string, string | string[]>)[key];
-            return Array.isArray(messages) ? messages.join(" ") : messages;
-          })
-          .join(" ");
-      }
-    } else if (
-      error &&
-      typeof error === "object" &&
-      "message" in error &&
-      typeof error.message === "string"
-    ) {
-      errorMessage = error.message;
-    }
-    return errorMessage;
   }
 }

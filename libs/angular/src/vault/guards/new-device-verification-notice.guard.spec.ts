@@ -51,6 +51,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     hasMasterPasswordAndMasterKeyHash.mockClear();
     getUserSSOBound.mockClear();
     getUserSSOBoundAdminOwner.mockClear();
+    skipState$.mockClear();
 
     TestBed.configureTestingModule({
       providers: [

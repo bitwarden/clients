@@ -44,6 +44,11 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
     return router.createUrlTree(["/login"]);
   }
 
+  // Currently used by the auth recovery login flow and will get cleaned up in PM-18485.
+  if (await firstValueFrom(newDeviceVerificationNoticeService.skipState$(currentAcct.id))) {
+    return true;
+  }
+
   try {
     const isSelfHosted = platformUtilsService.isSelfHost();
     const userIsSSOUser = await ssoAppliesToUser(
@@ -66,10 +71,6 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
   } catch {
     // Skip showing the notice if there was a problem determining applicability
     // The most likely problem to occur is the user not having a network connection
-    return true;
-  }
-
-  if (await firstValueFrom(newDeviceVerificationNoticeService.skipState$(currentAcct.id))) {
     return true;
   }
 
