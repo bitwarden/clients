@@ -19,7 +19,6 @@ let nextId = 0;
 @Component({
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",
-  preserveWhitespaces: false,
   standalone: true,
   imports: [NgClass],
 })

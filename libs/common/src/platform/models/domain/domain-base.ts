@@ -65,7 +65,6 @@ export default class Domain {
     key: SymmetricCryptoKey = null,
     objectContext: string = "No Domain Context",
   ): Promise<T> {
-    const promises = [];
     const self: any = this;
 
     for (const prop in map) {
@@ -74,27 +73,15 @@ export default class Domain {
         continue;
       }
 
-      (function (theProp) {
-        const p = Promise.resolve()
-          .then(() => {
-            const mapProp = map[theProp] || theProp;
-            if (self[mapProp]) {
-              return self[mapProp].decrypt(
-                orgId,
-                key,
-                `Property: ${prop}; ObjectContext: ${objectContext}`,
-              );
-            }
-            return null;
-          })
-          .then((val: any) => {
-            (viewModel as any)[theProp] = val;
-          });
-        promises.push(p);
-      })(prop);
+      const mapProp = map[prop] || prop;
+      if (self[mapProp]) {
+        (viewModel as any)[prop] = await self[mapProp].decrypt(
+          orgId,
+          key,
+          `Property: ${prop}; ObjectContext: ${objectContext}`,
+        );
+      }
     }
-
-    await Promise.all(promises);
     return viewModel;
   }
 
@@ -121,22 +108,20 @@ export default class Domain {
     _: Constructor<TThis> = this.constructor as Constructor<TThis>,
     objectContext: string = "No Domain Context",
   ): Promise<DecryptedObject<TThis, TEncryptedKeys>> {
-    const promises = [];
+    const decryptedObjects = [];
 
     for (const prop of encryptedProperties) {
       const value = (this as any)[prop] as EncString;
-      promises.push(
-        this.decryptProperty(
-          prop,
-          value,
-          key,
-          encryptService,
-          `Property: ${prop.toString()}; ObjectContext: ${objectContext}`,
-        ),
+      const decrypted = await this.decryptProperty(
+        prop,
+        value,
+        key,
+        encryptService,
+        `Property: ${prop.toString()}; ObjectContext: ${objectContext}`,
       );
+      decryptedObjects.push(decrypted);
     }
 
-    const decryptedObjects = await Promise.all(promises);
     const decryptedObject = decryptedObjects.reduce(
       (acc, obj) => {
         return { ...acc, ...obj };

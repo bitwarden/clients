@@ -1,14 +1,17 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -58,9 +61,9 @@ describe("AddEditV2Component", () => {
     collect.mockClear();
 
     addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);
-    cipherServiceMock = mock<CipherService>();
-    cipherServiceMock.addEditCipherInfo$ =
-      addEditCipherInfo$.asObservable() as Observable<AddEditCipherInfo>;
+    cipherServiceMock = mock<CipherService>({
+      addEditCipherInfo$: jest.fn().mockReturnValue(addEditCipherInfo$),
+    });
 
     await TestBed.configureTestingModule({
       imports: [AddEditV2Component],
@@ -81,6 +84,7 @@ describe("AddEditV2Component", () => {
             canDeleteCipher$: jest.fn().mockReturnValue(true),
           },
         },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
       ],
     })
       .overrideProvider(CipherFormConfigService, {

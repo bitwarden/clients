@@ -1,5 +1,5 @@
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 (function (globalContext) {
-  globalContext.postMessage({ command: VaultOnboardingMessages.HasBwInstalled });
+  globalContext.postMessage({ command: VaultMessages.HasBwInstalled });
 })(window);
