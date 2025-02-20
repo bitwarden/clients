@@ -112,6 +112,9 @@
   --tw-ring-offset-color: #1f242e;
 }
 
+/** Used by CDK a11y services */
+@import "@angular/cdk/a11y-prebuilt.css";
+
 @import "./popover/popover.component.css";
 @import "./search/search.component.css";
 

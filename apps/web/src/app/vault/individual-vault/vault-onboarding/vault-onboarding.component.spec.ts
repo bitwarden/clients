@@ -16,7 +16,7 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./services/abstraction/vault-onboarding.service";
 import { VaultOnboardingComponent } from "./vault-onboarding.component";
@@ -158,7 +158,7 @@ describe("VaultOnboardingComponent", () => {
     it("should call getMessages when showOnboarding is true", () => {
       const messageEventSubject = new Subject<MessageEvent>();
       const messageEvent = new MessageEvent("message", {
-        data: VaultOnboardingMessages.HasBwInstalled,
+        data: VaultMessages.HasBwInstalled,
       });
       const getMessagesSpy = jest.spyOn(component, "getMessages");
 
@@ -168,7 +168,7 @@ describe("VaultOnboardingComponent", () => {
 
       void fixture.whenStable().then(() => {
         expect(window.postMessage).toHaveBeenCalledWith({
-          command: VaultOnboardingMessages.checkBwInstalled,
+          command: VaultMessages.checkBwInstalled,
         });
         expect(getMessagesSpy).toHaveBeenCalled();
       });
@@ -188,7 +188,7 @@ describe("VaultOnboardingComponent", () => {
             installExtension: false,
           });
         });
-      const eventData = { data: { command: VaultOnboardingMessages.HasBwInstalled } };
+      const eventData = { data: { command: VaultMessages.HasBwInstalled } };
 
       (component as any).showOnboarding = true;
 
