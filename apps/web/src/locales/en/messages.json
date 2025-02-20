@@ -9275,7 +9275,12 @@
   },
   "deviceManagementDesc":{
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
-
+  },
+  "desktopRequired": {
+    "message": "Desktop required"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Reopen this link from your email on a desktop."
   },
   "integrationCardTooltip":{
     "message": "Launch $INTEGRATION$ implementation guide.",
@@ -10269,6 +10274,38 @@
   },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
+  },
+  "openingExtension": {
+    "message": "Opening the Bitwarden browser extension"
+  },
+  "somethingWentWrong":{
+    "message": "Something went wrong..."
+  },
+  "openingExtensionError": {
+    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+  },
+  "openExtension": {
+    "message": "Open extension"
+  },
+  "doNotHaveExtension": {
+    "message": "Don't have the Bitwarden browser extension?"
+  },
+  "installExtension": {
+    "message": "Install extension"
+  },
+  "openedExtension": {
+    "message": "Opened the browser extension"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "from the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
     "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
