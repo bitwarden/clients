@@ -16,7 +16,6 @@ import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/m
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { BiometricsCommands } from "@bitwarden/key-management";
 
@@ -54,7 +53,6 @@ export default class RuntimeBackground {
     private accountService: AccountService,
     private readonly lockService: LockService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private cipherService: CipherService,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -202,9 +200,6 @@ export default class RuntimeBackground {
       case BiometricsCommands.GetBiometricsStatusForUser: {
         return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
       }
-      case "updateLastUsedDate": {
-        return await this.cipherService.updateLastUsedDate(msg.cipherId);
-      }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(
           FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
@@ -294,7 +289,7 @@ export default class RuntimeBackground {
         }
         break;
       case "openPopup":
-        await this.main.openPopup();
+        await this.openPopup();
         break;
       case "bgUpdateContextMenu":
       case "editedCipher":
@@ -410,13 +405,40 @@ export default class RuntimeBackground {
     }, 100);
   }
 
+  /** Returns the browser tabs that have the web vault open */
+  private async getBwTabs() {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const vaultUrl = env.getWebVaultUrl();
+    const urlObj = new URL(vaultUrl);
+
+    return await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
+  }
+
+  private async openPopup() {
+    await this.main.openPopup();
+
+    const announcePopupOpen = async () => {
+      const isOpen = await this.platformUtilsService.isViewOpen();
+      const tabs = await this.getBwTabs();
+
+      if (isOpen && tabs.length > 0) {
+        // Send message to all vault tabs that the extension has opened
+        for (const tab of tabs) {
+          await BrowserApi.executeScriptInTab(tab.id, {
+            file: "content/send-popup-open-message.js",
+            runAt: "document_end",
+          });
+        }
+      }
+    };
+
+    // Give the popup a buffer to open
+    setTimeout(announcePopupOpen, 100);
+  }
+
   async sendBwInstalledMessageToVault() {
     try {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const vaultUrl = env.getWebVaultUrl();
-      const urlObj = new URL(vaultUrl);
-
-      const tabs = await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
+      const tabs = await this.getBwTabs();
 
       if (!tabs?.length) {
         return;

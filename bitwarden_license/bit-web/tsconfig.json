@@ -22,7 +22,7 @@
       ],
       "@bitwarden/vault-export-ui": ["../../libs/tools/export/vault-export/vault-export-ui/src"],
       "@bitwarden/importer-core": ["../../libs/importer/src"],
-      "@bitwarden/importer/ui": ["../../libs/importer/src/components"],
+      "@bitwarden/importer-ui": ["../../libs/importer/src/components"],
       "@bitwarden/key-management": ["../../libs/key-management/src"],
       "@bitwarden/key-management-ui": ["../../libs/key-management-ui/src"],
       "@bitwarden/platform": ["../../libs/platform/src"],

@@ -1,37 +1,3 @@
-app-generator {
-  #lengthRange {
-    width: 100%;
-  }
-
-  .card-generated {
-    .card-body {
-      @include themify($themes) {
-        background: themed("foregroundColor");
-      }
-      align-items: center;
-      display: flex;
-      flex-wrap: wrap;
-      font-family: $font-family-monospace;
-      font-size: $font-size-lg;
-      justify-content: center;
-      text-align: center;
-    }
-  }
-}
-
-app-password-generator-history {
-  .list-group-item {
-    line-height: 1;
-    @include themify($themes) {
-      background: themed("backgroundColor");
-    }
-
-    .password {
-      font-family: $font-family-monospace;
-    }
-  }
-}
-
 tools-import {
   textarea {
     height: 150px;

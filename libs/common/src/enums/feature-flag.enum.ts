@@ -8,7 +8,6 @@ export enum FeatureFlag {
   ProviderClientVaultPrivacyBanner = "ac-2833-provider-client-vault-privacy-banner",
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
-  PM14505AdminConsoleIntegrationPage = "pm-14505-admin-console-integration-page",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
 
   /* Autofill */
@@ -26,7 +25,6 @@ export enum FeatureFlag {
 
   /* Tools */
   ItemShare = "item-share",
-  GeneratorToolsModernization = "generator-tools-modernization",
   CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
 
@@ -52,6 +50,7 @@ export enum FeatureFlag {
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   NewDeviceVerification = "new-device-verification",
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
+  RecoveryCodeLogin = "pm-17128-recovery-code-login",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -70,7 +69,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ProviderClientVaultPrivacyBanner]: FALSE,
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
-  [FeatureFlag.PM14505AdminConsoleIntegrationPage]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
 
   /* Autofill */
@@ -88,7 +86,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.ItemShare]: FALSE,
-  [FeatureFlag.GeneratorToolsModernization]: FALSE,
   [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
@@ -114,6 +111,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.NewDeviceVerification]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
+  [FeatureFlag.RecoveryCodeLogin]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

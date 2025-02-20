@@ -2,10 +2,11 @@
 // @ts-strict-ignore
 import * as JSZip from "jszip";
 import * as papa from "papaparse";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -34,8 +35,6 @@ export class IndividualVaultExportService
   extends BaseVaultExportService
   implements IndividualVaultExportServiceAbstraction
 {
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
-
   constructor(
     private folderService: FolderService,
     private cipherService: CipherService,
@@ -98,7 +97,7 @@ export class IndividualVaultExportService
     let decFolders: FolderView[] = [];
     let decCiphers: CipherView[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       firstValueFrom(this.folderService.folderViews$(activeUserId)).then((folders) => {
@@ -107,7 +106,7 @@ export class IndividualVaultExportService
     );
 
     promises.push(
-      this.cipherService.getAllDecrypted().then((ciphers) => {
+      this.cipherService.getAllDecrypted(activeUserId).then((ciphers) => {
         decCiphers = ciphers.filter((f) => f.deletedDate == null);
       }),
     );
@@ -125,7 +124,7 @@ export class IndividualVaultExportService
     let folders: Folder[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       firstValueFrom(this.folderService.folders$(activeUserId)).then((f) => {
@@ -134,7 +133,7 @@ export class IndividualVaultExportService
     );
 
     promises.push(
-      this.cipherService.getAll().then((c) => {
+      this.cipherService.getAll(activeUserId).then((c) => {
         ciphers = c.filter((f) => f.deletedDate == null);
       }),
     );
@@ -142,7 +141,7 @@ export class IndividualVaultExportService
     await Promise.all(promises);
 
     const userKey = await this.keyService.getUserKeyWithLegacySupport(
-      await firstValueFrom(this.activeUserId$),
+      await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
     );
     const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), userKey);
 
