@@ -143,7 +143,7 @@ describe("ExtensionTwoFactorAuthComponentService", () => {
       expect(closeTwoFactorAuthEmailPopout).toHaveBeenCalled();
     });
 
-    it("should call closeTwoFactorAuthDuoPopout if in two factor auth email popout", async () => {
+    it("should call closeTwoFactorAuthDuoPopout if in two factor auth duo popout", async () => {
       const inSingleActionPopoutSpy = jest
         .spyOn(BrowserPopupUtils, "inSingleActionPopout")
         .mockImplementation((_, key) => {
