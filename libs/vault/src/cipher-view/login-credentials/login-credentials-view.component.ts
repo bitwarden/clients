@@ -2,13 +2,15 @@
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
 import { Component, inject, Input, OnInit } from "@angular/core";
-import { map, Observable, switchMap } from "rxjs";
+import { map, Observable, of, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -24,7 +26,7 @@ import {
   BadgeModule,
   ColorPasswordModule,
 } from "@bitwarden/components";
-import { ChangeLoginPasswordService, DefaultTaskService } from "@bitwarden/vault";
+import { ChangeLoginPasswordService, DefaultTaskService, SecurityTaskType } from "@bitwarden/vault";
 
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
@@ -65,7 +67,8 @@ export class LoginCredentialsViewComponent implements OnInit {
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
   totpCodeCopyObj: TotpCodeValues;
-  hasPendingTasks$: Observable<boolean>;
+  hadPendingChangePasswordTask$: Observable<boolean>;
+  isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
 
   private datePipe = inject(DatePipe);
 
@@ -78,13 +81,17 @@ export class LoginCredentialsViewComponent implements OnInit {
     private defaultTaskService: DefaultTaskService,
     private platformUtilsService: PlatformUtilsService,
     private changeLoginPasswordService: ChangeLoginPasswordService,
+    private configService: ConfigService,
   ) {}
 
   ngOnInit() {
-    this.hasPendingTasks$ = this.checkPendingTasks$();
+    this.hadPendingChangePasswordTask$ = this.checkPendingChangePasswordTasks$();
   }
 
-  checkPendingTasks$(): Observable<boolean> {
+  checkPendingChangePasswordTasks$(): Observable<boolean> {
+    if (!this.cipher.edit || !this.cipher.viewPassword) {
+      return of(false);
+    }
     return this.defaultTaskService.pendingTasks$(this.activeUserId).pipe(
       map((tasks) => {
         let hasTasks = false;
@@ -92,7 +99,10 @@ export class LoginCredentialsViewComponent implements OnInit {
         if (tasks?.length > 0) {
           hasTasks =
             tasks.filter((task) => {
-              return task.cipherId === this.cipher.id;
+              return (
+                task.cipherId === this.cipher.id &&
+                task.type === SecurityTaskType.UpdateAtRiskCredential
+              );
             }).length > 0;
         }
         return hasTasks && this.cipher.edit && this.cipher.viewPassword;

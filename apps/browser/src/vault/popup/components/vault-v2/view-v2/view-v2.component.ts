@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -21,6 +21,8 @@ import {
   SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -47,6 +49,7 @@ import {
   CopyCipherFieldService,
   DefaultChangeLoginPasswordService,
   DefaultTaskService,
+  SecurityTaskType,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -111,7 +114,8 @@ export class ViewV2Component {
   collections$: Observable<CollectionView[]>;
   loadAction: LoadAction;
   senderTabId?: number;
-  hasPendingTasks$: Observable<boolean>;
+  hadPendingChangePasswordTask$: Observable<boolean>;
+  isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
 
   constructor(
     private route: ActivatedRoute,
@@ -131,6 +135,7 @@ export class ViewV2Component {
     private defaultTaskService: DefaultTaskService,
     private platformUtilsService: PlatformUtilsService,
     private changeLoginPasswordService: ChangeLoginPasswordService,
+    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
@@ -166,7 +171,7 @@ export class ViewV2Component {
             cipher.organizationId,
           );
 
-          this.hasPendingTasks$ = this.checkPendingTasks$();
+          this.hadPendingChangePasswordTask$ = this.checkPendingChangePasswordTasks$();
         }),
         takeUntilDestroyed(),
       )
@@ -188,7 +193,11 @@ export class ViewV2Component {
     }
   }
 
-  checkPendingTasks$(): Observable<boolean> {
+  checkPendingChangePasswordTasks$(): Observable<boolean> {
+    if (!this.cipher.edit || !this.cipher.viewPassword) {
+      return of(false);
+    }
+
     return this.defaultTaskService.pendingTasks$(this.activeUserId).pipe(
       map((tasks) => {
         let hasTasks = false;
@@ -196,10 +205,13 @@ export class ViewV2Component {
         if (tasks?.length > 0) {
           hasTasks =
             tasks.filter((task) => {
-              return task.cipherId === this.cipher.id;
+              return (
+                task.cipherId === this.cipher.id &&
+                task.type === SecurityTaskType.UpdateAtRiskCredential
+              );
             }).length > 0;
         }
-        return hasTasks && this.cipher.edit && this.cipher.viewPassword;
+        return hasTasks;
       }),
     );
   }

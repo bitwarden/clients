@@ -183,7 +183,7 @@ describe("ViewV2Component", () => {
     fixture = TestBed.createComponent(ViewV2Component);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    jest.spyOn(component, "checkPendingTasks$").mockReturnValue(of(true));
+    jest.spyOn(component, "checkPendingChangePasswordTasks$").mockReturnValue(of(true));
   });
 
   describe("queryParams", () => {

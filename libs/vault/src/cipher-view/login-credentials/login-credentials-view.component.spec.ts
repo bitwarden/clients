@@ -8,6 +8,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -91,13 +92,14 @@ describe("LoginCredentialsViewComponent", () => {
           provide: ChangeLoginPasswordService,
           useValue: mockChangeLoginPasswordService,
         },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginCredentialsViewComponent);
     component = fixture.componentInstance;
     component.cipher = cipher;
-    jest.spyOn(component, "checkPendingTasks$").mockImplementation(() => of(true));
+    jest.spyOn(component, "checkPendingChangePasswordTasks$").mockImplementation(() => of(true));
     fixture.detectChanges();
   });
 
