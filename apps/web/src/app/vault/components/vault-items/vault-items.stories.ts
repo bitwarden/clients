@@ -25,9 +25,9 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
 import { GroupView } from "../../../admin-console/organizations/core";
-import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
 import { VaultItemsComponent } from "./vault-items.component";
 import { VaultItemsModule } from "./vault-items.module";

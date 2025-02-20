@@ -13,8 +13,7 @@ import {
   TableModule,
   TabsModule,
 } from "@bitwarden/components";
-
-import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
 import { AccessSelectorComponent, PermissionMode } from "./access-selector.component";
 import { AccessItemType, AccessItemValue, CollectionPermission } from "./access-selector.models";

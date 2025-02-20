@@ -16,11 +16,8 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ButtonModule } from "@bitwarden/components";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
-// FIXME: remove `/apps` import from `/libs`
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
-import { PreloadedEnglishI18nModule } from "../../../../../apps/web/src/app/core/tests";
 import { LockIcon } from "../icons";
 import { RegistrationCheckEmailIcon } from "../icons/registration-check-email.icon";
 

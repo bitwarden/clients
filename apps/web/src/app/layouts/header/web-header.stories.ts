@@ -29,9 +29,9 @@ import {
   TabsModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
 import { DynamicAvatarComponent } from "../../components/dynamic-avatar.component";
-import { PreloadedEnglishI18nModule } from "../../core/tests";
 import { WebHeaderComponent } from "../header/web-header.component";
 
 import { WebLayoutMigrationBannerService } from "./web-layout-migration-banner.service";

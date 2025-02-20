@@ -5,8 +5,7 @@ import { of } from "rxjs";
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-
-import { PreloadedEnglishI18nModule } from "../../../../../../core/tests";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
 import { IntegrationCardComponent } from "./integration-card.component";
 

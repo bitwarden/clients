@@ -5,8 +5,7 @@ import { delay, of, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LinkModule, IconModule, ProgressModule } from "@bitwarden/components";
-
-import { PreloadedEnglishI18nModule } from "../../../core/tests";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
 import { OnboardingTaskComponent } from "./onboarding-task.component";
 import { OnboardingComponent } from "./onboarding.component";

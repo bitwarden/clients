@@ -20,8 +20,7 @@ import {
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
-
-import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
 import { AccessSelectorComponent, PermissionMode } from "./access-selector.component";
 import { AccessItemType, CollectionPermission } from "./access-selector.models";

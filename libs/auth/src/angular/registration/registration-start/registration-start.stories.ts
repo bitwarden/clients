@@ -26,11 +26,8 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
-// FIXME: remove `/apps` import from `/libs`
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
-import { PreloadedEnglishI18nModule } from "../../../../../../apps/web/src/app/core/tests";
 import { LoginEmailService } from "../../../common";
 import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
 import { AnonLayoutWrapperData } from "../../anon-layout/anon-layout-wrapper.component";

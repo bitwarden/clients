@@ -6,8 +6,8 @@ import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-t
 import { IntegrationType } from "@bitwarden/common/enums";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
-import { PreloadedEnglishI18nModule } from "../../../../../../core/tests";
 import { IntegrationCardComponent } from "../integration-card/integration-card.component";
 import { IntegrationGridComponent } from "../integration-grid/integration-grid.component";
 

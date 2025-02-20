@@ -5,8 +5,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ButtonModule } from "@bitwarden/components";
-
-import { PreloadedEnglishI18nModule } from "../../../core/tests";
+import { PreloadedEnglishI18nModule } from "@bitwarden/test-helpers";
 
 import { DangerZoneComponent } from "./danger-zone.component";
 

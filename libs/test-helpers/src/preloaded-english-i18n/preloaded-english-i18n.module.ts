@@ -4,7 +4,7 @@ import { Observable, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { TranslationService } from "@bitwarden/common/platform/services/translation.service";
 
-import eng from "../../../locales/en/messages.json";
+import eng from "./en.json";
 
 class PreloadedEnglishI18nService extends TranslationService implements I18nService {
   translationLocale = "en";
