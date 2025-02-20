@@ -80,7 +80,7 @@ export class OrganizationLayoutComponent implements OnInit {
 
   async ngOnInit() {
     this.isBreadcrumbEventLogsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM13127_BreadcrumbEventLogs,
+      FeatureFlag.PM12276_BreadcrumbEventLogs,
     );
     document.body.classList.remove("layout_frontend");
 
