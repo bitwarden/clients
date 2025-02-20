@@ -33,7 +33,7 @@
   "workspaces": [
     "apps/*",
     "apps/desktop/desktop_native/napi",
-    "libs/*"
+    "libs/**/*"
   ],
   "devDependencies": {
     "@angular-devkit/build-angular": "18.2.12",
