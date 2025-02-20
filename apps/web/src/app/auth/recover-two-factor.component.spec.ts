@@ -16,6 +16,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { NewDeviceVerificationNoticeService } from "@bitwarden/vault";
 
 import { RecoverTwoFactorComponent } from "./recover-two-factor.component";
@@ -68,7 +69,7 @@ describe("RecoverTwoFactorComponent", () => {
           useValue: mockNewDeviceVerificationNoticeService,
         },
       ],
-      imports: [TranslateModule.forRoot],
+      imports: [I18nPipe],
     });
 
     fixture = TestBed.createComponent(RecoverTwoFactorComponent);
@@ -87,7 +88,6 @@ describe("RecoverTwoFactorComponent", () => {
       request.email = "test@example.com";
 
       const authResult = new AuthResult();
-      // authResult.userId = "testUserId";
       mockLoginStrategyService.logIn.mockResolvedValue(authResult);
 
       // Act
