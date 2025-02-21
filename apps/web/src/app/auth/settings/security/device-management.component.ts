@@ -194,8 +194,8 @@ export class DeviceManagementComponent {
           displayName: this.getHumanReadableDeviceType(device.type),
           loginStatus: this.getLoginStatus(device),
           firstLogin: new Date(device.creationDate),
-          trusted: device?.response?.isTrusted ?? false,
-          devicePendingAuthRequest: device?.response?.devicePendingAuthRequest ?? null,
+          trusted: device.response?.isTrusted ?? false,
+          devicePendingAuthRequest: device.response?.devicePendingAuthRequest ?? null,
           hasPendingAuthRequest: hasPendingRequest,
           identifier: device.identifier ?? "",
         };
