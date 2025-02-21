@@ -136,7 +136,7 @@ export class EncryptServiceImplementation implements EncryptService {
     encThing: Encrypted,
     key: SymmetricCryptoKey,
     decryptContext: string = "no context",
-  ): Promise<Uint8Array> {
+  ): Promise<Uint8Array | null> {
     if (key == null) {
       throw new Error("No encryption key provided.");
     }
