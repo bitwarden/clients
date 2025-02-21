@@ -2160,7 +2160,10 @@
     "message": "如果您已设置或计划设置 SSO，两步登录可能已经通过您的身份提供程序强制实施了。"
   },
   "twoStepLoginRecoveryWarning": {
-    "message": "启用两步登录可能会将您永久锁定在 Bitwarden 账户之外。如果您无法使用常规的两步登录提供程序（例如您丢失了设备），则可以使用恢复代码访问您的账户。如果您失去对您账户的访问，Bitwarden 支持也无法帮助您。我们建议您记下或打印恢复代码，并将其妥善保管。"
+    "message": "启用两步登录可能会将您永久锁定在 Bitwarden 账户之外。当您无法使用常规的两步登录提供程序（例如您丢失了设备）时，可以使用恢复代码访问您的账户。如果您失去对您账户的访问，Bitwarden 支持也无法帮助您。我们建议您写下或打印恢复代码，并将其妥善保管。"
+  },
+  "yourSingleUseRecoveryCode": {
+    "message": "当您无法访问两步登录提供程序时，您的一次性恢复代码可用于关闭两步登录。Bitwarden 建议您写下恢复代码，并将其妥善保管。"
   },
   "viewRecoveryCode": {
     "message": "查看恢复代码"
@@ -2170,10 +2173,10 @@
     "description": "Two-step login providers such as YubiKey, Duo, Authenticator apps, Email, etc."
   },
   "enable": {
-    "message": "启用"
+    "message": "开启"
   },
   "enabled": {
-    "message": "已启用"
+    "message": "已开启"
   },
   "restoreAccess": {
     "message": "恢复访问权限"
@@ -2216,7 +2219,7 @@
     "message": "编辑项目，隐藏密码"
   },
   "disable": {
-    "message": "停用"
+    "message": "关闭"
   },
   "revokeAccess": {
     "message": "撤销访问权限"
@@ -4172,6 +4175,9 @@
   "recoverAccountTwoStepDesc": {
     "message": "如果您无法通过常规的两步登录方式访问您的账户，您可以使用两步登录恢复代码来停用账户上的所有两步登录提供程序。"
   },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "在下方使用您的一次性恢复代码登录。这将停用您账户上的所有两步提供程序。"
+  },
   "recoverAccountTwoStep": {
     "message": "恢复账户两步登录"
   },
@@ -4462,6 +4468,24 @@
   },
   "encryptionKeyUpdateCannotProceed": {
     "message": "无法继续加密密钥更新"
+  },
+  "editFieldLabel": {
+    "message": "编辑 $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "重新排序 $LABEL$。使用方向键向上或向下移动项目。",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "keyUpdateFoldersFailed": {
     "message": "更新您的加密密钥时，无法解密您的文件夹。要继续更新，文件夹必须被删除。继续操作不会删除密码库项目。"
@@ -6922,6 +6946,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商获取协助。",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "无法获取 $SERVICENAME$ 电子邮箱账户 ID。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -6980,7 +7028,7 @@
     "message": "设备验证"
   },
   "enableDeviceVerification": {
-    "message": "启用设备验证"
+    "message": "开启设备验证"
   },
   "deviceVerificationDesc": {
     "message": "登录未识别的设备时，验证码会发送到您的电子邮箱地址"
@@ -9246,6 +9294,12 @@
   "deviceManagementDesc": {
     "message": "使用适合您平台的实施指南为 Bitwarden 配置设备管理。"
   },
+  "desktopRequired": {
+    "message": "Desktop required"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "请在桌面端从您的电子邮件中重新打开此链接。"
+  },
   "integrationCardTooltip": {
     "message": "打开 $INTEGRATION$ 实施指南。",
     "placeholders": {
@@ -10239,6 +10293,38 @@
   "organizationNameMaxLength": {
     "message": "组织名称不能超过 50 个字符。"
   },
+  "openingExtension": {
+    "message": "正在打开 Bitwarden 浏览器扩展"
+  },
+  "somethingWentWrong": {
+    "message": "出错了..."
+  },
+  "openingExtensionError": {
+    "message": "我们无法打开 Bitwarden 浏览器扩展。请点击按钮立即打开。"
+  },
+  "openExtension": {
+    "message": "打开扩展"
+  },
+  "doNotHaveExtension": {
+    "message": "没有 Bitwarden 浏览器扩展吗？"
+  },
+  "installExtension": {
+    "message": "安装扩展"
+  },
+  "openedExtension": {
+    "message": "已打开浏览器扩展"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "成功打开 Bitwarden 浏览器扩展。您现在可以审查有风险的密码了。"
+  },
+  "openExtensionManuallyPart1": {
+    "message": "我们无法打开 Bitwarden 浏览器扩展。请从工具栏打开 Bitwarden 图标",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "。",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "resellerRenewalWarningMsg": {
     "message": "您的订阅即将续期。为确保服务不会中断，请在 $RENEWAL_DATE$ 之前联系 $RESELLER$ 确认您的续订。",
     "placeholders": {
@@ -10289,7 +10375,7 @@
     "message": "重启您的订阅"
   },
   "suspendedManagedOrgMessage": {
-    "message": "联系 $PROVIDER$ 获取协助。",
+    "message": "联系 $PROVIDER$ 寻求帮助。",
     "placeholders": {
       "provider": {
         "content": "$1",
