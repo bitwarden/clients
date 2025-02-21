@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -16,7 +14,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -64,7 +61,6 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private apiService: ApiService,
@@ -87,7 +83,6 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
           variant: "error",
           title: null,
           message: this.i18nService.t("sponsoredFamiliesAcceptFailed"),
-          timeout: 10000,
         });
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -105,7 +100,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       if (this.preValidateSponsorshipResponse.isFreeFamilyPolicyEnabled) {
         this.toastService.showToast({
           variant: "error",
-          title: this.i18nService.t("errorOccured"),
+          title: this.i18nService.t("errorOccurred"),
           message: this.i18nService.t("offerNoLongerValid"),
         });
 
@@ -137,7 +132,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       }
     });
     this.formGroup.valueChanges.pipe(takeUntil(this._destroy)).subscribe((val) => {
-      this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId;
+      this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId ?? "";
     });
   }
 

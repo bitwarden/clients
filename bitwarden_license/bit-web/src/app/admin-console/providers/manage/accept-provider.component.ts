@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
@@ -8,6 +6,7 @@ import { ProviderUserAcceptRequest } from "@bitwarden/common/admin-console/model
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
 @Component({
@@ -30,9 +29,10 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
     route: ActivatedRoute,
     authService: AuthService,
     private apiService: ApiService,
+    toastService: ToastService,
     platformUtilService: PlatformUtilsService,
   ) {
-    super(router, platformUtilService, i18nService, route, authService);
+    super(router, platformUtilService, i18nService, route, authService, toastService);
   }
 
   async authedHandler(qParams: Params) {
@@ -45,12 +45,12 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
       request,
     );
 
-    this.platformUtilService.showToast(
-      "success",
-      this.i18nService.t("inviteAccepted"),
-      this.i18nService.t("providerInviteAcceptedDesc"),
-      { timeout: 10000 },
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("inviteAccepted"),
+      message: this.i18nService.t("providerInviteAcceptedDesc"),
+    });
+
     this.router.navigate(["/vault"]);
   }
 

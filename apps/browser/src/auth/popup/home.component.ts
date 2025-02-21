@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -10,6 +8,7 @@ import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
@@ -25,7 +24,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private destroyed$: Subject<void> = new Subject();
 
   loginInitiated = false;
-  formGroup = this.formBuilder.group({
+  formGroup = this.formBuilder.nonNullable.group({
     email: ["", [Validators.required, Validators.email]],
     rememberEmail: [false],
   });
@@ -40,6 +39,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private configService: ConfigService,
     private route: ActivatedRoute,
+    private logService: LogService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -107,7 +107,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.formGroup.invalid) {
       this.toastService.showToast({
         variant: "error",
-        title: this.i18nService.t("errorOccured"),
+        title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("invalidEmail"),
       });
       return;
