@@ -206,21 +206,4 @@ describe("popup view cache", () => {
     expect(messageSenderMock.send).toHaveBeenCalledWith(ClEAR_VIEW_CACHE_COMMAND, {});
     expect(service["_cache"]).toEqual({});
   });
-
-  it("should ignore cached values when feature flag is off", async () => {
-    jest.spyOn(configServiceMock, "getFeatureFlag").mockResolvedValue(false);
-
-    await initServiceWithState({ "foo-123": JSON.stringify("bar") });
-
-    const injector = TestBed.inject(Injector);
-
-    const signal = service.signal({
-      key: "foo-123",
-      initialValue: "foo",
-      injector,
-    });
-
-    // The cached state is ignored
-    expect(signal()).toBe("foo");
-  });
 });
