@@ -164,17 +164,16 @@ export default class IPCService {
     this.processOutputBuffer = Buffer.concat([this.processOutputBuffer, data]);
 
     // We might receive more than one IPC message per data event, so we need to process them all
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      // Read the message length, and return if we don't have the full message
-      if (this.processOutputBuffer.length < 4) {
-        return;
-      }
+    // We continue as long as we have at least 4 + 1 bytes in the buffer, where the first 4 bytes
+    // represent the message length and the 5th byte is the message
+    while (this.processOutputBuffer.length > 4) {
+      // Read the message length and ensure we have the full message
       const msgLength = this.processOutputBuffer.readUInt32LE(0);
       if (msgLength + 4 < this.processOutputBuffer.length) {
         return;
       }
 
+      // Parse the message from the buffer
       const messageStr = this.processOutputBuffer.subarray(4, msgLength + 4).toString();
       const message = JSON.parse(messageStr);
 
