@@ -159,7 +159,7 @@ export class DeviceManagementComponent {
       const currentDevice = await firstValueFrom(this.devicesService.getCurrentDevice$());
       const devices = await firstValueFrom(this.devicesService.getDevices$());
 
-      if (!currentDevice) {
+      if (!currentDevice || !devices) {
         this.loading = false;
         return;
       }
