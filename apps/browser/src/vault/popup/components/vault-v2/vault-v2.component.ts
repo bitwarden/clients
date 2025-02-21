@@ -19,7 +19,7 @@ import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-pro
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -125,7 +125,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   protected VaultStateEnum = VaultState;
   protected showNewCustomizationSettingsCallout = false;
-  protected activeUserId: UserId | null = null;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
@@ -174,10 +173,10 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     this.cipherService
-      .failedToDecryptCiphers$(this.activeUserId)
+      .failedToDecryptCiphers$(activeUserId)
       .pipe(
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
@@ -189,27 +188,10 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
           cipherIds: ciphers.map((c) => c.id as CipherId),
         });
       });
-
-    const profileCreatedDate = await this.vaultProfileService.getProfileCreationDate(
-      this.activeUserId,
-    );
-    const hasCalloutBeenDismissed = await firstValueFrom(
-      this.vaultPageService.isCalloutDismissed(this.activeUserId),
-    );
-
-    this.showNewCustomizationSettingsCallout =
-      !hasCalloutBeenDismissed && profileCreatedDate < new Date("2024-12-25");
-  }
-
-  async dismissCallout() {
-    if (this.activeUserId) {
-      await this.vaultPageService.dismissCallout(this.activeUserId);
-    }
   }
 
   async ngOnDestroy() {
     this.vaultScrollPositionService.stop();
-    await this.dismissCallout();
   }
 
   protected readonly FeatureFlag = FeatureFlag;
