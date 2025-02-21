@@ -3,6 +3,7 @@
     [formControl]="searchControl"
     [placeholder]="'searchMembers' | i18n"
     class="tw-grow"
+    *ngIf="!(isLoading$ | async)"
   ></bit-search>
 
   <button
