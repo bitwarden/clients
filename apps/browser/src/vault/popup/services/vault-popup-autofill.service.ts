@@ -13,7 +13,6 @@ import {
   Subject,
   switchMap,
 } from "rxjs";
-import { getHostname } from "tldts";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -22,6 +21,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -88,7 +88,12 @@ export class VaultPopupAutofillService {
   ]).pipe(
     map(([blockedInteractionsUrls, currentTab]) => {
       if (blockedInteractionsUrls && currentTab?.url?.length) {
-        const tabHostname = getHostname(currentTab.url, { allowPrivateDomains: true });
+        const tabHostname = Utils.getHostname(currentTab.url);
+
+        if (!tabHostname) {
+          return false;
+        }
+
         const tabIsBlocked = isUrlInList(currentTab.url, blockedInteractionsUrls);
 
         const showScriptInjectionIsBlockedBanner =
@@ -105,8 +110,7 @@ export class VaultPopupAutofillService {
   async dismissCurrentTabIsBlockedBanner() {
     try {
       const currentTab = await firstValueFrom(this.currentAutofillTab$);
-      const currentTabHostname =
-        currentTab?.url.length && getHostname(currentTab.url, { allowPrivateDomains: true });
+      const currentTabHostname = currentTab?.url.length && Utils.getHostname(currentTab.url);
 
       if (!currentTabHostname) {
         return;

@@ -1,6 +1,5 @@
-import { getHostname } from "tldts";
-
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { CardView } from "../vault/models/view/card.view";
 
@@ -346,7 +345,7 @@ export function isUrlInList(url: string = "", urlList: NeverDomains = {}): boole
   if (urlListKeys.length && url?.length) {
     let tabHostname;
     try {
-      tabHostname = getHostname(url, { allowPrivateDomains: true });
+      tabHostname = Utils.getHostname(url);
     } catch {
       // If the input was invalid, exit early and return false
       return false;
