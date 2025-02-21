@@ -16,6 +16,13 @@ function getRandomDateTime() {
   });
 }
 
+const asteriskPlaceholders = new Array(6).fill({
+  appName: "***",
+  userName: "**********",
+  userEmail: "**********",
+  message: "**********",
+});
+
 export const placeholderEvents = [
   {
     date: getRandomDateTime(),
@@ -51,4 +58,6 @@ export const placeholderEvents = [
     userEmail: "franz@email.com",
     message: `Sent item <span class="tw-text-code">000000</span> to trash`,
   },
-].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+]
+  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  .concat(asteriskPlaceholders);
