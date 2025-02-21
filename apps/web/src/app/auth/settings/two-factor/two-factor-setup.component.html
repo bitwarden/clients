@@ -48,7 +48,7 @@
   <bit-item-group [attr.aria-label]="'providers' | i18n">
     <bit-item *ngFor="let p of providers" class="tw-py-4">
       <div slot="start" class="tw-min-w-[120px] tw-flex tw-justify-center">
-        <auth-two-factor-icon [provider]="p.type" [name]="p.name" />
+        <auth-two-factor-icon class="tw-flex tw-items-center" [provider]="p.type" [name]="p.name" />
       </div>
       <div bit-item-content class="tw-px-4">
         <h3 class="tw-mb-0">
@@ -60,13 +60,13 @@
           </div>
           <ng-container *ngIf="p.enabled">
             <i
-              class="bwi bwi-check tw-text-success-600 bwi-fw"
+              class="bwi bwi-check tw-text-success-600 bwi-fw tw-ml-2"
               title="{{ 'enabled' | i18n }}"
               aria-hidden="true"
             ></i>
             <span class="tw-sr-only">{{ "enabled" | i18n }}</span>
           </ng-container>
-          <app-premium-badge *ngIf="p.premium"></app-premium-badge>
+          <app-premium-badge class="tw-ml-2" *ngIf="p.premium"></app-premium-badge>
         </h3>
       </div>
       <bit-item-action slot="end">
