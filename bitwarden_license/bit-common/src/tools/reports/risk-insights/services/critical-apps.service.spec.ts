@@ -35,6 +35,10 @@ describe("CriticalAppsService", () => {
 
     // reset mocks
     jest.resetAllMocks();
+
+    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+    const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
+    keyService.getOrgKey.mockResolvedValue(mockOrgKey);
   });
 
   it("should be created", () => {

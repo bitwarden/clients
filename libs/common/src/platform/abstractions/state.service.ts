@@ -30,7 +30,7 @@ export abstract class StateService<T extends Account = Account> {
   /**
    * Sets the user's auto key
    */
-  setUserKeyAutoUnlock: (value: string, options?: StorageOptions) => Promise<void>;
+  setUserKeyAutoUnlock: (value: string | null, options?: StorageOptions) => Promise<void>;
   /**
    * Gets the user's biometric key
    */
@@ -57,7 +57,7 @@ export abstract class StateService<T extends Account = Account> {
   /**
    * @deprecated For migration purposes only, use setUserKeyAuto instead
    */
-  setCryptoMasterKeyAuto: (value: string, options?: StorageOptions) => Promise<void>;
+  setCryptoMasterKeyAuto: (value: string | null, options?: StorageOptions) => Promise<void>;
   getDuckDuckGoSharedKey: (options?: StorageOptions) => Promise<string>;
   setDuckDuckGoSharedKey: (value: string, options?: StorageOptions) => Promise<void>;
 

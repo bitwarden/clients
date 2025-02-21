@@ -69,55 +69,15 @@
       {{ "markAppAsCritical" | i18n }}
     </button>
   </div>
-  <bit-table [dataSource]="dataSource">
-    <ng-container header>
-      <tr>
-        <th *ngIf="isCriticalAppsFeatureEnabled"></th>
-        <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
-        <th bitSortable="atRiskPasswordCount" bitCell>{{ "atRiskPasswords" | i18n }}</th>
-        <th bitSortable="passwordCount" bitCell>{{ "totalPasswords" | i18n }}</th>
-        <th bitSortable="atRiskMemberCount" bitCell>{{ "atRiskMembers" | i18n }}</th>
-        <th bitSortable="memberCount" bitCell>{{ "totalMembers" | i18n }}</th>
-      </tr>
-    </ng-container>
-    <ng-template body let-rows$>
-      <tr
-        bitRow
-        *ngFor="let r of rows$ | async; trackBy: trackByFunction"
-        [ngClass]="{ 'tw-bg-primary-100': dataService.drawerInvokerId === r.applicationName }"
-      >
-        <td *ngIf="isCriticalAppsFeatureEnabled">
-          <input
-            bitCheckbox
-            type="checkbox"
-            *ngIf="!r.isMarkedAsCritical"
-            [checked]="selectedUrls.has(r.applicationName)"
-            (change)="onCheckboxChange(r.applicationName, $event)"
-          />
-          <i class="bwi bwi-star-f" *ngIf="r.isMarkedAsCritical"></i>
-        </td>
-        <td class="tw-cursor-pointer" (click)="showAppAtRiskMembers(r.applicationName)" bitCell>
-          <span>{{ r.applicationName }}</span>
-        </td>
-        <td bitCell>
-          <span>
-            {{ r.atRiskPasswordCount }}
-          </span>
-        </td>
-        <td bitCell>
-          <span>
-            {{ r.passwordCount }}
-          </span>
-        </td>
-        <td bitCell>
-          <span>
-            {{ r.atRiskMemberCount }}
-          </span>
-        </td>
-        <td bitCell data-testid="total-membership">
-          {{ r.memberCount }}
-        </td>
-      </tr>
-    </ng-template>
-  </bit-table>
+
+  <app-table-row-scrollable
+    [dataSource]="dataSource"
+    [showRowCheckBox]="true"
+    [showRowMenuForCriticalApps]="false"
+    [selectedUrls]="selectedUrls"
+    [isCriticalAppsFeatureEnabled]="isCriticalAppsFeatureEnabled"
+    [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
+    [checkboxChange]="onCheckboxChange"
+    [showAppAtRiskMembers]="showAppAtRiskMembers"
+  ></app-table-row-scrollable>
 </div>
