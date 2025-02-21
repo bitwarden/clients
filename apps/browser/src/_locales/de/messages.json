@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Notizen kopieren"
   },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Ausfüllen",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Gesperrte Domains"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
+  },
   "excludedDomains": {
     "message": "Ausgeschlossene Domains"
   },
@@ -2376,10 +2383,10 @@
     }
   },
   "atRiskPasswords": {
-    "message": "Risikoreiche Passwörter"
+    "message": "Gefährdete Passwörter"
   },
   "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ fordert dich auf, diese $COUNT$ Passwörter zu ändern, da diese in risikoreich sind.",
+    "message": "$ORGANIZATION$ fordert dich auf, diese $COUNT$ Passwörter zu ändern, da diese gefährdet sind.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2392,7 +2399,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrg": {
-    "message": "Deine Organisationen fordern dich auf, diese $COUNT$ Passwörter zu ändern, da diese risikoreich sind.",
+    "message": "Deine Organisationen fordern dich auf, diese $COUNT$ Passwörter zu ändern, da diese gefährdet sind.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2401,7 +2408,7 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Überprüfe und ändere ein risikoreiches Passwort"
+    "message": "Überprüfe und ändere ein gefährdetes Passwort"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "Überprüfe und ändere $COUNT$ risikoreiche Passwörter",
@@ -2413,7 +2420,7 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Ändere risikoreiche Passwörter schneller"
+    "message": "Ändere gefährdete Passwörter schneller"
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Aktualisiere deine Einstellungen, damit du deine Passwörter schnell automatisch ausfüllen kannst und neue generieren kannst"
@@ -3020,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Ungültiger API-Token von $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",

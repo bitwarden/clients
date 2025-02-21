@@ -2162,6 +2162,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Uključivanje prijave dvostrukom autentifikacijom može ti trajno onemogućiti pristup Bitwarden računu. Kôd za oporavak ti omogućuje pristup računu u slučaju kada više ne možeš koristiti redovnog pružatelja prijave dvostrukom autentifikacijom (npr. izgubiš svoj uređaj). Bitwarden podrška neće ti moći pomoći ako izgubiš pristup svojem računu. Savjetujemo da zapišeš ili ispišeš kôd za oporavak i spremiš ga na sigurno mjesto."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Tvoj jednokratni kôd za oporavak može se koristiti za isključivanje prijave dvostruke autentifikacije u slučaju da izgubiš pristup svom davatelju usluge dvostruke autentifikacije. Bitwarden preporučuje da zapišeš kôd za oporavak i čuvaš ga na sigurnom mjestu."
+  },
   "viewRecoveryCode": {
     "message": "Kôd za oporavak"
   },
@@ -4172,6 +4175,9 @@
   "recoverAccountTwoStepDesc": {
     "message": "Ako ne možeš pristupiti računu koristeći svoje redovne načine prijave dvostrukom autentifikacijom, možeš iskoristiti svoj kôd za oporavak kako bi se u potpunosti onesposobili svi pružatelji prijave dvostrukom autentifikacijom na tvojem računu."
   },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Prijavi se pomoću jednokratnog kôda za oporavak. Ovo će isključiti sve pružatelje usluga dvostruke autentifikacije na tvom računu."
+  },
   "recoverAccountTwoStep": {
     "message": "Oporavi račun prijave dvostrukom autentifikacijom"
   },
@@ -4462,6 +4468,24 @@
   },
   "encryptionKeyUpdateCannotProceed": {
     "message": "Ažuriranje ključa za šifriranje ne može se nastaviti"
+  },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "keyUpdateFoldersFailed": {
     "message": "Prilikom ažuriranja tvojeg ključa za šifriranje, mape se nisu mogle dešifrirati. Za nastavak ažuriranja, tvoje mape moraju biti izbrisane. Nijedna stavka iz trezora neće biti izbrisana ako nastaviš."
@@ -6922,6 +6946,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Nije moguće dobiti $SERVICENAME$ maskirani ID računa e-pošte.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -9246,6 +9294,12 @@
   "deviceManagementDesc": {
     "message": "Konfiguriraj upravljanje uređajima za Bitwarden pomoću vodiča za implementaciju za svoju platformu."
   },
+  "desktopRequired": {
+    "message": "Potrebno stolno računalo"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Otvori ovu poveznicu na stolnom računalu."
+  },
   "integrationCardTooltip": {
     "message": "Pokreni vodič za implementaciju $INTEGRATION$.",
     "placeholders": {
@@ -10238,6 +10292,38 @@
   },
   "organizationNameMaxLength": {
     "message": "Naziv organizacije ne može biti duži od 50 znakova."
+  },
+  "openingExtension": {
+    "message": "Otvaranje Bitwarden proširenja preglednika"
+  },
+  "somethingWentWrong": {
+    "message": "Dogodila se greška..."
+  },
+  "openingExtensionError": {
+    "message": "Nismo mogli otvoriti Bitwarden proširenje preglednika. Klikni na tipku za otvaranje."
+  },
+  "openExtension": {
+    "message": "Otvori proširenje"
+  },
+  "doNotHaveExtension": {
+    "message": "Nemaš Bitwarden proširenje preglednika?"
+  },
+  "installExtension": {
+    "message": "Instaliraj proširenje"
+  },
+  "openedExtension": {
+    "message": "Proširenje preglednika otvoreno"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Uspjšeno otvoreno Bitwarden proširenje preglednika. Sada možeš pregledati svoje rizične lozinke."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Nismo mogli otvoriti Bitwarden proširenje preglednika. Otvori Bitwarden ikonu",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "na alatnoj traci.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
     "message": "Tvoja će se pretplata uskoro obnoviti. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnove prije $RENEWAL_DATE$.",
