@@ -73,63 +73,14 @@
       [formControl]="searchControl"
     ></bit-search>
   </div>
-  <bit-table [dataSource]="dataSource">
-    <ng-container header>
-      <tr>
-        <th></th>
-        <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
-        <th bitSortable="atRiskPasswordCount" bitCell>{{ "atRiskPasswords" | i18n }}</th>
-        <th bitSortable="passwordCount" bitCell>{{ "totalPasswords" | i18n }}</th>
-        <th bitSortable="atRiskMemberCount" bitCell>{{ "atRiskMembers" | i18n }}</th>
-        <th bitSortable="memberCount" bitCell>{{ "totalMembers" | i18n }}</th>
-      </tr>
-    </ng-container>
-    <ng-template body let-rows$>
-      <tr
-        bitRow
-        *ngFor="let r of rows$ | async; trackBy: trackByFunction"
-        [ngClass]="{ 'tw-bg-primary-100': dataService.drawerInvokerId === r.applicationName }"
-      >
-        <td>
-          <i class="bwi bwi-star-f" *ngIf="r.isMarkedAsCritical"></i>
-        </td>
-        <td class="tw-cursor-pointer" (click)="showAppAtRiskMembers(r.applicationName)" bitCell>
-          <span>{{ r.applicationName }}</span>
-        </td>
-        <td bitCell>
-          <span>
-            {{ r.atRiskPasswordCount }}
-          </span>
-        </td>
-        <td bitCell>
-          <span>
-            {{ r.passwordCount }}
-          </span>
-        </td>
-        <td bitCell>
-          <span>
-            {{ r.atRiskMemberCount }}
-          </span>
-        </td>
-        <td bitCell data-testid="total-membership">
-          {{ r.memberCount }}
-        </td>
-        <td bitCell>
-          <button
-            [bitMenuTriggerFor]="rowMenu"
-            type="button"
-            bitIconButton="bwi-ellipsis-v"
-            size="small"
-            appA11yTitle="{{ 'options' | i18n }}"
-          ></button>
 
-          <bit-menu #rowMenu>
-            <button type="button" bitMenuItem (click)="unmarkAsCriticalApp(r.applicationName)">
-              <i aria-hidden="true" class="bwi bwi-star-f"></i> {{ "unmarkAsCriticalApp" | i18n }}
-            </button>
-          </bit-menu>
-        </td>
-      </tr>
-    </ng-template>
-  </bit-table>
+  <app-table-row-scrollable
+    [dataSource]="dataSource"
+    [showRowCheckBox]="false"
+    [showRowMenuForCriticalApps]="true"
+    [isCriticalAppsFeatureEnabled]="true"
+    [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
+    [showAppAtRiskMembers]="showAppAtRiskMembers"
+    [unmarkAsCriticalApp]="unmarkAsCriticalApp"
+  ></app-table-row-scrollable>
 </div>

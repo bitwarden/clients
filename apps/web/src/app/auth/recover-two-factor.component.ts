@@ -18,6 +18,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { NewDeviceVerificationNoticeService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-recover-two-factor",
@@ -51,6 +52,7 @@ export class RecoverTwoFactorComponent implements OnInit {
     private configService: ConfigService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private logService: LogService,
+    private newDeviceVerificationNoticeService: NewDeviceVerificationNoticeService,
   ) {}
 
   async ngOnInit() {
@@ -89,29 +91,16 @@ export class RecoverTwoFactorComponent implements OnInit {
     const key = await this.loginStrategyService.makePreloginKey(this.masterPassword, request.email);
     request.masterPasswordHash = await this.keyService.hashMasterKey(this.masterPassword, key);
 
-    try {
+    if (this.recoveryCodeLoginFeatureFlagEnabled) {
+      await this.handleRecoveryLogin(request);
+    } else {
       await this.apiService.postTwoFactorRecover(request);
-
       this.toastService.showToast({
         variant: "success",
         title: "",
         message: this.i18nService.t("twoStepRecoverDisabled"),
       });
-
-      if (!this.recoveryCodeLoginFeatureFlagEnabled) {
-        await this.router.navigate(["/"]);
-        return;
-      }
-
-      // Handle login after recovery if the feature flag is enabled
-      await this.handleRecoveryLogin(request);
-    } catch (e) {
-      const errorMessage = this.extractErrorMessage(e);
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("error"),
-        message: errorMessage,
-      });
+      await this.router.navigate(["/"]);
     }
   };
 
@@ -140,38 +129,26 @@ export class RecoverTwoFactorComponent implements OnInit {
         title: "",
         message: this.i18nService.t("youHaveBeenLoggedIn"),
       });
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("twoStepRecoverDisabled"),
+      });
+
       await this.loginSuccessHandlerService.run(authResult.userId);
+
+      // Before routing, set the state to skip the new device notification. This is a temporary
+      // fix and will be cleaned up in PM-18485.
+      await this.newDeviceVerificationNoticeService.updateNewDeviceVerificationSkipNoticeState(
+        authResult.userId,
+        true,
+      );
+
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error) {
       // If login errors, redirect to login page per product. Don't show error
       this.logService.error("Error logging in automatically: ", (error as Error).message);
       await this.router.navigate(["/login"], { queryParams: { email: request.email } });
     }
-  }
-
-  /**
-   * Extracts an error message from the error object.
-   */
-  private extractErrorMessage(error: unknown): string {
-    let errorMessage: string = this.i18nService.t("unexpectedError");
-    if (error && typeof error === "object" && "validationErrors" in error) {
-      const validationErrors = error.validationErrors;
-      if (validationErrors && typeof validationErrors === "object") {
-        errorMessage = Object.keys(validationErrors)
-          .map((key) => {
-            const messages = (validationErrors as Record<string, string | string[]>)[key];
-            return Array.isArray(messages) ? messages.join(" ") : messages;
-          })
-          .join(" ");
-      }
-    } else if (
-      error &&
-      typeof error === "object" &&
-      "message" in error &&
-      typeof error.message === "string"
-    ) {
-      errorMessage = error.message;
-    }
-    return errorMessage;
   }
 }

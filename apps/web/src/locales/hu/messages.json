@@ -764,7 +764,7 @@
     }
   },
   "copySuccessful": {
-    "message": "A másolás sikeres volt."
+    "message": "A másolás sikeres volt"
   },
   "copyValue": {
     "message": "Érték másolása",
@@ -1000,16 +1000,16 @@
     "message": "A bejelentkezési munkamenet lejárt."
   },
   "restartRegistration": {
-    "message": "Regisztráció újra kezdése"
+    "message": "Regisztráció újrakezdése"
   },
   "expiredLink": {
-    "message": "A hivatkozás lejárt."
+    "message": "A hivatkozás lejárt"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
     "message": "Please restart registration or try logging in."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "Lehet hogy már rendelkezik fiókkal."
+    "message": "Lehet hogy már rendelkezel fiókkal"
   },
   "logOutConfirmation": {
     "message": "Biztosan szeretnénk kijelentkezni?"
@@ -1311,7 +1311,7 @@
     "message": "Email cím"
   },
   "yourVaultIsLockedV2": {
-    "message": "A széf zárolva van."
+    "message": "A széf zárolva van"
   },
   "yourAccountIsLocked": {
     "message": "A fiók zárolva van."
@@ -1484,7 +1484,7 @@
     "message": "YubiKey OTP biztonsági kulcs"
   },
   "yubiKeyDesc": {
-    "message": "YubiKey használata a fiók eléréséhez. Működik a YubiKey 4, 4 Nano, 4C, és NEO eszközökkel."
+    "message": "Használj YubiKey 4, 5 vagy NEO eszközt."
   },
   "duoDescV2": {
     "message": "Adjuk meg a Duo Security által generált kódot.",
@@ -1504,7 +1504,7 @@
     "message": "Biztonsági kulcs"
   },
   "webAuthnDesc": {
-    "message": "Használjunk bármilyen WebAuthn engedélyezett biztonsági kulcsot a saját fiók eléréséhez."
+    "message": "Használd az eszközöd biometrikus azonosítását vagy egy FIDO2 kompatibilis biztonsági kulcsot."
   },
   "webAuthnMigrated": {
     "message": "(FIDO-ból áthelyezve)"
@@ -1757,7 +1757,7 @@
     "message": "Nincs megjeleníthető elem"
   },
   "nothingGeneratedRecently": {
-    "message": "Mostanában nem lett semmi generálva."
+    "message": "Nem generáltál semmit mostanában"
   },
   "clear": {
     "message": "Kiürítés",
@@ -2161,6 +2161,9 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "A kétlépcsős bejelentkezés engedélyezése véglegesen kizárhatja a felhasználót a Bitwarden fiókból. A helyreállítási kód lehetővé teszi a fiókjához való hozzáférést abban az esetben, ha már nem tudjuk használni a szokásos kétlépcsős bejelentkezési szolgáltatást (pl. készülék elvesztése). A Bitwarden támogatás nem tud segíteni abban az esetben, ha elveszítjük a hozzáférést a fiókhoz. Célszerű leírni vagy kinyomtatni a helyreállítási kódot és azt biztonságos helyen tartani."
+  },
+  "yourSingleUseRecoveryCode": {
+    "message": "Az egyszer használatos helyreállítási kóddal kikapcsolhatjuk a kétlépcsős bejelentkezést abban az esetben, ha elveszítjük a hozzáférést a kétlépcsős bejelentkezési szolgáltatóhoz. A Bitwarden azt javasolja, hogy írjuk le a helyreállítási kódot és tartsuk biztonságos helyen."
   },
   "viewRecoveryCode": {
     "message": "Helyreállító kód megtekintése"
@@ -4172,6 +4175,9 @@
   "recoverAccountTwoStepDesc": {
     "message": "Ha nem férünk hozzá a fiókhoz a normál kétlépcsős bejelentkezési módokkal, használhatjuk a kétlépcsős bejelentkezés helyreállító kódot a fiókra vonatkozó összes kétlépcsős szolgáltató kikapcsolásához."
   },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Jelentkezzünk be lentebb az egyszer használatos helyreállítási kóddal. Ezzel kikapcsoljuk az összes kétlépcsős szolgáltatót a fiókban."
+  },
   "recoverAccountTwoStep": {
     "message": "Fiók kétlépcsős bejelentkezés helyreállítása"
   },
@@ -4320,7 +4326,7 @@
     "message": "Állítsunk be helykorlátot az előfizetéshez. Ha elérjük ezt a korlátot, nem tudunk új felhasználókat meghívni."
   },
   "limitSmSubscriptionDesc": {
-    "message": "Állítsunk be egy korlátot a Secrets Manger előfizetéshez. Ha elérjük ezt a korlátot, nem tudunk új tagokat meghívni."
+    "message": "Állíts be egy korlátot a Secrets Manger előfizetéshez. Ha eléred ezt a korlátot, nem tudsz új tagokat meghívni."
   },
   "maxSeatLimit": {
     "message": "Maximális helykorlát (opcionális)",
@@ -4462,6 +4468,24 @@
   },
   "encryptionKeyUpdateCannotProceed": {
     "message": "Encryption key update cannot proceed"
+  },
+  "editFieldLabel": {
+    "message": "$LABEL$ szerkesztése",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "$LABEL$ átrendezése. A nyílbillentyűkkel mozgassuk az elemet felfelé vagy lefelé.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "keyUpdateFoldersFailed": {
     "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
@@ -4664,7 +4688,7 @@
     "message": "A széfben régi mellékletek vannak, amelyeket javítani kell a fiók titkosító kulcsának fordítása előtt."
   },
   "yourAccountsFingerprint": {
-    "message": "Fók ujjnyomat kifejezés",
+    "message": "Fiók ujjlenyomat kifejezés",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintEnsureIntegrityVerify": {
@@ -5534,19 +5558,19 @@
     "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
   },
   "tryItNow": {
-    "message": "Try it now"
+    "message": "Próbáld ki most"
   },
   "sendRequest": {
-    "message": "Send request"
+    "message": "Kérelem küldése"
   },
   "addANote": {
-    "message": "Add a note"
+    "message": "Jegyzet hozzáadása"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden Secrets Manager"
   },
   "moreProductsFromBitwarden": {
-    "message": "More products from Bitwarden"
+    "message": "További Bitwarden termékek"
   },
   "requestAccessToSecretsManager": {
     "message": "Request access to Secrets Manager"
@@ -6922,6 +6946,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ elutasította a kérést. Vegyük fel a kapcsolatot szolgáltatóval segítségért.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ elutasította a kérést: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Nem lehet beolvasni $SERVICENAME$ maszkolt email fiók azonosítót.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -7146,13 +7194,13 @@
     "message": "Hiba történt a Duo szolgáltatáshoz csatlakozáskor. Használjunk másik kétlépcsős bejelentkezési módot vagy kérjünk segítséget a Duotól."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Indítsuk el a DUO-t és kövessük a lépéseket a bejelentkezés befejezéséhez."
+    "message": "Indítsd el a Duo-t és kövesd a lépéseket a bejelentkezés befejezéséhez."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "A fiókhoz kétlépcsős DUO bejelentkezés szükséges."
+    "message": "A fiókhoz kétlépcsős Duo bejelentkezés szükséges."
   },
   "launchDuo": {
-    "message": "DUO indítása"
+    "message": "Duo indítása"
   },
   "turnOn": {
     "message": "Bekapcsolás"
@@ -8226,7 +8274,7 @@
     "message": "Gyenge és kiszivárgott mesterjelszó"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "Gyenge jelszó lett azonosítva és megtalálva egy adatvédelmi incidens során. A fók védelme érdekében használjunk erős és egyedi jelszót. Biztosan használni szeretnénk ezt a jelszót?"
+    "message": "Gyenge jelszó lett azonosítva és megtalálva egy adatvédelmi incidens során. A fiók védelme érdekében használjunk erős és egyedi jelszót. Biztosan használni szeretnénk ezt a jelszót?"
   },
   "characterMinimum": {
     "message": "Legalább $LENGTH$ karakter",
@@ -8690,7 +8738,7 @@
     "message": "Van már saját fiók?"
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Navigációs sáv ki/bekapcsolása"
   },
   "skipToContent": {
     "message": "Ugrás a tartalomra"
@@ -8808,23 +8856,23 @@
     "description": "Used as a form field label for a textarea input on the offboarding survey."
   },
   "missingFeatures": {
-    "message": "Missing features",
+    "message": "Hiányzó funkciók",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "movingToAnotherTool": {
-    "message": "Moving to another tool",
+    "message": "Más eszközre váltok",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooDifficultToUse": {
-    "message": "Too difficult to use",
+    "message": "Túl bonyolult",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "notUsingEnough": {
-    "message": "Not using enough",
+    "message": "Ritkán használtam",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooExpensive": {
-    "message": "Too expensive",
+    "message": "Túl drága",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "freeForOneYear": {
@@ -8846,7 +8894,7 @@
     "message": "Sikeres"
   },
   "restrictedGroupAccess": {
-    "message": "Nem adhadjuk magunkat a csoporthoz."
+    "message": "Nem adhatod saját magadat csoportokhoz."
   },
   "cannotAddYourselfToCollections": {
     "message": "Nem adhadjuk magunkat a gyűjteményhez."
@@ -9155,7 +9203,7 @@
     "message": "Deleting a provider is permanent and irreversible. Enter your master password to confirm the deletion of the provider and all associated data."
   },
   "deleteProviderName": {
-    "message": "Cannot delete $ID$",
+    "message": "$ID$ nem törölhető",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9191,17 +9239,17 @@
     "message": "Hiba történt a célmappa hozzárendelése során."
   },
   "integrationsAndSdks": {
-    "message": "Integrations & SDKs",
+    "message": "Integráció és fejlesztői környezet",
     "description": "The title for the section that deals with integrations and SDKs."
   },
   "integrations": {
-    "message": "Integrations"
+    "message": "Integráció"
   },
   "integrationsDesc": {
     "message": "Automatically sync secrets from Bitwarden Secrets Manager to a third-party service."
   },
   "sdks": {
-    "message": "SDKs"
+    "message": "Fejlesztői környezetek"
   },
   "sdksDesc": {
     "message": "Use Bitwarden Secrets Manager SDK in the following programming languages to build your own applications."
@@ -9245,6 +9293,12 @@
   },
   "deviceManagementDesc": {
     "message": "Az eszközkezelés konfigurálása a Bitwarden számára a platform megvalósítási útmutatója segítségével."
+  },
+  "desktopRequired": {
+    "message": "Asztali gép szükséges"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Nyissuk meg újra ezt a hivatkozást az emailből az asztali gépen."
   },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$ megvalósítási útmutató elindítása.",
@@ -9304,13 +9358,13 @@
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
   },
   "selectAPlan": {
-    "message": "Select a plan"
+    "message": "Előfizetés kiválasztása"
   },
   "thirtyFivePercentDiscount": {
-    "message": "35% Discount"
+    "message": "35% engedmény"
   },
   "monthPerMember": {
-    "message": "month per member"
+    "message": "hónap/fő"
   },
   "monthPerMemberBilledAnnually": {
     "message": "hónap tagonként éves számlázással"
@@ -9319,7 +9373,7 @@
     "message": "Seats"
   },
   "addOrganization": {
-    "message": "Add organization"
+    "message": "Szervezet hozzáadása"
   },
   "createdNewClient": {
     "message": "Successfully created new client"
@@ -9624,7 +9678,7 @@
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
-    "message": "contact Bitwarden support.",
+    "message": "vedd fel a kapcsolatot a Bitwarden ügyfélszolgálattal.",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
   },
   "sponsored": {
@@ -9836,13 +9890,13 @@
     "message": "Kulcs algoritmus"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Személyes kulcs"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Nyilvános kulcs"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Ujjlenyomat"
   },
   "sshKeyFingerprint": {
     "message": "Ujjlenyomat"
@@ -9914,7 +9968,7 @@
     "message": "Bitwarden jelszókezelő"
   },
   "secretsManagerComplimentaryPasswordManager": {
-    "message": "Your complimentary one year Password Manager subscription will upgrade to the selected plan. You will not be charged until the complimentary period is over."
+    "message": "A kiegészítő egyéves Jelszókezelő előfizetésed a kiválasztott csomagra frissül. A díjmentes időszak lejártáig nem számítunk fel díjat."
   },
   "fileSavedToDevice": {
     "message": "A fájl mentésre került az eszközre. Kezeljük az eszközről a letöltéseket."
@@ -10238,6 +10292,38 @@
   },
   "organizationNameMaxLength": {
     "message": "A szervezet neve nem haladhatja meg az 50 karaktert."
+  },
+  "openingExtension": {
+    "message": "A Bitwarden böngésző bővítmény megnyitása"
+  },
+  "somethingWentWrong": {
+    "message": "Valami hiba történt."
+  },
+  "openingExtensionError": {
+    "message": "Probléma merült fel a Bitward böngésző bővítmény megnyitásakor. Kattintsunk a gombra a megnyitáshoz."
+  },
+  "openExtension": {
+    "message": "Bővítmény megnyitása"
+  },
+  "doNotHaveExtension": {
+    "message": "Nincs a Bitwarden böngésző bővítmény?"
+  },
+  "installExtension": {
+    "message": "Bővítmény telepítése"
+  },
+  "openedExtension": {
+    "message": "Megnyitottuk a böngésző bővítményt."
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Sikeresen megnyitottuk a Bitwarden böngésző bővítményt. Mostantól áttekinthetjük a veszélyeztetett jelszavakat."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Probléma merült fel a Bitward böngésző bővítmény megnyitásakor. Nyissuk meg a Bitwarden ikont",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "az eszköztárból.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
     "message": "Az előfizetés hamarosan megújul. A folyamatos szolgáltatás biztosítása érdekében lépjünk kapcsolatba $RESELLER$ viszonteladóval és erősítsük meg a megújítást $RENEWAL_DATE$ előtt.",
