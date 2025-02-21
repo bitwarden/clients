@@ -40,28 +40,41 @@
         bitIconButton="bwi-clone"
         size="small"
         [appA11yTitle]="
-          hasLoginValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+          'copyFieldValue' | i18n: singleCopiableLogin.field : singleCopiableLogin.value
         "
-        [disabled]="!hasLoginValues"
-        [bitMenuTriggerFor]="loginOptions"
+        [appCopyClick]="singleCopiableLogin.value"
+        [valueLabel]="singleCopiableLogin.field"
+        *ngIf="singleCopiableLogin"
       ></button>
-      <bit-menu #loginOptions>
-        <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
-          {{ "copyUsername" | i18n }}
-        </button>
+      <ng-container *ngIf="!singleCopiableLogin">
         <button
-          *ngIf="cipher.viewPassword"
           type="button"
-          bitMenuItem
-          appCopyField="password"
-          [cipher]="cipher"
-        >
-          {{ "copyPassword" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="totp" [cipher]="cipher">
-          {{ "copyVerificationCode" | i18n }}
-        </button>
-      </bit-menu>
+          bitIconButton="bwi-clone"
+          size="small"
+          [appA11yTitle]="
+            hasLoginValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+          "
+          [disabled]="!hasLoginValues"
+          [bitMenuTriggerFor]="loginOptions"
+        ></button>
+        <bit-menu #loginOptions>
+          <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
+            {{ "copyUsername" | i18n }}
+          </button>
+          <button
+            *ngIf="cipher.viewPassword"
+            type="button"
+            bitMenuItem
+            appCopyField="password"
+            [cipher]="cipher"
+          >
+            {{ "copyPassword" | i18n }}
+          </button>
+          <button type="button" bitMenuItem appCopyField="totp" [cipher]="cipher">
+            {{ "copyVerificationCode" | i18n }}
+          </button>
+        </bit-menu>
+      </ng-container>
     </bit-item-action>
   </ng-template>
 </ng-container>

@@ -37,6 +37,64 @@ export class ItemCopyActionsComponent {
     );
   }
 
+  get singleCopiableLogin() {
+    const { username, password, hasTotp, totp } = this.cipher.login;
+    // If there is both a username and password but the password is not viewable, then the username is the only copiable value
+    if (username && password && !this.cipher.viewPassword) {
+      return {
+        value: username,
+        field: "username",
+      };
+    }
+    if (username && !password && !hasTotp) {
+      return {
+        value: username,
+        field: "username",
+      };
+    }
+    if (!username && password && !hasTotp) {
+      return {
+        value: password,
+        field: "password",
+      };
+    }
+    if (!username && !password && hasTotp) {
+      return {
+        value: totp,
+        field: "totp",
+      };
+    }
+    return null;
+  }
+
+  get singleCopiableCardValue() {
+    const { code, number } = this.cipher.card;
+    if (code && !number) {
+      return code;
+    }
+    if (!code && number) {
+      return number;
+    }
+    return null;
+  }
+
+  get singleCopiableIdentityValue() {
+    const { fullAddressForCopy, email, username, phone } = this.cipher.identity;
+    if (fullAddressForCopy && !email && !username && !phone) {
+      return fullAddressForCopy;
+    }
+    if (!fullAddressForCopy && email && !username && !phone) {
+      return email;
+    }
+    if (!fullAddressForCopy && !email && username && !phone) {
+      return username;
+    }
+    if (!fullAddressForCopy && !email && !username && phone) {
+      return phone;
+    }
+    return null;
+  }
+
   get hasCardValues() {
     return !!this.cipher.card.code || !!this.cipher.card.number;
   }
