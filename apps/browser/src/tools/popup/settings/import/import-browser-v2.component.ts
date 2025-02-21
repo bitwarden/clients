@@ -1,10 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
-import { ImportComponent } from "@bitwarden/importer/ui";
+import { ImportComponent } from "@bitwarden/importer-ui";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
@@ -16,7 +16,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     JslibModule,
     DialogModule,
     AsyncActionsModule,

@@ -1,6 +1,8 @@
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component } from "@angular/core";
-import { Toast as BaseToastrComponent } from "ngx-toastr";
+import { Toast as BaseToastrComponent, ToastPackage, ToastrService } from "ngx-toastr";
+
+import { ToastComponent } from "./toast.component";
 
 @Component({
   template: `
@@ -8,7 +10,7 @@ import { Toast as BaseToastrComponent } from "ngx-toastr";
       [title]="options?.payload?.title"
       [variant]="options?.payload?.variant"
       [message]="options?.payload?.message"
-      [progressWidth]="width"
+      [progressWidth]="width()"
       (onClose)="remove()"
     ></bit-toast>
   `,
@@ -21,6 +23,11 @@ import { Toast as BaseToastrComponent } from "ngx-toastr";
       transition("active => removed", animate("{{ easeTime }}ms {{ easing }}")),
     ]),
   ],
-  preserveWhitespaces: false,
+  standalone: true,
+  imports: [ToastComponent],
 })
-export class BitwardenToastrComponent extends BaseToastrComponent {}
+export class BitwardenToastrComponent extends BaseToastrComponent {
+  constructor(toastrService: ToastrService, toastPackage: ToastPackage) {
+    super(toastrService, toastPackage);
+  }
+}

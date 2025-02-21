@@ -10,28 +10,29 @@
     <p
       class="tw-text-xs tw-text-muted tw-select-none"
       [ngClass]="{
-        'tw-mb-1 ': cipher.hasPasswordHistory && isLogin,
-        'tw-mb-0': !cipher.hasPasswordHistory || !isLogin,
+        'tw-mb-1 ': cipher.hasPasswordHistory,
+        'tw-mb-0': !cipher.hasPasswordHistory,
       }"
     >
       <span class="tw-font-bold">{{ "dateCreated" | i18n }}:</span>
       {{ cipher.creationDate | date: "medium" }}
     </p>
     <p
-      *ngIf="cipher.hasPasswordHistory && isLogin"
+      *ngIf="cipher.passwordRevisionDisplayDate"
       class="tw-text-xs tw-text-muted tw-select-none"
       [ngClass]="{ 'tw-mb-3': cipher.hasPasswordHistory }"
     >
       <span class="tw-font-bold">{{ "datePasswordUpdated" | i18n }}:</span>
       {{ cipher.passwordRevisionDisplayDate | date: "medium" }}
     </p>
-    <a
-      *ngIf="cipher.hasPasswordHistory && isLogin"
-      class="tw-font-bold tw-no-underline tw-cursor-pointer tw-text-primary-600"
+    <button
+      *ngIf="cipher.hasPasswordHistory"
       (click)="viewPasswordHistory()"
       bitTypography="body2"
+      bitLink
+      type="button"
     >
       {{ "passwordHistory" | i18n }}
-    </a>
+    </button>
   </bit-card>
 </bit-section>

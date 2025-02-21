@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as http from "http";
 
 import { OptionValues } from "commander";
@@ -163,6 +165,8 @@ export class LoginCommand {
       if (options.method != null) {
         twoFactorMethod = parseInt(options.method, null);
       }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return Response.error("Invalid two-step login method.");
     }
@@ -238,6 +242,8 @@ export class LoginCommand {
         if (twoFactorMethod != null) {
           try {
             selectedProvider = twoFactorProviders.filter((p) => p.type === twoFactorMethod)[0];
+            // FIXME: Remove when updating file. Eslint update
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (e) {
             return Response.error("Invalid two-step login method.");
           }

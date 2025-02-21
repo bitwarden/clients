@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators } from "@angular/forms";
 
@@ -24,7 +26,11 @@ import {
 } from "@bitwarden/components";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { InputsFieldMatch } from "../../../../angular/src/auth/validators/inputs-field-match.validator";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 

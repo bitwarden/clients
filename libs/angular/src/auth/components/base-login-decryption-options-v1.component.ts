@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -193,7 +195,7 @@ export class BaseLoginDecryptionOptionsComponentV1 implements OnInit, OnDestroy 
 
   async loadNewUserData() {
     const autoEnrollStatus$ = defer(() =>
-      this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(),
+      this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(this.activeAccountId),
     ).pipe(
       switchMap((organizationIdentifier) => {
         if (organizationIdentifier == undefined) {

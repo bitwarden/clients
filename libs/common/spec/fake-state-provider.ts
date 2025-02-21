@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
 import { Observable, map, of, switchMap, take } from "rxjs";
 
@@ -223,9 +225,9 @@ export class FakeStateProvider implements StateProvider {
 
   async setUserState<T>(
     userKeyDefinition: UserKeyDefinition<T>,
-    value: T,
+    value: T | null,
     userId?: UserId,
-  ): Promise<[UserId, T]> {
+  ): Promise<[UserId, T | null]> {
     await this.mock.setUserState(userKeyDefinition, value, userId);
     if (userId) {
       return [userId, await this.getUser(userId, userKeyDefinition).update(() => value)];

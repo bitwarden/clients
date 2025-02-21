@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SendType } from "../../enums/send-type";
 import { SendResponse } from "../response/send.response";
 

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, NgZone, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -8,11 +10,9 @@ import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstrac
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
-  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -49,8 +49,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
     route: ActivatedRoute,
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
-    webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    registerRouteService: RegisterRouteService,
     toastService: ToastService,
   ) {
     super(
@@ -71,8 +69,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
       route,
       loginEmailService,
       ssoLoginService,
-      webAuthnLoginService,
-      registerRouteService,
       toastService,
     );
     this.onSuccessfulLogin = async () => {

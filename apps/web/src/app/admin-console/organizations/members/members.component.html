@@ -148,7 +148,7 @@
                   *ngIf="showBulkRemoveUsers"
                 >
                   <span class="tw-text-danger">
-                    <i aria-hidden="true" class="bwi bwi-close"></i>
+                    <i aria-hidden="true" class="bwi bwi-fw bwi-close"></i>
                     {{ "remove" | i18n }}
                   </span>
                 </button>
@@ -159,7 +159,7 @@
                   *ngIf="showBulkDeleteUsers"
                 >
                   <span class="tw-text-danger">
-                    <i aria-hidden="true" class="bwi bwi-trash"></i>
+                    <i aria-hidden="true" class="bwi bwi-fw bwi-trash"></i>
                     {{ "delete" | i18n }}
                   </span>
                 </button>
@@ -358,7 +358,7 @@
                   (click)="deleteUser(u)"
                 >
                   <span class="tw-text-danger">
-                    <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+                    <i class="bwi bwi-trash" aria-hidden="true"></i>
                     {{ "delete" | i18n }}
                   </span>
                 </button>

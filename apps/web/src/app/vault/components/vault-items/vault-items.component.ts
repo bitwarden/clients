@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
@@ -234,6 +236,13 @@ export class VaultItemsComponent {
     return (organization.canEditAllCiphers && this.viewingOrgVault) || cipher.edit;
   }
 
+  protected canAssignCollections(cipher: CipherView) {
+    const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
+    return (
+      (organization?.canEditAllCiphers && this.viewingOrgVault) || cipher.canAssignToCollections
+    );
+  }
+
   protected canManageCollection(cipher: CipherView) {
     // If the cipher is not part of an organization (personal item), user can manage it
     if (cipher.organizationId == null) {
@@ -459,7 +468,7 @@ export class VaultItemsComponent {
   private allCiphersHaveEditAccess(): boolean {
     return this.selection.selected
       .filter(({ cipher }) => cipher)
-      .every(({ cipher }) => cipher?.edit);
+      .every(({ cipher }) => cipher?.edit && cipher?.viewPassword);
   }
 
   private getUniqueOrganizationIds(): Set<string> {

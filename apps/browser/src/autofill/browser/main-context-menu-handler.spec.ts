@@ -1,17 +1,66 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { NOOP_COMMAND_SUFFIX } from "@bitwarden/common/autofill/constants";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  AUTOFILL_CARD_ID,
+  AUTOFILL_ID,
+  AUTOFILL_IDENTITY_ID,
+  COPY_IDENTIFIER_ID,
+  COPY_PASSWORD_ID,
+  COPY_USERNAME_ID,
+  COPY_VERIFICATION_CODE_ID,
+  NOOP_COMMAND_SUFFIX,
+  SEPARATOR_ID,
+} from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { MainContextMenuHandler } from "./main-context-menu-handler";
+
+/**
+ * Used in place of Set method `symmetricDifference`, which is only available to node version 22.0.0 or greater:
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/symmetricDifference
+ */
+function symmetricDifference(setA: Set<string>, setB: Set<string>) {
+  const _difference = new Set(setA);
+  for (const elem of setB) {
+    if (_difference.has(elem)) {
+      _difference.delete(elem);
+    } else {
+      _difference.add(elem);
+    }
+  }
+  return _difference;
+}
+
+const createCipher = (data?: {
+  id?: CipherView["id"];
+  username?: CipherView["login"]["username"];
+  password?: CipherView["login"]["password"];
+  totp?: CipherView["login"]["totp"];
+  viewPassword?: CipherView["viewPassword"];
+}): CipherView => {
+  const { id, username, password, totp, viewPassword } = data || {};
+  const cipherView = new CipherView(
+    new Cipher({
+      id: id ?? "1",
+      type: CipherType.Login,
+      viewPassword: viewPassword ?? true,
+    } as any),
+  );
+  cipherView.login.username = username ?? "USERNAME";
+  cipherView.login.password = password ?? "PASSWORD";
+  cipherView.login.totp = totp ?? "TOTP";
+  return cipherView;
+};
 
 describe("context-menu", () => {
   let stateService: MockProxy<StateService>;
@@ -19,6 +68,7 @@ describe("context-menu", () => {
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let accountService: MockProxy<AccountService>;
 
   let removeAllSpy: jest.SpyInstance<void, [callback?: () => void]>;
   let createSpy: jest.SpyInstance<
@@ -34,6 +84,7 @@ describe("context-menu", () => {
     i18nService = mock();
     logService = mock();
     billingAccountProfileStateService = mock();
+    accountService = mock();
 
     removeAllSpy = jest
       .spyOn(chrome.contextMenus, "removeAll")
@@ -53,11 +104,24 @@ describe("context-menu", () => {
       i18nService,
       logService,
       billingAccountProfileStateService,
+      accountService,
     );
+
+    jest.spyOn(MainContextMenuHandler, "remove");
+
     autofillSettingsService.enableContextMenu$ = of(true);
+    accountService.activeAccount$ = of({
+      id: "userId" as UserId,
+      email: "",
+      emailVerified: false,
+      name: undefined,
+    });
   });
 
-  afterEach(() => jest.resetAllMocks());
+  afterEach(async () => {
+    await MainContextMenuHandler.removeAll();
+    jest.resetAllMocks();
+  });
 
   describe("init", () => {
     it("has menu disabled", async () => {
@@ -69,7 +133,7 @@ describe("context-menu", () => {
     });
 
     it("has menu enabled, but does not have premium", async () => {
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(false);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
@@ -77,7 +141,7 @@ describe("context-menu", () => {
     });
 
     it("has menu enabled and has premium", async () => {
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
@@ -86,27 +150,6 @@ describe("context-menu", () => {
   });
 
   describe("loadOptions", () => {
-    const createCipher = (data?: {
-      id?: CipherView["id"];
-      username?: CipherView["login"]["username"];
-      password?: CipherView["login"]["password"];
-      totp?: CipherView["login"]["totp"];
-      viewPassword?: CipherView["viewPassword"];
-    }): CipherView => {
-      const { id, username, password, totp, viewPassword } = data || {};
-      const cipherView = new CipherView(
-        new Cipher({
-          id: id ?? "1",
-          type: CipherType.Login,
-          viewPassword: viewPassword ?? true,
-        } as any),
-      );
-      cipherView.login.username = username ?? "USERNAME";
-      cipherView.login.password = password ?? "PASSWORD";
-      cipherView.login.totp = totp ?? "TOTP";
-      return cipherView;
-    };
-
     it("is not a login cipher", async () => {
       await sut.loadOptions("TEST_TITLE", "1", {
         ...createCipher(),
@@ -117,34 +160,124 @@ describe("context-menu", () => {
     });
 
     it("creates item for autofill", async () => {
-      await sut.loadOptions(
-        "TEST_TITLE",
-        "1",
-        createCipher({
-          username: "",
-          totp: "",
-          viewPassword: false,
-        }),
+      const cipher = createCipher({
+        username: "",
+        totp: "",
+        viewPassword: true,
+      });
+      const optionId = "1";
+      await sut.loadOptions("TEST_TITLE", optionId, cipher);
+
+      expect(createSpy).toHaveBeenCalledTimes(2);
+
+      expect(MainContextMenuHandler["existingMenuItems"].size).toEqual(2);
+
+      const expectedMenuItems = new Set([
+        AUTOFILL_ID + `_${optionId}`,
+        COPY_PASSWORD_ID + `_${optionId}`,
+      ]);
+
+      // @TODO Replace with `symmetricDifference` Set method once node 22.0.0 or higher is used
+      // const expectedReceivedDiff = expectedMenuItems.symmetricDifference(MainContextMenuHandler["existingMenuItems"])
+      const expectedReceivedDiff = symmetricDifference(
+        expectedMenuItems,
+        MainContextMenuHandler["existingMenuItems"],
       );
 
-      expect(createSpy).toHaveBeenCalledTimes(1);
+      expect(expectedReceivedDiff.size).toEqual(0);
     });
 
     it("create entry for each cipher piece", async () => {
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      const optionId = "arbitraryString";
+      await sut.loadOptions("TEST_TITLE", optionId, createCipher());
 
-      await sut.loadOptions("TEST_TITLE", "1", createCipher());
-
-      // One for autofill, copy username, copy password, and copy totp code
       expect(createSpy).toHaveBeenCalledTimes(4);
+
+      expect(MainContextMenuHandler["existingMenuItems"].size).toEqual(4);
+
+      const expectedMenuItems = new Set([
+        AUTOFILL_ID + `_${optionId}`,
+        COPY_PASSWORD_ID + `_${optionId}`,
+        COPY_USERNAME_ID + `_${optionId}`,
+        COPY_VERIFICATION_CODE_ID + `_${optionId}`,
+      ]);
+
+      // @TODO Replace with `symmetricDifference` Set method once node 22.0.0 or higher is used
+      // const expectedReceivedDiff = expectedMenuItems.symmetricDifference(MainContextMenuHandler["existingMenuItems"])
+      const expectedReceivedDiff = symmetricDifference(
+        expectedMenuItems,
+        MainContextMenuHandler["existingMenuItems"],
+      );
+
+      expect(expectedReceivedDiff.size).toEqual(0);
     });
 
     it("creates a login/unlock item for each context menu action option when user is not authenticated", async () => {
-      billingAccountProfileStateService.hasPremiumFromAnySource$ = of(true);
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
-      await sut.loadOptions("TEST_TITLE", "NOOP");
+      const optionId = "NOOP";
+      await sut.loadOptions("TEST_TITLE", optionId);
 
       expect(createSpy).toHaveBeenCalledTimes(6);
+
+      expect(MainContextMenuHandler["existingMenuItems"].size).toEqual(6);
+
+      const expectedMenuItems = new Set([
+        AUTOFILL_ID + `_${optionId}`,
+        COPY_PASSWORD_ID + `_${optionId}`,
+        COPY_USERNAME_ID + `_${optionId}`,
+        COPY_VERIFICATION_CODE_ID + `_${optionId}`,
+        AUTOFILL_CARD_ID + `_${optionId}`,
+        AUTOFILL_IDENTITY_ID + `_${optionId}`,
+      ]);
+
+      // @TODO Replace with `symmetricDifference` Set method once node 22.0.0 or higher is used
+      // const expectedReceivedDiff = expectedMenuItems.symmetricDifference(MainContextMenuHandler["existingMenuItems"])
+      const expectedReceivedDiff = symmetricDifference(
+        expectedMenuItems,
+        MainContextMenuHandler["existingMenuItems"],
+      );
+
+      expect(expectedReceivedDiff.size).toEqual(0);
+    });
+  });
+
+  describe("removeBlockedUriMenuItems", () => {
+    it("removes menu items that require code injection", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      autofillSettingsService.enableContextMenu$ = of(true);
+      stateService.getIsAuthenticated.mockResolvedValue(true);
+
+      const optionId = "1";
+      await sut.loadOptions("TEST_TITLE", optionId, createCipher());
+
+      await sut.removeBlockedUriMenuItems();
+
+      expect(MainContextMenuHandler["remove"]).toHaveBeenCalledTimes(5);
+      expect(MainContextMenuHandler["remove"]).toHaveBeenCalledWith(AUTOFILL_ID);
+      expect(MainContextMenuHandler["remove"]).toHaveBeenCalledWith(AUTOFILL_IDENTITY_ID);
+      expect(MainContextMenuHandler["remove"]).toHaveBeenCalledWith(AUTOFILL_CARD_ID);
+      expect(MainContextMenuHandler["remove"]).toHaveBeenCalledWith(SEPARATOR_ID + 2);
+      expect(MainContextMenuHandler["remove"]).toHaveBeenCalledWith(COPY_IDENTIFIER_ID);
+
+      expect(MainContextMenuHandler["existingMenuItems"].size).toEqual(4);
+
+      const expectedMenuItems = new Set([
+        AUTOFILL_ID + `_${optionId}`,
+        COPY_PASSWORD_ID + `_${optionId}`,
+        COPY_USERNAME_ID + `_${optionId}`,
+        COPY_VERIFICATION_CODE_ID + `_${optionId}`,
+      ]);
+
+      // @TODO Replace with `symmetricDifference` Set method once node 22.0.0 or higher is used
+      // const expectedReceivedDiff = expectedMenuItems.symmetricDifference(MainContextMenuHandler["existingMenuItems"])
+      const expectedReceivedDiff = symmetricDifference(
+        expectedMenuItems,
+        MainContextMenuHandler["existingMenuItems"],
+      );
+
+      expect(expectedReceivedDiff.size).toEqual(0);
     });
   });
 

@@ -1,10 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { firstValueFrom, concatMap, map, lastValueFrom, startWith, debounceTime } from "rxjs";
 
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
@@ -121,7 +122,6 @@ export abstract class BasePeopleComponent<
     protected platformUtilsService: PlatformUtilsService,
     protected keyService: KeyService,
     protected validationService: ValidationService,
-    protected modalService: ModalService,
     private logService: LogService,
     private searchPipe: SearchPipe,
     protected userNamePipe: UserNamePipe,

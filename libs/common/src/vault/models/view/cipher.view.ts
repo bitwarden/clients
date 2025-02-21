@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { View } from "../../../models/view/view";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
@@ -43,6 +45,11 @@ export class CipherView implements View, InitializerMetadata {
   creationDate: Date = null;
   deletedDate: Date = null;
   reprompt: CipherRepromptType = CipherRepromptType.None;
+
+  /**
+   * Flag to indicate if the cipher decryption failed.
+   */
+  decryptionFailure = false;
 
   constructor(c?: Cipher) {
     if (!c) {
@@ -135,6 +142,13 @@ export class CipherView implements View, InitializerMetadata {
     );
   }
 
+  get canAssignToCollections(): boolean {
+    if (this.organizationId == null) {
+      return true;
+    }
+
+    return this.edit && this.viewPassword;
+  }
   /**
    * Determines if the cipher can be launched in a new browser tab.
    */
@@ -148,6 +162,8 @@ export class CipherView implements View, InitializerMetadata {
       return null;
     }
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const item = this.item;
     return this.item[linkedFieldOption.propertyKey as keyof typeof item];
   }

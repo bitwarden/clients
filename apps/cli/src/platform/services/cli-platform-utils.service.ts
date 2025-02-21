@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as child_process from "child_process";
 
 import { ClientType, DeviceType } from "@bitwarden/common/enums";

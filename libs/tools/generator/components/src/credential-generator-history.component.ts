@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -70,6 +72,6 @@ export class CredentialGeneratorHistoryComponent {
 
   protected getGeneratedValueText(credential: GeneratedCredential) {
     const info = this.generatorService.algorithm(credential.category);
-    return info.generatedValue;
+    return info.credentialType;
   }
 }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
@@ -7,6 +9,7 @@ import { filter } from "rxjs/operators";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -45,6 +48,13 @@ export class ItemMoreOptionsComponent implements OnInit {
   }
 
   /**
+   * Flag to show view item menu option. Used when something else is
+   * assigned as the primary action for the item, such as autofill.
+   */
+  @Input({ transform: booleanAttribute })
+  showViewOption: boolean;
+
+  /**
    * Flag to hide the autofill menu options. Used for items that are
    * already in the autofill list suggestion.
    */
@@ -79,13 +89,17 @@ export class ItemMoreOptionsComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.hasOrganizations = await this.organizationService.hasOrganizations();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.hasOrganizations = await firstValueFrom(this.organizationService.hasOrganizations(userId));
   }
 
   get canEdit() {
     return this.cipher.edit;
   }
 
+  get canViewPassword() {
+    return this.cipher.viewPassword;
+  }
   /**
    * Determines if the cipher can be autofilled.
    */
@@ -107,6 +121,16 @@ export class ItemMoreOptionsComponent implements OnInit {
 
   async doAutofillAndSave() {
     await this.vaultPopupAutofillService.doAutofillAndSave(this.cipher, false);
+  }
+
+  async onView() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    await this.router.navigate(["/view-cipher"], {
+      queryParams: { cipherId: this.cipher.id, type: this.cipher.type },
+    });
   }
 
   /**

@@ -4,13 +4,13 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
-import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
+import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
@@ -24,7 +24,6 @@ describe("DefaultSdkService", () => {
     let accountService!: MockProxy<AccountService>;
     let kdfConfigService!: MockProxy<KdfConfigService>;
     let keyService!: MockProxy<KeyService>;
-    let apiService!: MockProxy<ApiService>;
     let service!: DefaultSdkService;
 
     let mockClient!: MockProxy<BitwardenClient>;
@@ -36,7 +35,6 @@ describe("DefaultSdkService", () => {
       accountService = mock<AccountService>();
       kdfConfigService = mock<KdfConfigService>();
       keyService = mock<KeyService>();
-      apiService = mock<ApiService>();
 
       // Can't use `of(mock<Environment>())` for some reason
       environmentService.environment$ = new BehaviorSubject(mock<Environment>());
@@ -48,7 +46,6 @@ describe("DefaultSdkService", () => {
         accountService,
         kdfConfigService,
         keyService,
-        apiService,
       );
 
       mockClient = mock<BitwardenClient>();
@@ -60,6 +57,9 @@ describe("DefaultSdkService", () => {
       const userId = "user-id" as UserId;
 
       beforeEach(() => {
+        environmentService.getEnvironment$
+          .calledWith(userId)
+          .mockReturnValue(new BehaviorSubject(mock<Environment>()));
         accountService.accounts$ = of({
           [userId]: { email: "email", emailVerified: true, name: "name" } as AccountInfo,
         });
@@ -76,15 +76,14 @@ describe("DefaultSdkService", () => {
       });
 
       it("creates an SDK client when called the first time", async () => {
-        const result = await firstValueFrom(service.userClient$(userId));
+        await firstValueFrom(service.userClient$(userId));
 
-        expect(result).toBe(mockClient);
         expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
       });
 
       it("does not create an SDK client when called the second time with same userId", async () => {
-        const subject_1 = new BehaviorSubject(undefined);
-        const subject_2 = new BehaviorSubject(undefined);
+        const subject_1 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+        const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
 
         // Use subjects to ensure the subscription is kept alive
         service.userClient$(userId).subscribe(subject_1);
@@ -93,14 +92,14 @@ describe("DefaultSdkService", () => {
         // Wait for the next tick to ensure all async operations are done
         await new Promise(process.nextTick);
 
-        expect(subject_1.value).toBe(mockClient);
-        expect(subject_2.value).toBe(mockClient);
+        expect(subject_1.value.take().value).toBe(mockClient);
+        expect(subject_2.value.take().value).toBe(mockClient);
         expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(1);
       });
 
       it("destroys the SDK client when all subscriptions are closed", async () => {
-        const subject_1 = new BehaviorSubject(undefined);
-        const subject_2 = new BehaviorSubject(undefined);
+        const subject_1 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
+        const subject_2 = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
         const subscription_1 = service.userClient$(userId).subscribe(subject_1);
         const subscription_2 = service.userClient$(userId).subscribe(subject_2);
         await new Promise(process.nextTick);
@@ -108,6 +107,7 @@ describe("DefaultSdkService", () => {
         subscription_1.unsubscribe();
         subscription_2.unsubscribe();
 
+        await new Promise(process.nextTick);
         expect(mockClient.free).toHaveBeenCalledTimes(1);
       });
 
@@ -115,7 +115,7 @@ describe("DefaultSdkService", () => {
         const userKey$ = new BehaviorSubject(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey);
         keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
 
-        const subject = new BehaviorSubject(undefined);
+        const subject = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
         service.userClient$(userId).subscribe(subject);
         await new Promise(process.nextTick);
 

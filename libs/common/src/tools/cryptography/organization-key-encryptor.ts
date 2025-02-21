@@ -1,9 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
-
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../platform/models/domain/enc-string";
+import { OrganizationId } from "../../types/guid";
 import { OrgKey } from "../../types/key";
 import { DataPacker } from "../state/data-packer.abstraction";
 

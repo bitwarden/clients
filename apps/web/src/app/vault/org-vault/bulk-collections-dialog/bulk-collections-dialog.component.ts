@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
@@ -8,11 +10,15 @@ import {
   OrganizationUserApiService,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
 import {
@@ -61,14 +67,22 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     private dialogRef: DialogRef<BulkCollectionsDialogResult>,
     private formBuilder: FormBuilder,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private groupService: GroupApiService,
     private organizationUserApiService: OrganizationUserApiService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private collectionAdminService: CollectionAdminService,
+    private toastService: ToastService,
   ) {
     this.numCollections = this.params.collections.length;
-    const organization$ = this.organizationService.get$(this.params.organizationId);
+    const organization$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        this.organizationService
+          .organizations$(account?.id)
+          .pipe(getOrganizationById(this.params.organizationId)),
+      ),
+    );
     const groups$ = organization$.pipe(
       switchMap((organization) => {
         if (!organization.useGroups) {
@@ -117,7 +131,11 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
       groups,
     );
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("editedCollections"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("editedCollections"),
+    });
 
     this.dialogRef.close(BulkCollectionsDialogResult.Saved);
   };

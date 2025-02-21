@@ -1,0 +1,30 @@
+[package]
+name = "macos_provider"
+license = "GPL-3.0"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+bench = false
+
+[dependencies]
+desktop_core = { path = "../core" }
+futures = "=0.3.31"
+log.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+tokio = { workspace = true, features = ["sync"] }
+tokio-util.workspace = true
+uniffi = { version = "=0.28.3", features = ["cli"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+oslog = "=0.2.0"
+
+[build-dependencies]
+uniffi = { version = "=0.28.3", features = ["build"] }

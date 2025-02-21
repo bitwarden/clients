@@ -1,13 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DOCUMENT } from "@angular/common";
 import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import * as jq from "jquery";
-import { Subject, filter, firstValueFrom, map, takeUntil, timeout, catchError, of } from "rxjs";
+import { Subject, filter, firstValueFrom, map, takeUntil, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -16,14 +17,15 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -31,8 +33,6 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
-
-import { flagEnabled } from "../utils/flags";
 
 import { PolicyListService } from "./admin-console/core/policy-list.service";
 import {
@@ -91,29 +91,10 @@ export class AppComponent implements OnDestroy, OnInit {
     private stateEventRunnerService: StateEventRunnerService,
     private organizationService: InternalOrganizationServiceAbstraction,
     private accountService: AccountService,
-    private logService: LogService,
-    private sdkService: SdkService,
+    private apiService: ApiService,
+    private appIdService: AppIdService,
     private processReloadService: ProcessReloadServiceAbstraction,
-  ) {
-    if (flagEnabled("sdk")) {
-      // Warn if the SDK for some reason can't be initialized
-      this.sdkService.supported$
-        .pipe(
-          takeUntilDestroyed(),
-          catchError(() => {
-            return of(false);
-          }),
-        )
-        .subscribe((supported) => {
-          if (!supported) {
-            this.logService.debug("SDK is not supported");
-            this.sdkService.failedToInitialize("web").catch((e) => this.logService.error(e));
-          } else {
-            this.logService.debug("SDK is supported");
-          }
-        });
-    }
-  }
+  ) {}
 
   ngOnInit() {
     this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {
@@ -140,24 +121,6 @@ export class AppComponent implements OnDestroy, OnInit {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
-          case "loggedIn":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection(false);
-            break;
-          case "loggedOut":
-            if (
-              message.userId == null ||
-              message.userId === (await firstValueFrom(this.accountService.activeAccount$))
-            ) {
-              await this.notificationsService.updateConnection(false);
-            }
-            break;
-          case "unlocked":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection(false);
-            break;
           case "authBlocked":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -171,10 +134,6 @@ export class AppComponent implements OnDestroy, OnInit {
             await this.vaultTimeoutService.lock();
             break;
           case "locked":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection(false);
-
             await this.processReloadService.startProcessReload(this.authService);
             break;
           case "lockedUrl":
@@ -241,6 +200,43 @@ export class AppComponent implements OnDestroy, OnInit {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["/remove-password"]);
             break;
+          case "syncOrganizationStatusChanged": {
+            const { organizationId, enabled } = message;
+            const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+            const organizations = await firstValueFrom(
+              this.organizationService.organizations$(userId),
+            );
+            const organization = organizations.find((org) => org.id === organizationId);
+
+            if (organization) {
+              const updatedOrganization = {
+                ...organization,
+                enabled: enabled,
+              };
+              await this.organizationService.upsert(updatedOrganization, userId);
+            }
+            break;
+          }
+          case "syncOrganizationCollectionSettingChanged": {
+            const { organizationId, limitCollectionCreation, limitCollectionDeletion } = message;
+            const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+            const organizations = await firstValueFrom(
+              this.organizationService.organizations$(userId),
+            );
+            const organization = organizations.find((org) => org.id === organizationId);
+
+            if (organization) {
+              await this.organizationService.upsert(
+                {
+                  ...organization,
+                  limitCollectionCreation: limitCollectionCreation,
+                  limitCollectionDeletion: limitCollectionDeletion,
+                },
+                userId,
+              );
+            }
+            break;
+          }
           default:
             break;
         }
@@ -287,7 +283,7 @@ export class AppComponent implements OnDestroy, OnInit {
     // will prevent any toasts from being displayed long enough to be read
 
     await this.eventUploadService.uploadEvents();
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     const logoutPromise = firstValueFrom(
       this.authService.authStatusFor$(userId).pipe(

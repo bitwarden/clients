@@ -1,7 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   combineLatest,
   concatMap,
-  firstValueFrom,
   Observable,
   shareReplay,
   map,
@@ -19,7 +20,6 @@ import {
   DeviceType as SdkDeviceType,
 } from "@bitwarden/sdk-internal";
 
-import { ApiService } from "../../../abstractions/api.service";
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
@@ -30,43 +30,18 @@ import { PlatformUtilsService } from "../../abstractions/platform-utils.service"
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkService } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
+import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
 
-export class RecoverableSDKError extends Error {
-  sdk: BitwardenClient;
-  timeout: number;
-
-  constructor(sdk: BitwardenClient, timeout: number) {
-    super(`SDK took ${timeout}s to initialize`);
-
-    this.sdk = sdk;
-    this.timeout = timeout;
-  }
-}
-
 export class DefaultSdkService implements SdkService {
-  private sdkClientCache = new Map<UserId, Observable<BitwardenClient>>();
+  private sdkClientCache = new Map<UserId, Observable<Rc<BitwardenClient>>>();
 
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
       const settings = this.toSettings(env);
-      try {
-        return await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
-      } catch (e) {
-        if (e instanceof RecoverableSDKError) {
-          await this.failedToInitialize("sdk", e);
-          return e.sdk;
-        }
-        throw e;
-      }
+      return await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
-  );
-
-  supported$ = this.client$.pipe(
-    concatMap(async (client) => {
-      return client.echo("bitwarden wasm!") === "bitwarden wasm!";
-    }),
   );
 
   version$ = this.client$.pipe(
@@ -81,11 +56,10 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
-    private apiService: ApiService, // Yes we shouldn't import ApiService, but it's temporary
     private userAgent: string = null,
   ) {}
 
-  userClient$(userId: UserId): Observable<BitwardenClient | undefined> {
+  userClient$(userId: UserId): Observable<Rc<BitwardenClient> | undefined> {
     // TODO: Figure out what happens when the user logs out
     if (this.sdkClientCache.has(userId)) {
       return this.sdkClientCache.get(userId);
@@ -105,7 +79,7 @@ export class DefaultSdkService implements SdkService {
     );
 
     const client$ = combineLatest([
-      this.environmentService.environment$,
+      this.environmentService.getEnvironment$(userId),
       account$,
       kdfParams$,
       privateKey$,
@@ -115,32 +89,31 @@ export class DefaultSdkService implements SdkService {
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
       switchMap(([env, account, kdfParams, privateKey, userKey, orgKeys]) => {
         // Create our own observable to be able to implement clean-up logic
-        return new Observable<BitwardenClient>((subscriber) => {
-          let client: BitwardenClient;
-
+        return new Observable<Rc<BitwardenClient>>((subscriber) => {
           const createAndInitializeClient = async () => {
             if (privateKey == null || userKey == null) {
               return undefined;
             }
 
             const settings = this.toSettings(env);
-            client = await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
+            const client = await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
 
             await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
 
             return client;
           };
 
+          let client: Rc<BitwardenClient>;
           createAndInitializeClient()
             .then((c) => {
-              client = c;
-              subscriber.next(c);
+              client = c === undefined ? undefined : new Rc(c);
+              subscriber.next(client);
             })
             .catch((e) => {
               subscriber.error(e);
             });
 
-          return () => client?.free();
+          return () => client?.markForDisposal();
         });
       }),
       tap({
@@ -151,31 +124,6 @@ export class DefaultSdkService implements SdkService {
 
     this.sdkClientCache.set(userId, client$);
     return client$;
-  }
-
-  async failedToInitialize(category: string, error?: Error): Promise<void> {
-    // Only log on cloud instances
-    if (
-      this.platformUtilsService.isDev() ||
-      !(await firstValueFrom(this.environmentService.environment$)).isCloud
-    ) {
-      return;
-    }
-
-    return this.apiService.send(
-      "POST",
-      "/wasm-debug",
-      {
-        category: category,
-        error: error?.message,
-      },
-      false,
-      false,
-      null,
-      (headers) => {
-        headers.append("SDK-Version", "1.0.0");
-      },
-    );
   }
 
   private async initializeClient(

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Overlay } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
@@ -13,6 +15,7 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 
 export interface GeneratorDialogParams {
   type: "password" | "username";
+  uri?: string;
 }
 
 export interface GeneratorDialogResult {
@@ -58,11 +61,15 @@ export class VaultGeneratorDialogComponent {
    */
   protected generatedValue: string = "";
 
+  protected uri: string;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: GeneratorDialogParams,
     private dialogRef: DialogRef<GeneratorDialogResult>,
     private i18nService: I18nService,
-  ) {}
+  ) {
+    this.uri = params.uri;
+  }
 
   /**
    * Close the dialog without selecting a value.

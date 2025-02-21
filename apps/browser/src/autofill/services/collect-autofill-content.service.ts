@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -226,6 +228,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, "name"),
+        htmlClass: this.getPropertyOrAttribute(formElement, "class"),
         htmlID: this.getPropertyOrAttribute(formElement, "id"),
         htmlMethod: this.getPropertyOrAttribute(formElement, "method"),
       });

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
@@ -18,6 +20,8 @@ import { OrganizationLayoutComponent } from "../../admin-console/organizations/l
 import { deepLinkGuard } from "../../auth/guards/deep-link.guard";
 import { VaultModule } from "../../vault/org-vault/vault.module";
 
+import { isEnterpriseOrgGuard } from "./guards/is-enterprise-org.guard";
+import { AdminConsoleIntegrationsComponent } from "./integrations/integrations.component";
 import { GroupsComponent } from "./manage/groups.component";
 
 const routes: Routes = [
@@ -35,6 +39,17 @@ const routes: Routes = [
       {
         path: "vault",
         loadChildren: () => VaultModule,
+      },
+      {
+        path: "integrations",
+        canActivate: [
+          isEnterpriseOrgGuard(false),
+          organizationPermissionsGuard(canAccessIntegrations),
+        ],
+        component: AdminConsoleIntegrationsComponent,
+        data: {
+          titleId: "integrations",
+        },
       },
       {
         path: "settings",
@@ -90,6 +105,10 @@ function getOrganizationRoute(organization: Organization): string {
     return "settings";
   }
   return undefined;
+}
+
+function canAccessIntegrations(organization: Organization) {
+  return organization.canAccessIntegrations;
 }
 
 @NgModule({

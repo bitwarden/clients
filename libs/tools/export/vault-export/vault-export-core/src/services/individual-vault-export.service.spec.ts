@@ -1,11 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -178,8 +178,8 @@ describe("VaultExportService", () => {
     const activeAccount = { id: userId, ...accountInfo };
     accountService.activeAccount$ = new BehaviorSubject(activeAccount);
 
-    folderService.getAllDecryptedFromState.mockResolvedValue(UserFolderViews);
-    folderService.getAllFromState.mockResolvedValue(UserFolders);
+    folderService.folderViews$.mockReturnValue(of(UserFolderViews));
+    folderService.folders$.mockReturnValue(of(UserFolders));
     kdfConfigService.getKdfConfig.mockResolvedValue(DEFAULT_KDF_CONFIG);
     encryptService.encrypt.mockResolvedValue(new EncString("encrypted"));
 
@@ -295,7 +295,7 @@ describe("VaultExportService", () => {
 
   it("exported unencrypted object contains folders", async () => {
     cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
-    await folderService.getAllDecryptedFromState();
+    folderService.folderViews$.mockReturnValue(of(UserFolderViews));
     const actual = await exportService.getExport("json");
 
     expectEqualFolderViews(UserFolderViews, actual);
@@ -303,7 +303,7 @@ describe("VaultExportService", () => {
 
   it("exported encrypted json contains folders", async () => {
     cipherService.getAll.mockResolvedValue(UserCipherDomains.slice(0, 1));
-    await folderService.getAllFromState();
+    folderService.folders$.mockReturnValue(of(UserFolders));
     const actual = await exportService.getExport("encrypted_json");
 
     expectEqualFolders(UserFolders, actual);

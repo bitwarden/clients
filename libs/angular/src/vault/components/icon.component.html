@@ -4,13 +4,13 @@
       [src]="data.image"
       [appFallbackSrc]="data.fallbackImage"
       *ngIf="data.imageEnabled && data.image"
-      class="tw-max-h-6 tw-max-w-6 tw-rounded-md"
+      class="tw-size-6 tw-rounded-md"
       alt=""
       decoding="async"
       loading="lazy"
     />
     <i
-      class="tw-text-muted bwi bwi-lg {{ data.icon }}"
+      class="tw-w-6 tw-text-muted bwi bwi-lg {{ data.icon }}"
       *ngIf="!data.imageEnabled || !data.image"
     ></i>
   </ng-container>

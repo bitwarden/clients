@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   DestroyRef,
   effect,
@@ -131,6 +133,7 @@ export class PopupViewCacheService implements ViewCacheService {
   }
 
   private clearState() {
+    this._cache = {}; // clear local cache
     this.messageSender.send(ClEAR_VIEW_CACHE_COMMAND, {});
   }
 }

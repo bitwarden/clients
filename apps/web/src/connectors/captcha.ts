@@ -1,10 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { b64Decode, getQsParam } from "./common";
 
 declare let hcaptcha: any;
 
 if (window.location.pathname.includes("mobile")) {
+  // FIXME: Remove when updating file. Eslint update
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require("./captcha-mobile.scss");
 } else {
+  // FIXME: Remove when updating file. Eslint update
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require("./captcha.scss");
 }
 
@@ -48,6 +54,8 @@ async function start() {
   let decodedData: any;
   try {
     decodedData = JSON.parse(b64Decode(data, true));
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     error("Cannot parse data.");
     return;

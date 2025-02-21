@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -27,6 +29,7 @@ import {
   SendFormModule,
 } from "@bitwarden/send-ui";
 
+import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/popup-back.directive";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -75,6 +78,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     SendFilePopoutDialogContainerComponent,
     SendFormModule,
     AsyncActionsModule,
+    PopupBackBrowserDirective,
   ],
 })
 export class SendAddEditComponent {

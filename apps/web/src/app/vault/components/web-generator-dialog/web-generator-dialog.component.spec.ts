@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
@@ -21,6 +23,7 @@ import {
 })
 class MockCipherFormGenerator {
   @Input() type: "password" | "username";
+  @Input() uri?: string;
   @Output() valueGenerated = new EventEmitter<string>();
 }
 

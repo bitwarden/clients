@@ -1,12 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, inject, NgZone, ViewChild } from "@angular/core";
 import { combineLatest, map, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DisclosureTriggerForDirective, IconButtonModule } from "@bitwarden/components";
+import {
+  DisclosureComponent,
+  DisclosureTriggerForDirective,
+  IconButtonModule,
+} from "@bitwarden/components";
 
-import { DisclosureComponent } from "../../../../../../../../libs/components/src/disclosure/disclosure.component";
 import { runInsideAngular } from "../../../../../platform/browser/run-inside-angular.operator";
 import { VaultPopupListFiltersService } from "../../../../../vault/popup/services/vault-popup-list-filters.service";
 import { VaultListFiltersComponent } from "../vault-list-filters/vault-list-filters.component";

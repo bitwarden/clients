@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   AfterViewInit,
   ContentChildren,
@@ -84,6 +86,8 @@ export class A11yGridDirective implements AfterViewInit {
       });
 
       this.getActiveCellContent().tabIndex = 0;
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Unable to initialize grid");

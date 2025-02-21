@@ -1,6 +1,9 @@
+/* eslint-disable no-console */
 import { ChildProcess, spawn } from "child_process";
 
+// eslint-disable-next-line no-restricted-imports
 import { MessageCommon } from "../../src/models/native-messaging/message-common";
+// eslint-disable-next-line no-restricted-imports
 import { UnencryptedMessageResponse } from "../../src/models/native-messaging/unencrypted-message-response";
 
 import Deferred from "./deferred";

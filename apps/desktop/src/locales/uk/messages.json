@@ -208,19 +208,19 @@
     "message": "Згенеровано новий ключ SSH"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Ви ввели неправильний пароль."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Імпорт"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Підтвердити пароль"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Введіть пароль для ключа SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Введіть пароль"
   },
   "sshAgentUnlockRequired": {
     "message": "Розблокуйте своє сховище, щоб затвердити запит ключа SSH."
@@ -248,6 +248,20 @@
   },
   "error": {
     "message": "Помилка"
+  },
+  "decryptionError": {
+    "message": "Помилка розшифрування"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden не зміг розшифрувати вказані нижче елементи сховища."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Зверніться до служби підтримки клієнтів,",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "щоб уникнути втрати даних.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "Січень"
@@ -871,6 +885,15 @@
     "message": "Авторизуйтесь за допомогою Duo Security для вашої організації з використанням програми Duo Mobile, SMS, телефонного виклику, або ключа безпеки U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Підтвердьте свою особу"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу."
+  },
+  "continueLoggingIn": {
+    "message": "Продовжити вхід"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -918,6 +941,12 @@
   },
   "baseUrl": {
     "message": "URL-адреса сервера"
+  },
+  "authenticationTimeout": {
+    "message": "Час очікування автентифікації"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Час очікування сеансу автентифікації завершився. Перезапустіть процес входу в систему."
   },
   "selfHostBaseUrl": {
     "message": "URL-адреса власного сервера",
@@ -1175,7 +1204,7 @@
     "message": "Показувати піктограми вебсайтів"
   },
   "faviconDesc": {
-    "message": "Показувати впізнаване зображення біля кожного запису."
+    "message": "Показувати зображення біля кожного запису."
   },
   "enableMinToTray": {
     "message": "Згортати до системного лотка"
@@ -1359,9 +1388,6 @@
   "premiumPurchase": {
     "message": "Придбати преміум"
   },
-  "premiumPurchaseAlert": {
-    "message": "Ви можете передплатити преміум у сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Ви можете придбати Преміум у налаштуваннях облікового запису вебпрограмі Bitwarden."
   },
@@ -1387,13 +1413,13 @@
     "message": "Історія паролів"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Історія генератора"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Очистити історію генератора"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Якщо ви продовжите, усі записи будуть остаточно видалені з історії генератора. Справді продовжити?"
   },
   "clear": {
     "message": "Стерти",
@@ -1403,13 +1429,13 @@
     "message": "Немає паролів."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Очистити історію"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Немає даних для показу"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Ви нічого не генерували останнім часом"
   },
   "undo": {
     "message": "Повернути"
@@ -1727,9 +1753,6 @@
   },
   "windowsHelloConsentMessage": {
     "message": "Перевірити на Bitwarden."
-  },
-  "polkitConsentMessage": {
-    "message": "Автентифікуйтесь для розблокування Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Розблокувати з Touch ID"
@@ -2478,7 +2501,7 @@
     "message": "Генерувати е-пошту"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "Значення має бути між $MIN$ та $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2492,7 +2515,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Використовуйте $RECOMMENDED$ або більше символів, щоб згенерувати надійний пароль.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2502,7 +2525,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "message": " Використовуйте $RECOMMENDED$ або більше слів, щоб згенерувати надійну парольну фразу.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2526,6 +2549,9 @@
   },
   "catchallEmailDesc": {
     "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
+  },
+  "useThisEmail": {
+    "message": "Використати цю е-пошту"
   },
   "random": {
     "message": "Випадково"
@@ -2603,6 +2629,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Недійсний токен API для $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ відхилив ваш запит. Зверніться до провайдера послуг по допомогу.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ відхилив ваш запит: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2719,17 +2769,26 @@
   "loginInitiated": {
     "message": "Ініційовано вхід"
   },
+  "logInRequestSent": {
+    "message": "Запит надіслано"
+  },
   "notificationSentDevice": {
     "message": "Сповіщення було надіслано на ваш пристрій."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Сповіщення надіслано на ваш пристрій"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  "notificationSentDevicePart1": {
+    "message": "Розблокуйте Bitwarden на своєму пристрої або у "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "вебпрограмі"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Перш ніж підтверджувати, обов'язково перевірте відповідність зазначеної нижче фрази відбитка."
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Потрібен інший варіант?"
   },
   "fingerprintMatchInfo": {
     "message": "Переконайтеся, що ваше сховище розблоковане, а фраза відбитка збігається з іншим пристроєм."
@@ -2738,13 +2797,13 @@
     "message": "Фраза відбитка"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Після схвалення запиту ви отримаєте сповіщення"
   },
   "needAnotherOption": {
     "message": "Потрібно увімкнути схвалення запитів на вхід у налаштуваннях програми Bitwarden. Потрібен інший варіант?"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Переглянути всі варіанти входу"
   },
   "viewAllLoginOptions": {
     "message": "Переглянути всі варіанти входу"
@@ -2756,11 +2815,11 @@
     "message": "Перемкнути лічильник символів",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Ви намагаєтесь увійти?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Ви намагаєтесь отримати доступ до свого облікового запису?"
   },
-  "logInAttemptBy": {
-    "message": "Спроба входу з $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Спроба доступу з $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2777,11 +2836,11 @@
   "time": {
     "message": "Час"
   },
-  "confirmLogIn": {
-    "message": "Підтвердити вхід"
+  "confirmAccess": {
+    "message": "Підтвердити доступ"
   },
-  "denyLogIn": {
-    "message": "Заборонити вхід"
+  "denyAccess": {
+    "message": "Заборонити доступ"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
@@ -2817,8 +2876,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Цей запит більше недійсний."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Підтвердити спробу входу для $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Підтвердити спробу доступу для $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2828,6 +2887,9 @@
   },
   "logInRequested": {
     "message": "Виконано запит входу"
+  },
+  "accountAccessRequested": {
+    "message": "Запитано доступ до облікового запису"
   },
   "creatingAccountOn": {
     "message": "Створення облікового запису"
@@ -2862,11 +2924,17 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Виявлено слабкий пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
   },
+  "useThisPassword": {
+    "message": "Використати цей пароль"
+  },
+  "useThisUsername": {
+    "message": "Використати це ім'я користувача"
+  },
   "checkForBreaches": {
     "message": "Перевірити відомі витоки даних для цього пароля"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Ви увійшли!"
   },
   "important": {
     "message": "Важливо:"
@@ -2899,16 +2967,16 @@
     "message": "Оновлення рекомендованих налаштувань"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
-    "message": "Remember this device to make future logins seamless"
+    "message": "Запам'ятайте цей пристрій, щоб спростити майбутні входи в систему"
   },
   "deviceApprovalRequired": {
     "message": "Необхідне підтвердження пристрою. Виберіть варіант підтвердження нижче:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "Device approval required"
+    "message": "Потрібне підтвердження пристрою"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Виберіть варіант підтвердження нижче"
   },
   "rememberThisDevice": {
     "message": "Запам'ятати цей пристрій"
@@ -2963,7 +3031,7 @@
     "message": "Немає адреси електронної пошти"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Адресу е-пошти активного користувача не знайдено. Виконується вихід із системи."
   },
   "deviceTrusted": {
     "message": "Довірений пристрій"
@@ -3359,6 +3427,30 @@
   "ssoError": {
     "message": "Не знайдено вільних портів для цього входу SSO."
   },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Біометричне розблокування недоступне, оскільки спочатку потрібно ввести PIN-код або пароль."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Біометричне розблокування наразі недоступне."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Біометричне розблокування недоступне через неправильно налаштовані системні файли."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Біометричне розблокування недоступне через неправильно налаштовані системні файли."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Біометричне розблокування недоступне, оскільки воно не увімкнене для $EMAIL$ у програмі Bitwarden для комп'ютера.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Біометричне розблокування зараз недоступне з невідомої причини."
+  },
   "authorize": {
     "message": "Авторизувати"
   },
@@ -3391,5 +3483,59 @@
   },
   "fileSavedToDevice": {
     "message": "Файл збережено на пристрої. Ви можете його знайти у теці завантажень."
+  },
+  "importantNotice": {
+    "message": "Важлива інформація"
+  },
+  "setupTwoStepLogin": {
+    "message": "Налаштувати двоетапну перевірку"
+  },
+  "newDeviceVerificationNoticeContentPage1": {
+    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
+  },
+  "newDeviceVerificationNoticeContentPage2": {
+    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
+  },
+  "remindMeLater": {
+    "message": "Нагадати пізніше"
+  },
+  "newDeviceVerificationNoticePageOneFormContent": {
+    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "your_name@email.com"
+      }
+    }
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessNo": {
+    "message": "Ні, не маю"
+  },
+  "newDeviceVerificationNoticePageOneEmailAccessYes": {
+    "message": "Так, я маю постійний доступ до своєї електронної пошти"
+  },
+  "turnOnTwoStepLogin": {
+    "message": "Увімкнути двоетапну перевірку"
+  },
+  "changeAcctEmail": {
+    "message": "Змінити адресу е-пошти"
+  },
+  "allowScreenshots": {
+    "message": "Дозволити захоплення екрана"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Дозволити захоплення екрана і перегляд у віддаленому доступі комп'ютерної програми Bitwarden. Вимкнення цього параметра запобігає доступу на деяких зовнішніх дисплеях."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Вікно підтвердження все ще видиме"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Підтвердьте, що вікно все ще видиме."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Необхідно оновити розширення"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Ви використовуєте застарілу версію розширення браузера. Оновіть його або вимкніть перевірку цифрового відбитка інтеграції з браузером у налаштуваннях комп'ютерної програми."
   }
 }

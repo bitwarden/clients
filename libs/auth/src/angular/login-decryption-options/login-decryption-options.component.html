@@ -1,5 +1,5 @@
 <ng-container *ngIf="loading">
-  <div class="text-center">
+  <div class="tw-text-center">
     <i
       class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
       title="{{ 'loading' | i18n }}"
@@ -55,6 +55,10 @@
       (click)="requestAdminApproval()"
     >
       {{ "requestAdminApproval" | i18n }}
+    </button>
+
+    <button type="button" bitButton bitFormButton block (click)="logOut()">
+      {{ "logOut" | i18n }}
     </button>
   </div>
 </ng-container>

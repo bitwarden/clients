@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
@@ -8,6 +10,7 @@ import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 export interface WebVaultGeneratorDialogParams {
   type: "password" | "username";
+  uri?: string;
 }
 
 export interface WebVaultGeneratorDialogResult {
@@ -46,11 +49,15 @@ export class WebVaultGeneratorDialogComponent {
    */
   protected generatedValue: string = "";
 
+  protected uri: string;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: WebVaultGeneratorDialogParams,
     private dialogRef: DialogRef<WebVaultGeneratorDialogResult>,
     private i18nService: I18nService,
-  ) {}
+  ) {
+    this.uri = params.uri;
+  }
 
   /**
    * Close the dialog without selecting a value.

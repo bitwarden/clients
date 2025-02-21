@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Constraints, StateConstraints } from "@bitwarden/common/tools/types";
 
 import { CatchallGenerationOptions } from "../types";
@@ -22,7 +24,7 @@ export class CatchallConstraints implements StateConstraints<CatchallGenerationO
       this.domain = parsed.groups.domain;
     }
   }
-  private domain: string;
+  readonly domain: string;
 
   constraints: Readonly<Constraints<CatchallGenerationOptions>> = {};
 

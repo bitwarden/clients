@@ -1,11 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil, map, BehaviorSubject, concatMap } from "rxjs";
+import {
+  Subject,
+  firstValueFrom,
+  takeUntil,
+  map,
+  BehaviorSubject,
+  concatMap,
+  switchMap,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -154,9 +165,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.policyService
-      .getAll$(PolicyType.SendOptions)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.getAll$(PolicyType.SendOptions, userId)),
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntil(this.destroy$),
       )
@@ -195,8 +207,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     const env = await firstValueFrom(this.environmentService.environment$);
     this.sendLinkBaseUrl = env.getSendUrl();
 
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((hasPremiumFromAnySource) => {
         this.canAccessPremium = hasPremiumFromAnySource;
       });

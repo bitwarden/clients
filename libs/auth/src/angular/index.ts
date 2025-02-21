@@ -57,12 +57,13 @@ export * from "./user-verification/user-verification-dialog.component";
 export * from "./user-verification/user-verification-dialog.types";
 export * from "./user-verification/user-verification-form-input.component";
 
-// lock
-export * from "./lock/lock.component";
-export * from "./lock/lock-component.service";
-
 // vault timeout
 export * from "./vault-timeout-input/vault-timeout-input.component";
+
+// sso
+export * from "./sso/sso.component";
+export * from "./sso/sso-component.service";
+export * from "./sso/default-sso-component.service";
 
 // self hosted environment configuration dialog
 export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
@@ -70,3 +71,6 @@ export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.com
 // login approval
 export * from "./login-approval/login-approval.component";
 export * from "./login-approval/default-login-approval-component.service";
+
+// device verification
+export * from "./new-device-verification/new-device-verification.component";

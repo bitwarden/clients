@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { Utils } from "../../../../platform/misc/utils";
@@ -79,6 +81,8 @@ export class Send extends Domain {
       const sendKeyEncryptionKey = await keyService.getUserKey();
       model.key = await encryptService.decryptToBytes(this.key, sendKeyEncryptionKey);
       model.cryptoKey = await keyService.makeSendKey(model.key);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // TODO: error?
     }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
@@ -6,7 +8,7 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { CipherAttachmentsComponent } from "@bitwarden/vault";
 
-import { SharedModule } from "../../shared";
+import { SharedModule } from "../../shared/shared.module";
 
 export interface AttachmentsDialogParams {
   cipherId: CipherId;

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, Subscription, firstValueFrom } from "rxjs";
@@ -31,7 +33,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
-import { closeTwoFactorAuthPopout } from "./utils/auth-popout-window";
+import { closeTwoFactorAuthWebAuthnPopout } from "./utils/auth-popout-window";
 
 @Component({
   selector: "app-two-factor",
@@ -169,7 +171,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnInit
 
           // We don't need this window anymore because the intent is for the user to be left
           // on the web vault screen which tells them to continue in the browser extension (sidebar or popup)
-          await closeTwoFactorAuthPopout();
+          await closeTwoFactorAuthWebAuthnPopout();
         };
       }
     });

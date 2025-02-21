@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params } from "@angular/router";
 import {
@@ -14,7 +16,7 @@ import {
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -41,6 +43,7 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
 
   organizationId: string;
   orgDomains$: Observable<OrganizationDomainResponse[]>;
+  accountDeprovisioningEnabled$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -51,8 +54,12 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private toastService: ToastService,
     private configService: ConfigService,
-    private policyApiService: PolicyApiServiceAbstraction,
-  ) {}
+    private policyService: PolicyService,
+  ) {
+    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AccountDeprovisioning,
+    );
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async ngOnInit() {
@@ -76,9 +83,14 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     await this.orgDomainApiService.getAllByOrgId(this.organizationId);
 
     if (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning)) {
-      const singleOrgPolicy = await this.policyApiService.getPolicy(
-        this.organizationId,
-        PolicyType.SingleOrg,
+      const singleOrgPolicy = await firstValueFrom(
+        this.policyService.policies$.pipe(
+          map((policies) =>
+            policies.find(
+              (p) => p.type === PolicyType.SingleOrg && p.organizationId === this.organizationId,
+            ),
+          ),
+        ),
       );
       this.singleOrgPolicyEnabled = singleOrgPolicy?.enabled ?? false;
     }
@@ -103,7 +115,7 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
             organizationDomains.every((domain) => domain.verifiedDate === null)
           ) {
             await this.dialogService.openSimpleDialog({
-              title: { key: "verified-domain-single-org-warning" },
+              title: { key: "claim-domain-single-org-warning" },
               content: { key: "single-org-revoked-user-warning" },
               cancelButtonText: { key: "cancel" },
               acceptButtonText: { key: "confirm" },
@@ -167,13 +179,22 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
         this.toastService.showToast({
           variant: "success",
           title: null,
-          message: this.i18nService.t("domainVerified"),
+          message: this.i18nService.t(
+            (await firstValueFrom(this.accountDeprovisioningEnabled$))
+              ? "domainClaimed"
+              : "domainVerified",
+          ),
         });
       } else {
         this.toastService.showToast({
           variant: "error",
           title: null,
-          message: this.i18nService.t("domainNotVerified", domainName),
+          message: this.i18nService.t(
+            (await firstValueFrom(this.accountDeprovisioningEnabled$))
+              ? "domainNotClaimed"
+              : "domainNotVerified",
+            domainName,
+          ),
         });
         // Update this item so the last checked date gets updated.
         await this.updateOrgDomain(orgDomainId);

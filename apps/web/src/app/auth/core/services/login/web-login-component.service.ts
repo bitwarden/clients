@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -46,7 +48,7 @@ export class WebLoginComponentService
     this.clientType = this.platformUtilsService.getClientType();
   }
 
-  async getOrgPolicies(): Promise<PasswordPolicies | null> {
+  async getOrgPoliciesFromOrgInvite(): Promise<PasswordPolicies | null> {
     const orgInvite = await this.acceptOrganizationInviteService.getOrganizationInvite();
 
     if (orgInvite != null) {

@@ -1,13 +1,20 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { concatMap, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventSystemUser } from "@bitwarden/common/enums";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -53,6 +60,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     private providerService: ProviderService,
     fileDownloadService: FileDownloadService,
     toastService: ToastService,
+    private accountService: AccountService,
   ) {
     super(
       eventService,
@@ -66,11 +74,16 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   }
 
   async ngOnInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.route.params
       .pipe(
         concatMap(async (params) => {
           this.organizationId = params.organizationId;
-          this.organization = await this.organizationService.get(this.organizationId);
+          this.organization = await firstValueFrom(
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(this.organizationId)),
+          );
           if (this.organization == null || !this.organization.useEvents) {
             await this.router.navigate(["/organizations", this.organizationId]);
             return;
@@ -129,7 +142,9 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
   protected getUserName(r: EventResponse, userId: string) {
     if (r.installationId != null) {
-      return `Installation: ${r.installationId}`;
+      return {
+        name: `Installation: ${r.installationId}`,
+      };
     }
 
     if (userId != null) {

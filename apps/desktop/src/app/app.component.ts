@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
 import {
   Component,
@@ -8,19 +10,8 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import {
-  catchError,
-  filter,
-  firstValueFrom,
-  map,
-  of,
-  Subject,
-  takeUntil,
-  timeout,
-  withLatestFrom,
-} from "rxjs";
+import { filter, firstValueFrom, map, Subject, takeUntil, timeout, withLatestFrom } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -28,7 +19,6 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -41,6 +31,7 @@ import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstrac
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -50,10 +41,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -63,21 +54,17 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
+import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
-import { flagEnabled } from "../platform/flags";
-import { PremiumComponent } from "../vault/app/accounts/premium.component";
 import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
 
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
-import { GeneratorComponent } from "./tools/generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
-import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -102,6 +89,8 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
     </div>
+
+    <bit-toast-container></bit-toast-container>
   `,
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -136,7 +125,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
     private syncService: SyncService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private cipherService: CipherService,
     private authService: AuthService,
     private router: Router,
@@ -165,28 +153,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
     private accountService: AccountService,
-    private sdkService: SdkService,
     private organizationService: OrganizationService,
-  ) {
-    if (flagEnabled("sdk")) {
-      // Warn if the SDK for some reason can't be initialized
-      this.sdkService.supported$
-        .pipe(
-          takeUntilDestroyed(),
-          catchError(() => {
-            return of(false);
-          }),
-        )
-        .subscribe((supported) => {
-          if (!supported) {
-            this.logService.debug("SDK is not supported");
-            this.sdkService.failedToInitialize("desktop").catch((e) => this.logService.error(e));
-          } else {
-            this.logService.debug("SDK is supported");
-          }
-        });
-    }
-  }
+  ) {}
 
   ngOnInit() {
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
@@ -222,17 +190,11 @@ export class AppComponent implements OnInit, OnDestroy {
             this.recordActivity();
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection();
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
             this.processReloadService.cancelProcessReload();
             break;
           case "loggedOut":
             this.modalService.closeAll();
-            if (message.userId == null || message.userId === this.activeUserId) {
-              await this.notificationsService.updateConnection();
-            }
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
@@ -276,9 +238,6 @@ export class AppComponent implements OnInit, OnDestroy {
             ) {
               await this.router.navigate(["lock"]);
             }
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.notificationsService.updateConnection();
             await this.updateAppMenu();
             await this.systemService.clearPendingClipboard();
             await this.processReloadService.startProcessReload(this.authService);
@@ -533,41 +492,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async openGenerator() {
-    const isGeneratorSwapEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.GeneratorToolsModernization,
-    );
-    if (isGeneratorSwapEnabled) {
-      await this.dialogService.open(CredentialGeneratorComponent);
-      return;
-    }
-
-    this.modalService.closeAll();
-
-    [this.modal] = await this.modalService.openViewRef(
-      GeneratorComponent,
-      this.generatorModalRef,
-      (comp) => (comp.comingFromAddEdit = false),
-    );
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
+    await this.dialogService.open(CredentialGeneratorComponent);
+    return;
   }
 
   async openGeneratorHistory() {
-    const isGeneratorSwapEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.GeneratorToolsModernization,
-    );
-    if (isGeneratorSwapEnabled) {
-      await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
-      return;
-    }
-
-    await this.openModal<PasswordGeneratorHistoryComponent>(
-      PasswordGeneratorHistoryComponent,
-      this.passwordHistoryRef,
-    );
+    await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
+    return;
   }
 
   private async updateAppMenu() {
@@ -889,9 +820,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async deleteAccount() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.AccountDeprovisioning).pipe(
-        withLatestFrom(this.organizationService.organizations$),
+        withLatestFrom(this.organizationService.organizations$(userId)),
         map(async ([accountDeprovisioningEnabled, organization]) => {
           if (
             accountDeprovisioningEnabled &&

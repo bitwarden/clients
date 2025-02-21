@@ -1,13 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { lastValueFrom } from "rxjs";
-import { first } from "rxjs/operators";
+import { firstValueFrom, lastValueFrom } from "rxjs";
+import { first, map } from "rxjs/operators";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import { PolicyListService } from "../../core/policy-list.service";
@@ -35,6 +41,7 @@ export class PoliciesComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyListService: PolicyListService,
     private dialogService: DialogService,
@@ -44,7 +51,14 @@ export class PoliciesComponent implements OnInit {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
       this.organizationId = params.organizationId;
-      this.organization = await this.organizationService.get(this.organizationId);
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(getOrganizationById(this.organizationId)),
+      );
       this.policies = this.policyListService.getPolicies();
 
       await this.load();

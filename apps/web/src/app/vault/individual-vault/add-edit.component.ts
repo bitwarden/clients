@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -19,14 +21,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -67,12 +69,13 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     organizationService: OrganizationService,
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
-    sendApiService: SendApiService,
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     cipherAuthorizationService: CipherAuthorizationService,
+    toastService: ToastService,
+    sdkService: SdkService,
   ) {
     super(
       cipherService,
@@ -88,12 +91,13 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       logService,
       passwordRepromptService,
       organizationService,
-      sendApiService,
       dialogService,
       window,
       datePipe,
       configService,
       cipherAuthorizationService,
+      toastService,
+      sdkService,
     );
   }
 
@@ -103,7 +107,11 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
 
     // https://bitwarden.atlassian.net/browse/PM-10413
     // cannot generate ssh keys so block creation
-    if (this.type === CipherType.SshKey && this.cipherId == null) {
+    if (
+      this.type === CipherType.SshKey &&
+      this.cipherId == null &&
+      !(await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem))
+    ) {
       this.type = CipherType.Login;
       this.cipher.type = CipherType.Login;
     }
@@ -117,9 +125,14 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     this.hasPasswordHistory = this.cipher.hasPasswordHistory;
     this.cleanUp();
 
-    this.canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a.id)),
     );
+
+    this.canAccessPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
+    );
+
     if (this.showTotp()) {
       await this.totpUpdateCode();
       const interval = this.totpService.getTimeInterval(this.cipher.login.totp);
@@ -130,11 +143,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       }, 1000);
     }
 
-    const extensionRefreshEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
-    );
-
-    this.cardIsExpired = extensionRefreshEnabled && isCardExpired(this.cipher.card);
+    this.cardIsExpired = isCardExpired(this.cipher.card);
   }
 
   ngOnDestroy() {
@@ -181,11 +190,11 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     }
 
     this.platformUtilsService.copyToClipboard(value, { window: window });
-    this.platformUtilsService.showToast(
-      "info",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
-    );
+    this.toastService.showToast({
+      variant: "info",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
+    });
 
     if (this.editMode) {
       if (typeI18nKey === "password") {

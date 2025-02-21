@@ -1,4 +1,5 @@
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { KeyService } from "@bitwarden/key-management";
+
 import { UserId } from "../../types/guid";
 import { KeySuffixOptions } from "../enums";
 

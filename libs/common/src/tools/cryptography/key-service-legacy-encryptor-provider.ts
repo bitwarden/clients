@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   connect,
   dematerialize,
@@ -10,10 +12,10 @@ import {
   takeWhile,
 } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { OrganizationId, UserId } from "../../types/guid";
 import {
   OrganizationBound,
   SingleOrganizationDependency,

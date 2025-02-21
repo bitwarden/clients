@@ -1,6 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
@@ -48,6 +48,8 @@ describe("LocalBackedSessionStorage", () => {
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
       encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
         encrypted,
         sessionKey,
@@ -69,6 +71,8 @@ describe("LocalBackedSessionStorage", () => {
       localStorage.internalStore["session_test"] = encrypted.encryptedString;
       encryptService.decryptToUtf8.mockResolvedValue(JSON.stringify("decrypted"));
       const result = await sut.get("test");
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
         encrypted,
         sessionKey,

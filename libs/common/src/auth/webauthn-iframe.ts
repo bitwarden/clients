@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { I18nService } from "../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 

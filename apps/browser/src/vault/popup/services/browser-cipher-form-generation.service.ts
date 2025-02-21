@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Overlay } from "@angular/cdk/overlay";
 import { inject, Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
@@ -26,9 +28,9 @@ export class BrowserCipherFormGenerationService implements CipherFormGenerationS
     return result.generatedValue;
   }
 
-  async generateUsername(): Promise<string> {
+  async generateUsername(uri: string): Promise<string> {
     const dialogRef = VaultGeneratorDialogComponent.open(this.dialogService, this.overlay, {
-      data: { type: "username" },
+      data: { type: "username", uri: uri },
     });
 
     const result = await firstValueFrom(dialogRef.closed);

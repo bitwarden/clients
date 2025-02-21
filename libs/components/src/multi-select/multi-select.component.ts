@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
@@ -11,11 +13,19 @@ import {
   Optional,
   Self,
 } from "@angular/core";
-import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
-import { NgSelectComponent } from "@ng-select/ng-select";
+import {
+  ControlValueAccessor,
+  NgControl,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from "@angular/forms";
+import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { I18nPipe } from "@bitwarden/ui-common";
 
+import { BadgeModule } from "../badge";
 import { BitFormFieldControl } from "../form-field/form-field-control";
 
 import { SelectItemView } from "./models/select-item-view";
@@ -27,6 +37,8 @@ let nextId = 0;
   selector: "bit-multi-select",
   templateUrl: "./multi-select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: MultiSelectComponent }],
+  standalone: true,
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, BadgeModule, I18nPipe],
 })
 /**
  * This component has been implemented to only support Multi-select list events

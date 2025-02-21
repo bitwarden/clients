@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -134,8 +136,10 @@ export class CardDetailsSectionComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.originalCipherView?.card) {
-      this.setInitialValues();
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      this.setInitialValues(prefillCipher);
     }
 
     if (this.disabled) {
@@ -170,8 +174,8 @@ export class CardDetailsSectionComponent implements OnInit {
   }
 
   /** Set form initial form values from the current cipher */
-  private setInitialValues() {
-    const { cardholderName, number, brand, expMonth, expYear, code } = this.originalCipherView.card;
+  private setInitialValues(cipherView: CipherView) {
+    const { cardholderName, number, brand, expMonth, expYear, code } = cipherView.card;
 
     this.cardDetailsForm.setValue({
       cardholderName: cardholderName,

@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -12,6 +12,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -38,6 +40,7 @@ export class ListCommand {
     private organizationUserApiService: OrganizationUserApiService,
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
+    private accountService: AccountService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -62,11 +65,14 @@ export class ListCommand {
 
   private async listCiphers(options: Options) {
     let ciphers: CipherView[];
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     options.trash = options.trash || false;
     if (options.url != null && options.url.trim() !== "") {
-      ciphers = await this.cipherService.getAllDecryptedForUrl(options.url);
+      ciphers = await this.cipherService.getAllDecryptedForUrl(options.url, activeUserId);
     } else {
-      ciphers = await this.cipherService.getAllDecrypted();
+      ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     }
 
     if (
@@ -135,7 +141,9 @@ export class ListCommand {
   }
 
   private async listFolders(options: Options) {
-    let folders = await this.folderService.getAllDecryptedFromState();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
 
     if (options.search != null && options.search.trim() !== "") {
       folders = CliUtils.searchFolders(folders, options.search);
@@ -172,7 +180,15 @@ export class ListCommand {
     if (!Utils.isGuid(options.organizationId)) {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
-    const organization = await this.organizationService.getFromState(options.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    if (!userId) {
+      return Response.badRequest("No user found.");
+    }
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((organizatons) => organizatons.find((o) => o.id == options.organizationId))),
+    );
     if (organization == null) {
       return Response.error("Organization not found.");
     }
@@ -205,7 +221,16 @@ export class ListCommand {
     if (!Utils.isGuid(options.organizationId)) {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
-    const organization = await this.organizationService.getFromState(options.organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    if (!userId) {
+      return Response.badRequest("No user found.");
+    }
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(map((organizatons) => organizatons.find((o) => o.id == options.organizationId))),
+    );
     if (organization == null) {
       return Response.error("Organization not found.");
     }
@@ -231,7 +256,12 @@ export class ListCommand {
   }
 
   private async listOrganizations(options: Options) {
-    let organizations = await firstValueFrom(this.organizationService.memberOrganizations$);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    if (!userId) {
+      return Response.badRequest("No user found.");
+    }
+    let organizations = await firstValueFrom(this.organizationService.memberOrganizations$(userId));
 
     if (options.search != null && options.search.trim() !== "") {
       organizations = CliUtils.searchOrganizations(organizations, options.search);

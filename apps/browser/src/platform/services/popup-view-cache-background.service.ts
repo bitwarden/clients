@@ -1,6 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { switchMap, merge, delay, filter, concatMap, map, first, of } from "rxjs";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
+import {
+  ScheduledTaskNames,
+  TaskSchedulerService,
+  toScheduler,
+} from "@bitwarden/common/platform/scheduling";
 import {
   POPUP_VIEW_MEMORY,
   KeyDefinition,
@@ -43,7 +50,15 @@ export class PopupViewCacheBackgroundService {
   constructor(
     private messageListener: MessageListener,
     private globalStateProvider: GlobalStateProvider,
-  ) {}
+    private readonly taskSchedulerService: TaskSchedulerService,
+  ) {
+    this.taskSchedulerService.registerTaskHandler(
+      ScheduledTaskNames.clearPopupViewCache,
+      async () => {
+        await this.clearState();
+      },
+    );
+  }
 
   startObservingTabChanges() {
     this.messageListener
@@ -56,6 +71,11 @@ export class PopupViewCacheBackgroundService {
           })),
         ),
       )
+      .subscribe();
+
+    this.messageListener
+      .messages$(ClEAR_VIEW_CACHE_COMMAND)
+      .pipe(concatMap(() => this.popupViewCacheState.update(() => null)))
       .subscribe();
 
     merge(
@@ -80,7 +100,14 @@ export class PopupViewCacheBackgroundService {
       // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
       fromChromeEvent(chrome.runtime.onConnect).pipe(
         filter(([port]) => port.name === popupClosedPortName),
-        switchMap(([port]) => fromChromeEvent(port.onDisconnect).pipe(delay(1000 * 60 * 2))),
+        switchMap(([port]) =>
+          fromChromeEvent(port.onDisconnect).pipe(
+            delay(
+              1000 * 60 * 2,
+              toScheduler(this.taskSchedulerService, ScheduledTaskNames.clearPopupViewCache),
+            ),
+          ),
+        ),
       ),
     )
       .pipe(switchMap(() => this.clearState()))

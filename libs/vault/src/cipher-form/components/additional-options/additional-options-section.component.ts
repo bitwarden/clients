@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -75,11 +77,12 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.cipherFormContainer.originalCipherView) {
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
       this.additionalOptionsForm.patchValue({
-        notes: this.cipherFormContainer.originalCipherView.notes,
-        reprompt:
-          this.cipherFormContainer.originalCipherView.reprompt === CipherRepromptType.Password,
+        notes: prefillCipher.notes,
+        reprompt: prefillCipher.reprompt === CipherRepromptType.Password,
       });
     }
 

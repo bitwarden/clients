@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 
@@ -55,6 +57,10 @@ export class CustomFieldV2Component implements OnInit {
   getLinkedType(linkedId: LinkedIdType) {
     const linkedType = this.fieldOptions.get(linkedId);
     return this.i18nService.t(linkedType.i18nKey);
+  }
+
+  get canViewPassword() {
+    return this.cipher.viewPassword;
   }
 
   async logHiddenEvent(hiddenFieldVisible: boolean) {
