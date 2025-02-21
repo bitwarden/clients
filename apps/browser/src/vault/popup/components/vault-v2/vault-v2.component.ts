@@ -2,7 +2,7 @@ import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrol
 import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Router, RouterLink } from "@angular/router";
+import { RouterLink } from "@angular/router";
 import {
   combineLatest,
   filter,
@@ -47,6 +47,7 @@ import {
   NewItemDropdownV2Component,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown-v2.component";
+import { NewSettingsCalloutComponent } from "./new-settings-callout/new-settings-callout.component";
 import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
 import { VaultPageService } from "./vault-page.service";
 
@@ -83,6 +84,7 @@ enum VaultState {
     DecryptionFailureDialogComponent,
     BannerComponent,
     AtRiskPasswordCalloutComponent,
+    NewSettingsCalloutComponent,
   ],
   providers: [VaultPageService],
 })
@@ -122,7 +124,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
 
   protected VaultStateEnum = VaultState;
-  protected showNewCustomizationSettingsCallout = true;
+  protected showNewCustomizationSettingsCallout = false;
   protected activeUserId: UserId | null = null;
 
   constructor(
@@ -135,7 +137,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private dialogService: DialogService,
     private vaultProfileService: VaultProfileService,
     private vaultPageService: VaultPageService,
-    private router: Router,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -189,21 +190,26 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
         });
       });
 
-    // const profileCreatedDate = await this.vaultProfileService.getProfileCreationDate(
-    //   this.activeUserId,
-    // );
-    // const hasCalloutBeenDismissed = this.vaultPageService.isCalloutDismissed(this.activeUserId);
-    // Show the new customization settings callout if the user has not dismissed it and the account was created before December 25, 2024
-    this.showNewCustomizationSettingsCallout = true;
-    // this.showNewCustomizationSettingsCallout =
-    //   !hasCalloutBeenDismissed && profileCreatedDate < new Date("2024-12-25");
+    const profileCreatedDate = await this.vaultProfileService.getProfileCreationDate(
+      this.activeUserId,
+    );
+    const hasCalloutBeenDismissed = await firstValueFrom(
+      this.vaultPageService.isCalloutDismissed(this.activeUserId),
+    );
+
+    this.showNewCustomizationSettingsCallout =
+      !hasCalloutBeenDismissed && profileCreatedDate < new Date("2024-12-25");
+  }
+
+  async dismissCallout() {
+    if (this.activeUserId) {
+      await this.vaultPageService.dismissCallout(this.activeUserId);
+    }
   }
 
   async ngOnDestroy() {
     this.vaultScrollPositionService.stop();
-    if (this.activeUserId) {
-      await this.vaultPageService.dismissCallout(this.activeUserId);
-    }
+    await this.dismissCallout();
   }
 
   protected readonly FeatureFlag = FeatureFlag;
