@@ -79,10 +79,6 @@ describe("ViewV2Component", () => {
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
   };
 
-  const mockPlatformUtilsService = {
-    launchUri: jest.fn(),
-  };
-
   beforeEach(async () => {
     mockCipherService.deleteWithServer.mockClear();
     mockCipherService.softDeleteWithServer.mockClear();
@@ -101,7 +97,7 @@ describe("ViewV2Component", () => {
         { provide: Router, useValue: { navigate: mockNavigate } },
         { provide: CipherService, useValue: mockCipherService },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>({ back }) },
         { provide: ActivatedRoute, useValue: { queryParams: params$ } },
