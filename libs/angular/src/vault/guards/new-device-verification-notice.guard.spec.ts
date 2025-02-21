@@ -36,6 +36,7 @@ describe("NewDeviceVerificationNoticeGuard", () => {
   const isSelfHost = jest.fn().mockReturnValue(false);
   const getProfileTwoFactorEnabled = jest.fn().mockResolvedValue(false);
   const noticeState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
+  const skipState$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
   const getProfileCreationDate = jest.fn().mockResolvedValue(eightDaysAgo);
   const hasMasterPasswordAndMasterKeyHash = jest.fn().mockResolvedValue(true);
   const getUserSSOBound = jest.fn().mockResolvedValue(false);
@@ -50,12 +51,13 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     hasMasterPasswordAndMasterKeyHash.mockClear();
     getUserSSOBound.mockClear();
     getUserSSOBoundAdminOwner.mockClear();
+    skipState$.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: { createUrlTree } },
         { provide: ConfigService, useValue: { getFeatureFlag } },
-        { provide: NewDeviceVerificationNoticeService, useValue: { noticeState$ } },
+        { provide: NewDeviceVerificationNoticeService, useValue: { noticeState$, skipState$ } },
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: PlatformUtilsService, useValue: { isSelfHost } },
         { provide: UserVerificationService, useValue: { hasMasterPasswordAndMasterKeyHash } },
@@ -142,6 +144,14 @@ describe("NewDeviceVerificationNoticeGuard", () => {
     getProfileCreationDate.mockRejectedValueOnce(new Error("test"));
 
     expect(await newDeviceGuard()).toBe(true);
+  });
+
+  it("returns `true` when the skip state value is set to true", async () => {
+    skipState$.mockReturnValueOnce(new BehaviorSubject(true));
+
+    expect(await newDeviceGuard()).toBe(true);
+    expect(skipState$.mock.calls[0][0]).toBe("account-id");
+    expect(skipState$.mock.calls.length).toBe(1);
   });
 
   describe("SSO bound", () => {

@@ -5,8 +5,10 @@
 import fs from "fs";
 import path from "path";
 
-const renovateConfig = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "..", "..", ".github", "renovate.json"), "utf8"),
+import JSON5 from "json5";
+
+const renovateConfig = JSON5.parse(
+  fs.readFileSync(path.join(__dirname, "..", "..", ".github", "renovate.json5"), "utf8"),
 );
 
 const packagesWithOwners = renovateConfig.packageRules
