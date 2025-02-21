@@ -185,7 +185,7 @@ export class DeviceManagementComponent {
           return null;
         }
 
-        const hasPendingRequest = device?.response
+        const hasPendingRequest = device.response
           ? this.hasPendingAuthRequest(device.response)
           : false;
         return {
