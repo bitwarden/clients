@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { AuthRequestApiService } from "@bitwarden/auth/common";
@@ -156,9 +156,8 @@ export class DeviceManagementComponent {
    */
   private async loadDevices(): Promise<void> {
     try {
-      const [currentDevice, devices] = await firstValueFrom(
-        combineLatest([this.devicesService.getCurrentDevice$(), this.devicesService.getDevices$()]),
-      );
+      const currentDevice = await firstValueFrom(this.devicesService.getCurrentDevice$());
+      const devices = await firstValueFrom(this.devicesService.getDevices$());
 
       if (!currentDevice) {
         this.loading = false;
