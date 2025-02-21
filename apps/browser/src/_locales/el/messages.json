@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Αντιγραφή σημειώσεων"
   },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Συμπλήρωση",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2062,7 +2066,7 @@
     "message": "Γεννήτρια ονόματος χρήστη"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Χρήση αυτού του email"
   },
   "useThisPassword": {
     "message": "Χρήση αυτού του κωδικού πρόσβασης"
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Αποκλεισμένοι τομείς"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
+  },
   "excludedDomains": {
     "message": "Εξαιρούμενοι Τομείς"
   },
@@ -2364,10 +2371,10 @@
     "message": "Change this in settings"
   },
   "change": {
-    "message": "Change"
+    "message": "Αλλαγή"
   },
   "changeButtonTitle": {
-    "message": "Change password - $ITEMNAME$",
+    "message": "Αλλαγή κωδικού πρόσβασης - $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2376,7 +2383,7 @@
     }
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Κωδικοί πρόσβασης σε κίνδυνο"
   },
   "atRiskPasswordsDescSingleOrg": {
     "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
@@ -2419,13 +2426,13 @@
     "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Ενεργοποίηση αυτόματης συμπλήρωσης"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Απενεργοποίηση αυτόματης συμπλήρωσης"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Απόρριψη"
   },
   "websiteItemLabel": {
     "message": "Ιστοσελίδα $number$ (URI)",
@@ -3020,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Μη έγκυρο $SERVICENAME$ API διακριτικό: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -4067,10 +4098,10 @@
     "message": "Το κλειδί πρόσβασης αφαιρέθηκε"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Προτάσεις αυτόματης συμπλήρωσης"
   },
   "itemSuggestions": {
-    "message": "Suggested items"
+    "message": "Προτεινόμενα στοιχεία"
   },
   "autofillSuggestionsTip": {
     "message": "Αποθηκεύστε ένα αντικείμενο σύνδεσης για την αυτόματη συμπλήρωση αυτού του ιστοτόπου"

@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Notları kopyala"
   },
+  "copy": {
+    "message": "Kopyala",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Doldur",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Əngəllənmiş domenlər"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Əngəllənmiş domenlər barədə daha ətraflı"
+  },
   "excludedDomains": {
     "message": "İstisna edilən domenlər"
   },
@@ -2364,10 +2371,10 @@
     "message": "Bunu ayarlarda dəyişdir"
   },
   "change": {
-    "message": "Change"
+    "message": "Dəyişdir"
   },
   "changeButtonTitle": {
-    "message": "Change password - $ITEMNAME$",
+    "message": "Parolu dəyişdir - $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2376,10 +2383,10 @@
     }
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Riskli parollar"
   },
   "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "message": "$ORGANIZATION$, sizdən $COUNT$ parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2392,7 +2399,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrg": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "message": "Təşkilatlarınız, sizdən $COUNT$ parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2401,10 +2408,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "Riskli bir parolu incələ və dəyişdir"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "Riskli $COUNT$ parolu incələ və dəyişdir",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2413,19 +2420,19 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Change at-risk passwords faster"
+    "message": "Riskli parolları daha tez dəyişdir"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+    "message": "Cəld şəkildə parollarınızı avto-doldura və yenilərini yarada bilməyiniz üçün ayarlarınızı güncəlləyin"
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Avto-doldurmanı işə sal"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Avto-doldurma işə salındı"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Rədd et"
   },
   "websiteItemLabel": {
     "message": "Veb sayt $number$ (URI)",
@@ -3020,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Yararsız $SERVICENAME$ API jetonu: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
