@@ -241,7 +241,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
-      - name: Download ${{ matrix.artifact_name }} artifact
+      - name: Download ${{ matzrix.artifact_name }} artifact
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
@@ -295,11 +295,11 @@ jobs:
             "GH_PAT=${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}"
 
       - name: Install Cosign
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
         uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
 
       - name: Sign image with Cosign
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
         env:
           DIGEST: ${{ steps.build-docker.outputs.digest }}
           TAGS: ${{ steps.image-name.outputs.name }}
@@ -329,7 +329,7 @@ jobs:
 
   crowdin-push:
     name: Crowdin Push
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     needs:
       - build-artifacts
     runs-on: ubuntu-22.04
@@ -365,7 +365,7 @@ jobs:
 
   trigger-web-vault-deploy:
     name: Trigger web vault deploy
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     needs:
       - build-artifacts
@@ -411,7 +411,7 @@ jobs:
     steps:
       - name: Check if any job failed
         if: |
-          github.event_name != 'pull_request'
+          github.event_name != 'pull_request_target'
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-web')
           && contains(needs.*.result, 'failure')
         run: exit 1
