@@ -75,12 +75,8 @@ export class ChangeEmailComponent implements OnInit {
         step1Value.masterPassword,
         await this.keyService.getOrDeriveMasterKey(step1Value.masterPassword),
       );
-      try {
-        await this.apiService.postEmailToken(request);
-        this.activateStep2();
-      } catch (e) {
-        this.logService.error(e);
-      }
+      await this.apiService.postEmailToken(request);
+      this.activateStep2();
     } else {
       const request = new EmailRequest();
       request.token = this.formGroup.value.token;
@@ -101,20 +97,15 @@ export class ChangeEmailComponent implements OnInit {
       );
       const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey);
       request.key = newUserKey[1].encryptedString;
-      try {
-        await this.apiService.postEmail(request);
-        this.reset();
-        this.toastService.showToast({
-          variant: "success",
-          title: this.i18nService.t("emailChanged"),
-          message: this.i18nService.t("logBackIn"),
-        });
-        this.messagingService.send("logout");
-      } catch (e) {
-        this.displayServerUserFriendlyMessage(e);
 
-        this.logService.error(e);
-      }
+      await this.apiService.postEmail(request);
+      this.reset();
+      this.toastService.showToast({
+        variant: "success",
+        title: this.i18nService.t("emailChanged"),
+        message: this.i18nService.t("logBackIn"),
+      });
+      this.messagingService.send("logout");
     }
   };
 
