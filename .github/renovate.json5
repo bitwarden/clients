@@ -209,6 +209,7 @@
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
         "@storybook/addon-links",
+        "@storybook/addon-themes",
         "@storybook/angular",
         "@storybook/manager-api",
         "@storybook/theming",

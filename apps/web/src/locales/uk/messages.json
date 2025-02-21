@@ -2162,6 +2162,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Увімкнення двоетапної перевірки може цілком заблокувати доступ до облікового запису Bitwarden. Код відновлення дає вам змогу отримати доступ до свого облікового запису у випадку, якщо ви не можете скористатися провайдером двоетапної перевірки (наприклад, якщо втрачено пристрій). Служба підтримки Bitwarden не зможе допомогти відновити доступ до вашого облікового запису. Ми радимо вам записати чи надрукувати цей код відновлення і зберігати його в надійному місці."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+  },
   "viewRecoveryCode": {
     "message": "Переглянути код відновлення"
   },
@@ -4172,6 +4175,9 @@
   "recoverAccountTwoStepDesc": {
     "message": "Якщо вам не вдається отримати доступ до свого облікового запису з використанням звичайної двоетапної перевірки, ви можете скористатися своїм кодом відновлення, щоб вимкнути всіх провайдерів двоетапної перевірки для вашого облікового запису."
   },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
+  },
   "recoverAccountTwoStep": {
     "message": "Відновити вхід з використанням двоетапної перевірки"
   },
@@ -4462,6 +4468,24 @@
   },
   "encryptionKeyUpdateCannotProceed": {
     "message": "Неможливо продовжити оновлення ключа шифрування"
+  },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "keyUpdateFoldersFailed": {
     "message": "Не вдалося розшифрувати ваші теки під час оновлення ключа шифрування. Щоб продовжити оновлення, необхідно видалити теки. Якщо ви продовжите, записи у сховищі не будуть видалені."
@@ -6922,6 +6946,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Не вдалося отримати ідентифікатор замаскованої е-пошти облікового запису для $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -9246,6 +9294,12 @@
   "deviceManagementDesc": {
     "message": "Налаштуйте керування пристроями для Bitwarden, використовуючи посібник із впровадження для вашої платформи."
   },
+  "desktopRequired": {
+    "message": "Desktop required"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Reopen this link from your email on a desktop."
+  },
   "integrationCardTooltip": {
     "message": "Відкрити посібник із впровадження $INTEGRATION$.",
     "placeholders": {
@@ -10238,6 +10292,38 @@
   },
   "organizationNameMaxLength": {
     "message": "Назва організації не може перевищувати 50 символів."
+  },
+  "openingExtension": {
+    "message": "Opening the Bitwarden browser extension"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong..."
+  },
+  "openingExtensionError": {
+    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+  },
+  "openExtension": {
+    "message": "Open extension"
+  },
+  "doNotHaveExtension": {
+    "message": "Don't have the Bitwarden browser extension?"
+  },
+  "installExtension": {
+    "message": "Install extension"
+  },
+  "openedExtension": {
+    "message": "Opened the browser extension"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "from the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
     "message": "Ваша передплата невдовзі поновиться. Щоб забезпечити безперебійну роботу, зверніться до $RESELLER$ для підтвердження поновлення до $RENEWAL_DATE$.",
