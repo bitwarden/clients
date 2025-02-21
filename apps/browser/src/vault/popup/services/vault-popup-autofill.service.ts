@@ -105,16 +105,19 @@ export class VaultPopupAutofillService {
   async dismissCurrentTabIsBlockedBanner() {
     try {
       const currentTab = await firstValueFrom(this.currentAutofillTab$);
-      const currentTabURL = currentTab?.url.length && new URL(currentTab.url);
-
-      const currentTabHostname = currentTabURL && currentTabURL.hostname;
+      const currentTabHostname =
+        currentTab?.url.length && getHostname(currentTab.url, { allowPrivateDomains: true });
 
       if (!currentTabHostname) {
         return;
       }
 
       const blockedURLs = await firstValueFrom(this.domainSettingsService.blockedInteractionsUris$);
-      const tabIsBlocked = Object.keys(blockedURLs).includes(currentTabHostname);
+
+      let tabIsBlocked = false;
+      if (blockedURLs && currentTab?.url?.length) {
+        tabIsBlocked = isUrlInList(currentTab.url, blockedURLs);
+      }
 
       if (tabIsBlocked) {
         void this.domainSettingsService.setBlockedInteractionsUris({
@@ -144,11 +147,9 @@ export class VaultPopupAutofillService {
       }
 
       return this.domainSettingsService.blockedInteractionsUris$.pipe(
-        switchMap((blockedURIs) => {
-          // This blocked URI logic will be updated to use the common util in PM-18219
-          if (blockedURIs && tab?.url?.length) {
-            const tabURL = new URL(tab.url);
-            const tabIsBlocked = Object.keys(blockedURIs).includes(tabURL.hostname);
+        switchMap((blockedURLs) => {
+          if (blockedURLs && tab?.url?.length) {
+            const tabIsBlocked = isUrlInList(tab.url, blockedURLs);
 
             if (tabIsBlocked) {
               return of([]);
