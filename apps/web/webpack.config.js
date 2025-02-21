@@ -81,6 +81,7 @@ const moduleRules = [
         loader: "babel-loader",
         options: {
           configFile: "../../babel.config.json",
+          cacheDirectory: true,
         },
       },
     ],
@@ -349,6 +350,10 @@ const webpackConfig = {
     styles: ["./src/scss/styles.scss", "./src/scss/tailwind.css"],
     theme_head: "./src/theme.ts",
   },
+  cache: {
+    type: "filesystem",
+    allowCollectingMemory: true,
+  },
   optimization: {
     splitChunks: {
       cacheGroups: {
@@ -361,6 +366,7 @@ const webpackConfig = {
         },
       },
     },
+    minimize: NODE_ENV === "production",
     minimizer: [
       new TerserPlugin({
         terserOptions: {
