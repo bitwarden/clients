@@ -1,4 +1,9 @@
+@import "@angular/cdk/a11y-prebuilt.css";
 @import "./reset.css";
+@import "./popover/popover.component.css";
+@import "./toast/toast.tokens.css";
+@import "./toast/toastr.css";
+@import "./search/search.component.css";
 
 :root {
   --color-transparent-hover: rgb(0 0 0 / 0.02);
@@ -193,15 +198,6 @@
 
   --tw-ring-offset-color: #002b36;
 }
-
-/** Used by CDK a11y services */
-@import "@angular/cdk/a11y-prebuilt.css";
-
-@import "./popover/popover.component.css";
-@import "./search/search.component.css";
-
-@import "./toast/toast.tokens.css";
-@import "./toast/toastr.css";
 
 /**
  * tw-break-words does not work with table cells:
