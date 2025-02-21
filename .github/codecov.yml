@@ -50,6 +50,7 @@ component_management:
       name: Key Management - Crypto
       paths:
         - libs/common/src/key-management/crypto/**
+        - libs/node/src/services/**
     - component_id: key-management
       name: Key Management
       paths:
