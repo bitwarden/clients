@@ -37,8 +37,15 @@ import {
   IconButtonModule,
   SearchModule,
   ToastService,
+  CalloutModule,
 } from "@bitwarden/components";
-import { CipherViewComponent, CopyCipherFieldService } from "@bitwarden/vault";
+import {
+  ChangeLoginPasswordService,
+  CipherViewComponent,
+  CopyCipherFieldService,
+  DefaultChangeLoginPasswordService,
+  DefaultTaskService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -82,10 +89,13 @@ type LoadAction =
     CipherViewComponent,
     AsyncActionsModule,
     PopOutComponent,
+    CalloutModule,
   ],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
+    { provide: DefaultTaskService, useClass: DefaultTaskService },
+    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class ViewV2Component {

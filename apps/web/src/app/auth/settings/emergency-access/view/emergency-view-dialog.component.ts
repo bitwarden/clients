@@ -9,7 +9,7 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
-import { CipherViewComponent } from "@bitwarden/vault";
+import { CipherViewComponent, DefaultTaskService } from "@bitwarden/vault";
 
 import { WebViewPasswordHistoryService } from "../../../../vault/services/web-view-password-history.service";
 
@@ -33,6 +33,7 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   providers: [
     { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: PremiumUpgradePromptNoop },
+    { provide: DefaultTaskService, useClass: DefaultTaskService },
   ],
 })
 export class EmergencyViewDialogComponent {
