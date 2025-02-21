@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Copiar notas"
   },
+  "copy": {
+    "message": "Copiar",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Preencher",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Domínios bloqueados"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Saiba mais sobre domínios bloqueados"
+  },
   "excludedDomains": {
     "message": "Domínios excluídos"
   },
@@ -3020,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Token da API de $SERVICENAME$ inválido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ recusou o seu pedido. Por favor, contacte o seu fornecedor de serviços para obter assistência.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ recusou o seu pedido: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",

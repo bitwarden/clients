@@ -56,6 +56,9 @@ export class RotateableKeySetService {
       keySet.encryptedPublicKey,
       oldUserKey,
     );
+    if (publicKey == null) {
+      throw new Error("failed to rotate key set: could not decrypt public key");
+    }
     const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
     const newEncryptedUserKey = await this.encryptService.rsaEncrypt(newUserKey.key, publicKey);
 
