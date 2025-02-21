@@ -60,7 +60,7 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
 export class CipherViewComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) cipher: CipherView | null = null;
 
-  activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+  activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
@@ -150,7 +150,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
       );
     }
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const userId = await firstValueFrom(this.activeUserId$);
 
     if (this.cipher.edit && this.cipher.viewPassword) {
       this.hadPendingChangePasswordTask$ = this.checkPendingChangePasswordTasks$(userId);
@@ -164,14 +164,12 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     }
 
     if (this.cipher.folderId) {
-      const activeUserId = await firstValueFrom(this.activeUserId$);
-
-      if (!activeUserId) {
+      if (!userId) {
         return;
       }
 
       this.folder$ = this.folderService
-        .getDecrypted$(this.cipher.folderId, activeUserId)
+        .getDecrypted$(this.cipher.folderId, userId)
         .pipe(takeUntil(this.destroyed$));
     }
   }
