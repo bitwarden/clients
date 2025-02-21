@@ -11,7 +11,7 @@
         <h2 bitTypography="h6">{{ "unlockMethods" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
-        <bit-form-control>
+        <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">
           <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
           <bit-label for="biometric" class="tw-whitespace-normal">{{
             "unlockWithBiometrics" | i18n
@@ -20,7 +20,11 @@
             {{ biometricUnavailabilityReason }}
           </bit-hint>
         </bit-form-control>
-        <bit-form-control class="tw-pl-5" *ngIf="this.form.value.biometric && showAutoPrompt">
+        <bit-form-control
+          class="tw-pl-5"
+          [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
+          *ngIf="this.form.value.biometric && showAutoPrompt"
+        >
           <input
             bitCheckbox
             id="autoBiometricsPrompt"
@@ -33,6 +37,7 @@
         </bit-form-control>
         <bit-form-control
           [disableMargin]="!(this.form.value.pin && showMasterPasswordOnClientRestartOption)"
+          *ngIf="(pinEnabled$ | async) || this.form.value.pin"
         >
           <input bitCheckbox id="pin" type="checkbox" formControlName="pin" />
           <bit-label for="pin" class="tw-whitespace-normal">{{ "unlockWithPin" | i18n }}</bit-label>
