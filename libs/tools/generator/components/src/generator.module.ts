@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   CardComponent,
   ColorPasswordModule,
@@ -41,7 +40,6 @@ import { UsernameSettingsComponent } from "./username-settings.component";
     IconButtonModule,
     InputModule,
     ItemModule,
-    JslibModule,
     ReactiveFormsModule,
     SectionComponent,
     SectionHeaderComponent,

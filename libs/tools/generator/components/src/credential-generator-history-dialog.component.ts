@@ -5,7 +5,6 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, distinctUntilChanged, firstValueFrom, map, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
@@ -20,7 +19,6 @@ import { EmptyCredentialHistoryComponent } from "./empty-credential-history.comp
   imports: [
     ButtonModule,
     CommonModule,
-    JslibModule,
     DialogModule,
     CredentialGeneratorHistoryToolsComponent,
     EmptyCredentialHistoryComponent,

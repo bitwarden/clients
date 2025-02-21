@@ -3,10 +3,8 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
 import { BehaviorSubject, distinctUntilChanged, map, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -14,8 +12,6 @@ import {
   IconButtonModule,
   ItemModule,
   NoItemsModule,
-  SectionComponent,
-  SectionHeaderComponent,
 } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
@@ -31,11 +27,7 @@ import { GeneratorModule } from "./generator.module";
     CommonModule,
     IconButtonModule,
     NoItemsModule,
-    JslibModule,
-    RouterLink,
     ItemModule,
-    SectionComponent,
-    SectionHeaderComponent,
     GeneratorModule,
   ],
 })
