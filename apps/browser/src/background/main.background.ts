@@ -70,6 +70,7 @@ import {
   UserNotificationSettingsService,
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -1384,18 +1385,11 @@ export default class MainBackground {
     const tab = await BrowserApi.getTabFromCurrentWindow();
 
     if (tab) {
-      const currentUriIsBlocked = await firstValueFrom(
+      const currentUrlIsBlocked = await firstValueFrom(
         this.domainSettingsService.blockedInteractionsUris$.pipe(
-          map((blockedInteractionsUris) => {
-            if (blockedInteractionsUris && tab?.url?.length) {
-              const tabURL = new URL(tab.url);
-              const tabIsBlocked = Object.keys(blockedInteractionsUris).some((blockedHostname) =>
-                tabURL.hostname.endsWith(blockedHostname),
-              );
-
-              if (tabIsBlocked) {
-                return true;
-              }
+          map((blockedInteractionsUrls) => {
+            if (blockedInteractionsUrls && tab?.url?.length) {
+              return isUrlInList(tab.url, blockedInteractionsUrls);
             }
 
             return false;
@@ -1403,7 +1397,7 @@ export default class MainBackground {
         ),
       );
 
-      await this.cipherContextMenuHandler?.update(tab.url, currentUriIsBlocked);
+      await this.cipherContextMenuHandler?.update(tab.url, currentUrlIsBlocked);
       this.onUpdatedRan = this.onReplacedRan = false;
     }
   }
