@@ -2162,6 +2162,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "La configuration d'un système d'authentification à deux facteurs peut définitivement vous verrouiller l'accès à votre compte Bitwarden. Un code de récupération vous permet d'accéder à votre compte dans le cas où vous ne pourriez plus utiliser votre fournisseur normal d'authentification à deux facteurs (exemple : vous perdez votre appareil). L'assistance de Bitwarden ne pourra pas vous aider si vous perdez l'accès à votre compte. Nous vous recommandons de noter ou d'imprimer le code de récupération et de le conserver en lieu sûr."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Votre code de récupération à usage unique peut être utilisé pour désactiver la connexion en deux étapes si vous perdez l'accès à votre fournisseur de connexion en deux étapes. Bitwarden vous recommande d'écrire le code de récupération et de le conserver dans un endroit sûr."
+  },
   "viewRecoveryCode": {
     "message": "Voir le code de récupération"
   },
@@ -4172,6 +4175,9 @@
   "recoverAccountTwoStepDesc": {
     "message": "Si vous ne pouvez pas accéder à votre compte par les méthodes normales d'authentification à deux facteurs, vous pouvez utiliser votre code de récupération d'authentification à deux facteurs pour désactiver tous les fournisseurs à deux facteurs sur votre compte."
   },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Connectez-vous ci-dessous en utilisant votre code de récupération à usage unique. Cela désactivera tous les fournisseurs en deux étapes de votre compte."
+  },
   "recoverAccountTwoStep": {
     "message": "Récupérer l'authentification à deux facteurs"
   },
@@ -4462,6 +4468,24 @@
   },
   "encryptionKeyUpdateCannotProceed": {
     "message": "La mise à jour de la clé de chiffrement ne peut pas continuer"
+  },
+  "editFieldLabel": {
+    "message": "Modifier $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Réorganiser $LABEL$. Utilisez la touche fléchée pour déplacer l'élément vers le haut ou vers le bas.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "keyUpdateFoldersFailed": {
     "message": "Lors de la mise à jour de votre clé de chiffrement, vos dossiers n'ont pas pu être déchiffrés. Pour continuer avec la mise à jour, vos dossiers doivent être supprimés. Aucun élément du coffre ne sera supprimé si vous continuez."
@@ -6922,6 +6946,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Impossible d'obtenir l'ID du compte de courriel masqué $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -9246,6 +9294,12 @@
   "deviceManagementDesc": {
     "message": "Configurez la gestion des appareils pour Bitwarden en utilisant le guide d'implémentation pour votre plateforme."
   },
+  "desktopRequired": {
+    "message": "Ordinateur de bureau requis"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Réouvrez ce lien à partir de votre courriel sur un bureau."
+  },
   "integrationCardTooltip": {
     "message": "Lancez le guide d'implémentation $INTEGRATION$.",
     "placeholders": {
@@ -10238,6 +10292,38 @@
   },
   "organizationNameMaxLength": {
     "message": "Le nom de l'organisation ne doit pas dépasser 50 caractères."
+  },
+  "openingExtension": {
+    "message": "Ouverture de l'extension de navigateur Bitwarden"
+  },
+  "somethingWentWrong": {
+    "message": "Quelquechose n'a pas fonctionné..."
+  },
+  "openingExtensionError": {
+    "message": "Nous avons eu des difficultés à ouvrir l'extension de navigateur Bitwarden. Cliquez sur le bouton pour l'ouvrir maintenant."
+  },
+  "openExtension": {
+    "message": "Ouvrir l'extension"
+  },
+  "doNotHaveExtension": {
+    "message": "Vous n'avez pas l'extension de navigateur Bitwarden?"
+  },
+  "installExtension": {
+    "message": "Installer l'extension"
+  },
+  "openedExtension": {
+    "message": "Extension de navigateur ouverte"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Ouverture réussie de l'extension du navigateur Bitwarden. Vous pouvez maintenant revoir vos mots de passe à risque."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Nous avons eu des difficultés à ouvrir l'extension de navigateur Bitwarden. Ouvrez l'icône Bitwarden",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "de la barre d'outils.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
     "message": "Votre abonnement sera renouvelé bientôt. Pour assurer un service ininterrompu, contactez $RESELLER$ pour confirmer votre renouvellement avant le $RENEWAL_DATE$.",
