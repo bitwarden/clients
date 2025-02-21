@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 import { ChildProcess, spawn } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
 
 // eslint-disable-next-line no-restricted-imports
 import { MessageCommon } from "../../src/models/native-messaging/message-common";
@@ -8,28 +10,6 @@ import { UnencryptedMessageResponse } from "../../src/models/native-messaging/un
 
 import Deferred from "./deferred";
 import { race } from "./race";
-
-// TODO: We need to select between the debug and release versions of the proxy on MacOS,
-// as they use a different path for the IPC socket (the release version uses a sandboxed directory)
-
-const PROXY_EXT = process.platform === "win32" ? ".exe" : "";
-// Debug build of the proxy
-/*const PROXY_PATH = path.join(
-  __dirname,
-  "..",
-  "..",
-  "..",
-  "..",
-  "..",
-  "..",
-  "desktop_native",
-  "target",
-  "debug",
-  `desktop_proxy${PROXY_EXT}`,
-);*/
-
-// Release build of the proxy, in the release application
-const PROXY_PATH = `/Applications/Bitwarden.app/Contents/MacOS/desktop_proxy${PROXY_EXT}`;
 
 const DEFAULT_MESSAGE_TIMEOUT = 10 * 1000; // 10 seconds
 
@@ -89,7 +69,10 @@ export default class IPCService {
   private _connect() {
     this.connectionState = IPCConnectionState.Connecting;
 
-    this.process = spawn(PROXY_PATH, process.argv.slice(1), {
+    const proxyPath = selectProxyPath();
+    console.log(`[IPCService] connecting to proxy at ${proxyPath}`);
+
+    this.process = spawn(proxyPath, process.argv.slice(1), {
       cwd: process.cwd(),
       stdio: "pipe",
       shell: false,
@@ -234,4 +217,42 @@ export default class IPCService {
       this.messageHandler(message);
     }
   }
+}
+
+function selectProxyPath(): string {
+  const proxyExtension = process.platform === "win32" ? ".exe" : "";
+
+  // If the PROXY_PATH environment variable is set, use that
+  if (process.env.PROXY_PATH) {
+    if (!fs.existsSync(process.env.PROXY_PATH)) {
+      throw new Error(`PROXY_PATH is set to ${process.env.PROXY_PATH} but the file does not exist`);
+    }
+    return process.env.PROXY_PATH;
+  }
+
+  // Otherwise try the debug build if present
+  const debugProxyPath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "..",
+    "..",
+    "..",
+    "desktop_native",
+    "target",
+    "debug",
+    `desktop_proxy${proxyExtension}`,
+  );
+  if (fs.existsSync(debugProxyPath)) {
+    return debugProxyPath;
+  }
+
+  // On MacOS, try the release build (sandboxed)
+  const macReleaseProxyPath = `/Applications/Bitwarden.app/Contents/MacOS/desktop_proxy${proxyExtension}`;
+  if (process.platform === "darwin" && fs.existsSync(macReleaseProxyPath)) {
+    return macReleaseProxyPath;
+  }
+
+  throw new Error("Could not find the desktop_proxy executable");
 }
