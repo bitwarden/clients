@@ -56,13 +56,6 @@ describe("DefaultLoginComponentService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("getOrgPolicies", () => {
-    it("returns null", async () => {
-      const result = await service.getOrgPolicies();
-      expect(result).toBeNull();
-    });
-  });
-
   describe("isLoginWithPasskeySupported", () => {
     it("returns true when clientType is Web", () => {
       service["clientType"] = ClientType.Web;

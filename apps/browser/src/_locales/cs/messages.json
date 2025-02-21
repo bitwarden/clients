@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Kopírovat poznámky"
   },
+  "copy": {
+    "message": "Kopírovat",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Vyplnit",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Blokované domény"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Zjistěte více o blokovaných doménách"
+  },
   "excludedDomains": {
     "message": "Vyloučené domény"
   },
@@ -2362,6 +2369,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Změňte to v nastavení"
+  },
+  "change": {
+    "message": "Změnit"
+  },
+  "changeButtonTitle": {
+    "message": "Změnit heslo - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Ohrožená hesla"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ Vás žádá o změnu $COUNT$ hesel, protože jsou v ohrožení.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Vaše organizace Vás žádají o změnu $COUNT$ hesel, protože jsou v ohrožení.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Zkontrolovat a změnit jedno ohrožené heslo"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Zkontrolovat a změnit $COUNT$ ohrožených hesel",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Změnit ohrožená hesla rychleji"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Aktualizujte svá nastavení, abyste mohli rychle automaticky vyplňovat hesla a generovat nová hesla."
+  },
+  "turnOnAutofill": {
+    "message": "Zapnout automatické vyplňování"
+  },
+  "turnedOnAutofill": {
+    "message": "Automatické vyplňování bylo zapnuto"
+  },
+  "dismiss": {
+    "message": "Zavřít"
   },
   "websiteItemLabel": {
     "message": "Webová stránka $number$ (URI)",
@@ -2956,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Neplatný token API $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ odmítl Váš požadavek. Kontaktujte svého poskytovatele služeb o pomoc.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ odmítl Váš požadavek: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",

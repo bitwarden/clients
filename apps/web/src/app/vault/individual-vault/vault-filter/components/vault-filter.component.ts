@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject } from "rxjs";
+import { firstValueFrom, merge, Subject, switchMap, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -109,6 +109,19 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     this.activeFilter.selectedCipherTypeNode =
       (await this.getDefaultFilter()) as TreeNode<CipherTypeFilter>;
     this.isLoaded = true;
+
+    // Without refactoring the entire component, we need to manually update the organization filter whenever the policies update
+    merge(
+      this.policyService.get$(PolicyType.SingleOrg),
+      this.policyService.get$(PolicyType.PersonalOwnership),
+    )
+      .pipe(
+        switchMap(() => this.addOrganizationFilter()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((orgFilters) => {
+        this.filters.organizationFilter = orgFilters;
+      });
   }
 
   ngOnDestroy() {

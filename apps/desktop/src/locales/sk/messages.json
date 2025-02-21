@@ -2640,6 +2640,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť. Obráťte sa na svojho poskytovateľa služieb a požiadajte o pomoc.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Nepodarilo sa získať ID maskovaného e-mailového účtu $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3496,14 +3520,17 @@
   "changeAcctEmail": {
     "message": "Zmeniť e-mail účtu"
   },
-  "organizationUpgradeRequired": {
-    "message": "Vyžaduje sa upgrade organizácie"
+  "allowScreenshots": {
+    "message": "Povoliť snímanie obrazovky"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organizácie"
+  "allowScreenshotsDesc": {
+    "message": "Umožní zachytenie Bitwardenu na snímkach obrazovky a jej zobrazenie v reláciách vzdialenej plochy. Zakázanie tejto funkcie zabráni prístupu na niektoré externé displeje."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Táto funkcia nie je k dispozícii pre bezplatné organizácie. Ak chcete odomknúť ďalšie funkcie, prejdite na platený plán."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Potvrdiť viditeľnosť okna"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Potvrďte, že okno je stále viditeľné."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Rozšírenie musíte aktualizovať"

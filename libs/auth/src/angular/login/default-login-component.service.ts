@@ -1,4 +1,6 @@
-import { LoginComponentService, PasswordPolicies } from "@bitwarden/auth/angular";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { LoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -19,10 +21,6 @@ export class DefaultLoginComponentService implements LoginComponentService {
     protected ssoLoginService: SsoLoginServiceAbstraction,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
-  }
-
-  async getOrgPolicies(): Promise<PasswordPolicies | null> {
-    return null;
   }
 
   isLoginWithPasskeySupported(): boolean {

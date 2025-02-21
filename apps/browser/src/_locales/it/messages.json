@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Copia note"
   },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Riempi",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Domini bloccati"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
+  },
   "excludedDomains": {
     "message": "Domini esclusi"
   },
@@ -2362,6 +2369,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Modifica questo nelle impostazioni"
+  },
+  "change": {
+    "message": "Cambia"
+  },
+  "changeButtonTitle": {
+    "message": "Cambia parola d'accesso - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Parola d'accesso a rischio"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ ti sta richiedendo di modificare $COUNT$ parole d'accesso perché sono a rischio.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Le tue organizzazioni ti chiedono di modificare le $COUNT$ parole d'accesso perché sono a rischio.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Rivedi e modifica una parola d'accesso a rischio"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Rivedi e modifica $COUNT$ parole d'accesso a rischio",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Cambia le parole d'accesso a rischio più velocemente"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Aggiorna le impostazioni in modo da poter rapidamente riempire automaticamente le parole d'accesso e generarne di nuove"
+  },
+  "turnOnAutofill": {
+    "message": "Attiva riempimento automatico"
+  },
+  "turnedOnAutofill": {
+    "message": "Riempimento automatico attivato"
+  },
+  "dismiss": {
+    "message": "Ignora"
   },
   "websiteItemLabel": {
     "message": "Sito $number$ (URI)",
@@ -2956,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Token API $SERVICENAME$ non valido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ ha rifiutato la tua richiesta. Contatta il tuo fornitore di servizi per assistenza.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ ha respinto la tua richiesta: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",

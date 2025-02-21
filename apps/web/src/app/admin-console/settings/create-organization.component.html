@@ -2,5 +2,9 @@
 
 <bit-container>
   <p>{{ "newOrganizationDesc" | i18n }}</p>
-  <app-organization-plans></app-organization-plans>
+  <app-organization-plans
+    [enableSecretsManagerByDefault]="secretsManager"
+    [plan]="plan"
+    [productTier]="productTier"
+  ></app-organization-plans>
 </bit-container>
