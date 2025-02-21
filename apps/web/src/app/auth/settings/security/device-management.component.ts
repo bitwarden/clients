@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy } from "@angular/core";
-import { combineLatest, firstValueFrom, Subject, takeUntil } from "rxjs";
+import { Component, DestroyRef } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { combineLatest, firstValueFrom } from "rxjs";
 
 import { LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { AuthRequestApiService } from "@bitwarden/auth/common";
@@ -48,12 +49,11 @@ interface DeviceTableData {
   standalone: true,
   imports: [CommonModule, SharedModule, TableModule, PopoverModule],
 })
-export class DeviceManagementComponent implements OnDestroy {
+export class DeviceManagementComponent {
   protected dataSource = new TableDataSource<DeviceTableData>();
   protected currentDevice: DeviceView | undefined;
   protected loading = true;
   protected asyncActionLoading = false;
-  private destroy$ = new Subject<void>();
 
   constructor(
     private i18nService: I18nService,
@@ -63,13 +63,9 @@ export class DeviceManagementComponent implements OnDestroy {
     private validationService: ValidationService,
     private messageListener: MessageListener,
     private authRequestApiService: AuthRequestApiService,
+    private destroyRef: DestroyRef,
   ) {
     void this.initializeDevices();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**
@@ -79,15 +75,17 @@ export class DeviceManagementComponent implements OnDestroy {
     try {
       await this.loadDevices();
 
-      this.messageListener.allMessages$.pipe(takeUntil(this.destroy$)).subscribe((message) => {
-        if (message.command !== "openLoginApproval") {
-          return;
-        }
-        // Handle inserting a new device when an auth request is received
-        this.upsertDeviceWithPendingAuthRequest(
-          message as { command: string; notificationId: string },
-        ).catch((error) => this.validationService.showError(error));
-      });
+      this.messageListener.allMessages$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((message) => {
+          if (message.command !== "openLoginApproval") {
+            return;
+          }
+          // Handle inserting a new device when an auth request is received
+          this.upsertDeviceWithPendingAuthRequest(
+            message as { command: string; notificationId: string },
+          ).catch((error) => this.validationService.showError(error));
+        });
     } catch (error) {
       this.validationService.showError(error);
     }
