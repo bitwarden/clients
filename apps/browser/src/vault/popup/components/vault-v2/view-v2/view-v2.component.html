@@ -3,20 +3,6 @@
     <app-pop-out slot="end" />
   </popup-header>
 
-  <ng-container *ngIf="isSecurityTasksEnabled$ | async">
-    <bit-callout
-      *ngIf="cipher?.login.uris.length > 0 && hadPendingChangePasswordTask$ | async"
-      type="warning"
-      [title]="''"
-    >
-      <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
-      <a bitLink (click)="launchChangePassword(cipher)">
-        {{ "changeAtRiskPassword" | i18n }}
-        <i class="bwi bwi-popout tw-ml-1" aria-hidden="true"></i>
-      </a>
-    </bit-callout>
-  </ng-container>
-
   <app-cipher-view *ngIf="cipher" [cipher]="cipher"></app-cipher-view>
 
   <popup-footer slot="footer" *ngIf="showFooter()">

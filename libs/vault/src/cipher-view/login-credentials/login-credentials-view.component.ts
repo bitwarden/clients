@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, inject, Input, OnInit } from "@angular/core";
-import { map, Observable, of, switchMap } from "rxjs";
+import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
+import { Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -12,7 +12,6 @@ import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -26,7 +25,6 @@ import {
   BadgeModule,
   ColorPasswordModule,
 } from "@bitwarden/components";
-import { ChangeLoginPasswordService, DefaultTaskService, SecurityTaskType } from "@bitwarden/vault";
 
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
@@ -55,9 +53,11 @@ type TotpCodeValues = {
     LinkModule,
   ],
 })
-export class LoginCredentialsViewComponent implements OnInit {
+export class LoginCredentialsViewComponent {
   @Input() cipher: CipherView;
   @Input() activeUserId: UserId;
+  @Input() hadPendingChangePasswordTask: boolean;
+  @Output() handleChangePassword = new EventEmitter<CipherView>();
 
   isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
@@ -67,7 +67,6 @@ export class LoginCredentialsViewComponent implements OnInit {
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
   totpCodeCopyObj: TotpCodeValues;
-  hadPendingChangePasswordTask$: Observable<boolean>;
   isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
 
   private datePipe = inject(DatePipe);
@@ -78,45 +77,8 @@ export class LoginCredentialsViewComponent implements OnInit {
     private premiumUpgradeService: PremiumUpgradePromptService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
-    private defaultTaskService: DefaultTaskService,
-    private platformUtilsService: PlatformUtilsService,
-    private changeLoginPasswordService: ChangeLoginPasswordService,
     private configService: ConfigService,
   ) {}
-
-  ngOnInit() {
-    this.hadPendingChangePasswordTask$ = this.checkPendingChangePasswordTasks$();
-  }
-
-  checkPendingChangePasswordTasks$(): Observable<boolean> {
-    if (!this.cipher.edit || !this.cipher.viewPassword) {
-      return of(false);
-    }
-    return this.defaultTaskService.pendingTasks$(this.activeUserId).pipe(
-      map((tasks) => {
-        let hasTasks = false;
-
-        if (tasks?.length > 0) {
-          hasTasks =
-            tasks.filter((task) => {
-              return (
-                task.cipherId === this.cipher.id &&
-                task.type === SecurityTaskType.UpdateAtRiskCredential
-              );
-            }).length > 0;
-        }
-        return hasTasks && this.cipher.edit && this.cipher.viewPassword;
-      }),
-    );
-  }
-
-  launchChangePassword = async (cipher: CipherView) => {
-    const url = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
-    if (url == null) {
-      return;
-    }
-    this.platformUtilsService.launchUri(url);
-  };
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -159,5 +121,9 @@ export class LoginCredentialsViewComponent implements OnInit {
       false,
       this.cipher.organizationId,
     );
+  }
+
+  launchChangePasswordEvent(cipher: CipherView) {
+    this.handleChangePassword.emit(cipher);
   }
 }

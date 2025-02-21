@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -21,11 +21,8 @@ import {
   SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -41,7 +38,6 @@ import {
   SearchModule,
   ToastService,
   CalloutModule,
-  AnchorLinkDirective,
 } from "@bitwarden/components";
 import {
   ChangeLoginPasswordService,
@@ -49,7 +45,6 @@ import {
   CopyCipherFieldService,
   DefaultChangeLoginPasswordService,
   DefaultTaskService,
-  SecurityTaskType,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -95,7 +90,6 @@ type LoadAction =
     AsyncActionsModule,
     PopOutComponent,
     CalloutModule,
-    AnchorLinkDirective,
   ],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
@@ -114,8 +108,6 @@ export class ViewV2Component {
   collections$: Observable<CollectionView[]>;
   loadAction: LoadAction;
   senderTabId?: number;
-  hadPendingChangePasswordTask$: Observable<boolean>;
-  isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
 
   constructor(
     private route: ActivatedRoute,
@@ -132,10 +124,6 @@ export class ViewV2Component {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
-    private defaultTaskService: DefaultTaskService,
-    private platformUtilsService: PlatformUtilsService,
-    private changeLoginPasswordService: ChangeLoginPasswordService,
-    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
@@ -170,8 +158,6 @@ export class ViewV2Component {
             false,
             cipher.organizationId,
           );
-
-          this.hadPendingChangePasswordTask$ = this.checkPendingChangePasswordTasks$();
         }),
         takeUntilDestroyed(),
       )
@@ -191,29 +177,6 @@ export class ViewV2Component {
       case CipherType.SshKey:
         return this.i18nService.t("viewItemHeader", this.i18nService.t("typeSshkey"));
     }
-  }
-
-  checkPendingChangePasswordTasks$(): Observable<boolean> {
-    if (!this.cipher.edit || !this.cipher.viewPassword) {
-      return of(false);
-    }
-
-    return this.defaultTaskService.pendingTasks$(this.activeUserId).pipe(
-      map((tasks) => {
-        let hasTasks = false;
-
-        if (tasks?.length > 0) {
-          hasTasks =
-            tasks.filter((task) => {
-              return (
-                task.cipherId === this.cipher.id &&
-                task.type === SecurityTaskType.UpdateAtRiskCredential
-              );
-            }).length > 0;
-        }
-        return hasTasks;
-      }),
-    );
   }
 
   async getCipherData(id: string, userId: UserId) {
@@ -293,14 +256,6 @@ export class ViewV2Component {
         (this.cipher.isDeleted && this.cipher.edit && this.cipher.viewPassword))
     );
   }
-
-  launchChangePassword = async (cipher: CipherView) => {
-    const url = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
-    if (url == null) {
-      return;
-    }
-    this.platformUtilsService.launchUri(url);
-  };
 
   /**
    * Handles the load action for the view vault item popout. These actions are typically triggered
