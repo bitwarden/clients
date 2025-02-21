@@ -19,8 +19,10 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { EventSystemUser } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
 import { EventView } from "@bitwarden/common/models/view/event.view";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -35,7 +37,7 @@ import { EventService } from "../../../core";
 import { EventExportService } from "../../../tools/event-export";
 import { BaseEventsComponent } from "../../common/base.events.component";
 
-import { dummyEvents } from "./dummy-events";
+import { placeholderEvents } from "./placeholder-events";
 
 const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.SCIM]: null, // SCIM acronym not able to be translated so just display SCIM
@@ -51,16 +53,18 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   exportFileName = "org-events";
   organizationId: string;
   organization: Organization;
-  sub: OrganizationSubscriptionResponse;
+  organizationSubscription: OrganizationSubscriptionResponse;
 
-  dummyEvents = dummyEvents as EventView[];
+  placeholderEvents = placeholderEvents as EventView[];
 
   private orgUsersUserIdMap = new Map<string, any>();
   private destroy$ = new Subject<void>();
-  readonly dummyEventsDisclaimer =
-    "These events are examples only and do not reflect real events within your Bitwarden organization.";
 
   readonly ProductTierType = ProductTierType;
+
+  protected isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM12276_BreadcrumbEventLogs,
+  );
 
   constructor(
     private apiService: ApiService,
@@ -80,6 +84,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     toastService: ToastService,
     private accountService: AccountService,
     private dialogService: DialogService,
+    private configService: ConfigService,
   ) {
     super(
       eventService,
@@ -104,11 +109,13 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
               .pipe(getOrganizationById(this.organizationId)),
           );
 
-          if (this.organization.isOwner && !this.organization.useEvents) {
+          if (!this.organization.useEvents) {
             this.eventsForm.get("start").disable();
             this.eventsForm.get("end").disable();
 
-            this.sub = await this.organizationApiService.getSubscription(this.organizationId);
+            this.organizationSubscription = await this.organizationApiService.getSubscription(
+              this.organizationId,
+            );
           }
 
           await this.load();
@@ -212,7 +219,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     const reference = openChangePlanDialog(this.dialogService, {
       data: {
         organizationId: this.organizationId,
-        subscription: this.sub,
+        subscription: this.organizationSubscription,
         productTierType: this.organization.productTierType,
       },
     });

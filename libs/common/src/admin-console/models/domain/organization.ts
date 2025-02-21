@@ -172,7 +172,7 @@ export class Organization {
   }
 
   get canAccessEventLogs() {
-    return ((this.isAdmin || this.permissions.accessEventLogs) && this.useEvents) || this.isOwner;
+    return (this.isAdmin || this.permissions.accessEventLogs) && this.useEvents;
   }
 
   /**

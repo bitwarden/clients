@@ -2,16 +2,14 @@
 // @ts-strict-ignore
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 
 import { User } from "@bitwarden/angular/pipes/user-name.pipe";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -38,7 +36,7 @@ export class WebHeaderComponent implements OnInit, OnDestroy {
   protected canLock$: Observable<boolean>;
   protected selfHosted: boolean;
   protected hostname = location.hostname;
-  protected organization: Organization;
+  protected organization$: Observable<Organization>;
 
   constructor(
     private route: ActivatedRoute,
@@ -65,22 +63,13 @@ export class WebHeaderComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.route.params
-      .pipe(
-        switchMap(async (params) => {
-          const organizationId = params.organizationId;
-          const userId = await firstValueFrom(
-            this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-          );
-          this.organization = await firstValueFrom(
-            this.organizationService
-              .organizations$(userId)
-              .pipe(getOrganizationById(organizationId)),
-          );
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+    this.organization$ = combineLatest([
+      this.route.params,
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.organizationService.organizations$(userId)),
+      ),
+    ]).pipe(map(([params, orgs]) => orgs.find((org) => org.id === params.organizationId)));
   }
 
   protected lock() {

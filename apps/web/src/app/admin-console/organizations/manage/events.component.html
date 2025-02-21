@@ -67,7 +67,7 @@
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 <ng-container *ngIf="loaded">
-  @let displayedEvents = organization?.useEvents ? events : dummyEvents;
+  @let displayedEvents = organization?.useEvents ? events : placeholderEvents;
 
   <p *ngIf="!displayedEvents || !displayedEvents.length">{{ "noEventsInList" | i18n }}</p>
   <bit-table *ngIf="displayedEvents && displayedEvents.length">

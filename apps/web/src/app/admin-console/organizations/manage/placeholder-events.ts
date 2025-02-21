@@ -16,7 +16,7 @@ function getRandomDateTime() {
   });
 }
 
-export const dummyEvents = [
+export const placeholderEvents = [
   {
     date: getRandomDateTime(),
     appName: "Extension - Firefox",

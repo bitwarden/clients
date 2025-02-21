@@ -42,7 +42,7 @@
         route="reporting/events"
         *ngIf="
           (organization.canAccessEventLogs && organization.useEvents) ||
-          (organization.isOwner && isBreadcrumbEventLogsEnabled)
+          (organization.isOwner && (isBreadcrumbEventLogsEnabled$ | async))
         "
       ></bit-nav-item>
       <bit-nav-item

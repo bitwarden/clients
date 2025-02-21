@@ -65,7 +65,7 @@ export class OrganizationLayoutComponent implements OnInit {
   enterpriseOrganization$: Observable<boolean>;
 
   showAccountDeprovisioningBanner$: Observable<boolean>;
-  isBreadcrumbEventLogsEnabled = false;
+  protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -79,7 +79,7 @@ export class OrganizationLayoutComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.isBreadcrumbEventLogsEnabled = await this.configService.getFeatureFlag(
+    this.isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM12276_BreadcrumbEventLogs,
     );
     document.body.classList.remove("layout_frontend");
