@@ -2640,6 +2640,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商获取协助。",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "无法获取 $SERVICENAME$ 电子邮箱账户 ID。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3171,7 +3195,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。"
+    "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 获取协助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 Duo 然后按照步骤完成登录。"
