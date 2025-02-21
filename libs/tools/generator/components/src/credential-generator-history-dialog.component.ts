@@ -2,8 +2,15 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChanges, OnInit, OnDestroy } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, ReplaySubject, Subject, firstValueFrom, map, switchMap } from "rxjs";
+import {
+  BehaviorSubject,
+  ReplaySubject,
+  Subject,
+  firstValueFrom,
+  map,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -91,7 +98,7 @@ export class CredentialGeneratorHistoryDialogComponent implements OnChanges, OnI
       .pipe(
         switchMap((account) => account.id && this.history.credentials$(account.id)),
         map((credentials) => credentials.length > 0),
-        takeUntilDestroyed(),
+        takeUntil(this.destroyed),
       )
       .subscribe(this.hasHistory$);
   }
