@@ -22,5 +22,5 @@ export type ServerSideVerification = OtpVerification | MasterPasswordVerificatio
 
 export type MasterPasswordVerificationResponse = {
   masterKey: MasterKey;
-  policyOptions: MasterPasswordPolicyResponse;
+  policyOptions: MasterPasswordPolicyResponse | null;
 };
