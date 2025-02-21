@@ -4,13 +4,13 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -18,14 +18,14 @@ import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
 // eslint-disable-next-line no-restricted-imports
-import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../../../tools/reports/pages/inactive-two-factor-report.component";
-import { RoutedVaultFilterBridgeService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
-import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
+import { RoutedVaultFilterBridgeService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
+import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
+import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
+import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponent } from "../unsecured-websites-report.component";
 
 @Component({
-  selector: "app-inactive-two-factor-report",
-  templateUrl: "../../../tools/reports/pages/inactive-two-factor-report.component.html",
+  selector: "app-unsecured-websites-report",
+  templateUrl: "../unsecured-websites-report.component.html",
   providers: [
     {
       provide: CipherFormConfigService,
@@ -37,20 +37,20 @@ import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/se
   ],
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class InactiveTwoFactorReportComponent
-  extends BaseInactiveTwoFactorReportComponent
+export class UnsecuredWebsitesReportComponent
+  extends BaseUnsecuredWebsitesReportComponent
   implements OnInit
 {
   constructor(
     cipherService: CipherService,
     dialogService: DialogService,
     private route: ActivatedRoute,
-    logService: LogService,
-    passwordRepromptService: PasswordRepromptService,
     organizationService: OrganizationService,
-    accountService: AccountService,
+    protected accountService: AccountService,
+    passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
+    collectionService: CollectionService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
@@ -59,10 +59,10 @@ export class InactiveTwoFactorReportComponent
       organizationService,
       dialogService,
       accountService,
-      logService,
       passwordRepromptService,
       i18nService,
       syncService,
+      collectionService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
     );

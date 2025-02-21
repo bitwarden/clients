@@ -287,7 +287,7 @@ const routes: Routes = [
     path: "cipher-password-history",
     component: PasswordHistoryV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
     path: "add-cipher",
@@ -310,7 +310,7 @@ const routes: Routes = [
     path: "attachments",
     component: AttachmentsV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
     path: "generator",
@@ -382,7 +382,7 @@ const routes: Routes = [
     path: "premium",
     component: PremiumV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 3 } satisfies RouteDataProperties,
   },
   {
     path: "appearance",

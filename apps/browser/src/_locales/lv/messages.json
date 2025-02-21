@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Ievietot piezīmes starpliktuvē"
   },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Aizpildīt",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Liegtie domēna vārdi"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Uzzināt vairāk par liegtajiem domēna vārdiem"
+  },
   "excludedDomains": {
     "message": "Izņēmuma domēni"
   },
@@ -2362,6 +2369,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "To var mainīt iestatījumos"
+  },
+  "change": {
+    "message": "Mainīt"
+  },
+  "changeButtonTitle": {
+    "message": "Mainīt paroli - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Riskam pakļautās paroles"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ pieprasa mainīt $COUNT$ paroles, jo tās ir pakļautas riskam.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Apvienības pieprasa mainīt $COUNT$ paroles, jo tās ir pakļautas riskam.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Pārskatīt un mainīt vienu riskam pakļautu paroli"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Pārskatīt un mainīt $COUNT$ riskam pakļautās paroles",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Mainīt riskam pakļautās paroles ātrāk"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Jāatjaunina savi iestatījumi, lai varētu veikli aizpildīt paroles automātiski un izveidot jaunas"
+  },
+  "turnOnAutofill": {
+    "message": "Ieslēgt automātisko aizpildi"
+  },
+  "turnedOnAutofill": {
+    "message": "Automātiskā aizpilde ieslēgta"
+  },
+  "dismiss": {
+    "message": "Noraidīt"
   },
   "websiteItemLabel": {
     "message": "Tīmekļvietne $number$ (URI)",
@@ -2956,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Nederīga $SERVICENAME$ API pilnvara: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",

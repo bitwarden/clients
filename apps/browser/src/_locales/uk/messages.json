@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Копіювати нотатки"
   },
+  "copy": {
+    "message": "Копіювати",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Заповнити",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -1618,10 +1622,10 @@
     "message": "Показувати піктограми вебсайтів"
   },
   "faviconDesc": {
-    "message": "Показувати впізнаване зображення біля кожного запису."
+    "message": "Показувати зображення біля кожного запису."
   },
   "faviconDescAlt": {
-    "message": "Показати впізнаване зображення поруч з кожним записом. Застосовується для всіх облікових записів, до яких виконано вхід."
+    "message": "Показувати зображення поруч з кожним записом. Застосовується для всіх облікових записів, до яких виконано вхід."
   },
   "enableBadgeCounter": {
     "message": "Показувати лічильник"
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Заблоковані домени"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Докладніше про заблоковані домени"
+  },
   "excludedDomains": {
     "message": "Виключені домени"
   },
@@ -2362,6 +2369,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Змінити в налаштуваннях"
+  },
+  "change": {
+    "message": "Змінити"
+  },
+  "changeButtonTitle": {
+    "message": "Змінити пароль – $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Ризиковані паролі"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ вимагає зміни $COUNT$ паролів, оскільки вони ризиковані.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Ваші організації вимагають зміни $COUNT$ паролів, оскільки вони ризиковані.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Перегляньте і змініть один ризикований пароль"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Перегляньте і змініть $COUNT$ ризикованих паролів",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Швидше змінюйте ризиковані паролі"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Оновіть налаштування, щоб швидше автоматично заповнювати й створювати паролі"
+  },
+  "turnOnAutofill": {
+    "message": "Увімкніть автозаповнення"
+  },
+  "turnedOnAutofill": {
+    "message": "Автозаповнення увімкнено"
+  },
+  "dismiss": {
+    "message": "Відхилити"
   },
   "websiteItemLabel": {
     "message": "Вебсайт $number$ (URI)",
@@ -2967,6 +3038,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ відхилив ваш запит. Зверніться до провайдера послуг по допомогу.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ відхилив ваш запит: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Не вдалося отримати ідентифікатор замаскованої е-пошти облікового запису для $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3124,13 +3219,13 @@
     "message": "Сповіщення було надіслано на ваш пристрій."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "Розблокуйте Bitwarden на своєму пристрої або у"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "вебпрограмі"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Перш ніж підтверджувати, обов'язково перевірте відповідність зазначеної нижче фрази відбитка."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Сповіщення надіслано на ваш пристрій"
@@ -3145,7 +3240,7 @@
     "message": "Ініційовано вхід"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Запит надіслано"
   },
   "exposedMasterPassword": {
     "message": "Головний пароль викрито"
