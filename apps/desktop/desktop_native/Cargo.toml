@@ -2,6 +2,12 @@
 resolver = "2"
 members = ["napi", "core", "proxy", "macos_provider", "windows-plugin-authenticator"]
 
+[workspace.package]
+version = "0.0.0"
+license = "GPL-3.0"
+edition = "2021"
+publish = false
+
 [workspace.dependencies]
 anyhow = "=1.0.94"
 log = "=0.4.25"
