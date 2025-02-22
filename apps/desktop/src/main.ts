@@ -207,6 +207,14 @@ export class Main {
       new ElectronMainMessagingService(this.windowMain),
     );
 
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.biometricsService,
+      this.messagingService,
+    );
+
     messageSubject.asObservable().subscribe((message) => {
       void this.messagingMain.onMessage(message).catch((err) => {
         this.logService.error(
@@ -234,8 +242,8 @@ export class Main {
       this.windowMain,
       this.i18nService,
       this.desktopSettingsService,
-      biometricStateService,
       this.biometricsService,
+      this.messagingService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
@@ -282,6 +290,8 @@ export class Main {
     this.migrationRunner.run().then(
       async () => {
         await this.toggleHardwareAcceleration();
+        // Reset modal mode to make sure main window is displayed correctly
+        await this.desktopSettingsService.resetInModalMode();
         await this.windowMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();
