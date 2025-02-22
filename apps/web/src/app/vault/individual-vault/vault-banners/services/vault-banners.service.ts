@@ -3,6 +3,7 @@ import { Observable, combineLatest, firstValueFrom, map, filter, mergeMap, take 
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -21,6 +22,7 @@ export enum VisibleVaultBanner {
   OutdatedBrowser = "outdated-browser",
   Premium = "premium",
   VerifyEmail = "verify-email",
+  PendingAuthRequest = "pending-auth-request",
 }
 
 type PremiumBannerReprompt = {
@@ -60,7 +62,22 @@ export class VaultBannersService {
     private kdfConfigService: KdfConfigService,
     private syncService: SyncService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private devicesService: DevicesServiceAbstraction,
   ) {}
+
+  /** Returns true when the pending auth request banner should be shown */
+  async shouldShowPendingAuthRequestBanner(userId: UserId): Promise<boolean> {
+    const devices = await firstValueFrom(this.devicesService.getDevices$());
+    const hasPendingRequest = devices.some(
+      (device) => device.response?.devicePendingAuthRequest != null,
+    );
+
+    const alreadyDismissed = (await this.getBannerDismissedState(userId)).includes(
+      VisibleVaultBanner.PendingAuthRequest,
+    );
+
+    return hasPendingRequest && !alreadyDismissed;
+  }
 
   shouldShowPremiumBanner$(userId: UserId): Observable<boolean> {
     const premiumBannerState = this.premiumBannerState(userId);

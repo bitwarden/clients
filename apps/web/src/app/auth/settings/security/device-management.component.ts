@@ -1,9 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, DestroyRef } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { LoginApprovalComponent } from "@bitwarden/auth/angular";
+import { AuthRequestApiService } from "@bitwarden/auth/common";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import {
   DevicePendingAuthRequest,
@@ -13,6 +14,7 @@ import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/de
 import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import {
   DialogService,
   ToastService,
@@ -23,6 +25,9 @@ import {
 
 import { SharedModule } from "../../../shared";
 
+/**
+ * Interface representing a row in the device management table
+ */
 interface DeviceTableData {
   id: string;
   type: DeviceType;
@@ -32,6 +37,7 @@ interface DeviceTableData {
   trusted: boolean;
   devicePendingAuthRequest: DevicePendingAuthRequest | null;
   hasPendingAuthRequest: boolean;
+  identifier: string;
 }
 
 /**
@@ -44,7 +50,6 @@ interface DeviceTableData {
   imports: [CommonModule, SharedModule, TableModule, PopoverModule],
 })
 export class DeviceManagementComponent {
-  protected readonly tableId = "device-management-table";
   protected dataSource = new TableDataSource<DeviceTableData>();
   protected currentDevice: DeviceView | undefined;
   protected loading = true;
@@ -56,32 +61,146 @@ export class DeviceManagementComponent {
     private dialogService: DialogService,
     private toastService: ToastService,
     private validationService: ValidationService,
+    private messageListener: MessageListener,
+    private authRequestApiService: AuthRequestApiService,
+    private destroyRef: DestroyRef,
   ) {
-    combineLatest([this.devicesService.getCurrentDevice$(), this.devicesService.getDevices$()])
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: ([currentDevice, devices]: [DeviceResponse, Array<DeviceView>]) => {
-          this.currentDevice = new DeviceView(currentDevice);
+    void this.initializeDevices();
+  }
 
-          this.dataSource.data = devices.map((device: DeviceView): DeviceTableData => {
-            return {
-              id: device.id,
-              type: device.type,
-              displayName: this.getHumanReadableDeviceType(device.type),
-              loginStatus: this.getLoginStatus(device),
-              firstLogin: new Date(device.creationDate),
-              trusted: device.response.isTrusted,
-              devicePendingAuthRequest: device.response.devicePendingAuthRequest,
-              hasPendingAuthRequest: this.hasPendingAuthRequest(device.response),
-            };
-          });
+  /**
+   * Initialize the devices list and set up the message listener
+   */
+  private async initializeDevices(): Promise<void> {
+    try {
+      await this.loadDevices();
 
-          this.loading = false;
-        },
-        error: () => {
-          this.loading = false;
-        },
-      });
+      this.messageListener.allMessages$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((message) => {
+          if (message.command !== "openLoginApproval") {
+            return;
+          }
+          // Handle inserting a new device when an auth request is received
+          this.upsertDeviceWithPendingAuthRequest(
+            message as { command: string; notificationId: string },
+          ).catch((error) => this.validationService.showError(error));
+        });
+    } catch (error) {
+      this.validationService.showError(error);
+    }
+  }
+
+  /**
+   * Handle inserting a new device when an auth request is received
+   * @param message - The auth request message
+   */
+  private async upsertDeviceWithPendingAuthRequest(message: {
+    command: string;
+    notificationId: string;
+  }): Promise<void> {
+    const requestId = message.notificationId;
+    if (!requestId) {
+      return;
+    }
+
+    const authRequestResponse = await this.authRequestApiService.getAuthRequest(requestId);
+    if (!authRequestResponse) {
+      return;
+    }
+
+    // Add new device to the table
+    const upsertDevice: DeviceTableData = {
+      id: "",
+      type: authRequestResponse.requestDeviceTypeValue,
+      displayName: this.getHumanReadableDeviceType(authRequestResponse.requestDeviceTypeValue),
+      loginStatus: this.i18nService.t("requestPending"),
+      firstLogin: new Date(authRequestResponse.creationDate),
+      trusted: false,
+      devicePendingAuthRequest: {
+        id: authRequestResponse.id,
+        creationDate: authRequestResponse.creationDate,
+      },
+      hasPendingAuthRequest: true,
+      identifier: authRequestResponse.requestDeviceIdentifier,
+    };
+
+    // If the device already exists in the DB, update the device id and first login date
+    if (authRequestResponse.requestDeviceIdentifier) {
+      const existingDevice = await firstValueFrom(
+        this.devicesService.getDeviceByIdentifier$(authRequestResponse.requestDeviceIdentifier),
+      );
+
+      if (existingDevice?.id && existingDevice.creationDate) {
+        upsertDevice.id = existingDevice.id;
+        upsertDevice.firstLogin = new Date(existingDevice.creationDate);
+      }
+    }
+
+    const existingDeviceIndex = this.dataSource.data.findIndex(
+      (device) => device.identifier === upsertDevice.identifier,
+    );
+
+    if (existingDeviceIndex >= 0) {
+      // Update existing device
+      this.dataSource.data[existingDeviceIndex] = upsertDevice;
+      this.dataSource.data = [...this.dataSource.data];
+    } else {
+      // Add new device
+      this.dataSource.data = [upsertDevice, ...this.dataSource.data];
+    }
+  }
+
+  /**
+   * Load current device and all devices
+   */
+  private async loadDevices(): Promise<void> {
+    try {
+      const currentDevice = await firstValueFrom(this.devicesService.getCurrentDevice$());
+      const devices = await firstValueFrom(this.devicesService.getDevices$());
+
+      if (!currentDevice || !devices) {
+        this.loading = false;
+        return;
+      }
+
+      this.currentDevice = new DeviceView(currentDevice);
+      this.updateDeviceTable(devices);
+    } catch (error) {
+      this.validationService.showError(error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  /**
+   * Updates the device table with the latest device data
+   * @param devices - Array of device views to display in the table
+   */
+  private updateDeviceTable(devices: Array<DeviceView>): void {
+    this.dataSource.data = devices
+      .map((device: DeviceView): DeviceTableData | null => {
+        if (!device.id || !device.type || !device.creationDate) {
+          this.validationService.showError(new Error("Invalid device data"));
+          return null;
+        }
+
+        const hasPendingRequest = device.response
+          ? this.hasPendingAuthRequest(device.response)
+          : false;
+        return {
+          id: device.id,
+          type: device.type,
+          displayName: this.getHumanReadableDeviceType(device.type),
+          loginStatus: this.getLoginStatus(device),
+          firstLogin: new Date(device.creationDate),
+          trusted: device.response?.isTrusted ?? false,
+          devicePendingAuthRequest: device.response?.devicePendingAuthRequest ?? null,
+          hasPendingAuthRequest: hasPendingRequest,
+          identifier: device.identifier ?? "",
+        };
+      })
+      .filter((device): device is DeviceTableData => device !== null);
   }
 
   /**
@@ -140,7 +259,7 @@ export class DeviceManagementComponent {
       return this.i18nService.t("currentSession");
     }
 
-    if (device.response.devicePendingAuthRequest?.creationDate) {
+    if (device?.response?.devicePendingAuthRequest?.creationDate) {
       return this.i18nService.t("requestPending");
     }
 
