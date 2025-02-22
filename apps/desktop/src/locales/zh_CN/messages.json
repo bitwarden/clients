@@ -2239,7 +2239,7 @@
     "message": "已过期"
   },
   "pendingDeletion": {
-    "message": "等待删除"
+    "message": "待删除"
   },
   "webAuthnAuthenticate": {
     "message": "验证 WebAuthn"
@@ -2640,6 +2640,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商获取协助。",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "无法获取 $SERVICENAME$ 电子邮箱账户 ID。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2761,7 +2785,7 @@
     "message": "网页 App"
   },
   "notificationSentDevicePart2": {
-    "message": "在批准前，请确保指纹短语与下面的一致。"
+    "message": "在批准前，请确保指纹短语与下面的相匹配。"
   },
   "needAnotherOptionV1": {
     "message": "需要其他选项吗？"
@@ -3171,7 +3195,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。"
+    "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 获取协助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 Duo 然后按照步骤完成登录。"
@@ -3496,14 +3520,17 @@
   "changeAcctEmail": {
     "message": "更改账户电子邮箱"
   },
-  "organizationUpgradeRequired": {
-    "message": "需要升级组织"
+  "allowScreenshots": {
+    "message": "允许屏幕截图"
   },
-  "upgradeOrganization": {
-    "message": "升级组织"
+  "allowScreenshotsDesc": {
+    "message": "允许捕获 Bitwarden 桌面应用程序屏幕截图并在远程桌面会话中查看。禁用后将阻止在某些外部显示器上访问。"
   },
-  "upgradeOrganizationDesc": {
-    "message": "此功能不适用于免费组织。请切换到付费计划以解锁更多功能。"
+  "confirmWindowStillVisibleTitle": {
+    "message": "确认窗口仍然可见"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "请确认窗口仍然可见。"
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "扩展需要更新"

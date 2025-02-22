@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Kopiraj bilješke"
   },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Ispuni",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -334,7 +338,7 @@
     "message": "Bitwarden autentifikator"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden autentifikator omogućuje pohranu ključeva za autentifikaciju i generiranje TOTP kodova za dvostruku autentifikaciju. Saznaj više na web stranici bitwarden.com"
+    "message": "Bitwarden autentifikator omogućuje pohranu autentifikatorskih ključeva i generiranje TOTP kodova za dvostruku autentifikaciju. Saznaj više na web stranici bitwarden.com"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden Secrets Manager"
@@ -903,7 +907,7 @@
     "message": "Mapa dodana"
   },
   "twoStepLoginConfirmation": {
-    "message": "Prijava dvostrukom autentifikacijom čini tvoj račun još sigurnijim tako što će zahtijevati da potvrdiš prijavu putem drugog uređaja pomoću sigurnosnog koda, autentifikatorske aplikacije, SMS-om, pozivom ili e-poštom. Prijavu dvostrukom autentifikacijom možeš omogućiti na web trezoru. Želiš li sada posjetiti bitwarden.com?"
+    "message": "Prijava dvostrukom autentifikacijom čini tvoj račun još sigurnijim tako što će zahtijevati potvrdu prijave drugim uređajem kao što je sigurnosni ključ, autentifikatorska aplikacija, SMS, poziv ili e-pošta. Prijavu dvostrukom autentifikacijom možeš omogućiti na web trezoru. Želiš li sada posjetiti bitwarden.com?"
   },
   "twoStepLoginConfirmationContent": {
     "message": "Učini svoj račun sigurnijim uključivanjem prijave dvofaktorskom autentifikacijom u Bitwarden web aplikaciji."
@@ -1317,7 +1321,7 @@
     "message": "Automatski kopiraj TOTP"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Ako za prijavu postoji autentifikatorski ključ, kopiraj TOTP kôd za provjeru u međuspremnik nakon auto-ispune prijave."
+    "message": "Ako za prijavu postoji ključ autentifikatora, kopiraj TOTP kôd za provjeru u međuspremnik nakon auto-ispune prijave."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Traži biometrijsku autentifikaciju pri pokretanju"
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Blokirane domene"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Saznaj više o blokiranim domenama"
+  },
   "excludedDomains": {
     "message": "Izuzete domene"
   },
@@ -2362,6 +2369,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Promijeni ovo u postavkama"
+  },
+  "change": {
+    "message": "Promijeni"
+  },
+  "changeButtonTitle": {
+    "message": "Promijeni lozinku - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Rizične lozinke"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "Broj rizičnih lozinki koje $ORGANIZATION$ traži da promijeniš: $COUNT$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Broj rizičnih lozinki koje tvoja organizacija traži da promijeniš: $COUNT$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Pregledaj i promijeni jednu rizičnu lozinku"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Broj rizičnih lozinki za pregled i promjenu: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Brže promijeni rizične lozinke"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Ažuriraj svoje postavke kako za brzu auto-ispunu svojih lozinki i generiranje novih"
+  },
+  "turnOnAutofill": {
+    "message": "Uključi auto-ispunu"
+  },
+  "turnedOnAutofill": {
+    "message": "Auto-ispuna uključena"
+  },
+  "dismiss": {
+    "message": "Odbaci"
   },
   "websiteItemLabel": {
     "message": "Web stranica $number$ (URI)",
@@ -2956,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Nevažeći $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -4266,7 +4361,7 @@
     "message": "Vjerodajnice za prijavu"
   },
   "authenticatorKey": {
-    "message": "Kôd za provjeru"
+    "message": "Ključ autentifikatora"
   },
   "autofillOptions": {
     "message": "Postavke auto-ispune"

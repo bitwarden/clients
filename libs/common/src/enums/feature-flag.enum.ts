@@ -8,7 +8,6 @@ export enum FeatureFlag {
   ProviderClientVaultPrivacyBanner = "ac-2833-provider-client-vault-privacy-banner",
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
-  PM14505AdminConsoleIntegrationPage = "pm-14505-admin-console-integration-page",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
 
   /* Autofill */
@@ -39,7 +38,6 @@ export enum FeatureFlag {
   SSHKeyVaultItem = "ssh-key-vault-item",
   SSHAgent = "ssh-agent",
   CipherKeyEncryption = "cipher-key-encryption",
-  PM11901_RefactorSelfHostingLicenseUploader = "PM-11901-refactor-self-hosting-license-uploader",
   TrialPaymentOptional = "PM-8163-trial-payment",
   SecurityTasks = "security-tasks",
   NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
@@ -51,6 +49,7 @@ export enum FeatureFlag {
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   NewDeviceVerification = "new-device-verification",
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
+  RecoveryCodeLogin = "pm-17128-recovery-code-login",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -69,7 +68,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ProviderClientVaultPrivacyBanner]: FALSE,
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
-  [FeatureFlag.PM14505AdminConsoleIntegrationPage]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
 
   /* Autofill */
@@ -100,7 +98,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHKeyVaultItem]: FALSE,
   [FeatureFlag.SSHAgent]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
@@ -112,6 +109,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.NewDeviceVerification]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
+  [FeatureFlag.RecoveryCodeLogin]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

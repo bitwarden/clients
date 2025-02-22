@@ -151,11 +151,15 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
         await this.syncService.syncUpsertCipher(
           notification.payload as SyncCipherNotification,
           notification.type === NotificationType.SyncCipherUpdate,
+          payloadUserId,
         );
         break;
       case NotificationType.SyncCipherDelete:
       case NotificationType.SyncLoginDelete:
-        await this.syncService.syncDeleteCipher(notification.payload as SyncCipherNotification);
+        await this.syncService.syncDeleteCipher(
+          notification.payload as SyncCipherNotification,
+          payloadUserId,
+        );
         break;
       case NotificationType.SyncFolderCreate:
       case NotificationType.SyncFolderUpdate:
