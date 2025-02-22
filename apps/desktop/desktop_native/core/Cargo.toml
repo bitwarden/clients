@@ -31,7 +31,7 @@ homedir = "=0.3.4"
 pin-project = "=1.1.8"
 dirs = "=6.0.0"
 futures = "=0.3.31"
-interprocess = { version = "=2.2.1", features = ["tokio"] }
+interprocess = { version = "=2.2.2", features = ["tokio"] }
 log.workspace = true
 rand = "=0.8.5"
 russh-cryptovec = "=0.7.3"
