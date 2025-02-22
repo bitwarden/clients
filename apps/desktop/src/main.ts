@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import "core-js/proposals/explicit-resource-management";
+
 import * as path from "path";
 
 import { app } from "electron";
