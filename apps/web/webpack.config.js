@@ -353,6 +353,13 @@ const webpackConfig = {
   cache: {
     type: "filesystem",
     allowCollectingMemory: true,
+    cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack"),
+    buildDependencies: {
+      config: [__filename],
+    },
+  },
+  snapshot: {
+    unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
   },
   optimization: {
     splitChunks: {
