@@ -4,12 +4,18 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
 import { CopyCipherFieldDirective } from "@bitwarden/vault";
 
 import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy-buttons.service";
+
+type CipherItem = {
+  value: string;
+  key: string;
+};
 
 @Component({
   standalone: true,
@@ -38,61 +44,47 @@ export class ItemCopyActionsComponent {
   }
 
   get singleCopiableLogin() {
-    const { username, password, hasTotp, totp } = this.cipher.login;
-    // If there is both a username and password but the password is not viewable, then the username is the only copiable value
-    if (username && password && !this.cipher.viewPassword) {
-      return {
-        value: username,
-        field: "username",
-      };
+    const loginItems: CipherItem[] = [
+      { value: this.cipher.login.username, key: "username" },
+      { value: this.cipher.login.password, key: "password" },
+      { value: this.cipher.login.totp, key: "totp" },
+    ];
+    // If both the password and username are visible but the password is hidden, return the username
+    if (!this.cipher.viewPassword && this.cipher.login.username && this.cipher.login.password) {
+      return { value: this.cipher.login.username, key: this.i18nService.t("username") };
     }
-    if (username && !password && !hasTotp) {
-      return {
-        value: username,
-        field: "username",
-      };
-    }
-    if (!username && password && !hasTotp) {
-      return {
-        value: password,
-        field: "password",
-      };
-    }
-    if (!username && !password && hasTotp) {
-      return {
-        value: totp,
-        field: "totp",
-      };
-    }
-    return null;
+    return this.findSingleCopiableItem(loginItems);
   }
 
-  get singleCopiableCardValue() {
-    const { code, number } = this.cipher.card;
-    if (code && !number) {
-      return code;
-    }
-    if (!code && number) {
-      return number;
-    }
-    return null;
+  get singleCopiableCard() {
+    const cardItems: CipherItem[] = [
+      { value: this.cipher.card.code, key: "code" },
+      { value: this.cipher.card.number, key: "number" },
+    ];
+    return this.findSingleCopiableItem(cardItems);
   }
 
-  get singleCopiableIdentityValue() {
-    const { fullAddressForCopy, email, username, phone } = this.cipher.identity;
-    if (fullAddressForCopy && !email && !username && !phone) {
-      return fullAddressForCopy;
-    }
-    if (!fullAddressForCopy && email && !username && !phone) {
-      return email;
-    }
-    if (!fullAddressForCopy && !email && username && !phone) {
-      return username;
-    }
-    if (!fullAddressForCopy && !email && !username && phone) {
-      return phone;
-    }
-    return null;
+  get singleCopiableIdentity() {
+    const identityItems: CipherItem[] = [
+      { value: this.cipher.identity.fullAddressForCopy, key: "address" },
+      { value: this.cipher.identity.email, key: "email" },
+      { value: this.cipher.identity.username, key: "username" },
+      { value: this.cipher.identity.phone, key: "phone" },
+    ];
+    return this.findSingleCopiableItem(identityItems);
+  }
+
+  /*
+   * Given a list of CipherItems, if there is only one item with a value,
+   * return it with the translated key. Otherwise return null
+   */
+  findSingleCopiableItem(items: { value: string; key: string }[]): CipherItem | null {
+    const singleItemWithValue = items.find(
+      (key) => key.value && items.every((f) => f === key || !f.value),
+    );
+    return singleItemWithValue
+      ? { value: singleItemWithValue.value, key: this.i18nService.t(singleItemWithValue.key) }
+      : null;
   }
 
   get hasCardValues() {
@@ -120,5 +112,5 @@ export class ItemCopyActionsComponent {
     );
   }
 
-  constructor() {}
+  constructor(private i18nService: I18nService) {}
 }
