@@ -6,14 +6,14 @@ let SFExtensionMessageKey = "message"
 let ServiceName = "Bitwarden"
 let ServiceNameBiometric = ServiceName + "_biometric"
 
-class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
+class SafariWebExtensionHandler: SFSafariExtensionHandler {
 
     override init() {
         super.init();
         NSApplication.shared.setActivationPolicy(.accessory)
     }
 
-	func beginRequest(with context: NSExtensionContext) {
+	override func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems[0] as! NSExtensionItem
         let message = item.userInfo?[SFExtensionMessageKey] as AnyObject?
         os_log(.default, "Received message from browser.runtime.sendNativeMessage: %@", message as! CVarArg)
@@ -42,6 +42,12 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                     item?.showPopover()
                 })
             }
+            break
+        case "closePopover":
+            os_log(.default, "Closing Safari Popup")
+//            NSApp.keyWindow?.contentViewController?.dismiss(nil)
+//            self.popoverViewController().dismiss(nil)
+            SafariExtensionViewController.shared.dismissPopover()
             break
         case "downloadFile":
             guard let jsonData = message?["data"] as? String else {

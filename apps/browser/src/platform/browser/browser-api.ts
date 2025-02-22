@@ -430,7 +430,10 @@ export class BrowserApi {
   }
 
   static closePopup(win: Window) {
-    if (BrowserApi.isWebExtensionsApi && BrowserApi.isFirefoxOnAndroid) {
+    if (BrowserApi.isSafariApi) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.sendMessage("closeSafariPopup");
+    } else if (BrowserApi.isWebExtensionsApi && BrowserApi.isFirefoxOnAndroid) {
       // Reactivating the active tab dismisses the popup tab. The promise final
       // condition is only called if the popup wasn't already dismissed (future proofing).
       // ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1433604
