@@ -26,10 +26,22 @@ describe("EncryptService", () => {
     encryptService = new EncryptServiceImplementation(cryptoFunctionService, logService, true);
   });
 
+  describe("encrypt", () => {
+    it("throws if no key is provided", () => {
+      return expect(encryptService.encrypt(null, null)).rejects.toThrow(
+        "No encryption key provided.",
+      );
+    });
+    it("returns null if no data is provided", async () => {
+      const key = mock<SymmetricCryptoKey>();
+      const actual = await encryptService.encrypt(null, key);
+      expect(actual).toBeNull();
+    });
+  });
+
   describe("encryptToBytes", () => {
     const plainValue = makeStaticByteArray(16, 1);
     const iv = makeStaticByteArray(16, 30);
-    const mac = makeStaticByteArray(32, 40);
     const encryptedData = makeStaticByteArray(20, 50);
 
     it("throws if no key is provided", () => {
@@ -42,26 +54,6 @@ describe("EncryptService", () => {
       beforeEach(() => {
         cryptoFunctionService.randomBytes.calledWith(16).mockResolvedValueOnce(iv as CsprngArray);
         cryptoFunctionService.aesEncrypt.mockResolvedValue(encryptedData);
-      });
-
-      it("using a key which supports mac", async () => {
-        const key = mock<SymmetricCryptoKey>();
-        const encType = EncryptionType.AesCbc128_HmacSha256_B64;
-        key.encType = encType;
-
-        key.macKey = makeStaticByteArray(16, 20);
-
-        cryptoFunctionService.hmac.mockResolvedValue(mac);
-
-        const actual = await encryptService.encryptToBytes(plainValue, key);
-
-        expect(actual.encryptionType).toEqual(encType);
-        expect(actual.ivBytes).toEqualBuffer(iv);
-        expect(actual.macBytes).toEqualBuffer(mac);
-        expect(actual.dataBytes).toEqualBuffer(encryptedData);
-        expect(actual.buffer.byteLength).toEqual(
-          1 + iv.byteLength + mac.byteLength + encryptedData.byteLength,
-        );
       });
 
       it("using a key which doesn't support mac", async () => {
@@ -166,6 +158,25 @@ describe("EncryptService", () => {
     });
   });
 
+  describe("decryptToUtf8", () => {
+    it("throws if no key is provided", () => {
+      return expect(encryptService.decryptToUtf8(null, null)).rejects.toThrow(
+        "No key provided for decryption.",
+      );
+    });
+    it("returns null if key is mac key but encstring has no mac", async () => {
+      const key = new SymmetricCryptoKey(
+        makeStaticByteArray(64, 0),
+        EncryptionType.AesCbc256_HmacSha256_B64,
+      );
+      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
+
+      const actual = await encryptService.decryptToUtf8(encString, key);
+      expect(actual).toBeNull();
+      expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
   describe("rsa", () => {
     const data = makeStaticByteArray(10, 100);
     const encryptedData = makeStaticByteArray(10, 150);
@@ -211,17 +222,16 @@ describe("EncryptService", () => {
         return expect(encryptService.rsaDecrypt(encString, null)).rejects.toThrow("No private key");
       });
 
-      it.each([
-        EncryptionType.AesCbc256_B64,
-        EncryptionType.AesCbc128_HmacSha256_B64,
-        EncryptionType.AesCbc256_HmacSha256_B64,
-      ])("throws if encryption type is %s", async (encType) => {
-        encString.encryptionType = encType;
+      it.each([EncryptionType.AesCbc256_B64, EncryptionType.AesCbc256_HmacSha256_B64])(
+        "throws if encryption type is %s",
+        async (encType) => {
+          encString.encryptionType = encType;
 
-        await expect(encryptService.rsaDecrypt(encString, privateKey)).rejects.toThrow(
-          "Invalid encryption type",
-        );
-      });
+          await expect(encryptService.rsaDecrypt(encString, privateKey)).rejects.toThrow(
+            "Invalid encryption type",
+          );
+        },
+      );
 
       it("decrypts data with provided key", async () => {
         cryptoFunctionService.rsaDecrypt.mockResolvedValue(data);
@@ -236,30 +246,6 @@ describe("EncryptService", () => {
 
         expect(actual).toEqualBuffer(data);
       });
-    });
-  });
-
-  describe("resolveLegacyKey", () => {
-    it("creates a legacy key if required", async () => {
-      const key = new SymmetricCryptoKey(makeStaticByteArray(32), EncryptionType.AesCbc256_B64);
-      const encString = mock<EncString>();
-      encString.encryptionType = EncryptionType.AesCbc128_HmacSha256_B64;
-
-      const actual = encryptService.resolveLegacyKey(key, encString);
-
-      const expected = new SymmetricCryptoKey(key.key, EncryptionType.AesCbc128_HmacSha256_B64);
-      expect(actual).toEqual(expected);
-    });
-
-    it("does not create a legacy key if not required", async () => {
-      const encType = EncryptionType.AesCbc256_HmacSha256_B64;
-      const key = new SymmetricCryptoKey(makeStaticByteArray(64), encType);
-      const encString = mock<EncString>();
-      encString.encryptionType = encType;
-
-      const actual = encryptService.resolveLegacyKey(key, encString);
-
-      expect(actual).toEqual(key);
     });
   });
 });
