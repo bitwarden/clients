@@ -114,6 +114,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   async setLoginEmailValues() {
     // Note: Browser saves email settings here instead of the login component
+    this.loginEmailService.setLoginEmail(this.formGroup.controls.email.value);
     this.loginEmailService.setRememberedEmailChoice(
       this.formGroup.controls.email.value,
       this.formGroup.controls.rememberEmail.value,
