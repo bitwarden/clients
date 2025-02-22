@@ -178,12 +178,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async defaultOnInit(): Promise<void> {
-    // If there's an existing org invite, use it to get the password policies
-    const orgPolicies = await this.loginComponentService.getOrgPolicies();
-
-    this.policies = orgPolicies?.policies;
-    this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled ?? false;
-
     let paramEmailIsSet = false;
 
     const params = await firstValueFrom(this.activatedRoute.queryParams);
@@ -340,7 +334,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // User logged in successfully so execute side effects
     await this.loginSuccessHandlerService.run(authResult.userId);
-    this.loginEmailService.clearValues();
+    this.loginEmailService.clearLoginEmail();
 
     // Determine where to send the user next
     if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
@@ -597,62 +591,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           : "masterPassword",
       )
       ?.focus();
-  }
-
-  private async defaultOnInit(): Promise<void> {
-    let paramEmailIsSet = false;
-
-    const params = await firstValueFrom(this.activatedRoute.queryParams);
-
-    if (params) {
-      const qParamsEmail = params.email;
-
-      // If there is an email in the query params, set that email as the form field value
-      if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
-        this.formGroup.controls.email.setValue(qParamsEmail);
-        paramEmailIsSet = true;
-      }
-    }
-
-    // If there are no params or no email in the query params, loadEmailSettings from state
-    if (!paramEmailIsSet) {
-      await this.loadEmailSettings();
-    }
-
-    // Check to see if the device is known so that we can show the Login with Device option
-    if (this.emailFormControl.value) {
-      await this.getKnownDevice(this.emailFormControl.value);
-    }
-
-    // Backup check to handle unknown case where activatedRoute is not available
-    // This shouldn't happen under normal circumstances
-    if (!this.activatedRoute) {
-      await this.loadEmailSettings();
-    }
-  }
-
-  private async desktopOnInit(): Promise<void> {
-    // TODO: refactor to not use deprecated broadcaster service.
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
-      this.ngZone.run(() => {
-        switch (message.command) {
-          case "windowIsFocused":
-            if (this.deferFocus === null) {
-              this.deferFocus = !message.windowIsFocused;
-              if (!this.deferFocus) {
-                this.focusInput();
-              }
-            } else if (this.deferFocus && message.windowIsFocused) {
-              this.focusInput();
-              this.deferFocus = false;
-            }
-            break;
-          default:
-        }
-      });
-    });
-
-    this.messagingService.send("getWindowIsFocused");
   }
 
   /**
