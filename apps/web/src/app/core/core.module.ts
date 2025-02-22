@@ -279,7 +279,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AppIdService,
     useClass: DefaultAppIdService,
-    deps: [OBSERVABLE_DISK_LOCAL_STORAGE, LogService],
+    deps: [OBSERVABLE_DISK_LOCAL_STORAGE],
   }),
   safeProvider({
     provide: LoginComponentService,
