@@ -77,14 +77,15 @@ jobs:
           echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
   cli:
-    name: CLI ${{ matrix.os.base }} - ${{ matrix.license_type.readable }}
+    name: CLI ${{ matrix.os.base }}${{ matrix.os.target_suffix }} - ${{ matrix.license_type.readable }}
     strategy:
       matrix:
         os:
-          [
-            { base: "linux", distro: "ubuntu-22.04" },
-            { base: "mac", distro: "macos-13" }
-          ]
+         [
+          { base: "linux", distro: "ubuntu-22.04", target_suffix: "" },
+          { base: "mac", distro: "macos-13", target_suffix: "" },
+          { base: "mac", distro: "macos-14", target_suffix: "-arm64" }
+         ]
         license_type:
           [
             { build_prefix: "oss", artifact_prefix: "-oss", readable: "open source license" },
@@ -142,16 +143,16 @@ jobs:
           npm link ../sdk-internal
 
       - name: Build & Package Unix
-        run: npm run dist:${{ matrix.license_type.build_prefix }}:${{ env.SHORT_RUNNER_OS }} --quiet
+        run: npm run dist:${{ matrix.license_type.build_prefix }}:${{ env.SHORT_RUNNER_OS }}${{ matrix.os.target_suffix }} --quiet
 
       - name: Zip Unix
         run: |
-          cd ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}
-          zip ../../bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-${{ env._PACKAGE_VERSION }}.zip ./bw
+          cd ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}
+          zip ../../bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip ./bw
 
       - name: Version Test
         run: |
-          unzip "./dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-${{ env._PACKAGE_VERSION }}.zip" -d "./test"
+          unzip "./dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip" -d "./test"
           testVersion=$(./test/bw -v)
           echo "version: $_PACKAGE_VERSION"
           echo "testVersion: $testVersion"
@@ -163,22 +164,22 @@ jobs:
       - name: Create checksums Unix
         run: |
           cd ./dist
-          shasum -a 256 bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-${{ env._PACKAGE_VERSION }}.zip \
+          shasum -a 256 bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip \
             | awk '{split($0, a); print a[1]}' > bw${{
-          matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-sha256-${{ env._PACKAGE_VERSION }}.txt
+          matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-sha256-${{ env._PACKAGE_VERSION }}.txt
 
       - name: Upload unix zip asset
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-${{ env._PACKAGE_VERSION }}.zip
-          path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-${{ env._PACKAGE_VERSION }}.zip
+          name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
+          path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
       - name: Upload unix checksum asset
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}-sha256-${{ env._PACKAGE_VERSION }}.txt
+          name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-sha256-${{ env._PACKAGE_VERSION }}.txt
+          path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-sha256-${{ env._PACKAGE_VERSION }}.txt
           if-no-files-found: error
 
   cli-windows:
