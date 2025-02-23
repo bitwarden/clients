@@ -66,11 +66,12 @@ export class AccountSwitcherService {
         const hasMaxAccounts = loggedInIds.length >= this.ACCOUNT_LIMIT;
         const options: AvailableAccount[] = await Promise.all(
           loggedInIds.map(async (id: UserId) => {
+            const userEnv = await firstValueFrom(this.environmentService.getEnvironment$(id));
             return {
               name: accounts[id].name ?? accounts[id].email,
               email: accounts[id].email,
               id: id,
-              server: (await this.environmentService.getEnvironment(id))?.getHostname(),
+              server: userEnv?.getHostname(),
               status: accountStatuses[id],
               isActive: id === activeAccount?.id,
               avatarColor: await firstValueFrom(
