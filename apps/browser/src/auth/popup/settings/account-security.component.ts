@@ -622,7 +622,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
   }
 
-  async fingerprint() {
+  async openAcctFingerprintDialog() {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
