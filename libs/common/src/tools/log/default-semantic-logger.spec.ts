@@ -20,7 +20,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Debug, {
         message: "this is a debug message",
-        level: LogLevelType.Debug,
+        level: "debug",
       });
     });
 
@@ -31,7 +31,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Debug, {
         content: { example: "this is content" },
-        level: LogLevelType.Debug,
+        level: "debug",
       });
     });
 
@@ -43,7 +43,7 @@ describe("DefaultSemanticLogger", () => {
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Info, {
         content: { example: "this is content" },
         message: "this is a message",
-        level: LogLevelType.Info,
+        level: "information",
       });
     });
   });
@@ -56,7 +56,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Info, {
         message: "this is an info message",
-        level: LogLevelType.Info,
+        level: "information",
       });
     });
 
@@ -67,7 +67,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Info, {
         content: { example: "this is content" },
-        level: LogLevelType.Info,
+        level: "information",
       });
     });
 
@@ -79,7 +79,7 @@ describe("DefaultSemanticLogger", () => {
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Info, {
         content: { example: "this is content" },
         message: "this is a message",
-        level: LogLevelType.Info,
+        level: "information",
       });
     });
   });
@@ -92,7 +92,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Warning, {
         message: "this is a warning message",
-        level: LogLevelType.Warning,
+        level: "warning",
       });
     });
 
@@ -103,7 +103,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Warning, {
         content: { example: "this is content" },
-        level: LogLevelType.Warning,
+        level: "warning",
       });
     });
 
@@ -115,7 +115,7 @@ describe("DefaultSemanticLogger", () => {
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Warning, {
         content: { example: "this is content" },
         message: "this is a message",
-        level: LogLevelType.Warning,
+        level: "warning",
       });
     });
   });
@@ -128,7 +128,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
         message: "this is an error message",
-        level: LogLevelType.Error,
+        level: "error",
       });
     });
 
@@ -139,7 +139,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
         content: { example: "this is content" },
-        level: LogLevelType.Error,
+        level: "error",
       });
     });
 
@@ -151,7 +151,7 @@ describe("DefaultSemanticLogger", () => {
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
         content: { example: "this is content" },
         message: "this is a message",
-        level: LogLevelType.Error,
+        level: "error",
       });
     });
   });
@@ -164,7 +164,7 @@ describe("DefaultSemanticLogger", () => {
 
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
         message: "this is an error message",
-        level: LogLevelType.Error,
+        level: "error",
       });
     });
 
@@ -178,7 +178,7 @@ describe("DefaultSemanticLogger", () => {
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
         content: { example: "this is content" },
         message: "this is an error message",
-        level: LogLevelType.Error,
+        level: "error",
       });
     });
 
@@ -192,7 +192,7 @@ describe("DefaultSemanticLogger", () => {
       expect(logger.write).toHaveBeenCalledWith(LogLevelType.Error, {
         content: "this is content",
         message: "this is an error message",
-        level: LogLevelType.Error,
+        level: "error",
       });
     });
   });
