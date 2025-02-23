@@ -119,6 +119,9 @@ export class DefaultUserAsymmetricKeysRegenerationService
 
   private async regenerateUserAsymmetricKeys(userId: UserId): Promise<void> {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("User key not found");
+    }
     const makeKeyPairResponse = await firstValueFrom(
       this.sdkService.client$.pipe(
         map((sdk) => {

@@ -44,6 +44,11 @@ export const NewDeviceVerificationNoticeGuard: CanActivateFn = async (
     return router.createUrlTree(["/login"]);
   }
 
+  // Currently used by the auth recovery login flow and will get cleaned up in PM-18485.
+  if (await firstValueFrom(newDeviceVerificationNoticeService.skipState$(currentAcct.id))) {
+    return true;
+  }
+
   try {
     const isSelfHosted = platformUtilsService.isSelfHost();
     const userIsSSOUser = await ssoAppliesToUser(

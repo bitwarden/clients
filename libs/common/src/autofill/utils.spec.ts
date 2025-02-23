@@ -1,6 +1,13 @@
+import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+
 import { CardView } from "../vault/models/view/card.view";
 
-import { normalizeExpiryYearFormat, isCardExpired, parseYearMonthExpiry } from "./utils";
+import {
+  isCardExpired,
+  isUrlInList,
+  normalizeExpiryYearFormat,
+  parseYearMonthExpiry,
+} from "./utils";
 
 function getExpiryYearValueFormats(currentCentury: string) {
   return [
@@ -279,5 +286,75 @@ describe("parseYearMonthExpiry", () => {
         expect(parsedValue).toStrictEqual(["2052", "4"]);
       }
     });
+  });
+});
+
+describe("isUrlInList", () => {
+  let mockUrlList: NeverDomains;
+
+  it("returns false if the passed URL list is empty", () => {
+    const urlIsInList = isUrlInList("", mockUrlList);
+
+    expect(urlIsInList).toEqual(false);
+  });
+
+  it("returns true if the URL hostname is on the passed URL list", () => {
+    mockUrlList = {
+      ["bitwarden.com"]: { bannerIsDismissed: true },
+      ["duckduckgo.com"]: null,
+      [".lan"]: null,
+      [".net"]: null,
+      ["localhost"]: null,
+      ["extensions"]: null,
+    };
+
+    const testPages = [
+      "https://www.bitwarden.com/landing-page?some_query_string_key=1&another_one=1",
+      " https://duckduckgo.com/pro  ", // Note: embedded whitespacing is intentional
+      "https://network-private-domain.lan/homelabs-dashboard",
+      "https://jsfiddle.net/",
+      "https://localhost:8443/#/login",
+      "chrome://extensions/",
+    ];
+
+    for (const pageUrl of testPages) {
+      const urlIsInList = isUrlInList(pageUrl, mockUrlList);
+
+      expect(urlIsInList).toEqual(true);
+    }
+  });
+
+  it("returns false if no items on the passed URL list are a full match for the page hostname", () => {
+    const urlIsInList = isUrlInList("https://paypal.com/", {
+      ["some.packed.subdomains.sandbox.paypal.com"]: null,
+    });
+
+    expect(urlIsInList).toEqual(false);
+  });
+
+  it("returns false if the URL hostname is not on the passed URL list", () => {
+    const testPages = ["https://archive.org/", "bitwarden.com.some.otherdomain.com"];
+
+    for (const pageUrl of testPages) {
+      const urlIsInList = isUrlInList(pageUrl, mockUrlList);
+
+      expect(urlIsInList).toEqual(false);
+    }
+  });
+
+  it("returns false if the passed URL is empty", () => {
+    const urlIsInList = isUrlInList("", mockUrlList);
+
+    expect(urlIsInList).toEqual(false);
+  });
+
+  it("returns false if the passed URL is not a valid URL", () => {
+    const testPages = ["twasbrillingandtheslithytoves", "/landing-page", undefined];
+
+    for (const pageUrl of testPages) {
+      const urlIsInList = isUrlInList(pageUrl, mockUrlList);
+
+      expect(urlIsInList).toEqual(false);
+    }
   });
 });

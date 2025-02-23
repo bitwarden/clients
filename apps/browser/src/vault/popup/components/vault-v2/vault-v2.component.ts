@@ -86,7 +86,12 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
 
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
   protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
-  protected loading$ = this.vaultPopupItemsService.loading$;
+  protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
+
+  protected loading$ = combineLatest([this.vaultPopupItemsService.loading$, this.allFilters$]).pipe(
+    map(([itemsLoading, filters]) => itemsLoading || !filters),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
     this.vaultPopupListFiltersService.filters$.pipe(
@@ -110,8 +115,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
 
   protected VaultStateEnum = VaultState;
-
-  private allFilters$ = this.vaultPopupListFiltersService.allFilters$;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
