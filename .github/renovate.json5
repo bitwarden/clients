@@ -82,17 +82,17 @@
       matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
     },
     {
-      // We want to group all napi-related packages together for all updates, to reduce PR noise
+      // We want to group all napi-related packages together to avoid build errors caused by version incompatibilities
       groupName: "napi",
       matchPackageNames: ["napi", "napi-build", "napi-derive"],
     },
     {
-      // We want to group all macOS/iOS binding-related packages together for all updates, to reduce PR noise
+      // We want to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities
       groupName: "macOS/iOS bindings",
       matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
     },
     {
-      // We want to group all zbus-related packages together for all updates, to reduce PR noise
+      // We want to group all zbus-related packages together to avoid build errors caused by version incompatibilities
       groupName: "zbus",
       matchPackageNames: ["zbus", "zbus_polkit"],
     },
