@@ -4779,6 +4779,15 @@
   "masterPassPolicyDesc": {
     "message": "Set requirements for master password strength."
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Require two-step login"
   },
