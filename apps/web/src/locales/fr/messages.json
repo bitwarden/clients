@@ -1042,13 +1042,13 @@
     "message": "Se connecter avec le mot de passe principal"
   },
   "readingPasskeyLoading": {
-    "message": "Lecture de la Passkey..."
+    "message": "Lecture de la clé d'accès..."
   },
   "readingPasskeyLoadingInfo": {
     "message": "Gardez cette fenêtre ouverte et suivez les instructions de votre navigateur."
   },
   "useADifferentLogInMethod": {
-    "message": "Utiliser une méthode de connexion différente"
+    "message": "Utilisez une méthode de connexion différente"
   },
   "logInWithPasskey": {
     "message": "Se connecter avec une clé d'accès"
@@ -1057,19 +1057,19 @@
     "message": "Utiliser l'authentification unique"
   },
   "welcomeBack": {
-    "message": "Content de vous revoir"
+    "message": "Ravi de vous revoir"
   },
   "invalidPasskeyPleaseTryAgain": {
-    "message": "Passkey invalide. Veuillez réessayer de nouveau."
+    "message": "Clé d'accès invalide. Veuillez réessayer de nouveau."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
-    "message": "La 2FA pour les Passkey n'est pas pris en charge. Mettez à jour l'application pour vous connecter."
+    "message": "La 2FA pour les clés d'accès n'est pas pris en charge. Mettez à jour l'application pour vous connecter."
   },
   "loginWithPasskeyInfo": {
     "message": "Utilisez une clé d'accès générée qui vous connectera automatiquement sans mot de passe. La biométrie, comme la reconnaissance faciale ou les empreintes digitales, ou une autre méthode de sécurité FIDO2 vérifiera votre identité."
   },
   "newPasskey": {
-    "message": "Nouvelle clé d'identification (passkey)"
+    "message": "Nouvelle clé d'accès (passkey)"
   },
   "learnMoreAboutPasswordless": {
     "message": "En savoir plus sur l'identification sans mots de passe"
@@ -1081,13 +1081,13 @@
     "message": "Gardez cette fenêtre ouverte et suivez les instructions de votre navigateur."
   },
   "errorCreatingPasskey": {
-    "message": "Erreur de création de la clé d'accès"
+    "message": "Erreur de création de la clé d'accès."
   },
   "errorCreatingPasskeyInfo": {
-    "message": "Il y a eu un problème lors de la crétion de votre clé d'accès."
+    "message": "Il y a eu un problème lors de la création de votre clé d'accès."
   },
   "passkeySuccessfullyCreated": {
-    "message": "Clé d'identification (passkey) créée avec succès !"
+    "message": "Clé d'accès (passkey) créée avec succès !"
   },
   "customPasskeyNameInfo": {
     "message": "Nommez votre clé d'accès pour vous aider à l'identifier."
@@ -1123,16 +1123,16 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Clé d'identification (passkey) retirée"
+    "message": "Clé d'accès (passkey) retirée"
   },
   "removePasskey": {
-    "message": "Retirer la clé d'identification (passkey)"
+    "message": "Supprimer la clé d'accès (passkey)"
   },
   "removePasskeyInfo": {
     "message": "Si toutes les clés d'accès sont supprimées, vous ne pourrez pas vous connecter à de nouveaux appareils sans votre mot de passe principal."
   },
   "passkeyLimitReachedInfo": {
-    "message": "Limite de clé d'accès atteinte. Supprimez une clé d'accès pour en ajouter une autre."
+    "message": "Limite de clés d'accès atteinte. Supprimez une clé d'accès pour en ajouter une autre."
   },
   "tryAgain": {
     "message": "Essayez de nouveau"
@@ -8747,13 +8747,13 @@
     "message": "Au moins un membre ou un groupe doit avoir l'autorisation peut gérer."
   },
   "typePasskey": {
-    "message": "Passkey"
+    "message": "Clé d'accès"
   },
   "passkeyNotCopied": {
-    "message": "La Passkey ne sera pas copiée"
+    "message": "La clé d'accès ne sera pas copiée"
   },
   "passkeyNotCopiedAlert": {
-    "message": "La passkey ne sera pas copiée à l'item cloné. Voulez-vous continuez à cloner cet élément?"
+    "message": "La clé d'accès ne sera pas copiée à l'item cloné. Voulez-vous continuez à cloner cet élément?"
   },
   "modifiedCollectionManagement": {
     "message": "Paramètre de gestion de la collection modifiée $ID$.",
@@ -8828,7 +8828,7 @@
     }
   },
   "addAPaymentMethod": {
-    "message": "ajouter un moyen de paiement",
+    "message": "Ajoutez un moyen de paiement",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
@@ -8844,7 +8844,7 @@
     "message": "Nous avons envoyé un courriel de confirmation à votre adresse de messagerie à "
   },
   "sorryToSeeYouGo": {
-    "message": "Désolé de vous voir partir! Aidez à améliorer Bitwarden en partageant pourquoi vous annulez.",
+    "message": "Désolé de vous voir partir! Aidez à améliorer Bitwarden en expliquant pourquoi vous annulez.",
     "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
   },
   "selectCancellationReason": {
@@ -8860,7 +8860,7 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "movingToAnotherTool": {
-    "message": "Utiliser un autre outil",
+    "message": "Je vais utiliser un autre outil",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooDifficultToUse": {
@@ -8991,7 +8991,7 @@
     "description": "The date header used when a subscription is past due."
   },
   "pastDueWarningForChargeAutomatically": {
-    "message": "Vous bénéficiez d'une période de grace de $DAYS$ jours suivants la date d'expiration de votre abonnement pour le maintenir. Veuillez adresser les paiements en souffrance pour les factures dont les échéances sont passées d'ici le $SUSPENSION_DATE$.",
+    "message": "Vous bénéficiez d'une période de grâce de $DAYS$ jours suivants la date d'expiration de votre abonnement pour le maintenir. Veuillez honorer les paiements impayés pour les factures arrivées à écheance d'ici le $SUSPENSION_DATE$.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -9005,7 +9005,7 @@
     "description": "A warning shown to the user when their subscription is past due and they are charged automatically."
   },
   "pastDueWarningForSendInvoice": {
-    "message": "Vous bénéficiez d'une période de grace de $DAYS$ jours à partir de la première journée de votre première facture impayée pour maintenir votre abonnement. Veuillez adresser les paiements en souffrance pour les factures dont les échéances sont passées d'ici le $SUSPENSION_DATE$.",
+    "message": "Vous bénéficiez d'une période de grâce de $DAYS$ jours à partir de la première journée de votre première facture impayée pour maintenir votre abonnement. Veuillez honorer les paiements impayés pour les factures arrivées à écheance d'ici le $SUSPENSION_DATE$.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -9023,7 +9023,7 @@
     "description": "The header of a warning box shown to a user whose subscription is unpaid."
   },
   "toReactivateYourSubscription": {
-    "message": "Pour réactiver votre abonnement, veuillez adresser les paiements en souffrance pour les factures dont les échéances sont passées.",
+    "message": "Pour réactiver votre abonnement, veuillez honorer les factures impayés échues.",
     "description": "The body of a warning box shown to a user whose subscription is unpaid."
   },
   "cancellationDate": {
