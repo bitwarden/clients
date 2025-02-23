@@ -26,6 +26,7 @@ import {
   SetPasswordJitService,
   SsoComponentService,
   DefaultSsoComponentService,
+  TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -103,6 +104,7 @@ import { LockComponentService } from "@bitwarden/key-management-ui";
 
 import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-login-approval-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
+import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
@@ -396,6 +398,16 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       ToastService,
       SsoUrlService,
+    ],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthDuoComponentService,
+    useClass: DesktopTwoFactorAuthDuoComponentService,
+    deps: [
+      MessageListener,
+      EnvironmentService,
+      I18nServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
     ],
   }),
   safeProvider({
