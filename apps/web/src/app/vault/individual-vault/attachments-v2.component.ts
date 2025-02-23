@@ -8,7 +8,7 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { CipherAttachmentsComponent } from "@bitwarden/vault";
 
-import { SharedModule } from "../../shared";
+import { SharedModule } from "../../shared/shared.module";
 
 export interface AttachmentsDialogParams {
   cipherId: CipherId;

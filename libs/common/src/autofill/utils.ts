@@ -1,3 +1,6 @@
+import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
 import { CardView } from "../vault/models/view/card.view";
 
 import {
@@ -328,4 +331,30 @@ export function parseYearMonthExpiry(combinedExpiryValue: string): [Year | null,
   parsedMonth = normalizedParsedMonth?.length ? normalizedParsedMonth : null;
 
   return [parsedYear, parsedMonth];
+}
+
+/**
+ * Takes a URL string and a NeverDomains object and determines if the passed URL's hostname is in `urlList`
+ *
+ * @param {string} url - representation of URL to check
+ * @param {NeverDomains} urlList - object with hostname key names
+ */
+export function isUrlInList(url: string = "", urlList: NeverDomains = {}): boolean {
+  const urlListKeys = urlList && Object.keys(urlList);
+
+  if (urlListKeys.length && url?.length) {
+    let tabHostname;
+    try {
+      tabHostname = Utils.getHostname(url);
+    } catch {
+      // If the input was invalid, exit early and return false
+      return false;
+    }
+
+    if (tabHostname) {
+      return urlListKeys.some((blockedHostname) => tabHostname.endsWith(blockedHostname));
+    }
+  }
+
+  return false;
 }

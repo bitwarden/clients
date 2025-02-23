@@ -1,7 +1,7 @@
 // FIXME: remove ts-strict-ignore once `FakeAccountService` implements ts strict support
 // @ts-strict-ignore
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -11,6 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { GENERATOR_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { UserEncryptor } from "@bitwarden/common/tools/cryptography/user-encryptor.abstraction";
+import { disabledSemanticLoggerProvider } from "@bitwarden/common/tools/log";
 import { StateConstraints } from "@bitwarden/common/tools/types";
 import { OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
 
@@ -164,11 +165,13 @@ const SomeUser = "SomeUser" as UserId;
 const AnotherUser = "SomeOtherUser" as UserId;
 const accounts = {
   [SomeUser]: {
+    id: SomeUser,
     name: "some user",
     email: "some.user@example.com",
     emailVerified: true,
   },
   [AnotherUser]: {
+    id: AnotherUser,
     name: "some other user",
     email: "some.other.user@example.com",
     emailVerified: true,
@@ -187,16 +190,26 @@ const i18nService = mock<I18nService>();
 const apiService = mock<ApiService>();
 
 const encryptor = mock<UserEncryptor>();
-const encryptorProvider = mock<LegacyEncryptorProvider>();
+const encryptorProvider = mock<LegacyEncryptorProvider>({
+  userEncryptor$(_, dependencies) {
+    return dependencies.singleUserId$.pipe(map((userId) => ({ userId, encryptor })));
+  },
+});
+
+const account$ = new BehaviorSubject(accounts[SomeUser]);
+
+const providers = {
+  encryptor: encryptorProvider,
+  state: stateProvider,
+  log: disabledSemanticLoggerProvider,
+};
 
 describe("CredentialGeneratorService", () => {
   beforeEach(async () => {
     await accountService.switchAccount(SomeUser);
     policyService.getAll$.mockImplementation(() => new BehaviorSubject([]).asObservable());
-    i18nService.t.mockImplementation((key) => key);
+    i18nService.t.mockImplementation((key: string) => key);
     apiService.fetch.mockImplementation(() => Promise.resolve(mock<Response>()));
-    const encryptor$ = new BehaviorSubject({ userId: SomeUser, encryptor });
-    encryptorProvider.userEncryptor$.mockReturnValue(encryptor$);
     jest.clearAllMocks();
   });
 
@@ -205,18 +218,16 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
       const on$ = new Subject<GenerateRequest>();
       let complete = false;
 
       // confirm no emission during subscription
-      generator.generate$(SomeConfiguration, { on$ }).subscribe({
+      generator.generate$(SomeConfiguration, { on$, account$ }).subscribe({
         complete: () => {
           complete = true;
         },
@@ -232,15 +243,15 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, settings, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
       const on$ = new BehaviorSubject<GenerateRequest>({ source: "some source" });
-      const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { on$ }));
+      const generated = new ObservableTracker(
+        generator.generate$(SomeConfiguration, { on$, account$ }),
+      );
 
       const result = await generated.expectEmission();
 
@@ -252,47 +263,19 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, settings, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
       const on$ = new BehaviorSubject({ website: "some website" });
-      const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { on$ }));
+      const generated = new ObservableTracker(
+        generator.generate$(SomeConfiguration, { on$, account$ }),
+      );
 
       const result = await generated.expectEmission();
 
       expect(result.website).toEqual("some website");
-    });
-
-    it("uses the active user's settings", async () => {
-      const someSettings = { foo: "some value" };
-      const anotherSettings = { foo: "another value" };
-      await stateProvider.setUserState(SettingsKey, someSettings, SomeUser);
-      await stateProvider.setUserState(SettingsKey, anotherSettings, AnotherUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const on$ = new BehaviorSubject({});
-      const generated = new ObservableTracker(generator.generate$(SomeConfiguration, { on$ }));
-
-      await accountService.switchAccount(AnotherUser);
-      on$.next({});
-      await generated.pauseUntilReceived(2);
-      generated.unsubscribe();
-
-      expect(generated.emissions).toEqual([
-        new GeneratedCredential("some value", SomeAlgorithm, SomeTime),
-        new GeneratedCredential("another value", SomeAlgorithm, SomeTime),
-      ]);
     });
 
     // FIXME: test these when the fake state provider can create the required emissions
@@ -304,17 +287,15 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, { foo: "another" }, AnotherUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId$ = new BehaviorSubject(AnotherUser).asObservable();
+      const account$ = new BehaviorSubject(accounts[AnotherUser]).asObservable();
       const on$ = new Subject<GenerateRequest>();
       const generated = new ObservableTracker(
-        generator.generate$(SomeConfiguration, { on$, userId$ }),
+        generator.generate$(SomeConfiguration, { on$, account$ }),
       );
       on$.next({});
 
@@ -327,23 +308,21 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
       const on$ = new Subject<GenerateRequest>();
-      const userId$ = new BehaviorSubject(SomeUser);
+      const account$ = new BehaviorSubject(accounts[SomeUser]);
       let error = null;
 
-      generator.generate$(SomeConfiguration, { on$, userId$ }).subscribe({
+      generator.generate$(SomeConfiguration, { on$, account$ }).subscribe({
         error: (e: unknown) => {
           error = e;
         },
       });
-      userId$.error({ some: "error" });
+      account$.error({ some: "error" });
       await awaitAsync();
 
       expect(error).toEqual({ some: "error" });
@@ -353,23 +332,21 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
       const on$ = new Subject<GenerateRequest>();
-      const userId$ = new BehaviorSubject(SomeUser);
+      const account$ = new BehaviorSubject(accounts[SomeUser]);
       let completed = false;
 
-      generator.generate$(SomeConfiguration, { on$, userId$ }).subscribe({
+      generator.generate$(SomeConfiguration, { on$, account$ }).subscribe({
         complete: () => {
           completed = true;
         },
       });
-      userId$.complete();
+      account$.complete();
       await awaitAsync();
 
       expect(completed).toBeTruthy();
@@ -380,19 +357,17 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
       const on$ = new Subject<GenerateRequest>();
       const results: any[] = [];
 
       // confirm no emission during subscription
       const sub = generator
-        .generate$(SomeConfiguration, { on$ })
+        .generate$(SomeConfiguration, { on$, account$ })
         .subscribe((result) => results.push(result));
       await awaitAsync();
       expect(results.length).toEqual(0);
@@ -422,18 +397,16 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, { foo: "value" }, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
       const on$ = new Subject<GenerateRequest>();
       let error: any = null;
 
       // confirm no emission during subscription
-      generator.generate$(SomeConfiguration, { on$ }).subscribe({
+      generator.generate$(SomeConfiguration, { on$, account$ }).subscribe({
         error: (e: unknown) => {
           error = e;
         },
@@ -452,12 +425,10 @@ describe("CredentialGeneratorService", () => {
     it("outputs password generation metadata", () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
       const result = generator.algorithms("password");
@@ -473,12 +444,10 @@ describe("CredentialGeneratorService", () => {
     it("outputs username generation metadata", () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
       const result = generator.algorithms("username");
@@ -493,12 +462,10 @@ describe("CredentialGeneratorService", () => {
     it("outputs email generation metadata", () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
       const result = generator.algorithms("email");
@@ -514,12 +481,10 @@ describe("CredentialGeneratorService", () => {
     it("combines metadata across categories", () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
       const result = generator.algorithms(["username", "email"]);
@@ -539,15 +504,13 @@ describe("CredentialGeneratorService", () => {
     it("returns password metadata", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
-      const result = await firstValueFrom(generator.algorithms$("password"));
+      const result = await firstValueFrom(generator.algorithms$("password", { account$ }));
 
       expect(result.some((a) => a.id === Generators.password.id)).toBeTruthy();
       expect(result.some((a) => a.id === Generators.passphrase.id)).toBeTruthy();
@@ -556,15 +519,13 @@ describe("CredentialGeneratorService", () => {
     it("returns username metadata", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
-      const result = await firstValueFrom(generator.algorithms$("username"));
+      const result = await firstValueFrom(generator.algorithms$("username", { account$ }));
 
       expect(result.some((a) => a.id === Generators.username.id)).toBeTruthy();
     });
@@ -572,15 +533,13 @@ describe("CredentialGeneratorService", () => {
     it("returns email metadata", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
-      const result = await firstValueFrom(generator.algorithms$("email"));
+      const result = await firstValueFrom(generator.algorithms$("email", { account$ }));
 
       expect(result.some((a) => a.id === Generators.catchall.id)).toBeTruthy();
       expect(result.some((a) => a.id === Generators.subaddress.id)).toBeTruthy();
@@ -589,15 +548,15 @@ describe("CredentialGeneratorService", () => {
     it("returns username and email metadata", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
-      const result = await firstValueFrom(generator.algorithms$(["username", "email"]));
+      const result = await firstValueFrom(
+        generator.algorithms$(["username", "email"], { account$ }),
+      );
 
       expect(result.some((a) => a.id === Generators.username.id)).toBeTruthy();
       expect(result.some((a) => a.id === Generators.catchall.id)).toBeTruthy();
@@ -611,15 +570,13 @@ describe("CredentialGeneratorService", () => {
       policyService.getAll$.mockReturnValue(policy$);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
-      const result = await firstValueFrom(generator.algorithms$(["password"]));
+      const result = await firstValueFrom(generator.algorithms$(["password"], { account$ }));
 
       expect(policyService.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, SomeUser);
       expect(result.some((a) => a.id === Generators.password.id)).toBeTruthy();
@@ -627,26 +584,20 @@ describe("CredentialGeneratorService", () => {
     });
 
     it("follows changes to the active user", async () => {
-      // initialize local account service and state provider because this test is sensitive
-      // to some shared data in `FakeAccountService`.
-      const accountService = new FakeAccountService(accounts);
-      const stateProvider = new FakeStateProvider(accountService);
-      await accountService.switchAccount(SomeUser);
+      const account$ = new BehaviorSubject(accounts[SomeUser]);
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passphraseOverridePolicy]));
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
       const results: any = [];
-      const sub = generator.algorithms$("password").subscribe((r) => results.push(r));
+      const sub = generator.algorithms$("password", { account$ }).subscribe((r) => results.push(r));
 
-      await accountService.switchAccount(AnotherUser);
+      account$.next(accounts[AnotherUser]);
       await awaitAsync();
       sub.unsubscribe();
 
@@ -673,16 +624,14 @@ describe("CredentialGeneratorService", () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId$ = new BehaviorSubject(AnotherUser).asObservable();
+      const account$ = new BehaviorSubject(accounts[AnotherUser]).asObservable();
 
-      const result = await firstValueFrom(generator.algorithms$("password", { userId$ }));
+      const result = await firstValueFrom(generator.algorithms$("password", { account$ }));
 
       expect(policyService.getAll$).toHaveBeenCalledWith(PolicyType.PasswordGenerator, AnotherUser);
       expect(result.some((a: any) => a.id === Generators.password.id)).toBeTruthy();
@@ -694,19 +643,17 @@ describe("CredentialGeneratorService", () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passphraseOverridePolicy]));
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
       const results: any = [];
-      const sub = generator.algorithms$("password", { userId$ }).subscribe((r) => results.push(r));
+      const sub = generator.algorithms$("password", { account$ }).subscribe((r) => results.push(r));
 
-      userId.next(AnotherUser);
+      account.next(accounts[AnotherUser]);
       await awaitAsync();
       sub.unsubscribe();
 
@@ -724,23 +671,21 @@ describe("CredentialGeneratorService", () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
       let error = null;
 
-      generator.algorithms$("password", { userId$ }).subscribe({
+      generator.algorithms$("password", { account$ }).subscribe({
         error: (e: unknown) => {
           error = e;
         },
       });
-      userId.error({ some: "error" });
+      account.error({ some: "error" });
       await awaitAsync();
 
       expect(error).toEqual({ some: "error" });
@@ -750,23 +695,21 @@ describe("CredentialGeneratorService", () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
       let completed = false;
 
-      generator.algorithms$("password", { userId$ }).subscribe({
+      generator.algorithms$("password", { account$ }).subscribe({
         complete: () => {
           completed = true;
         },
       });
-      userId.complete();
+      account.complete();
       await awaitAsync();
 
       expect(completed).toBeTruthy();
@@ -776,26 +719,24 @@ describe("CredentialGeneratorService", () => {
       policyService.getAll$.mockReturnValueOnce(new BehaviorSubject([passwordOverridePolicy]));
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
       let count = 0;
 
-      const sub = generator.algorithms$("password", { userId$ }).subscribe({
+      const sub = generator.algorithms$("password", { account$ }).subscribe({
         next: () => {
           count++;
         },
       });
       await awaitAsync();
-      userId.next(SomeUser);
+      account.next(accounts[SomeUser]);
       await awaitAsync();
-      userId.next(SomeUser);
+      account.next(accounts[SomeUser]);
       await awaitAsync();
       sub.unsubscribe();
 
@@ -808,15 +749,13 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
-      const result = await firstValueFrom(generator.settings$(SomeConfiguration));
+      const result = await firstValueFrom(generator.settings$(SomeConfiguration, { account$ }));
 
       expect(result).toEqual(SomeConfiguration.settings.initial);
     });
@@ -826,15 +765,13 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, settings, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
-      const result = await firstValueFrom(generator.settings$(SomeConfiguration));
+      const result = await firstValueFrom(generator.settings$(SomeConfiguration, { account$ }));
 
       expect(result).toEqual(settings);
     });
@@ -846,48 +783,15 @@ describe("CredentialGeneratorService", () => {
       policyService.getAll$.mockReturnValue(policy$);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
 
-      const result = await firstValueFrom(generator.settings$(SomeConfiguration));
+      const result = await firstValueFrom(generator.settings$(SomeConfiguration, { account$ }));
 
       expect(result).toEqual({ foo: "adjusted(value)" });
-    });
-
-    it("follows changes to the active user", async () => {
-      // initialize local account service and state provider because this test is sensitive
-      // to some shared data in `FakeAccountService`.
-      const accountService = new FakeAccountService(accounts);
-      const stateProvider = new FakeStateProvider(accountService);
-      await accountService.switchAccount(SomeUser);
-      const someSettings = { foo: "value" };
-      const anotherSettings = { foo: "another" };
-      await stateProvider.setUserState(SettingsKey, someSettings, SomeUser);
-      await stateProvider.setUserState(SettingsKey, anotherSettings, AnotherUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const results: any = [];
-      const sub = generator.settings$(SomeConfiguration).subscribe((r) => results.push(r));
-
-      await accountService.switchAccount(AnotherUser);
-      await awaitAsync();
-      sub.unsubscribe();
-
-      const [someResult, anotherResult] = results;
-      expect(someResult).toEqual(someSettings);
-      expect(anotherResult).toEqual(anotherSettings);
     });
 
     it("reads an arbitrary user's settings", async () => {
@@ -896,71 +800,37 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, anotherSettings, AnotherUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId$ = new BehaviorSubject(AnotherUser).asObservable();
+      const account$ = new BehaviorSubject(accounts[AnotherUser]).asObservable();
 
-      const result = await firstValueFrom(generator.settings$(SomeConfiguration, { userId$ }));
+      const result = await firstValueFrom(generator.settings$(SomeConfiguration, { account$ }));
 
       expect(result).toEqual(anotherSettings);
-    });
-
-    it("follows changes to the arbitrary user", async () => {
-      const someSettings = { foo: "value" };
-      await stateProvider.setUserState(SettingsKey, someSettings, SomeUser);
-      const anotherSettings = { foo: "another" };
-      await stateProvider.setUserState(SettingsKey, anotherSettings, AnotherUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
-      const results: any = [];
-      const sub = generator
-        .settings$(SomeConfiguration, { userId$ })
-        .subscribe((r) => results.push(r));
-
-      userId.next(AnotherUser);
-      await awaitAsync();
-      sub.unsubscribe();
-
-      const [someResult, anotherResult] = results;
-      expect(someResult).toEqual(someSettings);
-      expect(anotherResult).toEqual(anotherSettings);
     });
 
     it("errors when the arbitrary user's stream errors", async () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
       let error = null;
 
-      generator.settings$(SomeConfiguration, { userId$ }).subscribe({
+      generator.settings$(SomeConfiguration, { account$ }).subscribe({
         error: (e: unknown) => {
           error = e;
         },
       });
-      userId.error({ some: "error" });
+      account.error({ some: "error" });
       await awaitAsync();
 
       expect(error).toEqual({ some: "error" });
@@ -970,72 +840,37 @@ describe("CredentialGeneratorService", () => {
       await stateProvider.setUserState(SettingsKey, null, SomeUser);
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
       let completed = false;
 
-      generator.settings$(SomeConfiguration, { userId$ }).subscribe({
+      generator.settings$(SomeConfiguration, { account$ }).subscribe({
         complete: () => {
           completed = true;
         },
       });
-      userId.complete();
+      account.complete();
       await awaitAsync();
 
       expect(completed).toBeTruthy();
-    });
-
-    it("ignores repeated arbitrary user emissions", async () => {
-      await stateProvider.setUserState(SettingsKey, null, SomeUser);
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
-      let count = 0;
-
-      const sub = generator.settings$(SomeConfiguration, { userId$ }).subscribe({
-        next: () => {
-          count++;
-        },
-      });
-      await awaitAsync();
-      userId.next(SomeUser);
-      await awaitAsync();
-      userId.next(SomeUser);
-      await awaitAsync();
-      sub.unsubscribe();
-
-      expect(count).toEqual(1);
     });
   });
 
   describe("settings", () => {
     it("writes to the user's state", async () => {
-      const singleUserId$ = new BehaviorSubject(SomeUser).asObservable();
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const subject = await generator.settings(SomeConfiguration, { singleUserId$ });
+      const subject = generator.settings(SomeConfiguration, { account$ });
 
       subject.next({ foo: "next value" });
       await awaitAsync();
@@ -1043,35 +878,7 @@ describe("CredentialGeneratorService", () => {
 
       expect(result).toEqual({
         foo: "next value",
-        // FIXME: don't leak this detail into the test
-        "$^$ALWAYS_UPDATE_KLUDGE_PROPERTY$^$": 0,
       });
-    });
-
-    it("waits for the user to become available", async () => {
-      const singleUserId = new BehaviorSubject(null);
-      const singleUserId$ = singleUserId.asObservable();
-      const generator = new CredentialGeneratorService(
-        randomizer,
-        stateProvider,
-        policyService,
-        apiService,
-        i18nService,
-        encryptorProvider,
-        accountService,
-      );
-
-      let completed = false;
-      const promise = generator.settings(SomeConfiguration, { singleUserId$ }).then((settings) => {
-        completed = true;
-        return settings;
-      });
-      await awaitAsync();
-      expect(completed).toBeFalsy();
-      singleUserId.next(SomeUser);
-      const result = await promise;
-
-      expect(result.userId).toEqual(SomeUser);
     });
   });
 
@@ -1079,16 +886,14 @@ describe("CredentialGeneratorService", () => {
     it("creates constraints without policy in effect when there is no policy", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId$ = new BehaviorSubject(SomeUser).asObservable();
+      const account$ = new BehaviorSubject(accounts[SomeUser]).asObservable();
 
-      const result = await firstValueFrom(generator.policy$(SomeConfiguration, { userId$ }));
+      const result = await firstValueFrom(generator.policy$(SomeConfiguration, { account$ }));
 
       expect(result.constraints.policyInEffect).toBeFalsy();
     });
@@ -1096,18 +901,16 @@ describe("CredentialGeneratorService", () => {
     it("creates constraints with policy in effect when there is a policy", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId$ = new BehaviorSubject(SomeUser).asObservable();
+      const account$ = new BehaviorSubject(accounts[SomeUser]).asObservable();
       const policy$ = new BehaviorSubject([somePolicy]);
       policyService.getAll$.mockReturnValue(policy$);
 
-      const result = await firstValueFrom(generator.policy$(SomeConfiguration, { userId$ }));
+      const result = await firstValueFrom(generator.policy$(SomeConfiguration, { account$ }));
 
       expect(result.constraints.policyInEffect).toBeTruthy();
     });
@@ -1115,20 +918,18 @@ describe("CredentialGeneratorService", () => {
     it("follows policy emissions", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
       const somePolicySubject = new BehaviorSubject([somePolicy]);
       policyService.getAll$.mockReturnValueOnce(somePolicySubject.asObservable());
       const emissions: GeneratorConstraints<SomeSettings>[] = [];
       const sub = generator
-        .policy$(SomeConfiguration, { userId$ })
+        .policy$(SomeConfiguration, { account$ })
         .subscribe((policy) => emissions.push(policy));
 
       // swap the active policy for an inactive policy
@@ -1144,25 +945,23 @@ describe("CredentialGeneratorService", () => {
     it("follows user emissions", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
       const somePolicy$ = new BehaviorSubject([somePolicy]).asObservable();
       const anotherPolicy$ = new BehaviorSubject([]).asObservable();
       policyService.getAll$.mockReturnValueOnce(somePolicy$).mockReturnValueOnce(anotherPolicy$);
       const emissions: GeneratorConstraints<SomeSettings>[] = [];
       const sub = generator
-        .policy$(SomeConfiguration, { userId$ })
+        .policy$(SomeConfiguration, { account$ })
         .subscribe((policy) => emissions.push(policy));
 
       // swapping the user invokes the return for `anotherPolicy$`
-      userId.next(AnotherUser);
+      account.next(accounts[AnotherUser]);
       await awaitAsync();
       sub.unsubscribe();
       const [someResult, anotherResult] = emissions;
@@ -1174,24 +973,22 @@ describe("CredentialGeneratorService", () => {
     it("errors when the user errors", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
       const expectedError = { some: "error" };
 
       let actualError: any = null;
-      generator.policy$(SomeConfiguration, { userId$ }).subscribe({
+      generator.policy$(SomeConfiguration, { account$ }).subscribe({
         error: (e: unknown) => {
           actualError = e;
         },
       });
-      userId.error(expectedError);
+      account.error(expectedError);
       await awaitAsync();
 
       expect(actualError).toEqual(expectedError);
@@ -1200,23 +997,21 @@ describe("CredentialGeneratorService", () => {
     it("completes when the user completes", async () => {
       const generator = new CredentialGeneratorService(
         randomizer,
-        stateProvider,
         policyService,
         apiService,
         i18nService,
-        encryptorProvider,
-        accountService,
+        providers,
       );
-      const userId = new BehaviorSubject(SomeUser);
-      const userId$ = userId.asObservable();
+      const account = new BehaviorSubject(accounts[SomeUser]);
+      const account$ = account.asObservable();
 
       let completed = false;
-      generator.policy$(SomeConfiguration, { userId$ }).subscribe({
+      generator.policy$(SomeConfiguration, { account$ }).subscribe({
         complete: () => {
           completed = true;
         },
       });
-      userId.complete();
+      account.complete();
       await awaitAsync();
 
       expect(completed).toBeTruthy();

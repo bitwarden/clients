@@ -123,7 +123,7 @@ export class FakeSingleUserState<T> implements SingleUserState<T> {
     this.state$ = this.combinedState$.pipe(map(([_userId, state]) => state));
   }
 
-  nextState(state: T, { syncValue }: { syncValue: boolean } = { syncValue: true }) {
+  nextState(state: T | null, { syncValue }: { syncValue: boolean } = { syncValue: true }) {
     this.stateSubject.next({
       syncValue,
       combinedState: [this.userId, state],
@@ -198,7 +198,7 @@ export class FakeActiveUserState<T> implements ActiveUserState<T> {
     return this.accountService.activeUserId;
   }
 
-  nextState(state: T, { syncValue }: { syncValue: boolean } = { syncValue: true }) {
+  nextState(state: T | null, { syncValue }: { syncValue: boolean } = { syncValue: true }) {
     this.stateSubject.next({
       syncValue,
       combinedState: [this.userId, state],
