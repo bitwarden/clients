@@ -33,6 +33,7 @@ import {
   LoginApprovalComponentServiceAbstraction,
   LoginEmailService,
   PinServiceAbstraction,
+  SsoUrlService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
@@ -381,6 +382,11 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: SsoUrlService,
+    useClass: SsoUrlService,
+    deps: [],
+  }),
+  safeProvider({
     provide: LoginComponentService,
     useClass: DesktopLoginComponentService,
     deps: [
@@ -391,6 +397,7 @@ const safeProviders: SafeProvider[] = [
       SsoLoginServiceAbstraction,
       I18nServiceAbstraction,
       ToastService,
+      SsoUrlService,
     ],
   }),
   safeProvider({

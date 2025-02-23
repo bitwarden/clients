@@ -305,6 +305,7 @@ const safeProviders: SafeProvider[] = [
       PasswordGenerationServiceAbstraction,
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
+      Router,
     ],
   }),
   safeProvider({

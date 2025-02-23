@@ -14,6 +14,7 @@ import {
   NewDeviceVerificationNoticeService,
   NewDeviceVerificationNotice,
   NEW_DEVICE_VERIFICATION_NOTICE_KEY,
+  SKIP_NEW_DEVICE_VERIFICATION_NOTICE,
 } from "./new-device-verification-notice.service";
 
 describe("New Device Verification Notice", () => {
@@ -21,6 +22,7 @@ describe("New Device Verification Notice", () => {
   const userId = Utils.newGuid() as UserId;
   let newDeviceVerificationService: NewDeviceVerificationNoticeService;
   let mockNoticeState: FakeSingleUserState<NewDeviceVerificationNotice>;
+  let mockSkipState: FakeSingleUserState<boolean>;
   let stateProvider: FakeStateProvider;
   let accountService: FakeAccountService;
 
@@ -28,6 +30,7 @@ describe("New Device Verification Notice", () => {
     accountService = mockAccountServiceWith(userId);
     stateProvider = new FakeStateProvider(accountService);
     mockNoticeState = stateProvider.singleUser.getFake(userId, NEW_DEVICE_VERIFICATION_NOTICE_KEY);
+    mockSkipState = stateProvider.singleUser.getFake(userId, SKIP_NEW_DEVICE_VERIFICATION_NOTICE);
     newDeviceVerificationService = new NewDeviceVerificationNoticeService(stateProvider);
   });
 
@@ -80,6 +83,30 @@ describe("New Device Verification Notice", () => {
 
       const result = await firstValueFrom(newDeviceVerificationService.noticeState$(userId));
       expect(result).toEqual(newState);
+    });
+  });
+
+  describe("skipNotice state", () => {
+    it("emits skip notice state", async () => {
+      const shouldSkip = true;
+      await stateProvider.setUserState(SKIP_NEW_DEVICE_VERIFICATION_NOTICE, shouldSkip, userId);
+
+      const result = await firstValueFrom(newDeviceVerificationService.skipState$(userId));
+
+      expect(result).toBe(shouldSkip);
+    });
+
+    it("should update the skip notice state", async () => {
+      const initialSkipState = false;
+      const updatedSkipState = true;
+      mockSkipState.nextState(initialSkipState);
+      await newDeviceVerificationService.updateNewDeviceVerificationSkipNoticeState(
+        userId,
+        updatedSkipState,
+      );
+
+      const result = await firstValueFrom(newDeviceVerificationService.skipState$(userId));
+      expect(result).toBe(updatedSkipState);
     });
   });
 });
