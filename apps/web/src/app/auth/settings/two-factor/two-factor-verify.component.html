@@ -1,9 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="default">
-    <span bitDialogTitle>
-      {{ "twoStepLogin" | i18n }}
-      <small class="tw-text-muted">{{ dialogTitle }}</small>
-    </span>
+  <bit-dialog dialogSize="default" [title]="'twoStepLogin' | i18n" [subtitle]="dialogTitle">
     <ng-container bitDialogContent>
       <app-user-verification-form-input
         formControlName="secret"
