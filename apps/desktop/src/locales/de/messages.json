@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Passwort oder PIN beim Start der App verlangen"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Benötigt ein Passwort beim Starten der App"
+  },
   "recommendedForSecurity": {
     "message": "Aus Sicherheitsgründen empfohlen."
   },
@@ -2641,7 +2644,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt. Bitte wende dich an deinen Dienstanbieter für Unterstützung.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2651,7 +2654,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3524,7 +3527,7 @@
     "message": "Bildschirmaufnahme erlauben"
   },
   "allowScreenshotsDesc": {
-    "message": "Erlaube der Bitwarden Desktop-Anwendung in Screenshots festgehalten und in Remote Desktop-Sitzungen angezeigt zu werden. Das Deaktivieren dieser Option verhindert den Zugriff über einige externe Displays."
+    "message": "Erlaube der Bitwarden Desktop-Anwendung in Screenshots festgehalten und in Remote Desktop-Sitzungen angezeigt zu werden. Das Deaktivieren dieser Option verhindert den Zugriff über einige externe Monitore."
   },
   "confirmWindowStillVisibleTitle": {
     "message": "Bestätigungsfenster noch sichtbar"
