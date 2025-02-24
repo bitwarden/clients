@@ -220,17 +220,32 @@ describe("PolicyService", () => {
         arrayToRecord([
           policyData("policy1", "org1", PolicyType.ActivateAutofill, true),
           policyData("policy2", "org1", PolicyType.DisablePersonalVaultExport, true),
+          policyData("policy3", "org1", PolicyType.RemoveUnlockWithPin, true),
         ]),
       );
 
-      const result = await firstValueFrom(
-        policyService.get$(PolicyType.DisablePersonalVaultExport),
-      );
-
-      expect(result).toEqual({
+      await expect(
+        firstValueFrom(policyService.get$(PolicyType.ActivateAutofill)),
+      ).resolves.toMatchObject({
+        id: "policy1",
+        organizationId: "org1",
+        type: PolicyType.ActivateAutofill,
+        enabled: true,
+      });
+      await expect(
+        firstValueFrom(policyService.get$(PolicyType.DisablePersonalVaultExport)),
+      ).resolves.toMatchObject({
         id: "policy2",
         organizationId: "org1",
         type: PolicyType.DisablePersonalVaultExport,
+        enabled: true,
+      });
+      await expect(
+        firstValueFrom(policyService.get$(PolicyType.RemoveUnlockWithPin)),
+      ).resolves.toMatchObject({
+        id: "policy3",
+        organizationId: "org1",
+        type: PolicyType.RemoveUnlockWithPin,
         enabled: true,
       });
     });

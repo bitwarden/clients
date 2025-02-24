@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "A hozzárendelt helyek száma meghaladja a rendelkezésre álló helyek számát."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Feloldás eltávolítása PIN kóddal"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Nem engedjük meg a tagoknak, hogy PIN kóddal oldják fel fiókjuk zárolását."
   }
 }

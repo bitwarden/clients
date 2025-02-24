@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Kräv lösenord eller PIN-kod vid appstart"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Rekommenderas för säkerhet."
   },

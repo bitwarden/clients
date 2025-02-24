@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Изискване на парола или ПИН при стартиране на приложението"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Изискване на парола при стартиране на приложението"
+  },
   "recommendedForSecurity": {
     "message": "Препоръчително от гледна точка на сигурността."
   },
@@ -2641,7 +2644,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2651,7 +2654,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
