@@ -177,7 +177,7 @@
     "message": "Kopiuj notatki"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Kopiuj",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -1028,6 +1028,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "Kliknij na dane logowania, aby autouzupełnić w widoku Sejfu"
+  },
+  "clickToAutofill": {
+    "message": "Kliknij elementy w sugestii autouzupełniania, aby wypełnić"
   },
   "clearClipboard": {
     "message": "Wyczyść schowek",
@@ -2085,6 +2088,9 @@
     "message": ", aby utworzyć mocne unikalne hasło",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Dostosowanie sejfu"
+  },
   "vaultTimeoutAction": {
     "message": "Sposób blokowania sejfu"
   },
@@ -2350,7 +2356,7 @@
     "message": "Zablokowane domeny"
   },
   "learnMoreAboutBlockedDomains": {
-    "message": "Learn more about blocked domains"
+    "message": "Dowiedz się więcej o zablokowanych domenach"
   },
   "excludedDomains": {
     "message": "Wykluczone domeny"
@@ -3039,7 +3045,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ odrzucił Twoje żądanie. Skontaktuj się z dostawcą usług w celu uzyskania pomocy.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3049,7 +3055,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ odrzucił Twoje żądanie: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {

@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Uygulamayı başlatırken parola veya PIN iste"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Uygulamayı başlatırken parola iste"
+  },
   "recommendedForSecurity": {
     "message": "Güvenliğiniz için önerilir."
   },

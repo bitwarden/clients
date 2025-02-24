@@ -1,9 +1,9 @@
 <form *ngIf="authed" [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="large">
-    <span bitDialogTitle>
-      {{ "twoStepLogin" | i18n }}
-      <span bitTypography="body1">{{ "webAuthnTitle" | i18n }}</span>
-    </span>
+  <bit-dialog
+    dialogSize="large"
+    [title]="'twoStepLogin' | i18n"
+    [subtitle]="'webAuthnTitle' | i18n"
+  >
     <ng-container bitDialogContent>
       <app-callout
         type="success"

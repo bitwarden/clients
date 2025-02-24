@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "要求在啟動應用程式時輸入密碼或 PIN 碼"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "為提升安全，建議使用。"
   },
