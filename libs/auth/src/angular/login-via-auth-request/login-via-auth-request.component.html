@@ -32,7 +32,8 @@
     </button>
 
     <div *ngIf="clientType !== ClientType.Browser" class="tw-mt-4">
-      <span>{{ "needAnotherOptionV1" | i18n }}</span>
+      <span>{{ "needAnotherOptionV1" | i18n }}</span
+      >&nbsp;
       <a [routerLink]="backToRoute" bitLink linkType="primary">{{
         "viewAllLogInOptions" | i18n
       }}</a>
@@ -46,7 +47,8 @@
     <code class="tw-text-code">{{ fingerprintPhrase }}</code>
 
     <div class="tw-mt-4">
-      <span>{{ "troubleLoggingIn" | i18n }}</span>
+      <span>{{ "troubleLoggingIn" | i18n }}</span
+      >&nbsp;
       <a [routerLink]="backToRoute" bitLink linkType="primary">{{
         "viewAllLogInOptions" | i18n
       }}</a>

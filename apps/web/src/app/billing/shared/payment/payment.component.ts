@@ -124,7 +124,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
             token,
           };
         } else {
-          throw "Invalid input provided, Please ensure all required fields are filled out correctly and try again.";
+          throw "Invalid input provided. Please ensure all required fields are filled out correctly and try again.";
         }
       }
 
