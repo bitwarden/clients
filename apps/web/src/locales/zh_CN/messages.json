@@ -879,7 +879,7 @@
     "message": "添加新附件"
   },
   "deletedAttachment": {
-    "message": "附件已删除"
+    "message": "删除了附件"
   },
   "deleteAttachmentConfirmation": {
     "message": "确定要删除此附件吗？"
@@ -1111,7 +1111,7 @@
     "message": "已用于加密"
   },
   "loginWithPasskeyEnabled": {
-    "message": "已启用通行密钥登录"
+    "message": "通行密钥登录已开启"
   },
   "passkeySaved": {
     "message": "$NAME$ 已保存",
@@ -1405,7 +1405,7 @@
     "message": "在批准前，请确保指纹短语与下面的相匹配。"
   },
   "notificationSentDeviceComplete": {
-    "message": "在您的设备上解锁 Bitwarden。在批准前，请确保指纹短语与下面的相匹配。"
+    "message": "解锁您设备上的 Bitwarden。批准前，请确保指纹短语与下面的相匹配。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
@@ -1468,7 +1468,7 @@
     "message": "两步登录选项"
   },
   "recoveryCodeDesc": {
-    "message": "失去对您所有的双重身份验证设备的访问？请使用您的恢复代码来停用您账户中所有的两步登录提供程序。"
+    "message": "失去对您所有的双重身份验证设备的访问？请使用您的恢复代码来关闭您账户中所有的两步登录提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -1888,10 +1888,10 @@
     "message": "开启新设备登录保护"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "按照以下步骤关闭 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以关闭 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "按照以下步骤开启 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以开启 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
   },
   "turnOffNewDeviceLoginProtectionWarning": {
     "message": "关闭新设备登录保护后，任何拥有您的主密码的人都可以从任何设备访问您的账户。要在没有验证电子邮件的情况下保护您的账户，请设置两步登录。"
@@ -2276,10 +2276,10 @@
     "message": "如果您要把它添加到其他设备，下面是您的验证器 App 所需要的二维码（或密钥）。"
   },
   "twoStepDisableDesc": {
-    "message": "确定要停用此两步登录提供程序吗？"
+    "message": "确定要关闭此两步登录提供程序吗？"
   },
   "twoStepDisabled": {
-    "message": "此两步登录提供程序已停用。"
+    "message": "两步登录提供程序已关闭。"
   },
   "twoFactorYubikeyAdd": {
     "message": "添加一个新的 YubiKey 到您的账户"
@@ -2360,7 +2360,7 @@
     "message": "API 主机名"
   },
   "twoFactorEmailDesc": {
-    "message": "按照以下步骤设置使用电子邮箱的两步登录："
+    "message": "按照以下步骤设置电子邮箱方式的两步登录："
   },
   "twoFactorEmailEnterEmail": {
     "message": "输入您希望用于接收验证码的电子邮箱"
@@ -2402,7 +2402,7 @@
     "message": "由于平台限制，FIDO U2F 不能在所有 Bitwarden 应用程序上使用。您应该启用另一个两步登录提供程序，以便在无法使用 FIDO U2F 时可以访问您的账户。支持的平台："
   },
   "twoFactorU2fSupportWeb": {
-    "message": "桌面/笔记本电脑上支持 U2F 的浏览器（启用了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页版密码库和浏览器扩展。"
+    "message": "桌面/笔记本电脑上支持 U2F 的浏览器（开启了 FIDO U2F 的 Chrome、Opera、Vivaldi 或 Firefox）中的网页版密码库和浏览器扩展。"
   },
   "twoFactorU2fWaiting": {
     "message": "等待您触摸安全钥匙上的按钮"
@@ -2460,7 +2460,7 @@
     }
   },
   "noUnsecuredWebsites": {
-    "message": "你的密码库中没有带不安全 URI 的项目。"
+    "message": "您的密码库中没有带不安全 URI 的项目。"
   },
   "inactive2faReport": {
     "message": "未激活两步登录"
@@ -3354,7 +3354,7 @@
     "message": "集合信息"
   },
   "deleteCollectionConfirmation": {
-    "message": "你确定要删除此集合吗？"
+    "message": "确定要删除此集合吗？"
   },
   "editMember": {
     "message": "编辑成员"
@@ -3474,16 +3474,16 @@
     "message": "登录了"
   },
   "changedPassword": {
-    "message": "更改了帐户密码"
+    "message": "更改了账户密码"
   },
   "enabledUpdated2fa": {
     "message": "两步登录已保存"
   },
   "disabled2fa": {
-    "message": "停用了两步登录"
+    "message": "两步登录已关闭"
   },
   "recovered2fa": {
-    "message": "从两步登录中恢复了账户"
+    "message": "从两步登录中恢复了账户。"
   },
   "failedLogin": {
     "message": "登录失败，密码不正确。"
@@ -3505,7 +3505,7 @@
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
   },
   "exportedVault": {
-    "message": "导出了密码库"
+    "message": "密码库已导出"
   },
   "exportedOrganizationVault": {
     "message": "导出了组织密码库。"
@@ -3532,7 +3532,7 @@
     }
   },
   "deletedItemId": {
-    "message": "发送了项目 $ID$ 到回收站。",
+    "message": "发送项目 $ID$ 到回收站。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3673,7 +3673,7 @@
     }
   },
   "deletedCollections": {
-    "message": "已删除集合"
+    "message": "删除了集合"
   },
   "deletedCollectionId": {
     "message": "删除了集合 $ID$。",
@@ -3721,7 +3721,7 @@
     }
   },
   "deletedManyGroups": {
-    "message": "已删除 $QUANTITY$ 个群组。",
+    "message": "删除了 $QUANTITY$ 个群组。",
     "placeholders": {
       "quantity": {
         "content": "$1",
@@ -3775,7 +3775,7 @@
     }
   },
   "createdAttachmentForItem": {
-    "message": "为项目 $ID$ 创建了附件。",
+    "message": "创建了项目 $ID$ 的附件。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3793,7 +3793,7 @@
     }
   },
   "editedCollectionsForItem": {
-    "message": "编辑了项目 $ID$ 集合。",
+    "message": "编辑了项目 $ID$ 的集合。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3950,7 +3950,7 @@
     "message": "刚刚"
   },
   "requestedXMinutesAgo": {
-    "message": "$MINUTES$ 分钟前已请求",
+    "message": "请求于 $MINUTES$ 分钟前",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4173,16 +4173,16 @@
     "message": "记住电子邮箱"
   },
   "recoverAccountTwoStepDesc": {
-    "message": "如果您无法通过常规的两步登录方式访问您的账户，您可以使用两步登录恢复代码来停用账户上的所有两步登录提供程序。"
+    "message": "如果您无法通过常规的两步登录方式访问您的账户，您可以使用两步登录恢复代码来关闭账户上的所有两步登录提供程序。"
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
-    "message": "在下方使用您的一次性恢复代码登录。这将停用您账户上的所有两步提供程序。"
+    "message": "在下方使用您的一次性恢复代码登录。这将关闭您账户上的所有两步提供程序。"
   },
   "recoverAccountTwoStep": {
     "message": "恢复账户两步登录"
   },
   "twoStepRecoverDisabled": {
-    "message": "两步登录已在您的账户中停用。"
+    "message": "两步登录已在您的账户中关闭。"
   },
   "learnMore": {
     "message": "进一步了解"
@@ -4527,7 +4527,7 @@
     "message": "在创建组织之前，首先需要创建一个免费的个人账户。"
   },
   "refunded": {
-    "message": "退款"
+    "message": "已退款"
   },
   "nothingSelected": {
     "message": "您尚未选择任何内容。"
@@ -4611,25 +4611,25 @@
     "message": "组织已停用"
   },
   "secretsAccessSuspended": {
-    "message": "无法访问已停用的组织。请联系您的组织所有者获取协助。"
+    "message": "无法访问已停用的组织。请联系您的组织所有者寻求帮助。"
   },
   "secretsCannotCreate": {
-    "message": "无法在已停用的组织中创建机密。请联系您的组织所有者获取协助。"
+    "message": "无法在已停用的组织中创建机密。请联系您的组织所有者寻求帮助。"
   },
   "projectsCannotCreate": {
-    "message": "无法在已停用的组织中创建工程。请联系您的组织所有者获取协助。"
+    "message": "无法在已停用的组织中创建工程。请联系您的组织所有者寻求帮助。"
   },
   "serviceAccountsCannotCreate": {
-    "message": "无法在已停用的组织中创建服务账户。请联系您的组织所有者获取协助。"
+    "message": "无法在已停用的组织中创建服务账户。请联系您的组织所有者寻求帮助。"
   },
   "disabledOrganizationFilterError": {
-    "message": "无法访问已停用组织中的项目。请联系您的组织所有者获取协助。"
+    "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "licenseIsExpired": {
     "message": "授权已过期"
   },
   "updatedUsers": {
-    "message": "用户已更新"
+    "message": "更新了用户"
   },
   "selected": {
     "message": "已选择"
@@ -4663,7 +4663,7 @@
     "message": "脆弱的主密码"
   },
   "weakMasterPasswordDesc": {
-    "message": "识别到弱密码。请使用一个强密码以保护你的账户。确定要使用弱密码吗？"
+    "message": "识别到弱密码。请使用一个强密码以保护您的账户。确定要使用弱密码吗？"
   },
   "rotateAccountEncKey": {
     "message": "同时轮换账户的加密密钥"
@@ -4768,7 +4768,7 @@
     "message": "非所有者或管理员并且其账户未启用两步登录的组织成员将从组织中移除，并将收到一封关于此更改的电子邮件通知。"
   },
   "twoStepLoginPolicyUserWarning": {
-    "message": "您的组织要求您在您的用户账户上启用两步登录。如果您停用所有两步登录提供程序，您将被自动从这些组织中移除。"
+    "message": "您是组织的成员，该组织要求在您的用户账户上设置两步登录。如果您关闭所有两步登录提供程序，您将被自动从这些组织中移除。"
   },
   "passwordGeneratorPolicyDesc": {
     "message": "设置密码生成器要求。"
@@ -4873,7 +4873,7 @@
     }
   },
   "permanentlyDeletedItemId": {
-    "message": "永久删除了项目 $ID$",
+    "message": "项目 $ID$ 已永久删除",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4894,7 +4894,7 @@
     "message": "项目已恢复"
   },
   "restoredItemId": {
-    "message": "恢复了项目 $ID$",
+    "message": "项目 $ID$ 已恢复",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5461,7 +5461,7 @@
     "message": "管理账户恢复"
   },
   "disableRequiredError": {
-    "message": "您必须先手动切换 $POLICYNAME$ 策略，然后才能停用此策略。",
+    "message": "您必须先手动切换 $POLICYNAME$ 策略，然后才能关闭此策略。",
     "placeholders": {
       "policyName": {
         "content": "$1",
@@ -5753,7 +5753,7 @@
     "message": "基于加密方式，当主密码或受信任设备被遗忘或丢失时恢复账户。"
   },
   "accountRecoveryPolicyWarning": {
-    "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。对于新的成员，自动注册后将打开账户恢复功能。"
+    "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。对于新的成员，自动注册后将开启账户恢复功能。"
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "必须先开启「单一组织」企业策略，然后才能激活此策略。"
@@ -5765,7 +5765,7 @@
     "message": "为新用户启用自动注册"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "此组织有一个企业策略，将自动为你注册密码重置。注册后将允许组织管理员更改您的主密码。"
+    "message": "此组织有一个企业策略，将自动为您注册密码重置。注册后将允许组织管理员更改您的主密码。"
   },
   "resetPasswordOrgKeysError": {
     "message": "组织密钥响应为空"
@@ -5942,7 +5942,7 @@
     "message": "新增客户组织"
   },
   "newClientOrganizationDesc": {
-    "message": "创建一个新的客户组织，该组织将作为提供商与你关联。您将可以访问和管理这个组织。"
+    "message": "创建一个新的客户组织，该组织将作为提供商与您关联。您将可以访问和管理这个组织。"
   },
   "newClient": {
     "message": "新增客户"
@@ -6286,7 +6286,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "重新申领免费计划"
+    "message": "收回了免费计划"
   },
   "redeem": {
     "message": "兑换"
@@ -6459,17 +6459,17 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescEnd": {
-    "message": "以用于设置 Key Connector 解密。请联系 Bitwarden 支持获取协助。",
+    "message": "以用于设置 Key Connector 解密。请联系 Bitwarden 支持寻求帮助。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
     "message": "「SSO 登录和 Key Connector 解密」已启用。此策略仅适用于所有者和管理员。"
   },
   "enabledSso": {
-    "message": "启用了 SSO"
+    "message": "SSO 已开启"
   },
   "disabledSso": {
-    "message": "停用了 SSO"
+    "message": "SSO 已关闭"
   },
   "enabledKeyConnector": {
     "message": "Key Connector 已启用"
@@ -6828,7 +6828,7 @@
     "message": "服务"
   },
   "unknownCipher": {
-    "message": "未知项目，你可能需要申请权限才能访问这个项目。"
+    "message": "未知项目，您可能需要申请权限才能访问这个项目。"
   },
   "cannotSponsorSelf": {
     "message": "您不能为活动账户兑换。请输入其他电子邮箱。"
@@ -6877,7 +6877,7 @@
     }
   },
   "billingContactProviderForAssistance": {
-    "message": "请联系他们以获得进一步的协助",
+    "message": "请联系他们以寻求进一步的帮助",
     "description": "This text is displayed if an organization's billing is managed by a Provider. It tells the user to contact the Provider for assistance."
   },
   "forwardedEmail": {
@@ -6947,7 +6947,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商获取协助。",
+    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -7034,7 +7034,7 @@
     "message": "登录未识别的设备时，验证码会发送到您的电子邮箱地址"
   },
   "updatedDeviceVerification": {
-    "message": "已更新设备验证"
+    "message": "更新了设备验证"
   },
   "areYouSureYouWantToEnableDeviceVerificationTheVerificationCodeEmailsWillArriveAtX": {
     "message": "确定要开启设备验证吗？验证码电子邮件将发送到：$EMAIL$",
@@ -7191,7 +7191,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。"
+    "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 Duo 然后按照步骤完成登录。"
@@ -7754,7 +7754,7 @@
     "message": "新增域名"
   },
   "noDomains": {
-    "message": "还没有域名"
+    "message": "没有域名"
   },
   "noDomainsSubText": {
     "message": "连接域名允许成员在使用 SSO 登录时跳过 SSO 标识符字段。"
@@ -7814,7 +7814,7 @@
     }
   },
   "domainNotVerified": {
-    "message": "$DOMAIN$ 未通过验证。请检查您的 DNS 记录。",
+    "message": "$DOMAIN$ 无法验证。请检查您的 DNS 记录。",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7871,7 +7871,7 @@
     }
   },
   "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ 未通过验证",
+    "message": "$DOMAIN$ 无法验证",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -8063,10 +8063,10 @@
     "message": "同步许可证"
   },
   "licenseSyncSuccess": {
-    "message": "成功同步许可证"
+    "message": "成功同步了许可证"
   },
   "licenseUploadSuccess": {
-    "message": "成功上传许可证"
+    "message": "成功上传了许可证"
   },
   "lastLicenseSync": {
     "message": "最后一次许可证同步"
@@ -8274,7 +8274,7 @@
     "message": "主密码弱且曾经暴露"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护你的账户。确定要使用这个密码吗？"
+    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "characterMinimum": {
     "message": "至少 $LENGTH$ 个字符",
@@ -8474,7 +8474,7 @@
     "message": "确定要移除此设备吗？"
   },
   "noDeviceRequests": {
-    "message": "无设备请求"
+    "message": "没有设备请求"
   },
   "noDeviceRequestsDesc": {
     "message": "成员的设备批准请求将显示在这里"
@@ -8879,7 +8879,7 @@
     "message": "免费 1 年"
   },
   "newWebApp": {
-    "message": "欢迎使用全新改进的网页 App。了解更多有关变更的信息。"
+    "message": "欢迎使用全新改进的网页 App。进一步了解有关变更的信息。"
   },
   "releaseBlog": {
     "message": "阅读发行博客"
@@ -8973,7 +8973,7 @@
     "message": "已购买附加席位"
   },
   "assignedSeatCannotUpdate": {
-    "message": "无法更新已分配的席位。请联系您的组织所有者获取协助。"
+    "message": "无法更新已分配的席位。请联系您的组织所有者寻求帮助。"
   },
   "subscriptionUpdateFailed": {
     "message": "订阅更新失败"
@@ -9031,7 +9031,7 @@
     "description": "The date header used when a subscription is cancelled."
   },
   "machineAccountsCannotCreate": {
-    "message": "无法在已停用的组织中创建机器账户。请联系您的组织所有者获取协助。"
+    "message": "无法在已停用的组织中创建机器账户。请联系您的组织所有者寻求帮助。"
   },
   "machineAccount": {
     "message": "机器账户",
@@ -9295,7 +9295,7 @@
     "message": "使用适合您平台的实施指南为 Bitwarden 配置设备管理。"
   },
   "desktopRequired": {
-    "message": "Desktop required"
+    "message": "需要桌面端"
   },
   "reopenLinkOnDesktop": {
     "message": "请在桌面端从您的电子邮件中重新打开此链接。"
@@ -10053,7 +10053,7 @@
     "message": "自托管"
   },
   "claim-domain-single-org-warning": {
-    "message": "声明域名将启用单一组织策略。"
+    "message": "声明域名将开启单一组织策略。"
   },
   "single-org-revoked-user-warning": {
     "message": "不符合要求的成员将被撤销。管理员可以在他们离开所有其他组织后恢复其成员资格。"
@@ -10122,7 +10122,7 @@
     }
   },
   "suspendedUserOrgMessage": {
-    "message": "联系您的组织所有者获取协助。"
+    "message": "联系您的组织所有者寻求帮助。"
   },
   "suspendedOwnerOrgMessage": {
     "message": "要重新访问您的组织，请添加一个付款方式。"
@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "分配的席位超过可用席位。"
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "移除使用 PIN 码解锁"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "不允许成员使用 PIN 码解锁他们的账户。"
   }
 }

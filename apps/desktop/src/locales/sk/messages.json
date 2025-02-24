@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Pri spustení aplikácie vyžadovať heslo alebo PIN"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Pri spustení aplikácie vyžadovať heslo"
+  },
   "recommendedForSecurity": {
     "message": "Odporúča sa z hľadiska bezpečnosti."
   },

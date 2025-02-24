@@ -4,10 +4,6 @@ import { b64Decode, getQsParam } from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
 import { TranslationService } from "./translation.service";
 
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-require("./webauthn.scss");
-
 let parsed = false;
 let webauthnJson: any;
 let parentUrl: string = null;
@@ -75,17 +71,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await localeService.init();
 
-  document.getElementById("msg").innerText = localeService.t("webAuthnFallbackMsg");
-  document.getElementById("remember-label").innerText = localeService.t("rememberMe");
+  document.getElementById("remember-label").innerText = localeService.t(
+    "dontAskAgainOnThisDeviceFor30Days",
+  );
 
   const button = document.getElementById("webauthn-button");
-  button.innerText = localeService.t("webAuthnAuthenticate");
+  button.innerText = localeService.t("readSecurityKey");
   button.onclick = start;
 
-  document.getElementById("spinner").classList.add("d-none");
-  const content = document.getElementById("content");
-  content.classList.add("d-block");
-  content.classList.remove("d-none");
+  const titleForSmallerScreens = document.getElementById("title-smaller-screens");
+  const titleForLargerScreens = document.getElementById("title-larger-screens");
+
+  titleForSmallerScreens.innerText = localeService.t("verifyIdentity");
+  titleForLargerScreens.innerText = localeService.t("verifyIdentity");
+
+  const subtitle = document.getElementById("subtitle");
+  subtitle.innerText = localeService.t("followTheStepsBelowToFinishLoggingIn");
 });
 
 function start() {
@@ -146,20 +147,24 @@ function error(message: string) {
   el.textContent = message;
   el.classList.add("alert");
   el.classList.add("alert-danger");
+  el.classList.remove("tw-hidden");
 }
 
 function success(message: string) {
   (document.getElementById("webauthn-button") as HTMLButtonElement).disabled = true;
+  (document.getElementById("remember") as HTMLInputElement).disabled = true;
 
   const el = document.getElementById("msg");
   resetMsgBox(el);
   el.textContent = message;
   el.classList.add("alert");
   el.classList.add("alert-success");
+  el.classList.remove("tw-hidden");
 }
 
 function resetMsgBox(el: HTMLElement) {
   el.classList.remove("alert");
   el.classList.remove("alert-danger");
   el.classList.remove("alert-success");
+  el.classList.add("tw-hidden");
 }

@@ -1029,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "Щракнете върху елементите в трезора за автоматично попълване"
   },
+  "clickToAutofill": {
+    "message": "Щракнете върху елементите в предложениета за автоматично попълване"
+  },
   "clearClipboard": {
     "message": "Изчистване на буфера",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "за да създадете сигурна и уникална парола",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Персонализиране на трезора"
   },
   "vaultTimeoutAction": {
     "message": "Действие при изтичане на времето"
