@@ -269,11 +269,11 @@ describe("TwoFactorAuthComponent", () => {
         );
       });
 
-      it("calls loginEmailService.clearValues() when login is successful", async () => {
+      it("calls loginEmailService.clearLoginEmail() when login is successful", async () => {
         // Arrange
         mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
         // spy on loginEmailService.clearValues
-        const clearValuesSpy = jest.spyOn(mockLoginEmailService, "clearValues");
+        const clearValuesSpy = jest.spyOn(mockLoginEmailService, "clearLoginEmail");
 
         // Act
         await component.submit(token, remember);
