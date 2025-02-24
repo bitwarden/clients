@@ -1,7 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME: rename output bindings and then remove this line
+/* eslint-disable @angular-eslint/no-output-on-prefix */
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -13,7 +15,6 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -25,13 +26,13 @@ import {
   SimpleDialogOptions,
 } from "@bitwarden/components";
 
-import { HeaderModule } from "../../../layouts/header/header.module";
-import { SharedModule } from "../../../shared";
-import { CollectionDialogTabType } from "../../components/collection-dialog";
+import { HeaderModule } from "../../../../layouts/header/header.module";
+import { SharedModule } from "../../../../shared";
+import { CollectionDialogTabType } from "../../../../vault/components/collection-dialog";
 import {
   All,
   RoutedVaultFilterModel,
-} from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
+} from "../../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 @Component({
   standalone: true,
@@ -47,7 +48,7 @@ import {
     JslibModule,
   ],
 })
-export class VaultHeaderComponent implements OnInit {
+export class VaultHeaderComponent {
   protected All = All;
   protected Unassigned = Unassigned;
 
@@ -97,10 +98,7 @@ export class VaultHeaderComponent implements OnInit {
     private dialogService: DialogService,
     private collectionAdminService: CollectionAdminService,
     private router: Router,
-    private configService: ConfigService,
   ) {}
-
-  async ngOnInit() {}
 
   get title() {
     const headerType = this.i18nService.t("collections").toLowerCase();

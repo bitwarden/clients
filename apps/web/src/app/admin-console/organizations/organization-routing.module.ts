@@ -18,8 +18,8 @@ import { organizationPermissionsGuard } from "../../admin-console/organizations/
 import { organizationRedirectGuard } from "../../admin-console/organizations/guards/org-redirect.guard";
 import { OrganizationLayoutComponent } from "../../admin-console/organizations/layouts/organization-layout.component";
 import { deepLinkGuard } from "../../auth/guards/deep-link.guard";
-import { VaultModule } from "../../vault/org-vault/vault.module";
 
+import { VaultModule } from "./collections/vault.module";
 import { isEnterpriseOrgGuard } from "./guards/is-enterprise-org.guard";
 import { AdminConsoleIntegrationsComponent } from "./integrations/integrations.component";
 import { GroupsComponent } from "./manage/groups.component";

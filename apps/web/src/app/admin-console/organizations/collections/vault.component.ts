@@ -76,55 +76,55 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { GroupApiService, GroupView } from "../../admin-console/organizations/core";
-import { openEntityEventsDialog } from "../../admin-console/organizations/manage/entity-events.component";
 import {
   ResellerWarning,
   ResellerWarningService,
-} from "../../billing/services/reseller-warning.service";
-import { TrialFlowService } from "../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../billing/types/free-trial";
-import { SharedModule } from "../../shared";
-import { VaultFilterService } from "../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
-import { VaultFilter } from "../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
-import { AssignCollectionsWebComponent } from "../components/assign-collections";
+} from "../../../billing/services/reseller-warning.service";
+import { TrialFlowService } from "../../../billing/services/trial-flow.service";
+import { FreeTrial } from "../../../billing/types/free-trial";
+import { SharedModule } from "../../../shared";
+import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
   openCollectionDialog,
-} from "../components/collection-dialog";
+} from "../../../vault/components/collection-dialog";
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
-} from "../components/vault-item-dialog/vault-item-dialog.component";
-import { VaultItemEvent } from "../components/vault-items/vault-item-event";
-import { VaultItemsModule } from "../components/vault-items/vault-items.module";
+} from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
+import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
+import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
 import {
   AttachmentDialogResult,
   AttachmentsV2Component,
-} from "../individual-vault/attachments-v2.component";
+} from "../../../vault/individual-vault/attachments-v2.component";
 import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
-} from "../individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
-import { RoutedVaultFilterBridgeService } from "../individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
-import { RoutedVaultFilterService } from "../individual-vault/vault-filter/services/routed-vault-filter.service";
-import { createFilterFunction } from "../individual-vault/vault-filter/shared/models/filter-function";
+} from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
+import { VaultFilterService } from "../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
+import { RoutedVaultFilterBridgeService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
+import { RoutedVaultFilterService } from "../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
+import { createFilterFunction } from "../../../vault/individual-vault/vault-filter/shared/models/filter-function";
 import {
   All,
   RoutedVaultFilterModel,
-} from "../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
-import { VaultHeaderComponent } from "../org-vault/vault-header/vault-header.component";
-import { getNestedCollectionTree } from "../utils/collection-utils";
+} from "../../../vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
+import { VaultFilter } from "../../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
+import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
+import { getNestedCollectionTree } from "../../../vault/utils/collection-utils";
+import { GroupApiService, GroupView } from "../core";
+import { openEntityEventsDialog } from "../manage/entity-events.component";
 
 import {
   BulkCollectionsDialogComponent,
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { AdminConsoleCipherFormConfigService } from "./services/admin-console-cipher-form-config.service";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
