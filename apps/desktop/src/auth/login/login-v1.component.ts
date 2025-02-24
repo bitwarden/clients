@@ -220,9 +220,10 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     if (!ipc.platform.isAppImage && !ipc.platform.isSnapStore && !ipc.platform.isDev) {
       return super.launchSsoBrowser(clientId, ssoRedirectUri);
     }
+    const email = this.formGroup.controls.email.value;
 
     // Save off email for SSO
-    await this.ssoLoginService.setSsoEmail(this.formGroup.controls.email.value);
+    await this.ssoLoginService.setSsoEmail(email);
 
     // Generate necessary sso params
     const passwordOptions: any = {
@@ -243,7 +244,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
     await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
 
     try {
-      await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
+      await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state, email);
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {

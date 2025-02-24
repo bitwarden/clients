@@ -68,50 +68,21 @@ describe("DefaultLoginComponentService", () => {
     });
   });
 
-  describe("launchSsoBrowserWindow", () => {
-    const email = "test@bitwarden.com";
-    let state = "testState";
-    const codeVerifier = "testCodeVerifier";
-    const codeChallenge = "testCodeChallenge";
-    const baseUrl = "https://webvault.bitwarden.com/#/sso";
-
-    beforeEach(() => {
-      state = "testState";
+  describe("redirectToSsoLogin", () => {
+    it("sets the pre-SSO state", async () => {
+      const email = "test@bitwarden.com";
+      const state = "testState";
+      const codeVerifier = "testCodeVerifier";
+      const codeChallenge = "testCodeChallenge";
 
       passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
       passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
       jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+
+      await service.redirectToSsoLogin(email);
+      expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
+      expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+      expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
     });
-
-    it.each([
-      {
-        clientType: ClientType.Browser,
-        clientId: "browser",
-        expectedRedirectUri: "https://webvault.bitwarden.com/sso-connector.html",
-      },
-      {
-        clientType: ClientType.Desktop,
-        clientId: "desktop",
-        expectedRedirectUri: "bitwarden://sso-callback",
-      },
-    ])(
-      "launches SSO browser window with correct URL for $clientId client",
-      async ({ clientType, clientId, expectedRedirectUri }) => {
-        service["clientType"] = clientType;
-
-        await service.launchSsoBrowserWindow(email, clientId as "browser" | "desktop");
-
-        if (clientType === ClientType.Browser) {
-          state += ":clientId=browser";
-        }
-
-        const expectedUrl = `${baseUrl}?clientId=${clientId}&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
-
-        expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
-        expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
-        expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
-        expect(platformUtilsService.launchUri).toHaveBeenCalledWith(expectedUrl);
-      },
-    );
   });
 });

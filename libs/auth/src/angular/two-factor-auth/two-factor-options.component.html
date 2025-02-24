@@ -1,0 +1,50 @@
+<bit-dialog [background]="'alt'" dialogSize="large">
+  <span bitDialogTitle>
+    {{ "selectTwoStepLoginMethod" | i18n }}
+  </span>
+  <ng-container bitDialogContent>
+    <bit-item-group>
+      <bit-item *ngFor="let provider of providers" (click)="choose(provider)">
+        <button bit-item-content [truncate]="false" type="button" class="tw-h-auto md:tw-h-20">
+          <div
+            slot="start"
+            [ngSwitch]="provider.type"
+            class="tw-w-16 md:tw-w-20 tw-mr-2 sm:tw-mr-4"
+          >
+            <bit-icon
+              *ngSwitchCase="TwoFactorProviderType.Authenticator"
+              [icon]="Icons.TwoFactorAuthAuthenticatorIcon"
+            ></bit-icon>
+            <bit-icon
+              *ngSwitchCase="TwoFactorProviderType.Email"
+              [icon]="Icons.TwoFactorAuthEmailIcon"
+            ></bit-icon>
+            <bit-icon
+              *ngSwitchCase="TwoFactorProviderType.Duo"
+              [icon]="Icons.TwoFactorAuthDuoIcon"
+            ></bit-icon>
+            <bit-icon
+              *ngSwitchCase="TwoFactorProviderType.Yubikey"
+              [icon]="Icons.TwoFactorAuthYubicoIcon"
+            ></bit-icon>
+            <bit-icon
+              *ngSwitchCase="TwoFactorProviderType.OrganizationDuo"
+              [icon]="Icons.TwoFactorAuthDuoIcon"
+            ></bit-icon>
+            <bit-icon
+              *ngSwitchCase="TwoFactorProviderType.WebAuthn"
+              [icon]="Icons.TwoFactorAuthWebAuthnIcon"
+            ></bit-icon>
+          </div>
+          {{ provider.name }}
+          <ng-container slot="secondary"> {{ provider.description }} </ng-container>
+        </button>
+      </bit-item>
+    </bit-item-group>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="secondary" (click)="cancel()">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
