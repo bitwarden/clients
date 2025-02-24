@@ -12,7 +12,6 @@ import {
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -38,6 +37,8 @@ import {
   SsoComponent,
   VaultIcon,
   LoginDecryptionOptionsComponent,
+  TwoFactorAuthComponent,
+  TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
@@ -71,8 +72,7 @@ import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emerg
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { SsoComponentV1 } from "./auth/sso-v1.component";
-import { TwoFactorAuthComponent } from "./auth/two-factor-auth.component";
-import { TwoFactorComponent } from "./auth/two-factor.component";
+import { TwoFactorComponentV1 } from "./auth/two-factor-v1.component";
 import { UpdatePasswordComponent } from "./auth/update-password.component";
 import { UpdateTempPasswordComponent } from "./auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
@@ -505,6 +505,50 @@ const routes: Routes = [
           },
         },
       },
+      ...unauthUiRefreshSwap(
+        TwoFactorComponentV1,
+        TwoFactorAuthComponent,
+        {
+          path: "2fa",
+          canActivate: [unauthGuardFn()],
+          children: [
+            {
+              path: "",
+              component: TwoFactorComponentV1,
+            },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
+          data: {
+            pageTitle: {
+              key: "verifyIdentity",
+            },
+          } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        },
+        {
+          path: "2fa",
+          canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
+          children: [
+            {
+              path: "",
+              component: TwoFactorAuthComponent,
+            },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
+          data: {
+            pageTitle: {
+              key: "verifyIdentity",
+            },
+          } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        },
+      ),
       {
         path: "lock",
         canActivate: [deepLinkGuard(), lockGuard()],
@@ -521,25 +565,6 @@ const routes: Routes = [
           pageIcon: LockIcon,
           showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,
-      },
-      {
-        path: "2fa",
-        canActivate: [unauthGuardFn()],
-        children: [
-          ...twofactorRefactorSwap(TwoFactorComponent, TwoFactorAuthComponent, {
-            path: "",
-          }),
-          {
-            path: "",
-            component: EnvironmentSelectorComponent,
-            outlet: "environment-selector",
-          },
-        ],
-        data: {
-          pageTitle: {
-            key: "verifyIdentity",
-          },
-        } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
         path: "authentication-timeout",
