@@ -57,7 +57,7 @@ export class PopupViewCacheBackgroundService {
     );
   }
 
-  startObservingTabChanges() {
+  startObservingMessages() {
     this.messageListener
       .messages$(SAVE_VIEW_CACHE_COMMAND)
       .pipe(
