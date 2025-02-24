@@ -183,7 +183,7 @@ export class DefaultSdkService implements SdkService {
     kdfParams: KdfConfig,
     privateKey: EncryptedString,
     userKey: UserKey,
-    orgKeys?: Record<OrganizationId, EncryptedOrganizationKeyData>,
+    orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
   ) {
     await client.crypto().initialize_user_crypto({
       email: account.email,
