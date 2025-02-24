@@ -1,15 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, map, Observable, switchMap } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import { User } from "@bitwarden/angular/pipes/user-name.pipe";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -19,7 +16,7 @@ import { UserId } from "@bitwarden/common/types/guid";
   selector: "app-header",
   templateUrl: "./web-header.component.html",
 })
-export class WebHeaderComponent implements OnInit {
+export class WebHeaderComponent {
   /**
    * Custom title that overrides the route data `titleId`
    */
@@ -35,7 +32,6 @@ export class WebHeaderComponent implements OnInit {
   protected canLock$: Observable<boolean>;
   protected selfHosted: boolean;
   protected hostname = location.hostname;
-  protected organization$: Observable<Organization>;
 
   constructor(
     private route: ActivatedRoute,
@@ -43,7 +39,6 @@ export class WebHeaderComponent implements OnInit {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private messagingService: MessagingService,
     private accountService: AccountService,
-    private organizationService: OrganizationService,
   ) {
     this.routeData$ = this.route.data.pipe(
       map((params) => {
@@ -59,16 +54,6 @@ export class WebHeaderComponent implements OnInit {
     this.canLock$ = this.vaultTimeoutSettingsService
       .availableVaultTimeoutActions$()
       .pipe(map((actions) => actions.includes(VaultTimeoutAction.Lock)));
-  }
-
-  async ngOnInit() {
-    this.organization$ = combineLatest([
-      this.route.params,
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => this.organizationService.organizations$(userId)),
-      ),
-    ]).pipe(map(([params, orgs]) => orgs.find((org) => org.id === params.organizationId)));
   }
 
   protected lock() {
