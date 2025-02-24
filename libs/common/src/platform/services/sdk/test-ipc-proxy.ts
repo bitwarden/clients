@@ -14,7 +14,7 @@ const SUBCLIENTS = {
 // Dummy IPC implementation for testing
 const ipc = {
   subscribers: {} as Record<string, (from: string, message: string) => void>,
-  send: (channel: string, from: string, message: string) => {
+  send: async (channel: string, from: string, message: string) => {
     if (channel in ipc.subscribers) {
       ipc.subscribers[channel](from, message);
     }
@@ -68,7 +68,6 @@ function sdkIpcHandler(
               resolve(value);
             } else if (type === "error") {
               ipc.clear(id);
-
               const err = new Error(value.message);
               err.stack = value.stack;
               err.name = value.name;
@@ -79,11 +78,11 @@ function sdkIpcHandler(
               const channel = argsJson[+type].value;
               func(...value)
                 .then((result: any) => {
-                  ipc.send(channel, id, JSON.stringify({ type: "result", value: result }));
+                  return ipc.send(channel, id, JSON.stringify({ type: "result", value: result }));
                 })
                 .catch((e: any) => {
                   const err = { message: e.message, stack: e.stack, name: e.name };
-                  ipc.send(channel, id, JSON.stringify({ type: "error", value: err }));
+                  return ipc.send(channel, id, JSON.stringify({ type: "error", value: err }));
                 });
             }
           });
@@ -126,19 +125,26 @@ export async function testProxy() {
       args: Arg[];
     };
 
+    // Go through all the clients and subclients
     let client = sdkLocal as any;
     for (const sc of subclients) {
+      if (!(sc in client)) {
+        throw new Error(`Subclient ${sc} not found`);
+      }
       client = client[sc]();
     }
 
+    // Process the arguments so they can't be sent through IPC
     const argObjects = args.map((a, idx) => {
-      // If the argument is a function, we need to create a special channel for it, as they can't be serialized.
+      // If the argument is a function we need to create a special channel for it, as they can't be serialized.
       // Instead, the channel id will be passed as the value to the function.
-      // The function that we pass to the SDK will send the result to this channel and wait for a response.
       if (a.type === "function") {
-        return (...args: any[]) => {
+        return async (...args: any[]) => {
+          // This is the promise that we send to the SDK client, every time the function is called
+          // we send the data through IPC and wait for a response, which will resolve or reject the promise.
           return new Promise((resolve, reject) => {
             ipc.subscribe(a.value, (_from: string, message: string) => {
+              ipc.clear(a.value);
               const { type, value } = JSON.parse(message);
               if (type === "result") {
                 resolve(value);
@@ -149,7 +155,11 @@ export async function testProxy() {
                 reject(err);
               }
             });
-            ipc.send(from, "sdk", JSON.stringify({ type: idx, value: args }));
+
+            ipc.send(from, "sdk", JSON.stringify({ type: idx, value: args })).catch((e) => {
+              ipc.clear(a.value);
+              reject(e);
+            });
           });
         };
       }
@@ -160,10 +170,10 @@ export async function testProxy() {
     // Call the function on the SDK client and send the response back
     try {
       const value = await client[func](...argObjects);
-      ipc.send(from, "sdk", JSON.stringify({ type: "result", value }));
+      await ipc.send(from, "sdk", JSON.stringify({ type: "result", value }));
     } catch (e) {
       const err = { message: e.message, stack: e.stack, name: e.name };
-      ipc.send(from, "sdk", JSON.stringify({ type: "error", value: err }));
+      await ipc.send(from, "sdk", JSON.stringify({ type: "error", value: err }));
     }
 
     // Function finished, clear callback channels
