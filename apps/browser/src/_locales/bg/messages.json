@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Копиране на бележките"
   },
+  "copy": {
+    "message": "Копиране",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Попълване",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Блокирани домейни"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Научете повече за блокираните домейни"
+  },
   "excludedDomains": {
     "message": "Изключени домейни"
   },
@@ -3020,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Неправилен идентификатор за ППИ на $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",

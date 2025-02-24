@@ -2162,6 +2162,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Zapnutie dvojstupňového prihlásenia vás môže natrvalo vymknúť z vášho Bitwarden účtu. Záchranný kód umožňuje prístup k vášmu kontu v prípade že už nemôžete použiť svoj normálny dvojstupňový spôsob overenia. (napríklad ak stratíte zariadenie) Zákaznícka podpora nebude schopná pomôcť vám ak stratíte prístup k účtu. Preto vám odporúčame zapísať si, alebo si vytlačiť záchranný kód a uložiť ho na bezpečnom mieste."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Váš jednorázový záchranný kód sa dá použiť na vypnutie dvojstupňového prihlasovania ak ste stratili pristúp k jeho poskytovateľovi. Bitwarden odporúča, aby ste si záchranný kód zapísali a odložili na bezpečné miesto."
+  },
   "viewRecoveryCode": {
     "message": "Zobraziť záchranný kód"
   },
@@ -4172,6 +4175,9 @@
   "recoverAccountTwoStepDesc": {
     "message": "Ak sa nemôžete dostať k svojmu účtu prostredníctvom normálneho dvojstupňového prihlásenia, môžete použiť záchranný kód a vypnúť dvojstupňové prihlasovanie do vášho účtu."
   },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Nižšie sa prihláste svojím jednorazovým záchranným kódom. Vypnete tým všetky metódy dvojstupňového prihlasovania vášho účtu."
+  },
   "recoverAccountTwoStep": {
     "message": "Získať prístup k účtu s dvojstupňovým prihlásením"
   },
@@ -4462,6 +4468,24 @@
   },
   "encryptionKeyUpdateCannotProceed": {
     "message": "Aktualizácia šifrovacieho kľúča nemôže pokračovať"
+  },
+  "editFieldLabel": {
+    "message": "Upraviť $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Zmeniť poradie $LABEL$. Na presun položky hore alebo dole použite klávesy so šípkami.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "keyUpdateFoldersFailed": {
     "message": "Pri aktualizácii šifrovacieho kľúča nebolo možné dešifrovať vaše priečinky. Ak chcete pokračovať v aktualizácii, vaše priečinky sa musia odstrániť. Ak budete pokračovať, nebudú odstránené žiadne položky trezora."
@@ -6922,6 +6946,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť. Obráťte sa na svojho poskytovateľa služieb a požiadajte o pomoc.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -7294,7 +7342,7 @@
     "description": "Label for the search bar used to search projects."
   },
   "project": {
-    "message": "Project",
+    "message": "Projekt",
     "description": "Similar to collections, projects can be used to group secrets."
   },
   "editProject": {
@@ -9246,6 +9294,12 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "desktopRequired": {
+    "message": "Vyžaduje sa desktop"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Otvorte tento odkaz z emailu na desktope."
+  },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
     "placeholders": {
@@ -10238,6 +10292,38 @@
   },
   "organizationNameMaxLength": {
     "message": "Meno organizácie nemôže mať viac ako 50 znakov."
+  },
+  "openingExtension": {
+    "message": "Otvára sa rozšírenie Bitwarden pre prehliadač"
+  },
+  "somethingWentWrong": {
+    "message": "Niečo sa pokazilo..."
+  },
+  "openingExtensionError": {
+    "message": "Mali sme problém otvoriť Bitwarden rozšírenie pre prehliadač. Otvoríte ho kliknutím na tlačidlo."
+  },
+  "openExtension": {
+    "message": "Otvoriť rozšírenie"
+  },
+  "doNotHaveExtension": {
+    "message": "Nemáte Bitwarden rozšírenie pre prehliadač?"
+  },
+  "installExtension": {
+    "message": "Inštalovať rozšírenie"
+  },
+  "openedExtension": {
+    "message": "Rozšírenie pre prehliadač otvorené"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Rozšírenie pre prehliadač Bitwarden úspešne otvorené. Teraz môžete skontrolovať vaše ohrozene heslá."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Mali sme problém otvoriť Bitwarden rozšírenie pre prehliadač. Otvorte ikonu Bitwarden",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "na paneli nástrojov.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
     "message": "Vaše predplatné sa čoskoro obnoví. Aby ste si zabezpečili nepretržitú prevádzku, kontaktujte $RESELLER$ a potvrďte obnovenie pred $RENEWAL_DATE$.",

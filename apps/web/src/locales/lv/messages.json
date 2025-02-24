@@ -2162,6 +2162,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Divpakāpju pieteikšanās var pastāvīgi liegt piekļuvi Bitwarden kontam. Atkopšanas kods ļauj piekļūt tam gadījumā, kad vairs nav iespējams izmantot ierasto divpakāpju pieteikšanās nodrošinātāju (piemēram, ir pazaudēta ierīce). Bitwarden atbalsts nevarēs palīdzēt, ja tiks pazaudēta piekļuve kontam. Ir ieteicams, ka atkopšanas kods tiek pierakstīts vai izdrukāts un turēts drošā vietā."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Vienreizējas izmantošanas atkopes kodu var izmantot, lai izslēgtu divpakāpju pieteikšanos gadījumā, ja tiek zaudēta piekļuve savam divpakāpju pieteikšanās nodrošinātājam. Bitwarden iesaka pierakstīt atkopes kodu un glabāt to drošā vietā."
+  },
   "viewRecoveryCode": {
     "message": "Skatīt atkopšanas kodu"
   },
@@ -4172,6 +4175,9 @@
   "recoverAccountTwoStepDesc": {
     "message": "Ja kontam nevar piekļūt ar ierastajiem divpakāpju pieteikšanās veidiem, var izmantot atkopšanas kodu, lai atspējotu visus konta divpakāpju pieteikšanās nodrošinātājus."
   },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Pieteikties ar vienreizējas izmantošanas atkopes kodu zemāk. Tas kontā izslēgs visus divpakāpju nodrošinātājus."
+  },
   "recoverAccountTwoStep": {
     "message": "Atkopt konta divpakāpju pieteikšanos"
   },
@@ -4462,6 +4468,24 @@
   },
   "encryptionKeyUpdateCannotProceed": {
     "message": "Šifrēšanas atslēgas atjaunināšana nav iespējama"
+  },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "keyUpdateFoldersFailed": {
     "message": "Šifrēšanas atslēgas atjaunināšanas laikā mapes nevarēja atšifrēt. Lai turpinātu atjaunināšanu, mapes ir jāizdzēš. Glabātavas vienumi netiks izdzēsti, ja turpināsi."
@@ -6922,6 +6946,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Neizdevās iegūt $SERVICENAME$ aizsegta e-pasta konta Id.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -9246,6 +9294,12 @@
   "deviceManagementDesc": {
     "message": "Konfigurēt ierīču pārvaldību Bitwarden, izmantojot operētājsistēmai atbilstošas ieviešanas norādes."
   },
+  "desktopRequired": {
+    "message": "Nepieciešams dators"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Šī saite e-pastā atkārtoti jāatver datorā."
+  },
   "integrationCardTooltip": {
     "message": "Palaist $INTEGRATION$ ieviešanas norādes.",
     "placeholders": {
@@ -10238,6 +10292,38 @@
   },
   "organizationNameMaxLength": {
     "message": "Apvienības nosaukums nevar pārsniegt 50 rakstzīmes."
+  },
+  "openingExtension": {
+    "message": "Atver Bitwarden pārlūka paplašinājumu"
+  },
+  "somethingWentWrong": {
+    "message": "Kaut kas nogāja greizi..."
+  },
+  "openingExtensionError": {
+    "message": "Mums bija sarežģījumi Bitwarden pārlūka paplašinājuma atvēršanā. Klikšķināt uz pogas, lai to tagad atvērtu."
+  },
+  "openExtension": {
+    "message": "Atvērt paplašinājumu"
+  },
+  "doNotHaveExtension": {
+    "message": "Nav Bitwarden pārlūka paplašinājuma?"
+  },
+  "installExtension": {
+    "message": "Uzstādīt paplašinājumu"
+  },
+  "openedExtension": {
+    "message": "Atvērt pārlūka paplašinājumu"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Bitwarden pārlūka paplašinājums tika veiksmīgi atvērts. Tagad var pārskatīt savas riskam pakļautās paroles."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Mums bija sarežģījumi Bitwarden pārlūka paplašinājuma atvēršanā. Rīkjoslā jāatver Bitwarden ikona",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "rīkjoslā.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
     "message": "Abonements drīz tiks atjaunots. Lai nodrošinātu nepārtrauktu pakalpojumu, pirms $RENEWAL_DATE$ jāsazinās ar $RESELLER$, lai apstiprinātu atjaunošanu.",

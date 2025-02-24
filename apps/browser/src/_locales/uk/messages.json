@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Копіювати нотатки"
   },
+  "copy": {
+    "message": "Копіювати",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Заповнити",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Заблоковані домени"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Докладніше про заблоковані домени"
+  },
   "excludedDomains": {
     "message": "Виключені домени"
   },
@@ -3020,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Недійсний токен API для $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ відхилив ваш запит. Зверніться до провайдера послуг по допомогу.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ відхилив ваш запит: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",

@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Kopiraj bilješke"
   },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Ispuni",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Blokirane domene"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Saznaj više o blokiranim domenama"
+  },
   "excludedDomains": {
     "message": "Izuzete domene"
   },
@@ -2364,10 +2371,10 @@
     "message": "Promijeni ovo u postavkama"
   },
   "change": {
-    "message": "Change"
+    "message": "Promijeni"
   },
   "changeButtonTitle": {
-    "message": "Change password - $ITEMNAME$",
+    "message": "Promijeni lozinku - $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2376,10 +2383,10 @@
     }
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Rizične lozinke"
   },
   "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "message": "Broj rizičnih lozinki koje $ORGANIZATION$ traži da promijeniš: $COUNT$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2392,7 +2399,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrg": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "message": "Broj rizičnih lozinki koje tvoja organizacija traži da promijeniš: $COUNT$.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2401,10 +2408,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Review and change one at-risk password"
+    "message": "Pregledaj i promijeni jednu rizičnu lozinku"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Review and change $COUNT$ at-risk passwords",
+    "message": "Broj rizičnih lozinki za pregled i promjenu: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2413,19 +2420,19 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Change at-risk passwords faster"
+    "message": "Brže promijeni rizične lozinke"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+    "message": "Ažuriraj svoje postavke kako za brzu auto-ispunu svojih lozinki i generiranje novih"
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Uključi auto-ispunu"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Auto-ispuna uključena"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Odbaci"
   },
   "websiteItemLabel": {
     "message": "Web stranica $number$ (URI)",
@@ -3020,6 +3027,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Nevažeći $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
