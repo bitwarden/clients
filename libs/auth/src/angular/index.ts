@@ -77,3 +77,6 @@ export * from "./two-factor-auth";
 
 // device verification
 export * from "./new-device-verification/new-device-verification.component";
+
+// validators
+export * from "./validators/compare-inputs.validator";
