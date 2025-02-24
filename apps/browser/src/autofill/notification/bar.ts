@@ -96,7 +96,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
       document.body.removeChild(document.body.firstChild);
     }
     // Current implementations utilize a require for scss files which creates the need to remove the node.
-    document.querySelectorAll('head > link[rel="stylesheet"]').forEach((node) => node.remove());
+    document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
 
     sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, (cipherData) => {
       // @TODO use context to avoid prop drilling
