@@ -1,4 +1,8 @@
-<app-header></app-header>
+<app-header>
+  <span bitBadge variant="primary" slot="title-suffix" *ngIf="!organization?.useEvents">
+    {{ "upgrade" | i18n }}
+  </span>
+</app-header>
 
 <div class="tw-mb-4" [formGroup]="eventsForm">
   <div class="tw-mt-4 tw-flex tw-items-center">

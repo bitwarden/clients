@@ -18,14 +18,6 @@
         <div class="tw-truncate">
           <i *ngIf="icon" class="bwi {{ icon }}" aria-hidden="true"></i>
           {{ title || (routeData.titleId | i18n) }}
-          <span
-            bitBadge
-            variant="primary"
-            slot="title-suffix"
-            *ngIf="!(organization$ | async)?.useEvents"
-          >
-            {{ "upgrade" | i18n }}
-          </span>
         </div>
         <div><ng-content select="[slot=title-suffix]"></ng-content></div>
       </h1>
