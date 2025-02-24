@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
@@ -75,26 +73,23 @@ export class ElectronKeyService extends DefaultKeyService {
   protected override async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
     userId?: UserId,
-  ): Promise<UserKey> {
+  ): Promise<UserKey | null> {
     return await super.getKeyFromStorage(keySuffix, userId);
   }
 
-  protected async storeBiometricsProtectedUserKey(
-    userKey: UserKey,
-    userId?: UserId,
-  ): Promise<void> {
+  private async storeBiometricsProtectedUserKey(userKey: UserKey, userId: UserId): Promise<void> {
     // May resolve to null, in which case no client key have is required
     // TODO: Move to windows implementation
     const clientEncKeyHalf = await this.getBiometricEncryptionClientKeyHalf(userKey, userId);
-    await this.biometricService.setClientKeyHalfForUser(userId, clientEncKeyHalf);
+    await this.biometricService.setClientKeyHalfForUser(userId, clientEncKeyHalf as string);
     await this.biometricService.setBiometricProtectedUnlockKeyForUser(userId, userKey.keyB64);
   }
 
-  protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
+  protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<boolean> {
     return await super.shouldStoreKey(keySuffix, userId);
   }
 
-  protected override async clearAllStoredUserKeys(userId?: UserId): Promise<void> {
+  protected override async clearAllStoredUserKeys(userId: UserId): Promise<void> {
     await this.biometricService.deleteBiometricUnlockKeyForUser(userId);
     await super.clearAllStoredUserKeys(userId);
   }

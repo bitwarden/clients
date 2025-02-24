@@ -12,6 +12,8 @@ import {
   distinctUntilChanged,
   firstValueFrom,
   map,
+  Observable,
+  of,
   pairwise,
   startWith,
   Subject,
@@ -108,6 +110,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   showAutoPrompt = true;
+  pinEnabled$: Observable<boolean> = of(true);
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -192,6 +195,12 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     if (timeout === VaultTimeoutStringType.OnLocked && !showOnLocked) {
       timeout = VaultTimeoutStringType.OnRestart;
     }
+
+    this.pinEnabled$ = this.policyService.get$(PolicyType.RemoveUnlockWithPin).pipe(
+      map((policy) => {
+        return policy == null || !policy.enabled;
+      }),
+    );
 
     const initialValues = {
       vaultTimeout: timeout,

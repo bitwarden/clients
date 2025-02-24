@@ -27,7 +27,12 @@ import {
   LoginDecryptionOptionsService,
   SsoComponentService,
 } from "@bitwarden/auth/angular";
-import { LockService, LoginEmailService, PinServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  LockService,
+  LoginEmailService,
+  PinServiceAbstraction,
+  SsoUrlService,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -551,6 +556,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: SsoUrlService,
+    useClass: SsoUrlService,
+    deps: [],
+  }),
+  safeProvider({
     provide: LoginComponentService,
     useClass: ExtensionLoginComponentService,
     deps: [
@@ -560,6 +570,7 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
       ExtensionAnonLayoutWrapperDataService,
+      SsoUrlService,
     ],
   }),
   safeProvider({

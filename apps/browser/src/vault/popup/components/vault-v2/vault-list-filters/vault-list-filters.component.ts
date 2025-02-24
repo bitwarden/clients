@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
-import { combineLatest, map } from "rxjs";
+import { combineLatest, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ChipSelectComponent } from "@bitwarden/components";
@@ -34,6 +34,7 @@ export class VaultListFiltersComponent {
         folders,
       };
     }),
+    shareReplay({ bufferSize: 1, refCount: false }),
   );
 
   constructor(private vaultPopupListFiltersService: VaultPopupListFiltersService) {}
