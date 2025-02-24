@@ -50,6 +50,20 @@
   </a>
 </bit-banner>
 
+<bit-banner
+  id="pending-auth-request-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="info"
+  icon="bwi-info-circle"
+  *ngIf="visibleBanners.includes(VisibleVaultBanner.PendingAuthRequest)"
+  (onClose)="dismissBanner(VisibleVaultBanner.PendingAuthRequest)"
+>
+  {{ "youHaveAPendingLoginRequest" | i18n }}
+  <a bitLink linkType="secondary" routerLink="/settings/security/device-management">
+    {{ "reviewLoginRequest" | i18n }}
+  </a>
+</bit-banner>
+
 <app-verify-email
   id="verify-email-banner"
   *ngIf="visibleBanners.includes(VisibleVaultBanner.VerifyEmail)"
