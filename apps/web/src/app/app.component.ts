@@ -45,6 +45,7 @@ import {
   SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
+  RemoveUnlockWithPinPolicy,
 } from "./admin-console/organizations/policies";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -253,6 +254,7 @@ export class AppComponent implements OnDestroy, OnInit {
     this.policyListService.addPolicies([
       new TwoFactorAuthenticationPolicy(),
       new MasterPasswordPolicy(),
+      new RemoveUnlockWithPinPolicy(),
       new ResetPasswordPolicy(),
       new PasswordGeneratorPolicy(),
       new SingleOrgPolicy(),

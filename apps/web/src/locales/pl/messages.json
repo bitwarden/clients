@@ -217,7 +217,7 @@
     "message": "Tożsamość"
   },
   "contactInfo": {
-    "message": "Daje kontaktowe"
+    "message": "Dane kontaktowe"
   },
   "cardDetails": {
     "message": "Szczegóły karty"
@@ -2161,6 +2161,9 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Włączenie logowania dwustopniowego można trwale zablokować konto Bitwarden. Kod odzyskiwania pozwala na dostęp do konta w przypadku, gdy nie będziesz mógł skorzystać ze standardowego dostawcy logowania dwustopniowego (np. w przypadku utraty urządzenia). Pomoc techniczna Bitwarden nie będzie w stanie Ci pomóc, jeśli stracisz dostęp do swojego konta. Zalecamy zapisanie lub wydrukowanie kodu odzyskiwania i przechowywanie go w bezpiecznym miejscu."
+  },
+  "yourSingleUseRecoveryCode": {
+    "message": "Jednorazowy kod odzyskiwania może być użyty do wyłączenia dwuetapowego logowania w przypadku utraty dostępu do dostawcy logowania dwuetapowego. Bitwarden zaleca zapisanie kodu odzyskiwania i przechowywanie go w bezpiecznym miejscu."
   },
   "viewRecoveryCode": {
     "message": "Wyświetl kod odzyskiwania"
@@ -4172,6 +4175,9 @@
   "recoverAccountTwoStepDesc": {
     "message": "Jeśli nie możesz uzyskać dostępu do konta poprzez standardowe metody logowania dwustopniowego, skorzystaj z kodu odzyskiwania, aby wyłączyć wszystkich dostawców logowania dwustopniowego na swoim koncie."
   },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Zaloguj się poniżej, używając jednorazowego kodu odzyskiwania. Spowoduje to wyłączenie wszystkich dostawców dwuetapowych na Twoim koncie."
+  },
   "recoverAccountTwoStep": {
     "message": "Przywróć logowanie dwustopniowe do konta"
   },
@@ -4462,6 +4468,24 @@
   },
   "encryptionKeyUpdateCannotProceed": {
     "message": "Aktualizacja klucza szyfrowania nie może być kontynuowana"
+  },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "keyUpdateFoldersFailed": {
     "message": "Podczas aktualizacji klucza szyfrowania, folderów nie można odszyfrować. Aby kontynuować aktualizację, foldery muszą zostać usunięte. Żadne elementy sejfu nie zostaną usunięte."
@@ -6922,6 +6946,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Nie można uzyskać ID maskowanego konta e-mail dla $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -9246,6 +9294,12 @@
   "deviceManagementDesc": {
     "message": "Skonfiguruj zarządzanie urządzeniem Bitwarden za pomocą instrukcji implementacyjnych dla Twojej platformy."
   },
+  "desktopRequired": {
+    "message": "Wymagany komputer"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Otwórz ponownie ten link z adresu e-mail na komputerze."
+  },
   "integrationCardTooltip": {
     "message": "Uruchom przewodnik implementacyjny $INTEGRATION$.",
     "placeholders": {
@@ -9936,16 +9990,16 @@
     "message": "Użyj pól tekstowych dla danych takich jak pytania bezpieczeństwa"
   },
   "hiddenHelpText": {
-    "message": "Użyj ukrytych pól dla danych poufnych, takich jak hasło"
+    "message": "Użyj ukrytych pól dla danych poufnych takich jak hasło"
   },
   "checkBoxHelpText": {
-    "message": "Użyj pól wyboru, jeśli chcesz automatycznie wypełnić pole wyboru formularza, np. jak zapamiętywanie e-mail"
+    "message": "Użyj pól wyboru, jeśli chcesz automatycznie wypełnić pole wyboru formularza, np. zapamiętaj e-mail"
   },
   "linkedHelpText": {
     "message": "Użyj powiązanego pola, gdy masz problemy z autouzupełnianiem na konkretnej stronie internetowej."
   },
   "linkedLabelHelpText": {
-    "message": "Wprowadź atrybut z: html id, name, aria-label lub placeholder."
+    "message": "Wprowadź atrybut z HTML'a: id, name, aria-label lub placeholder."
   },
   "uppercaseDescription": {
     "message": "Uwzględnij wielkie litery",
@@ -9993,13 +10047,13 @@
     "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
   },
   "toHostBitwardenOnYourOwnServer": {
-    "message": "Aby hostować Bitwarden na własnym serwerze, musisz przesłać plik licencyjny. Aby wspierać darmowe plany rodzinne i zaawansowane możliwości rozliczeniowe dla Twojej własnej organizacji, musisz skonfigurować automatyczną synchronizację w swojej własnej organizacji."
+    "message": "Aby hostować Bitwarden na własnym serwerze, musisz przesłać plik licencyjny. Aby wesprzeć darmowe plany rodzinne i zaawansowane możliwości rozliczeniowe dla własnej organizacji, musisz skonfigurować automatyczną synchronizację."
   },
   "selfHostingTitleProper": {
     "message": "Samodzielne hostowanie"
   },
   "claim-domain-single-org-warning": {
-    "message": "Rejestracja domeny włączy politykę jednej organizacji."
+    "message": "Zgłoszenie domeny włączy zasadę pojedynczej organizacji."
   },
   "single-org-revoked-user-warning": {
     "message": "Niezgodni członkowie zostaną odwołani. Administratorzy mogą przywrócić członków po opuszczeniu wszystkich innych organizacji."
@@ -10015,7 +10069,7 @@
     }
   },
   "deleteOrganizationUserWarningDesc": {
-    "message": "Spowoduje to trwałe usunięcie wszystkich elementów należących do $NAME$. Nie ma to wpływu na elementy w kolekcji.",
+    "message": "Spowoduje to trwałe usunięcie wszystkich elementów należących do $NAME$. Elementy w kolekcjach nie są objęte tą operacją.",
     "description": "Warning description for the delete organization user dialog",
     "placeholders": {
       "name": {
@@ -10025,7 +10079,7 @@
     }
   },
   "deleteManyOrganizationUsersWarningDesc": {
-    "message": "Spowoduje to trwałe usunięcie wszystkich elementów należących do następujących członków. Nie ma to wpływu na elementy w kolekcji.",
+    "message": "Spowoduje to trwałe usunięcie wszystkich elementów należących do wybranych członków. Elementy w kolekcjach nie są objęte tą operacją.",
     "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
@@ -10038,10 +10092,10 @@
     }
   },
   "organizationUserDeletedDesc": {
-    "message": "Użytkownik został usunięty z organizacji i wszystkie powiązane dane z tym użytkownikiem zostały usunięte."
+    "message": "Użytkownik został usunięty z organizacji i wszystkie powiązane dane użytkownika zostały usunięte."
   },
   "deletedUserId": {
-    "message": "Usunięto użytkownika $ID$ - właściciel / administrator usunął te konto użytkownika",
+    "message": "Usunięto użytkownika $ID$ - właściciel / administrator usunął konto użytkownika",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -10077,22 +10131,22 @@
     "message": "Usuń członków"
   },
   "noSelectedMembersApplicable": {
-    "message": "Ta akcja nie ma zastosowania do żadnego z wybranych członków."
+    "message": "Ta akcja nie dotyczy żadnych zaznaczonych członków."
   },
   "deletedSuccessfully": {
     "message": "Usunięto pomyślnie"
   },
   "freeFamiliesSponsorship": {
-    "message": "Usuń darmowe sponsorowanie rodzin Bitwarden"
+    "message": "Usuń bezpłatny sponsoring planu rodzinnego"
   },
   "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Nie zezwalaj członkom na wykupienie planu rodzin za pośrednictwem tej organizacji."
+    "message": "Nie zezwalaj członkom na realizację planu rodzinnego za pośrednictwem tej organizacji."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
-    "message": "Płatność na rachunku bankowym jest dostępna tylko dla klientów w Stanach Zjednoczonych. Będziesz musiał zweryfikować swoje konto bankowe. Dokonamy mikrowpłaty w ciągu następnych 1-2 dni roboczych. Wprowadź kod deskryptora instrukcji z tej wpłaty na stronie rozliczeniowej organizacji, aby zweryfikować konto bankowe. Niezweryfikowanie konta bankowego spowoduje nieodebraną płatność, a subskrypcja zostanie zawieszona."
+    "message": "Płatność za pomocą konta bankowego jest dostępna tylko dla klientów w Stanach Zjednoczonych. Będziesz musiał/musiała zweryfikować swoje konto bankowe. W ciągu najbliższych 1-2 dni roboczych dokonamy mikrowpłaty. Wprowadź kod deskryptora z tej wpłaty na stronie rozliczeń organizacji, aby zweryfikować konto bankowe. Niezweryfikowanie konta bankowego spowoduje brak płatności i zawieszenie Twojej subskrypcji."
   },
   "verifyBankAccountWithStatementDescriptorInstructions": {
-    "message": "Dokonaliśmy mikrowpłaty na Twoje konto bankowe (może to zająć 1-2 dni robocze). Wprowadź sześciocyfrowy kod zaczynający się od 'SM' znaleziony w opisie depozytu. Niezweryfikowanie konta bankowego spowoduje nieodebraną płatność, a subskrypcja zostanie zawieszona."
+    "message": "Dokonaliśmy mikrowpłaty na Twoje konto bankowe (może to potrwać 1-2 dni robocze). Wprowadź sześciocyfrowy kod zaczynający się od „SM”, który znajdziesz w opisie wpłaty. Niezweryfikowanie konta bankowego spowoduje brak płatności i zawieszenie Twojej subskrypcji."
   },
   "descriptorCode": {
     "message": "Kod deskryptora"
@@ -10143,7 +10197,7 @@
     "message": "Zmień adres e-mail konta"
   },
   "removeMembers": {
-    "message": "Usuń użytkowników"
+    "message": "Usuń członków"
   },
   "devices": {
     "message": "Urządzenia"
@@ -10155,25 +10209,25 @@
     "message": "Twoje konto zostało zalogowane na każdym z poniższych urządzeń."
   },
   "claimedDomains": {
-    "message": "Zarejestrowane domeny"
+    "message": "Zgłoszone domeny"
   },
   "claimDomain": {
-    "message": "Zarejestruj domenę"
+    "message": "Zgłoś domenę"
   },
   "reclaimDomain": {
-    "message": "Wyrejestruj domenę"
+    "message": "Odzyskaj domenę"
   },
   "claimDomainNameInputHint": {
-    "message": "Przykład: mydomain.com. Subdomeny wymagają osobnych wpisów celem weryfikacji."
+    "message": "Przykład: mojadomena.com. Subdomeny wymagają osobnego zgłoszenia."
   },
   "automaticClaimedDomains": {
-    "message": "Automatycznie zarejestrowane domeny"
+    "message": "Automatycznie zgłoszone domeny"
   },
   "automaticDomainClaimProcess": {
-    "message": "Bitwarden spróbuje zweryfikować domenę 3 razy w ciągu pierwszych 72 godzin. Jeśli nie będzie można zweryfikować domeny, sprawdź rekord DNS na swoim serwerze i wprowadź go ręcznie. Domena zostanie usunięta z Twojej organizacji w ciągu 7 dni, jeśli nie zostanie zweryfikowana"
+    "message": "Bitwarden spróbuje zgłosić domenę 3 razy w ciągu pierwszych 72 godzin. Jeśli nie można zgłosić domeny, sprawdź rekord DNS w swoim serwerze i sprawdź go ręcznie. Domena zostanie usunięta z Twojej organizacji w ciągu 7 dni, jeśli nie zostanie zgłoszona."
   },
   "domainNotClaimed": {
-    "message": "$DOMAIN$ nie została zweryfikowana. Sprawdź swój rekord DNS.",
+    "message": "$DOMAIN$ nie została zgłoszona. Sprawdź swój rekord DNS.",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -10182,19 +10236,19 @@
     }
   },
   "domainStatusClaimed": {
-    "message": "Zweryfikowano"
+    "message": "Zgłoszono"
   },
   "domainStatusUnderVerification": {
-    "message": "Podczas weryfikacji"
+    "message": "W trakcie weryfikacji"
   },
   "claimedDomainsDesc": {
-    "message": "Zweryfikuj domenę do posiadania wszystkich kont użytkowników, których adres e-mail pasuje do domeny. Członkowie będą mogli pominąć identyfikator SSO podczas logowania. Administratorzy będą również mogli usuwać konta członków."
+    "message": "Zgłoś domenę, aby przejąć własność wszystkich kont członków, których adres e-mail pasuje do domeny. Członkowie będą mogli pominąć identyfikator SSO podczas logowania. Administratorzy będą również mogli usuwać konta członków."
   },
   "invalidDomainNameClaimMessage": {
-    "message": "Wprowadzone dane są niepoprawne. Format: mydomain.com. Subdomeny wymagają osobnych wpisów celem weryfikacji."
+    "message": "Nieprawidłowy format. Format: mojadomena.com. Subdomeny wymagają osobnego zgłoszenia."
   },
   "domainClaimedEvent": {
-    "message": "Zweryfikowano $DOMAIN$",
+    "message": "$DOMAIN$ została zgłoszona",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -10203,7 +10257,7 @@
     }
   },
   "domainNotClaimedEvent": {
-    "message": "$DOMAIN$ nie została zweryfikowana",
+    "message": "$DOMAIN$ nie została zgłoszona",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -10212,7 +10266,7 @@
     }
   },
   "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
-    "message": "Jeśli usuniesz $EMAIL$, sponsorowanie tego planu rodziny nie może zostać zrealizowane. Czy na pewno chcesz kontynuować?",
+    "message": "Jeśli usuniesz $EMAIL$, sponsoring dla tego planu rodzinnego nie będzie mógł zostać zrealizowany. Czy na pewno chcesz kontynuować?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -10221,7 +10275,7 @@
     }
   },
   "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
-    "message": "Jeśli usuniesz $EMAIL$, sponsorowanie tego planu rodzinnego zakończy się, a zapisana metoda płatności zostanie naliczona 40 USD + obowiązujący podatek od $DATE$. Nie będziesz w stanie wykupić nowego sponsora do dnia $DATE$. Czy na pewno chcesz kontynuować?",
+    "message": "Jeśli usuniesz $EMAIL$, sponsoring dla tego planu rodzinnego zakończy się, a zapisana metoda płatności zostanie obciążona kwotą 40 USD + odpowiedni podatek w dniu $DATE$. Nie będziesz mógł/mogła zrealizować nowego sponsoringu do dnia $DATE$. Czy na pewno chcesz kontynuować?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -10234,13 +10288,45 @@
     }
   },
   "domainClaimed": {
-    "message": "Domena zarejestrowana"
+    "message": "Domena zgłoszona"
   },
   "organizationNameMaxLength": {
     "message": "Nazwa organizacji nie może przekraczać 50 znaków."
   },
+  "openingExtension": {
+    "message": "Otwieranie rozszerzenia przeglądarki Bitwarden"
+  },
+  "somethingWentWrong": {
+    "message": "Coś poszło nie tak..."
+  },
+  "openingExtensionError": {
+    "message": "Wystąpił problem z otwarciem rozszerzenia przeglądarki. Kliknij przycisk, aby go teraz otworzyć."
+  },
+  "openExtension": {
+    "message": "Otwórz rozszerzenie"
+  },
+  "doNotHaveExtension": {
+    "message": "Nie masz rozszerzenia Bitwarden do przeglądarki?"
+  },
+  "installExtension": {
+    "message": "Zainstaluj rozszerzenie"
+  },
+  "openedExtension": {
+    "message": "Otwarto rozszerzenie przeglądarki"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Pomyślnie otwarto rozszerzenie do przeglądarki. Teraz możesz przejrzeć swoje hasła zagrożone."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Wystąpił problem z otwarciem rozszerzenia przeglądarki. Otwórz ikonę Bitwarden",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "z paska narzędzi.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "resellerRenewalWarningMsg": {
-    "message": "Twoja subskrypcja zostanie wkrótce odnowiona. Aby zapewnić nieprzerwaną usługę, skontaktuj się z $RESELLER$ , aby potwierdzić odnowienie przed $RENEWAL_DATE$.",
+    "message": "Twoja subskrypcja wkrótce zostanie odnowiona. Aby zapewnić ciągłość usług, skontaktuj się z $RESELLER$, aby potwierdzić odnowienie przed $RENEWAL_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10253,7 +10339,7 @@
     }
   },
   "resellerOpenInvoiceWarningMgs": {
-    "message": "Faktura za subskrypcję została wystawiona dnia $ISSUED_DATE$. Aby zapewnić nieprzerwaną usługę, skontaktuj się z $RESELLER$ , aby potwierdzić odnowienie przed dniem $DUE_DATE$.",
+    "message": "Faktura za Twoją subskrypcję została wystawiona $ISSUED_DATE$. Aby zapewnić ciągłość usług, skontaktuj się z $RESELLER$, aby potwierdzić odnowienie przed $DUE_DATE$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10270,7 +10356,7 @@
     }
   },
   "resellerPastDueWarningMsg": {
-    "message": "Faktura za subskrypcję nie została zapłacona. Aby zapewnić nieprzerwaną usługę, skontaktuj się z $RESELLER$ , aby potwierdzić odnowienie przed $GRACE_PERIOD_END$.",
+    "message": "Faktura za Twoją subskrypcję nie została opłacona. Aby zapewnić ciągłość usług, skontaktuj się z $RESELLER$, aby potwierdzić odnowienie przed $GRACE_PERIOD_END$.",
     "placeholders": {
       "reseller": {
         "content": "$1",
@@ -10283,13 +10369,13 @@
     }
   },
   "restartOrganizationSubscription": {
-    "message": "Subskrypcja organizacji zrestartowana"
+    "message": "Subskrypcja organizacji wznowiona"
   },
   "restartSubscription": {
-    "message": "Zrestartuj swoją subskrypcję"
+    "message": "Wznów swoją subskrypcję"
   },
   "suspendedManagedOrgMessage": {
-    "message": "Skontaktuj się z $PROVIDER$ w celu uzyskania pomocy.",
+    "message": "Skontaktuj się z $PROVIDER$, aby uzyskać pomoc.",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -10298,16 +10384,16 @@
     }
   },
   "accountDeprovisioningNotification": {
-    "message": "Administratorzy mają teraz możliwość usunięcia kont członków, które należą do zarejestrowanej domeny."
+    "message": "Administratorzy mają teraz możliwość usuwania kont członków należących do zgłoszonej domeny."
   },
   "deleteManagedUserWarningDesc": {
-    "message": "Ta akcja usunie konto członka, w tym wszystkie elementy w ich sejfie. To zastępuje poprzednią akcję Usunięcia."
+    "message": "Ta akcja spowoduje usunięcie konta członka, w tym wszystkich elementów w ich sejfie. Zastępuje to poprzednią akcję Usuń."
   },
   "deleteManagedUserWarning": {
-    "message": "Usuń jest nową akcją!"
+    "message": "Usunięcie to nowa akcja!"
   },
   "seatsRemaining": {
-    "message": "Pozostało $REMAINING$ miejsc z $TOTAL$ miejsc przypisanych do tej organizacji. Skontaktuj się z dostawcą, aby zarządzać subskrypcją.",
+    "message": "Pozostało Ci $REMAINING$ miejsc z $TOTAL$ przydzielonych do tej organizacji. Skontaktuj się z dostawcą, aby zarządzać swoją subskrypcją.",
     "placeholders": {
       "remaining": {
         "content": "$1",
@@ -10323,13 +10409,13 @@
     "message": "Istniejąca organizacja"
   },
   "selectOrganizationProviderPortal": {
-    "message": "Wybierz organizację, aby dodać do portalu dostawcy."
+    "message": "Wybierz organizację, którą chcesz dodać do swojego portalu dostawcy."
   },
   "noOrganizations": {
-    "message": "Nie ma organizacji, którą można by wyświetlić"
+    "message": "Brak organizacji do wyświetlenia"
   },
   "yourProviderSubscriptionCredit": {
-    "message": "Subskrypcja twojego dostawcy otrzyma kredyt za pozostały czas w subskrypcji organizacji."
+    "message": "Twoja subskrypcja dostawcy otrzyma zwrot środków za pozostały czas subskrypcji organizacji."
   },
   "doYouWantToAddThisOrg": {
     "message": "Czy chcesz dodać tę organizację do $PROVIDER$?",
@@ -10344,6 +10430,6 @@
     "message": "Dodano istniejącą organizację"
   },
   "assignedExceedsAvailable": {
-    "message": "Przypisane miejsca przekraczają dostępne miejsca."
+    "message": "Przydzielone miejsca przekraczają dostępne miejsca."
   }
 }

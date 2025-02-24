@@ -2162,6 +2162,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Включването на двустепенна идентификация може завинаги да предотврати вписването ви в абонамента към Битуорден. Кодът за възстановяване ще ви позволи да достъпите абонамента дори и да имате проблем с доставчика на двустепенна идентификация (напр. ако изгубите устройството си). Дори и екипът по поддръжката към няма да ви помогне в такъв случай. Силно препоръчваме да отпечатате или запишете кодовете и да ги пазете на надеждно място."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Вашият еднократен код за възстановяване може да бъде използван, за да изключите двустепенното удостоверяване, в случай че нямате достъп до доставчика си за двустепенно вписване. Битуорден препоръчва да запишете кода си за възстановяване и да го пазите на сигурно място."
+  },
   "viewRecoveryCode": {
     "message": "Извеждане на кодовете за възстановяване"
   },
@@ -4172,6 +4175,9 @@
   "recoverAccountTwoStepDesc": {
     "message": "Ако не може да достъпите абонамента си с нормалната двустепенна идентификация, може да ползвате код за възстановяване, за да я изключите."
   },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Впишете се по-долу с еднократния си код за възстановяване. Така ще изключите доставчиците на двустепенно удостоверяване за акаунта си."
+  },
   "recoverAccountTwoStep": {
     "message": "Възстановяване на абонамент с двустепенна идентификация"
   },
@@ -4462,6 +4468,24 @@
   },
   "encryptionKeyUpdateCannotProceed": {
     "message": "Актуализирането на шифриращия ключ не може да продължи"
+  },
+  "editFieldLabel": {
+    "message": "Редактиране на $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Преместване на $LABEL$. Използвайте стрелките, за да преместите елемента нагоре или надолу.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "keyUpdateFoldersFailed": {
     "message": "Ако актуализирате шифроващия ключ, папките Ви няма да могат да бъдат дешифрирани. За да продължите с промяната, папките трябва да бъдат изтрити. Елементите в трезора няма да бъдат изтрити, ако продължите."
@@ -6922,6 +6946,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Не може да бъде получен идентификатор на маскиран чрез е-поща акаунт от $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -9246,6 +9294,12 @@
   "deviceManagementDesc": {
     "message": "Настройте управлението на устройства в Битуорден, като използвате ръководството за внедряване за платформата си."
   },
+  "desktopRequired": {
+    "message": "Трябва да сте на компютър"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Отворете тази връзка от е-пощата си на компютър."
+  },
   "integrationCardTooltip": {
     "message": "Стартиране на ръководството за внедряване за $INTEGRATION$.",
     "placeholders": {
@@ -10238,6 +10292,38 @@
   },
   "organizationNameMaxLength": {
     "message": "Името на организацията не може да бъде по-дълго от 50 знака."
+  },
+  "openingExtension": {
+    "message": "Отваряне на добавката за браузър на Битуорден"
+  },
+  "somethingWentWrong": {
+    "message": "Нещо се обърка…"
+  },
+  "openingExtensionError": {
+    "message": "Добавката за браузър на Биуторден не успя да се отвори. Натиснете бутона, за да я отворите сега."
+  },
+  "openExtension": {
+    "message": "Отваряне на добавката"
+  },
+  "doNotHaveExtension": {
+    "message": "Нямате ли добавката за браузър на Битуорден?"
+  },
+  "installExtension": {
+    "message": "Инсталиране на добавката"
+  },
+  "openedExtension": {
+    "message": "Добавката за браузъра е отворена"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Добавката за браузър на Биуторден се отвори. Сега може да прегледате паролите си в риск."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Добавката за браузър на Биуторден не успя да се отвори. Отворете я с иконката на Битуорден",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "от лентата с инструменти.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
     "message": "Вашият абонамент ще бъде подновен скоро. За да подсигурите, че услугата няма да има прекъсвания, свържете се с $RESELLER$ и потвърдете подновяването преди $RENEWAL_DATE$.",

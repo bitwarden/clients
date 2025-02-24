@@ -14,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import {
   BadgeModule,
   CardComponent,
@@ -64,6 +65,7 @@ export class AppearanceV2Component implements OnInit {
     enableCompactMode: false,
     showQuickCopyActions: false,
     width: "default" as PopupWidthOption,
+    clickItemsToAutofillVaultView: false,
   });
 
   /** To avoid flashes of inaccurate values, only show the form after the entire form is populated. */
@@ -88,6 +90,7 @@ export class AppearanceV2Component implements OnInit {
     private destroyRef: DestroyRef,
     private animationControlService: AnimationControlService,
     i18nService: I18nService,
+    private vaultSettingsService: VaultSettingsService,
   ) {
     this.themeOptions = [
       { name: i18nService.t("systemDefault"), value: ThemeType.System },
@@ -108,6 +111,9 @@ export class AppearanceV2Component implements OnInit {
       this.copyButtonsService.showQuickCopyActions$,
     );
     const width = await firstValueFrom(this.popupSizeService.width$);
+    const clickItemsToAutofillVaultView = await firstValueFrom(
+      this.vaultSettingsService.clickItemsToAutofillVaultView$,
+    );
 
     // Set initial values for the form
     this.appearanceForm.setValue({
@@ -118,6 +124,7 @@ export class AppearanceV2Component implements OnInit {
       enableCompactMode,
       showQuickCopyActions,
       width,
+      clickItemsToAutofillVaultView,
     });
 
     this.formLoading = false;
@@ -163,6 +170,16 @@ export class AppearanceV2Component implements OnInit {
       .subscribe((width) => {
         void this.updateWidth(width);
       });
+
+    this.appearanceForm.controls.clickItemsToAutofillVaultView.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((clickItemsToAutofillVaultView) => {
+        void this.updateClickItemsToAutofillVaultView(clickItemsToAutofillVaultView);
+      });
+  }
+
+  async updateClickItemsToAutofillVaultView(clickItemsToAutofillVaultView: boolean) {
+    await this.vaultSettingsService.setClickItemsToAutofillVaultView(clickItemsToAutofillVaultView);
   }
 
   async updateFavicon(enableFavicon: boolean) {
