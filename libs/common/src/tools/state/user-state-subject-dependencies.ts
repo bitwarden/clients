@@ -1,20 +1,13 @@
-import { RequireExactlyOne, Simplify } from "type-fest";
+import { Simplify } from "type-fest";
 
-import {
-  Dependencies,
-  SingleUserDependency,
-  SingleUserEncryptorDependency,
-  WhenDependency,
-} from "../dependencies";
+import { Account } from "../../auth/abstractions/account.service";
+import { Dependencies, BoundDependency, WhenDependency } from "../dependencies";
 
 import { SubjectConstraintsDependency } from "./state-constraints-dependency";
 
 /** dependencies accepted by the user state subject */
 export type UserStateSubjectDependencies<State, Dependency> = Simplify<
-  RequireExactlyOne<
-    SingleUserDependency & SingleUserEncryptorDependency,
-    "singleUserEncryptor$" | "singleUserId$"
-  > &
+  BoundDependency<"account", Account> &
     Partial<WhenDependency> &
     Partial<Dependencies<Dependency>> &
     Partial<SubjectConstraintsDependency<State>> & {
