@@ -25,6 +25,7 @@ import {
   CollectionResponse,
   CollectionView,
   Collection,
+  CollectionService,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
@@ -123,12 +124,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private accountService: AccountService,
     private toastService: ToastService,
+    private collectionService: CollectionService,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
   }
 
   async ngOnInit() {
     // Opened from the individual vault
+    this.collections = await this.collectionService.getAll();
     if (this.params.showOrgSelector) {
       this.showOrgSelector = true;
       this.formGroup.controls.selectedOrg.valueChanges
