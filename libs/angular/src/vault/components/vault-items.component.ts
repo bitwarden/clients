@@ -30,6 +30,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
   protected searchPending = false;
 
+  private userId: UserId;
   private destroy$ = new Subject<void>();
   private searchTimeout: any = null;
   private isSearchable: boolean = false;
@@ -60,10 +61,12 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     this._searchText$
       .pipe(
-        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
+        switchMap((searchText) => from(this.searchService.isSearchable(this.userId, searchText))),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {
@@ -149,6 +152,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     }
 
     this.ciphers = await this.searchService.searchCiphers(
+      this.userId,
       this.searchText,
       [this.filter, this.deletedFilter],
       indexedCiphers,
