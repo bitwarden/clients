@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
+import { combineLatest, map, Observable, switchMap } from "rxjs";
 
 import { User } from "@bitwarden/angular/pipes/user-name.pipe";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
@@ -19,7 +19,7 @@ import { UserId } from "@bitwarden/common/types/guid";
   selector: "app-header",
   templateUrl: "./web-header.component.html",
 })
-export class WebHeaderComponent implements OnInit, OnDestroy {
+export class WebHeaderComponent implements OnInit {
   /**
    * Custom title that overrides the route data `titleId`
    */
@@ -29,7 +29,6 @@ export class WebHeaderComponent implements OnInit, OnDestroy {
    * Icon to show before the title
    */
   @Input() icon: string;
-  private destroy$ = new Subject<void>();
 
   protected routeData$: Observable<{ titleId: string }>;
   protected account$: Observable<User & { id: UserId }>;
@@ -78,10 +77,5 @@ export class WebHeaderComponent implements OnInit, OnDestroy {
 
   protected logout() {
     this.messagingService.send("logout");
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

@@ -81,11 +81,9 @@
     </ng-container>
     <ng-template body>
       <tr bitRow *ngFor="let e of displayedEvents; index as i" alignContent="top">
-        @if (i > 4 && !this.organization?.useEvents) {
-          <td bitCell class="tw-whitespace-nowrap">******</td>
-        } @else {
-          <td bitCell class="tw-whitespace-nowrap">{{ e.date | date: "medium" }}</td>
-        }
+        <td bitCell class="tw-whitespace-nowrap">
+          {{ i > 4 && !organization?.useEvents ? "******" : (e.date | date: "medium") }}
+        </td>
         <td bitCell>
           <span title="{{ e.appName }}, {{ e.ip }}">{{ e.appName }}</span>
         </td>
