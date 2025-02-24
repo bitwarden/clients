@@ -1,0 +1,1 @@
+azuresigntool sign -v $ENV:SIGNING_VAULT_URL -kvi $ENV:SIGNING_CLIENT_ID -kvt $ENV:SIGNING_TENANT_ID -kvs $ENV:SIGNING_CLIENT_SECRET -kvc $ENV:SIGNING_CERT_NAME -tr http://timestamp.digicert.com $ENV:EXE_PATH
