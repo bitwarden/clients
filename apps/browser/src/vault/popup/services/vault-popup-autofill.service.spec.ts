@@ -67,6 +67,7 @@ describe("VaultPopupAutofillService", () => {
       .mockReturnValue(true);
 
     mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(new BehaviorSubject([]));
+    mockDomainSettingsService.blockedInteractionsUris$ = new BehaviorSubject({});
 
     testBed = TestBed.configureTestingModule({
       providers: [

@@ -1,14 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, distinctUntilChanged, firstValueFrom, map, switchMap } from "rxjs";
+import { Component, Input, OnChanges, SimpleChanges, OnInit, OnDestroy } from "@angular/core";
+import { ReplaySubject, Subject, firstValueFrom, map, switchMap, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import {
+  SemanticLogger,
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+} from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ButtonModule, ContainerComponent, DialogService } from "@bitwarden/components";
+import { ButtonModule, DialogService } from "@bitwarden/components";
 import {
   CredentialGeneratorHistoryComponent as CredentialGeneratorHistoryToolsComponent,
   EmptyCredentialHistoryComponent,
@@ -27,7 +32,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   imports: [
     ButtonModule,
     CommonModule,
-    ContainerComponent,
     JslibModule,
     PopOutComponent,
     PopupHeaderComponent,
@@ -37,28 +41,65 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     PopupFooterComponent,
   ],
 })
-export class CredentialGeneratorHistoryComponent {
-  protected readonly hasHistory$ = new BehaviorSubject<boolean>(false);
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
+export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, OnDestroy {
+  private readonly destroyed = new Subject<void>();
+  protected readonly hasHistory$ = new ReplaySubject<boolean>(1);
+  protected readonly account$ = new ReplaySubject<Account>(1);
 
   constructor(
     private accountService: AccountService,
     private history: GeneratorHistoryService,
     private dialogService: DialogService,
-  ) {
-    this.accountService.activeAccount$
-      .pipe(
-        takeUntilDestroyed(),
-        map(({ id }) => id),
-        distinctUntilChanged(),
-      )
-      .subscribe(this.userId$);
+    private logService: LogService,
+  ) {}
 
-    this.userId$
+  @Input()
+  account: Account | null;
+
+  /** Send structured debug logs from the credential generator component
+   *  to the debugger console.
+   *
+   *  @warning this may reveal sensitive information in plaintext.
+   */
+  @Input()
+  debug: boolean = false;
+
+  // this `log` initializer is overridden in `ngOnInit`
+  private log: SemanticLogger = disabledSemanticLoggerProvider({});
+
+  async ngOnChanges(changes: SimpleChanges) {
+    const account = changes?.account;
+    if (account?.previousValue?.id !== account?.currentValue?.id) {
+      this.log.debug(
+        {
+          previousUserId: account?.previousValue?.id as UserId,
+          currentUserId: account?.currentValue?.id as UserId,
+        },
+        "account input change detected",
+      );
+      this.account$.next(account.currentValue ?? this.account);
+    }
+  }
+
+  async ngOnInit() {
+    this.log = ifEnabledSemanticLoggerProvider(this.debug, this.logService, {
+      type: "CredentialGeneratorComponent",
+    });
+
+    if (!this.account) {
+      this.account = await firstValueFrom(this.accountService.activeAccount$);
+      this.log.info(
+        { userId: this.account.id },
+        "account not specified; using active account settings",
+      );
+      this.account$.next(this.account);
+    }
+
+    this.account$
       .pipe(
-        takeUntilDestroyed(),
-        switchMap((id) => id && this.history.credentials$(id)),
+        switchMap((account) => account.id && this.history.credentials$(account.id)),
         map((credentials) => credentials.length > 0),
+        takeUntil(this.destroyed),
       )
       .subscribe(this.hasHistory$);
   }
@@ -73,7 +114,14 @@ export class CredentialGeneratorHistoryComponent {
     });
 
     if (confirmed) {
-      await this.history.clear(await firstValueFrom(this.userId$));
+      await this.history.clear((await firstValueFrom(this.account$)).id);
     }
   };
+
+  ngOnDestroy() {
+    this.destroyed.next();
+    this.destroyed.complete();
+
+    this.log.debug("component destroyed");
+  }
 }

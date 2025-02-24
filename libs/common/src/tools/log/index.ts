@@ -1,2 +1,2 @@
-export { disabledSemanticLoggerProvider, consoleSemanticLoggerProvider } from "./factory";
+export * from "./factory";
 export { SemanticLogger } from "./semantic-logger.abstraction";
