@@ -4,22 +4,22 @@ import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
-import { StateEventRunnerService } from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { BiometricsService } from "@bitwarden/key-management";
 
+import { SearchService } from "../../../abstractions/search.service";
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../../auth/abstractions/master-password.service.abstraction";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { MessagingService } from "../../../platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
+import { StateService } from "../../../platform/abstractions/state.service";
+import { TaskSchedulerService, ScheduledTaskNames } from "../../../platform/scheduling";
+import { StateEventRunnerService } from "../../../platform/state";
+import { UserId } from "../../../types/guid";
+import { CipherService } from "../../../vault/abstractions/cipher.service";
+import { FolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { VaultTimeoutSettingsService } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "../abstractions/vault-timeout.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";

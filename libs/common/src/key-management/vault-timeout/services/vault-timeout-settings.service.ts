@@ -19,16 +19,16 @@ import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateProvider } from "@bitwarden/common/platform/state";
-import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 
+import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../../admin-console/enums";
+import { Policy } from "../../../admin-console/models/domain/policy";
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { TokenService } from "../../../auth/services/token.service";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { StateProvider } from "../../../platform/state";
+import { UserId } from "../../../types/guid";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";

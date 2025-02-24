@@ -3,15 +3,15 @@
 import { firstValueFrom, map, timeout } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import {
-  VaultTimeoutAction,
-  VaultTimeoutSettingsService,
-} from "@bitwarden/common/key-management/vault-timeout";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "../../key-management/vault-timeout";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { UserId } from "../../types/guid";
