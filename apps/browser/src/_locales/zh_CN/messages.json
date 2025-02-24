@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "复制备注"
   },
+  "copy": {
+    "message": "复制",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "填充",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -379,7 +383,7 @@
     "message": "文件夹名称"
   },
   "folderHintText": {
-    "message": "通过在父文件夹名后面跟随「/」来嵌套文件夹。示例：Social/Forums"
+    "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
   },
   "noFoldersAdded": {
     "message": "未添加文件夹"
@@ -591,7 +595,7 @@
     "message": "私密备注"
   },
   "note": {
-    "message": "备注"
+    "message": "笔记"
   },
   "editItem": {
     "message": "编辑项目"
@@ -766,7 +770,7 @@
     "message": "主密码提示"
   },
   "errorOccurred": {
-    "message": "发生了一个错误"
+    "message": "发生错误"
   },
   "emailRequired": {
     "message": "必须填写电子邮箱地址。"
@@ -1422,7 +1426,7 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "使用任何 WebAuthn 兼容的安全钥匙访问您的帐户。"
+    "message": "使用任何 WebAuthn 兼容的安全钥匙访问您的账户。"
   },
   "emailTitle": {
     "message": "电子邮箱"
@@ -2062,7 +2066,7 @@
     "message": "用户名生成器"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "使用此电子邮箱"
   },
   "useThisPassword": {
     "message": "使用此密码"
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "屏蔽的域名"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "了解更多关于被屏蔽域名的信息"
+  },
   "excludedDomains": {
     "message": "排除域名"
   },
@@ -2362,6 +2369,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "在设置中更改它"
+  },
+  "change": {
+    "message": "更改"
+  },
+  "changeButtonTitle": {
+    "message": "更改密码 - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "有风险的密码"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ 要求您更改 $COUNT$ 个密码，因为它们存在风险。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "您的组织要求您更改 $COUNT$ 个密码，因为它们存在风险。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "审查并更改某个有风险的密码"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "审查并更改 $COUNT$ 个有风险的密码",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "尽快更改有风险的密码"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "更新您的设置，以便您可以快速自动填充密码并生成新的密码"
+  },
+  "turnOnAutofill": {
+    "message": "打开自动填充"
+  },
+  "turnedOnAutofill": {
+    "message": "已打开自动填充"
+  },
+  "dismiss": {
+    "message": "忽略"
   },
   "websiteItemLabel": {
     "message": "网站 $number$ (URI)",
@@ -2664,7 +2735,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "$TOTAL$ 不足",
+    "message": "总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -2967,6 +3038,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商获取协助。",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ 拒绝了您的请求：$ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "无法获取 $SERVICENAME$ 电子邮箱账户 ID。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3123,11 +3218,17 @@
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "网页 App"
+  },
+  "notificationSentDevicePart2": {
+    "message": "在批准前，请确保指纹短语与下面的相匹配。"
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "通知已发送到您的设备"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "确保您的账户已解锁，并且指纹短语与其他设备上的相匹配。"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "请求获得批准后，您将收到通知"
@@ -3137,6 +3238,9 @@
   },
   "loginInitiated": {
     "message": "登录已发起"
+  },
+  "logInRequestSent": {
+    "message": "请求已发送"
   },
   "exposedMasterPassword": {
     "message": "已暴露的主密码"
@@ -3631,7 +3735,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。"
+    "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 获取协助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 DUO 并按照步骤完成登录。"
@@ -4146,15 +4250,6 @@
   "itemName": {
     "message": "项目名称"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "组织已停用"
   },
@@ -4226,7 +4321,7 @@
     "message": "筛选"
   },
   "filterVault": {
-    "message": "密码库筛选"
+    "message": "筛选密码库"
   },
   "filterApplied": {
     "message": "已应用一个筛选"
@@ -4886,6 +4981,15 @@
   },
   "extraWide": {
     "message": "超宽"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "请更新您的桌面应用程序"

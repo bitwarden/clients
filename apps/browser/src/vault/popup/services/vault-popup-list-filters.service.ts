@@ -93,16 +93,6 @@ export class VaultPopupListFiltersService {
    */
   private cipherViews: CipherView[] = [];
 
-  /**
-   * Observable of cipher views
-   */
-  private cipherViews$: Observable<CipherView[]> = this.cipherService.cipherViews$.pipe(
-    tap((cipherViews) => {
-      this.cipherViews = Object.values(cipherViews);
-    }),
-    map((ciphers) => Object.values(ciphers)),
-  );
-
   private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   constructor(
@@ -265,14 +255,23 @@ export class VaultPopupListFiltersService {
         }),
       ];
     }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
    * Folder array structured to be directly passed to `ChipSelectComponent`
    */
   folders$: Observable<ChipSelectOption<FolderView>[]> = this.activeUserId$.pipe(
-    switchMap((userId) =>
-      combineLatest([
+    switchMap((userId) => {
+      // Observable of cipher views
+      const cipherViews$ = this.cipherService.cipherViews$(userId).pipe(
+        tap((cipherViews) => {
+          this.cipherViews = Object.values(cipherViews);
+        }),
+        map((ciphers) => Object.values(ciphers)),
+      );
+
+      return combineLatest([
         this.filters$.pipe(
           distinctUntilChanged(
             (previousFilter, currentFilter) =>
@@ -281,7 +280,7 @@ export class VaultPopupListFiltersService {
           ),
         ),
         this.folderService.folderViews$(userId),
-        this.cipherViews$,
+        cipherViews$,
       ]).pipe(
         map(([filters, folders, cipherViews]): [PopupListFilter, FolderView[], CipherView[]] => {
           if (folders.length === 1 && folders[0].id === null) {
@@ -330,8 +329,9 @@ export class VaultPopupListFiltersService {
         map((folders) =>
           folders.nestedList.map((f) => this.convertToChipSelectOption(f, "bwi-folder")),
         ),
-      ),
-    ),
+      );
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
@@ -368,6 +368,7 @@ export class VaultPopupListFiltersService {
     map((collections) =>
       collections.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection")),
     ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /** Organizations, collection, folders filters. */

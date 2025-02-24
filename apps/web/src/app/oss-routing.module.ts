@@ -12,7 +12,6 @@ import {
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
 import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
@@ -90,11 +89,11 @@ import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
-import { GeneratorComponent } from "./tools/generator.component";
 import { ReportsModule } from "./tools/reports";
-import { AccessComponent } from "./tools/send/access.component";
-import { SendAccessExplainerComponent } from "./tools/send/send-access-explainer.component";
+import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
+import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
+import { BrowserExtensionPromptComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -698,6 +697,23 @@ const routes: Routes = [
           maxWidth: "3xl",
         } satisfies AnonLayoutWrapperData,
       },
+      {
+        path: "browser-extension-prompt",
+        data: {
+          pageIcon: VaultIcons.BrowserExtensionIcon,
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: BrowserExtensionPromptComponent,
+          },
+          {
+            path: "",
+            component: BrowserExtensionPromptInstallComponent,
+            outlet: "secondary",
+          },
+        ],
+      },
     ],
   },
   {
@@ -831,10 +847,11 @@ const routes: Routes = [
               titleId: "exportVault",
             } satisfies RouteDataProperties,
           },
-          ...generatorSwap(GeneratorComponent, CredentialGeneratorComponent, {
+          {
             path: "generator",
+            component: CredentialGeneratorComponent,
             data: { titleId: "generator" } satisfies RouteDataProperties,
-          }),
+          },
         ],
       },
       {

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock } from "jest-mock-extended";
-import { ReplaySubject, combineLatest, map } from "rxjs";
+import { ReplaySubject, combineLatest, map, Observable } from "rxjs";
 
 import { Account, AccountInfo, AccountService } from "../src/auth/abstractions/account.service";
 import { UserId } from "../src/types/guid";
@@ -55,7 +55,7 @@ export class FakeAccountService implements AccountService {
       }),
     );
   }
-  get nextUpAccount$() {
+  get nextUpAccount$(): Observable<Account> {
     return combineLatest([this.accounts$, this.activeAccount$, this.sortedUserIds$]).pipe(
       map(([accounts, activeAccount, sortedUserIds]) => {
         const nextId = sortedUserIds.find((id) => id !== activeAccount?.id && accounts[id] != null);

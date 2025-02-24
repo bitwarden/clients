@@ -11,18 +11,16 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { DeprecatedVaultFilterService as DeprecatedVaultFilterServiceAbstraction } from "../../abstractions/deprecated-vault-filter.service";
 import { DynamicTreeNode } from "../models/dynamic-tree-node.model";
-
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { COLLAPSED_GROUPINGS } from "./../../../../../common/src/vault/services/key-state/collapsed-groupings.state";
 
 const NestingDelimiter = "/";
 
@@ -32,8 +30,6 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     this.stateProvider.getActive(COLLAPSED_GROUPINGS);
   private readonly collapsedGroupings$: Observable<Set<string>> =
     this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
-
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   constructor(
     protected organizationService: OrganizationService,
@@ -66,7 +62,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   buildNestedFolders(organizationId?: string): Observable<DynamicTreeNode<FolderView>> {
-    const transformation = async (storedFolders: FolderView[]) => {
+    const transformation = async (storedFolders: FolderView[], userId: UserId) => {
       let folders: FolderView[];
 
       // If no org or "My Vault" is selected, show all folders
@@ -74,7 +70,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
         folders = storedFolders;
       } else {
         // Otherwise, show only folders that have ciphers from the selected org and the "no folder" folder
-        const ciphers = await this.cipherService.getAllDecrypted();
+        const ciphers = await this.cipherService.getAllDecrypted(userId);
         const orgCiphers = ciphers.filter((c) => c.organizationId == organizationId);
         folders = storedFolders.filter(
           (f) => orgCiphers.some((oc) => oc.folderId == f.id) || f.id == null,
@@ -88,9 +84,13 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
       });
     };
 
-    return this.activeUserId$.pipe(
-      switchMap((userId) => this.folderService.folderViews$(userId)),
-      mergeMap((folders) => from(transformation(folders))),
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.folderService
+          .folderViews$(userId)
+          .pipe(mergeMap((folders) => from(transformation(folders, userId)))),
+      ),
     );
   }
 
@@ -134,7 +134,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   async getFolderNested(id: string): Promise<TreeNode<FolderView>> {
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const folders = await this.getAllFoldersNested(
       await firstValueFrom(this.folderService.folderViews$(activeUserId)),
     );

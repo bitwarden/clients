@@ -16,6 +16,9 @@ import { AlgorithmInfo, GeneratedCredential } from "@bitwarden/generator-core";
   imports: [CommonModule, GeneratorModule],
 })
 export class CipherFormGeneratorComponent {
+  @Input()
+  uri: string = "";
+
   /**
    * The type of generator form to show.
    */

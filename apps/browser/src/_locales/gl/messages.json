@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Copiar notas"
   },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Encher",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -382,7 +386,7 @@
     "message": "Aniñar un cartafol engadindo o nome do cartafol pai seguido dun \"/\". Exemplo: Social/Foros"
   },
   "noFoldersAdded": {
-    "message": "Sen cartafois"
+    "message": "Sen cartafoles"
   },
   "createFoldersToOrganize": {
     "message": "Crea cartafoles para organizar as entradas da túa caixa forte"
@@ -394,10 +398,10 @@
     "message": "Eliminar cartafol"
   },
   "folders": {
-    "message": "Cartafois"
+    "message": "Cartafoles"
   },
   "noFolders": {
-    "message": "Non hai cartafois que listar."
+    "message": "Non hai cartafoles que listar."
   },
   "helpFeedback": {
     "message": "Axuda e comentarios"
@@ -2345,6 +2349,9 @@
   "blockedDomains": {
     "message": "Dominios bloqueados"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
+  },
   "excludedDomains": {
     "message": "Dominios excluídos"
   },
@@ -2362,6 +2369,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Cambia isto en axustes"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Web $number$ (URI)",
@@ -2967,6 +3038,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Non foi posible obter o ID de correo enmascarado de $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3123,11 +3218,17 @@
   "notificationSentDevice": {
     "message": "Enviouse unha notificación ó teu dispositivo."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Enviouse unha notificación ó teu dispositivo"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Por favor asegúrate de que a sesión está aberta e a frase de pegada dixital coincide ca do outro dispositivo"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Serás notificado unha vez se aprobe a solicitude"
@@ -3137,6 +3238,9 @@
   },
   "loginInitiated": {
     "message": "Inicio de sesión comezado"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "exposedMasterPassword": {
     "message": "Contrasinal mestre filtrado"
@@ -3810,7 +3914,7 @@
     "message": "Autenticación multifactor fallida"
   },
   "includeSharedFolders": {
-    "message": "Incluír cartafois compartidos"
+    "message": "Incluír cartafoles compartidos"
   },
   "lastPassEmail": {
     "message": "Correo de LastPass"
@@ -4145,15 +4249,6 @@
   },
   "itemName": {
     "message": "Nome da entrada"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Non podes eliminar coleccións con permisos de Só lectura: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "organizationIsDeactivated": {
     "message": "A organización está desactivada"
@@ -4886,6 +4981,15 @@
   },
   "extraWide": {
     "message": "Moi ancho"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Non podes eliminar coleccións con permisos de Só lectura: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Please update your desktop application"

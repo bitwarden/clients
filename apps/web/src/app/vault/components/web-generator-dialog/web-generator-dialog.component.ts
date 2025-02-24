@@ -11,6 +11,7 @@ import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 export interface WebVaultGeneratorDialogParams {
   type: "password" | "username";
+  uri?: string;
 }
 
 export interface WebVaultGeneratorDialogResult {
@@ -47,10 +48,14 @@ export class WebVaultGeneratorDialogComponent {
    */
   protected generatedValue: string = "";
 
+  protected uri: string;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: WebVaultGeneratorDialogParams,
     private dialogRef: DialogRef<WebVaultGeneratorDialogResult>,
-  ) {}
+  ) {
+    this.uri = params.uri;
+  }
 
   /**
    * Close the dialog without selecting a value.

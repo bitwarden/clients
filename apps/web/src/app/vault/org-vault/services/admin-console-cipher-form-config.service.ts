@@ -10,19 +10,13 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherFormConfig, CipherFormConfigService, CipherFormMode } from "@bitwarden/vault";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import {
-  CipherFormConfig,
-  CipherFormConfigService,
-  CipherFormMode,
-} from "../../../../../../../libs/vault/src/cipher-form/abstractions/cipher-form-config.service";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 
 /** Admin Console implementation of the `CipherFormConfigService`. */
@@ -106,7 +100,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
       return null;
     }
 
-    const localCipher = await this.cipherService.get(id);
+    const localCipher = await this.cipherService.get(id, organization.userId as UserId);
 
     // Fetch from the API because we don't need the permissions in local state OR the cipher was not found (e.g. unassigned)
     if (organization.canEditAllCiphers || localCipher == null) {
