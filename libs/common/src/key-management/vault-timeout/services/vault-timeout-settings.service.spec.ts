@@ -5,7 +5,7 @@ import { BehaviorSubject, firstValueFrom, map, of } from "rxjs";
 
 import {
   PinServiceAbstraction,
-  UserDecryptionOptions,
+  FakeUserDecryptionOptions as UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";

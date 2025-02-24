@@ -25,7 +25,7 @@ import { PolicyService } from "../../../admin-console/abstractions/policy/policy
 import { PolicyType } from "../../../admin-console/enums";
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { TokenService } from "../../../auth/services/token.service";
+import { TokenService } from "../../../auth/abstractions/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
