@@ -318,11 +318,11 @@ jobs:
           ls -l ../
           npm link ../sdk-internal
 
-      - name: Build
+      - name: Build & Package Windows
         run: npm run dist:${{ matrix.license_type.build_prefix }}:win --quiet
 
       - name: Sign executable
-        if: ${{ needs.setup.outputs.has_secrets == 'true }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         shell: pwsh
         env:
           SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
