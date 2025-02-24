@@ -527,8 +527,11 @@ export class LockComponent implements OnInit, OnDestroy {
         this.enforcedMasterPasswordOptions = MasterPasswordPolicyOptions.fromResponse(
           masterPasswordVerificationResponse.policyOptions,
         );
-        passwordValid = true;
+      } else {
+        this.enforcedMasterPasswordOptions = undefined;
       }
+
+      passwordValid = true;
     } catch (e) {
       this.logService.error(e);
     }
