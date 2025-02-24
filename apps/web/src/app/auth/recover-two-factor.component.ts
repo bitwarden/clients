@@ -18,6 +18,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { NewDeviceVerificationNoticeService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-recover-two-factor",
@@ -51,6 +52,7 @@ export class RecoverTwoFactorComponent implements OnInit {
     private configService: ConfigService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private logService: LogService,
+    private newDeviceVerificationNoticeService: NewDeviceVerificationNoticeService,
   ) {}
 
   async ngOnInit() {
@@ -134,37 +136,19 @@ export class RecoverTwoFactorComponent implements OnInit {
       });
 
       await this.loginSuccessHandlerService.run(authResult.userId);
+
+      // Before routing, set the state to skip the new device notification. This is a temporary
+      // fix and will be cleaned up in PM-18485.
+      await this.newDeviceVerificationNoticeService.updateNewDeviceVerificationSkipNoticeState(
+        authResult.userId,
+        true,
+      );
+
       await this.router.navigate(["/settings/security/two-factor"]);
     } catch (error) {
       // If login errors, redirect to login page per product. Don't show error
       this.logService.error("Error logging in automatically: ", (error as Error).message);
       await this.router.navigate(["/login"], { queryParams: { email: request.email } });
     }
-  }
-
-  /**
-   * Extracts an error message from the error object.
-   */
-  private extractErrorMessage(error: unknown): string {
-    let errorMessage: string = this.i18nService.t("unexpectedError");
-    if (error && typeof error === "object" && "validationErrors" in error) {
-      const validationErrors = error.validationErrors;
-      if (validationErrors && typeof validationErrors === "object") {
-        errorMessage = Object.keys(validationErrors)
-          .map((key) => {
-            const messages = (validationErrors as Record<string, string | string[]>)[key];
-            return Array.isArray(messages) ? messages.join(" ") : messages;
-          })
-          .join(" ");
-      }
-    } else if (
-      error &&
-      typeof error === "object" &&
-      "message" in error &&
-      typeof error.message === "string"
-    ) {
-      errorMessage = error.message;
-    }
-    return errorMessage;
   }
 }
