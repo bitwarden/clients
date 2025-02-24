@@ -124,48 +124,48 @@
     <value>בבית, בעבודה, או בדרך, Bitwarden מאבטח בקלות את כל הסיסמאות, מפתחות הגישה, והמידע הרגיש שלך.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>מוכר בתור מנהל הסיסמאות הטוב ביותר על ידי G2, CNET, The Verge, WIRED, PCMag, ועוד!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+אבטח את החיים הדיגיטליים שלך
+אבטח את החיים הדיגיטלים שלך והגן מפני פרצות נתונים על ידי יצירת ושמירת סיסמה ייחודית וחזקה עבור כל חשבון. שמור הכל בכספת סיסמאות מוצפנת מקצה-לקצה שרק אתה יכול לגשת אליה.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+לגשת לנתונים שלך בכל מקום, זמן, ומכשיר
+נהל, אחסן, אבטח, ושתף בקלות מספר בלתי מוגבל של סיסמאות בין מספר בלתי מוגבל של מכשירים ללא הגבלות.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+כל אחד צריך את הכלים כדי להישאר בטוח באינטרנט
+השתמש ב־Bitwarden בחינם ללא פרסומות או מכירת נתונים. ב־Bitwarden מאמינים שכל אחד צריך את היכולת להישאר בטוח באינטרנט. תוכניות פרימיום מציעות גישה לתכונות מתקדמות.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+העצימו את הצוותים שלכם עם Bitwarden
+תוכניות עבור צוותים וארגונים באות עם תכונות עסקים מקצועיות. חלק מהדוגמאות כוללות שילוב SSO, אירוח עצמי, שילוב מדריך כתובות והקצאת SCIM, פוליסות גלובליות, גישת API, יומני אירועים, ועוד.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+השתמש ב־Bitwarden כדי לאבטח את כוח העבודה שלך ולשתף מידע רגיש עם עמיתים.
 
 
-More reasons to choose Bitwarden:
+עוד סיבות לבחור ב־Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+הצפנה ברמה עולמית
+סיסמאות מוגנת עם הצפנה מקצה-לקצה מתקדמת (AES‏-256 סיביות, גיבוב מלוח, ו־PBKDF2 SHA-256) כך שהנתונים שלך נשארים מאובטחים ופרטיים.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+ביקורות צד שלישי
+Bitwarden באופן קבוע מבצעת ביקורות אבטחה מקיפות של צד שלישי עם חברות אבטחה בולטות. הביקורות השנתיות הללו כוללות הערכות קוד מקור ובדיקות חדירה על פני פרוטוקולי אינטרנט, שרתים, ויישומי רשת של Bitwarden.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+2FA מתקדם
+אבטח את הכניסות שלך עם מאמת צד שלישי, קודים בדוא"ל, או אישורי FIDO2 WebAuthn כמו מפתח אבטחת חומרה או מפתח גישה.
 
-Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Bitwarden סנד
+שדר נתונים ישירות אל אחרים תוך כדי שמירה על אבטחת הצפנה מקצה-לקצה והגבלת חשיפה.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+מחולל מובנה
+צור סיסמאות ארוכות, מורכבות, ושונות ושמות משתמש ייחודיים עבור כל אתר שאתה מבקר. שלב עם ספקי כינויי דוא"ל עבור פרטיות נוספת.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+תרגומים גלובליים
+תרגומים של Bitwarden קיימים ביותר מ־60 שפות, תורגמו על ידי הקהילה הגלובלית דרך Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+יישומים חוצי פלטפורמות
+אבטח ושתף מידע רגיש בתוך כספת ה-Bitwarden שלך מכל דפדפן, מכשיר נייד, או מערכת הפעלה של שולחן עבודה, ועוד.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden מאבטח יותר מרק סיסמאות
+פתרונות ניהול אישורים מוצפנים מקצה-לקצה מאת Bitwarden מעצימות ארגונים לאבטח הכל, כולל סודות פיתוח וחוויות מפתח גישה. בקר ב־Bitwarden.com כדי ללמוד עוד על מנהל הסודות של Bitwarden ו־Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">

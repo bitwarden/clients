@@ -35,18 +35,6 @@ export abstract class BasePolicyComponent implements OnInit {
     }
   }
 
-  loadData() {
-    this.data.patchValue(this.policyResponse.data ?? {});
-  }
-
-  buildRequestData() {
-    if (this.data != null) {
-      return this.data.value;
-    }
-
-    return null;
-  }
-
   buildRequest() {
     const request = new PolicyRequest();
     request.enabled = this.enabled.value;
@@ -54,5 +42,17 @@ export abstract class BasePolicyComponent implements OnInit {
     request.data = this.buildRequestData();
 
     return Promise.resolve(request);
+  }
+
+  protected loadData() {
+    this.data.patchValue(this.policyResponse.data ?? {});
+  }
+
+  protected buildRequestData() {
+    if (this.data != null) {
+      return this.data.value;
+    }
+
+    return null;
   }
 }

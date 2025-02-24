@@ -18,43 +18,23 @@
       <bit-label>{{ "itemName" | i18n }}</bit-label>
       <input bitInput formControlName="name" />
     </bit-form-field>
-    <div class="tw-grid tw-grid-cols-2 tw-gap-1">
-      <bit-form-field
-        *ngIf="showOwnership"
-        [disableMargin]="!showCollectionsControl"
-        [class.tw-col-span-2]="config.hideIndividualVaultFields"
-      >
-        <bit-label>{{ "owner" | i18n }}</bit-label>
-        <bit-select formControlName="organizationId">
-          <bit-option
-            *ngIf="showPersonalOwnerOption"
-            [value]="null"
-            [label]="userEmail$ | async"
-          ></bit-option>
-          <bit-option
-            *ngFor="let org of config.organizations"
-            [value]="org.id"
-            [label]="org.name"
-          ></bit-option>
-        </bit-select>
-      </bit-form-field>
-      <bit-form-field
-        [class.tw-col-span-2]="!showOwnership"
-        [disableMargin]="!showCollectionsControl"
-        *ngIf="!config.hideIndividualVaultFields"
-      >
-        <bit-label>{{ "folder" | i18n }}</bit-label>
-        <bit-select formControlName="folderId">
-          <bit-option
-            *ngFor="let folder of config.folders"
-            [value]="folder.id"
-            [label]="folder.name"
-          ></bit-option>
-        </bit-select>
-      </bit-form-field>
-    </div>
+    <bit-form-field *ngIf="showOwnership">
+      <bit-label>{{ "owner" | i18n }}</bit-label>
+      <bit-select formControlName="organizationId">
+        <bit-option
+          *ngIf="showPersonalOwnerOption"
+          [value]="null"
+          [label]="userEmail$ | async"
+        ></bit-option>
+        <bit-option
+          *ngFor="let org of config.organizations"
+          [value]="org.id"
+          [label]="org.name"
+        ></bit-option>
+      </bit-select>
+    </bit-form-field>
     <ng-container *ngIf="showCollectionsControl">
-      <bit-form-field class="tw-w-full" disableMargin>
+      <bit-form-field class="tw-w-full" [disableMargin]="config.hideIndividualVaultFields">
         <bit-label>{{ "collections" | i18n }}</bit-label>
         <bit-multi-select
           class="tw-w-full"
@@ -66,5 +46,15 @@
         </bit-hint>
       </bit-form-field>
     </ng-container>
+    <bit-form-field *ngIf="!config.hideIndividualVaultFields" disableMargin>
+      <bit-label>{{ "folder" | i18n }}</bit-label>
+      <bit-select formControlName="folderId">
+        <bit-option
+          *ngFor="let folder of config.folders"
+          [value]="folder.id"
+          [label]="folder.name"
+        ></bit-option>
+      </bit-select>
+    </bit-form-field>
   </bit-card>
 </bit-section>
