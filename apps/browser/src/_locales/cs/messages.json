@@ -1029,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "Klepněte na položky pro automatické vyplnění v zobrazení trezoru"
   },
+  "clickToAutofill": {
+    "message": "Klepněte na položky v návrhu automatického vyplňování pro vyplnění"
+  },
   "clearClipboard": {
     "message": "Vymazat schránku",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "pro vytvoření silného jedinečného hesla",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Přizpůsobení trezoru"
   },
   "vaultTimeoutAction": {
     "message": "Akce při vypršení časového limitu"

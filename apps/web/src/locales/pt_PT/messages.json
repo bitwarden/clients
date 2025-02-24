@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "Os lugares atribuídos excedem os lugares disponíveis."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Do not allow members to unlock their account with a PIN."
   }
 }
