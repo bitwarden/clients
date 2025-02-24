@@ -7,6 +7,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, PopoverModule } from "@bitwarden/components";
 
@@ -28,14 +29,22 @@ export class NewSettingsCalloutComponent implements OnInit, OnDestroy {
     private vaultProfileService: VaultProfileService,
     private vaultPageService: VaultPageService,
     private router: Router,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    const profileCreatedDate = await this.vaultProfileService.getProfileCreationDate(
-      this.activeUserId,
-    );
+    let profileCreatedDate: Date;
+
+    try {
+      profileCreatedDate = await this.vaultProfileService.getProfileCreationDate(this.activeUserId);
+    } catch (e) {
+      this.logService.error("Error getting profile creation date", e);
+      // Default to before the cutoff date to ensure the callout is shown
+      profileCreatedDate = new Date("2024-12-24");
+    }
+
     const hasCalloutBeenDismissed = await firstValueFrom(
       this.vaultPageService.isCalloutDismissed(this.activeUserId),
     );

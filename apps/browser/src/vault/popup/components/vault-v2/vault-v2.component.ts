@@ -26,10 +26,8 @@ import {
   BannerComponent,
   ButtonModule,
   DialogService,
-  IconButtonModule,
   Icons,
   NoItemsModule,
-  PopoverModule,
 } from "@bitwarden/components";
 import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
@@ -65,7 +63,6 @@ enum VaultState {
   standalone: true,
   imports: [
     BlockedInjectionBanner,
-    PopoverModule,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
@@ -78,7 +75,6 @@ enum VaultState {
     ButtonModule,
     RouterLink,
     NewItemDropdownV2Component,
-    IconButtonModule,
     ScrollingModule,
     VaultHeaderV2Component,
     DecryptionFailureDialogComponent,
@@ -190,7 +186,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  async ngOnDestroy() {
+  ngOnDestroy() {
     this.vaultScrollPositionService.stop();
   }
 
