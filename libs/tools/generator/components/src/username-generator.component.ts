@@ -91,6 +91,10 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
   @Output()
   readonly onAlgorithm = new EventEmitter<AlgorithmInfo>();
 
+  /** Emits the selected algorithm type when the algorithm type changes */
+  @Output()
+  readonly onType = new EventEmitter<string>();
+
   /** Removes bottom margin from internal elements */
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
 
@@ -242,6 +246,20 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           this.showForwarder$.next(showForwarder);
           this.forwarderId$.next(forwarderId);
+        });
+      });
+
+    activeIdentifier$
+      .pipe(
+        map((username) => {
+          return username;
+        }),
+        distinctUntilChanged(),
+        takeUntil(this.destroyed),
+      )
+      .subscribe((activeIdentifier) => {
+        this.zone.run(() => {
+          this.onType.next(activeIdentifier.nav);
         });
       });
 

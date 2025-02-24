@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ButtonModule,
   DialogModule,
@@ -44,6 +45,7 @@ export class CredentialGeneratorDialogComponent {
   constructor(
     @Inject(DIALOG_DATA) protected data: CredentialGeneratorParams,
     private dialogService: DialogService,
+    private i18nService: I18nService,
   ) {}
 
   onAlgorithmSelected = (selected?: AlgorithmInfo) => {
@@ -66,6 +68,19 @@ export class CredentialGeneratorDialogComponent {
 
   onCredentialGenerated = (value: string) => {
     this.credentialValue = value;
+  };
+
+  /**
+   * Event handler for when the algorithm type changes.
+   * This is necessary for the "forwarder" type because onAlgorithmSelected
+   * doesn't fire when for this type as it also requires a forwarder service
+   * to be selected before it can generate a value.
+   */
+  onTypeSelected = (type: string) => {
+    this.buttonLabel = this.i18nService.t(
+      type === '"username"' ? "useThisUsername" : "useThisEmail",
+    );
+    this.credentialValue = undefined;
   };
 
   openHistoryDialog = () => {

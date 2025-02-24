@@ -4,6 +4,7 @@ import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -53,6 +54,7 @@ export class WebVaultGeneratorDialogComponent {
   constructor(
     @Inject(DIALOG_DATA) protected params: WebVaultGeneratorDialogParams,
     private dialogRef: DialogRef<WebVaultGeneratorDialogResult>,
+    private i18nService: I18nService,
   ) {
     this.uri = params.uri;
   }
@@ -86,6 +88,19 @@ export class WebVaultGeneratorDialogComponent {
       // selecting the credential generation algorithm
       this.generatedValue = undefined;
     }
+  };
+
+  /**
+   * Event handler for when the algorithm type changes.
+   * This is necessary for the "forwarder" type because onAlgorithmSelected
+   * doesn't fire when for this type as it also requires a forwarder service
+   * to be selected before it can generate a value.
+   */
+  onTypeSelected = (type: string) => {
+    this.buttonLabel = this.i18nService.t(
+      type === '"username"' ? "useThisUsername" : "useThisEmail",
+    );
+    this.generatedValue = undefined;
   };
 
   /**
