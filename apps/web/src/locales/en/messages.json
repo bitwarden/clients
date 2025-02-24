@@ -4779,6 +4779,15 @@
   "masterPassPolicyDesc": {
     "message": "Set requirements for master password strength."
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Require two-step login"
   },
@@ -10455,6 +10464,12 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Do not allow members to unlock their account with a PIN."
   },
   "limitedEventLogs": {
     "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",

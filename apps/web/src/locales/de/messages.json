@@ -99,7 +99,7 @@
     "message": "Anwendung"
   },
   "atRiskPasswords": {
-    "message": "Risikoreiche Passwörter"
+    "message": "Gefährdete Passwörter"
   },
   "requestPasswordChange": {
     "message": "Passwortänderung anfordern"
@@ -111,10 +111,10 @@
     "message": "Anwendungen suchen"
   },
   "atRiskMembers": {
-    "message": "Risikoreiche Mitglieder"
+    "message": "Gefährdete Mitglieder"
   },
   "atRiskMembersWithCount": {
-    "message": "Risikoreiche Mitglieder ($COUNT$)",
+    "message": "Gefährdete Mitglieder ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -123,7 +123,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "Risikoreiche Anwendungen ($COUNT$)",
+    "message": "Gefährdete Anwendungen ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,7 +150,7 @@
     "message": "Mitglieder insgesamt"
   },
   "atRiskApplications": {
-    "message": "Risikoreiche Anwendungen"
+    "message": "Gefährdete Anwendungen"
   },
   "totalApplications": {
     "message": "Anwendungen insgesamt"
@@ -4470,7 +4470,7 @@
     "message": "Aktualisierung des Verschlüsselungsschlüssels kann nicht fortgesetzt werden"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "$LABEL$ bearbeiten",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4479,7 +4479,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "$LABEL$ umsortieren. Verwende die Pfeiltasten, um den Eintrag nach oben oder unten zu verschieben.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -6947,7 +6947,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt. Bitte wende dich an deinen Dienstanbieter für Unterstützung.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -6957,7 +6957,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -9295,10 +9295,10 @@
     "message": "Konfiguriere die Geräteverwaltung für Bitwarden mithilfe der Implementierungsanleitung für deine Plattform."
   },
   "desktopRequired": {
-    "message": "Desktop required"
+    "message": "Desktop-Rechner erforderlich"
   },
   "reopenLinkOnDesktop": {
-    "message": "Reopen this link from your email on a desktop."
+    "message": "Öffne diesen Link aus deiner E-Mail auf einem Desktop-Rechner."
   },
   "integrationCardTooltip": {
     "message": "$INTEGRATION$-Implementierungsanleitung starten.",
@@ -10294,35 +10294,35 @@
     "message": "Der Name der Organisation darf 50 Zeichen nicht überschreiten."
   },
   "openingExtension": {
-    "message": "Opening the Bitwarden browser extension"
+    "message": "Bitwarden-Browser-Erweiterung wird geöffnet"
   },
   "somethingWentWrong": {
-    "message": "Something went wrong..."
+    "message": "Etwas ist schiefgelaufen..."
   },
   "openingExtensionError": {
-    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Klick auf den Button, um sie jetzt zu öffnen."
   },
   "openExtension": {
-    "message": "Open extension"
+    "message": "Erweiterung öffnen"
   },
   "doNotHaveExtension": {
-    "message": "Don't have the Bitwarden browser extension?"
+    "message": "Du hast die Bitwarden-Browser-Erweiterung nicht?"
   },
   "installExtension": {
-    "message": "Install extension"
+    "message": "Erweiterung installieren"
   },
   "openedExtension": {
-    "message": "Opened the browser extension"
+    "message": "Browser-Erweiterung geöffnet"
   },
   "openedExtensionViewAtRiskPasswords": {
-    "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
+    "message": "Die Bitwarden Browser-Erweiterung wurde erfolgreich geöffnet. Du kannst jetzt deine gefährdeten Passwörter überprüfen."
   },
   "openExtensionManuallyPart1": {
-    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "message": "Wir hatten Probleme beim Öffnen der Bitwarden-Browser-Erweiterung. Öffne das Bitwarden-Symbol",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "openExtensionManuallyPart2": {
-    "message": "from the toolbar.",
+    "message": "in der Symbolleiste.",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "Die zugewiesenen Plätze überschreiten die verfügbaren Plätze."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Do not allow members to unlock their account with a PIN."
   }
 }

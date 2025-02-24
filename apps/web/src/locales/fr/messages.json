@@ -3498,7 +3498,7 @@
     "message": "Code incorrect"
   },
   "incorrectPin": {
-    "message": "Code PIN incorrect"
+    "message": "NIP incorrect"
   },
   "pin": {
     "message": "NIP",
@@ -6947,7 +6947,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ a refusé votre demande. Veuillez contacter votre fournisseur de service pour assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -6957,7 +6957,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ a refusé votre demande : $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -7880,10 +7880,10 @@
     }
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Vérification requise pour cette action. Définissez un code PIN pour continuer."
+    "message": "Vérification requise pour cette action. Définissez un NIP pour continuer."
   },
   "setPin": {
-    "message": "Définir le code PIN"
+    "message": "Définir le NIP"
   },
   "verifyWithBiometrics": {
     "message": "Vérifier par biométrie"
@@ -7901,7 +7901,7 @@
     "message": "Utiliser le mot de passe principal"
   },
   "usePin": {
-    "message": "Utiliser le code PIN"
+    "message": "Utiliser un NIP"
   },
   "useBiometrics": {
     "message": "Utiliser la biométrie"
@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "Les places assignées dépassent les places disponibles."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Supprimer Déverrouiller avec un NIP"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Ne pas autoriser les membres à déverrouiller leur compte avec un NIP."
   }
 }

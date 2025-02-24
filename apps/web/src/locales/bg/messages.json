@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "Назначените места превишават наличния брой."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Премахване на отключването чрез ПИН"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Забраняване на членовете да отключват акаунтите си с ПИН."
   }
 }
