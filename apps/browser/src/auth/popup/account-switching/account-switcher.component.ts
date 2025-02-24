@@ -19,6 +19,7 @@ import {
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
+  TypographyModule,
 } from "@bitwarden/components";
 
 import { enableAccountSwitching } from "../../../platform/flags";
@@ -46,6 +47,7 @@ import { AccountSwitcherService } from "./services/account-switcher.service";
     AccountComponent,
     SectionComponent,
     SectionHeaderComponent,
+    TypographyModule,
   ],
 })
 export class AccountSwitcherComponent implements OnInit, OnDestroy {
