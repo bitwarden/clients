@@ -402,17 +402,6 @@ export class SsoComponent implements OnInit {
         return await this.handleTrustedDeviceEncryptionEnabled(userDecryptionOpts);
       }
 
-      // Order of operation matters especially here. This check for the force password reset
-      // must happen after TDE check because the handleForcePasswordReset will try to route to
-      // update-temp-password but that is guarded and would end up leaving them routed incorrectly.
-
-      // Users enrolled in admin acct recovery can be forced to set a new password after
-      // having the admin set a temp password for them (affects TDE & standard users)
-      if (authResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
-        // Weak password is not a valid scenario here b/c we cannot have evaluated a MP yet
-        return await this.handleForcePasswordReset(orgSsoIdentifier);
-      }
-
       // In the standard, non TDE case, a user must set password if they don't
       // have one and they aren't using key connector.
       // Note: TDE & Key connector are mutually exclusive org config options.
