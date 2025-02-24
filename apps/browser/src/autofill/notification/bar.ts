@@ -92,9 +92,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
   const resolvedTheme = getResolvedTheme(theme);
 
   if (useComponentBar) {
-    while (document.body.firstChild) {
-      document.body.removeChild(document.body.firstChild);
-    }
+    document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
 
