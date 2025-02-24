@@ -24,6 +24,7 @@ import {
   OrganizationUserUserMiniResponse,
   CollectionResponse,
   CollectionView,
+  Collection,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
@@ -76,6 +77,7 @@ export enum CollectionDialogAction {
   Saved = "saved",
   Canceled = "canceled",
   Deleted = "deleted",
+  Upgrade = "upgrade",
 }
 
 @Component({
@@ -103,6 +105,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected PermissionMode = PermissionMode;
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
+  protected collections: Collection[];
+  protected buttonDisplayName: "save" | "upgrade" = "save";
+  private freeOrgThatNeedsToUpgrade!: Organization;
 
   constructor(
     @Inject(DIALOG_DATA) private params: CollectionDialogParams,
