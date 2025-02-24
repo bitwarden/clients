@@ -1,5 +1,10 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
 
+export enum ValidationGoal {
+  InputsShouldMatch,
+  InputsShouldNotMatch,
+}
+
 /**
  * Checks whether two form controls do or do not have the same input value (except for empty string values).
  *
@@ -14,7 +19,7 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from "@angular/forms";
  * @param showErrorOn The control under which you want to display the error (default is controlB).
  */
 export function compareInputs(
-  validationGoal: "match" | "doNotMatch",
+  validationGoal: ValidationGoal,
   controlNameA: string,
   controlNameB: string,
   errorMessage: string,
@@ -37,7 +42,7 @@ export function compareInputs(
 
     const controlValuesMatch = controlA.value === controlB.value;
 
-    if (validationGoal === "match") {
+    if (validationGoal === ValidationGoal.InputsShouldMatch) {
       if (controlValuesMatch) {
         return pass();
       } else {
@@ -45,7 +50,7 @@ export function compareInputs(
       }
     }
 
-    if (validationGoal === "doNotMatch") {
+    if (validationGoal === ValidationGoal.InputsShouldNotMatch) {
       if (!controlValuesMatch) {
         return pass();
       } else {

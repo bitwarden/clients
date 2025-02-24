@@ -30,7 +30,7 @@ import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
-import { compareInputs } from "../validators/compare-inputs.validator";
+import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
 
 import { PasswordInputResult } from "./password-input-result";
 
@@ -82,12 +82,17 @@ export class InputPasswordComponent {
     {
       validators: [
         compareInputs(
-          "match",
+          ValidationGoal.InputsShouldMatch,
           "password",
           "confirmedPassword",
           this.i18nService.t("masterPassDoesntMatch"),
         ),
-        compareInputs("doNotMatch", "password", "hint", this.i18nService.t("hintEqualsPassword")),
+        compareInputs(
+          ValidationGoal.InputsShouldNotMatch,
+          "password",
+          "hint",
+          this.i18nService.t("hintEqualsPassword"),
+        ),
       ],
     },
   );
