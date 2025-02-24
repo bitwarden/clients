@@ -27,7 +27,7 @@
           [label]="userEmail$ | async"
         ></bit-option>
         <bit-option
-          *ngFor="let org of config.organizations"
+          *ngFor="let org of organizations"
           [value]="org.id"
           [label]="org.name"
         ></bit-option>
