@@ -68,12 +68,13 @@ import { RemoveUnassignedItemsBannerDismissed } from "./migrations/67-remove-una
 import { MoveLastSyncDate } from "./migrations/68-move-last-sync-date";
 import { MigrateIncorrectFolderKey } from "./migrations/69-migrate-incorrect-folder-key";
 import { MoveBiometricAutoPromptToAccount } from "./migrations/7-move-biometric-auto-prompt-to-account";
+import { RemoveAcBannersDismissed } from "./migrations/70-remove-ac-banner-dismissed";
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 69;
+export const CURRENT_VERSION = 70;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -144,7 +145,8 @@ export function createMigrationBuilder() {
     .with(MoveFinalDesktopSettingsMigrator, 65, 66)
     .with(RemoveUnassignedItemsBannerDismissed, 66, 67)
     .with(MoveLastSyncDate, 67, 68)
-    .with(MigrateIncorrectFolderKey, 68, CURRENT_VERSION);
+    .with(MigrateIncorrectFolderKey, 68, 69)
+    .with(RemoveAcBannersDismissed, 69, CURRENT_VERSION);
 }
 
 export async function currentVersion(

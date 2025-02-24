@@ -26,14 +26,13 @@ import { HomeComponent } from "../auth/popup/home.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/popup/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
-import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { VaultTimeoutInputComponent } from "../auth/popup/settings/vault-timeout-input.component";
 import { SsoComponentV1 } from "../auth/popup/sso-v1.component";
-import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/popup/two-factor.component";
+import { TwoFactorOptionsComponentV1 } from "../auth/popup/two-factor-options-v1.component";
+import { TwoFactorComponentV1 } from "../auth/popup/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
@@ -103,12 +102,11 @@ import "../platform/popup/locales";
     LoginViaAuthRequestComponentV1,
     LoginComponentV1,
     LoginDecryptionOptionsComponentV1,
-    RegisterComponent,
     SetPasswordComponent,
     SsoComponentV1,
     TabsV2Component,
-    TwoFactorComponent,
-    TwoFactorOptionsComponent,
+    TwoFactorComponentV1,
+    TwoFactorOptionsComponentV1,
     UpdateTempPasswordComponent,
     UserVerificationComponent,
     VaultTimeoutInputComponent,

@@ -34,7 +34,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   showChangeEmail$: Observable<boolean> = new Observable();
   showPurgeVault$: Observable<boolean> = new Observable();
   showDeleteAccount$: Observable<boolean> = new Observable();
-  showSetNewDeviceLoginProtection$: Observable<boolean> = new Observable();
   verifyNewDeviceLogin: boolean = true;
 
   constructor(
@@ -48,9 +47,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    this.showSetNewDeviceLoginProtection$ = this.configService.getFeatureFlag$(
-      FeatureFlag.NewDeviceVerification,
-    );
     const isAccountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.AccountDeprovisioning,
     );
@@ -63,16 +59,7 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     const hasMasterPassword$ = from(this.userVerificationService.hasMasterPassword());
 
-    this.showChangeEmail$ = combineLatest([
-      hasMasterPassword$,
-      isAccountDeprovisioningEnabled$,
-      userIsManagedByOrganization$,
-    ]).pipe(
-      map(
-        ([hasMasterPassword, isAccountDeprovisioningEnabled, userIsManagedByOrganization]) =>
-          hasMasterPassword && (!isAccountDeprovisioningEnabled || !userIsManagedByOrganization),
-      ),
-    );
+    this.showChangeEmail$ = hasMasterPassword$;
 
     this.showPurgeVault$ = combineLatest([
       isAccountDeprovisioningEnabled$,

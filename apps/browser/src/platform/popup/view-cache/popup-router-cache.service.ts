@@ -9,10 +9,8 @@ import {
   Router,
   UrlSerializer,
 } from "@angular/router";
-import { filter, first, firstValueFrom, map, Observable, of, switchMap, tap } from "rxjs";
+import { filter, first, firstValueFrom, map, Observable, switchMap, tap } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
 import { POPUP_ROUTE_HISTORY_KEY } from "../../../platform/services/popup-view-cache-background.service";
@@ -113,29 +111,18 @@ export class PopupRouterCacheService {
 
 /**
  * Redirect to the last visited route. Should be applied to root route.
- *
- * If `FeatureFlag.PersistPopupView` is disabled, do nothing.
  **/
 export const popupRouterCacheGuard = (() => {
-  const configService = inject(ConfigService);
   const popupHistoryService = inject(PopupRouterCacheService);
   const urlSerializer = inject(UrlSerializer);
 
-  return configService.getFeatureFlag$(FeatureFlag.PersistPopupView).pipe(
-    switchMap((featureEnabled) => {
-      if (!featureEnabled) {
-        return of(true);
+  return popupHistoryService.last$().pipe(
+    map((url: string) => {
+      if (!url) {
+        return true;
       }
 
-      return popupHistoryService.last$().pipe(
-        map((url: string) => {
-          if (!url) {
-            return true;
-          }
-
-          return urlSerializer.parse(url);
-        }),
-      );
+      return urlSerializer.parse(url);
     }),
   );
 }) satisfies CanActivateFn;

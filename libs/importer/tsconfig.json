@@ -17,6 +17,6 @@
       "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"]
     }
   },
-  "include": ["src", "spec"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

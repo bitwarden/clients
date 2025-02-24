@@ -21,6 +21,7 @@ import {
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 
 export type ProductSwitcherItem = {
@@ -101,6 +102,7 @@ export class ProductSwitcherService {
     private i18n: I18nPipe,
     private syncService: SyncService,
     private accountService: AccountService,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.pollUntilSynced();
   }
@@ -151,6 +153,16 @@ export class ProductSwitcherService {
       // TODO: This should be migrated to an Observable provided by the provider service and moved to the combineLatest above. See AC-2092.
       const providers = await this.providerService.getAll();
 
+      const orgsMarketingRoute = this.platformUtilsService.isSelfHost()
+        ? {
+            route: "https://bitwarden.com/products/business/",
+            external: true,
+          }
+        : {
+            route: "/create-organization",
+            external: false,
+          };
+
       const products = {
         pm: {
           name: "Password Manager",
@@ -197,10 +209,7 @@ export class ProductSwitcherService {
         orgs: {
           name: "Organizations",
           icon: "bwi-business",
-          marketingRoute: {
-            route: "https://bitwarden.com/products/business/",
-            external: true,
-          },
+          marketingRoute: orgsMarketingRoute,
           otherProductOverrides: {
             name: "Share your passwords",
             supportingText: this.i18n.transform("protectYourFamilyOrBusiness"),

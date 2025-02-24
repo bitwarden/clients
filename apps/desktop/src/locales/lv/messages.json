@@ -1388,9 +1388,6 @@
   "premiumPurchase": {
     "message": "Iegādāties Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Premium dalību ir iespējams iegādāties bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Premium var iegādāties Bitwarden tīmekļa lietotnē sava konta iestatījumos."
   },
@@ -1777,6 +1774,9 @@
   },
   "requirePasswordOnStart": {
     "message": "Pieprasīt paroli vai PIN pēc lietotnes palaišanas"
+  },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Pieprasīt paroli pēc lietotnes palaišanas"
   },
   "recommendedForSecurity": {
     "message": "Ieteicams drošībai."
@@ -2553,6 +2553,9 @@
   "catchallEmailDesc": {
     "message": "Izmantot uzstādīto domēna visu tverošo iesūtni."
   },
+  "useThisEmail": {
+    "message": "Izmantot šo e-pasta adresi"
+  },
   "random": {
     "message": "Nejauši"
   },
@@ -2629,6 +2632,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Nederīga $SERVICENAME$ API pilnvara: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ atteica pieprasījumu. Lūgums sazināties ar savu pakalpojma nodrošinātāju, lai iegūtu palīdzību.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ atteica pieprasījumu: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2745,14 +2772,23 @@
   "loginInitiated": {
     "message": "Uzsākta pieteikšanās"
   },
+  "logInRequestSent": {
+    "message": "Pieprasījums nosūtīts"
+  },
   "notificationSentDevice": {
     "message": "Uz jūsu ierīci ir nosūtīts paziņojums."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Uz ierīci tika nosūtīts paziņojums"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lūgums pārliecināties, ka konts ir atslēgts un atpazīšanas vārdkopa ir tāda pati arī otrā ierīcē"
+  "notificationSentDevicePart1": {
+    "message": "Bitwarden jāatslēdz savā ierīcē vai "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "tīmekļa lietotnē"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pirms apstiprināšanas jāpārliecinās, ka pirkstu nospieduma vārdkopa atbilst zemāk esošajai."
   },
   "needAnotherOptionV1": {
     "message": "Nepieciešama cita iespēja?"
@@ -2782,11 +2818,11 @@
     "message": "Pārslēgt rakstzīmju skaita attēlošanu",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Vai mēģini pieteikties?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Vai mēģini piekļūt savam kontam?"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ pieteikšanās mēģinājums",
+  "accessAttemptBy": {
+    "message": "$EMAIL$ piekļuves mēģinājums",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2839,11 @@
   "time": {
     "message": "Laiks"
   },
-  "confirmLogIn": {
-    "message": "Apstiprināt pieteikšanos"
+  "confirmAccess": {
+    "message": "Apstiprināt piekļuvi"
   },
-  "denyLogIn": {
-    "message": "Atteikt pieteikšanos"
+  "denyAccess": {
+    "message": "Noraidīt piekļuvi"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "$EMAIL$ pieteikšanās apstiprināta ierīcē $DEVICE$",
@@ -2843,8 +2879,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Šis pieprasījums vairs nav derīgs."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Apstiprināt $EMAIL$ pieteikšanās mēģinājumu",
+  "confirmAccessAttempt": {
+    "message": "Apstiprināt $EMAIL$ piekļuves mēģinājumu",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2890,9 @@
   },
   "logInRequested": {
     "message": "Pieprasīta pieteikšanās"
+  },
+  "accountAccessRequested": {
+    "message": "Pieprasīta piekļuve kontam"
   },
   "creatingAccountOn": {
     "message": "Tiek veidots konts"
@@ -3484,14 +3523,17 @@
   "changeAcctEmail": {
     "message": "Mainīt konta e-pasta adresi"
   },
-  "organizationUpgradeRequired": {
-    "message": "Nepieciešams apvienības uzlabojums"
+  "allowScreenshots": {
+    "message": "Atļaut ekrāna tveršanu"
   },
-  "upgradeOrganization": {
-    "message": "Uzlabot apvienību"
+  "allowScreenshotsDesc": {
+    "message": "Ļaut Bitwarden darbvirsmas lietotni tvert ekrānuzņēmumos un rādīt attālās darbvirsmas sesijās. Atspējošana liegs piekļuvu atsevišķos ārējos ekrānos."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Šī iespēja nav pieejama bezmaksas apvienībām. Maksas plāna izvēle sniedz plašākas iespējas."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Apstirpināt, ka logs joprojām ir redzams"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Lūgums apstiprināt, ka logs joprojām ir redzams."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Nepieciešama paplašinājuma atjaunināšana"

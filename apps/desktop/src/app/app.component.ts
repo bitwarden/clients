@@ -17,7 +17,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
-import { LogoutReason } from "@bitwarden/auth/common";
+import { DESKTOP_SSO_CALLBACK, LogoutReason } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
@@ -53,7 +53,6 @@ import { InternalFolderService } from "@bitwarden/common/vault/abstractions/fold
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
@@ -64,9 +63,7 @@ import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.compo
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
-import { GeneratorComponent } from "./tools/generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
-import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -91,6 +88,8 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
     </div>
+
+    <bit-toast-container></bit-toast-container>
   `,
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -125,7 +124,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
     private syncService: SyncService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private cipherService: CipherService,
     private authService: AuthService,
     private router: Router,
@@ -300,7 +298,7 @@ export class AppComponent implements OnInit, OnDestroy {
             const queryParams = {
               code: message.code,
               state: message.state,
-              redirectUri: message.redirectUri ?? "bitwarden://sso-callback",
+              redirectUri: message.redirectUri ?? DESKTOP_SSO_CALLBACK,
             };
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -318,20 +316,6 @@ export class AppComponent implements OnInit, OnDestroy {
             });
             if (premiumConfirmed) {
               await this.openModal<PremiumComponent>(PremiumComponent, this.premiumRef);
-            }
-            break;
-          }
-          case "upgradeOrganization": {
-            const upgradeConfirmed = await this.dialogService.openSimpleDialog({
-              title: { key: "upgradeOrganization" },
-              content: { key: "upgradeOrganizationDesc" },
-              acceptButtonText: { key: "learnMore" },
-              type: "info",
-            });
-            if (upgradeConfirmed) {
-              this.platformUtilsService.launchUri(
-                "https://bitwarden.com/help/upgrade-from-individual-to-org/",
-              );
             }
             break;
           }
@@ -505,41 +489,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async openGenerator() {
-    const isGeneratorSwapEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.GeneratorToolsModernization,
-    );
-    if (isGeneratorSwapEnabled) {
-      await this.dialogService.open(CredentialGeneratorComponent);
-      return;
-    }
-
-    this.modalService.closeAll();
-
-    [this.modal] = await this.modalService.openViewRef(
-      GeneratorComponent,
-      this.generatorModalRef,
-      (comp) => (comp.comingFromAddEdit = false),
-    );
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
+    await this.dialogService.open(CredentialGeneratorComponent);
+    return;
   }
 
   async openGeneratorHistory() {
-    const isGeneratorSwapEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.GeneratorToolsModernization,
-    );
-    if (isGeneratorSwapEnabled) {
-      await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
-      return;
-    }
-
-    await this.openModal<PasswordGeneratorHistoryComponent>(
-      PasswordGeneratorHistoryComponent,
-      this.passwordHistoryRef,
-    );
+    await this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
+    return;
   }
 
   private async updateAppMenu() {
@@ -853,7 +809,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (urlString.indexOf("bitwarden://import-callback-lp") === 0) {
       message = "importCallbackLastPass";
-    } else if (urlString.indexOf("bitwarden://sso-callback") === 0) {
+    } else if (urlString.indexOf(DESKTOP_SSO_CALLBACK) === 0) {
       message = "ssoCallback";
     }
 

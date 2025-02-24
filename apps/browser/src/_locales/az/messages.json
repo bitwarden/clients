@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Notları kopyala"
   },
+  "copy": {
+    "message": "Kopyala",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Doldur",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -1025,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "Seyf görünüşündə avto-doldurmaq üçün elementlərə klikləyin"
   },
+  "clickToAutofill": {
+    "message": "Avto-doldurma təkliflərində elementləri doldurmaq üçün klikləyin"
+  },
   "clearClipboard": {
     "message": "Lövhəni təmizlə",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1279,9 +1286,6 @@
   },
   "premiumPurchase": {
     "message": "Premium satın al"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Premium üzvlüyü bitwarden.com veb seyfində satın ala bilərsiniz. İndi saytı ziyarət etmək istəyirsiniz?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden veb tətbiqindəki hesab ayarlarınızda Premium satın ala bilərsiniz."
@@ -2064,6 +2068,9 @@
   "usernameGenerator": {
     "message": "İstifadəçi adı yaradıcı"
   },
+  "useThisEmail": {
+    "message": "Bu e-poçtu istifadə et"
+  },
   "useThisPassword": {
     "message": "Bu parolu istifadə et"
   },
@@ -2080,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "Daha unikal parollar yarat",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Seyf özəlləşdirməsi"
   },
   "vaultTimeoutAction": {
     "message": "Seyf vaxtının bitmə əməliyyatı"
@@ -2345,6 +2355,9 @@
   "blockedDomains": {
     "message": "Əngəllənmiş domenlər"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Əngəllənmiş domenlər barədə daha ətraflı"
+  },
   "excludedDomains": {
     "message": "İstisna edilən domenlər"
   },
@@ -2362,6 +2375,70 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Bunu ayarlarda dəyişdir"
+  },
+  "change": {
+    "message": "Dəyişdir"
+  },
+  "changeButtonTitle": {
+    "message": "Parolu dəyişdir - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Riskli parollar"
+  },
+  "atRiskPasswordsDescSingleOrg": {
+    "message": "$ORGANIZATION$, sizdən $COUNT$ parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrg": {
+    "message": "Təşkilatlarınız, sizdən $COUNT$ parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Riskli bir parolu incələ və dəyişdir"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Riskli $COUNT$ parolu incələ və dəyişdir",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Riskli parolları daha tez dəyişdir"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Cəld şəkildə parollarınızı avto-doldura və yenilərini yarada bilməyiniz üçün ayarlarınızı güncəlləyin"
+  },
+  "turnOnAutofill": {
+    "message": "Avto-doldurmanı işə sal"
+  },
+  "turnedOnAutofill": {
+    "message": "Avto-doldurma işə salındı"
+  },
+  "dismiss": {
+    "message": "Rədd et"
   },
   "websiteItemLabel": {
     "message": "Veb sayt $number$ (URI)",
@@ -2967,6 +3044,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi. Lütfən kömək üçün xidmət provayderinizlə əlaqə saxlayın.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "$SERVICENAME$ maskalı e-poçt hesab kimliyi alına bilmir.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3123,11 +3224,17 @@
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildiriş göndərildi."
   },
+  "notificationSentDevicePart1": {
+    "message": "Cihazınızda Bitwarden kilidini açın, ya da "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "veb tətbiqinizdə"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Təsdiqləməzdən əvvəl Barmaq izi ifadəsinin aşağıdakı ifadə ilə uyuşduğuna əmin olun."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Cihazınıza bir bildiriş göndərildi"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Hesabınızın kilidinin açıq olduğuna və barmaq izi ifadəsinin digər cihazda uyuşduğuna əmin olun"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Tələbiniz təsdiqləndikdə bildiriş alacaqsınız"
@@ -3137,6 +3244,9 @@
   },
   "loginInitiated": {
     "message": "Giriş başladıldı"
+  },
+  "logInRequestSent": {
+    "message": "Tələb göndərildi"
   },
   "exposedMasterPassword": {
     "message": "İfşa olunmuş ana parol"
@@ -4146,15 +4256,6 @@
   "itemName": {
     "message": "Element adı"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Təşkilat deaktiv edildi"
   },
@@ -4886,6 +4987,15 @@
   },
   "extraWide": {
     "message": "Ekstra enli"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Lütfən masaüstü tətbiqinizi güncəlləyin"

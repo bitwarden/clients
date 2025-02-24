@@ -37,6 +37,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
+import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.component";
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
@@ -51,6 +52,7 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
     PipesModule,
     NoItemsModule,
     SharedModule,
+    AppTableRowScrollableComponent,
   ],
 })
 export class AllApplicationsComponent implements OnInit {
@@ -177,27 +179,31 @@ export class AllApplicationsComponent implements OnInit {
           ?.atRiskMemberDetails ?? [],
       applicationName,
     };
-    this.dataService.setDrawerForAppAtRiskMembers(info);
+    this.dataService.setDrawerForAppAtRiskMembers(info, applicationName);
   };
 
-  showOrgAtRiskMembers = async () => {
+  showOrgAtRiskMembers = async (invokerId: string) => {
     const dialogData = this.reportService.generateAtRiskMemberList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskMembers(dialogData);
+    this.dataService.setDrawerForOrgAtRiskMembers(dialogData, invokerId);
   };
 
-  showOrgAtRiskApps = async () => {
+  showOrgAtRiskApps = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskApps(data);
+    this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
 
-  onCheckboxChange(applicationName: string, event: Event) {
+  onCheckboxChange = (applicationName: string, event: Event) => {
     const isChecked = (event.target as HTMLInputElement).checked;
     if (isChecked) {
       this.selectedUrls.add(applicationName);
     } else {
       this.selectedUrls.delete(applicationName);
     }
-  }
+  };
 
   getSelectedUrls = () => Array.from(this.selectedUrls);
+
+  isDrawerOpenForTableRow = (applicationName: string): boolean => {
+    return this.dataService.drawerInvokerId === applicationName;
+  };
 }
