@@ -6,22 +6,20 @@ import { FormsModule } from "@angular/forms";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchModule } from "@bitwarden/components";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
-import { OrganizationPlansComponent, TaxInfoComponent } from "@bitwarden/web-vault/app/billing";
+import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 
 import {
   CreateClientDialogComponent,
-  NoClientsComponent,
   ManageClientNameDialogComponent,
-  ManageClientsComponent,
   ManageClientSubscriptionDialogComponent,
   ProviderBillingHistoryComponent,
   ProviderSubscriptionComponent,
   ProviderSubscriptionStatusComponent,
 } from "../../billing/providers";
+import { AddExistingOrganizationDialogComponent } from "../../billing/providers/clients/add-existing-organization-dialog.component";
 
 import { AddOrganizationComponent } from "./clients/add-organization.component";
-import { ClientsComponent } from "./clients/clients.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { AddEditMemberDialogComponent } from "./manage/dialogs/add-edit-member-dialog.component";
@@ -49,7 +47,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     OrganizationPlansComponent,
     SearchModule,
     ProvidersLayoutComponent,
-    TaxInfoComponent,
     DangerZoneComponent,
     ScrollingModule,
   ],
@@ -59,7 +56,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     AddOrganizationComponent,
     BulkConfirmDialogComponent,
     BulkRemoveDialogComponent,
-    ClientsComponent,
     CreateOrganizationComponent,
     EventsComponent,
     MembersComponent,
@@ -67,9 +63,8 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     SetupProviderComponent,
     UserAddEditComponent,
     AddEditMemberDialogComponent,
+    AddExistingOrganizationDialogComponent,
     CreateClientDialogComponent,
-    NoClientsComponent,
-    ManageClientsComponent,
     ManageClientNameDialogComponent,
     ManageClientSubscriptionDialogComponent,
     ProviderBillingHistoryComponent,

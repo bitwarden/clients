@@ -9,17 +9,14 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherFormConfig, CipherFormConfigService, CipherFormMode } from "@bitwarden/vault";
 
-import {
-  CipherFormConfig,
-  CipherFormConfigService,
-  CipherFormMode,
-} from "../../../../../../../libs/vault/src/cipher-form/abstractions/cipher-form-config.service";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 
 /** Admin Console implementation of the `CipherFormConfigService`. */
@@ -31,6 +28,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
   private collectionAdminService: CollectionAdminService = inject(CollectionAdminService);
   private cipherService: CipherService = inject(CipherService);
   private apiService: ApiService = inject(ApiService);
+  private accountService: AccountService = inject(AccountService);
 
   private allowPersonalOwnership$ = this.policyService
     .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
@@ -41,12 +39,16 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     filter((filter) => filter !== undefined),
   );
 
-  private allOrganizations$ = this.organizationService.organizations$.pipe(
-    map((orgs) => {
-      return orgs.filter(
-        (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
-      );
-    }),
+  private allOrganizations$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.organizationService.organizations$(account?.id).pipe(
+        map((orgs) => {
+          return orgs.filter(
+            (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
+          );
+        }),
+      ),
+    ),
   );
 
   private organization$ = combineLatest([this.allOrganizations$, this.organizationId$]).pipe(
@@ -98,7 +100,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
       return null;
     }
 
-    const localCipher = await this.cipherService.get(id);
+    const localCipher = await this.cipherService.get(id, organization.userId as UserId);
 
     // Fetch from the API because we don't need the permissions in local state OR the cipher was not found (e.g. unassigned)
     if (organization.canEditAllCiphers || localCipher == null) {

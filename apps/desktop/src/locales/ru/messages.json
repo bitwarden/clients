@@ -885,6 +885,15 @@
     "message": "Подтвердите с помощью Duo Security для вашей организации, используя приложение Duo Mobile, SMS, телефонный звонок или ключ безопасности U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyIdentity": {
+    "message": "Подтвердите вашу личность"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Мы не распознали это устройство. Введите код, отправленный на ваш email, чтобы подтвердить вашу личность."
+  },
+  "continueLoggingIn": {
+    "message": "Продолжить вход"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -1378,9 +1387,6 @@
   },
   "premiumPurchase": {
     "message": "Купить Премиум"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Вы можете купить Премиум на bitwarden.com. Перейти на сайт сейчас?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Премиум можно приобрести в настройках аккаунта в веб-версии Bitwarden."
@@ -2544,6 +2550,9 @@
   "catchallEmailDesc": {
     "message": "Использовать общую почту домена."
   },
+  "useThisEmail": {
+    "message": "Использовать этот email"
+  },
   "random": {
     "message": "Случайно"
   },
@@ -2736,14 +2745,23 @@
   "loginInitiated": {
     "message": "Вход инициирован"
   },
+  "logInRequestSent": {
+    "message": "Запрос отправлен"
+  },
   "notificationSentDevice": {
     "message": "На ваше устройство отправлено уведомление."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "На ваше устройство было отправлено уведомление"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Убедитесь, что ваш аккаунт разблокирован и фраза отпечатка совпадает с фразой на другом устройстве"
+  "notificationSentDevicePart1": {
+    "message": "Разблокируйте Bitwarden на своем устройстве или "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "веб-приложении"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Перед одобрением убедитесь, что фраза отпечатка совпадает с приведенной ниже."
   },
   "needAnotherOptionV1": {
     "message": "Нужен другой вариант?"
@@ -2773,11 +2791,11 @@
     "message": "Показать количество символов",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Вы пытаетесь войти?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Вы пытаетесь получить доступ к своему аккаунту?"
   },
-  "logInAttemptBy": {
-    "message": "Попытка авторизации через $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Попытка доступа $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2794,11 +2812,11 @@
   "time": {
     "message": "Время"
   },
-  "confirmLogIn": {
-    "message": "Подтвердить вход"
+  "confirmAccess": {
+    "message": "Подтвердить доступ"
   },
-  "denyLogIn": {
-    "message": "Запретить вход"
+  "denyAccess": {
+    "message": "Отказать в доступе"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Вход подтвержден для $EMAIL$ на $DEVICE$",
@@ -2834,8 +2852,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Этот запрос больше не действителен."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Подтвердите попытку входа для $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Подтвердить попытку доступа $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2845,6 +2863,9 @@
   },
   "logInRequested": {
     "message": "Запрошено разрешение на вход"
+  },
+  "accountAccessRequested": {
+    "message": "Запрошен доступ к аккаунту"
   },
   "creatingAccountOn": {
     "message": "Создание аккаунта"
@@ -3475,13 +3496,22 @@
   "changeAcctEmail": {
     "message": "Изменить email аккаунта"
   },
-  "organizationUpgradeRequired": {
-    "message": "Требуется обновление организации"
+  "allowScreenshots": {
+    "message": "Разрешить захват экрана"
   },
-  "upgradeOrganization": {
-    "message": "Обновить организацию"
+  "allowScreenshotsDesc": {
+    "message": "Разрешить приложению Bitwarden захват экрана для скриншотов и просмотра в сеансах удаленного рабочего стола. Отключение параметра запретит доступ на некоторых внешних дисплеях."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Эта функция недоступна для бесплатных организаций. Переключитесь на платный план, чтобы разблокировать дополнительные возможности."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Окно подтверждения остается видимым"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Убедитесь, что окно по-прежнему видно."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Необходимо обновить расширение"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Используемое вами расширение браузера устарело. Пожалуйста, обновите его или отключите проверку интеграции браузера с помощью отпечатка пальца в настройках приложения для компьютера."
   }
 }

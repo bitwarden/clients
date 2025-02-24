@@ -7,14 +7,12 @@ import { concatMap, firstValueFrom, map, Observable, Subject, takeUntil } from "
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import {
-  isMember,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -104,8 +102,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private personalOwnershipPolicyAppliesToActiveUser: boolean;
   private previousCipherId: string;
 
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
-
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
     const creationDate = this.datePipe.transform(
@@ -128,7 +124,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected policyService: PolicyService,
     protected logService: LogService,
     protected passwordRepromptService: PasswordRepromptService,
-    protected organizationService: OrganizationService,
+    private organizationService: OrganizationService,
     protected dialogService: DialogService,
     protected win: Window,
     protected datePipe: DatePipe,
@@ -235,9 +231,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.ownershipOptions.push({ name: myEmail, value: null });
     }
 
-    const orgs = await this.organizationService.getAll();
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
     orgs
-      .filter(isMember)
+      .filter((org) => org.isMember)
       .sort(Utils.getSortFunction(this.i18nService, "name"))
       .forEach((o) => {
         if (o.enabled && o.status === OrganizationUserStatusType.Confirmed) {
@@ -263,12 +262,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.title = this.i18nService.t("addItem");
     }
 
-    const loadedAddEditCipherInfo = await this.loadAddEditCipherInfo();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const loadedAddEditCipherInfo = await this.loadAddEditCipherInfo(activeUserId);
+
     if (this.cipher == null) {
       if (this.editMode) {
-        const cipher = await this.loadCipher();
+        const cipher = await this.loadCipher(activeUserId);
         this.cipher = await cipher.decrypt(
           await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
         );
@@ -313,9 +313,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
     // Only Admins can clone a cipher to different owner
     if (this.cloneMode && this.cipher.organizationId != null) {
-      const cipherOrg = (await firstValueFrom(this.organizationService.memberOrganizations$)).find(
-        (o) => o.id === this.cipher.organizationId,
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
+
+      const cipherOrg = (
+        await firstValueFrom(this.organizationService.memberOrganizations$(activeUserId))
+      ).find((o) => o.id === this.cipher.organizationId);
 
       if (cipherOrg != null && !cipherOrg.isAdmin && !cipherOrg.permissions.editAnyCollection) {
         this.ownershipOptions = [{ name: cipherOrg.name, value: cipherOrg.id }];
@@ -416,9 +420,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.cipher.id = null;
     }
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.encryptCipher(activeUserId);
     try {
       this.formPromise = this.saveCipher(cipher);
@@ -512,7 +514,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     try {
-      this.deletePromise = this.deleteCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      this.deletePromise = this.deleteCipher(activeUserId);
       await this.deletePromise;
       this.toastService.showToast({
         variant: "success",
@@ -538,7 +541,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     try {
-      this.restorePromise = this.restoreCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      this.restorePromise = this.restoreCipher(activeUserId);
       await this.restorePromise;
       this.toastService.showToast({
         variant: "success",
@@ -658,7 +662,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
       if (this.collections.length === 1) {
         (this.collections[0] as any).checked = true;
       }
-      const org = await this.organizationService.get(this.cipher.organizationId);
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+
+      const org = (
+        await firstValueFrom(this.organizationService.organizations$(activeUserId))
+      ).find((org) => org.id === this.cipher.organizationId);
       if (org != null) {
         this.cipher.organizationUseTotp = org.useTotp;
       }
@@ -715,8 +725,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return allCollections.filter((c) => !c.readOnly);
   }
 
-  protected loadCipher() {
-    return this.cipherService.get(this.cipherId);
+  protected loadCipher(userId: UserId) {
+    return this.cipherService.get(this.cipherId, userId);
   }
 
   protected encryptCipher(userId: UserId) {
@@ -736,14 +746,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
       : this.cipherService.updateWithServer(cipher, orgAdmin);
   }
 
-  protected deleteCipher() {
+  protected deleteCipher(userId: UserId) {
     return this.cipher.isDeleted
-      ? this.cipherService.deleteWithServer(this.cipher.id, this.asAdmin)
-      : this.cipherService.softDeleteWithServer(this.cipher.id, this.asAdmin);
+      ? this.cipherService.deleteWithServer(this.cipher.id, userId, this.asAdmin)
+      : this.cipherService.softDeleteWithServer(this.cipher.id, userId, this.asAdmin);
   }
 
-  protected restoreCipher() {
-    return this.cipherService.restoreWithServer(this.cipher.id, this.asAdmin);
+  protected restoreCipher(userId: UserId) {
+    return this.cipherService.restoreWithServer(this.cipher.id, userId, this.asAdmin);
   }
 
   /**
@@ -763,8 +773,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return this.ownershipOptions[0].value;
   }
 
-  async loadAddEditCipherInfo(): Promise<boolean> {
-    const addEditCipherInfo: any = await firstValueFrom(this.cipherService.addEditCipherInfo$);
+  async loadAddEditCipherInfo(userId: UserId): Promise<boolean> {
+    const addEditCipherInfo: any = await firstValueFrom(
+      this.cipherService.addEditCipherInfo$(userId),
+    );
     const loadedSavedInfo = addEditCipherInfo != null;
 
     if (loadedSavedInfo) {
@@ -777,7 +789,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       }
     }
 
-    await this.cipherService.setAddEditCipherInfo(null);
+    await this.cipherService.setAddEditCipherInfo(null, userId);
 
     return loadedSavedInfo;
   }
@@ -815,9 +827,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private async generateSshKey(showNotification: boolean = true) {
     await firstValueFrom(this.sdkService.client$);
     const sshKey = generate_ssh_key("Ed25519");
-    this.cipher.sshKey.privateKey = sshKey.private_key;
-    this.cipher.sshKey.publicKey = sshKey.public_key;
-    this.cipher.sshKey.keyFingerprint = sshKey.key_fingerprint;
+    this.cipher.sshKey.privateKey = sshKey.privateKey;
+    this.cipher.sshKey.publicKey = sshKey.publicKey;
+    this.cipher.sshKey.keyFingerprint = sshKey.fingerprint;
 
     if (showNotification) {
       this.toastService.showToast({

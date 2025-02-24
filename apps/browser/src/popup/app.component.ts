@@ -35,9 +35,12 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   selector: "app-root",
   styles: [],
   animations: [routerTransition],
-  template: ` <div [@routerTransition]="getRouteElevation(outlet)">
-    <router-outlet #outlet="outlet"></router-outlet>
-  </div>`,
+  template: `
+    <div [@routerTransition]="getRouteElevation(outlet)">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
+    <bit-toast-container></bit-toast-container>
+  `,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private viewCacheService = inject(PopupViewCacheService);
@@ -128,11 +131,18 @@ export class AppComponent implements OnInit, OnDestroy {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.showDialog(msg);
-          } else if (msg.command === "showNativeMessagingFinterprintDialog") {
+          } else if (msg.command === "showNativeMessagingFingerprintDialog") {
             // TODO: Should be refactored to live in another service.
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.showNativeMessagingFingerprintDialog(msg);
+          } else if (msg.command === "showUpdateDesktopAppOrDisableFingerprintDialog") {
+            // TODO: Should be refactored to live in another service.
+            await this.showDialog({
+              title: this.i18nService.t("updateDesktopAppOrDisableFingerprintDialogTitle"),
+              content: this.i18nService.t("updateDesktopAppOrDisableFingerprintDialogMessage"),
+              type: "warning",
+            });
           } else if (msg.command === "showToast") {
             this.toastService._showToast(msg);
           } else if (msg.command === "reloadProcess") {
@@ -172,7 +182,7 @@ export class AppComponent implements OnInit, OnDestroy {
           await this.clearComponentStates();
         }
         if (url.startsWith("/tabs/")) {
-          await this.cipherService.setAddEditCipherInfo(null);
+          await this.cipherService.setAddEditCipherInfo(null, this.activeUserId);
         }
         (window as any).previousPopupUrl = url;
 

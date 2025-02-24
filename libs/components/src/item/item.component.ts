@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,7 +13,7 @@ import { ItemActionComponent } from "./item-action.component";
 @Component({
   selector: "bit-item",
   standalone: true,
-  imports: [CommonModule, ItemActionComponent],
+  imports: [ItemActionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "item.component.html",
   providers: [{ provide: A11yRowDirective, useExisting: ItemComponent }],

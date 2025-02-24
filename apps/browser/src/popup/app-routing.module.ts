@@ -1,15 +1,16 @@
 import { Injectable, NgModule } from "@angular/core";
 import { ActivatedRouteSnapshot, RouteReuseStrategy, RouterModule, Routes } from "@angular/router";
 
+import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import {
   EnvironmentSelectorComponent,
   EnvironmentSelectorRouteData,
   ExtensionDefaultOverlayPosition,
 } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { TwoFactorTimeoutComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-expired.component";
 import { unauthUiRefreshRedirect } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-redirect";
 import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
+  activeAuthGuard,
   authGuard,
   lockGuard,
   redirectGuard,
@@ -22,10 +23,14 @@ import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guard
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
-  LoginComponent,
-  LoginSecondaryContentComponent,
+  DevicesIcon,
+  DeviceVerificationIcon,
   LockIcon,
+  LoginComponent,
+  LoginDecryptionOptionsComponent,
+  LoginSecondaryContentComponent,
   LoginViaAuthRequestComponent,
+  NewDeviceVerificationComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationLockAltIcon,
@@ -34,15 +39,13 @@ import {
   RegistrationStartSecondaryComponentData,
   RegistrationUserAddIcon,
   SetPasswordJitComponent,
-  UserLockIcon,
-  VaultIcon,
-  LoginDecryptionOptionsComponent,
-  DevicesIcon,
   SsoComponent,
   TwoFactorTimeoutIcon,
+  UserLockIcon,
+  VaultIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { LockComponent } from "@bitwarden/key-management/angular";
+import { LockComponent } from "@bitwarden/key-management-ui";
 import {
   NewDeviceVerificationNoticePageOneComponent,
   NewDeviceVerificationNoticePageTwoComponent,
@@ -61,7 +64,6 @@ import { HomeComponent } from "../auth/popup/home.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/popup/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/popup/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/popup/login-via-auth-request-v1.component";
-import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
@@ -88,7 +90,9 @@ import { MoreFromBitwardenPageV2Component } from "../tools/popup/settings/about-
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
+import { canAccessAtRiskPasswords } from "../vault/guards/at-risk-passwords.guard";
 import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
+import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/add-edit-v2.component";
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
 import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
@@ -174,12 +178,12 @@ const routes: Routes = [
     component: ExtensionAnonLayoutWrapperComponent,
     children: [
       {
-        path: "2fa-timeout",
+        path: "authentication-timeout",
         canActivate: [unauthGuardFn(unauthRouteOverrides)],
         children: [
           {
             path: "",
-            component: TwoFactorTimeoutComponent,
+            component: AuthenticationTimeoutComponent,
           },
         ],
         data: {
@@ -233,6 +237,27 @@ const routes: Routes = [
     },
   ),
   {
+    path: "device-verification",
+    component: ExtensionAnonLayoutWrapperComponent,
+    canActivate: [
+      canAccessFeature(FeatureFlag.NewDeviceVerification),
+      unauthGuardFn(),
+      activeAuthGuard(),
+    ],
+    children: [{ path: "", component: NewDeviceVerificationComponent }],
+    data: {
+      pageIcon: DeviceVerificationIcon,
+      pageTitle: {
+        key: "verifyIdentity",
+      },
+      pageSubtitle: {
+        key: "weDontRecognizeThisDevice",
+      },
+      showBackButton: true,
+      elevation: 1,
+    } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+  },
+  {
     path: "set-password",
     component: SetPasswordComponent,
     data: { elevation: 1 } satisfies RouteDataProperties,
@@ -241,12 +266,6 @@ const routes: Routes = [
     path: "remove-password",
     component: RemovePasswordComponent,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  },
-  {
-    path: "register",
-    component: RegisterComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -268,7 +287,7 @@ const routes: Routes = [
     path: "cipher-password-history",
     component: PasswordHistoryV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
     path: "add-cipher",
@@ -291,7 +310,7 @@ const routes: Routes = [
     path: "attachments",
     component: AttachmentsV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
     path: "generator",
@@ -363,7 +382,7 @@ const routes: Routes = [
     path: "premium",
     component: PremiumV2Component,
     canActivate: [authGuard],
-    data: { elevation: 1 } satisfies RouteDataProperties,
+    data: { elevation: 3 } satisfies RouteDataProperties,
   },
   {
     path: "appearance",
@@ -413,7 +432,7 @@ const routes: Routes = [
       data: {
         pageIcon: DevicesIcon,
         pageTitle: {
-          key: "loginInitiated",
+          key: "logInRequestSent",
         },
         pageSubtitle: {
           key: "aNotificationWasSentToYourDevice",
@@ -559,7 +578,7 @@ const routes: Routes = [
     children: [
       {
         path: "signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           elevation: 1,
           pageIcon: RegistrationUserAddIcon,
@@ -585,7 +604,7 @@ const routes: Routes = [
       },
       {
         path: "finish-signup",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationLockAltIcon,
           elevation: 1,
@@ -635,7 +654,6 @@ const routes: Routes = [
     children: [
       {
         path: "set-password-jit",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification)],
         component: SetPasswordJitComponent,
         data: {
           pageTitle: {
@@ -735,6 +753,11 @@ const routes: Routes = [
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],
+  },
+  {
+    path: "at-risk-passwords",
+    component: AtRiskPasswordsComponent,
+    canActivate: [authGuard, canAccessAtRiskPasswords],
   },
   {
     path: "account-switcher",

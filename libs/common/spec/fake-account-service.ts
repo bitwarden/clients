@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock } from "jest-mock-extended";
-import { ReplaySubject, combineLatest, map } from "rxjs";
+import { ReplaySubject, combineLatest, map, Observable } from "rxjs";
 
 import { Account, AccountInfo, AccountService } from "../src/auth/abstractions/account.service";
 import { UserId } from "../src/types/guid";
@@ -35,6 +35,8 @@ export class FakeAccountService implements AccountService {
   activeAccountSubject = new ReplaySubject<Account | null>(1);
   // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
   accountActivitySubject = new ReplaySubject<Record<UserId, Date>>(1);
+  // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
+  accountVerifyDevicesSubject = new ReplaySubject<boolean>(1);
   private _activeUserId: UserId;
   get activeUserId() {
     return this._activeUserId;
@@ -42,6 +44,7 @@ export class FakeAccountService implements AccountService {
   accounts$ = this.accountsSubject.asObservable();
   activeAccount$ = this.activeAccountSubject.asObservable();
   accountActivity$ = this.accountActivitySubject.asObservable();
+  accountVerifyNewDeviceLogin$ = this.accountVerifyDevicesSubject.asObservable();
   get sortedUserIds$() {
     return this.accountActivity$.pipe(
       map((activity) => {
@@ -52,7 +55,7 @@ export class FakeAccountService implements AccountService {
       }),
     );
   }
-  get nextUpAccount$() {
+  get nextUpAccount$(): Observable<Account> {
     return combineLatest([this.accounts$, this.activeAccount$, this.sortedUserIds$]).pipe(
       map(([accounts, activeAccount, sortedUserIds]) => {
         const nextId = sortedUserIds.find((id) => id !== activeAccount?.id && accounts[id] != null);
@@ -67,6 +70,11 @@ export class FakeAccountService implements AccountService {
     this.activeAccountSubject.next(null);
     this.accountActivitySubject.next(accountActivity);
   }
+
+  setAccountVerifyNewDeviceLogin(userId: UserId, verifyNewDeviceLogin: boolean): Promise<void> {
+    return this.mock.setAccountVerifyNewDeviceLogin(userId, verifyNewDeviceLogin);
+  }
+
   setAccountActivity(userId: UserId, lastActivity: Date): Promise<void> {
     this.accountActivitySubject.next({
       ...this.accountActivitySubject["_buffer"][0],
