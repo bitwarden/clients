@@ -81,7 +81,7 @@ const moduleRules = [
         loader: "babel-loader",
         options: {
           configFile: "../../babel.config.json",
-          cacheDirectory: true,
+          cacheDirectory: NODE_ENV !== "production",
         },
       },
     ],
@@ -350,14 +350,17 @@ const webpackConfig = {
     styles: ["./src/scss/styles.scss", "./src/scss/tailwind.css"],
     theme_head: "./src/theme.ts",
   },
-  cache: {
-    type: "filesystem",
-    allowCollectingMemory: true,
-    cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack"),
-    buildDependencies: {
-      config: [__filename],
-    },
-  },
+  cache:
+    NODE_ENV === "production"
+      ? false
+      : {
+          type: "filesystem",
+          allowCollectingMemory: true,
+          cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack"),
+          buildDependencies: {
+            config: [__filename],
+          },
+        },
   snapshot: {
     unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
   },
