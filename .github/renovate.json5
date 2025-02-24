@@ -28,6 +28,7 @@
         "https://github.com/angular/angular-cli",
         "https://github.com/angular/angular",
         "https://github.com/angular/components",
+        "https://github.com/ng-select/ng-select",
       ],
       matchUpdateTypes: ["major"],
       description: "Manually updated using ng update",
