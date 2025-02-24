@@ -2,7 +2,14 @@
 // @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  AsyncValidatorFn,
+  FormBuilder,
+  FormControl,
+  ValidationErrors,
+  Validators,
+} from "@angular/forms";
 import {
   combineLatest,
   firstValueFrom,
@@ -14,7 +21,7 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs";
-import { first } from "rxjs/operators";
+import { catchError, first, tap } from "rxjs/operators";
 
 import {
   CollectionAccessSelectionView,
@@ -49,10 +56,16 @@ import {
   convertToPermission,
   convertToSelectionView,
 } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
+import { openChangePlanDialog } from "../../../billing/organizations/change-plan-dialog.component";
 
 export enum CollectionDialogTabType {
   Info = 0,
   Access = 1,
+}
+
+enum ButtonType {
+  Upgrade = "upgrade",
+  Save = "save",
 }
 
 export interface CollectionDialogParams {
@@ -107,8 +120,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
   protected collections: Collection[];
-  protected buttonDisplayName: "save" | "upgrade" = "save";
-  private freeOrgThatNeedsToUpgrade!: Organization;
+  protected buttonDisplayName: ButtonType = ButtonType.Save;
+  private orgExceedingCollectionLimit!: Organization;
 
   constructor(
     @Inject(DIALOG_DATA) private params: CollectionDialogParams,
@@ -155,6 +168,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
       await this.loadOrg(this.params.organizationId);
     }
+
+    this.organizationSelected.setAsyncValidators(
+      this.validateFreeOrgCollectionLimit(this.organizations$, this.collections),
+    );
+    this.formGroup.updateValueAndValidity();
   }
 
   async loadOrg(orgId: string) {
@@ -267,6 +285,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       });
   }
 
+  get organizationSelected() {
+    return this.formGroup.controls.selectedOrg;
+  }
+
   protected get collectionId() {
     return this.params.collectionId;
   }
@@ -290,6 +312,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     }
 
     this.formGroup.markAllAsTouched();
+
+    if (this.buttonDisplayName == ButtonType.Upgrade) {
+      this.close(CollectionDialogAction.Upgrade);
+      this.changePlan(this.orgExceedingCollectionLimit);
+      return;
+    }
 
     if (this.formGroup.invalid) {
       const accessTabError = this.formGroup.controls.access.hasError("managePermissionRequired");
@@ -375,6 +403,56 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private validateFreeOrgCollectionLimit(
+    orgs: Observable<Organization[]>,
+    collections: Collection[],
+  ): AsyncValidatorFn {
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+      if (!(control instanceof FormControl)) {
+        return of(null);
+      }
+
+      const orgId = control.value;
+
+      if (!orgId) {
+        return of(null);
+      }
+
+      return orgs.pipe(
+        map((organizations) => organizations.find((org) => org.id === orgId)),
+        map((org) => {
+          if (!org) {
+            return null;
+          }
+
+          const orgCollections = collections.filter((c) => c.organizationId === org.id);
+          const hasReachedLimit = org.maxCollections === orgCollections.length;
+
+          if (hasReachedLimit) {
+            this.orgExceedingCollectionLimit = org;
+            return { cannotCreateCollections: true };
+          }
+
+          return null;
+        }),
+        tap((errors) => {
+          this.buttonDisplayName = errors ? ButtonType.Upgrade : ButtonType.Save;
+        }),
+        catchError(() => of(null)),
+      );
+    };
+  }
+
+  private changePlan(org: Organization) {
+    openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: org.id,
+        subscription: null,
+        productTierType: org.productTierType,
+      },
+    });
   }
 
   private handleAddAccessWarning(): boolean {
