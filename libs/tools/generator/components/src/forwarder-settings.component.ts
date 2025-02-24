@@ -11,21 +11,10 @@ import {
   SimpleChanges,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import {
-  BehaviorSubject,
-  concatMap,
-  map,
-  ReplaySubject,
-  skip,
-  Subject,
-  switchAll,
-  takeUntil,
-  withLatestFrom,
-} from "rxjs";
+import { map, ReplaySubject, skip, Subject, switchAll, takeUntil, withLatestFrom } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { IntegrationId } from "@bitwarden/common/tools/integration";
-import { UserId } from "@bitwarden/common/types/guid";
 import {
   CredentialGeneratorConfiguration,
   CredentialGeneratorService,
@@ -33,8 +22,6 @@ import {
   NoPolicy,
   toCredentialGeneratorConfiguration,
 } from "@bitwarden/generator-core";
-
-import { completeOnAccountSwitch } from "./util";
 
 const Controls = Object.freeze({
   domain: "domain",
@@ -56,15 +43,14 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
-    private accountService: AccountService,
   ) {}
 
   /** Binds the component to a specific user's settings.
-   *  When this input is not provided, the form binds to the active
-   *  user
    */
-  @Input()
-  userId: UserId | null;
+  @Input({ required: true })
+  account: Account;
+
+  protected account$ = new ReplaySubject<Account>(1);
 
   @Input({ required: true })
   forwarder: IntegrationId;
@@ -87,8 +73,6 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
   private forwarderId$ = new ReplaySubject<IntegrationId>(1);
 
   async ngOnInit() {
-    const singleUserId$ = this.singleUserId$();
-
     const forwarder$ = new ReplaySubject<CredentialGeneratorConfiguration<any, NoPolicy>>(1);
     this.forwarderId$
       .pipe(
@@ -108,12 +92,12 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
         forwarder$.next(forwarder);
       });
 
-    const settings$$ = forwarder$.pipe(
-      concatMap((forwarder) => this.generatorService.settings(forwarder, { singleUserId$ })),
+    const settings$ = forwarder$.pipe(
+      map((forwarder) => this.generatorService.settings(forwarder, { account$: this.account$ })),
     );
 
     // bind settings to the reactive form
-    settings$$.pipe(switchAll(), takeUntil(this.destroyed$)).subscribe((settings) => {
+    settings$.pipe(switchAll(), takeUntil(this.destroyed$)).subscribe((settings) => {
       // skips reactive event emissions to break a subscription cycle
       this.settings.patchValue(settings as any, { emitEvent: false });
     });
@@ -131,7 +115,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     });
 
     // the first emission is the current value; subsequent emissions are updates
-    settings$$
+    settings$
       .pipe(
         map((settings$) => settings$.pipe(skip(1))),
         switchAll(),
@@ -141,7 +125,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
 
     // now that outputs are set up, connect inputs
     this.saveSettings
-      .pipe(withLatestFrom(this.settings.valueChanges, settings$$), takeUntil(this.destroyed$))
+      .pipe(withLatestFrom(this.settings.valueChanges, settings$), takeUntil(this.destroyed$))
       .subscribe(([, value, settings]) => {
         settings.next(value);
       });
@@ -152,29 +136,20 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     this.saveSettings.next(site);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  async ngOnChanges(changes: SimpleChanges) {
     this.refresh$.complete();
     if ("forwarder" in changes) {
       this.forwarderId$.next(this.forwarder);
+    }
+
+    if ("account" in changes) {
+      this.account$.next(this.account);
     }
   }
 
   protected displayDomain: boolean;
   protected displayToken: boolean;
   protected displayBaseUrl: boolean;
-
-  private singleUserId$() {
-    // FIXME: this branch should probably scan for the user and make sure
-    // the account is unlocked
-    if (this.userId) {
-      return new BehaviorSubject(this.userId as UserId).asObservable();
-    }
-
-    return this.accountService.activeAccount$.pipe(
-      completeOnAccountSwitch(),
-      takeUntil(this.destroyed$),
-    );
-  }
 
   private readonly refresh$ = new Subject<void>();
 

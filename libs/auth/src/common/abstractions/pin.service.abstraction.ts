@@ -30,7 +30,7 @@ export abstract class PinServiceAbstraction {
   /**
    * Gets the persistent (stored on disk) version of the UserKey, encrypted by the PinKey.
    */
-  abstract getPinKeyEncryptedUserKeyPersistent: (userId: UserId) => Promise<EncString>;
+  abstract getPinKeyEncryptedUserKeyPersistent: (userId: UserId) => Promise<EncString | null>;
 
   /**
    * Clears the persistent (stored on disk) version of the UserKey, encrypted by the PinKey.
@@ -40,7 +40,7 @@ export abstract class PinServiceAbstraction {
   /**
    * Gets the ephemeral (stored in memory) version of the UserKey, encrypted by the PinKey.
    */
-  abstract getPinKeyEncryptedUserKeyEphemeral: (userId: UserId) => Promise<EncString>;
+  abstract getPinKeyEncryptedUserKeyEphemeral: (userId: UserId) => Promise<EncString | null>;
 
   /**
    * Clears the ephemeral (stored in memory) version of the UserKey, encrypted by the PinKey.
@@ -70,7 +70,7 @@ export abstract class PinServiceAbstraction {
   /**
    * Gets the user's PIN, encrypted by the UserKey.
    */
-  abstract getUserKeyEncryptedPin: (userId: UserId) => Promise<EncString>;
+  abstract getUserKeyEncryptedPin: (userId: UserId) => Promise<EncString | null>;
 
   /**
    * Sets the user's PIN, encrypted by the UserKey.
@@ -94,7 +94,7 @@ export abstract class PinServiceAbstraction {
    * Gets the old MasterKey, encrypted by the PinKey (formerly called `pinProtected`).
    * Deprecated and used for migration purposes only.
    */
-  abstract getOldPinKeyEncryptedMasterKey: (userId: UserId) => Promise<EncryptedString>;
+  abstract getOldPinKeyEncryptedMasterKey: (userId: UserId) => Promise<EncryptedString | null>;
 
   /**
    * Clears the old MasterKey, encrypted by the PinKey.

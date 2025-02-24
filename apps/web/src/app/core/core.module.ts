@@ -33,6 +33,8 @@ import {
   SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
+  TwoFactorAuthComponentService,
+  TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -111,6 +113,8 @@ import {
   WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
+  WebTwoFactorAuthComponentService,
+  WebTwoFactorAuthDuoComponentService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
@@ -264,6 +268,12 @@ const safeProviders: SafeProvider[] = [
     useClass: WebLockComponentService,
     deps: [],
   }),
+  // TODO: PM-18182 - Refactor component services into lazy loaded modules
+  safeProvider({
+    provide: TwoFactorAuthComponentService,
+    useClass: WebTwoFactorAuthComponentService,
+    deps: [],
+  }),
   safeProvider({
     provide: SetPasswordJitService,
     useClass: WebSetPasswordJitService,
@@ -298,6 +308,7 @@ const safeProviders: SafeProvider[] = [
       PasswordGenerationServiceAbstraction,
       PlatformUtilsService,
       SsoLoginServiceAbstraction,
+      Router,
     ],
   }),
   safeProvider({
@@ -329,6 +340,11 @@ const safeProviders: SafeProvider[] = [
     provide: SsoComponentService,
     useClass: WebSsoComponentService,
     deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthDuoComponentService,
+    useClass: WebTwoFactorAuthDuoComponentService,
+    deps: [PlatformUtilsService],
   }),
   safeProvider({
     provide: LoginDecryptionOptionsService,
