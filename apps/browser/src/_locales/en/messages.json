@@ -2143,6 +2143,15 @@
   "vaultTimeoutAction1": {
     "message": "Timeout action"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "New customization options"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "View all Appearance settings"
+  },
   "lock": {
     "message": "Lock",
     "description": "Verb form: to make secure or inaccessible by"
