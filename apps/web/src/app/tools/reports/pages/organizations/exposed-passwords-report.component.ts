@@ -4,7 +4,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
+import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import {
   getOrganizationById,
   OrganizationService,
@@ -12,47 +12,63 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService } from "@bitwarden/components";
+import { PasswordRepromptService, CipherFormConfigService } from "@bitwarden/vault";
 
 // eslint-disable-next-line no-restricted-imports
-import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from "../../../tools/reports/pages/weak-passwords-report.component";
+import { RoutedVaultFilterBridgeService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
+import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
+import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
+import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent } from "../exposed-passwords-report.component";
 
 @Component({
-  selector: "app-weak-passwords-report",
-  templateUrl: "../../../tools/reports/pages/weak-passwords-report.component.html",
+  selector: "app-org-exposed-passwords-report",
+  templateUrl: "../exposed-passwords-report.component.html",
+  providers: [
+    {
+      provide: CipherFormConfigService,
+      useClass: AdminConsoleCipherFormConfigService,
+    },
+    AdminConsoleCipherFormConfigService,
+    RoutedVaultFilterService,
+    RoutedVaultFilterBridgeService,
+  ],
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class WeakPasswordsReportComponent
-  extends BaseWeakPasswordsReportComponent
+export class ExposedPasswordsReportComponent
+  extends BaseExposedPasswordsReportComponent
   implements OnInit
 {
   manageableCiphers: Cipher[];
 
   constructor(
     cipherService: CipherService,
-    passwordStrengthService: PasswordStrengthServiceAbstraction,
-    modalService: ModalService,
-    private route: ActivatedRoute,
+    auditService: AuditService,
+    dialogService: DialogService,
     organizationService: OrganizationService,
+    protected accountService: AccountService,
+    private route: ActivatedRoute,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
-    protected accountService: AccountService,
+    cipherFormService: CipherFormConfigService,
+    adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     super(
       cipherService,
-      passwordStrengthService,
+      auditService,
       organizationService,
+      dialogService,
       accountService,
-      modalService,
       passwordRepromptService,
       i18nService,
       syncService,
+      cipherFormService,
+      adminConsoleCipherFormConfigService,
     );
   }
 
@@ -61,14 +77,12 @@ export class WeakPasswordsReportComponent
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
       this.organization = await firstValueFrom(
         this.organizationService
           .organizations$(userId)
           .pipe(getOrganizationById(params.organizationId)),
       );
       this.manageableCiphers = await this.cipherService.getAll(userId);
-      await super.ngOnInit();
     });
   }
 

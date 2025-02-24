@@ -59,16 +59,7 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     const hasMasterPassword$ = from(this.userVerificationService.hasMasterPassword());
 
-    this.showChangeEmail$ = combineLatest([
-      hasMasterPassword$,
-      isAccountDeprovisioningEnabled$,
-      userIsManagedByOrganization$,
-    ]).pipe(
-      map(
-        ([hasMasterPassword, isAccountDeprovisioningEnabled, userIsManagedByOrganization]) =>
-          hasMasterPassword && (!isAccountDeprovisioningEnabled || !userIsManagedByOrganization),
-      ),
-    );
+    this.showChangeEmail$ = hasMasterPassword$;
 
     this.showPurgeVault$ = combineLatest([
       isAccountDeprovisioningEnabled$,

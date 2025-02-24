@@ -94,8 +94,12 @@ export class VaultPopupItemsService {
         runInsideAngular(this.ngZone),
         tap(() => this._ciphersLoading$.next()),
         waitUntilSync(this.syncService),
-        switchMap(() => Utils.asyncToObservable(() => this.cipherService.getAllDecrypted(userId))),
-        withLatestFrom(this.cipherService.failedToDecryptCiphers$(userId)),
+        switchMap(() =>
+          combineLatest([
+            Utils.asyncToObservable(() => this.cipherService.getAllDecrypted(userId)),
+            this.cipherService.failedToDecryptCiphers$(userId),
+          ]),
+        ),
         map(([ciphers, failedToDecryptCiphers]) => [...failedToDecryptCiphers, ...ciphers]),
       ),
     ),
