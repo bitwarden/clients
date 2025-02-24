@@ -21,8 +21,8 @@
           <span
             bitBadge
             variant="primary"
-            class="tw-mt-0"
-            *ngIf="!(organization$ | async)?.useEvents && routeData.titleId == 'eventLogs'"
+            slot="title-suffix"
+            *ngIf="!(organization$ | async)?.useEvents"
           >
             {{ "upgrade" | i18n }}
           </span>
