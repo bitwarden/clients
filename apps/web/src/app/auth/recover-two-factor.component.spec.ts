@@ -63,6 +63,8 @@ describe("RecoverTwoFactorComponent", () => {
         { provide: LogService, useValue: mockLogService },
       ],
       imports: [I18nPipe],
+      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
+      errorOnUnknownElements: false,
     });
 
     fixture = TestBed.createComponent(RecoverTwoFactorComponent);
