@@ -23,6 +23,18 @@
       enabled: false,
     },
     {
+      matchSourceUrls: [
+        "https://github.com/angular-eslint/angular-eslint",
+        "https://github.com/angular/angular-cli",
+        "https://github.com/angular/angular",
+        "https://github.com/angular/components",
+        "https://github.com/ng-select/ng-select",
+      ],
+      matchUpdateTypes: ["major"],
+      description: "Manually updated using ng update",
+      enabled: false,
+    },
+    {
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: "patch",
     },
@@ -90,12 +102,8 @@
     },
     {
       matchPackageNames: [
-        "@angular-eslint/eslint-plugin-template",
-        "@angular-eslint/eslint-plugin",
         "@angular-eslint/schematics",
-        "@angular-eslint/template-parser",
-        "@typescript-eslint/eslint-plugin",
-        "@typescript-eslint/parser",
+        "angular-eslint",
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
         "eslint-plugin-import",
@@ -106,6 +114,7 @@
         "eslint",
         "husky",
         "lint-staged",
+        "typescript-eslint",
       ],
       groupName: "Linting minor-patch",
       matchUpdateTypes: ["minor", "patch"],
