@@ -331,10 +331,7 @@ jobs:
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
           EXE_PATH: dist/${{ matrix.license_type.build_prefix }}/windows/bw.exe
-        run: |
-          Test-Path ./scripts/sign-cli.ps1
-          .\scripts\sign-cli.ps1
-
+        run: .\scripts\sign-cli.ps1
 
       - name: Package Chocolatey
         shell: pwsh
