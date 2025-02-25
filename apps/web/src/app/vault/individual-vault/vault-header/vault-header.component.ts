@@ -9,14 +9,28 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
+import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
-import { Unassigned, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  Unassigned,
+  CollectionView,
+  CollectionAdminService,
+} from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { BreadcrumbsModule, MenuModule } from "@bitwarden/components";
+import {
+  BreadcrumbsModule,
+  DialogService,
+  MenuModule,
+  SimpleDialogOptions,
+} from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -81,7 +95,13 @@ export class VaultHeaderComponent implements OnInit {
   /** Emits an event when the delete collection button is clicked in the header */
   @Output() onDeleteCollection = new EventEmitter<void>();
 
-  constructor(private i18nService: I18nService) {}
+  constructor(
+    private i18nService: I18nService,
+    private collectionAdminService: CollectionAdminService,
+    private dialogService: DialogService,
+    private router: Router,
+    private configService: ConfigService,
+  ) {}
 
   async ngOnInit() {}
 
@@ -199,6 +219,61 @@ export class VaultHeaderComponent implements OnInit {
   }
 
   async addCollection(): Promise<void> {
+    const organization = this.organizations?.find(
+      (org) => org.productTierType === ProductTierType.Free,
+    );
+    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    );
+    if (
+      this.organizations.length == 1 &&
+      organization.productTierType === ProductTierType.Free &&
+      isBreadcrumbEventLogsEnabled
+    ) {
+      const collections = await this.collectionAdminService.getAll(organization.id);
+      if (collections.length === organization.maxCollections) {
+        this.showFreeOrgUpgradeDialog(organization);
+        return;
+      }
+    }
     this.onAddCollection.emit();
+  }
+
+  private showFreeOrgUpgradeDialog(organization: Organization): void {
+    const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
+      title: this.i18nService.t("upgradeOrganization"),
+      content: this.i18nService.t(
+        organization.canEditSubscription
+          ? "freeOrgMaxCollectionReachedManageBilling"
+          : "freeOrgMaxCollectionReachedNoManageBilling",
+        organization.maxCollections,
+      ),
+      type: "primary",
+    };
+
+    if (organization.canEditSubscription) {
+      orgUpgradeSimpleDialogOpts.acceptButtonText = this.i18nService.t("upgrade");
+    } else {
+      orgUpgradeSimpleDialogOpts.acceptButtonText = this.i18nService.t("ok");
+      orgUpgradeSimpleDialogOpts.cancelButtonText = null; // hide secondary btn
+    }
+
+    const simpleDialog = this.dialogService.openSimpleDialogRef(orgUpgradeSimpleDialogOpts);
+
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    firstValueFrom(simpleDialog.closed).then((result: boolean | undefined) => {
+      if (!result) {
+        return;
+      }
+
+      if (result && organization.canEditSubscription) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.router.navigate(["/organizations", organization.id, "billing", "subscription"], {
+          queryParams: { upgrade: true },
+        });
+      }
+    });
   }
 }
