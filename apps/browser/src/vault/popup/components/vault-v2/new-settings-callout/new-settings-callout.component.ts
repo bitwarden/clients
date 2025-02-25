@@ -11,6 +11,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, PopoverModule } from "@bitwarden/components";
 
+import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy-buttons.service";
 import { VaultPageService } from "../vault-page.service";
 
 @Component({
@@ -30,10 +31,13 @@ export class NewSettingsCalloutComponent implements OnInit, OnDestroy {
     private vaultPageService: VaultPageService,
     private router: Router,
     private logService: LogService,
+    private copyButtonService: VaultPopupCopyButtonsService,
   ) {}
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const showQuickCopyActions = await firstValueFrom(this.copyButtonService.showQuickCopyActions$);
 
     let profileCreatedDate: Date;
 
@@ -50,7 +54,9 @@ export class NewSettingsCalloutComponent implements OnInit, OnDestroy {
     );
 
     this.showNewCustomizationSettingsCallout =
-      !hasCalloutBeenDismissed && profileCreatedDate < new Date("2024-12-25");
+      !showQuickCopyActions &&
+      !hasCalloutBeenDismissed &&
+      profileCreatedDate < new Date("2024-12-25");
   }
 
   async goToAppearance() {

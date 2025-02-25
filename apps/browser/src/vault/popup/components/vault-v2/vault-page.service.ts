@@ -21,12 +21,6 @@ export const NEW_CUSTOMIZATION_OPTIONS_CALLOUT_DISMISSED_KEY = new UserKeyDefini
 export class VaultPageService {
   private stateProvider = inject(StateProvider);
 
-  async unDismissCallout(userId: UserId): Promise<void> {
-    await this.stateProvider
-      .getUser(userId, NEW_CUSTOMIZATION_OPTIONS_CALLOUT_DISMISSED_KEY)
-      .update(() => false);
-  }
-
   isCalloutDismissed(userId: UserId): Observable<boolean> {
     return this.stateProvider
       .getUser(userId, NEW_CUSTOMIZATION_OPTIONS_CALLOUT_DISMISSED_KEY)

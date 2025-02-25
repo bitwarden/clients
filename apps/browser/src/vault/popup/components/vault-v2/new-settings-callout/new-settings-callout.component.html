@@ -14,7 +14,13 @@
   >
     <div bitTypography="body2" (click)="goToAppearance()">
       {{ "newCustomizationOptionsCalloutContent" | i18n }}
-      <a routerLink="/appearance">
+      <a
+        tabIndex="0"
+        bitLink
+        linkType="primary"
+        routerLink="/appearance"
+        (keydown.enter)="goToAppearance()"
+      >
         {{ "newCustomizationOptionsCalloutLink" | i18n }}
       </a>
     </div>
