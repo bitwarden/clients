@@ -1,4 +1,4 @@
-import "jest-preset-angular/setup-jest";
+import "@bitwarden/ui-common/setup-jest";
 import { addCustomMatchers } from "@bitwarden/common/spec";
 
 addCustomMatchers();
