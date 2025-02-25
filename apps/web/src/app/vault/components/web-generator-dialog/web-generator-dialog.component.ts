@@ -91,19 +91,6 @@ export class WebVaultGeneratorDialogComponent {
   };
 
   /**
-   * Event handler for when the algorithm type changes.
-   * This is necessary for the "forwarder" type because onAlgorithmSelected
-   * doesn't fire when for this type as it also requires a forwarder service
-   * to be selected before it can generate a value.
-   */
-  onTypeSelected = (type: string) => {
-    this.buttonLabel = this.i18nService.t(
-      type === '"username"' ? "useThisUsername" : "useThisEmail",
-    );
-    this.generatedValue = undefined;
-  };
-
-  /**
    * Opens the vault generator dialog.
    */
   static open(dialogService: DialogService, config: DialogConfig<WebVaultGeneratorDialogParams>) {

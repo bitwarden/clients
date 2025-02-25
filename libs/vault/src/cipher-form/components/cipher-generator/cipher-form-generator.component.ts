@@ -32,21 +32,10 @@ export class CipherFormGeneratorComponent {
   algorithmSelected = new EventEmitter<AlgorithmInfo>();
 
   /**
-   * Emits an event when an algoritm type is selected.
-   */
-  @Output()
-  typeSelected = new EventEmitter<string>();
-
-  /**
    * Emits an event when a new value is generated.
    */
   @Output()
   valueGenerated = new EventEmitter<string>();
-
-  /** Event handler for when the algorithm type changes */
-  onTypeSelected = (type: string) => {
-    this.typeSelected.emit(type);
-  };
 
   /** Event handler for when an algorithm is selected */
   onAlgorithmSelected = (selected: AlgorithmInfo) => {

@@ -70,19 +70,6 @@ export class CredentialGeneratorDialogComponent {
     this.credentialValue = value;
   };
 
-  /**
-   * Event handler for when the algorithm type changes.
-   * This is necessary for the "forwarder" type because onAlgorithmSelected
-   * doesn't fire when for this type as it also requires a forwarder service
-   * to be selected before it can generate a value.
-   */
-  onTypeSelected = (type: string) => {
-    this.buttonLabel = this.i18nService.t(
-      type === '"username"' ? "useThisUsername" : "useThisEmail",
-    );
-    this.credentialValue = undefined;
-  };
-
   openHistoryDialog = () => {
     // open history dialog
     this.dialogService.open(CredentialGeneratorHistoryDialogComponent);

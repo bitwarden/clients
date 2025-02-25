@@ -97,22 +97,9 @@ export class VaultGeneratorDialogComponent {
     if (selected) {
       this.selectButtonText = selected.useGeneratedValue;
     } else {
-      // clear the credential value when the user is
-      // selecting the credential generation algorithm
-      this.generatedValue = undefined;
+      // default to the email
+      this.selectButtonText = this.i18nService.t("useThisEmail");
     }
-  };
-
-  /**
-   * Event handler for when the algorithm type changes.
-   * This is necessary for the "forwarder" type because onAlgorithmSelected
-   * doesn't fire when for this type as it also requires a forwarder service
-   * to be selected before it can generate a value.
-   */
-  onTypeSelected = (type: string) => {
-    this.selectButtonText = this.i18nService.t(
-      type === '"username"' ? "useThisUsername" : "useThisEmail",
-    );
     this.generatedValue = undefined;
   };
 
