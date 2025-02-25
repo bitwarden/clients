@@ -11,6 +11,7 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  Input,
   OnInit,
   Output,
   QueryList,
@@ -42,6 +43,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 import {
@@ -93,6 +95,8 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   @Output() numberOfFieldsChange = new EventEmitter<number>();
 
   @ViewChildren("customFieldRow") customFieldRows: QueryList<ElementRef<HTMLDivElement>>;
+
+  @Input() mode: CipherFormConfig["mode"];
 
   customFieldsForm = this.formBuilder.group({
     fields: new FormArray([]),

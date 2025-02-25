@@ -1,4 +1,7 @@
-<bit-section [formGroup]="additionalOptionsForm">
+<bit-section
+  [formGroup]="additionalOptionsForm"
+  [disableMargin]="mode !== 'edit' && !hasCustomFields"
+>
   <bit-section-header>
     <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
   </bit-section-header>
@@ -29,4 +32,7 @@
   </bit-card>
 </bit-section>
 
-<vault-custom-fields (numberOfFieldsChange)="handleCustomFieldChange($event)"></vault-custom-fields>
+<vault-custom-fields
+  (numberOfFieldsChange)="handleCustomFieldChange($event)"
+  [mode]="mode"
+></vault-custom-fields>
