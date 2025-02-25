@@ -19,7 +19,6 @@ import {
 } from "@bitwarden/components";
 
 import { PasswordRepromptService } from "../../../services/password-reprompt.service";
-import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { CustomFieldsComponent } from "../custom-fields/custom-fields.component";
 
@@ -60,7 +59,7 @@ export class AdditionalOptionsSectionComponent implements OnInit {
   /** True when the form is in `partial-edit` mode */
   isPartialEdit = false;
 
-  @Input() mode: CipherFormConfig["mode"];
+  @Input() disableSectionMargin: boolean;
 
   constructor(
     private cipherFormContainer: CipherFormContainer,
