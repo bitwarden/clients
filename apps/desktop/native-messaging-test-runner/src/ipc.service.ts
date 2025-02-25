@@ -1,9 +1,7 @@
 /* eslint-disable no-console */
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { homedir } from "os";
-
-import * as NodeIPC from "node-ipc";
+import { ChildProcess, spawn } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
 
 // eslint-disable-next-line no-restricted-imports
 import { MessageCommon } from "../../src/models/native-messaging/message-common";
@@ -13,11 +11,6 @@ import { UnencryptedMessageResponse } from "../../src/models/native-messaging/un
 import Deferred from "./deferred";
 import { race } from "./race";
 
-NodeIPC.config.id = "native-messaging-test-runner";
-NodeIPC.config.maxRetries = 0;
-NodeIPC.config.silent = true;
-
-const DESKTOP_APP_PATH = `${homedir}/tmp/app.bitwarden`;
 const DEFAULT_MESSAGE_TIMEOUT = 10 * 1000; // 10 seconds
 
 export type MessageHandler = (MessageCommon) => void;
@@ -41,6 +34,10 @@ export default class IPCService {
 
   // A set of deferred promises that are awaiting socket connection
   private awaitingConnection = new Set<Deferred<void>>();
+
+  // The IPC desktop_proxy process
+  private process?: ChildProcess;
+  private processOutputBuffer = Buffer.alloc(0);
 
   constructor(
     private socketName: string,
@@ -72,47 +69,47 @@ export default class IPCService {
   private _connect() {
     this.connectionState = IPCConnectionState.Connecting;
 
-    NodeIPC.connectTo(this.socketName, DESKTOP_APP_PATH, () => {
-      // Process incoming message
-      this.getSocket().on("message", (message: any) => {
-        this.processMessage(message);
-      });
+    const proxyPath = selectProxyPath();
+    console.log(`[IPCService] connecting to proxy at ${proxyPath}`);
 
-      this.getSocket().on("error", (error: Error) => {
-        // Only makes sense as long as config.maxRetries stays set to 0. Otherwise this will be
-        // invoked multiple times each time a connection error happens
-        console.log("[IPCService] errored");
-        console.log(
-          "\x1b[33m Please make sure the desktop app is running locally and 'Allow DuckDuckGo browser integration' setting is enabled \x1b[0m",
-        );
-        this.awaitingConnection.forEach((deferred) => {
-          console.log(`rejecting: ${deferred}`);
-          deferred.reject(error);
-        });
-        this.awaitingConnection.clear();
-      });
+    this.process = spawn(proxyPath, process.argv.slice(1), {
+      cwd: process.cwd(),
+      stdio: "pipe",
+      shell: false,
+    });
 
-      this.getSocket().on("connect", () => {
-        console.log("[IPCService] connected");
-        this.connectionState = IPCConnectionState.Connected;
+    this.process.stdout.on("data", (data: Buffer) => {
+      this.processIpcMessage(data);
+    });
 
-        this.awaitingConnection.forEach((deferred) => {
-          deferred.resolve(null);
-        });
-        this.awaitingConnection.clear();
-      });
+    this.process.stderr.on("data", (data: Buffer) => {
+      console.error(`proxy log: ${data}`);
+    });
 
-      this.getSocket().on("disconnect", () => {
-        console.log("[IPCService] disconnected");
-        this.connectionState = IPCConnectionState.Disconnected;
+    this.process.on("error", (error) => {
+      // Only makes sense as long as config.maxRetries stays set to 0. Otherwise this will be
+      // invoked multiple times each time a connection error happens
+      console.log("[IPCService] errored");
+      console.log(
+        "\x1b[33m Please make sure the desktop app is running locally and 'Allow DuckDuckGo browser integration' setting is enabled \x1b[0m",
+      );
+      this.awaitingConnection.forEach((deferred) => {
+        console.log(`rejecting: ${deferred}`);
+        deferred.reject(error);
       });
+      this.awaitingConnection.clear();
+    });
+
+    this.process.on("exit", () => {
+      console.log("[IPCService] disconnected");
+      this.connectionState = IPCConnectionState.Disconnected;
     });
   }
 
   disconnect() {
     console.log("[IPCService] disconnecting...");
     if (this.connectionState !== IPCConnectionState.Disconnected) {
-      NodeIPC.disconnect(this.socketName);
+      this.process?.kill();
     }
   }
 
@@ -133,7 +130,7 @@ export default class IPCService {
 
     this.pendingMessages.set(message.messageId, deferred);
 
-    this.getSocket().emit("message", message);
+    this.sendIpcMessage(message);
 
     try {
       // Since we can not guarantee that a response message will ever be sent, we put a timeout
@@ -151,8 +148,56 @@ export default class IPCService {
     }
   }
 
-  private getSocket() {
-    return NodeIPC.of[this.socketName];
+  // As we're using the desktop_proxy to communicate with the native messaging directly,
+  // the messages need to follow Native Messaging Host protocol (uint32 size followed by message).
+  // https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging#native-messaging-host-protocol
+  private sendIpcMessage(message: MessageCommon) {
+    const messageStr = JSON.stringify(message);
+    const buffer = Buffer.alloc(4 + messageStr.length);
+    buffer.writeUInt32LE(messageStr.length, 0);
+    buffer.write(messageStr, 4);
+
+    this.process?.stdin.write(buffer);
+  }
+
+  private processIpcMessage(data: Buffer) {
+    this.processOutputBuffer = Buffer.concat([this.processOutputBuffer, data]);
+
+    // We might receive more than one IPC message per data event, so we need to process them all
+    // We continue as long as we have at least 4 + 1 bytes in the buffer, where the first 4 bytes
+    // represent the message length and the 5th byte is the message
+    while (this.processOutputBuffer.length > 4) {
+      // Read the message length and ensure we have the full message
+      const msgLength = this.processOutputBuffer.readUInt32LE(0);
+      if (msgLength + 4 < this.processOutputBuffer.length) {
+        return;
+      }
+
+      // Parse the message from the buffer
+      const messageStr = this.processOutputBuffer.subarray(4, msgLength + 4).toString();
+      const message = JSON.parse(messageStr);
+
+      // Store the remaining buffer, which is part of the next message
+      this.processOutputBuffer = this.processOutputBuffer.subarray(msgLength + 4);
+
+      // Process the connect/disconnect messages separately
+      if (message?.command === "connected") {
+        console.log("[IPCService] connected");
+        this.connectionState = IPCConnectionState.Connected;
+
+        this.awaitingConnection.forEach((deferred) => {
+          deferred.resolve(null);
+        });
+        this.awaitingConnection.clear();
+        continue;
+      } else if (message?.command === "disconnected") {
+        console.log("[IPCService] disconnected");
+        this.connectionState = IPCConnectionState.Disconnected;
+        continue;
+      }
+
+      this.processMessage(message);
+    }
   }
 
   private processMessage(message: any) {
@@ -171,4 +216,42 @@ export default class IPCService {
       this.messageHandler(message);
     }
   }
+}
+
+function selectProxyPath(): string {
+  const proxyExtension = process.platform === "win32" ? ".exe" : "";
+
+  // If the PROXY_PATH environment variable is set, use that
+  if (process.env.PROXY_PATH) {
+    if (!fs.existsSync(process.env.PROXY_PATH)) {
+      throw new Error(`PROXY_PATH is set to ${process.env.PROXY_PATH} but the file does not exist`);
+    }
+    return process.env.PROXY_PATH;
+  }
+
+  // Otherwise try the debug build if present
+  const debugProxyPath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "..",
+    "..",
+    "..",
+    "desktop_native",
+    "target",
+    "debug",
+    `desktop_proxy${proxyExtension}`,
+  );
+  if (fs.existsSync(debugProxyPath)) {
+    return debugProxyPath;
+  }
+
+  // On MacOS, try the release build (sandboxed)
+  const macReleaseProxyPath = `/Applications/Bitwarden.app/Contents/MacOS/desktop_proxy${proxyExtension}`;
+  if (process.platform === "darwin" && fs.existsSync(macReleaseProxyPath)) {
+    return macReleaseProxyPath;
+  }
+
+  throw new Error("Could not find the desktop_proxy executable");
 }

@@ -302,10 +302,6 @@ export default {
   title: "Browser/Popup Layout",
   component: PopupPageComponent,
   parameters: {
-    chromatic: {
-      // Disable tests while we troubleshoot their flaky-ness
-      disableSnapshot: true,
-    },
     design: {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-38889&t=k6OTDDPZOTtypRqo-11",
