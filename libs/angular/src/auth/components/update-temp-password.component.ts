@@ -4,7 +4,6 @@ import { Directive, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -53,7 +52,6 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     policyService: PolicyService,
     keyService: KeyService,
     messagingService: MessagingService,
-    private apiService: ApiService,
     private masterPasswordApiService: MasterPasswordApiService,
     private syncService: SyncService,
     private logService: LogService,
@@ -216,7 +214,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     request.newMasterPasswordHash = newMasterPasswordHash;
     request.key = userKey[1].encryptedString;
 
-    return this.apiService.postPassword(request);
+    return this.masterPasswordApiService.postPassword(request);
   }
 
   private async updateTdeOffboardingPassword(

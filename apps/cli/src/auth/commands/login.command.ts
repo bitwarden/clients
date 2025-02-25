@@ -436,7 +436,7 @@ export class LoginCommand {
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;
 
-      await this.apiService.postPassword(request);
+      await this.masterPasswordApiService.postPassword(request);
 
       return await this.handleUpdatePasswordSuccessResponse();
     } catch (e) {
