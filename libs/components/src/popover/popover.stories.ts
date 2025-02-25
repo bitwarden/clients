@@ -112,6 +112,28 @@ export const Open: Story = {
   }),
 };
 
+export const OpenLongTitle: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-popover [title]="'Example Title that is really long it wraps 2 lines'" #myPopover="popoverComponent">
+        <div>Lorem ipsum dolor <a href="#">adipisicing elit</a>.</div>
+        <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+          <li>Dolor sit amet consectetur</li>
+          <li>Esse labore veniam tempora</li>
+          <li>Adipisicing elit ipsum <a href="#">iustolaborum</a></li>
+        </ul>
+      </bit-popover>
+
+      <div class="tw-h-40">
+        <div class="cdk-overlay-pane bit-popover-right bit-popover-right-start">
+          <ng-container *ngTemplateOutlet="myPopover.templateRef"></ng-container>
+        </div>
+      </div>
+      `,
+  }),
+};
+
 export const InitiallyOpen: Story = {
   render: (args) => ({
     props: args,
