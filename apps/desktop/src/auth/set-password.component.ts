@@ -9,6 +9,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -40,6 +41,7 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
     policyApiService: PolicyApiServiceAbstraction,
     policyService: PolicyService,
     router: Router,
+    masterPasswordApiService: MasterPasswordApiService,
     syncService: SyncService,
     route: ActivatedRoute,
     private broadcasterService: BroadcasterService,
@@ -63,6 +65,7 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
       policyApiService,
       policyService,
       router,
+      masterPasswordApiService,
       apiService,
       syncService,
       route,

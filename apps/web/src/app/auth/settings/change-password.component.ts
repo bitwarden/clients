@@ -5,10 +5,10 @@ import { Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "@bitwarden/angular/auth/components/change-password.component";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
@@ -50,7 +50,7 @@ export class ChangePasswordComponent
     private auditService: AuditService,
     private cipherService: CipherService,
     private syncService: SyncService,
-    private apiService: ApiService,
+    private masterPasswordApiService: MasterPasswordApiService,
     private router: Router,
     dialogService: DialogService,
     private userVerificationService: UserVerificationService,
@@ -213,14 +213,14 @@ export class ChangePasswordComponent
 
     try {
       if (this.rotateUserKey) {
-        this.formPromise = this.apiService.postPassword(request).then(async () => {
+        this.formPromise = this.masterPasswordApiService.postPassword(request).then(async () => {
           // we need to save this for local masterkey verification during rotation
           await this.masterPasswordService.setMasterKeyHash(newLocalKeyHash, userId as UserId);
           await this.masterPasswordService.setMasterKey(newMasterKey, userId as UserId);
           return this.updateKey();
         });
       } else {
-        this.formPromise = this.apiService.postPassword(request);
+        this.formPromise = this.masterPasswordApiService.postPassword(request);
       }
 
       await this.formPromise;
