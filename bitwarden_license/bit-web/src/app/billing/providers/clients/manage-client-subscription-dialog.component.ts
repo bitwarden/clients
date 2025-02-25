@@ -11,7 +11,8 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { UpdateClientOrganizationRequest } from "@bitwarden/common/billing/models/request/update-client-organization.request";
 import { ProviderPlanResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
+import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 
 type ManageClientSubscriptionDialogParams = {
   organization: ProviderOrganizationOrganizationDetailsResponse;
@@ -56,30 +57,34 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
     @Inject(DIALOG_DATA) protected dialogParams: ManageClientSubscriptionDialogParams,
     private dialogRef: DialogRef<ManageClientSubscriptionDialogResultType>,
     private i18nService: I18nService,
-    private toastService: ToastService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    const response = await this.billingApiService.getProviderSubscription(
-      this.dialogParams.provider.id,
-    );
+    try {
+      const response = await this.billingApiService.getProviderSubscription(
+        this.dialogParams.provider.id,
+      );
 
-    this.providerPlan = response.plans.find(
-      (plan) => plan.planName === this.dialogParams.organization.plan,
-    );
+      this.providerPlan = response.plans.find(
+        (plan) => plan.planName === this.dialogParams.organization.plan,
+      );
 
-    this.assignedSeats = this.providerPlan.assignedSeats;
-    this.openSeats = this.providerPlan.seatMinimum - this.providerPlan.assignedSeats;
-    this.purchasedSeats = this.providerPlan.purchasedSeats;
-    this.seatMinimum = this.providerPlan.seatMinimum;
+      this.assignedSeats = this.providerPlan.assignedSeats;
+      this.openSeats = this.providerPlan.seatMinimum - this.providerPlan.assignedSeats;
+      this.purchasedSeats = this.providerPlan.purchasedSeats;
+      this.seatMinimum = this.providerPlan.seatMinimum;
 
-    this.formGroup.controls.assignedSeats.addValidators(
-      this.isServiceUserWithPurchasedSeats
-        ? this.createPurchasedSeatsValidator()
-        : this.createUnassignedSeatsValidator(),
-    );
-
-    this.loading = false;
+      this.formGroup.controls.assignedSeats.addValidators(
+        this.isServiceUserWithPurchasedSeats
+          ? this.createPurchasedSeatsValidator()
+          : this.createUnassignedSeatsValidator(),
+      );
+    } catch (error) {
+      this.billingNotificationService.handleError(error);
+    } finally {
+      this.loading = false;
+    }
   }
 
   submit = async () => {
@@ -91,24 +96,25 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
       return;
     }
 
-    const request = new UpdateClientOrganizationRequest();
-    request.assignedSeats = this.formGroup.value.assignedSeats;
-    request.name = this.dialogParams.organization.organizationName;
+    try {
+      const request = new UpdateClientOrganizationRequest();
+      request.assignedSeats = this.formGroup.value.assignedSeats;
+      request.name = this.dialogParams.organization.organizationName;
 
-    await this.billingApiService.updateProviderClientOrganization(
-      this.dialogParams.provider.id,
-      this.dialogParams.organization.id,
-      request,
-    );
+      await this.billingApiService.updateProviderClientOrganization(
+        this.dialogParams.provider.id,
+        this.dialogParams.organization.id,
+        request,
+      );
 
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("subscriptionUpdated"),
-    });
+      this.billingNotificationService.showSuccess(this.i18nService.t("subscriptionUpdated"));
 
-    this.loading = false;
-    this.dialogRef.close(this.ResultType.Submitted);
+      this.dialogRef.close(this.ResultType.Submitted);
+    } catch (error) {
+      this.billingNotificationService.handleError(error);
+    } finally {
+      this.loading = false;
+    }
   };
 
   createPurchasedSeatsValidator =
