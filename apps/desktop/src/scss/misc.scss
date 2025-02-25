@@ -243,14 +243,12 @@ p.lead {
 }
 
 #web-authn-frame {
-  background: url("../images/loading.svg") 0 0 no-repeat;
-  height: 250px;
-  margin: 0 0 15px 0;
+  height: 40px;
 
   iframe {
-    width: 100%;
-    height: 100%;
     border: none;
+    height: 100%;
+    width: 100%;
   }
 }
 
