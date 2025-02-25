@@ -1488,7 +1488,7 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  }, 
+  },
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
   },
@@ -10507,6 +10507,9 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"

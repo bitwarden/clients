@@ -35,7 +35,7 @@ export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordSer
     ]);
 
     if (!reliable || wellKnownChangeUrl == null) {
-      return cipher.login.uri;
+      return url.origin;
     }
 
     return wellKnownChangeUrl;

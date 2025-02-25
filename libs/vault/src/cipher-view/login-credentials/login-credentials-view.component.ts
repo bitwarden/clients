@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, inject, Input } from "@angular/core";
+import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
 import { Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -9,7 +9,10 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -17,6 +20,7 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
+  LinkModule,
   IconButtonModule,
   BadgeModule,
   ColorPasswordModule,
@@ -46,10 +50,14 @@ type TotpCodeValues = {
     ColorPasswordModule,
     BitTotpCountdownComponent,
     ReadOnlyCipherCardComponent,
+    LinkModule,
   ],
 })
 export class LoginCredentialsViewComponent {
   @Input() cipher: CipherView;
+  @Input() activeUserId: UserId;
+  @Input() hadPendingChangePasswordTask: boolean;
+  @Output() handleChangePassword = new EventEmitter<CipherView>();
 
   isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
@@ -59,6 +67,8 @@ export class LoginCredentialsViewComponent {
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
   totpCodeCopyObj: TotpCodeValues;
+  isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
+
   private datePipe = inject(DatePipe);
 
   constructor(
@@ -67,6 +77,7 @@ export class LoginCredentialsViewComponent {
     private premiumUpgradeService: PremiumUpgradePromptService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {}
 
   get fido2CredentialCreationDateValue(): string {
@@ -110,5 +121,9 @@ export class LoginCredentialsViewComponent {
       false,
       this.cipher.organizationId,
     );
+  }
+
+  launchChangePasswordEvent(cipher: CipherView) {
+    this.handleChangePassword.emit(cipher);
   }
 }
