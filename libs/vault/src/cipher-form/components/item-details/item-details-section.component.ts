@@ -12,6 +12,7 @@ import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -74,6 +75,8 @@ export class ItemDetailsSectionComponent implements OnInit {
   /** The email address associated with the active account */
   protected userEmail$ = this.accountService.activeAccount$.pipe(map((account) => account.email));
 
+  protected organizations: Organization[] = [];
+
   @Input({ required: true })
   config: CipherFormConfig;
 
@@ -88,10 +91,6 @@ export class ItemDetailsSectionComponent implements OnInit {
    */
   get partialEdit(): boolean {
     return this.config.mode === "partial-edit";
-  }
-
-  get organizations(): Organization[] {
-    return this.config.organizations;
   }
 
   get allowPersonalOwnership() {
@@ -186,6 +185,10 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.organizations = this.config.organizations.sort(
+      Utils.getSortFunction(this.i18nService, "name"),
+    );
+
     if (!this.allowPersonalOwnership && this.organizations.length === 0) {
       throw new Error("No organizations available for ownership.");
     }
