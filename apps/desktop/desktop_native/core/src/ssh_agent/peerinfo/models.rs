@@ -52,4 +52,8 @@ impl PeerInfo {
         self.is_forwarding
             .store(value, std::sync::atomic::Ordering::Relaxed);
     }
+
+    pub fn unknown() -> Self {
+        Self::new(0, 0, "Unknown application".to_string())
+    }
 }
