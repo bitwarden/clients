@@ -4,7 +4,6 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import {
   getOrganizationById,
@@ -17,13 +16,27 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService } from "@bitwarden/components";
+import { PasswordRepromptService, CipherFormConfigService } from "@bitwarden/vault";
 
+// eslint-disable-next-line no-restricted-imports
+import { RoutedVaultFilterBridgeService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
+import { RoutedVaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/routed-vault-filter.service";
+import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent } from "../exposed-passwords-report.component";
 
 @Component({
   selector: "app-org-exposed-passwords-report",
   templateUrl: "../exposed-passwords-report.component.html",
+  providers: [
+    {
+      provide: CipherFormConfigService,
+      useClass: AdminConsoleCipherFormConfigService,
+    },
+    AdminConsoleCipherFormConfigService,
+    RoutedVaultFilterService,
+    RoutedVaultFilterBridgeService,
+  ],
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class ExposedPasswordsReportComponent
@@ -35,23 +48,27 @@ export class ExposedPasswordsReportComponent
   constructor(
     cipherService: CipherService,
     auditService: AuditService,
-    modalService: ModalService,
+    dialogService: DialogService,
     organizationService: OrganizationService,
     protected accountService: AccountService,
     private route: ActivatedRoute,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
+    cipherFormService: CipherFormConfigService,
+    adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     super(
       cipherService,
       auditService,
       organizationService,
+      dialogService,
       accountService,
-      modalService,
       passwordRepromptService,
       i18nService,
       syncService,
+      cipherFormService,
+      adminConsoleCipherFormConfigService,
     );
   }
 

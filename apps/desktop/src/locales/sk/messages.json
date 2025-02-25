@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Pri spustení aplikácie vyžadovať heslo alebo PIN"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Pri spustení aplikácie vyžadovať heslo"
+  },
   "recommendedForSecurity": {
     "message": "Odporúča sa z hľadiska bezpečnosti."
   },
@@ -2629,6 +2632,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Neplatný token API $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť. Obráťte sa na svojho poskytovateľa služieb a požiadajte o pomoc.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "Služba $SERVICENAME$ odmietla vašu žiadosť: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
