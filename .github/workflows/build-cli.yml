@@ -332,9 +332,7 @@ jobs:
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
           EXE_PATH: dist/${{ matrix.license_type.build_prefix }}/windows/bw.exe
         run: |
-          echo $env:GITHUB_ACTION_PATH
           . .\scripts\sign-cli.ps1
-          '& $env:GITHUB_ACTION_PATH/./scripts/sign-cli.ps1'
 
       - name: Package Chocolatey
         shell: pwsh
