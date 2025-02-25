@@ -25,6 +25,7 @@ export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.compon
 export * as VaultIcons from "./icons";
 
 export * from "./tasks";
+export * from "./notifications";
 
 export * from "./abstractions/change-login-password.service";
 export * from "./services/default-change-login-password.service";

@@ -53,6 +53,7 @@ import { PopupFooterComponent } from "./../../../../../platform/popup/layout/pop
 import { PopupHeaderComponent } from "./../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "./../../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupAutofillService } from "./../../../services/vault-popup-autofill.service";
+import { EndUserNotificationCenterService } from "@bitwarden/vault/src/notifications";
 
 /**
  * The types of actions that can be triggered when loading the view vault item popout via the
@@ -114,6 +115,7 @@ export class ViewV2Component {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
+    private endUserNotificationCenterService: EndUserNotificationCenterService,
   ) {
     this.subscribeToParams();
   }
@@ -148,6 +150,8 @@ export class ViewV2Component {
             false,
             cipher.organizationId,
           );
+
+          await this.endUserNotificationCenterService.getNotifications(this.activeUserId);
         }),
         takeUntilDestroyed(),
       )
