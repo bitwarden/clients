@@ -2,7 +2,14 @@
 // @ts-strict-ignore
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  AsyncValidatorFn,
+  FormBuilder,
+  FormControl,
+  ValidationErrors,
+  Validators,
+} from "@angular/forms";
 import {
   combineLatest,
   firstValueFrom,
@@ -14,7 +21,7 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs";
-import { first } from "rxjs/operators";
+import { catchError, first, tap } from "rxjs/operators";
 
 import {
   CollectionAccessSelectionView,
@@ -24,6 +31,8 @@ import {
   OrganizationUserUserMiniResponse,
   CollectionResponse,
   CollectionView,
+  Collection,
+  CollectionService,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
@@ -32,6 +41,8 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -47,10 +58,16 @@ import {
   convertToPermission,
   convertToSelectionView,
 } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
+import { openChangePlanDialog } from "../../../billing/organizations/change-plan-dialog.component";
 
 export enum CollectionDialogTabType {
   Info = 0,
   Access = 1,
+}
+
+enum ButtonType {
+  Upgrade = "upgrade",
+  Save = "save",
 }
 
 export interface CollectionDialogParams {
@@ -76,6 +93,7 @@ export enum CollectionDialogAction {
   Saved = "saved",
   Canceled = "canceled",
   Deleted = "deleted",
+  Upgrade = "upgrade",
 }
 
 @Component({
@@ -103,6 +121,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected PermissionMode = PermissionMode;
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
+  protected collections: Collection[];
+  protected buttonDisplayName: ButtonType = ButtonType.Save;
+  private orgExceedingCollectionLimit!: Organization;
 
   constructor(
     @Inject(DIALOG_DATA) private params: CollectionDialogParams,
@@ -118,6 +139,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private accountService: AccountService,
     private toastService: ToastService,
+    private collectionService: CollectionService,
+    private configService: ConfigService,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
   }
@@ -146,6 +169,18 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       // Opened from the org vault
       this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
       await this.loadOrg(this.params.organizationId);
+    }
+
+    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    );
+
+    if (isBreadcrumbEventLogsEnabled) {
+      this.collections = await this.collectionService.getAll();
+      this.organizationSelected.setAsyncValidators(
+        this.validateFreeOrgCollectionLimit(this.organizations$, this.collections),
+      );
+      this.formGroup.updateValueAndValidity();
     }
   }
 
@@ -259,6 +294,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       });
   }
 
+  get organizationSelected() {
+    return this.formGroup.controls.selectedOrg;
+  }
+
   protected get collectionId() {
     return this.params.collectionId;
   }
@@ -282,6 +321,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     }
 
     this.formGroup.markAllAsTouched();
+
+    if (this.buttonDisplayName == ButtonType.Upgrade) {
+      this.close(CollectionDialogAction.Upgrade);
+      this.changePlan(this.orgExceedingCollectionLimit);
+      return;
+    }
 
     if (this.formGroup.invalid) {
       const accessTabError = this.formGroup.controls.access.hasError("managePermissionRequired");
@@ -367,6 +412,56 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private validateFreeOrgCollectionLimit(
+    orgs: Observable<Organization[]>,
+    collections: Collection[],
+  ): AsyncValidatorFn {
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+      if (!(control instanceof FormControl)) {
+        return of(null);
+      }
+
+      const orgId = control.value;
+
+      if (!orgId) {
+        return of(null);
+      }
+
+      return orgs.pipe(
+        map((organizations) => organizations.find((org) => org.id === orgId)),
+        map((org) => {
+          if (!org) {
+            return null;
+          }
+
+          const orgCollections = collections.filter((c) => c.organizationId === org.id);
+          const hasReachedLimit = org.maxCollections === orgCollections.length;
+
+          if (hasReachedLimit) {
+            this.orgExceedingCollectionLimit = org;
+            return { cannotCreateCollections: true };
+          }
+
+          return null;
+        }),
+        tap((errors) => {
+          this.buttonDisplayName = errors ? ButtonType.Upgrade : ButtonType.Save;
+        }),
+        catchError(() => of(null)),
+      );
+    };
+  }
+
+  private changePlan(org: Organization) {
+    openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: org.id,
+        subscription: null,
+        productTierType: org.productTierType,
+      },
+    });
   }
 
   private handleAddAccessWarning(): boolean {
