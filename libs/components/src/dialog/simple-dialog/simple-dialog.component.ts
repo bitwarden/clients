@@ -1,4 +1,4 @@
-import { Component, ContentChild, Directive } from "@angular/core";
+import { booleanAttribute, Component, ContentChild, Directive, input } from "@angular/core";
 
 import { TypographyDirective } from "../../typography/typography.directive";
 import { fadeIn } from "../animations";
@@ -19,6 +19,11 @@ export class IconDirective {}
 })
 export class SimpleDialogComponent {
   @ContentChild(IconDirective) icon!: IconDirective;
+
+  /**
+   * Optional flag to hide the dialog's center icon. Defaults to false.
+   */
+  hideIcon = input(false, { transform: booleanAttribute });
 
   get hasIcon() {
     return this.icon != null;
