@@ -26,7 +26,7 @@ impl PeerInfo {
         Self {
             uid: 0,
             pid: 0,
-            process_name: "Unknown".to_string(),
+            process_name: "Unknown application".to_string(),
             is_forwarding: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -51,9 +51,5 @@ impl PeerInfo {
     pub fn set_forwarding(&self, value: bool) {
         self.is_forwarding
             .store(value, std::sync::atomic::Ordering::Relaxed);
-    }
-
-    pub fn unknown() -> Self {
-        Self::new(0, 0, "Unknown application".to_string())
     }
 }
