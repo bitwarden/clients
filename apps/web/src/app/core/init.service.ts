@@ -13,6 +13,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { testProxy } from "@bitwarden/common/platform/services/sdk/test-ipc-proxy";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
@@ -61,6 +62,8 @@ export class InitService {
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
+
+      void testProxy();
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
