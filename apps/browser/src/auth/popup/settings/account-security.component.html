@@ -5,7 +5,7 @@
     </ng-container>
   </popup-header>
 
-  <div class="tw-bg-background-alt tw-p-2" [formGroup]="form">
+  <div [formGroup]="form">
     <bit-section>
       <bit-section-header>
         <h2 bitTypography="h6">{{ "unlockMethods" | i18n }}</h2>
@@ -59,6 +59,7 @@
         </bit-form-control>
       </bit-card>
     </bit-section>
+
     <bit-section>
       <bit-section-header>
         <h2 bitTypography="h6">{{ "vaultTimeoutHeader" | i18n }}</h2>
@@ -71,6 +72,7 @@
           ngDefaultControl
         >
         </auth-vault-timeout-input>
+
         <bit-form-field disableMargin>
           <bit-label for="vaultTimeoutAction">{{ "vaultTimeoutAction1" | i18n }}</bit-label>
           <bit-select id="vaultTimeoutAction" formControlName="vaultTimeoutAction">
@@ -81,24 +83,24 @@
             >
             </bit-option>
           </bit-select>
-          <bit-hint class="tw-text-sm" id="vaultTimeoutActionHelp">
-            {{ "vaultTimeoutActionDesc" | i18n }}
-          </bit-hint>
+
           <bit-hint *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)">
             {{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}<br />
           </bit-hint>
         </bit-form-field>
-        <bit-hint *ngIf="hasVaultTimeoutPolicy">
+
+        <bit-hint *ngIf="hasVaultTimeoutPolicy" class="tw-mt-4">
           {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
         </bit-hint>
       </bit-card>
     </bit-section>
+
     <bit-section>
       <bit-section-header>
         <h2 bitTypography="h6">{{ "otherOptions" | i18n }}</h2>
       </bit-section-header>
       <bit-item>
-        <button bit-item-content type="button" appStopClick (click)="fingerprint()">
+        <button bit-item-content type="button" appStopClick (click)="openAcctFingerprintDialog()">
           {{ "fingerprintPhrase" | i18n }}
         </button>
       </bit-item>
