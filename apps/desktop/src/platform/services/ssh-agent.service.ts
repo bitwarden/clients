@@ -148,6 +148,8 @@ export class SshAgentService implements OnDestroy {
           const isListRequest = message.isListRequest as boolean;
           const requestId = message.requestId as number;
           let application = message.processName as string;
+          const namespace = message.namespace as string;
+          const isAgentForwarding = message.isAgentForwarding as boolean;
           if (application == "") {
             application = this.i18nService.t("unknownApplication");
           }
@@ -181,6 +183,8 @@ export class SshAgentService implements OnDestroy {
             this.dialogService,
             cipher.name,
             application,
+            isAgentForwarding,
+            namespace,
           );
 
           const result = await firstValueFrom(dialogRef.closed);

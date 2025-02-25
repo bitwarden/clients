@@ -123,6 +123,7 @@
       matchPackageNames: [
         "@emotion/css",
         "@webcomponents/custom-elements",
+        "bytes",
         "concurrently",
         "cross-env",
         "del",
