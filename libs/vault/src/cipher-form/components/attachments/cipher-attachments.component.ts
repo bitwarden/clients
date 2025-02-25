@@ -114,7 +114,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      this.submitBtn.disabled = status !== "VALID";
+      this.submitBtn.disabled.set(status !== "VALID");
     });
   }
 
@@ -127,7 +127,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
 
     // Update the initial state of the submit button
     if (this.submitBtn) {
-      this.submitBtn.disabled = !this.attachmentForm.valid;
+      this.submitBtn.disabled.set(!this.attachmentForm.valid);
     }
   }
 
@@ -137,7 +137,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      this.submitBtn.loading = loading;
+      this.submitBtn.loading.set(loading);
     });
 
     this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroy$)).subscribe((disabled) => {
@@ -145,7 +145,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      this.submitBtn.disabled = disabled;
+      this.submitBtn.disabled.set(disabled);
     });
   }
 
