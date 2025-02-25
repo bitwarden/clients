@@ -82,10 +82,10 @@ pub fn register() -> i32 {
     let authenticator_name: HSTRING = "Bitwarden Desktop Authenticator".into();
     let authenticator_name_ptr = PCWSTR(authenticator_name.as_ptr()).as_ptr();
 
-    let clsid: HSTRING = "0f7dc5d9-69ce-4652-8572-6877fd695062".into();
+    let clsid: HSTRING = "{0f7dc5d9-69ce-4652-8572-6877fd695062}".into();
     let clsid_ptr = PCWSTR(clsid.as_ptr()).as_ptr();
 
-    let aaguid: HSTRING = "d548826e-79b4-db40-a3d8-11116f7e8349".into();
+    let aaguid: HSTRING = "{d548826e-79b4-db40-a3d8-11116f7e8349}".into();
     let aaguid_ptr = PCWSTR(aaguid.as_ptr()).as_ptr();
 
     let relying_party_id: HSTRING = "bitwarden.com".into();
@@ -152,8 +152,8 @@ pub fn register() -> i32 {
         pwszAuthenticatorName: authenticator_name_ptr,
         pwszPluginClsId: clsid_ptr,
         pwszPluginRpId: relying_party_id_ptr,
-        pwszLightThemeLogo: js_ptr,
-        pwszDarkThemeLogo: js_ptr,
+        pwszLightThemeLogo: ptr::null(), // unused by Windows
+        pwszDarkThemeLogo: ptr::null(), // unused by Windows
         cbAuthenticatorInfo: h.len() as u32,
         pbAuthenticatorInfo: h.as_mut_ptr(),
     };
