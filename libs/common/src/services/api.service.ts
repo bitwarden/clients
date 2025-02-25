@@ -1913,6 +1913,7 @@ export class ApiService implements ApiServiceAbstraction {
     let requestBody: any = null;
     const headers = new Headers({
       "Device-Type": this.deviceType,
+      "Device-Identifier": await this.appIdService.getAppId(),
     });
 
     if (flagEnabled("prereleaseBuild")) {
