@@ -15,6 +15,7 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -44,7 +45,9 @@ import {
   NewItemDropdownV2Component,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown-v2.component";
+import { NewSettingsCalloutComponent } from "./new-settings-callout/new-settings-callout.component";
 import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
+import { VaultPageService } from "./vault-page.service";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -77,7 +80,9 @@ enum VaultState {
     DecryptionFailureDialogComponent,
     BannerComponent,
     AtRiskPasswordCalloutComponent,
+    NewSettingsCalloutComponent,
   ],
+  providers: [VaultPageService],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
@@ -115,6 +120,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
 
   protected VaultStateEnum = VaultState;
+  protected showNewCustomizationSettingsCallout = false;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
@@ -124,6 +130,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private destroyRef: DestroyRef,
     private cipherService: CipherService,
     private dialogService: DialogService,
+    private vaultProfileService: VaultProfileService,
+    private vaultPageService: VaultPageService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -178,7 +186,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.vaultScrollPositionService.stop();
   }
 

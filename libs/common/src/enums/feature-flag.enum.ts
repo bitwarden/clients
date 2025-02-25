@@ -29,9 +29,7 @@ export enum FeatureFlag {
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
 
   AC1795_UpdatedSubscriptionStatusSection = "AC-1795_updated-subscription-status-section",
-  PersistPopupView = "persist-popup-view",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
-  TwoFactorComponentRefactor = "two-factor-component-refactor",
   VaultBulkManagementAction = "vault-bulk-management-action",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   SSHKeyVaultItem = "ssh-key-vault-item",
@@ -88,9 +86,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
   [FeatureFlag.AC1795_UpdatedSubscriptionStatusSection]: FALSE,
-  [FeatureFlag.PersistPopupView]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
-  [FeatureFlag.TwoFactorComponentRefactor]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
   [FeatureFlag.SSHKeyVaultItem]: FALSE,
