@@ -52,10 +52,10 @@ export class CredentialGeneratorDialogComponent {
     if (selected) {
       this.buttonLabel = selected.useGeneratedValue;
     } else {
-      // clear the credential value when the user is
-      // selecting the credential generation algorithm
-      this.credentialValue = undefined;
+      // default to email
+      this.buttonLabel = this.i18nService.t("useThisEmail");
     }
+    this.credentialValue = undefined;
   };
 
   applyCredentials = () => {

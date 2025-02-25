@@ -97,7 +97,7 @@ export class VaultGeneratorDialogComponent {
     if (selected) {
       this.selectButtonText = selected.useGeneratedValue;
     } else {
-      // default to the email
+      // default to email
       this.selectButtonText = this.i18nService.t("useThisEmail");
     }
     this.generatedValue = undefined;

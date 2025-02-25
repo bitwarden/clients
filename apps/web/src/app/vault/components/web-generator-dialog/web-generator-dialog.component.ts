@@ -84,10 +84,10 @@ export class WebVaultGeneratorDialogComponent {
     if (selected) {
       this.buttonLabel = selected.useGeneratedValue;
     } else {
-      // clear the credential value when the user is
-      // selecting the credential generation algorithm
-      this.generatedValue = undefined;
+      // default to email
+      this.buttonLabel = this.i18nService.t("useThisEmail");
     }
+    this.generatedValue = undefined;
   };
 
   /**
