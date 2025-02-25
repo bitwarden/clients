@@ -1,5 +1,9 @@
-<app-header></app-header>
-
+@let usePlaceHolderEvents = !organization?.useEvents && (isBreadcrumbEventLogsEnabled$ | async);
+<app-header>
+  <span bitBadge variant="primary" slot="title-suffix" *ngIf="usePlaceHolderEvents">
+    {{ "upgrade" | i18n }}
+  </span>
+</app-header>
 <div class="tw-mb-4" [formGroup]="eventsForm">
   <div class="tw-mt-4 tw-flex tw-items-center">
     <bit-form-field>
@@ -31,6 +35,7 @@
         bitFormButton
         buttonType="primary"
         [bitAction]="refreshEvents"
+        [disabled]="usePlaceHolderEvents"
       >
         {{ "update" | i18n }}
       </button>
@@ -42,7 +47,7 @@
         bitButton
         bitFormButton
         [bitAction]="exportEvents"
-        [disabled]="dirtyDates"
+        [disabled]="dirtyDates || usePlaceHolderEvents"
       >
         <span>{{ "export" | i18n }}</span>
         <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
@@ -50,6 +55,13 @@
     </form>
   </div>
 </div>
+<bit-callout
+  type="info"
+  [title]="'upgradeEventLogTitle' | i18n"
+  *ngIf="loaded && usePlaceHolderEvents"
+>
+  {{ "upgradeEventLogMessage" | i18n }}
+</bit-callout>
 <ng-container *ngIf="!loaded">
   <i
     class="bwi bwi-spinner bwi-spin tw-text-muted"
@@ -59,8 +71,10 @@
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </ng-container>
 <ng-container *ngIf="loaded">
-  <p *ngIf="!events || !events.length">{{ "noEventsInList" | i18n }}</p>
-  <bit-table *ngIf="events && events.length">
+  @let displayedEvents = organization?.useEvents ? events : placeholderEvents;
+
+  <p *ngIf="!displayedEvents || !displayedEvents.length">{{ "noEventsInList" | i18n }}</p>
+  <bit-table *ngIf="displayedEvents && displayedEvents.length">
     <ng-container header>
       <tr>
         <th bitCell>{{ "timestamp" | i18n }}</th>
@@ -70,8 +84,10 @@
       </tr>
     </ng-container>
     <ng-template body>
-      <tr bitRow *ngFor="let e of events" alignContent="top">
-        <td bitCell class="tw-whitespace-nowrap">{{ e.date | date: "medium" }}</td>
+      <tr bitRow *ngFor="let e of displayedEvents; index as i" alignContent="top">
+        <td bitCell class="tw-whitespace-nowrap">
+          {{ i > 4 && usePlaceHolderEvents ? "******" : (e.date | date: "medium") }}
+        </td>
         <td bitCell>
           <span title="{{ e.appName }}, {{ e.ip }}">{{ e.appName }}</span>
         </td>
@@ -91,4 +107,27 @@
   >
     {{ "loadMore" | i18n }}
   </button>
+</ng-container>
+
+<ng-container *ngIf="loaded && usePlaceHolderEvents">
+  <div
+    class="tw-relative tw--top-72 tw-bg-[#ffffff] tw-bg-opacity-90 tw-pb-5 tw-flex tw-items-center tw-justify-center"
+  >
+    <div
+      class="tw-bg-[#ffffff] tw-max-w-xl tw-flex-col tw-justify-center tw-text-center tw-p-5 tw-px-10 tw-rounded tw-border-0 tw-border-b tw-border-secondary-300 tw-border-solid mt-5"
+    >
+      <i class="bwi bwi-2x bwi-business text-primary"></i>
+
+      <p class="tw-font-bold mt-2">
+        {{ "limitedEventLogs" | i18n: ProductTierType[organization?.productTierType] }}
+      </p>
+      <p>
+        {{ "upgradeForFullEvents" | i18n }}
+      </p>
+
+      <button type="button" class="tw-mt-1" bitButton buttonType="primary" (click)="changePlan()">
+        {{ "changeBillingPlan" | i18n }}
+      </button>
+    </div>
+  </div>
 </ng-container>
