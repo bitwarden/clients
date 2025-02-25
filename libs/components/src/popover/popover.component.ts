@@ -5,12 +5,12 @@ import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from "
 
 import { IconButtonModule } from "../icon-button/icon-button.module";
 import { SharedModule } from "../shared/shared.module";
-import { TypographyDirective } from "../typography/typography.directive";
+import { TypographyModule } from "../typography";
 
 @Component({
   standalone: true,
   selector: "bit-popover",
-  imports: [A11yModule, IconButtonModule, SharedModule, TypographyDirective],
+  imports: [A11yModule, IconButtonModule, SharedModule, TypographyModule],
   templateUrl: "./popover.component.html",
   exportAs: "popoverComponent",
 })
