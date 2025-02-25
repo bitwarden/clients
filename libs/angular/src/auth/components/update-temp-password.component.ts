@@ -8,6 +8,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
@@ -53,6 +54,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     keyService: KeyService,
     messagingService: MessagingService,
     private apiService: ApiService,
+    private masterPasswordApiService: MasterPasswordApiService,
     private syncService: SyncService,
     private logService: LogService,
     private userVerificationService: UserVerificationService,
@@ -202,7 +204,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     request.newMasterPasswordHash = masterPasswordHash;
     request.masterPasswordHint = this.hint;
 
-    return this.apiService.putUpdateTempPassword(request);
+    return this.masterPasswordApiService.putUpdateTempPassword(request);
   }
 
   private async updatePassword(newMasterPasswordHash: string, userKey: [UserKey, EncString]) {
