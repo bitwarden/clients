@@ -196,7 +196,6 @@ describe("LoginStrategyService", () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
     apiService.postIdentityToken.mockResolvedValueOnce(
       new IdentityTwoFactorResponse({
-        TwoFactorProviders: ["0"],
         TwoFactorProviders2: { 0: null },
         error: "invalid_grant",
         error_description: "Two factor required.",
@@ -255,7 +254,6 @@ describe("LoginStrategyService", () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
     apiService.postIdentityToken.mockResolvedValue(
       new IdentityTwoFactorResponse({
-        TwoFactorProviders: ["0"],
         TwoFactorProviders2: { 0: null },
         error: "invalid_grant",
         error_description: "Two factor required.",
