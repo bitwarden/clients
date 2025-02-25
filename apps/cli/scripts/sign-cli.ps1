@@ -27,10 +27,10 @@ function SignExe {
         [string] $exePath,
 
         # [Parameter(Mandatory=$false)]
-        # [string] $hashAlgorithm = "sha384"
+        # [string] $hashAlgorithm, # -fd option
 
         # [Parameter(Mandatory=$false)]
-        # [string] $site
+        # [string] $site, # -du option
 
         [Parameter(Mandatory=$false)]
         [string] $timestampService = "http://timestamp.digicert.com"
