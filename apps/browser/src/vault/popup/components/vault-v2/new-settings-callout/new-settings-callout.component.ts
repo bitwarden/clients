@@ -9,6 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { ButtonModule, PopoverModule } from "@bitwarden/components";
 
 import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy-buttons.service";
@@ -32,12 +33,16 @@ export class NewSettingsCalloutComponent implements OnInit, OnDestroy {
     private router: Router,
     private logService: LogService,
     private copyButtonService: VaultPopupCopyButtonsService,
+    private vaultSettingsService: VaultSettingsService,
   ) {}
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const showQuickCopyActions = await firstValueFrom(this.copyButtonService.showQuickCopyActions$);
+    const clickItemsToAutofillVaultView = await firstValueFrom(
+      this.vaultSettingsService.clickItemsToAutofillVaultView$,
+    );
 
     let profileCreatedDate: Date;
 
@@ -55,6 +60,7 @@ export class NewSettingsCalloutComponent implements OnInit, OnDestroy {
 
     this.showNewCustomizationSettingsCallout =
       !showQuickCopyActions &&
+      !clickItemsToAutofillVaultView &&
       !hasCalloutBeenDismissed &&
       profileCreatedDate < new Date("2024-12-25");
   }
