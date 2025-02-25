@@ -17,7 +17,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { ChangeLoginPasswordService, DefaultTaskService } from "@bitwarden/vault";
+import { ChangeLoginPasswordService, TaskService } from "@bitwarden/vault";
 
 import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";
 
@@ -59,7 +59,6 @@ describe("EmergencyViewDialogComponent", () => {
       .overrideComponent(EmergencyViewDialogComponent, {
         remove: {
           providers: [
-            { provide: DefaultTaskService, useClass: DefaultTaskService },
             { provide: PlatformUtilsService, useValue: PlatformUtilsService },
             {
               provide: ChangeLoginPasswordService,
@@ -71,8 +70,8 @@ describe("EmergencyViewDialogComponent", () => {
         add: {
           providers: [
             {
-              provide: DefaultTaskService,
-              useValue: mock<DefaultTaskService>(),
+              provide: TaskService,
+              useValue: mock<TaskService>(),
             },
             { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
             {

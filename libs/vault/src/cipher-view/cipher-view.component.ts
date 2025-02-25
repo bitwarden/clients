@@ -22,7 +22,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { AnchorLinkDirective, CalloutModule, SearchModule } from "@bitwarden/components";
 
 import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
-import { DefaultTaskService, SecurityTaskType } from "../tasks";
+import { TaskService, SecurityTaskType } from "../tasks";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
@@ -83,7 +83,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     private collectionService: CollectionService,
     private folderService: FolderService,
     private accountService: AccountService,
-    private defaultTaskService: DefaultTaskService,
+    private defaultTaskService: TaskService,
     private platformUtilsService: PlatformUtilsService,
     private changeLoginPasswordService: ChangeLoginPasswordService,
     private configService: ConfigService,

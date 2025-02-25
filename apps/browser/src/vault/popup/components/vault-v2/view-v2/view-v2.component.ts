@@ -44,7 +44,7 @@ import {
   CipherViewComponent,
   CopyCipherFieldService,
   DefaultChangeLoginPasswordService,
-  DefaultTaskService,
+  TaskService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -94,7 +94,7 @@ type LoadAction =
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
-    { provide: DefaultTaskService, useClass: DefaultTaskService },
+    { provide: TaskService, useClass: TaskService },
     { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
