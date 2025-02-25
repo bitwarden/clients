@@ -11,6 +11,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
@@ -36,6 +37,7 @@ export class InitService {
     private userAutoUnlockKeyService: UserAutoUnlockKeyService,
     private accountService: AccountService,
     private versionService: VersionService,
+    private ipcService: IpcService,
     private sdkLoadService: SdkLoadService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
@@ -61,6 +63,7 @@ export class InitService {
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
+      void this.ipcService.init();
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
