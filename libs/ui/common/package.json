@@ -11,5 +11,13 @@
     "type": "git",
     "url": "https://github.com/bitwarden/clients"
   },
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./setup-jest": {
+      "import": "./src/setup-jest.ts"
+    }
+  }
 }

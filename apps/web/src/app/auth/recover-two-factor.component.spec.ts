@@ -70,6 +70,8 @@ describe("RecoverTwoFactorComponent", () => {
         },
       ],
       imports: [I18nPipe],
+      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
+      errorOnUnknownElements: false,
     });
 
     fixture = TestBed.createComponent(RecoverTwoFactorComponent);

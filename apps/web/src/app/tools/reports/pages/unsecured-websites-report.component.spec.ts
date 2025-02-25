@@ -86,6 +86,8 @@ describe("UnsecuredWebsitesReportComponent", () => {
         },
       ],
       schemas: [],
+      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
+      errorOnUnknownElements: false,
     }).compileComponents();
   });
 
