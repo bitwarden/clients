@@ -12,6 +12,7 @@ type Args = {
   ciphers: NotificationCipherData[];
   notificationType: NotificationType;
   theme: Theme;
+  handleEditOrUpdateAction: (e: Event) => void;
 };
 
 export default {

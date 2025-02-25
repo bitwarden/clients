@@ -1,10 +1,10 @@
 [package]
-edition = "2021"
-exclude = ["index.node"]
-license = "GPL-3.0"
 name = "desktop_napi"
-version = "0.0.0"
-publish = false
+exclude = ["index.node"]
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
 
 [lib]
 crate-type = ["cdylib"]
@@ -16,15 +16,15 @@ manual_test = []
 [dependencies]
 base64 = "=0.22.1"
 hex = "=0.4.3"
-anyhow = "=1.0.94"
+anyhow = { workspace = true }
 desktop_core = { path = "../core" }
 napi = { version = "=2.16.15", features = ["async"] }
 napi-derive = "=2.16.13"
 serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
-tokio.workspace = true
-tokio-util.workspace = true
-tokio-stream.workspace = true
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tokio-stream = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 windows-registry = "=0.4.0"

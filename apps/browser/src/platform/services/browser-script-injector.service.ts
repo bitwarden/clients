@@ -1,6 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { isUrlInList } from "@bitwarden/common/autofill/utils";
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -39,23 +40,20 @@ export class BrowserScriptInjectorService extends ScriptInjectorService {
     }
 
     const tab = tabId && (await BrowserApi.getTab(tabId));
-    const tabURL = tab?.url ? new URL(tab.url) : null;
 
-    // Check if the tab URI is on the disabled URIs list
+    // Check if the tab URL is on the disabled URLs list
     let injectionAllowedInTab = true;
     const blockedDomains = await firstValueFrom(
       this.domainSettingsService.blockedInteractionsUris$,
     );
 
-    if (blockedDomains && tabURL?.hostname) {
-      const blockedDomainsSet = new Set(Object.keys(blockedDomains));
-
-      injectionAllowedInTab = !(tabURL && blockedDomainsSet.has(tabURL.hostname));
+    if (blockedDomains && tab?.url) {
+      injectionAllowedInTab = !isUrlInList(tab?.url, blockedDomains);
     }
 
     if (!injectionAllowedInTab) {
       this.logService.warning(
-        `${injectDetails.file} was not injected because ${tabURL?.hostname || "the tab URI"} is on the user's blocked domains list.`,
+        `${injectDetails.file} was not injected because ${tab?.url || "the tab URL"} is on the user's blocked domains list.`,
       );
       return;
     }

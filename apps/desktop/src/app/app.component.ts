@@ -17,7 +17,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
-import { LogoutReason } from "@bitwarden/auth/common";
+import { DESKTOP_SSO_CALLBACK, LogoutReason } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
@@ -299,7 +299,7 @@ export class AppComponent implements OnInit, OnDestroy {
             const queryParams = {
               code: message.code,
               state: message.state,
-              redirectUri: message.redirectUri ?? "bitwarden://sso-callback",
+              redirectUri: message.redirectUri ?? DESKTOP_SSO_CALLBACK,
             };
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -812,7 +812,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (urlString.indexOf("bitwarden://import-callback-lp") === 0) {
       message = "importCallbackLastPass";
-    } else if (urlString.indexOf("bitwarden://sso-callback") === 0) {
+    } else if (urlString.indexOf(DESKTOP_SSO_CALLBACK) === 0) {
       message = "ssoCallback";
     }
 

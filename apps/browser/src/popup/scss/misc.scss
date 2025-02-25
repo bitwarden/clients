@@ -211,15 +211,13 @@ p.lead {
 }
 
 #web-authn-frame {
-  background: url("../images/loading.svg") 0 0 no-repeat;
   width: 100%;
-  height: 310px;
-  margin-bottom: -10px;
+  height: 40px;
 
   iframe {
-    width: 100%;
-    height: 100%;
     border: none;
+    height: 100%;
+    width: 100%;
   }
 }
 
@@ -334,11 +332,6 @@ img,
   }
 }
 
-app-about .modal-body > *,
-app-vault-view .box-footer {
-  user-select: auto;
-}
-
 /* tweak for inconsistent line heights in cipher view */
 .box-footer button,
 .box-footer a {
@@ -357,10 +350,6 @@ app-vault-view .box-footer {
 }
 html.force_redraw {
   animation: redraw 1s linear infinite;
-}
-
-.rounded-circle {
-  border-radius: 50% !important;
 }
 
 /* override for vault icon in browser (pre extension refresh) */
