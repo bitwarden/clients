@@ -30,7 +30,6 @@ export enum FeatureFlag {
 
   AC1795_UpdatedSubscriptionStatusSection = "AC-1795_updated-subscription-status-section",
   ExtensionRefresh = "extension-refresh",
-  PersistPopupView = "persist-popup-view",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   VaultBulkManagementAction = "vault-bulk-management-action",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
@@ -89,7 +88,6 @@ export const DefaultFeatureFlagValue = {
 
   [FeatureFlag.AC1795_UpdatedSubscriptionStatusSection]: FALSE,
   [FeatureFlag.ExtensionRefresh]: FALSE,
-  [FeatureFlag.PersistPopupView]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,

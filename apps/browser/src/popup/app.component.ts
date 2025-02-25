@@ -24,7 +24,6 @@ import {
 import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
-import { PopupViewCacheService } from "../platform/popup/view-cache/popup-view-cache.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
 import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
@@ -43,7 +42,6 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   `,
 })
 export class AppComponent implements OnInit, OnDestroy {
-  private viewCacheService = inject(PopupViewCacheService);
   private compactModeService = inject(PopupCompactModeService);
 
   private lastActivity: Date;
@@ -74,7 +72,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     initPopupClosedListener();
-    await this.viewCacheService.init();
 
     this.compactModeService.init();
 

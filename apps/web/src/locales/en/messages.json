@@ -4127,6 +4127,12 @@
   "updateBrowserDesc": {
     "message": "You are using an unsupported web browser. The web vault may not function properly."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "You have a pending login request from another device."
+  },
+  "reviewLoginRequest": {
+    "message": "Review login request"
+  },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {

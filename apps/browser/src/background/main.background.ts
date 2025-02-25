@@ -1312,7 +1312,7 @@ export default class MainBackground {
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
 
-    this.popupViewCacheBackgroundService.startObservingTabChanges();
+    this.popupViewCacheBackgroundService.startObservingMessages();
 
     await this.vaultTimeoutService.init(true);
     this.fido2Background.init();
