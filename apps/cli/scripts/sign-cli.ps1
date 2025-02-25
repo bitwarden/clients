@@ -25,10 +25,19 @@ function SignExe {
         [Parameter(Mandatory=$false)]
         [ValidateScript({Test-Path $_})]
         [string] $exePath
+
+        # [Parameter(Mandatory=$false)]
+        # [string] $hashAlgorithm = "sha256"
+
+        # [Parameter(Mandatory=$false)]
+        # [string] $site
+
+        [Parameter(Mandatory=$false)]
+        [string] $timestampService = "http://timestamp.digicert.com"
     )
 
     echo "Signing $exePath ..."
-    azuresigntool sign -v $vaultUrl -kvi $clientId -kvt $tenantId -kvs $clientSecret -kvc $certName -tr http://timestamp.digicert.com $exePath
+    azuresigntool sign -kvu $vaultUrl -kvi $clientId -kvt $tenantId -kvs $clientSecret -kvc $certName -tr $timestampService $exePath
 }
 
 
