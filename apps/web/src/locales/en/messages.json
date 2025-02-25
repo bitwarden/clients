@@ -6,7 +6,7 @@
     "message": "Critical applications"
   },
   "noCriticalAppsAtRisk":{
-    "message": "No critical applications at risk"
+    "message": "No critical applications at risk."
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
