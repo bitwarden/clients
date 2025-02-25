@@ -6,7 +6,6 @@ import { firstValueFrom, of } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -15,7 +14,11 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import {
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+  VaultTimeoutAction,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -27,7 +30,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 

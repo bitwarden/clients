@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MockProxy, any, mock } from "jest-mock-extended";
 import { BehaviorSubject, from, of } from "rxjs";
 
@@ -5,26 +7,26 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { BiometricsService } from "@bitwarden/key-management";
 
-import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
-import { SearchService } from "../../abstractions/search.service";
-import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
-import { AccountInfo } from "../../auth/abstractions/account.service";
-import { AuthService } from "../../auth/abstractions/auth.service";
-import { AuthenticationStatus } from "../../auth/enums/authentication-status";
-import { FakeMasterPasswordService } from "../../auth/services/master-password/fake-master-password.service";
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { LogService } from "../../platform/abstractions/log.service";
-import { MessagingService } from "../../platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
-import { StateService } from "../../platform/abstractions/state.service";
-import { Utils } from "../../platform/misc/utils";
-import { TaskSchedulerService } from "../../platform/scheduling";
-import { StateEventRunnerService } from "../../platform/state";
-import { UserId } from "../../types/guid";
-import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";
-import { CipherService } from "../../vault/abstractions/cipher.service";
-import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
+import { SearchService } from "../../../abstractions/search.service";
+import { AccountInfo } from "../../../auth/abstractions/account.service";
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { FakeMasterPasswordService } from "../../../auth/services/master-password/fake-master-password.service";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { MessagingService } from "../../../platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
+import { StateService } from "../../../platform/abstractions/state.service";
+import { Utils } from "../../../platform/misc/utils";
+import { TaskSchedulerService } from "../../../platform/scheduling";
+import { StateEventRunnerService } from "../../../platform/state";
+import { UserId } from "../../../types/guid";
+import { CipherService } from "../../../vault/abstractions/cipher.service";
+import { FolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
+import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
+import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
 
+import { VaultTimeoutSettingsService } from "./vault-timeout-settings.service";
 import { VaultTimeoutService } from "./vault-timeout.service";
 
 describe("VaultTimeoutService", () => {

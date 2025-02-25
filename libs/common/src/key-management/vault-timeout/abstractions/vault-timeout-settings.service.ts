@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { UserId } from "../../types/guid";
-import { VaultTimeout } from "../../types/vault-timeout.type";
+import { UserId } from "../../../types/guid";
+import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
+import { VaultTimeout } from "../types/vault-timeout.type";
 
 export abstract class VaultTimeoutSettingsService {
   /**
