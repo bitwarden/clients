@@ -24,10 +24,10 @@ function SignExe {
 
         [Parameter(Mandatory=$false)]
         [ValidateScript({Test-Path $_})]
-        [string] $exePath
+        [string] $exePath,
 
         # [Parameter(Mandatory=$false)]
-        # [string] $hashAlgorithm = "sha256"
+        # [string] $hashAlgorithm = "sha384"
 
         # [Parameter(Mandatory=$false)]
         # [string] $site
