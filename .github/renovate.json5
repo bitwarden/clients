@@ -127,7 +127,6 @@
         "cross-env",
         "del",
         "lit",
-        "nord",
         "patch-package",
         "prettier",
         "prettier-plugin-tailwindcss",

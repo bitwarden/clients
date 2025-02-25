@@ -61,11 +61,10 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         if (theme === ThemeType.System) {
           // When the user's preference is the system theme,
           // use the system theme to determine the image
-          const prefersDarkMode =
-            systemTheme === ThemeType.Dark || systemTheme === ThemeType.SolarizedDark;
+          const prefersDarkMode = systemTheme === ThemeType.Dark;
 
           this.imageEle.nativeElement.src = prefersDarkMode ? this.imageDarkMode : this.image;
-        } else if (theme === ThemeType.Dark || theme === ThemeType.SolarizedDark) {
+        } else if (theme === ThemeType.Dark) {
           // When the user's preference is dark mode, use the dark mode image
           this.imageEle.nativeElement.src = this.imageDarkMode;
         } else {
