@@ -228,6 +228,6 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     request.newMasterPasswordHash = masterPasswordHash;
     request.masterPasswordHint = this.hint;
 
-    return this.apiService.putUpdateTdeOffboardingPassword(request);
+    return this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
   }
 }
