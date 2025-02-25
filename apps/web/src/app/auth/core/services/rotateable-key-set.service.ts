@@ -25,7 +25,7 @@ export class RotateableKeySetService {
 
     const userKey = await this.keyService.getUserKey();
     const rawPublicKey = Utils.fromB64ToArray(publicKey);
-    const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.key, rawPublicKey);
+    const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.toEncoded(), rawPublicKey);
     const encryptedPublicKey = await this.encryptService.encrypt(rawPublicKey, userKey);
     return new RotateableKeySet(encryptedUserKey, encryptedPublicKey, encryptedPrivateKey);
   }
@@ -57,7 +57,7 @@ export class RotateableKeySetService {
       oldUserKey,
     );
     const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
-    const newEncryptedUserKey = await this.encryptService.rsaEncrypt(newUserKey.key, publicKey);
+    const newEncryptedUserKey = await this.encryptService.rsaEncrypt(newUserKey.toEncoded(), publicKey);
 
     const newRotateableKeySet = new RotateableKeySet<ExternalKey>(
       newEncryptedUserKey,

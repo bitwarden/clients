@@ -95,7 +95,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
     const organization = await this.getManagingOrganization(userId);
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
+    const keyConnectorRequest = new KeyConnectorUserKeyRequest(Utils.fromBufferToB64(masterKey.getInnerKey().encryptionKey));
 
     try {
       await this.apiService.postUserKeyToKeyConnector(
@@ -153,11 +153,11 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
 
     const masterKey = await this.keyService.makeMasterKey(
-      password.keyB64,
+      password.toBase64(),
       await this.tokenService.getEmail(),
       kdfConfig,
     );
-    const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
+    const keyConnectorRequest = new KeyConnectorUserKeyRequest(Utils.fromBufferToB64(masterKey.getInnerKey().encryptionKey));
     await this.masterPasswordService.setMasterKey(masterKey, userId);
 
     const userKey = await this.keyService.makeUserKey(masterKey);

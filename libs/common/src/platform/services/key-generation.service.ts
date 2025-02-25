@@ -80,8 +80,8 @@ export class KeyGenerationService implements KeyGenerationServiceAbstraction {
 
   async stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey> {
     const newKey = new Uint8Array(64);
-    const encKey = await this.cryptoFunctionService.hkdfExpand(key.key, "enc", 32, "sha256");
-    const macKey = await this.cryptoFunctionService.hkdfExpand(key.key, "mac", 32, "sha256");
+    const encKey = await this.cryptoFunctionService.hkdfExpand(key.getInnerKey().encryptionKey, "enc", 32, "sha256");
+    const macKey = await this.cryptoFunctionService.hkdfExpand(key.getInnerKey().encryptionKey, "mac", 32, "sha256");
 
     newKey.set(new Uint8Array(encKey));
     newKey.set(new Uint8Array(macKey), 32);

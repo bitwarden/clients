@@ -70,10 +70,6 @@ export class AccountKeys {
       return null;
     }
     return Object.assign(new AccountKeys(), obj, {
-      cryptoSymmetricKey: EncryptionPair.fromJSON(
-        obj?.cryptoSymmetricKey,
-        SymmetricCryptoKey.fromJSON,
-      ),
       publicKey: Utils.fromByteStringToArray(obj?.publicKey),
     });
   }

@@ -186,7 +186,7 @@ export class AcceptOrganizationInviteService {
 
       // RSA Encrypt user's encKey.key with organization public key
       const userKey = await this.keyService.getUserKey();
-      const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+      const encryptedKey = await this.encryptService.rsaEncrypt(userKey.toEncoded(), publicKey);
 
       // Add reset password key to accept request
       request.resetPasswordKey = encryptedKey.encryptedString;

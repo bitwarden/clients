@@ -104,10 +104,10 @@ export class AccessService {
     const [name, encryptedPayload, key] = await Promise.all([
       await this.encryptService.encrypt(accessTokenView.name, organizationKey),
       await this.encryptService.encrypt(
-        JSON.stringify({ encryptionKey: organizationKey.keyB64 }),
+        JSON.stringify({ encryptionKey: organizationKey.toBase64() }),
         encryptionKey,
       ),
-      await this.encryptService.encrypt(encryptionKey.keyB64, organizationKey),
+      await this.encryptService.encrypt(encryptionKey.toBase64(), organizationKey),
     ]);
 
     accessTokenRequest.name = name;

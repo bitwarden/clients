@@ -136,7 +136,7 @@ export class DefaultSdkService implements SdkService {
   ) {
     await client.crypto().initialize_user_crypto({
       email: account.email,
-      method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
+      method: { decryptedKey: { decrypted_user_key: userKey.toBase64() } },
       kdfParams:
         kdfParams.kdfType === KdfType.PBKDF2_SHA256
           ? {

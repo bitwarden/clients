@@ -111,10 +111,10 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
         Utils.fromUtf8ToArray(masterKeyHash),
         pubKey,
       );
-      keyToEncrypt = masterKey.encKey;
+      keyToEncrypt = masterKey.toEncoded();
     } else {
       const userKey = await this.keyService.getUserKey();
-      keyToEncrypt = userKey.key;
+      keyToEncrypt = userKey.toEncoded();
     }
 
     const encryptedKey = await this.encryptService.rsaEncrypt(keyToEncrypt, pubKey);

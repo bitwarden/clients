@@ -356,6 +356,6 @@ export class EmergencyAccessService
   }
 
   private async encryptKey(userKey: UserKey, publicKey: Uint8Array): Promise<EncryptedString> {
-    return (await this.encryptService.rsaEncrypt(userKey.key, publicKey)).encryptedString;
+    return (await this.encryptService.rsaEncrypt(userKey.toEncoded(), publicKey)).encryptedString;
   }
 }

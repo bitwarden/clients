@@ -53,7 +53,7 @@ export class PasswordResetEnrollmentServiceImplementation
       userId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
     userKey = userKey ?? (await this.keyService.getUserKey(userId));
     // RSA Encrypt user's userKey.key with organization public key
-    const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, orgPublicKey);
+    const encryptedKey = await this.encryptService.rsaEncrypt(userKey.toEncoded(), orgPublicKey);
 
     const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
     resetRequest.resetPasswordKey = encryptedKey.encryptedString;

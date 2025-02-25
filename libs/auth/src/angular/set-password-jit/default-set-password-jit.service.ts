@@ -159,7 +159,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
       throw new Error("userKey not found. Could not handle reset password auto enroll.");
     }
 
-    const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+    const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.toEncoded(), publicKey);
 
     const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
     resetRequest.masterPasswordHash = masterKeyHash;

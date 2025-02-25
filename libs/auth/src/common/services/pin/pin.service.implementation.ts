@@ -193,7 +193,7 @@ export class PinService implements PinServiceAbstraction {
 
     const pinKey = await this.makePinKey(pin, email, kdfConfig);
 
-    return await this.encryptService.encrypt(userKey.key, pinKey);
+    return await this.encryptService.encrypt(userKey.toEncoded(), pinKey);
   }
 
   async storePinKeyEncryptedUserKey(

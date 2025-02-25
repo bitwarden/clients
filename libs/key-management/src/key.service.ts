@@ -57,7 +57,7 @@ import { PlatformUtilsService } from "../../common/src/platform/abstractions/pla
 import { StateService } from "../../common/src/platform/abstractions/state.service";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
-import { KeySuffixOptions, HashPurpose } from "../../common/src/platform/enums";
+import { KeySuffixOptions, HashPurpose, EncryptionType } from "../../common/src/platform/enums";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { convertValues } from "../../common/src/platform/misc/convert-values";
@@ -274,7 +274,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const newUserKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(masterKey, newUserKey.key);
+    return this.buildProtectedSymmetricKey(masterKey, newUserKey.toEncoded());
   }
 
   /**
@@ -356,7 +356,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     userKey?: UserKey,
   ): Promise<[UserKey, EncString]> {
     userKey ||= await this.getUserKey();
-    return await this.buildProtectedSymmetricKey(masterKey, userKey.key);
+    return await this.buildProtectedSymmetricKey(masterKey, userKey.toEncoded());
   }
 
   // TODO: move to MasterPasswordService
@@ -375,7 +375,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
-    const hash = await this.cryptoFunctionService.pbkdf2(key.key, password, "sha256", iterations);
+    const hash = await this.cryptoFunctionService.pbkdf2(key.toEncoded(), password, "sha256", iterations);
     return Utils.fromBufferToB64(hash);
   }
 
@@ -462,7 +462,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const newSymKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(key, newSymKey.key);
+    return this.buildProtectedSymmetricKey(key, newSymKey.toEncoded());
   }
 
   private async clearOrgKeys(userId: UserId): Promise<void> {
@@ -510,7 +510,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     const shareKey = await this.keyGenerationService.createKey(512);
     userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
     const publicKey = await firstValueFrom(this.userPublicKey$(userId));
-    const encShareKey = await this.encryptService.rsaEncrypt(shareKey.key, publicKey);
+    const encShareKey = await this.encryptService.rsaEncrypt(shareKey.toEncoded(), publicKey);
     return [encShareKey, shareKey as T];
   }
 
@@ -741,7 +741,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   protected async storeAdditionalKeys(key: UserKey, userId: UserId) {
     const storeAuto = await this.shouldStoreKey(KeySuffixOptions.Auto, userId);
     if (storeAuto) {
-      await this.stateService.setUserKeyAutoUnlock(key.keyB64, { userId: userId });
+      await this.stateService.setUserKeyAutoUnlock(key.toBase64(), { userId: userId });
     } else {
       await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     }
@@ -843,10 +843,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     newSymKey: Uint8Array,
   ): Promise<[T, EncString]> {
     let protectedSymKey: EncString = null;
-    if (encryptionKey.key.byteLength === 32) {
+    if (encryptionKey.getInnerKey().type === EncryptionType.AesCbc256_B64) {
       const stretchedEncryptionKey = await this.keyGenerationService.stretchKey(encryptionKey);
       protectedSymKey = await this.encryptService.encrypt(newSymKey, stretchedEncryptionKey);
-    } else if (encryptionKey.key.byteLength === 64) {
+    } else if (encryptionKey.getInnerKey().type === EncryptionType.AesCbc256_HmacSha256_B64) {
       protectedSymKey = await this.encryptService.encrypt(newSymKey, encryptionKey);
     } else {
       throw new Error("Invalid key size.");

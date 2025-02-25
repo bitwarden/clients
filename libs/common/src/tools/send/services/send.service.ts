@@ -76,7 +76,7 @@ export class SendService implements InternalSendServiceAbstraction {
         model.key,
         new PBKDF2KdfConfig(SEND_KDF_ITERATIONS),
       );
-      send.password = passwordKey.keyB64;
+      send.password = passwordKey.toBase64();
     }
     if (key == null) {
       key = await this.keyService.getUserKey();

@@ -36,7 +36,7 @@ export class WebProviderService {
     const orgKey = await this.keyService.getOrgKey(organizationId);
     const providerKey = await this.keyService.getProviderKey(providerId);
 
-    const encryptedOrgKey = await this.encryptService.encrypt(orgKey.key, providerKey);
+    const encryptedOrgKey = await this.encryptService.encrypt(orgKey.toEncoded(), providerKey);
 
     const request = new ProviderAddOrganizationRequest();
     request.organizationId = organizationId;
@@ -55,7 +55,7 @@ export class WebProviderService {
       ),
     );
     const providerKey = await this.keyService.getProviderKey(providerId);
-    const encryptedOrgKey = await this.encryptService.encrypt(orgKey.key, providerKey);
+    const encryptedOrgKey = await this.encryptService.encrypt(orgKey.toEncoded(), providerKey);
     await this.providerApiService.addOrganizationToProvider(providerId, {
       key: encryptedOrgKey.encryptedString,
       organizationId,
@@ -82,7 +82,7 @@ export class WebProviderService {
     const providerKey = await this.keyService.getProviderKey(providerId);
 
     const encryptedProviderKey = await this.encryptService.encrypt(
-      organizationKey.key,
+      organizationKey.toEncoded(),
       providerKey,
     );
 

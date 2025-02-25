@@ -191,6 +191,12 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
         newKey,
         "Content: User Key; Encrypting Key: Stretched Master Key",
       );
+      if (decUserKey.length === 32 || decUserKey.length === 64) {
+        return new SymmetricCryptoKey(decUserKey) as UserKey;
+      } else {
+        this.logService.info("[MasterPasswordService] Userkey in new format; using sdk");
+        return new SymmetricCryptoKey(decUserKey) as UserKey;
+      }
     } else {
       throw new Error("Unsupported encryption type.");
     }

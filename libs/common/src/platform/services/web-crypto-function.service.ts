@@ -4,6 +4,7 @@ import * as forge from "node-forge";
 import { Utils } from "../../platform/misc/utils";
 import { CsprngArray } from "../../types/csprng";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
+import { EncryptionType } from "../enums";
 import { CbcDecryptParameters, EcbDecryptParameters } from "../models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
@@ -251,13 +252,14 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
     }
 
     if (p.encKey == null) {
-      p.encKey = forge.util.decode64(key.encKeyB64);
+      p.encKey = forge.util.decode64(Utils.fromBufferToB64(key.getInnerKey().encryptionKey));
     }
     p.data = forge.util.decode64(data);
     p.iv = forge.util.decode64(iv);
     p.macData = p.iv + p.data;
-    if (p.macKey == null && key.macKeyB64 != null) {
-      p.macKey = forge.util.decode64(key.macKeyB64);
+    const innerKey = key.getInnerKey();
+    if (p.macKey == null && innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      p.macKey = forge.util.decode64(Utils.fromBufferToB64(innerKey.authenticationKey));
     }
     if (mac != null) {
       p.mac = forge.util.decode64(mac);

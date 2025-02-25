@@ -11,10 +11,12 @@ import { VerificationType } from "@bitwarden/common/auth/enums/verification-type
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -23,6 +25,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { CryptoClient } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth/core";
@@ -55,6 +58,7 @@ export class UserKeyRotationService {
     private vaultTimeoutService: VaultTimeoutService,
     private toastService: ToastService,
     private i18nService: I18nService,
+    private keyGenerationService: KeyGenerationService,
   ) {}
 
   /**
@@ -97,14 +101,28 @@ export class UserKeyRotationService {
     );
 
     const newMasterKey = await this.keyService.makeMasterKey(newMasterPassword, email, kdfConfig);
-
-    const [newUnencryptedUserKey, newMasterKeyEncryptedUserKey] =
+    let [newUnencryptedUserKey, newMasterKeyEncryptedUserKey] =
       await this.keyService.makeUserKey(newMasterKey);
+
+    const userKey = CryptoClient.generate_user_key();
+    this.logService.info("[Userkey rotation] Encrypting user key in new format" + userKey);
+    const userkeyEncodedBytes = Utils.fromB64ToArray(userKey);
+    const stretchedMasterKey = await this.keyGenerationService.stretchKey(newMasterKey);
+    const userkeyEncrypted = await this.encryptService.encrypt(
+      userkeyEncodedBytes,
+      stretchedMasterKey,
+    );
+    this.logService.info("[Userkey rotation] User key encrypted in new format" + userkeyEncrypted.encryptedString);
+    newUnencryptedUserKey = new SymmetricCryptoKey(userkeyEncodedBytes) as UserKey;
+    newMasterKeyEncryptedUserKey
+     = userkeyEncrypted;
 
     if (!newUnencryptedUserKey || !newMasterKeyEncryptedUserKey) {
       this.logService.info("[Userkey rotation] User key could not be created. Aborting!");
       throw new Error("User key could not be created");
     }
+
+    this.logService.info("[Userkey rotation] User key created successfully");
 
     const newMasterKeyAuthenticationHash = await this.keyService.hashMasterKey(
       newMasterPassword,
