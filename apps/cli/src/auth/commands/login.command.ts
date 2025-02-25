@@ -311,6 +311,26 @@ export class LoginCommand {
         );
       }
 
+      // Opting for not checking feature flag since the server will not respond with
+      // requiresDeviceVerification if the feature flag is not enabled.
+      if (response.requiresDeviceVerification) {
+        let newDeviceToken: string = null;
+        if (this.canInteract) {
+          const answer: inquirer.Answers = await inquirer.createPromptModule({
+            output: process.stderr,
+          })({
+            type: "input",
+            name: "token",
+            message: "New device login code:",
+          });
+          newDeviceToken = answer.token;
+        }
+        if (newDeviceToken == null || newDeviceToken === "") {
+          return Response.badRequest("Code is required.");
+        }
+        response = await this.loginStrategyService.logInNewDeviceVerification(newDeviceToken);
+      }
+
       if (response.captchaSiteKey) {
         const twoFactorRequest = new TokenTwoFactorRequest(selectedProvider.type, twoFactorToken);
         const handledResponse = await this.handleCaptchaRequired(twoFactorRequest);
