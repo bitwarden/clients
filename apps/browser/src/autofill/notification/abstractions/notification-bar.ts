@@ -19,10 +19,11 @@ type NotificationBarIframeInitData = {
 };
 
 type NotificationBarWindowMessage = {
-  [key: string]: any;
   command: string;
   error?: string;
   initData?: NotificationBarIframeInitData;
+  username?: string;
+  cipherId?: string;
 };
 
 type NotificationBarWindowMessageHandlers = {

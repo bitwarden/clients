@@ -22,15 +22,19 @@ export function NotificationConfirmationContainer({
   i18n,
   theme = ThemeTypes.Light,
   type,
+  username,
+  handleOpenVault,
 }: NotificationBarIframeInitData & {
   handleCloseNotification: (e: Event) => void;
+  handleOpenVault: (e: Event) => void;
 } & {
   error: string;
   i18n: { [key: string]: string };
   type: NotificationType;
+  username: string;
 }) {
   const headerMessage = getHeaderMessage(i18n, type, error);
-  const confirmationMessage = getConfirmationMessage(i18n, type, error);
+  const confirmationMessage = getConfirmationMessage(i18n, type, error, username);
   const buttonText = error ? i18n.newItem : i18n.view;
 
   return html`
@@ -45,6 +49,7 @@ export function NotificationConfirmationContainer({
         buttonText,
         confirmationMessage,
         theme,
+        handleOpenVault,
       })}
     </div>
   `;
@@ -70,11 +75,17 @@ function getConfirmationMessage(
   i18n: { [key: string]: string },
   type?: NotificationType,
   error?: string,
+  username?: string,
 ) {
+  const loginSaveSuccessDetails = chrome.i18n.getMessage("loginSaveSuccessDetails", [username]);
+  const loginUpdatedSuccessDetails = chrome.i18n.getMessage("loginUpdatedSuccessDetails", [
+    username,
+  ]);
+
   if (error) {
     return i18n.saveFailureDetails;
   }
-  return type === "add" ? i18n.loginSaveSuccessDetails : i18n.loginUpdateSuccessDetails;
+  return type === "add" ? loginSaveSuccessDetails : loginUpdatedSuccessDetails;
 }
 function getHeaderMessage(
   i18n: { [key: string]: string },

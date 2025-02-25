@@ -55,6 +55,8 @@ function getI18n() {
     close: chrome.i18n.getMessage("close"),
     never: chrome.i18n.getMessage("never"),
     folder: chrome.i18n.getMessage("folder"),
+    loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
+    loginUpdateSuccessDetails: chrome.i18n.getMessage("loginUpdatedSuccessDetails"),
     notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
     notificationEdit: chrome.i18n.getMessage("edit"),
@@ -70,9 +72,7 @@ function getI18n() {
     saveLoginPrompt: "Save login?",
     updateLoginPrompt: "Update existing login?",
     loginSaveSuccess: "Login saved",
-    loginSaveSuccessDetails: "Login saved to Bitwarden.",
     loginUpdateSuccess: "Login updated",
-    loginUpdateSuccessDetails: "Login updated in Bitwarden.",
     saveFailure: "Error saving",
     saveFailureDetails: "Oh no! We couldn't save this. Try entering the details as a New item",
     newItem: "New item",
@@ -289,9 +289,17 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   );
 }
 
+function openViewVaultItemPopout(e: Event, cipherId: string) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgOpenVault",
+    cipherId,
+  });
+}
+
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
-  const { error } = message;
+  const { error, username, cipherId } = message;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme);
 
@@ -305,6 +313,8 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       handleCloseNotification,
       i18n,
       error,
+      username,
+      handleOpenVault: (e) => openViewVaultItemPopout(e, cipherId),
     }),
     document.body,
   );
