@@ -15,7 +15,7 @@
 
         <ng-container *ngIf="enableAccountSwitching">
           <bit-section-header *ngIf="isFirst">
-            <h2 bitTypography="h6" class="tw-font-semibold">{{ "availableAccounts" | i18n }}</h2>
+            <h2 bitTypography="h6">{{ "availableAccounts" | i18n }}</h2>
           </bit-section-header>
 
           <div *ngIf="!availableAccount.isActive">
