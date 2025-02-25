@@ -75,6 +75,12 @@ export class UriOptionComponent implements ControlValueAccessor {
   ];
 
   /**
+   * Whether the option can be reordered. If false, the reorder button will be hidden.
+   */
+  @Input({ required: true })
+  canReorder: boolean;
+
+  /**
    * Whether the URI can be removed from the form. If false, the remove button will be hidden.
    */
   @Input({ required: true })

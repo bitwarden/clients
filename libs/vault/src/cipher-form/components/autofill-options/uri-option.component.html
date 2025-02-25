@@ -21,7 +21,15 @@
       data-testid="remove-uri-button"
     ></button>
   </bit-form-field>
-
+  <button
+    type="button"
+    bitIconButton="bwi-hamburger"
+    class="tw-self-end"
+    cdkDragHandle
+    [appA11yTitle]="'reorderWebsiteUriButton' | i18n"
+    data-testid="reorder-toggle-button"
+    *ngIf="canReorder"
+  ></button>
   <bit-form-field *ngIf="showMatchDetection" class="!tw-mb-5">
     <bit-label>{{ "matchDetection" | i18n }}</bit-label>
     <bit-select formControlName="matchDetection" #matchDetectionSelect>

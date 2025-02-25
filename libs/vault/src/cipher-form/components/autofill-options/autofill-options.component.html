@@ -11,6 +11,7 @@
         *ngFor="let uri of uriControls; let i = index"
         [formControlName]="i"
         (remove)="removeUri(i)"
+        [canReorder]="uriControls.length > 1"
         [canRemove]="uriControls.length > 1"
         [defaultMatchDetection]="defaultMatchDetection$ | async"
         [index]="i"
