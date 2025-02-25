@@ -17,12 +17,12 @@ const { css } = createEmotion({
 
 export function NotificationHeader({
   message,
-  standalone,
+  standalone = false,
   theme = ThemeTypes.Light,
   handleCloseNotification,
 }: {
   message?: string;
-  standalone: boolean;
+  standalone?: boolean;
   theme: Theme;
   handleCloseNotification: (e: Event) => void;
 }) {
@@ -49,7 +49,7 @@ const notificationHeaderStyles = ({
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: ${themes[theme].background.alt};
+  background-color: ${themes[theme].background};
   padding: 12px 16px 8px 16px;
   white-space: nowrap;
 
