@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { render } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -17,6 +15,14 @@ import {
   NotificationBarIframeInitData,
   NotificationType,
 } from "./abstractions/notification-bar";
+
+type AttributeSetter = {
+  textContent?: string;
+  title?: string;
+  hidden?: boolean;
+  ariaLabel?: string;
+  onClick?: (e: Event) => void;
+};
 
 const logService = new ConsoleLogService(false);
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
@@ -42,6 +48,30 @@ function applyNotificationBarStyle() {
     require("./bar.scss");
   }
   postMessageToParent({ command: "initNotificationBar" });
+}
+
+function setAttributes(
+  element: HTMLElement | null,
+  { textContent, title, hidden, ariaLabel, onClick }: AttributeSetter,
+) {
+  if (!element) {
+    return;
+  }
+  if (textContent) {
+    element.textContent = textContent;
+  }
+  if (title) {
+    element.title = title;
+  }
+  if (hidden) {
+    element.hidden = hidden;
+  }
+  if (ariaLabel) {
+    element.setAttribute("aria-label", ariaLabel);
+  }
+  if (onClick) {
+    element.addEventListener("click", onClick);
+  }
 }
 
 function initNotificationBar(message: NotificationBarWindowMessage) {
@@ -119,44 +149,59 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
   const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
 
   const neverButton = addTemplate.content.getElementById("never-save");
-  neverButton.textContent = i18n.never;
+  setAttributes(neverButton, {
+    textContent: i18n.never,
+  });
 
   const selectFolder = addTemplate.content.getElementById("select-folder");
-  selectFolder.hidden = isVaultLocked || removeIndividualVault();
-  selectFolder.setAttribute("aria-label", i18n.folder);
+  setAttributes(selectFolder, {
+    hidden: isVaultLocked || removeIndividualVault(),
+    ariaLabel: i18n.folder,
+  });
 
   const addButton = addTemplate.content.getElementById("add-save");
-  addButton.textContent = i18n.notificationAddSave;
+  setAttributes(addButton, {
+    textContent: i18n.notificationAddSave,
+  });
 
   const addEditButton = addTemplate.content.getElementById("add-edit");
-  // If Remove Individual Vault policy applies, "Add" opens the edit tab, so we hide the Edit button
-  addEditButton.hidden = removeIndividualVault();
-  addEditButton.textContent = i18n.notificationEdit;
+  setAttributes(addEditButton, {
+    hidden: removeIndividualVault(),
+    textContent: i18n.notificationEdit,
+  });
 
-  addTemplate.content.getElementById("add-text").textContent = i18n.notificationAddDesc;
+  // If Remove Individual Vault policy applies, "Add" opens the edit tab, so we hide the Edit button
+  setAttributes(addTemplate.content.getElementById("add-text"), {
+    textContent: i18n.notificationAddDesc,
+  });
 
   // i18n for "Change" (update password) template
   const changeTemplate = document.getElementById("template-change") as HTMLTemplateElement;
 
   const changeButton = changeTemplate.content.getElementById("change-save");
-  changeButton.textContent = i18n.notificationChangeSave;
+  setAttributes(changeButton, { textContent: i18n.notificationChangeSave });
 
   const changeEditButton = changeTemplate.content.getElementById("change-edit");
-  changeEditButton.textContent = i18n.notificationEdit;
+  setAttributes(changeEditButton, {
+    textContent: i18n.notificationEdit,
+  });
 
-  changeTemplate.content.getElementById("change-text").textContent = i18n.notificationChangeDesc;
+  setAttributes(changeTemplate.content.getElementById("change-text"), {
+    textContent: i18n.notificationChangeDesc,
+  });
 
   // i18n for "Unlock" (unlock extension) template
   const unlockTemplate = document.getElementById("template-unlock") as HTMLTemplateElement;
 
   const unlockButton = unlockTemplate.content.getElementById("unlock-vault");
-  unlockButton.textContent = i18n.notificationUnlock;
+  setAttributes(unlockButton, { textContent: i18n.notificationUnlock });
 
-  unlockTemplate.content.getElementById("unlock-text").textContent = i18n.notificationUnlockDesc;
+  setAttributes(unlockTemplate.content.getElementById("unlock-text"), {
+    textContent: i18n.notificationUnlockDesc,
+  });
 
   // i18n for body content
   const closeButton = document.getElementById("close-button");
-  closeButton.title = i18n.close;
 
   const notificationType = initData.type;
   if (notificationType === "add") {
@@ -167,7 +212,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     handleTypeUnlock();
   }
 
-  closeButton.addEventListener("click", handleCloseNotification);
+  setAttributes(closeButton, { title: i18n.close, onClick: handleCloseNotification });
 
   globalThis.addEventListener("resize", adjustHeight);
   adjustHeight();
@@ -197,11 +242,12 @@ function handleTypeAdd() {
   setContent(document.getElementById("template-add") as HTMLTemplateElement);
 
   const addButton = document.getElementById("add-save");
-  addButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    // If Remove Individual Vault policy applies, "Add" opens the edit tab
-    sendSaveCipherMessage(removeIndividualVault(), getSelectedFolder());
+  setAttributes(addButton, {
+    onClick: (e) => {
+      e.preventDefault();
+      // If Remove Individual Vault policy applies, "Add" opens the edit tab
+      sendSaveCipherMessage(removeIndividualVault(), getSelectedFolder());
+    },
   });
 
   if (removeIndividualVault()) {
@@ -210,18 +256,21 @@ function handleTypeAdd() {
   }
 
   const editButton = document.getElementById("add-edit");
-  editButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    sendSaveCipherMessage(true, getSelectedFolder());
+  setAttributes(editButton, {
+    onClick: (e) => {
+      e.preventDefault();
+      sendSaveCipherMessage(true, getSelectedFolder());
+    },
   });
 
   const neverButton = document.getElementById("never-save");
-  neverButton.addEventListener("click", (e) => {
-    e.preventDefault();
-    sendPlatformMessage({
-      command: "bgNeverSave",
-    });
+  setAttributes(neverButton, {
+    onClick: (e) => {
+      e.preventDefault();
+      sendPlatformMessage({
+        command: "bgNeverSave",
+      });
+    },
   });
 
   loadFolderSelector();
@@ -230,17 +279,19 @@ function handleTypeAdd() {
 function handleTypeChange() {
   setContent(document.getElementById("template-change") as HTMLTemplateElement);
   const changeButton = document.getElementById("change-save");
-  changeButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    sendSaveCipherMessage(false);
+  setAttributes(changeButton, {
+    onClick: (e) => {
+      e.preventDefault();
+      sendSaveCipherMessage(false);
+    },
   });
 
   const editButton = document.getElementById("change-edit");
-  editButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    sendSaveCipherMessage(true);
+  setAttributes(editButton, {
+    onClick: (e) => {
+      e.preventDefault();
+      sendSaveCipherMessage(false);
+    },
   });
 }
 
@@ -259,7 +310,9 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
     addSaveButtonContainers.forEach((element) => {
       element.textContent = chrome.i18n.getMessage("saveCipherAttemptFailed");
       element.classList.add("error-message");
-      notificationBarOuterWrapper.classList.add("error-event");
+      if (notificationBarOuterWrapper) {
+        notificationBarOuterWrapper.classList.add("error-event");
+      }
     });
 
     adjustHeight();
@@ -273,7 +326,9 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
     element.textContent = chrome.i18n.getMessage(messageName);
     element.prepend(buildSvgDomElement(circleCheckIcon));
     element.classList.add("success-message");
-    notificationBarOuterWrapper.classList.add("success-event");
+    if (notificationBarOuterWrapper) {
+      notificationBarOuterWrapper.classList.add("success-event");
+    }
   });
   adjustHeight();
   globalThis.setTimeout(
@@ -286,21 +341,27 @@ function handleTypeUnlock() {
   setContent(document.getElementById("template-unlock") as HTMLTemplateElement);
 
   const unlockButton = document.getElementById("unlock-vault");
-  unlockButton.addEventListener("click", (e) => {
-    sendPlatformMessage({
-      command: "bgReopenUnlockPopout",
-    });
+  setAttributes(unlockButton, {
+    onClick: (e) => {
+      sendPlatformMessage({
+        command: "bgReopenUnlockPopout",
+      });
+    },
   });
 }
 
 function setContent(template: HTMLTemplateElement) {
   const content = document.getElementById("content");
-  while (content.firstChild) {
-    content.removeChild(content.firstChild);
+  if (content) {
+    while (content.firstChild) {
+      content.removeChild(content.firstChild);
+    }
   }
 
   const newElement = template.content.cloneNode(true) as HTMLElement;
-  content.appendChild(newElement);
+  if (content) {
+    content.appendChild(newElement);
+  }
 }
 
 function sendPlatformMessage(
@@ -317,13 +378,17 @@ function sendPlatformMessage(
 function loadFolderSelector() {
   const populateFolderData = (folderData: FolderView[]) => {
     const select = document.getElementById("select-folder");
+    if (!select) {
+      return;
+    }
+
     if (!folderData?.length) {
-      select.appendChild(new Option(chrome.i18n.getMessage("noFoldersFound"), null, true));
+      select.appendChild(new Option(chrome.i18n.getMessage("noFoldersFound"), undefined, true));
       select.setAttribute("disabled", "true");
       return;
     }
 
-    select.appendChild(new Option(chrome.i18n.getMessage("selectFolder"), null, true));
+    select.appendChild(new Option(chrome.i18n.getMessage("selectFolder"), undefined, true));
     folderData.forEach((folder: FolderView) => {
       // Select "No Folder" (id=null) folder by default
       select.appendChild(new Option(folder.name, folder.id || "", false));
@@ -338,12 +403,16 @@ function getSelectedFolder(): string {
 }
 
 function removeIndividualVault(): boolean {
-  return notificationBarIframeInitData.removeIndividualVault;
+  return notificationBarIframeInitData.removeIndividualVault || false;
 }
 
 function adjustHeight() {
+  const body = document.querySelector("body");
+  if (!body) {
+    return;
+  }
   const data: AdjustNotificationBarMessageData = {
-    height: document.querySelector("body").scrollHeight,
+    height: body.scrollHeight,
   };
   sendPlatformMessage({
     command: "bgAdjustNotificationBar",
