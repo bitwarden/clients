@@ -2,8 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";

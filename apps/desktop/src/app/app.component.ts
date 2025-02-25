@@ -27,7 +27,6 @@ import { InternalPolicyService } from "@bitwarden/common/admin-console/abstracti
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -35,6 +34,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
