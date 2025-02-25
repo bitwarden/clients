@@ -1,9 +1,9 @@
+@let usePlaceHolderEvents = !organization?.useEvents && (isBreadcrumbEventLogsEnabled$ | async);
 <app-header>
-  <span bitBadge variant="primary" slot="title-suffix" *ngIf="!organization?.useEvents">
+  <span bitBadge variant="primary" slot="title-suffix" *ngIf="usePlaceHolderEvents">
     {{ "upgrade" | i18n }}
   </span>
 </app-header>
-
 <div class="tw-mb-4" [formGroup]="eventsForm">
   <div class="tw-mt-4 tw-flex tw-items-center">
     <bit-form-field>
@@ -35,7 +35,7 @@
         bitFormButton
         buttonType="primary"
         [bitAction]="refreshEvents"
-        [disabled]="!organization?.useEvents"
+        [disabled]="usePlaceHolderEvents"
       >
         {{ "update" | i18n }}
       </button>
@@ -47,7 +47,7 @@
         bitButton
         bitFormButton
         [bitAction]="exportEvents"
-        [disabled]="dirtyDates || !organization?.useEvents"
+        [disabled]="dirtyDates || usePlaceHolderEvents"
       >
         <span>{{ "export" | i18n }}</span>
         <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
@@ -58,7 +58,7 @@
 <bit-callout
   type="info"
   [title]="'upgradeEventLogTitle' | i18n"
-  *ngIf="loaded && !organization?.useEvents"
+  *ngIf="loaded && usePlaceHolderEvents"
 >
   {{ "upgradeEventLogMessage" | i18n }}
 </bit-callout>
@@ -86,7 +86,7 @@
     <ng-template body>
       <tr bitRow *ngFor="let e of displayedEvents; index as i" alignContent="top">
         <td bitCell class="tw-whitespace-nowrap">
-          {{ i > 4 && !organization?.useEvents ? "******" : (e.date | date: "medium") }}
+          {{ i > 4 && usePlaceHolderEvents ? "******" : (e.date | date: "medium") }}
         </td>
         <td bitCell>
           <span title="{{ e.appName }}, {{ e.ip }}">{{ e.appName }}</span>
@@ -109,7 +109,7 @@
   </button>
 </ng-container>
 
-<ng-container *ngIf="loaded && !organization?.useEvents">
+<ng-container *ngIf="loaded && usePlaceHolderEvents">
   <div
     class="tw-relative tw--top-72 tw-bg-[#ffffff] tw-bg-opacity-90 tw-pb-5 tw-flex tw-items-center tw-justify-center"
   >

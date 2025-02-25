@@ -95,7 +95,7 @@ const routes: Routes = [
         canMatch: [breadcrumbEventLogsPermission$], // if this matches, the flag is ON
         canActivate: [
           organizationPermissionsGuard(
-            (org) => org.canAccessEventLogs || org.useEvents || org.isOwner,
+            (org) => (org.canAccessEventLogs && org.useEvents) || org.isOwner,
           ),
         ],
         data: {
