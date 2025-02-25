@@ -1456,7 +1456,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
-    deps: [SyncService, UserAsymmetricKeysRegenerationService],
+    deps: [SyncService, UserAsymmetricKeysRegenerationService, LoginEmailService],
   }),
   safeProvider({
     provide: PasswordLoginStrategy,
