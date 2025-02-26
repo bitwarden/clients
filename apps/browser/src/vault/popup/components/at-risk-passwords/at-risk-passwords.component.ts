@@ -133,11 +133,19 @@ export class AtRiskPasswordsComponent {
         const [orgId] = orgIds;
         return this.organizationService.organizations$(userId).pipe(
           getOrganizationById(orgId),
-          map((org) => this.i18nService.t("atRiskPasswordsDescSingleOrg", org?.name, tasks.length)),
+          map((org) =>
+            this.i18nService.t(
+              tasks.length === 1
+                ? "atRiskPasswordDescSingleOrg"
+                : "atRiskPasswordsDescSingleOrgPlural",
+              org?.name,
+              tasks.length,
+            ),
+          ),
         );
       }
 
-      return of(this.i18nService.t("atRiskPasswordsDescMultiOrg", tasks.length));
+      return of(this.i18nService.t("atRiskPasswordsDescMultiOrgPlural", tasks.length));
     }),
   );
 

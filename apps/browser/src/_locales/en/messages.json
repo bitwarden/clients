@@ -1397,14 +1397,14 @@
   },
   "useAnotherTwoStepMethod": {
     "message": "Use another two-step login method"
-  },  
+  },
   "selectAnotherMethod": {
     "message": "Select another method",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  }, 
+  },
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
   },
@@ -2446,8 +2446,17 @@
   "atRiskPasswords": {
     "message": "At-risk passwords"
   },
-  "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2459,8 +2468,8 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
     "placeholders": {
       "count": {
         "content": "$1",
