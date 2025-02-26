@@ -812,7 +812,10 @@ describe("NotificationBackground", () => {
             newPassword: "newPassword",
           });
           notificationBackground["notificationQueue"] = [queueMessage];
-          const cipherView = mock<CipherView>();
+          const cipherView = mock<CipherView>({
+            id: "testId",
+            login: { username: "testUser" },
+          });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
 
           sendMockExtensionMessage(message, sender);
@@ -828,9 +831,14 @@ describe("NotificationBackground", () => {
             "testId",
           );
           expect(updateWithServerSpy).toHaveBeenCalled();
-          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
-            command: "saveCipherAttemptCompleted",
-          });
+          expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
+            sender.tab,
+            "saveCipherAttemptCompleted",
+            {
+              username: cipherView.login.username,
+              cipherId: cipherView.id,
+            },
+          );
         });
 
         it("updates the cipher password if the queue message was locked and an existing cipher has the same username as the message", async () => {
@@ -991,9 +999,13 @@ describe("NotificationBackground", () => {
           );
           expect(cipherEncryptSpy).toHaveBeenCalledWith(cipherView, "testId");
           expect(createWithServerSpy).toHaveBeenCalled();
-          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
-            command: "saveCipherAttemptCompleted",
-          });
+          expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
+            sender.tab,
+            "saveCipherAttemptCompleted",
+            {
+              username: cipherView.login.username,
+            },
+          );
           expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, { command: "addedCipher" });
         });
 
