@@ -8,6 +8,7 @@ import { NotificationView } from "../models";
  * A service for retrieving and managing notifications for end users.
  */
 export abstract class EndUserNotificationService {
+  abstract fetchNotificationsFromApi(userId: UserId): Promise<any>;
   /**
    * Observable of all notifications for the given user.
    * @param userId

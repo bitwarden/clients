@@ -1,16 +1,19 @@
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { SecurityTaskType } from "@bitwarden/vault";
-
 export class NotificationView {
   id: any;
-  userId: UserId;
-  organizationId: OrganizationId;
-  securityTask: SecurityTaskType;
+  priority: number;
+  title: string;
+  body: string;
+  revisionDate: Date;
+  readDate: Date;
+  deletedDate: Date;
 
   constructor(obj: any) {
     this.id = obj.id;
-    this.userId = obj.userId;
-    this.organizationId = obj.organizationId;
-    this.securityTask = obj.securityTask;
+    this.priority = obj.priority;
+    this.title = obj.title;
+    this.body = obj.body;
+    this.revisionDate = new Date(obj.revisionDate);
+    this.readDate = new Date(obj.readDate);
+    this.deletedDate = new Date(obj.deletedDate);
   }
 }

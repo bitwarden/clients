@@ -38,7 +38,11 @@ import {
   SearchModule,
   ToastService,
 } from "@bitwarden/components";
-import { CipherViewComponent, CopyCipherFieldService } from "@bitwarden/vault";
+import {
+  CipherViewComponent,
+  CopyCipherFieldService,
+  // EndUserNotificationService,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -53,7 +57,7 @@ import { PopupFooterComponent } from "./../../../../../platform/popup/layout/pop
 import { PopupHeaderComponent } from "./../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "./../../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupAutofillService } from "./../../../services/vault-popup-autofill.service";
-import { EndUserNotificationCenterService } from "@bitwarden/vault/src/notifications";
+// import { ApiService } from "@bitwarden/common/services/api.service";
 
 /**
  * The types of actions that can be triggered when loading the view vault item popout via the
@@ -115,7 +119,8 @@ export class ViewV2Component {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
-    private endUserNotificationCenterService: EndUserNotificationCenterService,
+    // private endUserNotificationService: EndUserNotificationService,
+    // private apiService: ApiService,
   ) {
     this.subscribeToParams();
   }
@@ -151,7 +156,8 @@ export class ViewV2Component {
             cipher.organizationId,
           );
 
-          await this.endUserNotificationCenterService.getNotifications(this.activeUserId);
+          // const notifications =
+          //   await this.endUserNotificationService.fetchNotificationsFromApi(activeUserId);
         }),
         takeUntilDestroyed(),
       )

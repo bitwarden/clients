@@ -1499,7 +1499,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: EndUserNotificationService,
     useClass: EndUserNotificationCenterService,
-    deps: [StateProvider, ApiServiceAbstraction, OrganizationServiceAbstraction, ConfigService],
+    deps: [StateProvider, ApiServiceAbstraction],
   }),
 ];
 
