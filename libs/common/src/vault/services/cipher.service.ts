@@ -430,7 +430,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     if (keys == null || (keys.userKey == null && Object.keys(keys.orgKeys).length === 0)) {
       // return early if there are no keys to decrypt with
-      return;
+      return [[], []];
     }
 
     // Group ciphers by orgId or under 'null' for the user's ciphers

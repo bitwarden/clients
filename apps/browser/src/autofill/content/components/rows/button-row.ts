@@ -8,12 +8,18 @@ import { spacing, themes } from "../../../content/components/constants/styles";
 import { Folder, User } from "../../../content/components/icons";
 import { DropdownMenu } from "../dropdown-menu";
 
-export function ButtonRow({ theme }: { theme: Theme }) {
+export function ButtonRow({
+  theme,
+  buttonAction,
+}: {
+  theme: Theme;
+  buttonAction: (e: Event) => void;
+}) {
   return html`
     <div class=${buttonRowStyles}>
       ${[
         ActionButton({
-          buttonAction: () => {},
+          buttonAction: buttonAction,
           buttonText: "Action Button",
           theme,
         }),

@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import "core-js/proposals/explicit-resource-management";
+
 import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
@@ -70,6 +72,7 @@ import {
   UserNotificationSettingsService,
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -607,6 +610,7 @@ export default class MainBackground {
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
       this.globalStateProvider,
+      this.taskSchedulerService,
     );
 
     const migrationRunner = new MigrationRunner(
@@ -1288,7 +1292,7 @@ export default class MainBackground {
     }
     this.containerService.attachToGlobal(self);
 
-    await this.sdkLoadService.load();
+    await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
 
@@ -1310,7 +1314,7 @@ export default class MainBackground {
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
 
-    this.popupViewCacheBackgroundService.startObservingTabChanges();
+    this.popupViewCacheBackgroundService.startObservingMessages();
 
     await this.vaultTimeoutService.init(true);
     this.fido2Background.init();
@@ -1383,18 +1387,11 @@ export default class MainBackground {
     const tab = await BrowserApi.getTabFromCurrentWindow();
 
     if (tab) {
-      const currentUriIsBlocked = await firstValueFrom(
+      const currentUrlIsBlocked = await firstValueFrom(
         this.domainSettingsService.blockedInteractionsUris$.pipe(
-          map((blockedInteractionsUris) => {
-            if (blockedInteractionsUris && tab?.url?.length) {
-              const tabURL = new URL(tab.url);
-              const tabIsBlocked = Object.keys(blockedInteractionsUris).some((blockedHostname) =>
-                tabURL.hostname.endsWith(blockedHostname),
-              );
-
-              if (tabIsBlocked) {
-                return true;
-              }
+          map((blockedInteractionsUrls) => {
+            if (blockedInteractionsUrls && tab?.url?.length) {
+              return isUrlInList(tab.url, blockedInteractionsUrls);
             }
 
             return false;
@@ -1402,7 +1399,7 @@ export default class MainBackground {
         ),
       );
 
-      await this.cipherContextMenuHandler?.update(tab.url, currentUriIsBlocked);
+      await this.cipherContextMenuHandler?.update(tab.url, currentUrlIsBlocked);
       this.onUpdatedRan = this.onReplacedRan = false;
     }
   }

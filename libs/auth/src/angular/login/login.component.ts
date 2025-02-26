@@ -318,15 +318,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
-    const email = this.emailFormControl.value;
-    if (!email) {
-      this.logService.error("Email is required for SSO login");
-      return;
-    }
-    await this.loginComponentService.launchSsoBrowserWindow(email, clientId);
-  }
-
   /**
    * Checks if the master password meets the enforced policy requirements
    * and if the user is required to change their password.
@@ -636,26 +627,25 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   /**
    * Handle the SSO button click.
-   * @param event - The event object.
    */
   async handleSsoClick() {
-    const isEmailValid = await this.validateEmail();
+    // Make sure the email is not empty, for type safety
+    const email = this.formGroup.value.email;
+    if (!email) {
+      this.logService.error("Email is required for SSO");
+      return;
+    }
 
+    // Make sure the email is valid
+    const isEmailValid = await this.validateEmail();
     if (!isEmailValid) {
       return;
     }
 
+    // Save the email configuration for the login component
     await this.saveEmailSettings();
 
-    if (this.clientType === ClientType.Web) {
-      await this.router.navigate(["/sso"], {
-        queryParams: { email: this.formGroup.value.email },
-      });
-      return;
-    }
-
-    await this.launchSsoBrowserWindow(
-      this.clientType === ClientType.Browser ? "browser" : "desktop",
-    );
+    // Send the user to SSO, either through routing or through redirecting to the web app
+    await this.loginComponentService.redirectToSsoLogin(email);
   }
 }

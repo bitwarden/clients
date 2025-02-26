@@ -176,6 +176,10 @@
   "copyNotes": {
     "message": "Notizen kopieren"
   },
+  "copy": {
+    "message": "Kopieren",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Ausfüllen",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -1024,6 +1028,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "Klicke auf Einträge zum automatischen Ausfüllen in der Tresor-Ansicht"
+  },
+  "clickToAutofill": {
+    "message": "Klick auf Einträge im Auto-Ausfüllen-Vorschlag zum Ausfüllen"
   },
   "clearClipboard": {
     "message": "Zwischenablage leeren",
@@ -2081,6 +2088,9 @@
     "message": ", um ein starkes einzigartiges Passwort zu erstellen",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Tresor-Personalisierung"
+  },
   "vaultTimeoutAction": {
     "message": "Aktion bei Tresor-Timeout"
   },
@@ -2345,6 +2355,9 @@
   "blockedDomains": {
     "message": "Gesperrte Domains"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Erfahre mehr über blockierte Domains"
+  },
   "excludedDomains": {
     "message": "Ausgeschlossene Domains"
   },
@@ -2376,10 +2389,10 @@
     }
   },
   "atRiskPasswords": {
-    "message": "Risikoreiche Passwörter"
+    "message": "Gefährdete Passwörter"
   },
   "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ fordert dich auf, diese $COUNT$ Passwörter zu ändern, da diese in risikoreich sind.",
+    "message": "$ORGANIZATION$ fordert dich auf, diese $COUNT$ Passwörter zu ändern, da diese gefährdet sind.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2392,7 +2405,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrg": {
-    "message": "Deine Organisationen fordern dich auf, diese $COUNT$ Passwörter zu ändern, da diese risikoreich sind.",
+    "message": "Deine Organisationen fordern dich auf, diese $COUNT$ Passwörter zu ändern, da diese gefährdet sind.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2401,10 +2414,10 @@
     }
   },
   "reviewAndChangeAtRiskPassword": {
-    "message": "Überprüfe und ändere ein risikoreiches Passwort"
+    "message": "Überprüfe und ändere ein gefährdetes Passwort"
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
-    "message": "Überprüfe und ändere $COUNT$ risikoreiche Passwörter",
+    "message": "Überprüfe und ändere $COUNT$ gefährdete Passwörter",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2413,7 +2426,7 @@
     }
   },
   "changeAtRiskPasswordsFaster": {
-    "message": "Ändere risikoreiche Passwörter schneller"
+    "message": "Ändere gefährdete Passwörter schneller"
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Aktualisiere deine Einstellungen, damit du deine Passwörter schnell automatisch ausfüllen kannst und neue generieren kannst"
@@ -3020,6 +3033,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Ungültiger API-Token von $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt. Bitte wende dich an deinen Dienstanbieter für Unterstützung.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ hat deine Anfrage abgelehnt: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",

@@ -67,6 +67,7 @@ const forwarder = Object.freeze({
       key: "addyIoForwarder",
       target: "object",
       format: "secret-state",
+      frame: 512,
       classifier: new PrivateClassifier<AddyIoSettings>(),
       state: GENERATOR_DISK,
       initial: defaultSettings,

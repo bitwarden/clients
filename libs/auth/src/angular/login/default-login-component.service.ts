@@ -1,7 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
-
 import { LoginComponentService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
@@ -21,19 +19,55 @@ export class DefaultLoginComponentService implements LoginComponentService {
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
     protected ssoLoginService: SsoLoginServiceAbstraction,
-  ) {}
+  ) {
+    this.clientType = this.platformUtilsService.getClientType();
+  }
 
   isLoginWithPasskeySupported(): boolean {
     return this.clientType === ClientType.Web;
   }
 
-  async launchSsoBrowserWindow(
-    email: string,
-    clientId: "browser" | "desktop",
-  ): Promise<void | null> {
-    // Save email for SSO
+  /**
+   * Redirects the user to the SSO login page, either via route or in a new browser window.
+   * @param email The email address of the user attempting to log in
+   */
+  async redirectToSsoLogin(email: string): Promise<void | null> {
+    // Set the state that we'll need to verify the SSO login when we get the code back
+    const [state, codeChallenge] = await this.setSsoPreLoginState();
+
+    // Set the email address in state. This is used in 2 places:
+    // 1. On the web client, on the SSO component we need the email address to look up
+    //    the org SSO identifier. The email address is passed via query param for the other clients.
+    // 2. On all clients, after authentication on the originating client the SSO component
+    //    will need to look up 2FA Remember token by email.
     await this.ssoLoginService.setSsoEmail(email);
 
+    // Finally, we redirect to the SSO login page. This will be handled by each client implementation of this service.
+    await this.redirectToSso(email, state, codeChallenge);
+  }
+
+  /**
+   * No-op implementation of redirectToSso
+   */
+  protected async redirectToSso(
+    email: string,
+    state: string,
+    codeChallenge: string,
+  ): Promise<void> {
+    return;
+  }
+
+  /**
+   * No-op implementation of showBackButton
+   */
+  showBackButton(showBackButton: boolean): void {
+    return;
+  }
+
+  /**
+   * Sets the state required for verifying SSO login after completion
+   */
+  private async setSsoPreLoginState(): Promise<[string, string]> {
     // Generate SSO params
     const passwordOptions: any = {
       type: "password",
@@ -46,8 +80,8 @@ export class DefaultLoginComponentService implements LoginComponentService {
 
     let state = await this.passwordGenerationService.generatePassword(passwordOptions);
 
-    if (clientId === "browser") {
-      // Need to persist the clientId in the state for the extension
+    // For the browser extension, we persist the clientId on state so that it will be included after SSO in the callback
+    if (this.clientType === ClientType.Browser) {
       state += ":clientId=browser";
     }
 
@@ -59,35 +93,6 @@ export class DefaultLoginComponentService implements LoginComponentService {
     await this.ssoLoginService.setSsoState(state);
     await this.ssoLoginService.setCodeVerifier(codeVerifier);
 
-    // Build URL
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const webVaultUrl = env.getWebVaultUrl();
-
-    const redirectUri =
-      clientId === "browser"
-        ? webVaultUrl + "/sso-connector.html" // Browser
-        : "bitwarden://sso-callback"; // Desktop
-
-    // Launch browser window with URL
-    this.platformUtilsService.launchUri(
-      webVaultUrl +
-        "/#/sso?clientId=" +
-        clientId +
-        "&redirectUri=" +
-        encodeURIComponent(redirectUri) +
-        "&state=" +
-        state +
-        "&codeChallenge=" +
-        codeChallenge +
-        "&email=" +
-        encodeURIComponent(email),
-    );
-  }
-
-  /**
-   * No-op implementation of showBackButton
-   */
-  showBackButton(showBackButton: boolean): void {
-    return;
+    return [state, codeChallenge];
   }
 }
