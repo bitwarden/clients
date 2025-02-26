@@ -154,60 +154,57 @@
       </bit-item>
     </bit-section>
     <bit-section>
-      <bit-section-header>
-        <h2 bitTypography="h6">{{ "enableAutoFillOnPageLoadSectionTitle" | i18n }}</h2>
-      </bit-section-header>
-      <bit-card>
-        <bit-hint class="tw-mb-6 tw-text-sm">
-          {{ "enableAutoFillOnPageLoadDesc" | i18n }}
-          <span
-            ><b>{{ "warningCapitalized" | i18n }}</b
-            >: {{ "experimentalFeature" | i18n }}</span
-          >
-          <a
-            bitLink
-            class="tw-no-underline"
-            href="https://bitwarden.com/help/auto-fill-browser/"
-            rel="noreferrer"
-            target="_blank"
-          >
-            {{ "learnMoreAboutAutofillOnPageLoadLinkText" | i18n }}
-          </a>
-        </bit-hint>
-        <bit-form-control>
-          <input
-            bitCheckbox
-            id="autofillOnPageLoad"
-            type="checkbox"
-            (change)="updateAutofillOnPageLoad()"
-            [(ngModel)]="enableAutofillOnPageLoad"
-            [disabled]="autofillOnPageLoadFromPolicy$ | async"
-          />
-          <bit-label for="autofillOnPageLoad">{{ "enableAutoFillOnPageLoad" | i18n }}</bit-label>
-          <bit-hint class="tw-text-sm" *ngIf="autofillOnPageLoadFromPolicy$ | async">{{
-            "enterprisePolicyRequirementsApplied" | i18n
-          }}</bit-hint>
-        </bit-form-control>
-        <bit-form-field disableMargin>
-          <bit-label for="defaultAutofill">{{ "defaultAutoFillOnPageLoad" | i18n }}</bit-label>
-          <select
-            bitInput
-            id="defaultAutofill"
-            (change)="updateAutofillOnPageLoadDefault()"
-            [(ngModel)]="autofillOnPageLoadDefault"
-            [disabled]="!enableAutofillOnPageLoad"
-          >
-            <option
-              *ngFor="let o of autofillOnPageLoadOptions"
-              [ngValue]="o.value"
-              [label]="o.name"
-            ></option>
-          </select>
-          <bit-hint class="tw-text-sm">
-            {{ "defaultAutoFillOnPageLoadDesc" | i18n }}
+      <form [formGroup]="autofillOnPageLoadForm">
+        <bit-section-header>
+          <legend>
+            <h2 bitTypography="h6">{{ "enableAutoFillOnPageLoadSectionTitle" | i18n }}</h2>
+          </legend>
+        </bit-section-header>
+        <bit-card>
+          <bit-hint class="tw-mb-6 tw-text-sm">
+            {{ "enableAutoFillOnPageLoadDesc" | i18n }}
+            <span
+              ><b>{{ "warningCapitalized" | i18n }}</b
+              >: {{ "experimentalFeature" | i18n }}</span
+            >
+            <a
+              bitLink
+              class="tw-no-underline"
+              href="https://bitwarden.com/help/auto-fill-browser/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              {{ "learnMoreAboutAutofillOnPageLoadLinkText" | i18n }}
+            </a>
           </bit-hint>
-        </bit-form-field>
-      </bit-card>
+          <bit-form-control>
+            <input
+              formControlName="autofillOnPageLoad"
+              bitCheckbox
+              id="autofillOnPageLoad"
+              type="checkbox"
+            />
+            <bit-label for="autofillOnPageLoad">{{ "enableAutoFillOnPageLoad" | i18n }}</bit-label>
+            <bit-hint class="tw-text-sm" *ngIf="autofillOnPageLoadFromPolicy$ | async">{{
+              "enterprisePolicyRequirementsApplied" | i18n
+            }}</bit-hint>
+          </bit-form-control>
+          <bit-form-field disableMargin>
+            <bit-label for="defaultAutofill">{{ "defaultAutoFillOnPageLoad" | i18n }}</bit-label>
+            <bit-select formControlName="defaultAutofill" bitInput id="defaultAutofill">
+              <bit-option
+                *ngFor="let option of autofillOnPageLoadOptions"
+                [label]="option.name"
+                [value]="option.value"
+              >
+              </bit-option>
+            </bit-select>
+            <bit-hint class="tw-text-sm">
+              {{ "defaultAutoFillOnPageLoadDesc" | i18n }}
+            </bit-hint>
+          </bit-form-field>
+        </bit-card>
+      </form>
     </bit-section>
     <bit-section [disableMargin]="!blockBrowserInjectionsByDomainEnabled">
       <bit-section-header>
