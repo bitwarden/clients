@@ -42,8 +42,8 @@ import { EventType } from "@bitwarden/common/enums";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { pin } from "@bitwarden/common/tools/rx";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -56,7 +56,8 @@ import {
   SelectModule,
   ToastService,
 } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import { GeneratorServicesModule } from "@bitwarden/generator-components";
+import { CredentialGeneratorService, GenerateRequest, Generators } from "@bitwarden/generator-core";
 import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
 import { EncryptedExportType } from "../enums/encrypted-export-type.enum";
@@ -81,6 +82,7 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
     ExportScopeCalloutComponent,
     UserVerificationDialogComponent,
     PasswordStrengthV2Component,
+    GeneratorServicesModule,
   ],
 })
 export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -175,14 +177,14 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private destroy$ = new Subject<void>();
   private onlyManagedCollections = true;
+  private onGenerate$ = new Subject<GenerateRequest>();
 
   constructor(
     protected i18nService: I18nService,
     protected toastService: ToastService,
     protected exportService: VaultExportServiceAbstraction,
     protected eventCollectionService: EventCollectionService,
-    protected passwordGenerationService: PasswordGenerationServiceAbstraction,
-    private platformUtilsService: PlatformUtilsService,
+    protected generatorService: CredentialGeneratorService,
     private policyService: PolicyService,
     private logService: LogService,
     private formBuilder: UntypedFormBuilder,
@@ -217,6 +219,27 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe(() => this.adjustValidators());
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+    // Wire up the password generation for the password-protected export
+    const account$ = this.accountService.activeAccount$.pipe(
+      pin({
+        name() {
+          return "active export account";
+        },
+        distinct(previous, current) {
+          return previous.id === current.id;
+        },
+      }),
+    );
+    this.generatorService
+      .generate$(Generators.password, { on$: this.onGenerate$, account$ })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((generated) => {
+        this.exportForm.patchValue({
+          filePassword: generated.credential,
+          confirmFilePassword: generated.credential,
+        });
+      });
 
     if (this.organizationId) {
       this.organizations$ = this.organizationService
@@ -302,10 +325,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   generatePassword = async () => {
-    const [options] = await this.passwordGenerationService.getOptions();
-    const generatedPassword = await this.passwordGenerationService.generatePassword(options);
-    this.exportForm.get("filePassword").setValue(generatedPassword);
-    this.exportForm.get("confirmFilePassword").setValue(generatedPassword);
+    this.onGenerate$.next({ source: "export" });
   };
 
   submit = async () => {

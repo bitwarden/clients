@@ -32,6 +32,7 @@
       "@bitwarden/send-ui": ["../../libs/tools/send/send-ui/src"],
       "@bitwarden/tools-card": ["../../libs/tools/card/src"],
       "@bitwarden/ui-common": ["../../libs/ui/common/src"],
+      "@bitwarden/ui-common/setup-jest": ["../../libs/ui/common/src/setup-jest"],
       "@bitwarden/vault-export-core": [
         "../../libs/tools/export/vault-export/vault-export-core/src"
       ],
@@ -46,8 +47,7 @@
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
-    "strictTemplates": true,
-    "preserveWhitespaces": true
+    "strictTemplates": true
   },
   "include": [
     "src",

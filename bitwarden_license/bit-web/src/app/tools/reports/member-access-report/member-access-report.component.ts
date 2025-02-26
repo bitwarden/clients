@@ -4,7 +4,7 @@ import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
+import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -48,6 +48,7 @@ export class MemberAccessReportComponent implements OnInit {
   protected searchControl = new FormControl("", { nonNullable: true });
   protected organizationId: OrganizationId;
   protected orgIsOnSecretsManagerStandalone: boolean;
+  protected isLoading$ = new BehaviorSubject(true);
 
   constructor(
     private route: ActivatedRoute,
@@ -64,6 +65,8 @@ export class MemberAccessReportComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.isLoading$.next(true);
+
     const params = await firstValueFrom(this.route.params);
     this.organizationId = params.organizationId;
 
@@ -74,6 +77,8 @@ export class MemberAccessReportComponent implements OnInit {
     this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
 
     await this.load();
+
+    this.isLoading$.next(false);
   }
 
   async load() {
