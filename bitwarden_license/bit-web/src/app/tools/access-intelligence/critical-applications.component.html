@@ -37,7 +37,11 @@
       (click)="requestPasswordChange()"
     >
       <i class="bwi bwi-envelope tw-mr-2"></i>
-      {{ "requestPasswordChange" | i18n }}
+      {{
+        enableRequestPasswordChange
+          ? ("requestPasswordChange" | i18n)
+          : ("noCriticalAppsAtRisk" | i18n)
+      }}
     </button>
   </div>
   <div class="tw-flex tw-gap-6">
