@@ -392,8 +392,7 @@ jobs:
         run: node build.js cross-platform
 
       - name: Build
-        run: |
-          npm run build
+        run: npm run build
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
