@@ -84,6 +84,9 @@ describe("ExposedPasswordsReportComponent", () => {
         },
       ],
       schemas: [],
+      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
+      errorOnUnknownElements: false,
+      errorOnUnknownProperties: false,
     }).compileComponents();
   });
 

@@ -1,3 +1,5 @@
+import "core-js/proposals/explicit-resource-management";
+
 import { program } from "commander";
 
 import { OssServeConfigurator } from "./oss-serve-configurator";
