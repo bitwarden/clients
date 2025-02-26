@@ -105,12 +105,21 @@ export class AtRiskPasswordsComponent {
     startWith(true),
   );
 
-  protected calloutDismissed$ = this.activeUserData$.pipe(
+  private calloutDismissed$ = this.activeUserData$.pipe(
     switchMap(({ userId }) => this.atRiskPasswordPageService.isCalloutDismissed(userId)),
   );
-
-  protected inlineAutofillSettingEnabled$ = this.autofillSettingsService.inlineMenuVisibility$.pipe(
+  private inlineAutofillSettingEnabled$ = this.autofillSettingsService.inlineMenuVisibility$.pipe(
     map((setting) => setting !== AutofillOverlayVisibility.Off),
+  );
+
+  protected showAutofillCallout$ = combineLatest([
+    this.calloutDismissed$,
+    this.inlineAutofillSettingEnabled$,
+  ]).pipe(
+    map(([calloutDismissed, inlineAutofillSettingEnabled]) => {
+      return !calloutDismissed && !inlineAutofillSettingEnabled;
+    }),
+    startWith(false),
   );
 
   protected atRiskItems$ = this.activeUserData$.pipe(
