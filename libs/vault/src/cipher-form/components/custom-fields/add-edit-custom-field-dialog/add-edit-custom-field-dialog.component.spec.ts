@@ -38,6 +38,8 @@ describe("AddEditCustomFieldDialogComponent", () => {
 
     fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
     component = fixture.componentInstance;
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     fixture.detectChanges;
   });
 

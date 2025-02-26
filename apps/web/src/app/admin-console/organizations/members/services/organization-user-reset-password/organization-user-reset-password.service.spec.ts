@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -10,7 +11,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -164,10 +165,9 @@ describe("OrganizationUserResetPasswordService", () => {
 
   describe("getRotatedData", () => {
     beforeEach(() => {
-      organizationService.getAll.mockResolvedValue([
-        createOrganization("1", "org1"),
-        createOrganization("2", "org2"),
-      ]);
+      organizationService.organizations$.mockReturnValue(
+        of([createOrganization("1", "org1"), createOrganization("2", "org2")]),
+      );
       organizationApiService.getKeys.mockResolvedValue(
         new OrganizationKeysResponse({
           privateKey: "test-private-key",

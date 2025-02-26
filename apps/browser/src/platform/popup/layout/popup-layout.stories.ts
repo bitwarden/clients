@@ -41,11 +41,11 @@ class ExtensionContainerComponent {}
 
 @Component({
   selector: "vault-placeholder",
-  template: `
+  template: /*html*/ `
     <bit-section>
       <bit-item-group aria-label="Mock Vault Items">
         <bit-item *ngFor="let item of data; index as i">
-          <button bit-item-content>
+          <button type="button" bit-item-content>
             <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
             {{ i }} of {{ data.length - 1 }}
             <span slot="secondary">Bar</span>
@@ -53,7 +53,7 @@ class ExtensionContainerComponent {}
 
           <ng-container slot="end">
             <bit-item-action>
-              <button type="button" bitBadge variant="primary">Auto-fill</button>
+              <button type="button" bitBadge variant="primary">Fill</button>
             </bit-item-action>
             <bit-item-action>
               <button type="button" bitIconButton="bwi-clone" aria-label="Copy item"></button>
@@ -277,8 +277,8 @@ class MockSettingsPageComponent {}
       </popup-header>
       <vault-placeholder></vault-placeholder>
       <popup-footer slot="footer">
-        <button bitButton buttonType="primary">Save</button>
-        <button bitButton buttonType="secondary">Cancel</button>
+        <button type="button" bitButton buttonType="primary">Save</button>
+        <button type="button" bitButton buttonType="secondary">Cancel</button>
         <button slot="end" type="button" buttonType="danger" bitIconButton="bwi-trash"></button>
       </popup-footer>
     </popup-page>
@@ -301,6 +301,12 @@ class MockVaultSubpageComponent {}
 export default {
   title: "Browser/Popup Layout",
   component: PopupPageComponent,
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-38889&t=k6OTDDPZOTtypRqo-11",
+    },
+  },
   decorators: [
     moduleMetadata({
       imports: [

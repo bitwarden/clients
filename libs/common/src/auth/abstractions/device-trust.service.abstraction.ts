@@ -9,7 +9,18 @@ import { DeviceKey, UserKey } from "../../types/key";
 import { DeviceResponse } from "./devices/responses/device.response";
 
 export abstract class DeviceTrustServiceAbstraction {
+  /**
+   * @deprecated - use supportsDeviceTrustByUserId instead as active user state is being deprecated
+   * by Platform
+   * @description Checks if the device trust feature is supported for the active user.
+   */
   supportsDeviceTrust$: Observable<boolean>;
+
+  /**
+   * @description Checks if the device trust feature is supported for the given user.
+   */
+  supportsDeviceTrustByUserId$: (userId: UserId) => Observable<boolean>;
+
   /**
    * @description Retrieves the users choice to trust the device which can only happen after decryption
    * Note: this value should only be used once and then reset

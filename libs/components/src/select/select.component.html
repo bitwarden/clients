@@ -13,7 +13,9 @@
   <ng-template ng-option-tmp let-item="item">
     <div class="tw-flex" [title]="item.label">
       <div class="tw-mr-2 tw-flex-initial">
-        <i *ngIf="item.icon != null" class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
+        @if (item.icon != null) {
+          <i class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
+        }
       </div>
       <div class="tw-flex-1 tw-text-ellipsis tw-overflow-hidden">
         {{ item.label }}

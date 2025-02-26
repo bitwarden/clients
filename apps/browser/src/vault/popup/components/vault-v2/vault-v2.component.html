@@ -1,0 +1,89 @@
+<popup-page [loading]="loading$ | async" disablePadding>
+  <popup-header slot="header" [pageTitle]="'vault' | i18n">
+    <ng-container slot="end">
+      <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
+
+      <app-pop-out></app-pop-out>
+      <app-current-account></app-current-account>
+    </ng-container>
+  </popup-header>
+
+  <div
+    *ngIf="vaultState === VaultStateEnum.Empty"
+    class="tw-flex tw-flex-col tw-h-full tw-justify-center"
+  >
+    <bit-no-items [icon]="vaultIcon">
+      <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "autofillSuggestionsTip" | i18n }}</ng-container>
+      <app-new-item-dropdown
+        slot="button"
+        [initialValues]="newItemItemValues$ | async"
+      ></app-new-item-dropdown>
+    </bit-no-items>
+  </div>
+
+  <blocked-injection-banner
+    *ngIf="vaultState !== VaultStateEnum.Empty"
+    slot="full-width-notice"
+  ></blocked-injection-banner>
+
+  <!-- Show search & filters outside of the scroll area of the page -->
+  <ng-container
+    slot="above-scroll-area"
+    *ngIf="vaultState !== VaultStateEnum.Empty && !(loading$ | async)"
+  >
+    <vault-at-risk-password-callout
+      *appIfFeature="FeatureFlag.SecurityTasks"
+    ></vault-at-risk-password-callout>
+    <app-vault-header-v2></app-vault-header-v2>
+  </ng-container>
+
+  <ng-container *ngIf="vaultState !== VaultStateEnum.Empty">
+    <div
+      *ngIf="vaultState === VaultStateEnum.NoResults"
+      class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
+    >
+      <bit-no-items [icon]="noResultsIcon">
+        <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
+        <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
+      </bit-no-items>
+    </div>
+
+    <!-- For better consistency with screen readers, the role/aria needs to be on an element that isn't dynamic by *ngIf -->
+    <div role="status" aria-live="polite">
+      <div
+        *ngIf="vaultState === VaultStateEnum.DeactivatedOrg"
+        class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12"
+      >
+        <bit-no-items [icon]="deactivatedIcon">
+          <ng-container slot="title">
+            {{ "organizationIsDeactivated" | i18n }}
+          </ng-container>
+          <ng-container slot="description">{{ "contactYourOrgAdmin" | i18n }}</ng-container>
+        </bit-no-items>
+      </div>
+    </div>
+
+    <div
+      *ngIf="vaultState === null"
+      cdkVirtualScrollingElement
+      class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
+    >
+      <app-autofill-vault-list-items></app-autofill-vault-list-items>
+      <app-vault-list-items-container
+        [title]="'favorites' | i18n"
+        [ciphers]="(favoriteCiphers$ | async) || []"
+        id="favorites"
+        collapsibleKey="favorites"
+      ></app-vault-list-items-container>
+      <app-vault-list-items-container
+        [title]="'allItems' | i18n"
+        [ciphers]="(remainingCiphers$ | async) || []"
+        id="allItems"
+        disableSectionMargin
+        collapsibleKey="allItems"
+      ></app-vault-list-items-container>
+    </div>
+  </ng-container>
+  <new-settings-callout></new-settings-callout>
+</popup-page>

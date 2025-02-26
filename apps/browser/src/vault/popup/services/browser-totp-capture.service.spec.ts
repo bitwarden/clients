@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import qrcodeParser from "qrcode-parser";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 
 import { BrowserTotpCaptureService } from "./browser-totp-capture.service";
 
@@ -13,12 +14,14 @@ describe("BrowserTotpCaptureService", () => {
   let testBed: TestBed;
   let service: BrowserTotpCaptureService;
   let mockCaptureVisibleTab: jest.SpyInstance;
+  let mockBrowserPopupUtilsInPopout: jest.SpyInstance;
 
   const validTotpUrl = "otpauth://totp/label?secret=123";
 
   beforeEach(() => {
     mockCaptureVisibleTab = jest.spyOn(BrowserApi, "captureVisibleTab");
     mockCaptureVisibleTab.mockResolvedValue("screenshot");
+    mockBrowserPopupUtilsInPopout = jest.spyOn(BrowserPopupUtils, "inPopout");
 
     testBed = TestBed.configureTestingModule({
       providers: [BrowserTotpCaptureService],
@@ -65,5 +68,17 @@ describe("BrowserTotpCaptureService", () => {
     const result = await service.captureTotpSecret();
 
     expect(result).toBeNull();
+  });
+
+  describe("canCaptureTotp", () => {
+    it("should return true when not in a popout window", () => {
+      mockBrowserPopupUtilsInPopout.mockReturnValue(false);
+      expect(service.canCaptureTotp({} as Window)).toBe(true);
+    });
+
+    it("should return false when in a popout window", () => {
+      mockBrowserPopupUtilsInPopout.mockReturnValue(true);
+      expect(service.canCaptureTotp({} as Window)).toBe(false);
+    });
   });
 });

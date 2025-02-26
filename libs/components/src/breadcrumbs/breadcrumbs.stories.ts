@@ -35,6 +35,12 @@ export default {
       ],
     }),
   ],
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-26962&t=b5tDKylm5sWm2yKo-4",
+    },
+  },
   args: {
     items: [],
     show: 3,

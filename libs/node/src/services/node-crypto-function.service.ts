@@ -1,12 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import * as crypto from "crypto";
 
 import * as forge from "node-forge";
 
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DecryptParameters } from "@bitwarden/common/platform/models/domain/decrypt-parameters";
+import {
+  CbcDecryptParameters,
+  EcbDecryptParameters,
+} from "@bitwarden/common/platform/models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 
@@ -168,10 +169,10 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   aesDecryptFastParameters(
     data: string,
     iv: string,
-    mac: string,
+    mac: string | null,
     key: SymmetricCryptoKey,
-  ): DecryptParameters<Uint8Array> {
-    const p = new DecryptParameters<Uint8Array>();
+  ): CbcDecryptParameters<Uint8Array> {
+    const p = {} as CbcDecryptParameters<Uint8Array>;
     p.encKey = key.encKey;
     p.data = Utils.fromB64ToArray(data);
     p.iv = Utils.fromB64ToArray(iv);
@@ -191,22 +192,25 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     return p;
   }
 
-  async aesDecryptFast(
-    parameters: DecryptParameters<Uint8Array>,
-    mode: "cbc" | "ecb",
-  ): Promise<string> {
-    const decBuf = await this.aesDecrypt(parameters.data, parameters.iv, parameters.encKey, mode);
+  async aesDecryptFast({
+    mode,
+    parameters,
+  }:
+    | { mode: "cbc"; parameters: CbcDecryptParameters<Uint8Array> }
+    | { mode: "ecb"; parameters: EcbDecryptParameters<Uint8Array> }): Promise<string> {
+    const iv = mode === "cbc" ? parameters.iv : null;
+    const decBuf = await this.aesDecrypt(parameters.data, iv, parameters.encKey, mode);
     return Utils.fromBufferToUtf8(decBuf);
   }
 
   aesDecrypt(
     data: Uint8Array,
-    iv: Uint8Array,
+    iv: Uint8Array | null,
     key: Uint8Array,
     mode: "cbc" | "ecb",
   ): Promise<Uint8Array> {
     const nodeData = this.toNodeBuffer(data);
-    const nodeIv = mode === "ecb" ? null : this.toNodeBuffer(iv);
+    const nodeIv = this.toNodeBufferOrNull(iv);
     const nodeKey = this.toNodeBuffer(key);
     const decipher = crypto.createDecipheriv(this.toNodeCryptoAesMode(mode), nodeKey, nodeIv);
     const decBuf = Buffer.concat([decipher.update(nodeData), decipher.final()]);
@@ -309,6 +313,13 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
 
   private toNodeBuffer(value: Uint8Array): Buffer {
     return Buffer.from(value);
+  }
+
+  private toNodeBufferOrNull(value: Uint8Array | null): Buffer | null {
+    if (value == null) {
+      return null;
+    }
+    return this.toNodeBuffer(value);
   }
 
   private toUint8Buffer(value: Buffer | string | Uint8Array): Uint8Array {

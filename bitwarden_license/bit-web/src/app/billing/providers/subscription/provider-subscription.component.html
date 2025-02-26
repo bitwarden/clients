@@ -25,7 +25,7 @@
               <tr bitRow *ngFor="let i of activePlans">
                 <td bitCell class="tw-pl-0 tw-py-3">
                   {{ getFormattedPlanName(i.planName) }} {{ "orgSeats" | i18n }} ({{
-                    i.cadence.toLowerCase()
+                    getFormattedPlanNameCadence(i.cadence) | i18n
                   }}) {{ "&times;" }}{{ getFormattedSeatCount(i.seatMinimum, i.purchasedSeats) }}
                   &#64;
                   {{
@@ -38,12 +38,11 @@
                   }}
                 </td>
                 <td bitCell class="tw-text-right tw-py-3">
-                  {{ ((100 - subscription.discountPercentage) / 100) * i.cost | currency: "$" }} /{{
-                    "month" | i18n
-                  }}
+                  {{ ((100 - subscription.discountPercentage) / 100) * i.cost | currency: "$" }} /
+                  {{ getBillingCadenceLabel(i) | i18n }}
                   <div *ngIf="subscription.discountPercentage">
                     <bit-hint class="tw-text-sm tw-line-through">
-                      {{ i.cost | currency: "$" }} /{{ "month" | i18n }}
+                      {{ i.cost | currency: "$" }} / {{ getBillingCadenceLabel(i) | i18n }}
                     </bit-hint>
                   </div>
                 </td>
@@ -52,8 +51,9 @@
               <tr bitRow>
                 <td bitCell class="tw-pl-0 tw-py-3"></td>
                 <td bitCell class="tw-text-right">
-                  <span class="tw-font-bold">Total:</span> {{ totalCost | currency: "$" }} /{{
-                    "month" | i18n
+                  <span class="tw-font-bold">Total:</span> {{ totalCost | currency: "$" }} /
+                  {{
+                    getBillingCadenceLabel(activePlans.length > 0 ? activePlans[0] : null) | i18n
                   }}
                 </td>
               </tr>

@@ -31,16 +31,10 @@ interface AddUnlockVaultQueueMessage extends NotificationQueueMessage {
   type: "unlock";
 }
 
-interface AddRequestFilelessImportQueueMessage extends NotificationQueueMessage {
-  type: "fileless-import";
-  importType?: string;
-}
-
 type NotificationQueueMessageItem =
   | AddLoginQueueMessage
   | AddChangePasswordQueueMessage
-  | AddUnlockVaultQueueMessage
-  | AddRequestFilelessImportQueueMessage;
+  | AddUnlockVaultQueueMessage;
 
 type LockedVaultPendingNotificationsData = {
   commandToRetry: {
@@ -122,7 +116,6 @@ export {
   AddChangePasswordQueueMessage,
   AddLoginQueueMessage,
   AddUnlockVaultQueueMessage,
-  AddRequestFilelessImportQueueMessage,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
   AdjustNotificationBarMessageData,

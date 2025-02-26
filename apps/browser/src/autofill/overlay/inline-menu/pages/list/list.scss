@@ -404,6 +404,11 @@ body * {
       color: themed("mutedTextColor");
     }
 
+    &.masked-totp {
+      font-size: 0.875rem;
+      letter-spacing: 0.2rem;
+    }
+
     &--passkey {
       display: flex;
       align-content: center;

@@ -5,40 +5,41 @@
     [attr.aria-label]="label"
     (keydown)="keyManager.onKeydown($event)"
   >
-    <button
-      bitTabListItem
-      *ngFor="let tab of tabs; let i = index"
-      type="button"
-      role="tab"
-      [id]="getTabLabelId(i)"
-      [active]="tab.isActive"
-      [disabled]="tab.disabled"
-      [attr.aria-selected]="selectedIndex === i"
-      [attr.tabindex]="selectedIndex === i ? 0 : -1"
-      (click)="selectTab(i)"
-    >
-      <ng-container [ngTemplateOutlet]="content"></ng-container>
-
-      <ng-template #content>
-        <ng-template [ngIf]="tab.templateLabel" [ngIfElse]="tabTextLabel">
-          <ng-container [ngTemplateOutlet]="tab.templateLabel.templateRef"></ng-container>
+    @for (tab of tabs; track tab; let i = $index) {
+      <button
+        bitTabListItem
+        type="button"
+        role="tab"
+        [id]="getTabLabelId(i)"
+        [active]="tab.isActive"
+        [disabled]="tab.disabled"
+        [attr.aria-selected]="selectedIndex === i"
+        [attr.tabindex]="selectedIndex === i ? 0 : -1"
+        (click)="selectTab(i)"
+      >
+        <ng-container [ngTemplateOutlet]="content"></ng-container>
+        <ng-template #content>
+          @if (tab.templateLabel) {
+            <ng-container [ngTemplateOutlet]="tab.templateLabel.templateRef"></ng-container>
+          } @else {
+            {{ tab.textLabel }}
+          }
         </ng-template>
-
-        <ng-template #tabTextLabel>{{ tab.textLabel }}</ng-template>
-      </ng-template>
-    </button>
+      </button>
+    }
   </div>
 </bit-tab-header>
 <div class="tw-px-4 tw-pt-5">
-  <bit-tab-body
-    role="tabpanel"
-    *ngFor="let tab of tabs; let i = index"
-    [id]="getTabContentId(i)"
-    [attr.tabindex]="tab.contentTabIndex"
-    [attr.labeledby]="getTabLabelId(i)"
-    [active]="tab.isActive"
-    [content]="tab.content"
-    [preserveContent]="preserveContent"
-  >
-  </bit-tab-body>
+  @for (tab of tabs; track tab; let i = $index) {
+    <bit-tab-body
+      role="tabpanel"
+      [id]="getTabContentId(i)"
+      [attr.tabindex]="tab.contentTabIndex"
+      [attr.labeledby]="getTabLabelId(i)"
+      [active]="tab.isActive"
+      [content]="tab.content"
+      [preserveContent]="preserveContent"
+    >
+    </bit-tab-body>
+  }
 </div>

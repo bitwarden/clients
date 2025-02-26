@@ -19,6 +19,18 @@
     </a>
   </bit-banner>
 </ng-container>
+<ng-container *ngIf="resellerWarning$ | async as resellerWarning">
+  <bit-banner
+    id="reseller-warning-banner"
+    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+    icon="bwi-billing"
+    bannerType="info"
+    [showClose]="false"
+    *ngIf="!refreshing"
+  >
+    {{ resellerWarning?.message }}
+  </bit-banner>
+</ng-container>
 
 <app-org-vault-header
   [filter]="filter"

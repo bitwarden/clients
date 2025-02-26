@@ -3,7 +3,7 @@
 import { Component, NgZone, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, takeUntil } from "rxjs";
+import { takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login-v1.component";
@@ -11,7 +11,6 @@ import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstrac
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
-  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -20,7 +19,6 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -71,8 +69,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
     formValidationErrorService: FormValidationErrorsService,
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
-    webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    registerRouteService: RegisterRouteService,
     toastService: ToastService,
   ) {
     super(
@@ -93,8 +89,6 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
       route,
       loginEmailService,
       ssoLoginService,
-      webAuthnLoginService,
-      registerRouteService,
       toastService,
     );
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
@@ -111,7 +105,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
-      // If there is an query parameter called 'org', set previousUrl to `/create-organization?org=paramValue`
+      // If there is a query parameter called 'org', set previousUrl to `/create-organization?org=paramValue`
       if (qParams.org != null) {
         const route = this.router.createUrlTree(["create-organization"], {
           queryParams: { plan: qParams.org },
@@ -178,17 +172,14 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   }
 
   async goToRegister() {
-    // TODO: remove when email verification flag is removed
-    const registerRoute = await firstValueFrom(this.registerRoute$);
-
     if (this.emailFormControl.valid) {
-      await this.router.navigate([registerRoute], {
+      await this.router.navigate(["/signup"], {
         queryParams: { email: this.emailFormControl.value },
       });
       return;
     }
 
-    await this.router.navigate([registerRoute]);
+    await this.router.navigate(["/signup"]);
   }
 
   protected override async handleMigrateEncryptionKey(result: AuthResult): Promise<boolean> {

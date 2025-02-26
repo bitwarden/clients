@@ -1,11 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
+
+import { NgClass } from "@angular/common";
 import {
   AfterContentChecked,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  Input,
   signal,
   ViewChild,
 } from "@angular/core";
@@ -15,7 +17,7 @@ import { TypographyModule } from "../typography";
 @Component({
   selector: "bit-item-content, [bit-item-content]",
   standalone: true,
-  imports: [CommonModule, TypographyModule],
+  imports: [TypographyModule, NgClass],
   templateUrl: `item-content.component.html`,
   host: {
     class:
@@ -31,6 +33,13 @@ export class ItemContentComponent implements AfterContentChecked {
   @ViewChild("endSlot") endSlot: ElementRef<HTMLDivElement>;
 
   protected endSlotHasChildren = signal(false);
+
+  /**
+   * Determines whether text will truncate or wrap.
+   *
+   * Default behavior is truncation.
+   */
+  @Input() truncate = true;
 
   ngAfterContentChecked(): void {
     this.endSlotHasChildren.set(this.endSlot?.nativeElement.childElementCount > 0);

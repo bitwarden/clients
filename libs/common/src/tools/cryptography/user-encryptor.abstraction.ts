@@ -2,9 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { UserId } from "@bitwarden/common/types/guid";
-
 import { EncString } from "../../platform/models/domain/enc-string";
+import { UserId } from "../../types/guid";
 
 /** An encryption strategy that protects a type's secrets with
  *  user-specific keys. This strategy is bound to a specific user.

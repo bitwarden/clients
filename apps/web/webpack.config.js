@@ -49,7 +49,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "sass-loader",
+      "resolve-url-loader",
+      {
+        loader: "sass-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -59,7 +65,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "postcss-loader",
+      "resolve-url-loader",
+      {
+        loader: "postcss-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -94,7 +106,7 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn.html",
     filename: "webauthn-connector.html",
-    chunks: ["connectors/webauthn"],
+    chunks: ["connectors/webauthn", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-mobile.html",
@@ -104,7 +116,7 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-fallback.html",
     filename: "webauthn-fallback-connector.html",
-    chunks: ["connectors/webauthn-fallback"],
+    chunks: ["connectors/webauthn-fallback", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/sso.html",
@@ -256,7 +268,7 @@ const devServer =
                   'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='
                   'sha256-or0p3LaHetJ4FRq+flVORVFFNsOjQGWrDvX8Jf7ACWg='
                   'sha256-jvLh2uL2/Pq/gpvNJMaEL4C+TNhBeGadLIUyPcVRZvY='
-                  'sha256-Oca9ZYU1dwNscIhdNV7tFBsr4oqagBhZx9/p4w8GOcg='
+                  'sha256-VZTcMoTEw3nbAHejvqlyyRm1Mdx+DVNgyKANjpWw0qg='
                 ;img-src
                   'self'
                   data:

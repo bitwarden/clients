@@ -1,5 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input } from "@angular/core";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { IconButtonType } from "@bitwarden/components/src/icon-button/icon-button.component";
 
 import { ProductSwitcherService } from "./shared/product-switcher.service";

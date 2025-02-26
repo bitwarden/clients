@@ -1,13 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as papa from "papaparse";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -61,15 +62,16 @@ export class IndividualVaultExportService
     let decFolders: FolderView[] = [];
     let decCiphers: CipherView[] = [];
     const promises = [];
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
-      this.folderService.getAllDecryptedFromState().then((folders) => {
+      firstValueFrom(this.folderService.folderViews$(activeUserId)).then((folders) => {
         decFolders = folders;
       }),
     );
 
     promises.push(
-      this.cipherService.getAllDecrypted().then((ciphers) => {
+      this.cipherService.getAllDecrypted(activeUserId).then((ciphers) => {
         decCiphers = ciphers.filter((f) => f.deletedDate == null);
       }),
     );
@@ -87,25 +89,25 @@ export class IndividualVaultExportService
     let folders: Folder[] = [];
     let ciphers: Cipher[] = [];
     const promises = [];
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
-      this.folderService.getAllFromState().then((f) => {
+      firstValueFrom(this.folderService.folders$(activeUserId)).then((f) => {
         folders = f;
       }),
     );
 
     promises.push(
-      this.cipherService.getAll().then((c) => {
+      this.cipherService.getAll(activeUserId).then((c) => {
         ciphers = c.filter((f) => f.deletedDate == null);
       }),
     );
 
     await Promise.all(promises);
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    const userKey = await this.keyService.getUserKeyWithLegacySupport(
+      await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
     );
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
     const encKeyValidation = await this.encryptService.encrypt(Utils.newGuid(), userKey);
 
     const jsonDoc: BitwardenEncryptedIndividualJsonExport = {

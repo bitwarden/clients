@@ -1,0 +1,15 @@
+<header class="tw-flex tw-justify-between tw-items-center">
+  <div class="tw-flex tw-items-center tw-gap-1 tw-overflow-auto">
+    <ng-content select="[slot=start]"></ng-content>
+    <h2 bitTypography="h3" noMargin class="tw-text-main tw-mb-0 tw-truncate" [attr.title]="title()">
+      {{ title() }}
+    </h2>
+  </div>
+  <button
+    bitIconButton="bwi-close"
+    type="button"
+    bitDrawerClose
+    [attr.title]="'close' | i18n"
+    [attr.aria-label]="'close' | i18n"
+  ></button>
+</header>

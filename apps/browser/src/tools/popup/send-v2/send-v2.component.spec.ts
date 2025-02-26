@@ -91,7 +91,17 @@ describe("SendV2Component", () => {
         CurrentAccountComponent,
       ],
       providers: [
-        { provide: AccountService, useValue: mock<AccountService>() },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({
+              id: "123",
+              email: "test@email.com",
+              emailVerified: true,
+              name: "Test User",
+            }),
+          },
+        },
         { provide: AuthService, useValue: mock<AuthService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
         {

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   QueryList,
@@ -9,7 +7,13 @@ import {
   AfterViewInit,
   ViewChildren,
 } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  FormArray,
+} from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
@@ -17,7 +21,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   ButtonModule,
@@ -28,6 +31,7 @@ import {
   LinkModule,
   SectionComponent,
   SectionHeaderComponent,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -47,6 +51,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     CommonModule,
     FormFieldModule,
     FormsModule,
+    ReactiveFormsModule,
     IconButtonModule,
     ItemModule,
     JslibModule,
@@ -62,13 +67,19 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   ],
 })
 export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
-  @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>>;
+  @ViewChildren("uriInput") uriInputElements: QueryList<ElementRef<HTMLInputElement>> =
+    new QueryList();
 
   accountSwitcherEnabled = false;
   dataIsPristine = true;
   isLoading = false;
   excludedDomainsState: string[] = [];
   storedExcludedDomains: string[] = [];
+
+  protected domainListForm = new FormGroup({
+    domains: this.formBuilder.array([]),
+  });
+
   // How many fields should be non-editable before editable fields
   fieldsEditThreshold: number = 0;
 
@@ -77,9 +88,14 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
   constructor(
     private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
+    private formBuilder: FormBuilder,
   ) {
     this.accountSwitcherEnabled = enableAccountSwitching();
+  }
+
+  get domainForms() {
+    return this.domainListForm.get("domains") as FormArray;
   }
 
   async ngAfterViewInit() {
@@ -118,8 +134,7 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
   }
 
   async addNewDomain() {
-    // add empty field to the Domains list interface
-    this.excludedDomainsState.push("");
+    this.domainForms.push(this.formBuilder.control(null));
 
     await this.fieldChange();
   }
@@ -149,18 +164,22 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
     this.isLoading = true;
 
     const newExcludedDomainsSaveState: NeverDomains = {};
-    const uniqueExcludedDomains = new Set(this.excludedDomainsState);
+
+    const uniqueExcludedDomains = new Set([
+      ...this.excludedDomainsState,
+      ...this.domainForms.value,
+    ]);
 
     for (const uri of uniqueExcludedDomains) {
       if (uri && uri !== "") {
         const validatedHost = Utils.getHostname(uri);
 
         if (!validatedHost) {
-          this.platformUtilsService.showToast(
-            "error",
-            null,
-            this.i18nService.t("excludedDomainsInvalidDomain", uri),
-          );
+          this.toastService.showToast({
+            message: this.i18nService.t("excludedDomainsInvalidDomain", uri),
+            title: "",
+            variant: "error",
+          });
 
           // Don't reset via `handleStateUpdate` to allow existing input value correction
           this.isLoading = false;
@@ -182,7 +201,7 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
       if (stateIsUnchanged) {
         // Reset UI state directly
         const constructedNeverDomainsState = this.storedExcludedDomains.reduce(
-          (neverDomains, uri) => ({ ...neverDomains, [uri]: null }),
+          (neverDomains: NeverDomains, uri: string) => ({ ...neverDomains, [uri]: null }),
           {},
         );
         this.handleStateUpdate(constructedNeverDomainsState);
@@ -190,14 +209,19 @@ export class ExcludedDomainsComponent implements AfterViewInit, OnDestroy {
         await this.domainSettingsService.setNeverDomains(newExcludedDomainsSaveState);
       }
 
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("excludedDomainsSavedSuccess"),
-      );
-    } catch {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("unexpectedError"));
+      this.toastService.showToast({
+        message: this.i18nService.t("excludedDomainsSavedSuccess"),
+        title: "",
+        variant: "success",
+      });
 
+      this.domainForms.clear();
+    } catch {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        title: "",
+        variant: "error",
+      });
       // Don't reset via `handleStateUpdate` to preserve input values
       this.isLoading = false;
     }

@@ -65,10 +65,14 @@ export class LoginDetailsSectionComponent implements OnInit {
   newPasswordGenerated: boolean;
 
   /**
-   * Whether the TOTP field can be captured from the current tab. Only available in the browser extension.
+   * Whether the TOTP field can be captured from the current tab. Only available in the browser extension and
+   * when not in a popout window.
    */
   get canCaptureTotp() {
-    return this.totpCaptureService != null && this.loginDetailsForm.controls.totp.enabled;
+    return (
+      !!this.totpCaptureService?.canCaptureTotp(window) &&
+      this.loginDetailsForm.controls.totp.enabled
+    );
   }
 
   private datePipe = inject(DatePipe);
@@ -135,11 +139,13 @@ export class LoginDetailsSectionComponent implements OnInit {
       });
   }
 
-  async ngOnInit() {
-    if (this.cipherFormContainer.originalCipherView?.login) {
-      this.initFromExistingCipher(this.cipherFormContainer.originalCipherView.login);
+  ngOnInit() {
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      this.initFromExistingCipher(prefillCipher.login);
     } else {
-      await this.initNewCipher();
+      this.initNewCipher();
     }
 
     if (this.cipherFormContainer.config.mode === "partial-edit") {
@@ -162,7 +168,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     }
   }
 
-  private async initNewCipher() {
+  private initNewCipher() {
     this.loginDetailsForm.patchValue({
       username: this.initialValues?.username || "",
       password: this.initialValues?.password || "",
@@ -237,7 +243,9 @@ export class LoginDetailsSectionComponent implements OnInit {
    * TODO: Browser extension needs a means to cache the current form so values are not lost upon navigating to the generator.
    */
   generateUsername = async () => {
-    const newUsername = await this.generationService.generateUsername();
+    const newUsername = await this.generationService.generateUsername(
+      this.cipherFormContainer.website,
+    );
     if (newUsername) {
       this.loginDetailsForm.controls.username.patchValue(newUsername);
     }

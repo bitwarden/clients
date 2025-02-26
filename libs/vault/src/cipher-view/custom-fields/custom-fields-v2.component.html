@@ -38,6 +38,7 @@
           type="button"
           bitIconButton
           bitPasswordInputToggle
+          *ngIf="canViewPassword"
           (toggledChange)="logHiddenEvent($event)"
         ></button>
         <button
@@ -47,6 +48,7 @@
           [appCopyClick]="field.value"
           showToast
           [valueLabel]="field.name"
+          *ngIf="canViewPassword"
           [appA11yTitle]="'copyCustomField' | i18n: field.name"
           (click)="logCopyEvent()"
         ></button>

@@ -3,7 +3,7 @@
 import {
   BillingInvoiceResponse,
   BillingTransactionResponse,
-} from "@bitwarden/common/billing/models/response/billing.response";
+} from "../../models/response/billing.response";
 
 export class OrganizationBillingApiServiceAbstraction {
   getBillingInvoices: (

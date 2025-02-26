@@ -15,6 +15,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { RouterService } from "../../../../../../../../apps/web/src/app/core";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
@@ -72,10 +74,10 @@ describe("WebLoginComponentService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("getOrgPolicies", () => {
+  describe("getOrgPoliciesFromOrgInvite", () => {
     it("returns undefined if organization invite is null", async () => {
       acceptOrganizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-      const result = await service.getOrgPolicies();
+      const result = await service.getOrgPoliciesFromOrgInvite();
       expect(result).toBeUndefined();
     });
 
@@ -92,7 +94,7 @@ describe("WebLoginComponentService", () => {
         organizationName: "org-name",
       });
       policyApiService.getPoliciesByToken.mockRejectedValue(error);
-      await service.getOrgPolicies();
+      await service.getOrgPoliciesFromOrgInvite();
       expect(logService.error).toHaveBeenCalledWith(error);
     });
 
@@ -128,7 +130,7 @@ describe("WebLoginComponentService", () => {
           of(masterPasswordPolicyOptions),
         );
 
-        const result = await service.getOrgPolicies();
+        const result = await service.getOrgPoliciesFromOrgInvite();
 
         expect(result).toEqual({
           policies: policies,

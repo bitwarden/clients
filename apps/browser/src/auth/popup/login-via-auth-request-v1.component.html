@@ -7,13 +7,20 @@
   <div class="content login-page">
     <ng-container *ngIf="state == StateEnum.StandardAuthRequest">
       <div>
-        <p class="lead">{{ "loginInitiated" | i18n }}</p>
+        <p class="lead">{{ "logInRequestSent" | i18n }}</p>
 
         <div>
-          <p>{{ "notificationSentDevice" | i18n }}</p>
-
           <p>
-            {{ "fingerprintMatchInfo" | i18n }}
+            {{ "notificationSentDevicePart1" | i18n }}
+            <a
+              bitLink
+              linkType="primary"
+              class="tw-cursor-pointer"
+              [href]="deviceManagementUrl"
+              target="_blank"
+              rel="noreferrer"
+              >{{ "notificationSentDeviceAnchor" | i18n }}</a
+            >. {{ "notificationSentDevicePart2" | i18n }}
           </p>
         </div>
 

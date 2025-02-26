@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -24,7 +22,7 @@ const toastServiceExampleTemplate = `
 })
 export class ToastServiceExampleComponent {
   @Input()
-  toastOptions: ToastOptions;
+  toastOptions?: ToastOptions;
 
   constructor(protected toastService: ToastService) {}
 }
@@ -35,12 +33,12 @@ export default {
 
   decorators: [
     moduleMetadata({
-      imports: [CommonModule, BrowserAnimationsModule, ButtonModule],
+      imports: [CommonModule, BrowserAnimationsModule, ButtonModule, ToastModule],
       declarations: [ToastServiceExampleComponent],
     }),
     applicationConfig({
       providers: [
-        ToastModule.forRoot().providers,
+        ToastModule.forRoot().providers!,
         {
           provide: I18nService,
           useFactory: () => {
@@ -49,6 +47,7 @@ export default {
               success: "Success",
               error: "Error",
               warning: "Warning",
+              info: "Info",
             });
           },
         },
@@ -65,7 +64,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-41506&t=b5tDKylm5sWm2yKo-11",
     },
   },
 } as Meta;
@@ -105,7 +104,9 @@ export const Service: Story = {
     props: {
       toastOptions: args,
     },
-    template: `
+    template: /*html*/ `
+      <!-- Toast container is used here to more closely align with how toasts are used in the clients, which allows for more accurate SR testing in storybook -->
+      <bit-toast-container></bit-toast-container>
       <toast-service-example [toastOptions]="toastOptions"></toast-service-example>
     `,
   }),

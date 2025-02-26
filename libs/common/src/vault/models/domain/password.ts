@@ -32,6 +32,7 @@ export class Password extends Domain {
       },
       orgId,
       encKey,
+      "DomainType: PasswordHistory",
     );
   }
 

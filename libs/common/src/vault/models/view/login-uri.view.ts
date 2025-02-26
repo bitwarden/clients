@@ -142,6 +142,8 @@ export class LoginUriView implements View {
         try {
           const regex = new RegExp(this.uri, "i");
           return regex.test(targetUri);
+          // FIXME: Remove when updating file. Eslint update
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           // Invalid regex
           return false;

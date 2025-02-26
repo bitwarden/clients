@@ -24,12 +24,30 @@ export class MainSshAgentService {
   constructor(
     private logService: LogService,
     private messagingService: MessagingService,
-  ) {}
+  ) {
+    ipcMain.handle(
+      "sshagent.importkey",
+      async (
+        event: any,
+        { privateKey, password }: { privateKey: string; password?: string },
+      ): Promise<sshagent.SshKeyImportResult> => {
+        return sshagent.importKey(privateKey, password);
+      },
+    );
+
+    ipcMain.handle("sshagent.init", async (event: any, message: any) => {
+      this.init();
+    });
+
+    ipcMain.handle("sshagent.isloaded", async (event: any) => {
+      return this.agentState != null;
+    });
+  }
 
   init() {
     // handle sign request passing to UI
     sshagent
-      .serve(async (err: Error, cipherId: string, isListRequest: boolean, processName: string) => {
+      .serve(async (err: Error, sshUiRequest: sshagent.SshUiRequest) => {
         // clear all old (> SIGN_TIMEOUT) requests
         this.requestResponses = this.requestResponses.filter(
           (response) => response.timestamp > new Date(Date.now() - this.SIGN_TIMEOUT),
@@ -38,10 +56,12 @@ export class MainSshAgentService {
         this.request_id += 1;
         const id_for_this_request = this.request_id;
         this.messagingService.send("sshagent.signrequest", {
-          cipherId,
-          isListRequest,
+          cipherId: sshUiRequest.cipherId,
+          isListRequest: sshUiRequest.isList,
           requestId: id_for_this_request,
-          processName,
+          processName: sshUiRequest.processName,
+          isAgentForwarding: sshUiRequest.isForwarding,
+          namespace: sshUiRequest.namespace,
         });
 
         const result = await firstValueFrom(
@@ -92,21 +112,6 @@ export class MainSshAgentService {
       "sshagent.signrequestresponse",
       async (event: any, { requestId, accepted }: { requestId: number; accepted: boolean }) => {
         this.requestResponses.push({ requestId, accepted, timestamp: new Date() });
-      },
-    );
-    ipcMain.handle(
-      "sshagent.generatekey",
-      async (event: any, { keyAlgorithm }: { keyAlgorithm: string }): Promise<sshagent.SshKey> => {
-        return await sshagent.generateKeypair(keyAlgorithm);
-      },
-    );
-    ipcMain.handle(
-      "sshagent.importkey",
-      async (
-        event: any,
-        { privateKey, password }: { privateKey: string; password?: string },
-      ): Promise<sshagent.SshKeyImportResult> => {
-        return sshagent.importKey(privateKey, password);
       },
     );
 

@@ -1,36 +1,58 @@
 import { ipcRenderer } from "electron";
 
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
+import { UserKey } from "@bitwarden/common/types/key";
+import { BiometricsStatus } from "@bitwarden/key-management";
 
 import { BiometricMessage, BiometricAction } from "../types/biometric-message";
 
 const biometric = {
-  enabled: (userId: string): Promise<boolean> =>
+  authenticateWithBiometrics: (): Promise<boolean> =>
     ipcRenderer.invoke("biometric", {
-      action: BiometricAction.EnabledForUser,
-      key: `${userId}_user_biometric`,
-      keySuffix: KeySuffixOptions.Biometric,
+      action: BiometricAction.Authenticate,
+    } satisfies BiometricMessage),
+  getBiometricsStatus: (): Promise<BiometricsStatus> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.GetStatus,
+    } satisfies BiometricMessage),
+  unlockWithBiometricsForUser: (userId: string): Promise<UserKey | null> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.UnlockForUser,
       userId: userId,
     } satisfies BiometricMessage),
-  osSupported: (): Promise<boolean> =>
+  getBiometricsStatusForUser: (userId: string): Promise<BiometricsStatus> =>
     ipcRenderer.invoke("biometric", {
-      action: BiometricAction.OsSupported,
+      action: BiometricAction.GetStatusForUser,
+      userId: userId,
     } satisfies BiometricMessage),
-  biometricsNeedsSetup: (): Promise<boolean> =>
+  setBiometricProtectedUnlockKeyForUser: (userId: string, value: string): Promise<void> =>
     ipcRenderer.invoke("biometric", {
-      action: BiometricAction.NeedsSetup,
+      action: BiometricAction.SetKeyForUser,
+      userId: userId,
+      key: value,
     } satisfies BiometricMessage),
-  biometricsSetup: (): Promise<void> =>
+  deleteBiometricUnlockKeyForUser: (userId: string): Promise<void> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.RemoveKeyForUser,
+      userId: userId,
+    } satisfies BiometricMessage),
+  setupBiometrics: (): Promise<void> =>
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.Setup,
     } satisfies BiometricMessage),
-  biometricsCanAutoSetup: (): Promise<boolean> =>
+  setClientKeyHalf: (userId: string, value: string): Promise<void> =>
     ipcRenderer.invoke("biometric", {
-      action: BiometricAction.CanAutoSetup,
+      action: BiometricAction.SetClientKeyHalf,
+      userId: userId,
+      key: value,
     } satisfies BiometricMessage),
-  authenticate: (): Promise<boolean> =>
+  getShouldAutoprompt: (): Promise<boolean> =>
     ipcRenderer.invoke("biometric", {
-      action: BiometricAction.Authenticate,
+      action: BiometricAction.GetShouldAutoprompt,
+    } satisfies BiometricMessage),
+  setShouldAutoprompt: (should: boolean): Promise<void> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.SetShouldAutoprompt,
+      data: should,
     } satisfies BiometricMessage),
 };
 

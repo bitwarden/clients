@@ -3,6 +3,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
+import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import {
   BillingInformation,
@@ -13,14 +14,12 @@ import {
 } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ToastService } from "@bitwarden/components";
 
-import { BillingSharedModule, PaymentComponent, TaxInfoComponent } from "../../shared";
-import { PaymentV2Component } from "../../shared/payment/payment-v2.component";
+import { BillingSharedModule } from "../../shared";
+import { PaymentComponent } from "../../shared/payment/payment.component";
 
 export type TrialOrganizationType = Exclude<ProductTierType, ProductTierType.Free>;
 
@@ -53,8 +52,7 @@ export enum SubscriptionProduct {
 })
 export class TrialBillingStepComponent implements OnInit {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
-  @ViewChild(PaymentV2Component) paymentV2Component: PaymentV2Component;
-  @ViewChild(TaxInfoComponent) taxInfoComponent: TaxInfoComponent;
+  @ViewChild(ManageTaxInformationComponent) taxInfoComponent: ManageTaxInformationComponent;
   @Input() organizationInfo: OrganizationInfo;
   @Input() subscriptionProduct: SubscriptionProduct = SubscriptionProduct.PasswordManager;
   @Output() steppedBack = new EventEmitter();
@@ -74,11 +72,8 @@ export class TrialBillingStepComponent implements OnInit {
   annualPlan?: PlanResponse;
   monthlyPlan?: PlanResponse;
 
-  deprecateStripeSourcesAPI: boolean;
-
   constructor(
     private apiService: ApiService,
-    private configService: ConfigService,
     private i18nService: I18nService,
     private formBuilder: FormBuilder,
     private messagingService: MessagingService,
@@ -87,9 +82,6 @@ export class TrialBillingStepComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.deprecateStripeSourcesAPI = await this.configService.getFeatureFlag(
-      FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
-    );
     const plans = await this.apiService.getPlans();
     this.applicablePlans = plans.data.filter(this.isApplicable);
     this.annualPlan = this.findPlanFor(SubscriptionCadence.Annual);
@@ -98,8 +90,7 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
-    if (!this.taxInfoComponent.taxFormGroup.valid && this.taxInfoComponent?.taxFormGroup.touched) {
-      this.taxInfoComponent.taxFormGroup.markAllAsTouched();
+    if (!this.taxInfoComponent.validate()) {
       return;
     }
 
@@ -124,23 +115,13 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   protected changedCountry() {
-    if (this.deprecateStripeSourcesAPI) {
-      this.paymentV2Component.showBankAccount = this.taxInfoComponent.country === "US";
-      if (
-        !this.paymentV2Component.showBankAccount &&
-        this.paymentV2Component.selected === PaymentMethodType.BankAccount
-      ) {
-        this.paymentV2Component.select(PaymentMethodType.Card);
-      }
-    } else {
-      this.paymentComponent.hideBank = this.taxInfoComponent.taxFormGroup.value.country !== "US";
-      if (
-        this.paymentComponent.hideBank &&
-        this.paymentComponent.method === PaymentMethodType.BankAccount
-      ) {
-        this.paymentComponent.method = PaymentMethodType.Card;
-        this.paymentComponent.changeMethod();
-      }
+    this.paymentComponent.showBankAccount =
+      this.taxInfoComponent.getTaxInformation().country === "US";
+    if (
+      !this.paymentComponent.showBankAccount &&
+      this.paymentComponent.selected === PaymentMethodType.BankAccount
+    ) {
+      this.paymentComponent.select(PaymentMethodType.Card);
     }
   }
 
@@ -162,14 +143,8 @@ export class TrialBillingStepComponent implements OnInit {
   private async createOrganization(): Promise<string> {
     const planResponse = this.findPlanFor(this.formGroup.value.cadence);
 
-    let paymentMethod: [string, PaymentMethodType];
-
-    if (this.deprecateStripeSourcesAPI) {
-      const { type, token } = await this.paymentV2Component.tokenize();
-      paymentMethod = [token, type];
-    } else {
-      paymentMethod = await this.paymentComponent.createPaymentToken();
-    }
+    const { type, token } = await this.paymentComponent.tokenize();
+    const paymentMethod: [string, PaymentMethodType] = [token, type];
 
     const organization: OrganizationInformation = {
       name: this.organizationInfo.name,
@@ -236,13 +211,13 @@ export class TrialBillingStepComponent implements OnInit {
 
   private getBillingInformationFromTaxInfoComponent(): BillingInformation {
     return {
-      postalCode: this.taxInfoComponent.taxFormGroup?.value.postalCode,
-      country: this.taxInfoComponent.taxFormGroup?.value.country,
-      taxId: this.taxInfoComponent.taxFormGroup?.value.taxId,
-      addressLine1: this.taxInfoComponent.taxFormGroup?.value.line1,
-      addressLine2: this.taxInfoComponent.taxFormGroup?.value.line2,
-      city: this.taxInfoComponent.taxFormGroup?.value.city,
-      state: this.taxInfoComponent.taxFormGroup?.value.state,
+      postalCode: this.taxInfoComponent.getTaxInformation()?.postalCode,
+      country: this.taxInfoComponent.getTaxInformation()?.country,
+      taxId: this.taxInfoComponent.getTaxInformation()?.taxId,
+      addressLine1: this.taxInfoComponent.getTaxInformation()?.line1,
+      addressLine2: this.taxInfoComponent.getTaxInformation()?.line2,
+      city: this.taxInfoComponent.getTaxInformation()?.city,
+      state: this.taxInfoComponent.getTaxInformation()?.state,
     };
   }
 

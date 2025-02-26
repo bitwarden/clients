@@ -11,7 +11,8 @@ import {
   switchMap,
 } from "rxjs";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { KeyService } from "@bitwarden/key-management";
+
 import { ApiService } from "../../abstractions/api.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { MessageSender } from "../../platform/messaging";

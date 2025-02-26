@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { InjectionToken } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
@@ -14,17 +13,9 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message } from "@bitwarden/common/platform/messaging";
 import { VaultTimeout } from "@bitwarden/common/types/vault-timeout.type";
-
-declare const tag: unique symbol;
-/**
- * A (more) typesafe version of InjectionToken which will more strictly enforce the generic type parameter.
- * @remarks The default angular implementation does not use the generic type to define the structure of the object,
- * so the structural type system will not complain about a mismatch in the type parameter.
- * This is solved by assigning T to an arbitrary private property.
- */
-export class SafeInjectionToken<T> extends InjectionToken<T> {
-  private readonly [tag]: T;
-}
+import { SafeInjectionToken } from "@bitwarden/ui-common";
+// Re-export the SafeInjectionToken from ui-common
+export { SafeInjectionToken } from "@bitwarden/ui-common";
 
 export const WINDOW = new SafeInjectionToken<Window>("WINDOW");
 export const OBSERVABLE_MEMORY_STORAGE = new SafeInjectionToken<

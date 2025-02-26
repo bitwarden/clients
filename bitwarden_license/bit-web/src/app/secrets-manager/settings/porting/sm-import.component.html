@@ -14,7 +14,6 @@
       bitInput
       type="file"
       id="file"
-      class="form-control-file"
       name="file"
       (change)="setSelectedFile($event)"
       accept="application/JSON"
@@ -23,7 +22,7 @@
     />
     <bit-hint>{{ "acceptedFormats" | i18n }} Bitwarden (json)</bit-hint>
   </bit-form-field>
-  <div class="my-4">
+  <div class="tw-my-4">
     {{ "or" | i18n }}
   </div>
   <bit-form-field>
@@ -31,7 +30,6 @@
     <textarea
       bitInput
       id="pastedContents"
-      class="form-control"
       name="FileContents"
       formControlName="pastedContents"
     ></textarea>

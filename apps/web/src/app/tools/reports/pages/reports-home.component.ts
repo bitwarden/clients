@@ -3,6 +3,7 @@
 import { Component, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
 import { reports, ReportType } from "../reports";
@@ -15,11 +16,15 @@ import { ReportEntry, ReportVariant } from "../shared";
 export class ReportsHomeComponent implements OnInit {
   reports: ReportEntry[];
 
-  constructor(private billingAccountProfileStateService: BillingAccountProfileStateService) {}
+  constructor(
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
+  ) {}
 
   async ngOnInit(): Promise<void> {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
     const userHasPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     );
     const reportRequiresPremium = userHasPremium
       ? ReportVariant.Enabled

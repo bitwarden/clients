@@ -1,8 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
+import { KeyService } from "@bitwarden/key-management";
+
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
@@ -101,7 +102,7 @@ describe("Attachment", () => {
       it("uses the provided key without depending on KeyService", async () => {
         const providedKey = mock<SymmetricCryptoKey>();
 
-        await attachment.decrypt(null, providedKey);
+        await attachment.decrypt(null, "", providedKey);
 
         expect(keyService.getUserKeyWithLegacySupport).not.toHaveBeenCalled();
         expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, providedKey);
@@ -111,7 +112,7 @@ describe("Attachment", () => {
         const orgKey = mock<OrgKey>();
         keyService.getOrgKey.calledWith("orgId").mockResolvedValue(orgKey);
 
-        await attachment.decrypt("orgId", null);
+        await attachment.decrypt("orgId", "", null);
 
         expect(keyService.getOrgKey).toHaveBeenCalledWith("orgId");
         expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, orgKey);
@@ -121,7 +122,7 @@ describe("Attachment", () => {
         const userKey = mock<UserKey>();
         keyService.getUserKeyWithLegacySupport.mockResolvedValue(userKey);
 
-        await attachment.decrypt(null, null);
+        await attachment.decrypt(null, "", null);
 
         expect(keyService.getUserKeyWithLegacySupport).toHaveBeenCalled();
         expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, userKey);

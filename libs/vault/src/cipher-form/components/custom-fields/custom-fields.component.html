@@ -46,7 +46,7 @@
             bitSuffix
             bitPasswordInputToggle
             data-testid="visibility-for-custom-hidden-field"
-            [disabled]="!canViewPasswords(i)"
+            *ngIf="canViewPasswords(i)"
             (toggledChange)="logHiddenEvent($event)"
           ></button>
         </bit-form-field>

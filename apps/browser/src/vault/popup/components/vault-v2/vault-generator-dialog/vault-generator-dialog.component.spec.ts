@@ -22,6 +22,7 @@ import {
 })
 class MockCipherFormGenerator {
   @Input() type: "password" | "username";
+  @Input() uri: string;
   @Output() valueGenerated = new EventEmitter<string>();
 }
 

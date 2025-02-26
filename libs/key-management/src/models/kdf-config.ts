@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
-import { RangeWithDefault } from "../../../common/src/platform/misc/range-with-default";
+import { RangeWithDefault } from "@bitwarden/common/platform/misc/range-with-default";
+
 import { KdfType } from "../enums/kdf-type.enum";
 
 /**

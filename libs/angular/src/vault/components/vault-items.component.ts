@@ -1,10 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { BehaviorSubject, Subject, from, switchMap, takeUntil } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, Subject, firstValueFrom, from, map, switchMap, takeUntil } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -40,7 +44,21 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   constructor(
     protected searchService: SearchService,
     protected cipherService: CipherService,
-  ) {}
+    protected accountService: AccountService,
+  ) {
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.cipherService.cipherViews$(userId).pipe(map((ciphers) => ({ userId, ciphers }))),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(({ userId, ciphers }) => {
+        void this.doSearch(ciphers, userId);
+        this.loaded = true;
+      });
+  }
 
   ngOnInit(): void {
     this._searchText$
@@ -116,8 +134,20 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
   protected deletedFilter: (cipher: CipherView) => boolean = (c) => c.isDeleted === this.deleted;
 
-  protected async doSearch(indexedCiphers?: CipherView[]) {
-    indexedCiphers = indexedCiphers ?? (await this.cipherService.getAllDecrypted());
+  protected async doSearch(indexedCiphers?: CipherView[], userId?: UserId) {
+    // Get userId from activeAccount if not provided from parent stream
+    if (!userId) {
+      userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    }
+
+    indexedCiphers =
+      indexedCiphers ?? (await firstValueFrom(this.cipherService.cipherViews$(userId)));
+
+    const failedCiphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$(userId));
+    if (failedCiphers != null && failedCiphers.length > 0) {
+      indexedCiphers = [...failedCiphers, ...indexedCiphers];
+    }
+
     this.ciphers = await this.searchService.searchCiphers(
       this.searchText,
       [this.filter, this.deletedFilter],
