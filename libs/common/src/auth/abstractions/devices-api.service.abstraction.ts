@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { ListResponse } from "../../models/response/list.response";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
-import { SecretVerificationRequest } from "../models/request/secret-verification.request";
 import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
 
@@ -27,7 +26,6 @@ export abstract class DevicesApiServiceAbstraction {
 
   getDeviceKeys: (
     deviceIdentifier: string,
-    secretVerificationRequest: SecretVerificationRequest,
   ) => Promise<ProtectedDeviceResponse>;
 
   /**
