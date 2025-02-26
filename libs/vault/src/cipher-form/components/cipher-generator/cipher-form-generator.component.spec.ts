@@ -32,6 +32,8 @@ describe("CipherFormGeneratorComponent", () => {
     await TestBed.configureTestingModule({
       imports: [CipherFormGeneratorComponent],
       providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
+      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
+      errorOnUnknownProperties: false,
     })
       .overrideComponent(CipherFormGeneratorComponent, {
         remove: { imports: [GeneratorModule] },
