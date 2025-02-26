@@ -1,16 +1,15 @@
 [package]
-edition = "2021"
-exclude = ["index.node"]
-license = "GPL-3.0"
 name = "desktop_proxy"
-version = "0.0.0"
-publish = false
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
 
 [dependencies]
-anyhow.workspace = true
+anyhow = { workspace = true }
 desktop_core = { path = "../core" }
 futures = "=0.3.31"
-log.workspace = true
+log = { workspace = true }
 simplelog = "=0.12.2"
 tokio = { workspace = true, features = ["io-std", "io-util", "macros", "rt"] }
 tokio-util = { workspace = true, features = ["codec"] }
