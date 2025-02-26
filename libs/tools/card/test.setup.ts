@@ -1,1 +1,1 @@
-import "jest-preset-angular/setup-jest";
+import "@bitwarden/ui-common/setup-jest";
