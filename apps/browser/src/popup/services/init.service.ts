@@ -32,7 +32,7 @@ export class InitService {
 
   init() {
     return async () => {
-      await this.sdkLoadService.load();
+      await this.sdkLoadService.loadAndInit();
       await this.stateService.init({ runMigrations: false }); // Browser background is responsible for migrations
       await this.i18nService.init();
       this.twoFactorService.init();
