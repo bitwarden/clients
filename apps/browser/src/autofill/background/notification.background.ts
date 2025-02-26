@@ -597,6 +597,7 @@ export default class NotificationBackground {
         await this.cipherService.createWithServer(cipher);
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
           username: String(queueMessage?.username),
+          cipherId: String(cipher?.id),
         });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {

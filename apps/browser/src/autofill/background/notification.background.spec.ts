@@ -984,11 +984,16 @@ describe("NotificationBackground", () => {
           });
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
+            id: "testId",
             login: { username: "test", password: "password" },
           });
           folderExistsSpy.mockResolvedValueOnce(false);
           convertAddLoginQueueMessageToCipherViewSpy.mockReturnValueOnce(cipherView);
           editItemSpy.mockResolvedValueOnce(undefined);
+          cipherEncryptSpy.mockResolvedValueOnce({
+            ...cipherView,
+            id: "testId",
+          });
 
           sendMockExtensionMessage(message, sender);
           await flushPromises();
@@ -1004,6 +1009,7 @@ describe("NotificationBackground", () => {
             "saveCipherAttemptCompleted",
             {
               username: cipherView.login.username,
+              cipherId: cipherView.id,
             },
           );
           expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, { command: "addedCipher" });
