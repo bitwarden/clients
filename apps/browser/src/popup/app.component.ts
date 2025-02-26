@@ -24,7 +24,6 @@ import {
 import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
-import { PopupViewCacheService } from "../platform/popup/view-cache/popup-view-cache.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
 import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
@@ -35,12 +34,14 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   selector: "app-root",
   styles: [],
   animations: [routerTransition],
-  template: ` <div [@routerTransition]="getRouteElevation(outlet)">
-    <router-outlet #outlet="outlet"></router-outlet>
-  </div>`,
+  template: `
+    <div [@routerTransition]="getRouteElevation(outlet)">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
+    <bit-toast-container></bit-toast-container>
+  `,
 })
 export class AppComponent implements OnInit, OnDestroy {
-  private viewCacheService = inject(PopupViewCacheService);
   private compactModeService = inject(PopupCompactModeService);
 
   private lastActivity: Date;
@@ -71,7 +72,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     initPopupClosedListener();
-    await this.viewCacheService.init();
 
     this.compactModeService.init();
 
@@ -179,7 +179,7 @@ export class AppComponent implements OnInit, OnDestroy {
           await this.clearComponentStates();
         }
         if (url.startsWith("/tabs/")) {
-          await this.cipherService.setAddEditCipherInfo(null);
+          await this.cipherService.setAddEditCipherInfo(null, this.activeUserId);
         }
         (window as any).previousPopupUrl = url;
 

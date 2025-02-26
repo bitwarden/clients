@@ -5,6 +5,8 @@ export { CopyCipherFieldDirective } from "./components/copy-cipher-field.directi
 export { OrgIconDirective } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 
+export * from "./utils/observable-utilities";
+
 export * from "./cipher-view";
 export * from "./cipher-form";
 export {
@@ -23,3 +25,6 @@ export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.compon
 export * as VaultIcons from "./icons";
 
 export * from "./tasks";
+
+export * from "./abstractions/change-login-password.service";
+export * from "./services/default-change-login-password.service";

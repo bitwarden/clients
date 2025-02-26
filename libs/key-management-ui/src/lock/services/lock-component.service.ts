@@ -39,5 +39,5 @@ export abstract class LockComponentService {
   abstract getBiometricsUnlockBtnText(): string;
 
   // Multi client
-  abstract getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions>;
+  abstract getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions | null>;
 }

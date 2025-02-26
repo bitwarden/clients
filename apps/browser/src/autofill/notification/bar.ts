@@ -97,6 +97,8 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
           type: notificationBarIframeInitData.type as NotificationType,
           theme: resolvedTheme,
           handleCloseNotification,
+          handleSaveAction,
+          handleEditOrUpdateAction,
           i18n,
           ciphers: cipherData,
         }),
@@ -169,13 +171,26 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
 
   globalThis.addEventListener("resize", adjustHeight);
   adjustHeight();
+  function handleCloseNotification(e: Event) {
+    e.preventDefault();
+    sendPlatformMessage({
+      command: "bgCloseNotificationBar",
+    });
+  }
+  function handleEditOrUpdateAction(e: Event) {
+    const notificationType = initData.type;
+    e.preventDefault();
+    notificationType === "add" ? sendSaveCipherMessage(true) : sendSaveCipherMessage(false);
+  }
 }
 
-function handleCloseNotification(e: Event) {
+function handleSaveAction(e: Event) {
   e.preventDefault();
-  sendPlatformMessage({
-    command: "bgCloseNotificationBar",
-  });
+
+  sendSaveCipherMessage(removeIndividualVault());
+  if (removeIndividualVault()) {
+    return;
+  }
 }
 
 function handleTypeAdd() {

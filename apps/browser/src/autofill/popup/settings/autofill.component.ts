@@ -109,7 +109,6 @@ export class AutofillComponent implements OnInit {
   uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
-  clickItemsVaultView: boolean = false;
   autofillKeyboardHelperText: string;
   accountSwitcherEnabled: boolean = false;
 
@@ -210,10 +209,6 @@ export class AutofillComponent implements OnInit {
 
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
-    );
-
-    this.clickItemsVaultView = await firstValueFrom(
-      this.vaultSettingsService.clickItemsToAutofillVaultView$,
     );
   }
 
@@ -420,9 +415,5 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuIdentities() {
     await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
-  }
-
-  async updateClickItemsVaultView() {
-    await this.vaultSettingsService.setClickItemsToAutofillVaultView(this.clickItemsVaultView);
   }
 }

@@ -20,6 +20,12 @@ import {
   DefaultLoginComponentService,
   LoginDecryptionOptionsService,
   DefaultLoginDecryptionOptionsService,
+  TwoFactorAuthComponentService,
+  DefaultTwoFactorAuthComponentService,
+  DefaultTwoFactorAuthEmailComponentService,
+  TwoFactorAuthEmailComponentService,
+  DefaultTwoFactorAuthWebAuthnComponentService,
+  TwoFactorAuthWebAuthnComponentService,
   DefaultLoginApprovalComponentService,
 } from "@bitwarden/auth/angular";
 import {
@@ -296,7 +302,12 @@ import {
   DefaultUserAsymmetricKeysRegenerationApiService,
 } from "@bitwarden/key-management";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
-import { NewDeviceVerificationNoticeService, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  DefaultTaskService,
+  NewDeviceVerificationNoticeService,
+  PasswordRepromptService,
+  TaskService,
+} from "@bitwarden/vault";
 import {
   VaultExportService,
   VaultExportServiceAbstraction,
@@ -1361,6 +1372,21 @@ const safeProviders: SafeProvider[] = [
     deps: [KeyService, AccountApiServiceAbstraction],
   }),
   safeProvider({
+    provide: TwoFactorAuthComponentService,
+    useClass: DefaultTwoFactorAuthComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthWebAuthnComponentService,
+    useClass: DefaultTwoFactorAuthWebAuthnComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthEmailComponentService,
+    useClass: DefaultTwoFactorAuthEmailComponentService,
+    deps: [],
+  }),
+  safeProvider({
     provide: ViewCacheService,
     useExisting: NoopViewCacheService,
     deps: [],
@@ -1462,6 +1488,11 @@ const safeProviders: SafeProvider[] = [
     provide: PasswordLoginStrategyData,
     useClass: PasswordLoginStrategyData,
     deps: [],
+  }),
+  safeProvider({
+    provide: TaskService,
+    useClass: DefaultTaskService,
+    deps: [StateProvider, ApiServiceAbstraction, OrganizationServiceAbstraction, ConfigService],
   }),
 ];
 

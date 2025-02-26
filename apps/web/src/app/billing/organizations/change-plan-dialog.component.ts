@@ -1049,7 +1049,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     if (this.organization.useSecretsManager) {
       request.secretsManager = {
         seats: this.sub.smSeats,
-        additionalMachineAccounts: this.sub.smServiceAccounts,
+        additionalMachineAccounts:
+          this.sub.smServiceAccounts - this.sub.plan.SecretsManager.baseServiceAccount,
       };
     }
 
