@@ -206,7 +206,7 @@ export class TwoFactorService implements TwoFactorServiceAbstraction {
     await this.providersState.update(() => null);
   }
 
-  getProviders(): Promise<Map<TwoFactorProviderType, { [key: string]: string }>> {
+  getProviders(): Promise<Map<TwoFactorProviderType, { [key: string]: string }> | null> {
     return firstValueFrom(this.providers$);
   }
 }

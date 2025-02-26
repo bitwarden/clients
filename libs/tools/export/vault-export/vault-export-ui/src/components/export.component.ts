@@ -43,6 +43,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { pin } from "@bitwarden/common/tools/rx";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -220,8 +221,18 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     // Wire up the password generation for the password-protected export
+    const account$ = this.accountService.activeAccount$.pipe(
+      pin({
+        name() {
+          return "active export account";
+        },
+        distinct(previous, current) {
+          return previous.id === current.id;
+        },
+      }),
+    );
     this.generatorService
-      .generate$(Generators.password, { on$: this.onGenerate$ })
+      .generate$(Generators.password, { on$: this.onGenerate$, account$ })
       .pipe(takeUntil(this.destroy$))
       .subscribe((generated) => {
         this.exportForm.patchValue({

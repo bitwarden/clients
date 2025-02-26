@@ -42,7 +42,7 @@ export class InitService {
 
   init() {
     return async () => {
-      await this.sdkLoadService.load();
+      await this.sdkLoadService.loadAndInit();
       await this.stateService.init();
 
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
