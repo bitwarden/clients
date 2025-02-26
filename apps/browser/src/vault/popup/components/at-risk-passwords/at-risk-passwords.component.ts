@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, of, shareReplay, startWith, switchMap } from "rxjs";
 
@@ -19,6 +19,8 @@ import {
   BadgeModule,
   ButtonModule,
   CalloutModule,
+  DialogModule,
+  DialogService,
   ItemModule,
   ToastService,
   TypographyModule,
@@ -30,11 +32,16 @@ import {
   PasswordRepromptService,
   SecurityTaskType,
   TaskService,
+  VaultCarouselModule,
 } from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import {
+  AtRiskCarouselDialogComponent,
+  AtRiskCarouselDialogResult,
+} from "../at-risk-carousel-dialog/at-risk-carousel-dialog.component";
 
 import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
 
@@ -50,6 +57,8 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
     CalloutModule,
     ButtonModule,
     BadgeModule,
+    DialogModule,
+    VaultCarouselModule,
   ],
   providers: [
     AtRiskPasswordPageService,
@@ -59,7 +68,7 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
   standalone: true,
   templateUrl: "./at-risk-passwords.component.html",
 })
-export class AtRiskPasswordsComponent {
+export class AtRiskPasswordsComponent implements OnInit {
   private taskService = inject(TaskService);
   private organizationService = inject(OrganizationService);
   private cipherService = inject(CipherService);
@@ -72,6 +81,7 @@ export class AtRiskPasswordsComponent {
   private atRiskPasswordPageService = inject(AtRiskPasswordPageService);
   private changeLoginPasswordService = inject(ChangeLoginPasswordService);
   private platformUtilsService = inject(PlatformUtilsService);
+  private dialogService = inject(DialogService);
 
   /**
    * The cipher that is currently being launched. Used to show a loading spinner on the badge button.
@@ -140,6 +150,21 @@ export class AtRiskPasswordsComponent {
       return of(this.i18nService.t("atRiskPasswordsDescMultiOrg", tasks.length));
     }),
   );
+
+  async ngOnInit() {
+    const { userId } = await firstValueFrom(this.activeUserData$);
+    const gettingStartedDismissed = await firstValueFrom(
+      this.atRiskPasswordPageService.isGettingStartedDismissed(userId),
+    );
+    if (!gettingStartedDismissed) {
+      const ref = AtRiskCarouselDialogComponent.open(this.dialogService);
+
+      const result = await firstValueFrom(ref.closed);
+      if (result === AtRiskCarouselDialogResult.Dismissed) {
+        await this.atRiskPasswordPageService.dismissGettingStarted(userId);
+      }
+    }
+  }
 
   async viewCipher(cipher: CipherView) {
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
