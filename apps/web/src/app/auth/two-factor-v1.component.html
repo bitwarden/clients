@@ -33,7 +33,11 @@
       <picture>
         <source srcset="../../images/yubikey.avif" type="image/avif" />
         <source srcset="../../images/yubikey.webp" type="image/webp" />
-        <img src="../../images/yubikey.jpg" class="tw-rounded img-fluid tw-mb-3" alt="" />
+        <img
+          src="../../images/yubikey.jpg"
+          class="tw-rounded tw-max-w-full tw-h-auto tw-mb-3"
+          alt=""
+        />
       </picture>
       <bit-form-field>
         <bit-label>{{ "verificationCode" | i18n }}</bit-label>
@@ -97,7 +101,7 @@
         {{ "cancel" | i18n }}
       </a>
     </div>
-    <div class="text-center">
+    <div class="tw-text-center">
       <a bitLink href="#" appStopClick (click)="anotherMethod()">{{
         "useAnotherTwoStepMethod" | i18n
       }}</a>
