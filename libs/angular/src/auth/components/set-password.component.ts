@@ -197,7 +197,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     );
     try {
       if (this.resetPasswordAutoEnroll) {
-        this.formPromise = this.apiService
+        this.formPromise = this.masterPasswordApiService
           .setPassword(request)
           .then(async () => {
             await this.onSetPasswordSuccess(masterKey, userKey, newKeyPair);
