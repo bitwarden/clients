@@ -1,8 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { Component, DestroyRef, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  FormControl,
+} from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -73,6 +80,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SectionHeaderComponent,
     SelectModule,
     TypographyModule,
+    ReactiveFormsModule,
   ],
 })
 export class AutofillComponent implements OnInit {
@@ -93,6 +101,11 @@ export class AutofillComponent implements OnInit {
   protected browserClientIsUnknown: boolean;
   protected autofillOnPageLoadFromPolicy$ =
     this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$;
+
+  protected autofillOnPageLoadForm = new FormGroup({
+    autofillOnPageLoad: new FormControl(),
+    defaultAutofill: new FormControl(),
+  });
 
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
@@ -121,10 +134,12 @@ export class AutofillComponent implements OnInit {
     private messagingService: MessagingService,
     private vaultSettingsService: VaultSettingsService,
     private configService: ConfigService,
+    private formBuilder: FormBuilder,
+    private destroyRef: DestroyRef,
   ) {
     this.autofillOnPageLoadOptions = [
-      { name: i18nService.t("autoFillOnPageLoadYes"), value: true },
-      { name: i18nService.t("autoFillOnPageLoadNo"), value: false },
+      { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
+      { name: this.i18nService.t("autoFillOnPageLoadNo"), value: false },
     ];
     this.clearClipboardOptions = [
       { name: i18nService.t("never"), value: ClearClipboardDelay.Never },
@@ -181,13 +196,48 @@ export class AutofillComponent implements OnInit {
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnFieldFocus ||
       this.enableInlineMenuOnIconSelect;
 
+    this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        value
+          ? this.autofillOnPageLoadForm.controls.autofillOnPageLoad.disable({ emitEvent: false })
+          : this.autofillOnPageLoadForm.controls.autofillOnPageLoad.enable({ emitEvent: false });
+      });
+
     this.enableAutofillOnPageLoad = await firstValueFrom(
       this.autofillSettingsService.autofillOnPageLoad$,
+    );
+
+    this.autofillOnPageLoadForm.controls.autofillOnPageLoad.patchValue(
+      this.enableAutofillOnPageLoad,
+      { emitEvent: false },
     );
 
     this.autofillOnPageLoadDefault = await firstValueFrom(
       this.autofillSettingsService.autofillOnPageLoadDefault$,
     );
+
+    if (this.enableAutofillOnPageLoad === false) {
+      this.autofillOnPageLoadForm.controls.defaultAutofill.disable();
+    }
+
+    this.autofillOnPageLoadForm.controls.defaultAutofill.patchValue(
+      this.autofillOnPageLoadDefault,
+      { emitEvent: false },
+    );
+
+    this.autofillOnPageLoadForm.controls.autofillOnPageLoad.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setAutofillOnPageLoad(value);
+        this.enableDefaultAutofillControl(value);
+      });
+
+    this.autofillOnPageLoadForm.controls.defaultAutofill.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setAutofillOnPageLoadDefault(value);
+      });
 
     this.enableContextMenuItem = await firstValueFrom(
       this.autofillSettingsService.enableContextMenu$,
@@ -230,13 +280,16 @@ export class AutofillComponent implements OnInit {
       await this.requestPrivacyPermission();
     }
   }
-
-  async updateAutofillOnPageLoad() {
-    await this.autofillSettingsService.setAutofillOnPageLoad(this.enableAutofillOnPageLoad);
+  async getAutofillOnPageLoadFromPolicy() {
+    await firstValueFrom(this.autofillOnPageLoadFromPolicy$);
   }
 
-  async updateAutofillOnPageLoadDefault() {
-    await this.autofillSettingsService.setAutofillOnPageLoadDefault(this.autofillOnPageLoadDefault);
+  enableDefaultAutofillControl(enable: boolean = true) {
+    if (enable) {
+      this.autofillOnPageLoadForm.controls.defaultAutofill.enable();
+    } else {
+      this.autofillOnPageLoadForm.controls.defaultAutofill.disable();
+    }
   }
 
   async saveDefaultUriMatch() {
