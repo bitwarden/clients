@@ -7,7 +7,6 @@ import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-con
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
@@ -31,7 +30,6 @@ export class UserApiLoginStrategy extends LoginStrategy {
 
   constructor(
     data: UserApiLoginStrategyData,
-    private environmentService: EnvironmentService,
     private keyConnectorService: KeyConnectorService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
