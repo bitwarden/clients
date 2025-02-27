@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "Meer toegewezen dan beschikbare plaatsen."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Ontgrendelen met PIN verwijderen"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Leden niet toestaan hun account te ontgrendelen met een pincode."
   }
 }

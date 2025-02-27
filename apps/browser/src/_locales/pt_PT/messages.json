@@ -1029,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "Clique nos itens para preencher automaticamente na vista do cofre"
   },
+  "clickToAutofill": {
+    "message": "Clique nos itens da sugestão de preenchimento automático para preencher"
+  },
   "clearClipboard": {
     "message": "Limpar área de transferência",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "para criar uma palavra-passe forte e única",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Personalização do cofre"
   },
   "vaultTimeoutAction": {
     "message": "Ação de tempo limite do cofre"

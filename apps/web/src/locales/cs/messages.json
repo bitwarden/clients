@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "Přiřazení uživatelé překračují dostupné uživatele."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Odebrat odemknutí pomocí PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Nepovolí členům odemknout svůj účet pomocí PIN."
   }
 }

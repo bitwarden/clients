@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Να απαιτείται κωδικός πρόσβασης ή PIN κατά την εκκίνηση της εφαρμογής"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Συνίσταται για ασφάλεια."
   },

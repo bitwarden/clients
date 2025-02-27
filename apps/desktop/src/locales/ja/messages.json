@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "アプリ起動時にパスワードまたは PIN を要求"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "セキュリティ向上のためおすすめします。"
   },

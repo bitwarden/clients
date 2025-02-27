@@ -56,6 +56,7 @@ const forwarder = Object.freeze({
       key: "duckDuckGoForwarder",
       target: "object",
       format: "secret-state",
+      frame: 512,
       classifier: new PrivateClassifier<DuckDuckGoSettings>(),
       state: GENERATOR_DISK,
       initial: defaultSettings,

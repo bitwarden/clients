@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Exiger un mot de passe ou un code PIN au démarrage de Bitwarden"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Recommandé pour la sécurité."
   },
@@ -2551,7 +2554,7 @@
     "message": "Utilisez la boîte de réception du collecteur configurée de votre domaine."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Utiliser ce courriel"
   },
   "random": {
     "message": "Aléatoire"
@@ -2770,13 +2773,13 @@
     "message": "Connexion initiée"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Demande envoyée"
   },
   "notificationSentDevice": {
     "message": "Une notification a été envoyée à votre appareil."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Une notification a été envoyée à votre appareil"
   },
   "notificationSentDevicePart1": {
     "message": "Unlock Bitwarden on your device or on the "
@@ -2816,7 +2819,7 @@
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Essayez-vous d'accéder à votre compte ?"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -2925,10 +2928,10 @@
     "message": "Mot de passe faible identifié et trouvé dans une brèche de données. Utilisez un mot de passe robuste et unique pour protéger votre compte. Êtes-vous sûr de vouloir utiliser ce mot de passe ?"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Utiliser ce mot de passe"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Utiliser ce nom d'utilisateur"
   },
   "checkForBreaches": {
     "message": "Vérifier les brèches de données connues pour ce mot de passe"
@@ -3278,7 +3281,7 @@
     "message": "Confirmez le mot de passe du fichier"
   },
   "exportSuccess": {
-    "message": "Vault data exported"
+    "message": "Données du coffre exportées"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Authentification multi-facteurs annulée"
@@ -3530,7 +3533,7 @@
     "message": "Confirm window still visible"
   },
   "confirmWindowStillVisibleContent": {
-    "message": "Please confirm that the window is still visible."
+    "message": "Veuillez confirmer que la fenêtre est toujours visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Extension update required"

@@ -859,7 +859,7 @@
     "message": "将您的安全钥匙插入计算机的 USB 端口。如果它有按钮，请触摸它。"
   },
   "recoveryCodeDesc": {
-    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来停用您账户中所有的双重身份提供程序。"
+    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来关闭您账户中所有的双重身份提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -1264,7 +1264,7 @@
     "message": "确认隐藏到托盘"
   },
   "confirmTrayDesc": {
-    "message": "禁用此设置也将禁用其他与托盘相关的设置。"
+    "message": "关闭此设置也将关闭其他与托盘相关的设置。"
   },
   "language": {
     "message": "语言"
@@ -1774,6 +1774,9 @@
   },
   "requirePasswordOnStart": {
     "message": "应用程序启动时要求输入密码或 PIN 码"
+  },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "应用程序启动时需要密码"
   },
   "recommendedForSecurity": {
     "message": "安全起见，推荐设置。"
@@ -2374,7 +2377,7 @@
     "message": "自动注册"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "此组织有一个企业策略，将自动为你注册密码重置。注册后将允许组织管理员更改您的主密码。"
+    "message": "此组织有一个企业策略，将自动为您注册密码重置。注册后将允许组织管理员更改您的主密码。"
   },
   "vaultExportDisabled": {
     "message": "密码库导出已禁用"
@@ -2641,7 +2644,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商获取协助。",
+    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2731,7 +2734,7 @@
     "message": "组织已停用"
   },
   "disabledOrganizationFilterError": {
-    "message": "无法访问已停用组织中的项目。请联系您的组织所有者获取协助。"
+    "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "neverLockWarning": {
     "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
@@ -2922,7 +2925,7 @@
     "message": "主密码弱且曾经暴露"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护你的账户。确定要使用这个密码吗？"
+    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "useThisPassword": {
     "message": "使用此密码"
@@ -3195,7 +3198,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 获取协助。"
+    "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 Duo 然后按照步骤完成登录。"

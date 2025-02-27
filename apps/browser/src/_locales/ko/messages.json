@@ -1029,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "보관함 보기에서 항목을 클릭하여 자동 완성"
   },
+  "clickToAutofill": {
+    "message": "Click items in autofill suggestion to fill"
+  },
   "clearClipboard": {
     "message": "클립보드 비우기",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "강력한 고유 비밀번호를 만드세요",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Vault customization"
   },
   "vaultTimeoutAction": {
     "message": "보관함 시간 제한 초과시 동작"

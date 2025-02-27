@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Requereix contrasenya o PIN a l'inici de l'aplicació"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Recomanat per seguretat."
   },

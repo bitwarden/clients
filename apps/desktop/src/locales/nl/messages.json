@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Wachtwoord of pincode vereisen bij starten van de app"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Wachtwoord vereisen bij starten van de app"
+  },
   "recommendedForSecurity": {
     "message": "Aanbevolen voor veiligheid."
   },

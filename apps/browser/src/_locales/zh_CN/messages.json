@@ -389,7 +389,7 @@
     "message": "未添加文件夹"
   },
   "createFoldersToOrganize": {
-    "message": "创建文件夹以整理你的密码库项目"
+    "message": "创建文件夹以整理您的密码库项目"
   },
   "deleteFolderPermanently": {
     "message": "您确定要永久删除这个文件夹吗？"
@@ -1029,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "在密码库视图中点击项目以自动填充"
   },
+  "clickToAutofill": {
+    "message": "点击自动填充建议中的项目以填充"
+  },
   "clearClipboard": {
     "message": "清空剪贴板",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1164,7 +1167,7 @@
     "message": "每个 Bitwarden 用户账户的账户加密密钥都是唯一的，因此您无法将加密的导出导入到另一个账户。"
   },
   "exportMasterPassword": {
-    "message": "输入您的主密码以导出你的密码库数据。"
+    "message": "输入您的主密码以导出您的密码库数据。"
   },
   "shared": {
     "message": "已共享"
@@ -1396,7 +1399,7 @@
     "message": "两步登录选项"
   },
   "recoveryCodeDesc": {
-    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来停用您账户中所有的双重身份提供程序。"
+    "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来关闭您账户中所有的双重身份提供程序。"
   },
   "recoveryCodeTitle": {
     "message": "恢复代码"
@@ -2039,7 +2042,7 @@
     "message": "使用主密码解锁"
   },
   "awaitDesktop": {
-    "message": "等待来自桌面应用程序的确认"
+    "message": "等待来自桌面端的确认"
   },
   "awaitDesktopDesc": {
     "message": "请确认在 Bitwarden 桌面应用程序中设置了生物识别以设置浏览器的生物识别。"
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "创建一个强大且唯一的密码",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "密码库自定义"
   },
   "vaultTimeoutAction": {
     "message": "密码库超时动作"
@@ -2347,10 +2353,10 @@
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "屏蔽的域名"
+    "message": "屏蔽域名"
   },
   "learnMoreAboutBlockedDomains": {
-    "message": "了解更多关于被屏蔽域名的信息"
+    "message": "进一步了解屏蔽域名"
   },
   "excludedDomains": {
     "message": "排除域名"
@@ -2426,10 +2432,10 @@
     "message": "更新您的设置，以便您可以快速自动填充密码并生成新的密码"
   },
   "turnOnAutofill": {
-    "message": "打开自动填充"
+    "message": "开启自动填充"
   },
   "turnedOnAutofill": {
-    "message": "已打开自动填充"
+    "message": "已开启自动填充"
   },
   "dismiss": {
     "message": "忽略"
@@ -2717,7 +2723,7 @@
     "message": "自动注册"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "此组织有一个企业策略，将为您自动注册密码重置。注册后将允许组织管理员更改您的主密码。"
+    "message": "此组织有一个企业策略，将自动为您注册密码重置。注册后将允许组织管理员更改您的主密码。"
   },
   "selectFolder": {
     "message": "选择文件夹..."
@@ -3039,7 +3045,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商获取协助。",
+    "message": "$SERVICENAME$ 拒绝了您的请求。请联系您的服务提供商寻求帮助。",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3132,7 +3138,7 @@
     "message": "组织已停用。"
   },
   "disabledOrganizationFilterError": {
-    "message": "无法访问已停用组织中的项目。请联系您的组织所有者获取协助。"
+    "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "loggingInTo": {
     "message": "正在登录到 $DOMAIN$",
@@ -3252,7 +3258,7 @@
     "message": "主密码弱且曾经暴露"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护你的账户。确定要使用这个密码吗？"
+    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "checkForBreaches": {
     "message": "检查已知的数据泄露是否包含此密码。"
@@ -3735,7 +3741,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 获取协助。"
+    "message": "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "启动 DUO 并按照步骤完成登录。"
@@ -4261,7 +4267,7 @@
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "contactYourOrgAdmin": {
-    "message": "无法访问已停用组织中的项目。请联系您的组织所有者获取协助。"
+    "message": "无法访问已停用组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "additionalInformation": {
     "message": "更多信息"

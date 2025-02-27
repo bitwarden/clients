@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Jelszó vagy PIN kód szükséges az alkalmazás indításakor"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Jelszó szükséges az alkalmazás indításakor"
+  },
   "recommendedForSecurity": {
     "message": "Biztonsági szempontból ajánlott."
   },

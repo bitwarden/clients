@@ -1029,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "Click items to autofill on Vault view"
   },
+  "clickToAutofill": {
+    "message": "Click items in autofill suggestion to fill"
+  },
   "clearClipboard": {
     "message": "क्लिपबोर्ड खाली करें",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "to create a strong unique password",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Vault customization"
   },
   "vaultTimeoutAction": {
     "message": "वॉल्ट मध्यांतर कार्रवाई"

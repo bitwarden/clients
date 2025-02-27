@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import "core-js/proposals/explicit-resource-management";
+
 import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
@@ -1290,7 +1292,7 @@ export default class MainBackground {
     }
     this.containerService.attachToGlobal(self);
 
-    await this.sdkLoadService.load();
+    await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
     await this.stateService.init({ runMigrations: true });
 
@@ -1312,7 +1314,7 @@ export default class MainBackground {
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
 
-    this.popupViewCacheBackgroundService.startObservingTabChanges();
+    this.popupViewCacheBackgroundService.startObservingMessages();
 
     await this.vaultTimeoutService.init(true);
     this.fido2Background.init();

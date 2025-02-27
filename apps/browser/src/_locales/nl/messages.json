@@ -1029,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "Klik op items om automatisch in te vullen op de kluisweergave"
   },
+  "clickToAutofill": {
+    "message": "Klik op gesuggereerde items om deze automatisch invullen"
+  },
   "clearClipboard": {
     "message": "Klembord wissen",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "om een sterk uniek wachtwoord te maken",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Kluis-aanpassingen"
   },
   "vaultTimeoutAction": {
     "message": "Actie bij time-out"

@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Kræv adgangskode eller PIN-kode ved app-start"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Anbefales af sikkerhedshensyn."
   },

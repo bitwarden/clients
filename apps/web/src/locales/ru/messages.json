@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "Assigned seats exceed available seats."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Отключить разблокировку PIN-кодом"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Не разрешать пользователям разблокировать свои аккаунты с помощью PIN-кода."
   }
 }

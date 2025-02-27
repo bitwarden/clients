@@ -10431,5 +10431,11 @@
   },
   "assignedExceedsAvailable": {
     "message": "I posti assegnati superano i posti disponibili."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Rimuovi sblocco con PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Non consentire ai membri di sbloccare il proprio account con un PIN."
   }
 }

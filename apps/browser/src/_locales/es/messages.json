@@ -23,10 +23,10 @@
     "message": "¿Nuevo en Bitwarden?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Iniciar sesión con clave de acceso"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Usar inicio de sesión único"
   },
   "welcomeBack": {
     "message": "Bienvenido de nuevo"
@@ -120,7 +120,7 @@
     "message": "Copiar contraseña"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Copiar frase de contraseña"
   },
   "copyNote": {
     "message": "Copiar nota"
@@ -153,13 +153,13 @@
     "message": "Copiar número de licencia"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Copiar llave privada"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Copiar llave pública"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Copiar huella"
   },
   "copyCustomField": {
     "message": "Copiar $FIELD$",
@@ -177,11 +177,11 @@
     "message": "Copiar notas"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Copiar",
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Rellenar",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -197,10 +197,10 @@
     "message": "Autocompletar identidad"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Rellenar código de verificación"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Rellenar código de verificación",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -252,7 +252,7 @@
     "message": "Solicitar pista de la contraseña"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "Introduce la dirección de correo electrónico de tu cuenta y se te enviará la pista de tu contraseña"
   },
   "passwordHint": {
     "message": "Pista de contraseña"
@@ -383,13 +383,13 @@
     "message": "Nombre de carpeta"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Anida una carpeta añadiendo el nombre de la carpeta padre seguido de un “/”. Ejemplo: Social/Foros"
   },
   "noFoldersAdded": {
     "message": "Ninguna carpeta añadida"
   },
   "createFoldersToOrganize": {
-    "message": "Create folders to organize your vault items"
+    "message": "Crear carpetas para organizar los elementos de la caja fuerte"
   },
   "deleteFolderPermanently": {
     "message": "¿Confirma que quiere eliminar permanentemente esta carpeta?"
@@ -447,19 +447,19 @@
     "message": "Generar contraseña"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Generar frase de contraseña"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Contraseña generada"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Frase de contraseña generada"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Nombre de usuario generado"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Correo electrónico generado"
   },
   "regeneratePassword": {
     "message": "Regenerar contraseña"
@@ -546,7 +546,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "Los requisitos de política empresarial se han aplicado a las opciones de generador.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
@@ -616,7 +616,7 @@
     "message": "Iniciar página web"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "Iniciar sitio web $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -664,10 +664,10 @@
     "message": "Verificar identidad"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "No reconocemos este dispositivo. Introduce el código enviado a tu correo electrónico para verificar tu identidad."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Continuar el inicio de sesión"
   },
   "yourVaultIsLocked": {
     "message": "Tu caja fuerte está bloqueada. Verifica tu identidad para continuar."
@@ -801,10 +801,10 @@
     "message": "¡Tu nueva cuenta ha sido creada! Ahora puedes acceder."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "¡Tu nueva cuenta ha sido creada!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "¡Has iniciado sesión!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "Accedió correctamente a su cuenta"
@@ -819,7 +819,7 @@
     "message": "Código de verificación requerido."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "La autenticación fue cancelada o tardó demasiado. Por favor, inténtalo de nuevo."
   },
   "invalidVerificationCode": {
     "message": "Código de verificación no válido"
@@ -847,16 +847,16 @@
     "message": "Escanee el código QR del autenticador desde la página web actual"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Hacer la verificación en dos pasos sencilla"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden puede almacenar y rellenar códigos de verificación en dos pasos. Copia y pega la clave en este campo."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden puede almacenar y llenar códigos de verificación en dos pasos. Seleccione el icono de la cámara para tomar una captura de pantalla del código QR de este sitio web, o copie y pegue la clave en este campo."
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Más información sobre los autenticadores"
   },
   "copyTOTP": {
     "message": "Copiar clave de autenticador (TOTP)"
@@ -874,7 +874,7 @@
     "message": "Acceder"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Iniciar sesión en Bitwarden"
   },
   "restartRegistration": {
     "message": "Reiniciar registro"
@@ -910,10 +910,10 @@
     "message": "La autenticación en dos pasos hace que tu cuenta sea mucho más segura, requiriendo que introduzcas un código de seguridad de una aplicación de autenticación cada vez que accedes. La autenticación en dos pasos puede ser habilitada en la caja fuerte web de bitwarden.com. ¿Quieres visitar ahora el sitio web?"
   },
   "twoStepLoginConfirmationContent": {
-    "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
+    "message": "Haz tu cuenta más segura al configurar el inicio de sesión en dos pasos en la aplicación web de Bitwarden."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "¿Continuar en la aplicación web?"
   },
   "editedFolder": {
     "message": "Carpeta editada"
@@ -1000,7 +1000,7 @@
     "message": "Pedir que se añada el inicio de sesión"
   },
   "vaultSaveOptionsTitle": {
-    "message": "Save to vault options"
+    "message": "Guardar en opciones de caja fuerte"
   },
   "addLoginNotificationDesc": {
     "message": "La opción \"Notificación para añadir entradas\" pregunta automáticamente si quieres guardar nuevas entradas en tu caja fuerte cuando te identificas en un sitio web por primera vez."
@@ -1009,7 +1009,7 @@
     "message": "Pide que se agregue un elemento si no se encuentra uno en su caja fuerte. Se aplica a todas las cuentas que hayan iniciado sesión."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Mostrar siempre las tarjetas como sugerencias de autorrelleno en la vista de caja fuerte"
   },
   "showCardsCurrentTab": {
     "message": "Mostrar las tarjetas en la pestaña"
@@ -1018,7 +1018,7 @@
     "message": "Listar los elementos de tarjetas en la página para facilitar el auto-rellenado."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Mostrar siempre identidades como sugerencias de autorrelleno en la vista de caja fuerte"
   },
   "showIdentitiesCurrentTab": {
     "message": "Mostrar las identidades en la página"
@@ -1027,7 +1027,10 @@
     "message": "Listar los elementos de identidad en la página para facilitar el auto-rellenado."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Haga clic en los elementos para autocompletar en la vista de caja fuerte"
+  },
+  "clickToAutofill": {
+    "message": "Haz clic en los elementos de la sugerencia de autorrelleno para rellenar"
   },
   "clearClipboard": {
     "message": "Vaciar portapapeles",
@@ -1228,7 +1231,7 @@
     "message": "Archivo"
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "Archivo a compartir"
   },
   "selectFile": {
     "message": "Selecciona un archivo."
@@ -1294,7 +1297,7 @@
     "message": "Gracias por apoyar el desarrollo de Bitwarden."
   },
   "premiumFeatures": {
-    "message": "Upgrade to Premium and receive:"
+    "message": "Actualiza a Premium y recibe:"
   },
   "premiumPrice": {
     "message": "¡Todo por solo %price% /año!",
@@ -1306,7 +1309,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "All for just $PRICE$ per year!",
+    "message": "¡Todo por sólo $PRICE$/año!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1336,10 +1339,10 @@
     "message": "Introduce el código de verificación de 6 dígitos de tu aplicación autenticadora."
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Tiempo de autenticación agotado"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "Se ha agotado el tiempo de la sesión de autenticación. Por favor, inicie nuevamente el proceso de inicio de sesión."
   },
   "enterVerificationCodeEmail": {
     "message": "Introduce el código de verificación de 6 dígitos que te ha sido enviado por correo electrónico",
@@ -1459,7 +1462,7 @@
     "message": "URL del servidor"
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "URL del servidor autoalojado",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
@@ -1485,7 +1488,7 @@
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
-    "message": "Autofill suggestions"
+    "message": "Sugerencias de autocompletar"
   },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
@@ -1521,7 +1524,7 @@
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Autofill on page load"
+    "message": "Autocompletar al cargar la página"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Habilitar autorrellenar al cargar la página"
@@ -1787,7 +1790,7 @@
     "message": "Identidad"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Llave SSH"
   },
   "newItemHeader": {
     "message": "Nuevo $TYPE$",
@@ -1820,10 +1823,10 @@
     "message": "Historial de contraseñas"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Historial del generador"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Borrar historial del generador"
   },
   "cleargGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
@@ -1865,7 +1868,7 @@
     "message": "Notas seguras"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "Llaves SSH"
   },
   "clear": {
     "message": "Limpiar",
@@ -1945,13 +1948,13 @@
     "message": "No hay contraseñas que listar."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Limpiar historial"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "No se encontraron resultados"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "No has generado nada recientemente"
   },
   "remove": {
     "message": "Eliminar"
@@ -2012,16 +2015,16 @@
     "message": "Desbloquear con PIN"
   },
   "setYourPinTitle": {
-    "message": "Set PIN"
+    "message": "Establecer PIN"
   },
   "setYourPinButton": {
-    "message": "Set PIN"
+    "message": "Establecer PIN"
   },
   "setYourPinCode": {
     "message": "Establece tu código PIN para desbloquear Bitwarden. Tus ajustes de PIN se reiniciarán si alguna vez cierras tu sesión completamente de la aplicación."
   },
   "setYourPinCode1": {
-    "message": "Your PIN will be used to unlock Bitwarden instead of your master password. Your PIN will reset if you ever fully log out of Bitwarden."
+    "message": "Su PIN se utilizará para desbloquear Bitwarden en lugar de su contraseña maestra. Su PIN se restablecerá si alguna vez cierra completamente la sesión de Bitwarden."
   },
   "pinRequired": {
     "message": "Código PIN requerido."
@@ -2036,7 +2039,7 @@
     "message": "Desbloquear con biométricos"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "Desbloquear con contraseña maestra"
   },
   "awaitDesktop": {
     "message": "Esperando la confirmación por parte del escritorio"
@@ -2048,7 +2051,7 @@
     "message": "Bloquear con contraseña maestra al reiniciar el navegador"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Require master password on browser restart"
+    "message": "Bloquear con contraseña maestra al reiniciar el navegador"
   },
   "selectOneCollection": {
     "message": "Debes seleccionar al menos una colección."
@@ -2066,7 +2069,7 @@
     "message": "Generador de nombres de usuario"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Usar esta dirección de correo electrónico"
   },
   "useThisPassword": {
     "message": "Usar esta contraseña"
@@ -2075,21 +2078,24 @@
     "message": "Usar este nombre de usuario"
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "¡Contraseña segura generada! No olvide actualizar su contraseña en el sitio web."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Usar el generador",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "para crear una contraseña única fuerte",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Personalización de la caja fuerte"
   },
   "vaultTimeoutAction": {
     "message": "Acción de tiempo de espera de la caja fuerte"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Acción de tiempo agotado"
   },
   "lock": {
     "message": "Bloquear",
@@ -2211,7 +2217,7 @@
     "message": "Su nueva contraseña maestra no cumple con los requisitos de la política."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Obtenga consejos, anuncios y oportunidades de investigación de Bitwarden en su bandeja de entrada."
   },
   "unsubscribe": {
     "message": "Cancelar suscripción"
@@ -2286,7 +2292,7 @@
     "message": "Las cuentas son distintas"
   },
   "nativeMessagingWrongUserKeyTitle": {
-    "message": "Biometric key missmatch"
+    "message": "Desajuste de clave biométrica"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
@@ -2347,10 +2353,10 @@
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
-    "message": "Blocked domains"
+    "message": "Dominios bloqueados"
   },
   "learnMoreAboutBlockedDomains": {
-    "message": "Learn more about blocked domains"
+    "message": "Más información sobre dominios bloqueados"
   },
   "excludedDomains": {
     "message": "Dominios excluidos"
@@ -2362,19 +2368,19 @@
     "message": "Bitwarden no pedirá que se guarden los datos de acceso para estos dominios en todas las sesiones iniciadas. Debe actualizar la página para que los cambios surtan efecto."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "El autorrelleno y otras funcionalidades relacionadas no se ofrecerán para estos sitios web. Debe actualizar la página para que los cambios surtan efecto."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "Autorelleno está desactivado para este sitio web."
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "Cambia esto en los ajustes"
   },
   "change": {
-    "message": "Change"
+    "message": "Cambiar"
   },
   "changeButtonTitle": {
-    "message": "Change password - $ITEMNAME$",
+    "message": "Cambiar contraseña - $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2383,7 +2389,7 @@
     }
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "Contraseñas de riesgo"
   },
   "atRiskPasswordsDescSingleOrg": {
     "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
@@ -2426,16 +2432,16 @@
     "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Activar autorrelleno"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Autorrelleno activado"
   },
   "dismiss": {
-    "message": "Dismiss"
+    "message": "Ignorar"
   },
   "websiteItemLabel": {
-    "message": "Website $number$ (URI)",
+    "message": "Sitio web $number$ (URI)",
     "placeholders": {
       "number": {
         "content": "$1",
@@ -2453,16 +2459,16 @@
     }
   },
   "blockedDomainsSavedSuccess": {
-    "message": "Blocked domain changes saved"
+    "message": "Cambios de dominio bloqueados guardados"
   },
   "excludedDomainsSavedSuccess": {
-    "message": "Excluded domain changes saved"
+    "message": "Cambios de dominio excluidos guardados"
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Limitar visualizaciones"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Nadie puede ver este envío después de que se alcance el límite.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
@@ -2657,7 +2663,7 @@
     "message": "Para elegir un archivo usando Safari, salga a una nueva ventana haciendo clic en este anouncio."
   },
   "popOut": {
-    "message": "Pop out"
+    "message": "Salir"
   },
   "sendFileCalloutHeader": {
     "message": "Antes de empezar"
@@ -2678,7 +2684,7 @@
     "message": "Hubo un error al guardar las fechas de eliminación y caducidad."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Ocultar mi dirección de correo electrónico a los destinatarios."
   },
   "passwordPrompt": {
     "message": "Volver a preguntar contraseña maestra"
@@ -2711,7 +2717,7 @@
     "message": "Su contraseña maestra no cumple con una o más de las políticas de su organización. Para acceder a la caja fuerte, debe actualizar su contraseña maestra ahora. Proceder le desconectará de su sesión actual, requiriendo que vuelva a iniciar sesión. Las sesiones activas en otros dispositivos pueden seguir estando activas durante hasta una hora."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Tu organización ha deshabilitado el cifrado de dispositivos de confianza. Por favor, establece una contraseña maestra para acceder a tu caja fuerte."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscripción automática"
@@ -2735,7 +2741,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "out of $TOTAL$",
+    "message": "de $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -2894,27 +2900,27 @@
     "message": "Error"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Error de descifrado"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden no pudo descifrar el/los elemento(s) de la bóveda listados a continuación."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Contacto con atención al cliente",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "para evitar pérdida de datos adicionales.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Generar nombre de usuario"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "Crear correo electrónico"
   },
   "spinboxBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$.",
+    "message": "El valor debe estar entre $MIN$ y $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2928,7 +2934,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Usa $RECOMMENDED$ caracteres o más para generar una contraseña segura.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3210,31 +3216,31 @@
     "message": "Reenviar notificación"
   },
   "viewAllLogInOptions": {
-    "message": "View all log in options"
+    "message": "Ver todas las opciones de inicio de sesión"
   },
   "viewAllLoginOptionsV1": {
-    "message": "View all log in options"
+    "message": "Ver todas las opciones de inicio de sesión"
   },
   "notificationSentDevice": {
     "message": "Se ha enviado una notificación a tu dispositivo."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the"
+    "message": "Desbloquear Bitwarden en tu dispositivo o en el"
   },
   "notificationSentDeviceAnchor": {
     "message": "web app"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Asegúrese de que la frase de huella digital coincide con la siguiente antes de aprobar."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Se ha enviado una notificación a tu dispositivo."
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Serás notificado una vez que la solicitud sea aprobada"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "¿Necesitas otra opción?"
   },
   "loginInitiated": {
     "message": "Inicio de sesión en proceso"
@@ -4081,7 +4087,7 @@
     "description": "Notification message for when updating credentials has succeeded."
   },
   "passwordUpdated": {
-    "message": "Password updated!",
+    "message": "Contraseña actualizada",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
@@ -4354,11 +4360,11 @@
     }
   },
   "cardNumberEndsWith": {
-    "message": "card number ends with",
+    "message": "el número de tarjeta termina en",
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Credenciales de inicio de sesión"
   },
   "authenticatorKey": {
     "message": "Authenticator key"
@@ -4383,13 +4389,13 @@
     "message": "Website added"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Añadir página web"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Eliminar página web"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Por defecto ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -4417,10 +4423,10 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "¿Autocompletar al cargar la página?"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Tarjeta caducada"
   },
   "cardExpiredMessage": {
     "message": "If you've renewed it, update the card's information"
@@ -4461,11 +4467,11 @@
     "description": "A section header for a list of passwords."
   },
   "logInWithPasskeyAriaLabel": {
-    "message": "Log in with passkey",
+    "message": "Iniciar sesión con clave de acceso",
     "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
-    "message": "Assign"
+    "message": "Asignar"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Only organization members with access to these collections will be able to see the item."
@@ -4525,7 +4531,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Eliminar $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4534,7 +4540,7 @@
     }
   },
   "fieldAdded": {
-    "message": "$LABEL$ added",
+    "message": "$LABEL$ añadido",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4584,7 +4590,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 elemento será transferido permanentemente a $ORG$. Ya no tendrás este objeto.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -4710,13 +4716,13 @@
     "message": "RSA 4096-Bit"
   },
   "retry": {
-    "message": "Retry"
+    "message": "Reintentar"
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "El tiempo de espera mínimo personalizado es de 1 minuto."
   },
   "additionalContentAvailable": {
-    "message": "Additional content is available"
+    "message": "Contenido adicional disponible"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
@@ -4776,54 +4782,54 @@
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "authenticating": {
-    "message": "Authenticating"
+    "message": "Autenticando"
   },
   "fillGeneratedPassword": {
-    "message": "Fill generated password",
+    "message": "Rellenar contraseña generada",
     "description": "Heading for the password generator within the inline menu"
   },
   "passwordRegenerated": {
-    "message": "Password regenerated",
+    "message": "Contraseña generada",
     "description": "Notification message for when a password has been regenerated"
   },
   "saveLoginToBitwarden": {
-    "message": "Save login to Bitwarden?",
+    "message": "¿Guardar inicio de sesión en Bitwarden?",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
-    "message": "Space",
+    "message": "Espacio",
     "description": "Represents the space key in screen reader content as a readable word"
   },
   "tildeCharacterDescriptor": {
-    "message": "Tilde",
+    "message": "Virgulilla",
     "description": "Represents the ~ key in screen reader content as a readable word"
   },
   "backtickCharacterDescriptor": {
-    "message": "Backtick",
+    "message": "tilde invertida",
     "description": "Represents the ` key in screen reader content as a readable word"
   },
   "exclamationCharacterDescriptor": {
-    "message": "Exclamation mark",
+    "message": "Signo de exclamación",
     "description": "Represents the ! key in screen reader content as a readable word"
   },
   "atSignCharacterDescriptor": {
-    "message": "At sign",
+    "message": "Arroba",
     "description": "Represents the @ key in screen reader content as a readable word"
   },
   "hashSignCharacterDescriptor": {
-    "message": "Hash sign",
+    "message": "Almohadilla",
     "description": "Represents the # key in screen reader content as a readable word"
   },
   "dollarSignCharacterDescriptor": {
-    "message": "Dollar sign",
+    "message": "Signo de dólar",
     "description": "Represents the $ key in screen reader content as a readable word"
   },
   "percentSignCharacterDescriptor": {
-    "message": "Percent sign",
+    "message": "Signo de porcentaje",
     "description": "Represents the % key in screen reader content as a readable word"
   },
   "caretCharacterDescriptor": {
-    "message": "Caret",
+    "message": "Acento circunflejo",
     "description": "Represents the ^ key in screen reader content as a readable word"
   },
   "ampersandCharacterDescriptor": {
@@ -4831,108 +4837,108 @@
     "description": "Represents the & key in screen reader content as a readable word"
   },
   "asteriskCharacterDescriptor": {
-    "message": "Asterisk",
+    "message": "Asterisco",
     "description": "Represents the * key in screen reader content as a readable word"
   },
   "parenLeftCharacterDescriptor": {
-    "message": "Left parenthesis",
+    "message": "Paréntesis de apertura",
     "description": "Represents the ( key in screen reader content as a readable word"
   },
   "parenRightCharacterDescriptor": {
-    "message": "Right parenthesis",
+    "message": "Paréntesis de cierre",
     "description": "Represents the ) key in screen reader content as a readable word"
   },
   "hyphenCharacterDescriptor": {
-    "message": "Underscore",
+    "message": "Barra baja",
     "description": "Represents the _ key in screen reader content as a readable word"
   },
   "underscoreCharacterDescriptor": {
-    "message": "Hyphen",
+    "message": "Guión",
     "description": "Represents the - key in screen reader content as a readable word"
   },
   "plusCharacterDescriptor": {
-    "message": "Plus",
+    "message": "Más",
     "description": "Represents the + key in screen reader content as a readable word"
   },
   "equalsCharacterDescriptor": {
-    "message": "Equals",
+    "message": "Igual",
     "description": "Represents the = key in screen reader content as a readable word"
   },
   "braceLeftCharacterDescriptor": {
-    "message": "Left brace",
+    "message": "Abrir llave",
     "description": "Represents the { key in screen reader content as a readable word"
   },
   "braceRightCharacterDescriptor": {
-    "message": "Right brace",
+    "message": "Cerrar llave",
     "description": "Represents the } key in screen reader content as a readable word"
   },
   "bracketLeftCharacterDescriptor": {
-    "message": "Left bracket",
+    "message": "Abrir corchete",
     "description": "Represents the [ key in screen reader content as a readable word"
   },
   "bracketRightCharacterDescriptor": {
-    "message": "Right bracket",
+    "message": "Cerrar corchete",
     "description": "Represents the ] key in screen reader content as a readable word"
   },
   "pipeCharacterDescriptor": {
-    "message": "Pipe",
+    "message": "Barra vertical",
     "description": "Represents the | key in screen reader content as a readable word"
   },
   "backSlashCharacterDescriptor": {
-    "message": "Back slash",
+    "message": "Barra invertida",
     "description": "Represents the back slash key in screen reader content as a readable word"
   },
   "colonCharacterDescriptor": {
-    "message": "Colon",
+    "message": "Dos puntos",
     "description": "Represents the : key in screen reader content as a readable word"
   },
   "semicolonCharacterDescriptor": {
-    "message": "Semicolon",
+    "message": "Punto y coma",
     "description": "Represents the ; key in screen reader content as a readable word"
   },
   "doubleQuoteCharacterDescriptor": {
-    "message": "Double quote",
+    "message": "Comilla Doble",
     "description": "Represents the double quote key in screen reader content as a readable word"
   },
   "singleQuoteCharacterDescriptor": {
-    "message": "Single quote",
+    "message": "Comillas simples",
     "description": "Represents the ' key in screen reader content as a readable word"
   },
   "lessThanCharacterDescriptor": {
-    "message": "Less than",
+    "message": "Menor que",
     "description": "Represents the < key in screen reader content as a readable word"
   },
   "greaterThanCharacterDescriptor": {
-    "message": "Greater than",
+    "message": "Mayor que",
     "description": "Represents the > key in screen reader content as a readable word"
   },
   "commaCharacterDescriptor": {
-    "message": "Comma",
+    "message": "Coma",
     "description": "Represents the , key in screen reader content as a readable word"
   },
   "periodCharacterDescriptor": {
-    "message": "Period",
+    "message": "Punto",
     "description": "Represents the . key in screen reader content as a readable word"
   },
   "questionCharacterDescriptor": {
-    "message": "Question mark",
+    "message": "Signo de interrogación",
     "description": "Represents the ? key in screen reader content as a readable word"
   },
   "forwardSlashCharacterDescriptor": {
-    "message": "Forward slash",
+    "message": "Barra diagonal",
     "description": "Represents the / key in screen reader content as a readable word"
   },
   "lowercaseAriaLabel": {
-    "message": "Lowercase"
+    "message": "Minúscula"
   },
   "uppercaseAriaLabel": {
-    "message": "Uppercase"
+    "message": "Mayúsculas"
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "Contraseña generada"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Modo compacto"
   },
   "beta": {
     "message": "Beta"
@@ -4965,22 +4971,22 @@
     "message": "No, I do not"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Sí, puedo acceder a mi correo electrónico de forma fiable"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Activar inicio de sesión en dos pasos"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Cambiar la cuenta de correo electrónico"
   },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Ancho de extensión"
   },
   "wide": {
-    "message": "Wide"
+    "message": "Ancho"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Extraancho"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "No puedes eliminar colecciones con permisos de solo visualización: $COLLECTIONS$",
@@ -4992,9 +4998,9 @@
     }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
+    "message": "Por favor, actualiza tu aplicación de escritorio"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "Para utilizar el desbloqueo biométrico, por favor actualice su aplicación de escritorio o desactive el desbloqueo de huella dactilar en los ajustes del escritorio."
   }
 }

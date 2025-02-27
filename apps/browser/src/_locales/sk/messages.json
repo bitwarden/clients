@@ -1027,7 +1027,10 @@
     "message": "Zoznam položiek identity na stránke \"Aktuálna karta\" na jednoduché automatické vypĺňanie."
   },
   "clickToAutofillOnVault": {
-    "message": "Kliknutím na položku v trezore automaticky vyplniť"
+    "message": "Kliknutím na položky v trezore automaticky vyplniť"
+  },
+  "clickToAutofill": {
+    "message": "Kliknutím na položky v ponuke automatického vypĺňania vyplniť"
   },
   "clearClipboard": {
     "message": "Vymazať schránku",
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "na vytvorenie silného, unikátneho hesla.",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Prispôsobenie trezora"
   },
   "vaultTimeoutAction": {
     "message": "Akcia pri vypršaní časového limitu pre trezor"

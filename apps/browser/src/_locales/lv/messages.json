@@ -177,7 +177,7 @@
     "message": "Ievietot piezīmes starpliktuvē"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Ievietot starpliktuvē",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -1028,6 +1028,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "Glabātavas skatā jāklikšķina uz vienumiem, lai automātiski aizpildītu"
+  },
+  "clickToAutofill": {
+    "message": "Klikšķināt uz vienumiem automātiskās aizpildes ieteikumos, lai aizpildītu"
   },
   "clearClipboard": {
     "message": "Notīrīt starpliktuvi",
@@ -1917,7 +1920,7 @@
     "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
-    "message": "Noklusētā atbilstības noteikšana",
+    "message": "Noklusējuma atbilstības noteikšana",
     "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": ", lai izveidotu spēcīgu un vienreizēju paroli",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Glabātavas pielāgošana"
   },
   "vaultTimeoutAction": {
     "message": "Glabātavas noildzes darbība"
@@ -3039,7 +3045,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ atteica pieprasījumu. Lūgums sazināties ar savu pakalpojma nodrošinātāju, lai iegūtu palīdzību.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3049,7 +3055,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ atteica pieprasījumu: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {

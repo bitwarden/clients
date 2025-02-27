@@ -1029,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "Clicca gli oggetti da riempire dalla sezione Cassaforte"
   },
+  "clickToAutofill": {
+    "message": "Clicca elementi nel suggerimento di riempimento automatico per riempire"
+  },
   "clearClipboard": {
     "message": "Cancella appunti",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -2084,6 +2087,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "per creare una password univoca robusta",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Personalizzazione cassaforte"
   },
   "vaultTimeoutAction": {
     "message": "Azione timeout cassaforte"

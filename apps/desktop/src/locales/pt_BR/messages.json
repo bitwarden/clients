@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Exigir senha ou PIN ao iniciar o app"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Recomendado para segurança."
   },

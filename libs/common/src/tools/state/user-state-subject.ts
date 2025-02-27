@@ -24,14 +24,17 @@ import {
   withLatestFrom,
   scan,
   skip,
+  shareReplay,
+  tap,
+  switchMap,
 } from "rxjs";
 
+import { Account } from "../../auth/abstractions/account.service";
 import { EncString } from "../../platform/models/domain/enc-string";
 import { SingleUserState, UserKeyDefinition } from "../../platform/state";
-import { UserId } from "../../types/guid";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
-import { UserBound } from "../dependencies";
-import { anyComplete, errorOnChange, ready, withLatestReady } from "../rx";
+import { SemanticLogger } from "../log";
+import { anyComplete, pin, ready, withLatestReady } from "../rx";
 import { Constraints, SubjectConstraints, WithConstraints } from "../types";
 
 import { ClassifiedFormat, isClassifiedFormat } from "./classified-format";
@@ -39,6 +42,7 @@ import { unconstrained$ } from "./identity-state-constraint";
 import { isObjectKey, ObjectKey, toUserKeyDefinition } from "./object-key";
 import { isDynamic } from "./state-constraints-dependency";
 import { UserStateSubjectDependencies } from "./user-state-subject-dependencies";
+import { UserStateSubjectDependencyProvider } from "./user-state-subject-dependency-provider";
 
 type Constrained<State> = { constraints: Readonly<Constraints<State>>; state: State };
 
@@ -58,6 +62,9 @@ type Constrained<State> = { constraints: Readonly<Constraints<State>>; state: St
 // NOTE: this only matters for plaintext objects; encrypted fields change with every
 //   update b/c their IVs change.
 const ALWAYS_UPDATE_KLUDGE = "$^$ALWAYS_UPDATE_KLUDGE_PROPERTY$^$";
+
+/** Default frame size for data packing */
+const DEFAULT_FRAME_SIZE = 32;
 
 /**
  * Adapt a state provider to an rxjs subject.
@@ -90,12 +97,12 @@ export class UserStateSubject<
    *   this becomes true. When this occurs, only the last-received update
    *   is applied. The blocked update is kept in memory. It does not persist
    *   to disk.
-   * @param dependencies.singleUserId$ writes block until the singleUserId$
+   * @param dependencies.account$ writes block until the account$
    *   is available.
    */
   constructor(
     private key: UserKeyDefinition<State> | ObjectKey<State, Secret, Disclosed>,
-    getState: (key: UserKeyDefinition<unknown>) => SingleUserState<unknown>,
+    private providers: UserStateSubjectDependencyProvider,
     private context: UserStateSubjectDependencies<State, Dependencies>,
   ) {
     super();
@@ -104,42 +111,60 @@ export class UserStateSubject<
       // classification and encryption only supported with `ObjectKey`
       this.objectKey = this.key;
       this.stateKey = toUserKeyDefinition(this.key);
-      this.state = getState(this.stateKey);
     } else {
       // raw state access granted with `UserKeyDefinition`
       this.objectKey = null;
       this.stateKey = this.key as UserKeyDefinition<State>;
-      this.state = getState(this.stateKey);
     }
+
+    this.log = this.providers.log({
+      contextId: this.contextId,
+      type: "UserStateSubject",
+      storage: {
+        state: this.stateKey.stateDefinition.name,
+        key: this.stateKey.key,
+      },
+    });
 
     // normalize dependencies
     const when$ = (this.context.when$ ?? new BehaviorSubject(true)).pipe(distinctUntilChanged());
+    const account$ = context.account$.pipe(
+      pin({
+        name: () => `${this.contextId} { account$ }`,
+        distinct(prev, current) {
+          return prev.id === current.id;
+        },
+      }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+    const encryptor$ = this.encryptor(account$);
+    const constraints$ = (this.context.constraints$ ?? unconstrained$<State>()).pipe(
+      catchError((e: unknown) => {
+        this.log.error(e as object, "constraints$ dependency failed; using last-known constraints");
+        return EMPTY;
+      }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+    const dependencies$ = (
+      this.context.dependencies$ ?? new BehaviorSubject<Dependencies>(null)
+    ).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
 
-    // manage dependencies through replay subjects since `UserStateSubject`
-    // reads them in multiple places
-    const encryptor$ = new ReplaySubject<UserEncryptor>(1);
-    const { singleUserId$, singleUserEncryptor$ } = this.context;
-    this.encryptor(singleUserEncryptor$ ?? singleUserId$).subscribe(encryptor$);
-
-    const constraints$ = new ReplaySubject<SubjectConstraints<State>>(1);
-    (this.context.constraints$ ?? unconstrained$<State>())
-      .pipe(
-        // FIXME: this should probably log that an error occurred
-        catchError(() => EMPTY),
-      )
-      .subscribe(constraints$);
-
-    const dependencies$ = new ReplaySubject<Dependencies>(1);
-    if (this.context.dependencies$) {
-      this.context.dependencies$.subscribe(dependencies$);
-    } else {
-      dependencies$.next(null);
-    }
+    // load state once the account becomes available
+    const userState$ = account$.pipe(
+      tap((account) => this.log.debug({ accountId: account.id }, "loading user state")),
+      map((account) => this.providers.state.getUser(account.id, this.stateKey)),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
 
     // wire output before input so that output normalizes the current state
     // before any `next` value is processed
-    this.outputSubscription = this.state.state$
-      .pipe(this.declassify(encryptor$), this.adjust(combineLatestWith(constraints$)))
+    this.outputSubscription = userState$
+      .pipe(
+        switchMap((userState) => userState.state$),
+        this.declassify(encryptor$),
+        this.adjust(combineLatestWith(constraints$)),
+        takeUntil(anyComplete(account$)),
+      )
       .subscribe(this.output);
 
     const last$ = new ReplaySubject<State>(1);
@@ -168,45 +193,42 @@ export class UserStateSubject<
     //
     // FIXME: this should probably timeout when a lock occurs
     this.inputSubscription = updates$
-      .pipe(this.classify(encryptor$), takeUntil(anyComplete([when$, this.input, encryptor$])))
+      .pipe(
+        this.classify(encryptor$),
+        withLatestFrom(userState$),
+        takeUntil(anyComplete([when$, this.input, encryptor$])),
+      )
       .subscribe({
-        next: (state) => this.onNext(state),
+        next: ([input, state]) => this.onNext(input, state),
         error: (e: unknown) => this.onError(e),
         complete: () => this.onComplete(),
       });
   }
 
-  private stateKey: UserKeyDefinition<unknown>;
-  private objectKey: ObjectKey<State, Secret, Disclosed>;
+  private get contextId() {
+    return `UserStateSubject(${this.stateKey.stateDefinition.name}, ${this.stateKey.key})`;
+  }
 
-  private encryptor(
-    singleUserEncryptor$: Observable<UserBound<"encryptor", UserEncryptor> | UserId>,
-  ): Observable<UserEncryptor> {
-    return singleUserEncryptor$.pipe(
-      // normalize inputs
-      map((maybe): UserBound<"encryptor", UserEncryptor> => {
-        if (typeof maybe === "object" && "encryptor" in maybe) {
-          return maybe;
-        } else if (typeof maybe === "string") {
-          return { encryptor: null, userId: maybe as UserId };
-        } else {
-          throw new Error(`Invalid encryptor input received for ${this.key.key}.`);
-        }
-      }),
-      // fail the stream if the state desyncs from the bound userId
-      errorOnChange(
-        ({ userId }) => userId,
-        (expectedUserId, actualUserId) => ({ expectedUserId, actualUserId }),
-      ),
-      // reduce emissions to when encryptor changes
+  private readonly log: SemanticLogger;
+
+  private readonly stateKey: UserKeyDefinition<unknown>;
+  private readonly objectKey: ObjectKey<State, Secret, Disclosed>;
+
+  private encryptor(account$: Observable<Account>): Observable<UserEncryptor> {
+    const singleUserId$ = account$.pipe(map((account) => account.id));
+    const frameSize = this.objectKey?.frame ?? DEFAULT_FRAME_SIZE;
+    const encryptor$ = this.providers.encryptor.userEncryptor$(frameSize, { singleUserId$ }).pipe(
+      tap(() => this.log.debug("encryptor constructed")),
       map(({ encryptor }) => encryptor),
-      distinctUntilChanged(),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
+    return encryptor$;
   }
 
   private when(when$: Observable<boolean>): OperatorFunction<State, State> {
     return pipe(
       combineLatestWith(when$.pipe(distinctUntilChanged())),
+      tap(([_, when]) => this.log.debug({ when }, "when status")),
       filter(([_, when]) => !!when),
       map(([input]) => input),
     );
@@ -237,6 +259,7 @@ export class UserStateSubject<
             return [next, dependencies];
           } else {
             // false update
+            this.log.debug("shouldUpdate prevented write");
             return [prev, null];
           }
         }),
@@ -258,20 +281,22 @@ export class UserStateSubject<
       // * `input` needs to wait until a message flows through the pipe
       withConstraints,
       map(([loadedState, constraints]) => {
-        // bypass nulls
         if (!loadedState && !this.objectKey?.initial) {
+          this.log.debug("no value; bypassing adjustment");
           return {
             constraints: {} as Constraints<State>,
             state: null,
           } satisfies Constrained<State>;
         }
 
+        this.log.debug("adjusting");
         const unconstrained = loadedState ?? structuredClone(this.objectKey.initial);
         const calibration = isDynamic(constraints)
           ? constraints.calibrate(unconstrained)
           : constraints;
         const adjusted = calibration.adjust(unconstrained);
 
+        this.log.debug("adjusted");
         return {
           constraints: calibration.constraints,
           state: adjusted,
@@ -286,11 +311,14 @@ export class UserStateSubject<
     return pipe(
       combineLatestWith(constraints$),
       map(([loadedState, constraints]) => {
+        this.log.debug("fixing");
+
         const calibration = isDynamic(constraints)
           ? constraints.calibrate(loadedState)
           : constraints;
         const fixed = calibration.fix(loadedState);
 
+        this.log.debug("fixed");
         return {
           constraints: calibration.constraints,
           state: fixed,
@@ -302,6 +330,7 @@ export class UserStateSubject<
   private declassify(encryptor$: Observable<UserEncryptor>): OperatorFunction<unknown, State> {
     // short-circuit if they key lacks encryption support
     if (!this.objectKey || this.objectKey.format === "plain") {
+      this.log.debug("key uses plain format; bypassing declassification");
       return (input$) => input$ as Observable<State>;
     }
 
@@ -312,8 +341,11 @@ export class UserStateSubject<
       concatMap(async ([input, encryptor]) => {
         // pass through null values
         if (input === null || input === undefined) {
+          this.log.debug("no value; bypassing declassification");
           return null;
         }
+
+        this.log.debug("declassifying");
 
         // decrypt classified data
         const { secret, disclosed } = input;
@@ -324,6 +356,7 @@ export class UserStateSubject<
         const declassified = this.objectKey.classifier.declassify(disclosed, decryptedSecret);
         const state = this.objectKey.options.deserializer(declassified);
 
+        this.log.debug("declassified");
         return state;
       }),
     );
@@ -338,6 +371,7 @@ export class UserStateSubject<
     if (this.objectKey && this.objectKey.format === "classified") {
       return map((input) => {
         if (!isClassifiedFormat(input)) {
+          this.log.warn("classified data must be in classified format; dropping");
           return null;
         }
 
@@ -349,11 +383,13 @@ export class UserStateSubject<
     if (this.objectKey && this.objectKey.format === "secret-state") {
       return map((input) => {
         if (!Array.isArray(input)) {
+          this.log.warn("secret-state requires array formatting; dropping");
           return null;
         }
 
         const [unwrapped] = input;
         if (!isClassifiedFormat(unwrapped)) {
+          this.log.warn("unwrapped secret-state must be in classified format; dropping");
           return null;
         }
 
@@ -361,13 +397,14 @@ export class UserStateSubject<
       });
     }
 
-    throw new Error(`unsupported serialization format: ${this.objectKey.format}`);
+    this.log.panic({ format: this.objectKey.format }, "unsupported serialization format");
   }
 
   private classify(encryptor$: Observable<UserEncryptor>): OperatorFunction<State, unknown> {
     // short-circuit if they key lacks encryption support; `encryptor` is
     // readied to preserve `dependencies.singleUserId$` emission contract
     if (!this.objectKey || this.objectKey.format === "plain") {
+      this.log.debug("key uses plain format; bypassing classification");
       return pipe(
         ready(encryptor$),
         map((input) => input as unknown),
@@ -380,8 +417,11 @@ export class UserStateSubject<
       concatMap(async ([input, encryptor]) => {
         // fail fast if there's no value
         if (input === null || input === undefined) {
+          this.log.debug("no value; bypassing classification");
           return null;
         }
+
+        this.log.debug("classifying");
 
         // split data by classification level
         const serialized = JSON.parse(JSON.stringify(input));
@@ -398,6 +438,7 @@ export class UserStateSubject<
           disclosed: classified.disclosed,
         } satisfies ClassifiedFormat<void, Disclosed>;
 
+        this.log.debug("classified");
         // deliberate type erasure; the type is restored during `declassify`
         return envelope as ClassifiedFormat<unknown, unknown>;
       }),
@@ -416,13 +457,7 @@ export class UserStateSubject<
       return map((input) => [input] as unknown);
     }
 
-    throw new Error(`unsupported serialization format: ${this.objectKey.format}`);
-  }
-
-  /** The userId to which the subject is bound.
-   */
-  get userId() {
-    return this.state.userId;
+    this.log.panic({ format: this.objectKey.format }, "unsupported serialization format");
   }
 
   next(value: State) {
@@ -449,7 +484,6 @@ export class UserStateSubject<
   // if greater efficiency becomes desirable, consider implementing
   // `SubjectLike` directly
   private input = new ReplaySubject<State>(1);
-  private state: SingleUserState<unknown>;
   private readonly output = new ReplaySubject<WithConstraints<State>>(1);
 
   /** A stream containing settings and their last-applied constraints. */
@@ -462,9 +496,11 @@ export class UserStateSubject<
 
   private counter = 0;
 
-  private onNext(value: unknown) {
-    this.state
+  private onNext(value: unknown, state: SingleUserState<unknown>) {
+    state
       .update(() => {
+        this.log.debug("updating");
+
         if (typeof value === "object") {
           // related: ALWAYS_UPDATE_KLUDGE FIXME
           const counter = this.counter++;
@@ -472,13 +508,17 @@ export class UserStateSubject<
             this.counter = 0;
           }
 
-          const kludge = value as any;
+          const kludge = { ...value } as any;
           kludge[ALWAYS_UPDATE_KLUDGE] = counter;
         }
 
+        this.log.debug("updated");
         return value;
       })
-      .catch((e: any) => this.onError(e));
+      .catch((e: any) => {
+        this.log.error(e as object, "updating failed");
+        this.onError(e);
+      });
   }
 
   private onError(value: any) {
@@ -503,6 +543,8 @@ export class UserStateSubject<
 
   private dispose() {
     if (!this.isDisposed) {
+      this.log.debug("disposing");
+
       // clean up internal subscriptions
       this.inputSubscription?.unsubscribe();
       this.outputSubscription?.unsubscribe();
@@ -511,6 +553,8 @@ export class UserStateSubject<
 
       // drop input to ensure its value is removed from memory
       this.input = null;
+
+      this.log.debug("disposed");
     }
   }
 }

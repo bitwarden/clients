@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Tətbiq başladılanda parolu və ya PIN-i tələb et"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Tətbiq başladılanda parolu tələb et"
+  },
   "recommendedForSecurity": {
     "message": "Güvənlik üçün tövsiyə olunur."
   },
@@ -2641,7 +2644,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi. Lütfən kömək üçün xidmət provayderinizlə əlaqə saxlayın.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2651,7 +2654,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {

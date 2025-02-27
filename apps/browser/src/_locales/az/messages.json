@@ -1029,6 +1029,9 @@
   "clickToAutofillOnVault": {
     "message": "Seyf görünüşündə avto-doldurmaq üçün elementlərə klikləyin"
   },
+  "clickToAutofill": {
+    "message": "Avto-doldurma təkliflərində elementləri doldurmaq üçün klikləyin"
+  },
   "clearClipboard": {
     "message": "Lövhəni təmizlə",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -2085,6 +2088,9 @@
     "message": "Daha unikal parollar yarat",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Seyf özəlləşdirməsi"
+  },
   "vaultTimeoutAction": {
     "message": "Seyf vaxtının bitmə əməliyyatı"
   },
@@ -3039,7 +3045,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi. Lütfən kömək üçün xidmət provayderinizlə əlaqə saxlayın.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3049,7 +3055,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ tələbinizə rədd cavabı verdi: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
