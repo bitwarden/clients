@@ -155,13 +155,6 @@ export class SsoComponent implements OnInit {
       return;
     }
 
-    // Detect if we are on the first portion of the SSO flow
-    // and have been sent here from another client with the info in query params
-    if (this.hasParametersFromOtherClientRedirect(qParams)) {
-      this.initializeFromRedirectFromOtherClient(qParams);
-      return;
-    }
-
     // Detect if we have landed here but only have an SSO identifier in the URL.
     // This is used by integrations that want to "short-circuit" the login to send users
     // directly to their IdP to simulate IdP-initiated SSO, so we submit automatically.
@@ -172,8 +165,15 @@ export class SsoComponent implements OnInit {
       return;
     }
 
-    // If we're routed here with no additional parameters, we'll try to determine the
-    // identifier using claimed domain or local state saved from their last attempt.
+    // Detect if we are on the first portion of the SSO flow
+    // and have been sent here from another client with the info in query params.
+    // If so, we want to initialize the SSO flow with those values.
+    if (this.hasParametersFromOtherClientRedirect(qParams)) {
+      this.initializeFromRedirectFromOtherClient(qParams);
+    }
+
+    // Try to determine the identifier using claimed domain or local state
+    // persisted from the user's last login attempt.
     await this.initializeIdentifierFromEmailOrStorage();
   }
 
