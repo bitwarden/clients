@@ -26,6 +26,7 @@ import { SecureNote } from "../../models/domain/secure-note";
 import { CardView } from "../../models/view/card.view";
 import { IdentityView } from "../../models/view/identity.view";
 import { LoginView } from "../../models/view/login.view";
+import { CipherPermissions } from "../view/cipher-permissions";
 
 describe("Cipher DTO", () => {
   it("Convert from empty CipherData", () => {
@@ -75,6 +76,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissions(),
         reprompt: CipherRepromptType.None,
         key: "EncryptedString",
         login: {
@@ -292,6 +294,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissions(),
         reprompt: CipherRepromptType.None,
         key: "EncKey",
         secureNote: {
@@ -409,6 +412,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissions(),
         reprompt: CipherRepromptType.None,
         card: {
           cardholderName: "EncryptedString",
@@ -544,6 +548,7 @@ describe("Cipher DTO", () => {
         notes: "EncryptedString",
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
+        permissions: new CipherPermissions(),
         reprompt: CipherRepromptType.None,
         key: "EncKey",
         identity: {
