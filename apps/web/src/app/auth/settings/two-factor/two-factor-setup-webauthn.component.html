@@ -26,7 +26,7 @@
           <span *ngIf="k.configured && k.name" bitTypography="body1" class="tw-font-bold">
             {{ k.name }}
           </span>
-          <ng-container *ngIf="k.configured && !$any(removeKeyBtn).loading">
+          <ng-container *ngIf="k.configured && !$any(removeKeyBtn).loading()">
             <ng-container *ngIf="k.migrated">
               <span>{{ "webAuthnMigrated" | i18n }}</span>
             </ng-container>
@@ -35,7 +35,7 @@
             <i
               class="bwi bwi-spin bwi-spinner tw-text-muted bwi-fw"
               title="{{ 'loading' | i18n }}"
-              *ngIf="$any(removeKeyBtn).loading"
+              *ngIf="$any(removeKeyBtn).loading()"
               aria-hidden="true"
             ></i>
             -
@@ -63,16 +63,16 @@
         type="button"
         [bitAction]="readKey"
         buttonType="secondary"
-        [disabled]="$any(readKeyBtn).loading || webAuthnListening || !keyIdAvailable"
+        [disabled]="$any(readKeyBtn).loading() || webAuthnListening || !keyIdAvailable"
         class="tw-mr-2"
         #readKeyBtn
       >
         {{ "readKey" | i18n }}
       </button>
-      <ng-container *ngIf="$any(readKeyBtn).loading">
+      <ng-container *ngIf="$any(readKeyBtn).loading()">
         <i class="bwi bwi-spinner bwi-spin tw-text-muted" aria-hidden="true"></i>
       </ng-container>
-      <ng-container *ngIf="!$any(readKeyBtn).loading">
+      <ng-container *ngIf="!$any(readKeyBtn).loading()">
         <ng-container *ngIf="webAuthnListening">
           <i class="bwi bwi-spinner bwi-spin tw-text-muted" aria-hidden="true"></i>
           {{ "twoFactorU2fWaiting" | i18n }}...
