@@ -225,7 +225,9 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
    */
   isLoading(element: { loading?: boolean | (() => boolean) }): boolean {
     try {
-      if (!element) {return false;}
+      if (!element) {
+        return false;
+      }
 
       if (typeof element.loading === "function") {
         return element.loading();
