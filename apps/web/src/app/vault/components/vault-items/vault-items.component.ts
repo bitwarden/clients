@@ -104,7 +104,6 @@ export class VaultItemsComponent {
   protected editableItems: VaultItem[] = [];
   protected dataSource = new TableDataSource<VaultItem>();
   protected selection = new SelectionModel<VaultItem>(true, [], true);
-  hasDeletePermissions: Observable<boolean>;
   canDeleteSelected$: Observable<boolean> = of(true);
 
   get showExtraColumn() {
