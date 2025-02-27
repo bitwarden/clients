@@ -155,14 +155,20 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private listenForUnauthUiRefreshFlagChanges() {
+    // TODO: this stream is still live when the SSO component is processing the SSO login on desktop
+    // so when the user logs in, this stream will trigger a navigation to the root incorrectly
+    // which the redirect guard catches and pre-emptively sends the user to the login-initiated screen
+    // - often before the proper state (org sso id) is able to be set. This is primarily only reproducible when
+    // data.json is cleared before running the desktop locally.
     this.configService
       .getFeatureFlag$(FeatureFlag.UnauthenticatedExtensionUIRefresh)
       .pipe(
         tap(async (flag) => {
           // If the flag is turned OFF, we must force a reload to ensure the correct UI is shown
           if (!flag) {
+            const qParams = await firstValueFrom(this.activatedRoute.queryParams);
             const uniqueQueryParams = {
-              ...this.activatedRoute.queryParams,
+              ...qParams,
               // adding a unique timestamp to the query params to force a reload
               t: new Date().getTime().toString(), // Adding a unique timestamp as a query parameter
             };
