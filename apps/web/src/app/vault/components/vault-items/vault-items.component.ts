@@ -2,10 +2,14 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Observable, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
@@ -75,9 +79,33 @@ export class VaultItemsComponent {
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
+  constructor(
+    protected cipherAuthorizationService: CipherAuthorizationService,
+    private configService: ConfigService,
+  ) {
+    this.canDeleteSelected$ = this.selection.changed.pipe(
+      startWith(null),
+      switchMap(() => {
+        const ciphers = this.selection.selected.reduce((ciphers, item) => {
+          if (item.cipher) {
+            ciphers.push(item.cipher);
+          }
+          return ciphers;
+        }, []);
+
+        return ciphers.length === 0
+          ? of(true)
+          : this.cipherAuthorizationService.canDeleteMany$(ciphers, [], this.showAdminActions);
+      }),
+    );
+  }
+
+  limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
   protected editableItems: VaultItem[] = [];
   protected dataSource = new TableDataSource<VaultItem>();
   protected selection = new SelectionModel<VaultItem>(true, [], true);
+  hasDeletePermissions: Observable<boolean>;
+  canDeleteSelected$: Observable<boolean> = of(true);
 
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
@@ -138,6 +166,14 @@ export class VaultItemsComponent {
 
   get bulkAssignToCollectionsAllowed() {
     return this.showBulkAddToCollections && this.ciphers.length > 0;
+  }
+
+  get showRestore(): boolean {
+    if (this.selection.selected.length === 0) {
+      return true;
+    }
+
+    return this.selection.selected.every((item) => item.cipher?.permissions.restore);
   }
 
   protected canEditCollection(collection: CollectionView): boolean {

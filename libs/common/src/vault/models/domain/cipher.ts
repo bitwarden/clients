@@ -13,6 +13,7 @@ import { CipherType } from "../../enums/cipher-type";
 import { CipherData } from "../data/cipher.data";
 import { LocalData } from "../data/local.data";
 import { AttachmentView } from "../view/attachment.view";
+import { CipherPermissions } from "../view/cipher-permissions";
 import { CipherView } from "../view/cipher.view";
 import { FieldView } from "../view/field.view";
 import { PasswordHistoryView } from "../view/password-history.view";
@@ -39,6 +40,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   organizationUseTotp: boolean;
   edit: boolean;
   viewPassword: boolean;
+  permissions: CipherPermissions;
   revisionDate: Date;
   localData: LocalData;
   login: Login;
@@ -84,6 +86,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     } else {
       this.viewPassword = true; // Default for already synced Ciphers without viewPassword
     }
+    this.permissions = obj.permissions;
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
     this.collectionIds = obj.collectionIds;
     this.localData = localData;

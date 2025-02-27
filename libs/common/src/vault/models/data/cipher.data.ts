@@ -5,6 +5,7 @@ import { Jsonify } from "type-fest";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherResponse } from "../response/cipher.response";
+import { CipherPermissions } from "../view/cipher-permissions";
 
 import { AttachmentData } from "./attachment.data";
 import { CardData } from "./card.data";
@@ -21,6 +22,7 @@ export class CipherData {
   folderId: string;
   edit: boolean;
   viewPassword: boolean;
+  permissions: CipherPermissions;
   organizationUseTotp: boolean;
   favorite: boolean;
   revisionDate: string;
@@ -51,6 +53,7 @@ export class CipherData {
     this.folderId = response.folderId;
     this.edit = response.edit;
     this.viewPassword = response.viewPassword;
+    this.permissions = response.permissions;
     this.organizationUseTotp = response.organizationUseTotp;
     this.favorite = response.favorite;
     this.revisionDate = response.revisionDate;

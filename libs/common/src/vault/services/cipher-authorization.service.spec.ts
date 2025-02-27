@@ -8,6 +8,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { CipherPermissions } from "../models/view/cipher-permissions";
 import { CipherView } from "../models/view/cipher.view";
 
 import {
@@ -20,6 +22,7 @@ describe("CipherAuthorizationService", () => {
 
   const mockCollectionService = mock<CollectionService>();
   const mockOrganizationService = mock<OrganizationService>();
+  const mockConfigService = mock<ConfigService>();
   const mockUserId = Utils.newGuid() as UserId;
   let mockAccountService: FakeAccountService;
 
@@ -28,10 +31,15 @@ describe("CipherAuthorizationService", () => {
     organizationId: string | null,
     collectionIds: string[],
     edit: boolean = true,
+    permissions: CipherPermissions = {
+      delete: false,
+      restore: false,
+    },
   ) => ({
     organizationId,
     collectionIds,
     edit,
+    permissions,
   });
 
   const createMockCollection = (id: string, manage: boolean) => ({
@@ -63,7 +71,10 @@ describe("CipherAuthorizationService", () => {
       mockCollectionService,
       mockOrganizationService,
       mockAccountService,
+      mockConfigService,
     );
+
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
   });
 
   describe("canDeleteCipher$", () => {
@@ -212,6 +223,90 @@ describe("CipherAuthorizationService", () => {
         ] as CollectionId[]);
         done();
       });
+    });
+
+    it("should return true if feature flag enabled and cipher.permissions.delete is true", (done) => {
+      const cipher = createMockCipher("org1", [], true, {
+        delete: true,
+      } as CipherPermissions) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      cipherAuthorizationService.canDeleteCipher$(cipher, [], false).subscribe((result) => {
+        expect(result).toBe(true);
+        expect(mockCollectionService.decryptedCollectionViews$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should return false if feature flag enabled and cipher.permissions.delete is false", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      cipherAuthorizationService.canDeleteCipher$(cipher, [], false).subscribe((result) => {
+        expect(result).toBe(false);
+        expect(mockCollectionService.decryptedCollectionViews$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should return false if feature flag enabled and cipher.permissions is undefined", (done) => {
+      const cipher = createMockCipher("org1", [], true, undefined) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      cipherAuthorizationService.canDeleteCipher$(cipher, [], false).subscribe((result) => {
+        expect(result).toBe(false);
+        expect(mockCollectionService.decryptedCollectionViews$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
+  describe("canDeleteManySelected$", () => {
+    it("should retrun true if all ciphers do not belong to an organization", (done) => {
+      const ciphers = new Array(3).fill(createMockCipher(null, []) as CipherView);
+
+      cipherAuthorizationService.canDeleteMany$(ciphers, [], true).subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
+
+    it("should retrun true if all ciphers can be deleted", (done) => {
+      const ciphers = new Array(3).fill(createMockCipher("org1", []) as CipherView);
+      const organization = createMockOrganization({ canEditUnassignedCiphers: true });
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canDeleteMany$(ciphers, [], true).subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
+
+    it("should return false if any cipher cannot be deleted", (done) => {
+      const ciphers = new Array(3).fill(createMockCipher("org1", ["col1"]) as CipherView);
+      ciphers.push(createMockCipher("org1", []));
+      const organization = createMockOrganization({ canEditUnassignedCiphers: false });
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canDeleteMany$(ciphers, []).subscribe((result) => {
+        expect(result).toBe(false);
+        done();
+      });
+    });
+
+    it("should return true if no ciphers are provided", (done) => {
+      const ciphers: CipherView[] = [];
+      cipherAuthorizationService.canDeleteMany$(ciphers, []).subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+      done();
     });
   });
 

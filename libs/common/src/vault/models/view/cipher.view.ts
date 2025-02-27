@@ -11,6 +11,7 @@ import { Cipher } from "../domain/cipher";
 
 import { AttachmentView } from "./attachment.view";
 import { CardView } from "./card.view";
+import { CipherPermissions } from "./cipher-permissions";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
 import { LoginView } from "./login.view";
@@ -29,6 +30,7 @@ export class CipherView implements View, InitializerMetadata {
   type: CipherType = null;
   favorite = false;
   organizationUseTotp = false;
+  permissions: CipherPermissions = null;
   edit = false;
   viewPassword = true;
   localData: LocalData;
@@ -63,6 +65,7 @@ export class CipherView implements View, InitializerMetadata {
     this.organizationUseTotp = c.organizationUseTotp;
     this.edit = c.edit;
     this.viewPassword = c.viewPassword;
+    this.permissions = c.permissions;
     this.type = c.type;
     this.localData = c.localData;
     this.collectionIds = c.collectionIds;

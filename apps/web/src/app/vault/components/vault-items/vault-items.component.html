@@ -86,11 +86,27 @@
               <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
-            <button *ngIf="showBulkTrashOptions" type="button" bitMenuItem (click)="bulkRestore()">
-              <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
-              {{ "restoreSelected" | i18n }}
-            </button>
-            <button *ngIf="showDelete" type="button" bitMenuItem (click)="bulkDelete()">
+            <ng-container *ngIf="{ enabled: limitItemDeletion$ | async } as limitItemDeletion">
+              <button
+                *ngIf="
+                  limitItemDeletion.enabled
+                    ? showBulkTrashOptions && showRestore
+                    : showBulkTrashOptions
+                "
+                type="button"
+                bitMenuItem
+                (click)="bulkRestore()"
+              >
+                <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
+                {{ "restoreSelected" | i18n }}
+              </button>
+            </ng-container>
+            <button
+              *ngIf="showDelete && (canDeleteSelected$ | async)"
+              type="button"
+              bitMenuItem
+              (click)="bulkDelete()"
+            >
               <span class="tw-text-danger">
                 <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
                 {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
@@ -146,6 +162,13 @@
           [canEditCipher]="canEditCipher(item.cipher)"
           [canAssignCollections]="canAssignCollections(item.cipher)"
           [canManageCollection]="canManageCollection(item.cipher)"
+          [canDeleteCipher]="
+            cipherAuthorizationService.canDeleteCipher$(
+              item.cipher,
+              [item.cipher.collectionId],
+              showAdminActions
+            ) | async
+          "
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
         ></tr>

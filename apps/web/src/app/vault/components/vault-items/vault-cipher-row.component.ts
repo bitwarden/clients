@@ -4,6 +4,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -36,6 +38,7 @@ export class VaultCipherRowComponent implements OnInit {
   @Input() canEditCipher: boolean;
   @Input() canAssignCollections: boolean;
   @Input() canManageCollection: boolean;
+  @Input() canDeleteCipher: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
@@ -53,7 +56,12 @@ export class VaultCipherRowComponent implements OnInit {
   ];
   protected organization?: Organization;
 
-  constructor(private i18nService: I18nService) {}
+  constructor(
+    private i18nService: I18nService,
+    private configService: ConfigService,
+  ) {}
+
+  limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
 
   /**
    * Lifecycle hook for component initialization.

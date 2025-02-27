@@ -8,6 +8,7 @@ import { IdentityApi } from "../api/identity.api";
 import { LoginApi } from "../api/login.api";
 import { SecureNoteApi } from "../api/secure-note.api";
 import { SshKeyApi } from "../api/ssh-key.api";
+import { CipherPermissions } from "../view/cipher-permissions";
 
 import { AttachmentResponse } from "./attachment.response";
 import { PasswordHistoryResponse } from "./password-history.response";
@@ -28,6 +29,7 @@ export class CipherResponse extends BaseResponse {
   favorite: boolean;
   edit: boolean;
   viewPassword: boolean;
+  permissions: CipherPermissions;
   organizationUseTotp: boolean;
   revisionDate: string;
   attachments: AttachmentResponse[];
@@ -53,6 +55,7 @@ export class CipherResponse extends BaseResponse {
     } else {
       this.viewPassword = this.getResponseProperty("ViewPassword");
     }
+    this.permissions = this.getResponseProperty("Permissions");
     this.organizationUseTotp = this.getResponseProperty("OrganizationUseTotp");
     this.revisionDate = this.getResponseProperty("RevisionDate");
     this.collectionIds = this.getResponseProperty("CollectionIds");
