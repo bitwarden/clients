@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -10,7 +9,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 
 import {
   convertToPermission,
@@ -40,13 +38,13 @@ export class VaultCipherRowComponent implements OnInit {
   @Input() canEditCipher: boolean;
   @Input() canAssignCollections: boolean;
   @Input() canManageCollection: boolean;
+  @Input() canDeleteCipher: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
   @Input() checked: boolean;
   @Output() checkedToggled = new EventEmitter<void>();
 
-  canDeleteCipher$: Observable<boolean>;
   limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
@@ -62,7 +60,6 @@ export class VaultCipherRowComponent implements OnInit {
   constructor(
     private i18nService: I18nService,
     private configService: ConfigService,
-    private cipherAuthoriationService: CipherAuthorizationService,
   ) {}
 
   /**
@@ -72,7 +69,6 @@ export class VaultCipherRowComponent implements OnInit {
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }
-    this.canDeleteCipher$ = this.cipherAuthoriationService.canDeleteCipher$(this.cipher);
   }
 
   protected get clickAction() {
