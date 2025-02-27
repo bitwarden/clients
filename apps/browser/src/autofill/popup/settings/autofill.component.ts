@@ -107,6 +107,13 @@ export class AutofillComponent implements OnInit {
     defaultAutofill: new FormControl(),
   });
 
+  protected additionalOptionsForm = new FormGroup({
+    enableContextMenuItem: new FormControl(),
+    enableAutoTotpCopy: new FormControl(),
+    clearClipboard: new FormControl(),
+    defaultUriMatch: new FormControl(),
+  });
+
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
   enableInlineMenuOnIconSelect: boolean = false;
@@ -239,18 +246,62 @@ export class AutofillComponent implements OnInit {
         void this.autofillSettingsService.setAutofillOnPageLoadDefault(value);
       });
 
+    /** Additional options form */
+
     this.enableContextMenuItem = await firstValueFrom(
       this.autofillSettingsService.enableContextMenu$,
     );
 
+    this.additionalOptionsForm.controls.enableContextMenuItem.patchValue(
+      this.enableContextMenuItem,
+      { emitEvent: false },
+    );
+
     this.enableAutoTotpCopy = await firstValueFrom(this.autofillSettingsService.autoCopyTotp$);
 
+    this.additionalOptionsForm.controls.enableAutoTotpCopy.patchValue(this.enableAutoTotpCopy, {
+      emitEvent: false,
+    });
+
     this.clearClipboard = await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
+
+    this.additionalOptionsForm.controls.clearClipboard.patchValue(this.clearClipboard, {
+      emitEvent: false,
+    });
 
     const defaultUriMatch = await firstValueFrom(
       this.domainSettingsService.defaultUriMatchStrategy$,
     );
     this.defaultUriMatch = defaultUriMatch == null ? UriMatchStrategy.Domain : defaultUriMatch;
+
+    this.additionalOptionsForm.controls.defaultUriMatch.patchValue(this.defaultUriMatch, {
+      emitEvent: false,
+    });
+
+    this.additionalOptionsForm.controls.enableContextMenuItem.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setEnableContextMenu(value);
+        this.messagingService.send("bgUpdateContextMenu");
+      });
+
+    this.additionalOptionsForm.controls.enableAutoTotpCopy.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setAutoCopyTotp(value);
+      });
+
+    this.additionalOptionsForm.controls.clearClipboard.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setClearClipboardDelay(value);
+      });
+
+    this.additionalOptionsForm.controls.defaultUriMatch.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.domainSettingsService.setDefaultUriMatchStrategy(value);
+      });
 
     const command = await this.platformUtilsService.getAutofillKeyboardShortcut();
     await this.setAutofillKeyboardHelperText(command);
@@ -290,10 +341,6 @@ export class AutofillComponent implements OnInit {
     } else {
       this.autofillOnPageLoadForm.controls.defaultAutofill.disable();
     }
-  }
-
-  async saveDefaultUriMatch() {
-    await this.domainSettingsService.setDefaultUriMatchStrategy(this.defaultUriMatch);
   }
 
   private async setAutofillKeyboardHelperText(command: string) {
@@ -439,19 +486,6 @@ export class AutofillComponent implements OnInit {
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);
-  }
-
-  async updateContextMenuItem() {
-    await this.autofillSettingsService.setEnableContextMenu(this.enableContextMenuItem);
-    this.messagingService.send("bgUpdateContextMenu");
-  }
-
-  async updateAutoTotpCopy() {
-    await this.autofillSettingsService.setAutoCopyTotp(this.enableAutoTotpCopy);
-  }
-
-  async saveClearClipboard() {
-    await this.autofillSettingsService.setClearClipboardDelay(this.clearClipboard);
   }
 
   async updateShowCardsCurrentTab() {
