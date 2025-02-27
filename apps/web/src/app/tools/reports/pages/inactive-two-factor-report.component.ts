@@ -130,4 +130,15 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       this.services.set(serviceData.domain, serviceData.documentation);
     }
   }
+
+  /**
+   * Provides a way to determine if someone with permissions to run an organizational report is also able to view/edit ciphers within the results
+   * Default to true for indivduals running reports on their own vault.
+   * @param c CipherView
+   * @returns boolean
+   */
+  protected canManageCipher(c: CipherView): boolean {
+    // this will only ever be false from the org view;
+    return true;
+  }
 }
