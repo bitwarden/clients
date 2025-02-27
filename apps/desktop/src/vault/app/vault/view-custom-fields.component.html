@@ -34,14 +34,6 @@
           <span class="sr-only">{{ field.value }}</span>
         </div>
         <div *ngIf="field.type === fieldType.Linked" class="box-content-row-flex">
-          <div class="icon icon-small">
-            <i
-              class="bwi bwi-link"
-              aria-hidden="true"
-              appA11yTitle="{{ 'linkedValue' | i18n }}"
-            ></i>
-            <span class="sr-only">{{ "linkedValue" | i18n }}</span>
-          </div>
           <span>{{ cipher.linkedFieldI18nKey(field.linkedId) | i18n }}</span>
         </div>
       </div>
