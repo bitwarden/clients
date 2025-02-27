@@ -13,6 +13,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
@@ -41,6 +42,9 @@ export class UnsecuredWebsitesReportComponent
   extends BaseUnsecuredWebsitesReportComponent
   implements OnInit
 {
+  // Contains a list of ciphers, the user running the report, can manage
+  private manageableCiphers: Cipher[];
+
   constructor(
     cipherService: CipherService,
     dialogService: DialogService,
@@ -80,11 +84,16 @@ export class UnsecuredWebsitesReportComponent
           .organizations$(userId)
           .pipe(getOrganizationById(params.organizationId)),
       );
+      this.manageableCiphers = await this.cipherService.getAll(userId);
       await super.ngOnInit();
     });
   }
 
   getAllCiphers(): Promise<CipherView[]> {
     return this.cipherService.getAllFromApiForOrganization(this.organization.id);
+  }
+
+  protected canManageCipher(c: CipherView): boolean {
+    return this.manageableCiphers.some((x) => x.id === c.id);
   }
 }
