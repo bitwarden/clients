@@ -87,7 +87,7 @@ export default class NotificationBackground {
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
     notificationRefreshFlagValue: () => this.getNotificationFlag(),
     bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
-    bgOpenVault: ({ message, sender }) => this.open(message, sender.tab),
+    bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
   };
 
   constructor(
@@ -668,7 +668,10 @@ export default class NotificationBackground {
     await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView.id });
   }
 
-  private async open(message: NotificationBackgroundExtensionMessage, senderTab: chrome.tabs.Tab) {
+  private async openVault(
+    message: NotificationBackgroundExtensionMessage,
+    senderTab: chrome.tabs.Tab,
+  ) {
     if (!message.cipherId) {
       await this.openAddEditVaultItemPopout(senderTab);
     }
