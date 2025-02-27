@@ -439,7 +439,7 @@ checksum = "8f68f53c83ab957f72c32642f3868eec03eb974d1fb82e453128456482613d36"
 [[package]]
 name = "bitwarden-russh"
 version = "0.1.0"
-source = "git+https://github.com/bitwarden/bitwarden-russh.git?rev=23b50e3bbe6d56ef19ab0e98e8bb1462cb6d77ae#23b50e3bbe6d56ef19ab0e98e8bb1462cb6d77ae"
+source = "git+https://github.com/bitwarden/bitwarden-russh.git?rev=3d48f140fd506412d186203238993163a8c4e536#3d48f140fd506412d186203238993163a8c4e536"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -942,6 +942,7 @@ dependencies = [
  "base64",
  "bitwarden-russh",
  "byteorder",
+ "bytes",
  "cbc",
  "core-foundation",
  "desktop_objc",

@@ -867,7 +867,7 @@ export class ServiceContainer {
       return;
     }
 
-    await this.sdkLoadService.load();
+    await this.sdkLoadService.loadAndInit();
     await this.storageService.init();
     await this.stateService.init();
     this.containerService.attachToGlobal(global);
