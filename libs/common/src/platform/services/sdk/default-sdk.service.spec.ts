@@ -11,12 +11,20 @@ import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
 import { DefaultSdkService } from "./default-sdk.service";
+
+class TestSdkLoadService extends SdkLoadService {
+  protected override load(): Promise<void> {
+    // Simulate successfull WASM load
+    return Promise.resolve();
+  }
+}
 
 describe("DefaultSdkService", () => {
   describe("userClient$", () => {
@@ -28,7 +36,9 @@ describe("DefaultSdkService", () => {
     let keyService!: MockProxy<KeyService>;
     let service!: DefaultSdkService;
 
-    beforeEach(() => {
+    beforeEach(async () => {
+      await new TestSdkLoadService().loadAndInit();
+
       sdkClientFactory = mock<SdkClientFactory>();
       environmentService = mock<EnvironmentService>();
       platformUtilsService = mock<PlatformUtilsService>();

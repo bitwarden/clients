@@ -16,7 +16,7 @@ export class DefaultAuthRequestApiService implements AuthRequestApiService {
       const path = `/auth-requests/${requestId}`;
       const response = await this.apiService.send("GET", path, null, true, true);
 
-      return response;
+      return new AuthRequestResponse(response);
     } catch (e: unknown) {
       this.logService.error(e);
       throw e;
@@ -28,7 +28,7 @@ export class DefaultAuthRequestApiService implements AuthRequestApiService {
       const path = `/auth-requests/${requestId}/response?code=${accessCode}`;
       const response = await this.apiService.send("GET", path, null, false, true);
 
-      return response;
+      return new AuthRequestResponse(response);
     } catch (e: unknown) {
       this.logService.error(e);
       throw e;
@@ -45,7 +45,7 @@ export class DefaultAuthRequestApiService implements AuthRequestApiService {
         true,
       );
 
-      return response;
+      return new AuthRequestResponse(response);
     } catch (e: unknown) {
       this.logService.error(e);
       throw e;
@@ -56,7 +56,7 @@ export class DefaultAuthRequestApiService implements AuthRequestApiService {
     try {
       const response = await this.apiService.send("POST", "/auth-requests/", request, false, true);
 
-      return response;
+      return new AuthRequestResponse(response);
     } catch (e: unknown) {
       this.logService.error(e);
       throw e;

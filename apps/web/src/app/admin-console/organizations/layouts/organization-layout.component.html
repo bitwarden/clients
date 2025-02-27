@@ -40,7 +40,10 @@
       <bit-nav-item
         [text]="'eventLogs' | i18n"
         route="reporting/events"
-        *ngIf="organization.canAccessEventLogs"
+        *ngIf="
+          (organization.canAccessEventLogs && organization.useEvents) ||
+          (organization.isOwner && (isBreadcrumbEventLogsEnabled$ | async))
+        "
       ></bit-nav-item>
       <bit-nav-item
         [text]="'reports' | i18n"
