@@ -26,7 +26,7 @@
           <span *ngIf="k.configured && k.name" bitTypography="body1" class="tw-font-bold">
             {{ k.name }}
           </span>
-          <ng-container *ngIf="k.configured && !isLoading(removeKeyBtn)">
+          <ng-container *ngIf="k.configured && !isLoading($any(removeKeyBtn))">
             <ng-container *ngIf="k.migrated">
               <span>{{ "webAuthnMigrated" | i18n }}</span>
             </ng-container>
@@ -35,7 +35,7 @@
             <i
               class="bwi bwi-spin bwi-spinner tw-text-muted bwi-fw"
               title="{{ 'loading' | i18n }}"
-              *ngIf="isLoading(removeKeyBtn)"
+              *ngIf="isLoading($any(removeKeyBtn))"
               aria-hidden="true"
             ></i>
             -

@@ -223,10 +223,15 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
    * @param element - The element to check.
    * @returns True if the element is loading, false otherwise.
    */
-  isLoading(element: any): boolean {
+  isLoading(element: { loading?: boolean | (() => boolean) }): boolean {
     try {
-      // Check if element exists, has loading method, and loading() returns true
-      return element && element.loading && element.loading();
+      if (!element) {return false;}
+
+      if (typeof element.loading === "function") {
+        return element.loading();
+      }
+
+      return !!element.loading;
     } catch (e) {
       this.logService.error(e);
       return false;
