@@ -43,8 +43,6 @@ export class BitErrorComponent {
         return this.i18nService.t("multipleInputEmails");
       case "trim":
         return this.i18nService.t("inputTrimValidator");
-      case "cannotCreateCollections":
-        return this.i18nService.t("cannotCreateCollection");
       default:
         // Attempt to show a custom error message.
         if (this.error[1]?.message) {

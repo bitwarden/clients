@@ -441,7 +441,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
           if (hasReachedLimit) {
             this.orgExceedingCollectionLimit = org;
-            return { cannotCreateCollections: true };
+            return {
+              cannotCreateCollections: { message: this.i18nService.t("cannotCreateCollection") },
+            };
           }
 
           return null;
