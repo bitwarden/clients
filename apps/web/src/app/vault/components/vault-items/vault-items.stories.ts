@@ -25,6 +25,7 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -96,9 +97,17 @@ export default {
         {
           provide: ConfigService,
           useValue: {
-            getFeatureFlag() {
+            getFeatureFlag$() {
               // does not currently affect any display logic, default all to OFF
               return false;
+            },
+          },
+        },
+        {
+          provide: CipherAuthorizationService,
+          useValue: {
+            canDeleteCipher$() {
+              return of(true);
             },
           },
         },
