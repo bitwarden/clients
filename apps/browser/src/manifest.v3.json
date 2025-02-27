@@ -30,12 +30,6 @@
       "matches": ["*://*/*", "file:///*"],
       "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
       "run_at": "document_start"
-    },
-    {
-      "all_frames": false,
-      "js": ["content/lp-fileless-importer.js"],
-      "matches": ["https://lastpass.com/export.php"],
-      "run_at": "document_start"
     }
   ],
   "background": {
