@@ -162,13 +162,6 @@
           [canEditCipher]="canEditCipher(item.cipher)"
           [canAssignCollections]="canAssignCollections(item.cipher)"
           [canManageCollection]="canManageCollection(item.cipher)"
-          [canDeleteCipher]="
-            cipherAuthorizationService.canDeleteCipher$(
-              item.cipher,
-              [item.cipher.collectionId],
-              showAdminActions
-            ) | async
-          "
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
         ></tr>

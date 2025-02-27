@@ -88,7 +88,7 @@
   <bit-menu #corruptedCipherOptions>
     <button
       bitMenuItem
-      *ngIf="canManageCollection && canDeleteCipher"
+      *ngIf="canManageCollection && canDeleteCipher$ | async"
       (click)="deleteCipher()"
       type="button"
     >
