@@ -1863,7 +1863,7 @@ export class ApiService implements ApiServiceAbstraction {
     body: any,
     authed: boolean,
     hasResponse: boolean,
-    apiUrl?: string,
+    apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
     const env = await firstValueFrom(this.environmentService.environment$);
