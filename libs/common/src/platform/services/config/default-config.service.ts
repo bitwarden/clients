@@ -8,10 +8,12 @@ import {
   NEVER,
   Observable,
   of,
-  shareReplay,
+  ReplaySubject,
+  share,
   Subject,
   switchMap,
   tap,
+  timer,
 } from "rxjs";
 import { SemVer } from "semver";
 
@@ -64,6 +66,8 @@ export class DefaultConfigService implements ConfigService {
 
   cloudRegion$: Observable<Region>;
 
+  private renewConfigPromise: Promise<void> | null = null;
+
   constructor(
     private configApiService: ConfigApiServiceAbstraction,
     private environmentService: EnvironmentService,
@@ -96,7 +100,13 @@ export class DefaultConfigService implements ConfigService {
         const [existingConfig, userId, environment] = rec;
         // Grab new config if older retrieval interval
         if (!existingConfig || this.olderThanRetrievalInterval(existingConfig.utcDate)) {
-          await this.renewConfig(existingConfig, userId, environment);
+          if (this.renewConfigPromise == null) {
+            this.renewConfigPromise = this.renewConfig(existingConfig, userId, environment);
+
+            await this.renewConfigPromise.finally(() => {
+              this.renewConfigPromise = null;
+            });
+          }
         }
       }),
       switchMap(([existingConfig]) => {
@@ -110,7 +120,12 @@ export class DefaultConfigService implements ConfigService {
       }),
       // If fetch fails, we'll emit on this subject to fallback to the existing config
       mergeWith(this.failedFetchFallbackSubject),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+      share({
+        connector: () => new ReplaySubject<ServerConfig>(1),
+        resetOnRefCountZero: () => {
+          return timer(100);
+        },
+      }),
     );
 
     this.cloudRegion$ = this.serverConfig$.pipe(
