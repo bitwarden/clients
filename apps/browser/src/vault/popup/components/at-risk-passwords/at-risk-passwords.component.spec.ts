@@ -198,8 +198,27 @@ describe("AtRiskPasswordsComponent", () => {
 
   describe("pageDescription$", () => {
     it("should use single org description when tasks belong to one org", async () => {
-      const description = await firstValueFrom(component["pageDescription$"]);
-      expect(description).toBe("atRiskPasswordsDescSingleOrg");
+      // Single task
+      let description = await firstValueFrom(component["pageDescription$"]);
+      expect(description).toBe("atRiskPasswordDescSingleOrg");
+
+      // Multiple tasks
+      mockTasks$.next([
+        {
+          id: "task",
+          organizationId: "org",
+          cipherId: "cipher",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+        } as SecurityTask,
+        {
+          id: "task2",
+          organizationId: "org",
+          cipherId: "cipher2",
+          type: SecurityTaskType.UpdateAtRiskCredential,
+        } as SecurityTask,
+      ]);
+      description = await firstValueFrom(component["pageDescription$"]);
+      expect(description).toBe("atRiskPasswordsDescSingleOrgPlural");
     });
 
     it("should use multiple org description when tasks belong to multiple orgs", async () => {
@@ -218,7 +237,7 @@ describe("AtRiskPasswordsComponent", () => {
         } as SecurityTask,
       ]);
       const description = await firstValueFrom(component["pageDescription$"]);
-      expect(description).toBe("atRiskPasswordsDescMultiOrg");
+      expect(description).toBe("atRiskPasswordsDescMultiOrgPlural");
     });
   });
 

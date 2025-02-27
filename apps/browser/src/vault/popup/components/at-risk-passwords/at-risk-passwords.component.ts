@@ -115,12 +115,21 @@ export class AtRiskPasswordsComponent implements OnInit {
     startWith(true),
   );
 
-  protected calloutDismissed$ = this.activeUserData$.pipe(
+  private calloutDismissed$ = this.activeUserData$.pipe(
     switchMap(({ userId }) => this.atRiskPasswordPageService.isCalloutDismissed(userId)),
   );
-
-  protected inlineAutofillSettingEnabled$ = this.autofillSettingsService.inlineMenuVisibility$.pipe(
+  private inlineAutofillSettingEnabled$ = this.autofillSettingsService.inlineMenuVisibility$.pipe(
     map((setting) => setting !== AutofillOverlayVisibility.Off),
+  );
+
+  protected showAutofillCallout$ = combineLatest([
+    this.calloutDismissed$,
+    this.inlineAutofillSettingEnabled$,
+  ]).pipe(
+    map(([calloutDismissed, inlineAutofillSettingEnabled]) => {
+      return !calloutDismissed && !inlineAutofillSettingEnabled;
+    }),
+    startWith(false),
   );
 
   protected atRiskItems$ = this.activeUserData$.pipe(
@@ -143,11 +152,19 @@ export class AtRiskPasswordsComponent implements OnInit {
         const [orgId] = orgIds;
         return this.organizationService.organizations$(userId).pipe(
           getOrganizationById(orgId),
-          map((org) => this.i18nService.t("atRiskPasswordsDescSingleOrg", org?.name, tasks.length)),
+          map((org) =>
+            this.i18nService.t(
+              tasks.length === 1
+                ? "atRiskPasswordDescSingleOrg"
+                : "atRiskPasswordsDescSingleOrgPlural",
+              org?.name,
+              tasks.length,
+            ),
+          ),
         );
       }
 
-      return of(this.i18nService.t("atRiskPasswordsDescMultiOrg", tasks.length));
+      return of(this.i18nService.t("atRiskPasswordsDescMultiOrgPlural", tasks.length));
     }),
   );
 
