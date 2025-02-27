@@ -94,6 +94,9 @@ export class InactiveTwoFactorReportComponent
   }
 
   protected canManageCipher(c: CipherView): boolean {
-    return this.manageableCiphers.some((x) => x.id === c.id) || c.collectionIds.length === 0;
+    if (c.collectionIds.length === 0) {
+      return true;
+    }
+    return this.manageableCiphers.some((x) => x.id === c.id);
   }
 }
