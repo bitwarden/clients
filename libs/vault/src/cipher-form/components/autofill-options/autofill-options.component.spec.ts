@@ -269,7 +269,6 @@ describe("AutofillOptionsComponent", () => {
     beforeEach(() => {
       // Prevent auto‑adding an empty URI by setting a non‑null initial value.
       // This overrides the call to initNewCipher.
-      cipherFormContainer.config = { initialValues: { loginUri: "https://dummy.com" } };
 
       // Now clear any existing URIs (including the auto‑added one)
       component.autofillOptionsForm.controls.uris.clear();
@@ -296,7 +295,11 @@ describe("AutofillOptionsComponent", () => {
       component.onUriItemDrop(dropEvent);
       fixture.detectChanges();
 
-      expect(moveItemInArray).toHaveBeenCalledWith(component.uriControls, 0, 2);
+      expect(moveItemInArray).toHaveBeenCalledWith(
+        component.autofillOptionsForm.controls.uris.controls,
+        0,
+        2,
+      );
     });
 
     it("should reorder URI input via keyboard ArrowUp", async () => {
@@ -311,7 +314,7 @@ describe("AutofillOptionsComponent", () => {
         key: "ArrowUp",
         preventDefault: jest.fn(),
         target: document.createElement("button"),
-      } as KeyboardEvent;
+      } as unknown as KeyboardEvent;
 
       // Force requestAnimationFrame to run synchronously
       jest.spyOn(window, "requestAnimationFrame").mockImplementation((cb: FrameRequestCallback) => {
@@ -323,7 +326,11 @@ describe("AutofillOptionsComponent", () => {
       await component.onUriItemKeydown(keyEvent, 1);
       fixture.detectChanges();
 
-      expect(moveItemInArray).toHaveBeenCalledWith(component.uriControls, 1, 0);
+      expect(moveItemInArray).toHaveBeenCalledWith(
+        component.autofillOptionsForm.controls.uris.controls,
+        1,
+        0,
+      );
       expect(liveAnnouncer.announce).toHaveBeenCalledWith(
         "reorderFieldUp websiteUri 1 2",
         "assertive",
@@ -343,7 +350,7 @@ describe("AutofillOptionsComponent", () => {
         key: "ArrowDown",
         preventDefault: jest.fn(),
         target: document.createElement("button"),
-      } as KeyboardEvent;
+      } as unknown as KeyboardEvent;
 
       jest.spyOn(window, "requestAnimationFrame").mockImplementation((cb: FrameRequestCallback) => {
         cb(new Date().getTime());
@@ -353,7 +360,11 @@ describe("AutofillOptionsComponent", () => {
 
       await component.onUriItemKeydown(keyEvent, 1);
 
-      expect(moveItemInArray).toHaveBeenCalledWith(component.uriControls, 1, 2);
+      expect(moveItemInArray).toHaveBeenCalledWith(
+        component.autofillOptionsForm.controls.uris.controls,
+        1,
+        2,
+      );
       expect(liveAnnouncer.announce).toHaveBeenCalledWith(
         "reorderFieldDown websiteUri 3 3",
         "assertive",
