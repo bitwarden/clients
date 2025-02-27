@@ -93,6 +93,6 @@ export class WeakPasswordsReportComponent
   }
 
   canManageCipher(c: CipherView): boolean {
-    return this.manageableCiphers.some((x) => x.id === c.id);
+    return this.manageableCiphers.some((x) => x.id === c.id) || c.collectionIds.length === 0;
   }
 }
