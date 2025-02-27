@@ -36,12 +36,6 @@
       "js": ["content/lp-fileless-importer.js"],
       "matches": ["https://lastpass.com/export.php"],
       "run_at": "document_start"
-    },
-    {
-      "all_frames": false,
-      "js": ["content/ipc-content-script.js"],
-      "matches": ["https://vault.bitwarden.com/*", "https://localhost:8080/*"],
-      "run_at": "document_start"
     }
   ],
   "background": {
