@@ -142,7 +142,6 @@ import {
 import {
   BillingApiServiceAbstraction,
   OrganizationBillingServiceAbstraction,
-  OrganizationUpsellingServiceAbstraction,
 } from "@bitwarden/common/billing/abstractions";
 import { AccountBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/account/account-billing-api.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -153,7 +152,6 @@ import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/bill
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
 import { OrganizationBillingApiService } from "@bitwarden/common/billing/services/organization/organization-billing-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
-import { OrganizationUpsellingService } from "@bitwarden/common/billing/services/organization-upselling.service";
 import { TaxService } from "@bitwarden/common/billing/services/tax.service";
 import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -1250,11 +1248,6 @@ const safeProviders: SafeProvider[] = [
       OrganizationApiServiceAbstraction,
       SyncService,
     ],
-  }),
-  safeProvider({
-    provide: OrganizationUpsellingServiceAbstraction,
-    useClass: OrganizationUpsellingService,
-    deps: [],
   }),
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,

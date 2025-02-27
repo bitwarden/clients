@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
+import { combineLatest, filter, map, Observable, of, switchMap, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -22,8 +22,8 @@ import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { isUpsellingPoliciesEnabled } from "@bitwarden/common/billing/utils/organization-upselling-utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -77,7 +77,6 @@ export class OrganizationLayoutComponent implements OnInit {
     private providerService: ProviderService,
     protected bannerService: AccountDeprovisioningBannerService,
     private accountService: AccountService,
-    private upsellingService: OrganizationUpsellingServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -168,10 +167,18 @@ export class OrganizationLayoutComponent implements OnInit {
     return canAccessBillingTab(organization);
   }
 
-  canShowPoliciesTab(organization: Organization): boolean {
-    return (
-      organization.canManagePolicies ||
-      this.upsellingService.isUpsellingPoliciesEnabled(organization)
+  canShowPoliciesTab$(organization: Organization): Observable<boolean> {
+    const canManagePolicies = organization.canManagePolicies;
+    const isUpsellingEnabled = isUpsellingPoliciesEnabled(organization);
+
+    return combineLatest([
+      this.isBreadcrumbEventLogsEnabled$,
+      of(canManagePolicies),
+      of(isUpsellingEnabled),
+    ]).pipe(
+      map(([isBreadcrumbEventLogsEnabled, canManagePolicies, isUpsellingEnabled]) => {
+        return canManagePolicies || isUpsellingEnabled || isBreadcrumbEventLogsEnabled;
+      }),
     );
   }
 

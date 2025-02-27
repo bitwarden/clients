@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, lastValueFrom } from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, Observable, of } from "rxjs";
 import { first, map } from "rxjs/operators";
 
 import {
@@ -14,7 +14,12 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { isUpsellingPoliciesEnabled } from "@bitwarden/common/billing/utils/organization-upselling-utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
+import { CollectionDialogTabType } from "@bitwarden/web-vault/app/vault/components/collection-dialog";
+import { All } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { PolicyListService } from "../../core/policy-list.service";
 import { BasePolicy } from "../policies";
@@ -38,6 +43,10 @@ export class PoliciesComponent implements OnInit {
   private orgPolicies: PolicyResponse[];
   protected policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
 
+  private isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM12276_BreadcrumbEventLogs,
+  );
+
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
@@ -45,6 +54,7 @@ export class PoliciesComponent implements OnInit {
     private policyApiService: PolicyApiServiceAbstraction,
     private policyListService: PolicyListService,
     private dialogService: DialogService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -108,5 +118,18 @@ export class PoliciesComponent implements OnInit {
     if (result === PolicyEditDialogResult.Saved) {
       await this.load();
     }
+  }
+
+  protected readonly CollectionDialogTabType = CollectionDialogTabType;
+  protected readonly All = All;
+
+  protected showUpgradeBreadcrumb$(): Observable<boolean> {
+    const isUpsellingEnabled = isUpsellingPoliciesEnabled(this.organization);
+
+    return combineLatest([this.isBreadcrumbEventLogsEnabled$, of(isUpsellingEnabled)]).pipe(
+      map(([isBreadcrumbEventLogsEnabled, isUpsellingEnabled]) => {
+        return isUpsellingEnabled && isBreadcrumbEventLogsEnabled;
+      }),
+    );
   }
 }

@@ -1,4 +1,8 @@
-<app-header></app-header>
+<app-header>
+  <span bitBadge variant="primary" slot="title-suffix" *ngIf="showUpgradeBreadcrumb$() | async">
+    {{ "upgrade" | i18n }}
+  </span>
+</app-header>
 
 <bit-container>
   <ng-container *ngIf="loading">

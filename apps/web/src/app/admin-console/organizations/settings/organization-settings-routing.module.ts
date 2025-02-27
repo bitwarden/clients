@@ -10,6 +10,7 @@ import { PoliciesComponent } from "../../organizations/policies";
 
 import { AccountComponent } from "./account.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
+import { isUpsellingPoliciesEnabled } from "@bitwarden/common/billing/utils/organization-upselling-utils";
 
 const routes: Routes = [
   {
@@ -41,7 +42,11 @@ const routes: Routes = [
       {
         path: "policies",
         component: PoliciesComponent,
-        canActivate: [organizationPermissionsGuard((org) => org.canManagePolicies)],
+        canActivate: [
+          organizationPermissionsGuard((org) => {
+            return org.canManagePolicies || isUpsellingPoliciesEnabled(org);
+          }),
+        ],
         data: {
           titleId: "policies",
         },
