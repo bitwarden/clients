@@ -43,7 +43,7 @@ export class InactiveTwoFactorReportComponent
   implements OnInit
 {
   // Contains a list of ciphers, the user running the report, can manage
-  manageableCiphers: Cipher[];
+  private manageableCiphers: Cipher[];
 
   constructor(
     cipherService: CipherService,
@@ -93,7 +93,7 @@ export class InactiveTwoFactorReportComponent
     return this.cipherService.getAllFromApiForOrganization(this.organization.id);
   }
 
-  canManageCipher(c: CipherView): boolean {
+  protected canManageCipher(c: CipherView): boolean {
     return this.manageableCiphers.some((x) => x.id === c.id);
   }
 }
