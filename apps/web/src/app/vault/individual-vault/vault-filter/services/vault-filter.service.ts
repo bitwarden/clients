@@ -24,7 +24,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -51,6 +52,10 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   memberOrganizations$ = this.activeUserId$.pipe(
     switchMap((id) => this.organizationService.memberOrganizations$(id)),
+  );
+
+  collapsedFilterNodes$ = this.activeUserId$.pipe(
+    switchMap((id) => this.collapsedGroupingsState(id).state$.pipe(map((c) => new Set(c)))),
   );
 
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
@@ -97,11 +102,9 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>> = this.buildCipherTypeTree();
 
-  private collapsedGroupingsState: ActiveUserState<string[]> =
-    this.stateProvider.getActive(COLLAPSED_GROUPINGS);
-
-  readonly collapsedFilterNodes$: Observable<Set<string>> =
-    this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
+  private collapsedGroupingsState(userId: UserId): SingleUserState<string[]> {
+    return this.stateProvider.getUser(userId, COLLAPSED_GROUPINGS);
+  }
 
   constructor(
     protected organizationService: OrganizationService,
@@ -120,7 +123,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   }
 
   async setCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
-    await this.collapsedGroupingsState.update(() => Array.from(collapsedFilterNodes));
+    const userId = await firstValueFrom(this.activeUserId$);
+    await this.collapsedGroupingsState(userId).update(() => Array.from(collapsedFilterNodes));
   }
 
   protected async getCollapsedFilterNodes(): Promise<Set<string>> {
