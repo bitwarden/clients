@@ -837,6 +837,7 @@ export class ServiceContainer {
       this.collectionService,
       this.organizationService,
       this.accountService,
+      this.configService,
     );
   }
 
