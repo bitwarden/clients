@@ -54,5 +54,4 @@ const notificationConfirmationBodyStyles = ({ theme }: { theme: Theme }) => css`
   justify-content: flex-start;
   background-color: ${themes[theme].background.alt};
   padding: 12px;
-  white-space: nowrap;
 `;
