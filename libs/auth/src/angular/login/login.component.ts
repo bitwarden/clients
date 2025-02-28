@@ -155,11 +155,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private listenForUnauthUiRefreshFlagChanges() {
-    // TODO: this stream is still live when the SSO component is processing the SSO login on desktop
-    // so when the user logs in, this stream will trigger a navigation to the root incorrectly
-    // which the redirect guard catches and pre-emptively sends the user to the login-initiated screen
-    // - often before the proper state (org sso id) is able to be set. This is primarily only reproducible when
-    // data.json is cleared before running the desktop locally.
     this.configService
       .getFeatureFlag$(FeatureFlag.UnauthenticatedExtensionUIRefresh)
       .pipe(
