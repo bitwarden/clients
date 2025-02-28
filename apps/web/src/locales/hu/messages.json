@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritikus alkalmazások"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Nincsenek veszélyben levő kritikus alkalmazások."
+  },
   "accessIntelligence": {
     "message": "Elérés intelligencia"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Adjuk meg az email címre elküldött kódot."
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Adjuk meg a hitelesítő alkalmazása által generált kódot."
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Nyomjuk meg a YubiKey-t a hitelesítéshez."
+  },
   "authenticationTimeout": {
     "message": "Hitelesítési időkifutás"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Adatok megjegyzése"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Ne kérdezzen újra ezen az eszközön 30 napig"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Megerősítő kód ismételt elküldése emailben"
   },
   "useAnotherTwoStepMethod": {
     "message": "Másik kétlépcsős bejelentkezés használata"
+  },
+  "selectAnotherMethod": {
+    "message": "Másik módszer választás",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Helyreállító kód használata"
   },
   "insertYubiKey": {
     "message": "A YubiKey beillesztése a számítógép USB portjába és a rajta levő gomb megnyomása."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Kétlépcsős bejelentkezés opciók"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Kétlépcsős bejelentkezési mód használata"
   },
   "recoveryCodeDesc": {
     "message": "Elveszett a hozzáférés az összes kétlépcsős szolgáltatóhoz? A visszaállítókód használatával letilthatók fiókból a kétlépcsős szolgáltatók."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(FIDO-ból áthelyezve)"
+  },
+  "openInNewTab": {
+    "message": "Megnyitás új fülön"
   },
   "emailTitle": {
     "message": "Email cím"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Nem támogatott böngészőt használunk. Előfordulhat, hogy a webes széf nem működik megfelelően."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Függőben lévő bejelentkezési kérelem van egy másik eszközről."
+  },
+  "reviewLoginRequest": {
+    "message": "Bejelentkezési kérés áttekintése"
+  },
   "freeTrialEndPromptCount": {
     "message": "Az ingyenes próbaidőszak $COUNT$ nap múlva ér véget.",
     "placeholders": {
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "A minimális követelmények beállítása a mesterjelszó hosszához."
+  },
+  "passwordStrengthScore": {
+    "message": "A jelszó erősségi pontszáma $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Kétlépéses bejelentkezés szükséges"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAutn hitelesítés"
+  },
+  "readSecurityKey": {
+    "message": "Biztonsági kulcs olvasása"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Várakozás a biztonsági kulcs interakciójára..."
   },
   "webAuthnNotSupported": {
     "message": "Ezen a böngészőn a WebAuthn nem támogatott."
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "A fiókhoz kétlépcsős Duo bejelentkezés szükséges."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo kétlépcsős bejelentkezés szükséges a fiókhoz. Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
   },
   "launchDuo": {
     "message": "Duo indítása"
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nem engedjük meg a tagoknak, hogy PIN kóddal oldják fel fiókjuk zárolását."
+  },
+  "limitedEventLogs": {
+    "message": "A $PRODUCT_TYPE$ csomagok nem férnek hozzá a valós eseménynaplókhoz.",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Teljes hozzáférést kaphatunk a szervezeti eseménynaplókhoz, ha Teams vagy Enterprise csomagra térünk át."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Áttérés valós eseménynapló adatokhoz"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Ezek az események csak példák és nem tükröznek valós eseményeket a Bitwarden szervezetén belül."
   }
 }

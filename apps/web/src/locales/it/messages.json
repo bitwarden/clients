@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Critical applications"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Nessuna applicazione critica a rischio"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Ricordami"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Invia di nuovo l'email con codice di verifica"
   },
   "useAnotherTwoStepMethod": {
     "message": "Usa un altro metodo di verifica in due passaggi"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Inserisci la tua YubiKey nella porta USB del computer e premi il suo pulsante."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Opzioni verifica in due passaggi"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "Hai perso l'accesso a tutti i tuoi metodi di verifica in due passaggi? Usa il tuo codice di recupero per disattivarli tutti dal tuo account."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Trasferito da FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Open in new tab"
   },
   "emailTitle": {
     "message": "Email"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Stai utilizzando un browser non supportato. La cassaforte web potrebbe non funzionare correttamente."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Hai una richiesta di accesso in sospeso da un altro dispositivo."
+  },
+  "reviewLoginRequest": {
+    "message": "Rivedi richiesta di accesso"
+  },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Imposta requisiti minimi di complessità della password principale."
+  },
+  "passwordStrengthScore": {
+    "message": "Valutazione complessità parola d'accesso $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Verifica in due passaggi obbligatoria"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Autenticazione WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn non è supportato da questo browser."
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Per il tuo account è richiesta la verifica in due passaggi DUO."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Avvia DUO"
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Non consentire ai membri di sbloccare il proprio account con un PIN."
+  },
+  "limitedEventLogs": {
+    "message": "I piani $PRODUCT_TYPE$ non hanno accesso ai registri degli eventi reali",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Ottieni pieno accesso ai registri degli eventi dell'organizzazione aggiornando a un piano Teams o Enterprise."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Aggiorna per i dati del registro eventi reali"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Questi eventi sono solo esempi e non riflettono eventi reali all'interno della tua organizzazione Bitwarden."
   }
 }
