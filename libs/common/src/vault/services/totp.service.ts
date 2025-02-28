@@ -1,4 +1,4 @@
-import { Observable, distinctUntilChanged, map, shareReplay, switchMap, timer } from "rxjs";
+import { Observable, map, shareReplay, switchMap, timer } from "rxjs";
 
 import { TotpResponse } from "@bitwarden/sdk-internal";
 
@@ -37,7 +37,6 @@ export class TotpService implements TotpServiceAbstraction {
           }),
         ),
       ),
-      distinctUntilChanged((prev, curr) => prev.code === curr.code),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
   }
