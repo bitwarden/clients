@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
-import { firstValueFrom, map, Observable, of, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -75,8 +75,9 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   folder$: Observable<FolderView | undefined> | undefined;
   private destroyed$: Subject<void> = new Subject();
   cardIsExpired: boolean = false;
-  hadPendingChangePasswordTask$: Observable<boolean> = of(false);
+  hadPendingChangePasswordTask: boolean = false;
   isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
+  protected destroy$ = new Subject<void>();
 
   constructor(
     private organizationService: OrganizationService,
@@ -153,7 +154,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     const userId = await firstValueFrom(this.activeUserId$);
 
     if (this.cipher.edit && this.cipher.viewPassword) {
-      this.hadPendingChangePasswordTask$ = this.checkPendingChangePasswordTasks$(userId);
+      this.checkPendingChangePasswordTasks(userId);
     }
 
     if (this.cipher.organizationId && userId) {
@@ -164,23 +165,19 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     }
 
     if (this.cipher.folderId) {
-      if (!userId) {
-        return;
-      }
-
       this.folder$ = this.folderService
         .getDecrypted$(this.cipher.folderId, userId)
         .pipe(takeUntil(this.destroyed$));
     }
   }
 
-  checkPendingChangePasswordTasks$(userId: UserId): Observable<boolean> {
-    return this.defaultTaskService.pendingTasks$(userId).pipe(
-      map((tasks) => {
-        let hasTasks = false;
-
+  checkPendingChangePasswordTasks(userId: UserId): void {
+    this.defaultTaskService
+      .pendingTasks$(userId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((tasks) => {
         if (tasks?.length > 0) {
-          hasTasks =
+          this.hadPendingChangePasswordTask =
             tasks.filter((task) => {
               return (
                 task.cipherId === this.cipher?.id &&
@@ -188,9 +185,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
               );
             }).length > 0;
         }
-        return hasTasks;
-      }),
-    );
+      });
   }
 
   launchChangePassword = async () => {

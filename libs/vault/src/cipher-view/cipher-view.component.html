@@ -5,7 +5,7 @@
 
   <ng-container *ngIf="isSecurityTasksEnabled$ | async">
     <bit-callout
-      *ngIf="cipher?.login.uris.length > 0 && hadPendingChangePasswordTask$ | async"
+      *ngIf="cipher?.login.uris.length > 0 && hadPendingChangePasswordTask"
       type="warning"
       [title]="''"
     >
@@ -41,7 +41,7 @@
     [cipher]="cipher"
     [activeUserId]="activeUserId$ | async"
     [hadPendingChangePasswordTask]="
-      (hadPendingChangePasswordTask$ | async) && (isSecurityTasksEnabled$ | async)
+      hadPendingChangePasswordTask && (isSecurityTasksEnabled$ | async)
     "
     (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
