@@ -1,15 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
 import * as sdk from "@bitwarden/sdk-internal";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
-
-const SUBCLIENTS = {
-  crypto: {},
-  vault: {
-    totp: {},
-    folders: {},
-  },
-};
 
 // Dummy IPC implementation for testing
 const ipc = {
@@ -38,7 +29,7 @@ function sdkIpcHandler(
     get: function (_: any, prop: string, receiver: any) {
       // Go through all the clients and check if prop exists at the end,
       // which indicates we should return a Proxy subclient
-      let client = SUBCLIENTS as any;
+      let client = sdk.SUB_CLIENT_METHODS;
       for (const sc of subclients) {
         client = client[sc];
       }
@@ -184,18 +175,23 @@ export async function testProxy() {
     }
   });
 
-  const sdkIpc = new Proxy({} as BitwardenClient, sdkIpcHandler([], ipc)) as BitwardenClient;
+  console.log("############ SUBCLIENT", sdk.SUB_CLIENT_METHODS);
 
-  const ver1 = sdkLocal.version();
+  const sdkIpc = new Proxy(
+    {} as sdk.BitwardenClient,
+    sdkIpcHandler([], ipc),
+  ) as sdk.BitwardenClient;
+
+  const ver1 = await sdkLocal.version();
   const ver2 = await sdkIpc.version();
   console.log("############ sdk.version()", ver1, ver2, ver1 === ver2);
 
-  const echo1 = sdkLocal.echo("Hello, World!");
+  const echo1 = await sdkLocal.echo("Hello, World!");
   const echo2 = await sdkIpc.echo("Hello, World!");
   console.log("############ sdkIpc.echo()", echo1, echo2, echo1 === echo2);
 
-  const cr_echo1 = await sdkLocal.crypto().async_echo("Hello, World!");
-  const cr_echo2 = await sdkIpc.crypto().async_echo("Hello, World!");
+  const cr_echo1 = await sdkLocal.test().async_echo("Hello, World!");
+  const cr_echo2 = await sdkIpc.test().async_echo("Hello, World!");
   console.log(
     "############ sdkIpc.crypto().async_echo()",
     cr_echo1,
@@ -203,11 +199,22 @@ export async function testProxy() {
     cr_echo1 === cr_echo2,
   );
 
-  const cb1 = await sdkLocal.async_echo_cb(async (text: string) => {
-    return "sdk.async_echo_cb()" + text;
-  });
-  const cb2 = await sdkIpc.async_echo_cb(async (text: string) => {
-    return "sdk.async_echo_cb()" + text;
-  });
+  const cb1 = await sdkLocal
+    .test()
+    .sub1()
+    .async_echo_cb(async (text: string) => {
+      return "sdk.async_echo_cb()" + text;
+    });
+  const cb2 = await sdkIpc
+    .test()
+    .sub1()
+    .async_echo_cb(async (text: string) => {
+      return "sdk.async_echo_cb()" + text;
+    });
   console.log("############ sdkIpc.async_echo_cb()", cb1, cb2, cb1 === cb2);
+
+  const flags1 = await sdkLocal.test().sub1().sub2().get_flags();
+  const flags2 = await sdkIpc.test().sub1().sub2().get_flags();
+
+  console.log("############ sdkIpc.get_flags()", flags1, flags2, flags1 === flags2);
 }

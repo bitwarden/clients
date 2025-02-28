@@ -1,16 +1,17 @@
 import {
+  BehaviorSubject,
+  catchError,
   combineLatest,
   concatMap,
-  Observable,
-  shareReplay,
-  map,
   distinctUntilChanged,
-  tap,
-  switchMap,
-  catchError,
-  BehaviorSubject,
+  from,
+  map,
+  Observable,
   of,
+  shareReplay,
+  switchMap,
   takeWhile,
+  tap,
   throwIfEmpty,
 } from "rxjs";
 
@@ -55,7 +56,8 @@ export class DefaultSdkService implements SdkService {
   );
 
   version$ = this.client$.pipe(
-    map((client) => client.version()),
+    map((client) => from(client.version())),
+    switchMap((versionPromise) => from(versionPromise)),
     catchError(() => "Unsupported"),
   );
 
