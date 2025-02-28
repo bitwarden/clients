@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritik tətbiqlər"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Risk altında heç bir kritik tətbiq yoxdur"
+  },
   "accessIntelligence": {
     "message": "Müraciət Kəşfiyyatı"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Bitwarden-ə giriş edin"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "E-poçtunuza göndərilən kodu daxil edin"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Kimlik doğrulayıcı tətbiqinizdəki kodu daxil edin"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Kimliyi doğrulamaq üçün YubiKey-inizə basın"
+  },
   "authenticationTimeout": {
     "message": "Kimlik doğrulama vaxtı bitdi"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Məni xatırla"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Bu cihazda 30 gün ərzində soruşulmasın"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Doğrulama kodu olan e-poçtu yenidən göndər"
   },
   "useAnotherTwoStepMethod": {
     "message": "Başqa bir iki addımlı giriş üsulu istifadə edin"
+  },
+  "selectAnotherMethod": {
+    "message": "Başqa üsul seçin",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Geri qaytarma kodunuzu istifadə edin"
   },
   "insertYubiKey": {
     "message": "\"YubiKey\"i kompüterinizin USB portuna taxın, daha sonra düyməsinə toxunun."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "İki addımlı giriş seçimləri"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "İki addımlı giriş üsulunu seçin"
   },
   "recoveryCodeDesc": {
     "message": "İki addımlı giriş provayderlərinə müraciəti itirmisiniz? Hesabınızdakı bütün iki addımlı giriş provayderlərini söndürmək üçün geri qaytarma kodunuzu istifadə edin."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(FIDO-dan köçürüldü)"
+  },
+  "openInNewTab": {
+    "message": "Yeni vərəqdə aç"
   },
   "emailTitle": {
     "message": "E-poçt"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Dəstəklənməyən bir veb brauzer istifadə edirsiniz. Veb seyf düzgün işləməyə bilər."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Başqa bir cihazdan gözləyən bir giriş tələbiniz var."
+  },
+  "reviewLoginRequest": {
+    "message": "Giriş tələbini incələ"
+  },
   "freeTrialEndPromptCount": {
     "message": "Ödənişsiz sınaq müddətiniz $COUNT$ günə bitir.",
     "placeholders": {
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Ana parol gücü üçün tələbləri ayarla."
+  },
+  "passwordStrengthScore": {
+    "message": "Parolun güc xalı: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "İki addımlı girişi tələb et"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn kimlik doğrulama"
+  },
+  "readSecurityKey": {
+    "message": "Güvənlik açarını oxu"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn bu brauzerdə dəstəklənmir."
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız üçün DUO iki addımlı giriş tələb olunur."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur. Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "launchDuo": {
     "message": "DUO-nu başlat"
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Üzvlərin öz hesablarının kilidini PIN ilə açmasına icazə verilməsin."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ planında real event log-larına müraciət yoxdur",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Teams və ya Enterprise planına yüksəldərək təşkilatın event log-larına tam müraciət əldə edin."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Real event log dataları üçün yüksəlt"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Bu event-lər sadəcə nümunədir və Bitwarden təşkilatınızdakı real event-ləri əks etdirmir."
   }
 }

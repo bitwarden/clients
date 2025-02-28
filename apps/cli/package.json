@@ -72,7 +72,7 @@
     "inquirer": "8.2.6",
     "jsdom": "26.0.0",
     "jszip": "3.10.1",
-    "koa": "2.15.3",
+    "koa": "2.15.4",
     "koa-bodyparser": "4.4.1",
     "koa-json": "2.0.2",
     "lowdb": "1.0.0",

@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Master password hint"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Join organization"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "The authentication was cancelled or took too long. Please try again."
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "ನನ್ನನ್ನು ನೆನಪಿನಲ್ಲಿ ಇಡು"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "ಪರಿಶೀಲನೆ ಕೋಡ್ ಇಮೇಲ್ ಅನ್ನು ಮತ್ತೆ ಕಳುಹಿಸಿ"
   },
   "useAnotherTwoStepMethod": {
     "message": "ಮತ್ತೊಂದು ಎರಡು-ಹಂತದ ಲಾಗಿನ್ ವಿಧಾನವನ್ನು ಬಳಸಿ"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "ನಿಮ್ಮ ಯುಬಿಕಿಯನ್ನು ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್‌ನ ಯುಎಸ್‌ಬಿ ಪೋರ್ಟ್ಗೆ ಸೇರಿಸಿ, ನಂತರ ಅದರ ಗುಂಡಿಯನ್ನು ಸ್ಪರ್ಶಿಸಿ."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "ಎರಡು ಹಂತದ ಲಾಗಿನ್ ಆಯ್ಕೆಗಳು"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "ಸ್ವಯಂ ಆತಿಥೇಯ ಪರಿಸರ"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAuthn ಅನ್ನು ಪ್ರಮಾಣಿಕರಿಸು"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "ಸ್ವೀಕರಿಸುವವರಿಂದ ನನ್ನ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ಮರೆಮಾಡಿ."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Launch Duo in Browser"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "is requesting access to"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "An application"

@@ -18,7 +18,6 @@ import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key
 import {
   BitwardenClient,
   ClientSettings,
-  LogLevel,
   DeviceType as SdkDeviceType,
 } from "@bitwarden/sdk-internal";
 
@@ -30,6 +29,7 @@ import { UserKey } from "../../../types/key";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
@@ -47,8 +47,9 @@ export class DefaultSdkService implements SdkService {
 
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
+      await SdkLoadService.Ready;
       const settings = this.toSettings(env);
-      return await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
+      return await this.sdkClientFactory.createSdkClient(settings);
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -135,6 +136,7 @@ export class DefaultSdkService implements SdkService {
       privateKey$,
       userKey$,
       orgKeys$,
+      SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
       switchMap(([env, account, kdfParams, privateKey, userKey, orgKeys]) => {
@@ -146,7 +148,7 @@ export class DefaultSdkService implements SdkService {
             }
 
             const settings = this.toSettings(env);
-            const client = await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
+            const client = await this.sdkClientFactory.createSdkClient(settings);
 
             await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
 
