@@ -287,9 +287,17 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   );
 }
 
+function openViewVaultItemPopout(e: Event, cipherId: string) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgOpenVault",
+    cipherId,
+  });
+}
+
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
-  const { error } = message;
+  const { error, username, cipherId } = message;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme);
 
@@ -303,6 +311,8 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       handleCloseNotification,
       i18n,
       error,
+      username,
+      handleOpenVault: (e) => openViewVaultItemPopout(e, cipherId),
     }),
     document.body,
   );

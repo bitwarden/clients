@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Adjuk meg az email címre elküldött kódot."
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Adjuk meg a hitelesítő alkalmazása által generált kódot."
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Nyomjuk meg a YubiKey-t a hitelesítéshez."
+  },
   "logInWithPasskey": {
     "message": "Bejelentkezés hozzáférési kulccsal"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Mesterjelszó emlékeztető"
+  },
+  "passwordStrengthScore": {
+    "message": "A jelszó erősségi pontszáma $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Csatlakozás szervezethez"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "A hitelesítés megszakításra került vagy túl sokáig tartott. Próbáljuk újra."
   },
+  "openInNewTab": {
+    "message": "Megnyitás új fülön"
+  },
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Adatok megjegyzése"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Ne kérdezzen újra ezen az eszközön 30 napig"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Megerősítő kód ismételt elküldése emailben"
   },
   "useAnotherTwoStepMethod": {
     "message": "Másik kétlépcsős bejelentkezési mód használata"
+  },
+  "selectAnotherMethod": {
+    "message": "Másik módszer választás",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Helyreállító kód használata"
   },
   "insertYubiKey": {
     "message": "A YubiKey beillesztése a számítógép USB portjába és a rajta levő gomb megnyomása."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Kétlépcsős bejelentkezés opciók"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Kétlépcsős bejelentkezési mód használata"
   },
   "selfHostedEnvironment": {
     "message": "Saját üzemeltetésű környezet"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAutn hitelesítés"
   },
+  "readSecurityKey": {
+    "message": "Biztonsági kulcs olvasása"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Várakozás a biztonsági kulcs interakciójára..."
+  },
   "hideEmail": {
     "message": "Saját email cím elrejtése a címzettek elől."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "A fiókhoz kétlépcsős DUO bejelentkezés szükséges."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo kétlépcsős bejelentkezés szükséges a fiókhoz. Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
+  },
   "launchDuo": {
     "message": "A Duo elindítása a böngészőben"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "SSH kulcs használat megerősítése"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Figyelmeztetés: Böngésző továbbítás"
+  },
+  "agentForwardingWarningText": {
+    "message": "Ez a kérelem egy távoli eszközről érkezik, amelyre bejelentkeztünk"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "hozzáférést kér:"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "azért, hogy"
+  },
+  "sshActionLogin": {
+    "message": "hitelesítsük magunkat a szerveren"
+  },
+  "sshActionSign": {
+    "message": "aláírjunk egy üzenetet"
+  },
+  "sshActionGitSign": {
+    "message": "aléírjunk egy git commit elemet"
   },
   "unknownApplication": {
     "message": "Egy alkalmazás"

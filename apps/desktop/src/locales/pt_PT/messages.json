@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Iniciar sessão no Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Introduza o código enviado para o seu e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Introduza o código da sua app de autenticação"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Prima a sua YubiKey para se autenticar"
+  },
   "logInWithPasskey": {
     "message": "Iniciar sessão com a chave de acesso"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Dica da palavra-passe mestra"
+  },
+  "passwordStrengthScore": {
+    "message": "Pontuação da força da palavra-passe: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Aderir à organização"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "A autenticação foi cancelada ou demorou demasiado tempo. Por favor, tente novamente."
   },
+  "openInNewTab": {
+    "message": "Abrir num novo separador"
+  },
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Memorizar"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Não voltar a perguntar neste dispositivo durante 30 dias"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Enviar e-mail com o código de verificação novamente"
   },
   "useAnotherTwoStepMethod": {
     "message": "Utilizar outro método de verificação de dois passos"
+  },
+  "selectAnotherMethod": {
+    "message": "Selecionar outro método",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Utilize o seu código de recuperação"
   },
   "insertYubiKey": {
     "message": "Introduza a sua YubiKey na porta USB do seu computador, depois toque no botão da mesma."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Opções de verificação de dois passos"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Selecionar método de verificação de dois passos"
   },
   "selfHostedEnvironment": {
     "message": "Ambiente auto-hospedado"
@@ -1764,19 +1798,19 @@
     "message": "desbloquear o cofre"
   },
   "autoPromptWindowsHello": {
-    "message": "Pedir o Windows Hello ao iniciar a aplicação"
+    "message": "Pedir o Windows Hello ao iniciar a app"
   },
   "autoPromptPolkit": {
     "message": "Pedir a autenticação do sistema no arranque"
   },
   "autoPromptTouchId": {
-    "message": "Pedir o Touch ID ao iniciar a aplicação"
+    "message": "Pedir o Touch ID ao iniciar a app"
   },
   "requirePasswordOnStart": {
-    "message": "Exigir palavra-passe ou PIN ao iniciar a aplicação"
+    "message": "Exigir palavra-passe ou PIN ao iniciar a app"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
+    "message": "Exigir palavra-passe ao iniciar a app"
   },
   "recommendedForSecurity": {
     "message": "Recomendado por segurança."
@@ -2246,6 +2280,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Autenticar o WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Ler chave de segurança"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "A aguardar interação da chave de segurança..."
   },
   "hideEmail": {
     "message": "Ocultar o meu endereço de e-mail dos destinatários."
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "A verificação de dois passos Duo é necessária para a sua conta."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "A verificação de dois passos do Duo é necessária para a sua conta. Siga os passos abaixo para concluir o início de sessão."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Siga os passos abaixo para concluir o início de sessão."
+  },
   "launchDuo": {
     "message": "Iniciar o Duo no navegador"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Confirmar a utilização da chave SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Aviso: Reencaminhamento de agentes"
+  },
+  "agentForwardingWarningText": {
+    "message": "Este pedido provém de um dispositivo remoto no qual tem sessão iniciada"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "está a pedir acesso a"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "para"
+  },
+  "sshActionLogin": {
+    "message": "se autenticar num servidor"
+  },
+  "sshActionSign": {
+    "message": "assinar uma mensagem"
+  },
+  "sshActionGitSign": {
+    "message": "assinar um commit no git"
   },
   "unknownApplication": {
     "message": "Uma aplicação"

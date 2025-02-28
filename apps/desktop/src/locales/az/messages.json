@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Bitwarden-ə giriş edin"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "E-poçtunuza göndərilən kodu daxil edin"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Kimlik doğrulayıcı tətbiqinizdəki kodu daxil edin"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Kimliyi doğrulamaq üçün YubiKey-inizə basın"
+  },
   "logInWithPasskey": {
     "message": "Keçid açarı ilə giriş et"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Ana parol ipucusu"
+  },
+  "passwordStrengthScore": {
+    "message": "Parolun güc xalı: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Təşkilata qoşul"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Kimlik doğrulama ləğv edildi və ya çox uzun çəkdi. Lütfən yenidən sınayın."
   },
+  "openInNewTab": {
+    "message": "Yeni vərəqdə aç"
+  },
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Məni xatırla"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Bu cihazda 30 gün ərzində soruşulmasın"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Doğrulama kodu olan e-poçtu yenidən göndər"
   },
   "useAnotherTwoStepMethod": {
     "message": "Başqa bir iki mərhələli giriş metodu istifadə edin"
+  },
+  "selectAnotherMethod": {
+    "message": "Başqa üsul seçin",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Geri qaytarma kodunuzu istifadə edin"
   },
   "insertYubiKey": {
     "message": "\"YubiKey\"i kompüterinizin USB portuna taxın, daha sonra düyməsinə toxunun."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "İki mərhələli giriş seçimləri"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "İki addımlı giriş üsulunu seçin"
   },
   "selfHostedEnvironment": {
     "message": "Self-hosted mühit"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAuthn kimlik doğrulama"
   },
+  "readSecurityKey": {
+    "message": "Güvənlik açarını oxu"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
+  },
   "hideEmail": {
     "message": "E-poçt ünvanımı alıcılardan gizlət."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur. Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
   "launchDuo": {
     "message": "Duo-nu brauzerdə başlat"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "SSH açar istifadəsini təsdiqlə"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Xəbərdarlıq: Nümayəndə yönləndirilir"
+  },
+  "agentForwardingWarningText": {
+    "message": "Bu tələb, giriş etdiyiniz remote bir cihazdan gəlir"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "bura müraciət tələb edir:"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "Bir tətbiq"
