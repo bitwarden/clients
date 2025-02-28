@@ -1,7 +1,7 @@
 import createEmotion from "@emotion/css/create-instance";
 import { html } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { Theme } from "@bitwarden/common/platform/enums";
 
 import { themes } from "../constants/styles";
 import { PartyHorn, Warning } from "../icons";
@@ -18,12 +18,14 @@ export function NotificationConfirmationBody({
   buttonText,
   error,
   confirmationMessage,
-  theme = ThemeTypes.Light,
+  theme,
+  handleOpenVault,
 }: {
   error?: string;
   buttonText: string;
   confirmationMessage: string;
   theme: Theme;
+  handleOpenVault: (e: Event) => void;
 }) {
   const IconComponent = !error ? PartyHorn : Warning;
   return html`
@@ -31,7 +33,7 @@ export function NotificationConfirmationBody({
       <div class=${iconContainerStyles(error)}>${IconComponent({ theme })}</div>
       ${confirmationMessage && buttonText
         ? NotificationConfirmationMessage({
-            handleClick: () => {},
+            handleClick: handleOpenVault,
             confirmationMessage,
             theme,
             buttonText,

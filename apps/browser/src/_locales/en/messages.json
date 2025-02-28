@@ -1070,6 +1070,24 @@
   "notificationAddSave": {
     "message": "Save"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+      "placeholders": {
+        "username": {
+          "content": "$1"
+        }
+      },
+      "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+      "placeholders": {
+        "username": {
+          "content": "$1"
+        }
+      },
+      "description": "Shown to user after login is updated."
+  },
   "enableChangedPasswordNotification": {
     "message": "Ask to update existing login"
   },
