@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Критичные приложения"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Никакие критически важные приложения не подвергаются риску"
+  },
   "accessIntelligence": {
     "message": "Управление доступом"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Войти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введите код, отправленный на ваш email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введите код из приложения-аутентификатора"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Нажмите на YubiKey для аутентификации"
+  },
   "authenticationTimeout": {
     "message": "Таймаут аутентификации"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Запомнить меня"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не спрашивать на этом устройстве в течение 30 дней"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Отправить код подтверждения еще раз"
   },
   "useAnotherTwoStepMethod": {
     "message": "Использовать другой метод двухэтапной аутентификации"
+  },
+  "selectAnotherMethod": {
+    "message": "Выбрать другой способ",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Использовать код восстановления"
   },
   "insertYubiKey": {
     "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки двухэтапной аутентификации"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Выбрать другой метод двухэтапной аутентификации"
   },
   "recoveryCodeDesc": {
     "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить ее для вашего аккаунта."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Перенесено из FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Открыть в новой вкладке"
   },
   "emailTitle": {
     "message": "Email"
@@ -2210,13 +2238,13 @@
     "message": "Просмотр элементов"
   },
   "viewItemsHidePass": {
-    "message": "Просмотр элементов, скрытых паролей"
+    "message": "Просмотр элементов, пароли скрыты"
   },
   "editItems": {
-    "message": "Изменить элементы"
+    "message": "Изменение элементов"
   },
   "editItemsHidePass": {
-    "message": "Изменить элементы, скрытые пароли"
+    "message": "Изменение элементов, пароли скрыты"
   },
   "disable": {
     "message": "Отключить"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Вы используете неподдерживаемый браузер. Веб-хранилище может работать некорректно."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "У вас есть незавершенный запрос на авторизацию с другого устройства."
+  },
+  "reviewLoginRequest": {
+    "message": "Просмотр запроса на вход"
+  },
   "freeTrialEndPromptCount": {
     "message": "Ваша бесплатная пробная версия заканчивается через $COUNT$ дней.",
     "placeholders": {
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Установите требования к надежности мастер-пароля."
+  },
+  "passwordStrengthScore": {
+    "message": "Оценка надежности пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Требуется двухэтапная аутентификация"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Аутентификация WebAutn"
+  },
+  "readSecurityKey": {
+    "message": "Считать ключ безопасности"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Ожидание взаимодействия с ключом безопасности..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn не поддерживается в этом браузере."
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
   },
   "launchDuo": {
     "message": "Запустить Duo"
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Не разрешать пользователям разблокировать свои аккаунты с помощью PIN-кода."
+  },
+  "limitedEventLogs": {
+    "message": "Планы $PRODUCT_TYPE$ не имеют доступа к реальным журналам событий",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Получите полный доступ к журналам событий организации, перейдя на план Teams или Enterprise."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Эти события являются лишь примерами и не отражают реальных событий в вашей организации Bitwarden."
   }
 }
