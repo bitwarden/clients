@@ -1,4 +1,4 @@
-import { combineLatest, map, Observable, of, shareReplay, switchMap, withLatestFrom } from "rxjs";
+import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -35,12 +35,6 @@ export abstract class CipherAuthorizationService {
     isAdminConsoleAction?: boolean,
   ) => Observable<boolean>;
 
-  abstract canDeleteMany$: (
-    ciphers: CipherLike[],
-    allowedCollections?: CollectionId[],
-    isAdminConsoleAction?: boolean,
-  ) => Observable<boolean>;
-
   /**
    * Determines if the user can clone the specified cipher.
    *
@@ -73,24 +67,6 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
       map((orgs) => orgs.find((org) => org.id === cipher.organizationId)),
     );
 
-  canDeleteMany$(
-    ciphers: CipherLike[],
-    allowedCollections?: CollectionId[],
-    isAdminConsoleAction?: boolean,
-  ): Observable<boolean> {
-    const results = [];
-    for (const cipher of ciphers) {
-      if (cipher.organizationId == null) {
-        results.push(of(true));
-        continue;
-      }
-
-      results.push(this.checkPermissions(cipher, allowedCollections, isAdminConsoleAction));
-    }
-
-    return combineLatest(results).pipe(map((results) => !results.includes(false)));
-  }
-
   /**
    *
    * {@link CipherAuthorizationService.canDeleteCipher$}
@@ -104,43 +80,10 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
       return of(true);
     }
 
-    return this.checkPermissions(cipher, allowedCollections, isAdminConsoleAction);
-  }
-
-  /**
-   * {@link CipherAuthorizationService.canCloneCipher$}
-   */
-  canCloneCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
-    if (cipher.organizationId == null) {
-      return of(true);
-    }
-
-    return this.organization$(cipher).pipe(
-      switchMap((organization) => {
-        // Admins and custom users can always clone when in the Admin Console
-        if (
-          isAdminConsoleAction &&
-          organization &&
-          (organization.isAdmin || organization.permissions?.editAnyCollection)
-        ) {
-          return of(true);
-        }
-
-        return this.collectionService
-          .decryptedCollectionViews$(cipher.collectionIds as CollectionId[])
-          .pipe(map((allCollections) => allCollections.some((collection) => collection.manage)));
-      }),
-      shareReplay({ bufferSize: 1, refCount: false }),
-    );
-  }
-
-  private checkPermissions(
-    cipher: CipherLike,
-    allowedCollections?: CollectionId[],
-    isAdminConsoleAction?: boolean,
-  ): Observable<boolean> {
-    return this.organization$(cipher).pipe(
-      withLatestFrom(this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion)),
+    return combineLatest([
+      this.organization$(cipher),
+      this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion),
+    ]).pipe(
       switchMap(([organization, featureFlagEnabled]) => {
         if (isAdminConsoleAction) {
           // If the user is an admin, they can delete an unassigned cipher
@@ -171,6 +114,33 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
             }),
           );
       }),
+    );
+  }
+
+  /**
+   * {@link CipherAuthorizationService.canCloneCipher$}
+   */
+  canCloneCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    if (cipher.organizationId == null) {
+      return of(true);
+    }
+
+    return this.organization$(cipher).pipe(
+      switchMap((organization) => {
+        // Admins and custom users can always clone when in the Admin Console
+        if (
+          isAdminConsoleAction &&
+          organization &&
+          (organization.isAdmin || organization.permissions?.editAnyCollection)
+        ) {
+          return of(true);
+        }
+
+        return this.collectionService
+          .decryptedCollectionViews$(cipher.collectionIds as CollectionId[])
+          .pipe(map((allCollections) => allCollections.some((collection) => collection.manage)));
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
   }
 }

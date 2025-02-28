@@ -228,12 +228,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    */
   protected async canUserRestore() {
     if (await firstValueFrom(this.limitItemDeletion$)) {
-      return (
-        this.isTrashFilter &&
-        this.cipher?.isDeleted &&
-        this.cipher?.permissions?.restore &&
-        this.canDelete
-      );
+      return this.isTrashFilter && this.cipher?.isDeleted && this.cipher?.permissions?.restore;
     } else {
       return this.isTrashFilter && this.cipher?.isDeleted && this.canDelete;
     }

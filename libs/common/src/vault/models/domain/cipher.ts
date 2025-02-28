@@ -10,10 +10,10 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherData } from "../data/cipher.data";
 import { LocalData } from "../data/local.data";
 import { AttachmentView } from "../view/attachment.view";
-import { CipherPermissions } from "../view/cipher-permissions";
 import { CipherView } from "../view/cipher.view";
 import { FieldView } from "../view/field.view";
 import { PasswordHistoryView } from "../view/password-history.view";
@@ -40,7 +40,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   organizationUseTotp: boolean;
   edit: boolean;
   viewPassword: boolean;
-  permissions: CipherPermissions;
+  permissions: CipherPermissionsApi;
   revisionDate: Date;
   localData: LocalData;
   login: Login;

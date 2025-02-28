@@ -86,23 +86,12 @@
               <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
-            <ng-container *ngIf="{ enabled: limitItemDeletion$ | async } as limitItemDeletion">
-              <button
-                *ngIf="
-                  limitItemDeletion.enabled
-                    ? showBulkTrashOptions && showRestore
-                    : showBulkTrashOptions
-                "
-                type="button"
-                bitMenuItem
-                (click)="bulkRestore()"
-              >
-                <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
-                {{ "restoreSelected" | i18n }}
-              </button>
-            </ng-container>
+            <button *ngIf="showBulkTrashOptions" type="button" bitMenuItem (click)="bulkRestore()">
+              <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
+              {{ "restoreSelected" | i18n }}
+            </button>
             <button
-              *ngIf="showDelete && (canDeleteSelected$ | async)"
+              *ngIf="(limitItemDeletion$ | async) ? (canDeleteSelected$ | async) : showDelete"
               type="button"
               bitMenuItem
               (click)="bulkDelete()"

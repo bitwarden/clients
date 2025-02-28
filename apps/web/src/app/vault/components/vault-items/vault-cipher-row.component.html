@@ -156,24 +156,22 @@
       <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
       {{ "eventLogs" | i18n }}
     </button>
-    <ng-container *ngIf="{ enabled: limitItemDeletion$ | async } as limitItemDeletion">
-      <button
-        bitMenuItem
-        (click)="restore()"
-        type="button"
-        *ngIf="
-          limitItemDeletion.enabled
-            ? cipher.isDeleted && cipher.permissions?.restore
-            : cipher.isDeleted
-        "
-      >
-        <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
-        {{ "restore" | i18n }}
-      </button>
-    </ng-container>
     <button
       bitMenuItem
-      *ngIf="canManageCollection && canDeleteCipher"
+      (click)="restore()"
+      type="button"
+      *ngIf="
+        (limitItemDeletion$ | async)
+          ? cipher.isDeleted && cipher.permissions.restore && canDeleteCipher
+          : cipher.isDeleted && canDeleteCipher
+      "
+    >
+      <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
+      {{ "restore" | i18n }}
+    </button>
+    <button
+      bitMenuItem
+      *ngIf="(limitItemDeletion$ | async) ? canDeleteCipher : canManageCollection"
       (click)="deleteCipher()"
       type="button"
     >

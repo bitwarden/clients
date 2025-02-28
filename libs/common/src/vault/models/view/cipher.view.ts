@@ -6,12 +6,12 @@ import { InitializerKey } from "../../../platform/services/cryptography/initiali
 import { DeepJsonify } from "../../../types/deep-jsonify";
 import { CipherType, LinkedIdType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { LocalData } from "../data/local.data";
 import { Cipher } from "../domain/cipher";
 
 import { AttachmentView } from "./attachment.view";
 import { CardView } from "./card.view";
-import { CipherPermissions } from "./cipher-permissions";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
 import { LoginView } from "./login.view";
@@ -30,7 +30,7 @@ export class CipherView implements View, InitializerMetadata {
   type: CipherType = null;
   favorite = false;
   organizationUseTotp = false;
-  permissions: CipherPermissions = null;
+  permissions: CipherPermissionsApi = new CipherPermissionsApi();
   edit = false;
   viewPassword = true;
   localData: LocalData;

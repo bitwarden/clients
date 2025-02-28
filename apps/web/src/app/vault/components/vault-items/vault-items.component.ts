@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { Observable, of, startWith, switchMap } from "rxjs";
+import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -86,16 +86,17 @@ export class VaultItemsComponent {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
       switchMap(() => {
-        const ciphers = this.selection.selected.reduce((ciphers, item) => {
-          if (item.cipher) {
-            ciphers.push(item.cipher);
-          }
-          return ciphers;
-        }, []);
+        const ciphers = this.selection.selected
+          .filter((item) => item.cipher)
+          .map((item) => item.cipher);
+
+        const canDelete$ = ciphers.map((c) =>
+          cipherAuthorizationService.canDeleteCipher$(c, [], this.showAdminActions),
+        );
 
         return ciphers.length === 0
           ? of(true)
-          : this.cipherAuthorizationService.canDeleteMany$(ciphers, [], this.showAdminActions);
+          : combineLatest(canDelete$).pipe(map((results) => !results.includes(false)));
       }),
     );
   }
