@@ -10,7 +10,7 @@
       [title]="''"
     >
       <i class="bwi bwi-exclamation-triangle tw-text-warning" aria-hidden="true"></i>
-      <a bitLink (click)="launchChangePassword(cipher)">
+      <a bitLink (click)="launchChangePassword()">
         {{ "changeAtRiskPassword" | i18n }}
         <i class="bwi bwi-popout tw-ml-1" aria-hidden="true"></i>
       </a>
@@ -40,8 +40,10 @@
     *ngIf="hasLogin"
     [cipher]="cipher"
     [activeUserId]="activeUserId$ | async"
-    [hadPendingChangePasswordTask]="hadPendingChangePasswordTask$ | async"
-    (handleChangePassword)="launchChangePassword(cipher)"
+    [hadPendingChangePasswordTask]="
+      (hadPendingChangePasswordTask$ | async) && (isSecurityTasksEnabled$ | async)
+    "
+    (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
 
   <!-- AUTOFILL OPTIONS -->

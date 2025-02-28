@@ -22,7 +22,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { ChangeLoginPasswordService, TaskService } from "@bitwarden/vault";
+import { ChangeLoginPasswordService, DefaultTaskService, TaskService } from "@bitwarden/vault";
 
 import { ViewCipherDialogParams, ViewCipherDialogResult, ViewComponent } from "./view.component";
 
@@ -88,7 +88,7 @@ describe("ViewComponent", () => {
       .overrideComponent(ViewComponent, {
         remove: {
           providers: [
-            { provide: TaskService, useClass: TaskService },
+            { provide: TaskService, useClass: DefaultTaskService },
             { provide: PlatformUtilsService, useValue: PlatformUtilsService },
             {
               provide: ChangeLoginPasswordService,

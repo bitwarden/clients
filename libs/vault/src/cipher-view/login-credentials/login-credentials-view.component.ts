@@ -9,8 +9,6 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -57,7 +55,7 @@ export class LoginCredentialsViewComponent {
   @Input() cipher: CipherView;
   @Input() activeUserId: UserId;
   @Input() hadPendingChangePasswordTask: boolean;
-  @Output() handleChangePassword = new EventEmitter<CipherView>();
+  @Output() handleChangePassword = new EventEmitter<void>();
 
   isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
@@ -67,7 +65,6 @@ export class LoginCredentialsViewComponent {
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
   totpCodeCopyObj: TotpCodeValues;
-  isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
 
   private datePipe = inject(DatePipe);
 
@@ -77,7 +74,6 @@ export class LoginCredentialsViewComponent {
     private premiumUpgradeService: PremiumUpgradePromptService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
-    private configService: ConfigService,
   ) {}
 
   get fido2CredentialCreationDateValue(): string {
@@ -123,7 +119,7 @@ export class LoginCredentialsViewComponent {
     );
   }
 
-  launchChangePasswordEvent(cipher: CipherView) {
-    this.handleChangePassword.emit(cipher);
+  launchChangePasswordEvent(): void {
+    this.handleChangePassword.emit();
   }
 }

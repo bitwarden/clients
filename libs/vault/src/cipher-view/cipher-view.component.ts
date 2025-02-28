@@ -193,8 +193,10 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     );
   }
 
-  launchChangePassword = async (cipher: CipherView) => {
-    const url = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
+  launchChangePassword = async () => {
+    const url = await this.changeLoginPasswordService.getChangePasswordUrl(
+      this.cipher as CipherView,
+    );
     if (url == null) {
       return;
     }

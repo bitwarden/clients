@@ -26,7 +26,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { CipherViewComponent, TaskService } from "@bitwarden/vault";
+import { CipherViewComponent, DefaultTaskService, TaskService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";
 import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";
@@ -74,7 +74,7 @@ export interface ViewCipherDialogCloseResult {
   providers: [
     { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
-    { provide: TaskService, useClass: TaskService },
+    { provide: TaskService, useClass: DefaultTaskService },
   ],
 })
 export class ViewComponent implements OnInit {
