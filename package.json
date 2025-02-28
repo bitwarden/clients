@@ -58,7 +58,7 @@
     "@storybook/theming": "8.5.2",
     "@storybook/web-components-webpack5": "8.5.2",
     "@types/argon2-browser": "1.18.4",
-    "@types/chrome": "0.0.280",
+    "@types/chrome": "0.0.306",
     "@types/firefox-webext-browser": "120.0.4",
     "@types/inquirer": "8.2.10",
     "@types/jest": "29.5.12",
