@@ -252,7 +252,9 @@ describe("KeyConnectorService", () => {
       const organization = organizationData(true, true, "https://key-connector-url.com", 2, false);
       const masterKey = getMockMasterKey();
       masterPasswordService.masterKeySubject.next(masterKey);
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
+      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
+        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+      );
 
       jest.spyOn(keyConnectorService, "getManagingOrganization").mockResolvedValue(organization);
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockResolvedValue();
@@ -273,7 +275,9 @@ describe("KeyConnectorService", () => {
       // Arrange
       const organization = organizationData(true, true, "https://key-connector-url.com", 2, false);
       const masterKey = getMockMasterKey();
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
+      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
+        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+      );
       const error = new Error("Failed to post user key to key connector");
       organizationService.organizations$.mockReturnValue(of([organization]));
 

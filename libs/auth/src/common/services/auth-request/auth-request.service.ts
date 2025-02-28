@@ -14,7 +14,10 @@ import { AuthRequestPushNotification } from "@bitwarden/common/models/response/n
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import {
+  Aes256CbcKey,
+  SymmetricCryptoKey,
+} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import {
   AUTH_REQUEST_DISK_LOCAL,
   StateProvider,
@@ -111,7 +114,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
         Utils.fromUtf8ToArray(masterKeyHash),
         pubKey,
       );
-      keyToEncrypt = masterKey.encKey;
+      keyToEncrypt = (masterKey.inner() as Aes256CbcKey).encryptionKey;
     } else {
       const userKey = await this.keyService.getUserKey();
       keyToEncrypt = userKey.key;

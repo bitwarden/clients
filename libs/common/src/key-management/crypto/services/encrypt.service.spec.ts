@@ -6,7 +6,10 @@ import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import {
+  Aes256CbcHmacKey,
+  SymmetricCryptoKey,
+} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 
 import { makeStaticByteArray } from "../../../../spec";
@@ -133,7 +136,7 @@ describe("EncryptService", () => {
       expect(cryptoFunctionService.aesDecrypt).toBeCalledWith(
         expect.toEqualBuffer(encBuffer.dataBytes),
         expect.toEqualBuffer(encBuffer.ivBytes),
-        expect.toEqualBuffer(key.encKey),
+        expect.toEqualBuffer(key.inner().encryptionKey),
         "cbc",
       );
 
@@ -154,7 +157,7 @@ describe("EncryptService", () => {
       expect(cryptoFunctionService.aesDecrypt).toBeCalledWith(
         expect.toEqualBuffer(encBuffer.dataBytes),
         expect.toEqualBuffer(encBuffer.ivBytes),
-        expect.toEqualBuffer(key.encKey),
+        expect.toEqualBuffer(key.inner().encryptionKey),
         "cbc",
       );
 
@@ -172,7 +175,7 @@ describe("EncryptService", () => {
 
       expect(cryptoFunctionService.hmac).toBeCalledWith(
         expect.toEqualBuffer(expectedMacData),
-        key.macKey,
+        (key.inner() as Aes256CbcHmacKey).authenticationKey,
         "sha256",
       );
 
