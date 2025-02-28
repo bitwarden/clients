@@ -217,26 +217,4 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   ) {
     return dialogService.open<boolean>(TwoFactorSetupWebAuthnComponent, config);
   }
-
-  /**
-   * Check if an element is loading.
-   * @param element - The element to check.
-   * @returns True if the element is loading, false otherwise.
-   */
-  isLoading(element: { loading?: boolean | (() => boolean) }): boolean {
-    try {
-      if (!element) {
-        return false;
-      }
-
-      if (typeof element.loading === "function") {
-        return element.loading();
-      }
-
-      return !!element.loading;
-    } catch (e) {
-      this.logService.error(e);
-      return false;
-    }
-  }
 }
