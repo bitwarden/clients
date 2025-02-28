@@ -15,7 +15,7 @@ export function ButtonRow({
 }: {
   theme: Theme;
   buttonAction: (e: Event) => void;
-  buttonText?: string;
+  buttonText: string;
 }) {
   return html`
     <div class=${buttonRowStyles}>
