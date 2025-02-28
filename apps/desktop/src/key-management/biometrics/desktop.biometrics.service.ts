@@ -11,5 +11,5 @@ export abstract class DesktopBiometricsService extends BiometricsService {
 
   abstract setupBiometrics(): Promise<void>;
 
-  abstract setClientKeyHalfForUser(userId: UserId, value: string): Promise<void>;
+  abstract setClientKeyHalfForUser(userId: UserId, value: string | null): Promise<void>;
 }

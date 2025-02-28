@@ -94,6 +94,9 @@ export class UnsecuredWebsitesReportComponent
   }
 
   protected canManageCipher(c: CipherView): boolean {
+    if (c.collectionIds.length === 0) {
+      return true;
+    }
     return this.manageableCiphers.some((x) => x.id === c.id);
   }
 }
