@@ -5,7 +5,7 @@
     "build": "npm run build:chrome",
     "build:chrome": "cross-env BROWSER=chrome MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
     "build:edge": "cross-env BROWSER=edge MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
-    "build:firefox": "cross-env BROWSER=firefox MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
+    "build:firefox": "cross-env BROWSER=firefox NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
     "build:opera": "cross-env BROWSER=opera MANIFEST_VERSION=3 NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
     "build:safari": "cross-env BROWSER=safari NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
     "build:watch": "npm run build:watch:chrome",

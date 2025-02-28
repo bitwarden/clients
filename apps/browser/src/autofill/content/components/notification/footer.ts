@@ -15,14 +15,16 @@ export function NotificationFooter({
   handleSaveAction,
   notificationType,
   theme,
+  i18n,
 }: {
   handleSaveAction: (e: Event) => void;
+  i18n: { [key: string]: string };
   notificationType?: NotificationType;
   theme: Theme;
 }) {
   const isChangeNotification = notificationType === NotificationTypes.Change;
-  // @TODO localize
-  const saveNewItemText = "Save as new login";
+  const saveNewItemText = i18n.saveAsNewLoginAction;
+  const buttonText = i18n.saveAction;
 
   return html`
     <div class=${notificationFooterStyles({ theme })}>
@@ -32,7 +34,7 @@ export function NotificationFooter({
             handleAction: handleSaveAction,
             theme,
           })
-        : ButtonRow({ theme, buttonAction: handleSaveAction })}
+        : ButtonRow({ theme, buttonAction: handleSaveAction, buttonText })}
     </div>
   `;
 }
