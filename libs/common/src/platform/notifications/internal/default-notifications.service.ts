@@ -150,8 +150,6 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
       return;
     }
 
-    this.logService.debug(`Processing notification type: ${notification.type}`);
-
     switch (notification.type) {
       case NotificationType.SyncCipherCreate:
       case NotificationType.SyncCipherUpdate:
