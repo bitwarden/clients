@@ -24,7 +24,7 @@ import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/ke
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions, HashPurpose, EncryptionType } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
@@ -232,7 +232,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const newUserKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(masterKey, newUserKey.key);
+    return this.buildProtectedSymmetricKey(masterKey, newUserKey);
   }
 
   /**
@@ -320,7 +320,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     userKey?: UserKey,
   ): Promise<[UserKey, EncString]> {
     userKey ||= await this.getUserKey();
-    return await this.buildProtectedSymmetricKey(masterKey, userKey.key);
+    return await this.buildProtectedSymmetricKey(masterKey, userKey);
   }
 
   // TODO: move to MasterPasswordService
@@ -343,7 +343,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
-    const hash = await this.cryptoFunctionService.pbkdf2(key.key, password, "sha256", iterations);
+    const hash = await this.cryptoFunctionService.pbkdf2(
+      key.inner().encryptionKey,
+      password,
+      "sha256",
+      iterations,
+    );
     return Utils.fromBufferToB64(hash);
   }
 
@@ -430,7 +435,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const newSymKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(key, newSymKey.key);
+    return this.buildProtectedSymmetricKey(key, newSymKey);
   }
 
   private async clearOrgKeys(userId: UserId): Promise<void> {
@@ -490,7 +495,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("No public key found.");
     }
 
-    const encShareKey = await this.encryptService.rsaEncrypt(shareKey.key, publicKey);
+    const encShareKey = await this.encryptService.rsaEncrypt(shareKey.toEncoded(), publicKey);
     return [encShareKey, shareKey as T];
   }
 
@@ -821,19 +826,23 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   private async buildProtectedSymmetricKey<T extends SymmetricCryptoKey>(
-    encryptionKey: SymmetricCryptoKey,
-    newSymKey: Uint8Array,
+    protectingKey: SymmetricCryptoKey,
+    protectedKey: SymmetricCryptoKey,
   ): Promise<[T, EncString]> {
     let protectedSymKey: EncString;
-    if (encryptionKey.key.byteLength === 32) {
-      const stretchedEncryptionKey = await this.keyGenerationService.stretchKey(encryptionKey);
-      protectedSymKey = await this.encryptService.encrypt(newSymKey, stretchedEncryptionKey);
-    } else if (encryptionKey.key.byteLength === 64) {
-      protectedSymKey = await this.encryptService.encrypt(newSymKey, encryptionKey);
+    const protectingKeyInner = protectingKey.inner();
+    if (protectingKeyInner.type === EncryptionType.AesCbc256_B64) {
+      const stretchedEncryptionKey = await this.keyGenerationService.stretchKey(protectingKeyInner);
+      protectedSymKey = await this.encryptService.encrypt(
+        protectedKey.toEncoded(),
+        stretchedEncryptionKey,
+      );
+    } else if (protectingKeyInner.type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      protectedSymKey = await this.encryptService.encrypt(protectedKey.toEncoded(), protectingKey);
     } else {
-      throw new Error("Invalid key size.");
+      throw new Error("Unsupported key type");
     }
-    return [new SymmetricCryptoKey(newSymKey) as T, protectedSymKey];
+    return [new SymmetricCryptoKey(protectedKey.toEncoded()) as T, protectedSymKey];
   }
 
   // --LEGACY METHODS--

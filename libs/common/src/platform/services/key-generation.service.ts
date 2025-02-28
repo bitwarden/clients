@@ -6,7 +6,7 @@ import { CsprngArray } from "../../types/csprng";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "../abstractions/key-generation.service";
 import { Utils } from "../misc/utils";
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
+import { Aes256CbcKey, SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export class KeyGenerationService implements KeyGenerationServiceAbstraction {
   constructor(private cryptoFunctionService: CryptoFunctionService) {}
@@ -78,10 +78,20 @@ export class KeyGenerationService implements KeyGenerationServiceAbstraction {
     return new SymmetricCryptoKey(key);
   }
 
-  async stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey> {
+  async stretchKey(key: Aes256CbcKey): Promise<SymmetricCryptoKey> {
     const newKey = new Uint8Array(64);
-    const encKey = await this.cryptoFunctionService.hkdfExpand(key.key, "enc", 32, "sha256");
-    const macKey = await this.cryptoFunctionService.hkdfExpand(key.key, "mac", 32, "sha256");
+    const encKey = await this.cryptoFunctionService.hkdfExpand(
+      key.encryptionKey,
+      "enc",
+      32,
+      "sha256",
+    );
+    const macKey = await this.cryptoFunctionService.hkdfExpand(
+      key.encryptionKey,
+      "mac",
+      32,
+      "sha256",
+    );
 
     newKey.set(new Uint8Array(encKey));
     newKey.set(new Uint8Array(macKey), 32);

@@ -10,7 +10,10 @@ import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/ke
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import {
+  Aes256CbcKey,
+  SymmetricCryptoKey,
+} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import {
   PIN_DISK,
   PIN_MEMORY,
@@ -193,7 +196,7 @@ export class PinService implements PinServiceAbstraction {
 
     const pinKey = await this.makePinKey(pin, email, kdfConfig);
 
-    return await this.encryptService.encrypt(userKey.key, pinKey);
+    return await this.encryptService.encrypt(userKey.toEncoded(), pinKey);
   }
 
   async storePinKeyEncryptedUserKey(
@@ -258,7 +261,7 @@ export class PinService implements PinServiceAbstraction {
 
   async makePinKey(pin: string, salt: string, kdfConfig: KdfConfig): Promise<PinKey> {
     const pinKey = await this.keyGenerationService.deriveKeyFromPassword(pin, salt, kdfConfig);
-    return (await this.keyGenerationService.stretchKey(pinKey)) as PinKey;
+    return (await this.keyGenerationService.stretchKey(pinKey.inner() as Aes256CbcKey)) as PinKey;
   }
 
   async getPinLockType(userId: UserId): Promise<PinLockType> {

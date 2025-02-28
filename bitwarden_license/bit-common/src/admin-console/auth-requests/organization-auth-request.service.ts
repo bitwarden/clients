@@ -126,6 +126,6 @@ export class OrganizationAuthRequestService {
     const userKey = new SymmetricCryptoKey(decValue);
 
     // Re-encrypt user Key with the Device Public Key
-    return await this.encryptService.rsaEncrypt(userKey.key, devicePubKey);
+    return await this.encryptService.rsaEncrypt(userKey.toEncoded(), devicePubKey);
   }
 }

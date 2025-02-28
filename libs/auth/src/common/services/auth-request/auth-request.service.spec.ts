@@ -117,7 +117,9 @@ describe("AuthRequestService", () => {
     });
 
     it("should use the user key if the master key and hash do not exist", async () => {
-      keyService.getUserKey.mockResolvedValueOnce({ key: new Uint8Array(64) } as UserKey);
+      keyService.getUserKey.mockResolvedValueOnce(
+        new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+      );
 
       await sut.approveOrDenyAuthRequest(
         true,

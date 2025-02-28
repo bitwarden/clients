@@ -222,10 +222,10 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   ): biometrics.KeyMaterial {
     let key = null;
     const innerKey = symmetricKey.inner();
-    if (innerKey.type === EncryptionType.AesCbc256_HmacSha256_B64) {
-      key = Utils.fromBufferToB64(innerKey.authenticationKey);
-    } else {
+    if (innerKey.type === EncryptionType.AesCbc256_B64) {
       key = Utils.fromBufferToB64(innerKey.encryptionKey);
+    } else {
+      key = Utils.fromBufferToB64(innerKey.authenticationKey);
     }
 
     const result = {

@@ -212,7 +212,7 @@ describe("DefaultSetPasswordJitService", () => {
       // Assert
       expect(apiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
       expect(organizationApiService.getKeys).toHaveBeenCalledWith(orgId);
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(userKey.key, orgPublicKey);
+      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(userKey.toEncoded(), orgPublicKey);
       expect(
         organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
       ).toHaveBeenCalled();

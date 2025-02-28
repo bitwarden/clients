@@ -4,6 +4,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { RotateableKeySetService } from "./rotateable-key-set.service";
@@ -34,7 +35,7 @@ describe("RotateableKeySetService", () => {
       const encryptedPublicKey = Symbol();
       const encryptedPrivateKey = Symbol();
       keyService.makeKeyPair.mockResolvedValue(["publicKey", encryptedPrivateKey as any]);
-      keyService.getUserKey.mockResolvedValue({ key: userKey.key } as any);
+      keyService.getUserKey.mockResolvedValue(userKey as UserKey);
       encryptService.rsaEncrypt.mockResolvedValue(encryptedUserKey as any);
       encryptService.encrypt.mockResolvedValue(encryptedPublicKey as any);
 

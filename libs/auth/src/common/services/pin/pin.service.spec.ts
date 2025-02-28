@@ -189,7 +189,7 @@ describe("PinService", () => {
         await sut.createPinKeyEncryptedUserKey(mockPin, mockUserKey, mockUserId);
 
         // Assert
-        expect(encryptService.encrypt).toHaveBeenCalledWith(mockUserKey.key, mockPinKey);
+        expect(encryptService.encrypt).toHaveBeenCalledWith(mockUserKey.toEncoded(), mockPinKey);
       });
     });
 
@@ -327,7 +327,7 @@ describe("PinService", () => {
         mockUserEmail,
         DEFAULT_KDF_CONFIG,
       );
-      expect(keyGenerationService.stretchKey).toHaveBeenCalledWith(mockPinKey);
+      expect(keyGenerationService.stretchKey).toHaveBeenCalledWith(mockPinKey.inner());
     });
   });
 
@@ -499,7 +499,7 @@ describe("PinService", () => {
 
     async function mockDecryptAndMigrateOldPinKeyEncryptedMasterKeyFn() {
       sut.makePinKey = jest.fn().mockResolvedValue(mockPinKey);
-      encryptService.decryptToBytes.mockResolvedValue(mockMasterKey.key);
+      encryptService.decryptToBytes.mockResolvedValue(mockMasterKey.toEncoded());
 
       stateService.getEncryptedCryptoSymmetricKey.mockResolvedValue(mockUserKey.keyB64);
       masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(mockUserKey);
@@ -521,7 +521,7 @@ describe("PinService", () => {
         .fn()
         .mockResolvedValue(pinKeyEncryptedUserKeyPersistant);
       sut.makePinKey = jest.fn().mockResolvedValue(mockPinKey);
-      encryptService.decryptToBytes.mockResolvedValue(mockUserKey.key);
+      encryptService.decryptToBytes.mockResolvedValue(mockUserKey.toEncoded());
     }
 
     function mockPinEncryptedKeyDataByPinLockType(

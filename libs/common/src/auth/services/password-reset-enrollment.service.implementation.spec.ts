@@ -2,6 +2,8 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -99,7 +101,9 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       };
       activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "userId" as UserId }));
 
-      keyService.getUserKey.mockResolvedValue({ key: "key" } as any);
+      keyService.getUserKey.mockResolvedValue(
+        new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+      );
       encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId");
@@ -124,7 +128,11 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       organizationApiService.getKeys.mockResolvedValue(orgKeyResponse as any);
       encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
 
-      await service.enroll("orgId", "userId", { key: "key" } as any);
+      await service.enroll(
+        "orgId",
+        "userId",
+        new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+      );
 
       expect(
         organizationUserApiService.putOrganizationUserResetPasswordEnrollment,

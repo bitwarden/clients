@@ -731,8 +731,8 @@ describe("deviceTrustService", () => {
 
           // Mock the decryption of the public key with the old user key
           encryptService.decryptToBytes.mockImplementationOnce((_encValue, privateKeyValue) => {
-            expect(privateKeyValue.key.byteLength).toBe(64);
-            expect(new Uint8Array(privateKeyValue.key)[0]).toBe(FakeOldUserKeyMarker);
+            expect(privateKeyValue.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
+            expect(new Uint8Array(privateKeyValue.toEncoded())[0]).toBe(FakeOldUserKeyMarker);
             const data = new Uint8Array(250);
             data.fill(FakeDecryptedPublicKeyMarker, 0, 1);
             return Promise.resolve(data);
@@ -752,7 +752,7 @@ describe("deviceTrustService", () => {
             expect(plainValue).toBeInstanceOf(Uint8Array);
             expect(new Uint8Array(plainValue as Uint8Array)[0]).toBe(FakeDecryptedPublicKeyMarker);
 
-            expect(new Uint8Array(key.key)[0]).toBe(FakeNewUserKeyMarker);
+            expect(new Uint8Array(key.toEncoded())[0]).toBe(FakeNewUserKeyMarker);
             return Promise.resolve(
               new EncString("2.ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj"),
             );

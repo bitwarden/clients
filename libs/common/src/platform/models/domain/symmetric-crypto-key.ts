@@ -24,7 +24,6 @@ export type Aes256CbcKey = {
 export class SymmetricCryptoKey {
   private innerKey: Aes256CbcHmacKey | Aes256CbcKey;
 
-  key: Uint8Array;
   keyB64: string;
 
   /**
@@ -40,7 +39,6 @@ export class SymmetricCryptoKey {
         type: EncryptionType.AesCbc256_B64,
         encryptionKey: key,
       };
-      this.key = key;
       this.keyB64 = this.toBase64();
     } else if (key.byteLength === 64) {
       this.innerKey = {
@@ -48,7 +46,6 @@ export class SymmetricCryptoKey {
         encryptionKey: key.slice(0, 32),
         authenticationKey: key.slice(32),
       };
-      this.key = key;
       this.keyB64 = this.toBase64();
     } else {
       throw new Error(`Unsupported encType/key length ${key.byteLength}`);

@@ -1,7 +1,7 @@
 import { KdfConfig } from "@bitwarden/key-management";
 
 import { CsprngArray } from "../../types/csprng";
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
+import { Aes256CbcKey, SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export abstract class KeyGenerationService {
   /**
@@ -60,5 +60,5 @@ export abstract class KeyGenerationService {
    * @param key 32 byte key.
    * @returns 64 byte derived key.
    */
-  abstract stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey>;
+  abstract stretchKey(key: Aes256CbcKey): Promise<SymmetricCryptoKey>;
 }

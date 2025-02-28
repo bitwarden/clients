@@ -8,7 +8,10 @@ import { LogService } from "../../../platform/abstractions/log.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EncryptionType } from "../../../platform/enums";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import {
+  Aes256CbcKey,
+  SymmetricCryptoKey,
+} from "../../../platform/models/domain/symmetric-crypto-key";
 import {
   MASTER_PASSWORD_DISK,
   MASTER_PASSWORD_MEMORY,
@@ -185,7 +188,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
         "Content: User Key; Encrypting Key: Master Key",
       );
     } else if (userKey.encryptionType === EncryptionType.AesCbc256_HmacSha256_B64) {
-      const newKey = await this.keyGenerationService.stretchKey(masterKey);
+      const newKey = await this.keyGenerationService.stretchKey(masterKey.inner() as Aes256CbcKey);
       decUserKey = await this.encryptService.decryptToBytes(
         userKey,
         newKey,

@@ -60,7 +60,7 @@ export class OrganizationUserResetPasswordService
     if (userKey == null) {
       throw new Error("No user key found");
     }
-    const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+    const encryptedKey = await this.encryptService.rsaEncrypt(userKey.toEncoded(), publicKey);
 
     return encryptedKey.encryptedString;
   }

@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { EncryptionType } from "@bitwarden/common/platform/enums";
+
 import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
 
 import { WebAuthnLoginPrfKeyService } from "./webauthn-login-prf-key.service";
@@ -21,7 +23,7 @@ describe("WebAuthnLoginPrfKeyService", () => {
 
       const result = await service.createSymmetricKeyFromPrf(randomBytes(32));
 
-      expect(result.key.length).toBe(64);
+      expect(result.inner().type).toBe(EncryptionType.AesCbc256_HmacSha256_B64);
     });
   });
 });

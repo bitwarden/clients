@@ -80,6 +80,7 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
     this.logService.info(
       `Starting decryption using multithreading with ${numberOfWorkers} workers for ${items.length} items`,
     );
+    const startTime = new Date().getTime();
 
     if (this.workers.length == 0) {
       for (let i = 0; i < numberOfWorkers; i++) {
@@ -134,8 +135,11 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
     }
 
     const decryptedItems = (await Promise.all(results)).flat();
+    const endTime = new Date().getTime();
     this.logService.info(
-      `Finished decrypting ${decryptedItems.length} items using ${numberOfWorkers} workers`,
+      `Finished decrypting ${decryptedItems.length} items using ${numberOfWorkers} workers in ${
+        endTime - startTime
+      }ms`,
     );
 
     this.restartTimeout();

@@ -19,7 +19,6 @@ describe("SymmetricCryptoKey", () => {
       const cryptoKey = new SymmetricCryptoKey(key);
 
       expect(cryptoKey).toEqual({
-        key: key,
         keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
         innerKey: {
           type: EncryptionType.AesCbc256_B64,
@@ -33,7 +32,6 @@ describe("SymmetricCryptoKey", () => {
       const cryptoKey = new SymmetricCryptoKey(key);
 
       expect(cryptoKey).toEqual({
-        key: key,
         keyB64:
           "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+Pw==",
         innerKey: {
