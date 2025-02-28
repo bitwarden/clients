@@ -139,19 +139,10 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
   }
 
   private listenForUnauthUiRefreshFlagChanges() {
-    // TODO: this stream is still live when the SSO component is processing the SSO login on desktop
-    // so when the user logs in, this stream will trigger a navigation to the root incorrectly
-    // which the redirect guard catches and pre-emptively sends the user to the login-initiated screen
-    // - often before the proper state (org sso id) is able to be set. This is primarily only reproducible when
-    // data.json is cleared before running the desktop locally.
-    // TODO: verify this isn't an issue on extension
     this.configService
       .getFeatureFlag$(FeatureFlag.UnauthenticatedExtensionUIRefresh)
       .pipe(
         tap(async (flag) => {
-          // TODO: to fix this, we could add a flag to the qParams below which indicates which flow we are in:
-          // e.g., loginv1 or new-login.  Then, we only fall into the below block if the flow is the opposite screen.
-          // If the flag is turned ON, we must force a reload to ensure the correct UI is shown
           if (flag) {
             const qParams = await firstValueFrom(this.route.queryParams);
 
@@ -166,7 +157,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
             });
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntil(this.componentDestroyed$),
       )
       .subscribe();
   }
