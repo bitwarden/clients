@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Савет Главне Лозинке (опционо)"
   },
+  "passwordStrengthScore": {
+    "message": "Снага лозинкe $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Придружи Организацију"
   },
@@ -175,6 +184,10 @@
   },
   "copyNotes": {
     "message": "Копирати белешке"
+  },
+  "copy": {
+    "message": "Копирај",
+    "description": "Copy to clipboard"
   },
   "fill": {
     "message": "Попуни",
@@ -872,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Пријавите се на Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Унесите кôд послат на ваш имејл"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Унесите кôд из апликације за аутентификацију"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Стисните Ваш YubiKey за аутентификацију"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "За ваш налог је потребан два корака. Следите наведене кораке да бисте завршили пријављивање."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следите наведене кораке да бисте завршили пријављивање."
+  },
   "restartRegistration": {
     "message": "Поново покрените регистрацију"
   },
@@ -1024,6 +1052,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "Кликните на ставке за ауто-попуњавање у приказу сефа"
+  },
+  "clickToAutofill": {
+    "message": "Кликните на ставке у ауто-пуњење предлогу за попуњавање"
   },
   "clearClipboard": {
     "message": "Обриши привремену меморију",
@@ -1358,11 +1389,21 @@
   "rememberMe": {
     "message": "Запамти ме"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не питајте поново на овом уређају 30 дана"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Поново послати верификациони код на имејл"
   },
   "useAnotherTwoStepMethod": {
     "message": "Користите другу методу пријављивања у два корака"
+  },
+  "selectAnotherMethod": {
+    "message": "Изаберите другу методу",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Употребите шифру за опоравак"
   },
   "insertYubiKey": {
     "message": "Убаците свој YubiKey у УСБ порт рачунара, а затим додирните његово дугме."
@@ -1376,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Отвори нови језичак "
   },
+  "openInNewTab": {
+    "message": "Отвори у новом језичку"
+  },
   "webAuthnAuthenticate": {
     "message": "WebAutn аутентификација"
+  },
+  "readSecurityKey": {
+    "message": "Читај сигурносни кључ"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Чека се интеракција сигурносног кључа..."
   },
   "loginUnavailable": {
     "message": "Пријава недоступна"
@@ -1390,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Опције дво-коракне пријаве"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Одабрати методу пријављивања у два корака"
   },
   "recoveryCodeDesc": {
     "message": "Изгубили сте приступ свим својим двофакторским добављачима? Употребите код за опоравак да онемогућите све двофакторске добављаче из налога."
@@ -2081,11 +2134,23 @@
     "message": "да креирате јаку јединствену лозинку",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Прилагођавање сефа"
+  },
   "vaultTimeoutAction": {
     "message": "Акција на тајмаут сефа"
   },
   "vaultTimeoutAction1": {
     "message": "Акција тајмаута"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Нове опције прилагођавања"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Прилагодите своје искуство сефа помоћу брзих акција копирања, компактног режима и још много тога!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Погледајте сва подешавања изглед"
   },
   "lock": {
     "message": "Закључај",
@@ -2345,6 +2410,9 @@
   "blockedDomains": {
     "message": "Блокирани домени"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Сазнајте више о блокираним доменима"
+  },
   "excludedDomains": {
     "message": "Изузети домени"
   },
@@ -2362,6 +2430,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Промените ово у подешавањима"
+  },
+  "change": {
+    "message": "Промени"
+  },
+  "changeButtonTitle": {
+    "message": "Промена лозинке - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Лозинке под ризиком"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Прегледајте и промените једну лозинку за ризик"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Прегледајте и промените лозинке под ризиком: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Брже промените лозинке за ризик"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Ажурирајте поставке да бисте брзо поставили лозинке и генерисати нове"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Illustration of a list of logins that are at-risk"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  },
+  "updateInBitwarden": {
+    "message": "Update in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  },
+  "turnOnAutofill": {
+    "message": "Омогућите ауто-пуњење"
+  },
+  "turnedOnAutofill": {
+    "message": "Ауто-пуњење упаљено"
+  },
+  "dismiss": {
+    "message": "Одбаци"
   },
   "websiteItemLabel": {
     "message": "Сајт $number$ (УРЛ)",
@@ -2956,6 +3127,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Погрешан АПИ токен $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ одбио ваш захтев. Обратите се свом провајдеру сервиса за помоћ.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ одбио ваш захтев: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -4077,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Копирај $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },

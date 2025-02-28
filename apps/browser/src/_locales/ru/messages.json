@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Подсказка к мастер-паролю (необяз.)"
   },
+  "passwordStrengthScore": {
+    "message": "Оценка надежности пароля $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Присоединиться к организации"
   },
@@ -175,6 +184,10 @@
   },
   "copyNotes": {
     "message": "Скопировать заметки"
+  },
+  "copy": {
+    "message": "Скопировать",
+    "description": "Copy to clipboard"
   },
   "fill": {
     "message": "Заполнить",
@@ -872,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Войти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Введите код, отправленный на ваш email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Введите код из приложения-аутентификатора"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Нажмите на YubiKey для аутентификации"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
+  },
   "restartRegistration": {
     "message": "Перезапустить регистрацию"
   },
@@ -1024,6 +1052,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "Кликните элементы для автозаполнения в режиме просмотра хранилища"
+  },
+  "clickToAutofill": {
+    "message": "Click items in autofill suggestion to fill"
   },
   "clearClipboard": {
     "message": "Очистить буфер обмена",
@@ -1358,11 +1389,21 @@
   "rememberMe": {
     "message": "Запомнить меня"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не спрашивать на этом устройстве в течение 30 дней"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Отправить код подтверждения еще раз"
   },
   "useAnotherTwoStepMethod": {
     "message": "Использовать другой метод двухэтапной аутентификации"
+  },
+  "selectAnotherMethod": {
+    "message": "Выбрать другой способ",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Использовать код восстановления"
   },
   "insertYubiKey": {
     "message": "Вставьте свой YubiKey в USB-порт компьютера и нажмите его кнопку."
@@ -1376,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Открыть новую вкладку"
   },
+  "openInNewTab": {
+    "message": "Открыть в новой вкладке"
+  },
   "webAuthnAuthenticate": {
     "message": "Аутентификация WebAutn"
+  },
+  "readSecurityKey": {
+    "message": "Считать ключ безопасности"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Ожидание взаимодействия с ключом безопасности..."
   },
   "loginUnavailable": {
     "message": "Вход недоступен"
@@ -1390,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки двухэтапной аутентификации"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Выбрать другой метод двухэтапной аутентификации"
   },
   "recoveryCodeDesc": {
     "message": "Потеряли доступ ко всем вариантам двухэтапной аутентификации? Используйте код восстановления, чтобы отключить двухэтапную аутентификацию для вашей учетной записи."
@@ -2081,11 +2134,23 @@
     "message": "для создания надежного уникального пароля",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Vault customization"
+  },
   "vaultTimeoutAction": {
     "message": "Действие по тайм-ауту хранилища"
   },
   "vaultTimeoutAction1": {
     "message": "Тайм-аут действия"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Новые возможности настроек"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Настройте работу с хранилищем с помощью действий быстрого копирования, компактного режима и многого другого!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Посмотреть все настройки внешнего вида"
   },
   "lock": {
     "message": "Блокировка",
@@ -2345,6 +2410,9 @@
   "blockedDomains": {
     "message": "Заблокированные домены"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Узнайте больше о заблокированных доменах"
+  },
   "excludedDomains": {
     "message": "Исключенные домены"
   },
@@ -2362,6 +2430,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Измените это в настройках"
+  },
+  "change": {
+    "message": "Изменить"
+  },
+  "changeButtonTitle": {
+    "message": "Изменить пароль - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Пароли, подверженные риску"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ запрашивает смену одного пароля, так как он находится под угрозой.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ запрашивает смену $COUNT$ паролей, так как они находятся под угрозой.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Ваша организация запрашивает смену $COUNT$ паролей, так как они находятся под угрозой.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Обзор логинов, находящихся под угрозой"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Обзор паролей, находящихся под угрозой"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Пароли вашей организации находятся под угрозой, потому что они слабые, повторно используются и/или раскрыты.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Иллюстрация списка логинов, которые находятся под угрозой"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Быстро сгенерируйте надежный уникальный пароль с помощью меню автозаполнения Bitwarden на сайте, находящемся под угрозой.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Иллюстрация меню автозаполнения Bitwarden, отображающего сгенерированный пароль"
+  },
+  "updateInBitwarden": {
+    "message": "Обновить в Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "После этого Bitwarden предложит вам обновить пароль в менеджере паролей.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Иллюстрация уведомления Bitwarden, предлагающего пользователю обновить логин"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "Сайт $number$ (URI)",
@@ -2956,6 +3127,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Неверный токен $SERVICENAME$ API: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ отклонил(а) ваш запрос. Обратитесь за помощью к своему провайдеру.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отклонил(а) ваш запрос: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -4077,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Скопировать $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },

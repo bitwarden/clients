@@ -7,6 +7,7 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
+import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
@@ -22,12 +23,17 @@ const logService = new ConsoleLogService(false);
 let notificationBarIframeInitData: NotificationBarIframeInitData = {};
 let windowMessageOrigin: string;
 let useComponentBar = false;
+
 const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers = {
   initNotificationBar: ({ message }) => initNotificationBar(message),
-  saveCipherAttemptCompleted: ({ message }) => handleSaveCipherAttemptCompletedMessage(message),
+  saveCipherAttemptCompleted: ({ message }) =>
+    useComponentBar
+      ? handleSaveCipherConfirmation(message)
+      : handleSaveCipherAttemptCompletedMessage(message),
 };
 
 globalThis.addEventListener("load", load);
+
 function load() {
   setupWindowMessageListener();
   sendPlatformMessage({ command: "notificationRefreshFlagValue" }, (flagValue) => {
@@ -35,7 +41,6 @@ function load() {
     applyNotificationBarStyle();
   });
 }
-
 function applyNotificationBarStyle() {
   if (!useComponentBar) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -44,20 +49,14 @@ function applyNotificationBarStyle() {
   postMessageToParent({ command: "initNotificationBar" });
 }
 
-function initNotificationBar(message: NotificationBarWindowMessage) {
-  const { initData } = message;
-  if (!initData) {
-    return;
-  }
-
-  notificationBarIframeInitData = initData;
-  const { isVaultLocked, theme } = notificationBarIframeInitData;
-
-  const i18n = {
+function getI18n() {
+  return {
     appName: chrome.i18n.getMessage("appName"),
     close: chrome.i18n.getMessage("close"),
     never: chrome.i18n.getMessage("never"),
     folder: chrome.i18n.getMessage("folder"),
+    loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
+    loginUpdateSuccessDetails: chrome.i18n.getMessage("loginUpdatedSuccessDetails"),
     notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
     notificationEdit: chrome.i18n.getMessage("edit"),
@@ -73,21 +72,29 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     saveLoginPrompt: "Save login?",
     updateLoginPrompt: "Update existing login?",
     loginSaveSuccess: "Login saved",
-    loginSaveSuccessDetails: "Login saved to Bitwarden.",
-    loginUpdateSuccess: "Login saved",
-    loginUpdateSuccessDetails: "Login updated in Bitwarden.",
+    loginUpdateSuccess: "Login updated",
     saveFailure: "Error saving",
     saveFailureDetails: "Oh no! We couldn't save this. Try entering the details as a New item",
+    newItem: "New item",
+    view: "View",
   };
+}
+
+function initNotificationBar(message: NotificationBarWindowMessage) {
+  const { initData } = message;
+  if (!initData) {
+    return;
+  }
+
+  notificationBarIframeInitData = initData;
+  const { isVaultLocked, theme } = notificationBarIframeInitData;
+  const i18n = getI18n();
+  const resolvedTheme = getResolvedTheme(theme);
 
   if (useComponentBar) {
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
-    const themeType = getTheme(globalThis, theme);
-
-    // There are other possible passed theme values, but for now, resolve to dark or light
-    const resolvedTheme: Theme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
 
     sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, (cipherData) => {
       // @TODO use context to avoid prop drilling
@@ -97,85 +104,100 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
           type: notificationBarIframeInitData.type as NotificationType,
           theme: resolvedTheme,
           handleCloseNotification,
+          handleSaveAction,
+          handleEditOrUpdateAction,
           i18n,
           ciphers: cipherData,
         }),
         document.body,
       );
     });
+  } else {
+    setNotificationBarTheme();
+
+    (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
+      ? chrome.runtime.getURL("images/icon38_locked.png")
+      : chrome.runtime.getURL("images/icon38.png");
+
+    setupLogoLink(i18n);
+
+    // i18n for "Add" template
+    const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
+
+    const neverButton = addTemplate.content.getElementById("never-save");
+    neverButton.textContent = i18n.never;
+
+    const selectFolder = addTemplate.content.getElementById("select-folder");
+    selectFolder.hidden = isVaultLocked || removeIndividualVault();
+    selectFolder.setAttribute("aria-label", i18n.folder);
+
+    const addButton = addTemplate.content.getElementById("add-save");
+    addButton.textContent = i18n.notificationAddSave;
+
+    const addEditButton = addTemplate.content.getElementById("add-edit");
+    // If Remove Individual Vault policy applies, "Add" opens the edit tab, so we hide the Edit button
+    addEditButton.hidden = removeIndividualVault();
+    addEditButton.textContent = i18n.notificationEdit;
+
+    addTemplate.content.getElementById("add-text").textContent = i18n.notificationAddDesc;
+
+    // i18n for "Change" (update password) template
+    const changeTemplate = document.getElementById("template-change") as HTMLTemplateElement;
+
+    const changeButton = changeTemplate.content.getElementById("change-save");
+    changeButton.textContent = i18n.notificationChangeSave;
+
+    const changeEditButton = changeTemplate.content.getElementById("change-edit");
+    changeEditButton.textContent = i18n.notificationEdit;
+
+    changeTemplate.content.getElementById("change-text").textContent = i18n.notificationChangeDesc;
+
+    // i18n for "Unlock" (unlock extension) template
+    const unlockTemplate = document.getElementById("template-unlock") as HTMLTemplateElement;
+
+    const unlockButton = unlockTemplate.content.getElementById("unlock-vault");
+    unlockButton.textContent = i18n.notificationUnlock;
+
+    unlockTemplate.content.getElementById("unlock-text").textContent = i18n.notificationUnlockDesc;
+
+    // i18n for body content
+    const closeButton = document.getElementById("close-button");
+    closeButton.title = i18n.close;
+
+    const notificationType = initData.type;
+    if (notificationType === "add") {
+      handleTypeAdd();
+    } else if (notificationType === "change") {
+      handleTypeChange();
+    } else if (notificationType === "unlock") {
+      handleTypeUnlock();
+    }
+
+    closeButton.addEventListener("click", handleCloseNotification);
+
+    globalThis.addEventListener("resize", adjustHeight);
+    adjustHeight();
   }
-
-  setNotificationBarTheme();
-
-  (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
-    ? chrome.runtime.getURL("images/icon38_locked.png")
-    : chrome.runtime.getURL("images/icon38.png");
-
-  setupLogoLink(i18n);
-
-  // i18n for "Add" template
-  const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
-
-  const neverButton = addTemplate.content.getElementById("never-save");
-  neverButton.textContent = i18n.never;
-
-  const selectFolder = addTemplate.content.getElementById("select-folder");
-  selectFolder.hidden = isVaultLocked || removeIndividualVault();
-  selectFolder.setAttribute("aria-label", i18n.folder);
-
-  const addButton = addTemplate.content.getElementById("add-save");
-  addButton.textContent = i18n.notificationAddSave;
-
-  const addEditButton = addTemplate.content.getElementById("add-edit");
-  // If Remove Individual Vault policy applies, "Add" opens the edit tab, so we hide the Edit button
-  addEditButton.hidden = removeIndividualVault();
-  addEditButton.textContent = i18n.notificationEdit;
-
-  addTemplate.content.getElementById("add-text").textContent = i18n.notificationAddDesc;
-
-  // i18n for "Change" (update password) template
-  const changeTemplate = document.getElementById("template-change") as HTMLTemplateElement;
-
-  const changeButton = changeTemplate.content.getElementById("change-save");
-  changeButton.textContent = i18n.notificationChangeSave;
-
-  const changeEditButton = changeTemplate.content.getElementById("change-edit");
-  changeEditButton.textContent = i18n.notificationEdit;
-
-  changeTemplate.content.getElementById("change-text").textContent = i18n.notificationChangeDesc;
-
-  // i18n for "Unlock" (unlock extension) template
-  const unlockTemplate = document.getElementById("template-unlock") as HTMLTemplateElement;
-
-  const unlockButton = unlockTemplate.content.getElementById("unlock-vault");
-  unlockButton.textContent = i18n.notificationUnlock;
-
-  unlockTemplate.content.getElementById("unlock-text").textContent = i18n.notificationUnlockDesc;
-
-  // i18n for body content
-  const closeButton = document.getElementById("close-button");
-  closeButton.title = i18n.close;
-
-  const notificationType = initData.type;
-  if (notificationType === "add") {
-    handleTypeAdd();
-  } else if (notificationType === "change") {
-    handleTypeChange();
-  } else if (notificationType === "unlock") {
-    handleTypeUnlock();
+  function handleEditOrUpdateAction(e: Event) {
+    const notificationType = initData.type;
+    e.preventDefault();
+    notificationType === "add" ? sendSaveCipherMessage(true) : sendSaveCipherMessage(false);
   }
-
-  closeButton.addEventListener("click", handleCloseNotification);
-
-  globalThis.addEventListener("resize", adjustHeight);
-  adjustHeight();
 }
-
 function handleCloseNotification(e: Event) {
   e.preventDefault();
   sendPlatformMessage({
     command: "bgCloseNotificationBar",
   });
+}
+
+function handleSaveAction(e: Event) {
+  e.preventDefault();
+
+  sendSaveCipherMessage(removeIndividualVault());
+  if (removeIndividualVault()) {
+    return;
+  }
 }
 
 function handleTypeAdd() {
@@ -264,6 +286,37 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   globalThis.setTimeout(
     () => sendPlatformMessage({ command: "bgCloseNotificationBar", fadeOutNotification: true }),
     3000,
+  );
+}
+
+function openViewVaultItemPopout(e: Event, cipherId: string) {
+  e.preventDefault();
+  sendPlatformMessage({
+    command: "bgOpenVault",
+    cipherId,
+  });
+}
+
+function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
+  const { theme, type } = notificationBarIframeInitData;
+  const { error, username, cipherId } = message;
+  const i18n = getI18n();
+  const resolvedTheme = getResolvedTheme(theme);
+
+  globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
+
+  return render(
+    NotificationConfirmationContainer({
+      ...notificationBarIframeInitData,
+      type: type as NotificationType,
+      theme: resolvedTheme,
+      handleCloseNotification,
+      i18n,
+      error,
+      username,
+      handleOpenVault: (e) => openViewVaultItemPopout(e, cipherId),
+    }),
+    document.body,
   );
 }
 
@@ -378,6 +431,14 @@ function getTheme(globalThis: any, theme: NotificationBarIframeInitData["theme"]
   }
 
   return theme;
+}
+
+function getResolvedTheme(theme: Theme) {
+  const themeType = getTheme(globalThis, theme);
+
+  // There are other possible passed theme values, but for now, resolve to dark or light
+  const resolvedTheme: Theme = themeType === ThemeTypes.Dark ? ThemeTypes.Dark : ThemeTypes.Light;
+  return resolvedTheme;
 }
 
 function setNotificationBarTheme() {

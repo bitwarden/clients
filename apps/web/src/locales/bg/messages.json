@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Важни приложения"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Няма важни приложения в риск"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Впишете се в Битуорден"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Въведете кода изпратен на е-пощата Ви"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Въведете кода от Вашето приложение за удостоверяване"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Натиснете бутона на своя YubiKey за удостоверяване"
+  },
   "authenticationTimeout": {
     "message": "Време на давност за удостоверяването"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Запомняне"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не ме питайте отново на това устройство за 30 дни"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Повторно изпращане на писмото за потвърждение"
   },
   "useAnotherTwoStepMethod": {
     "message": "Използвайте друг начин на двустепенно удостоверяване"
+  },
+  "selectAnotherMethod": {
+    "message": "Изберете друг метод",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Използване на код за възстановяване"
   },
   "insertYubiKey": {
     "message": "Поставете устройството на YubiKey в USB порт на компютъра и натиснете бутона на устройството."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки на двустепенното удостоверяване"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Изберете начин за двустепенно удостоверяване"
   },
   "recoveryCodeDesc": {
     "message": "Ако сте загубили достъп до двустепенното удостоверяване, може да използвате код за възстановяване, за да изключите двустепенното удостоверяване в абонамента си."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Мигрирано от FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Отваряне в нов раздел"
   },
   "emailTitle": {
     "message": "Електронна поща"
@@ -2161,6 +2189,9 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Включването на двустепенна идентификация може завинаги да предотврати вписването ви в абонамента към Битуорден. Кодът за възстановяване ще ви позволи да достъпите абонамента дори и да имате проблем с доставчика на двустепенна идентификация (напр. ако изгубите устройството си). Дори и екипът по поддръжката към няма да ви помогне в такъв случай. Силно препоръчваме да отпечатате или запишете кодовете и да ги пазете на надеждно място."
+  },
+  "yourSingleUseRecoveryCode": {
+    "message": "Вашият еднократен код за възстановяване може да бъде използван, за да изключите двустепенното удостоверяване, в случай че нямате достъп до доставчика си за двустепенно вписване. Битуорден препоръчва да запишете кода си за възстановяване и да го пазите на сигурно място."
   },
   "viewRecoveryCode": {
     "message": "Извеждане на кодовете за възстановяване"
@@ -4078,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Ползвате неподдържан браузър. Трезорът по уеб може да не сработи правилно."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Имате чакаща заявка за вписване от друго устройство."
+  },
+  "reviewLoginRequest": {
+    "message": "Преглед на заявката за вписване"
+  },
   "freeTrialEndPromptCount": {
     "message": "Вашият безплатен пробен период приключва след $COUNT$ дни.",
     "placeholders": {
@@ -4171,6 +4208,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "Ако не може да достъпите абонамента си с нормалната двустепенна идентификация, може да ползвате код за възстановяване, за да я изключите."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Впишете се по-долу с еднократния си код за възстановяване. Така ще изключите доставчиците на двустепенно удостоверяване за акаунта си."
   },
   "recoverAccountTwoStep": {
     "message": "Възстановяване на абонамент с двустепенна идентификация"
@@ -4463,6 +4503,24 @@
   "encryptionKeyUpdateCannotProceed": {
     "message": "Актуализирането на шифриращия ключ не може да продължи"
   },
+  "editFieldLabel": {
+    "message": "Редактиране на $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Преместване на $LABEL$. Използвайте стрелките, за да преместите елемента нагоре или надолу.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "Ако актуализирате шифроващия ключ, папките Ви няма да могат да бъдат дешифрирани. За да продължите с промяната, папките трябва да бъдат изтрити. Елементите в трезора няма да бъдат изтрити, ако продължите."
   },
@@ -4733,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Задаване на минимална сила на главната парола."
+  },
+  "passwordStrengthScore": {
+    "message": "Оценка на сложността на паролата: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Изискване на двустепенно удостоверяване"
@@ -5628,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Идентификация WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Прочитане на ключа за сигурност"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Изчакване на действие с ключ за сигурност…"
   },
   "webAuthnNotSupported": {
     "message": "Този браузър не поддържа WebAuthn."
@@ -6922,6 +6995,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Не може да бъде получен идентификатор на маскиран чрез е-поща акаунт от $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -7150,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Вашата регистрация изисква двустепенно удостоверяване чрез DUO."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Вашият акаунт изисква вписване чрез двустепенно удостоверяване с Duo. Следвайте стъпките по-долу, за да завършите вписването."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването."
   },
   "launchDuo": {
     "message": "Стартиране на DUO"
@@ -9246,6 +9349,12 @@
   "deviceManagementDesc": {
     "message": "Настройте управлението на устройства в Битуорден, като използвате ръководството за внедряване за платформата си."
   },
+  "desktopRequired": {
+    "message": "Трябва да сте на компютър"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Отворете тази връзка от е-пощата си на компютър."
+  },
   "integrationCardTooltip": {
     "message": "Стартиране на ръководството за внедряване за $INTEGRATION$.",
     "placeholders": {
@@ -10239,6 +10348,38 @@
   "organizationNameMaxLength": {
     "message": "Името на организацията не може да бъде по-дълго от 50 знака."
   },
+  "openingExtension": {
+    "message": "Отваряне на добавката за браузър на Битуорден"
+  },
+  "somethingWentWrong": {
+    "message": "Нещо се обърка…"
+  },
+  "openingExtensionError": {
+    "message": "Добавката за браузър на Биуторден не успя да се отвори. Натиснете бутона, за да я отворите сега."
+  },
+  "openExtension": {
+    "message": "Отваряне на добавката"
+  },
+  "doNotHaveExtension": {
+    "message": "Нямате ли добавката за браузър на Битуорден?"
+  },
+  "installExtension": {
+    "message": "Инсталиране на добавката"
+  },
+  "openedExtension": {
+    "message": "Добавката за браузъра е отворена"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Добавката за браузър на Биуторден се отвори. Сега може да прегледате паролите си в риск."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "Добавката за браузър на Биуторден не успя да се отвори. Отворете я с иконката на Битуорден",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "от лентата с инструменти.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "resellerRenewalWarningMsg": {
     "message": "Вашият абонамент ще бъде подновен скоро. За да подсигурите, че услугата няма да има прекъсвания, свържете се с $RESELLER$ и потвърдете подновяването преди $RENEWAL_DATE$.",
     "placeholders": {
@@ -10345,5 +10486,29 @@
   },
   "assignedExceedsAvailable": {
     "message": "Назначените места превишават наличния брой."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Премахване на отключването чрез ПИН"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Забраняване на членовете да отключват акаунтите си с ПИН."
+  },
+  "limitedEventLogs": {
+    "message": "Плановете от тип „$PRODUCT_TYPE$“ нямат достъп до истинските журнали на събитията",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Получете пълен достъп до журналите на събитията за организациите като надградите до Екипния план или този за Големи организации."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Надградете за достъп до истинските журнали на събитията"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Тези събития са само за пример и не отразяват истинските събития във Вашата организация."
   }
 }

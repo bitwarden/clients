@@ -66,6 +66,7 @@ const forwarder = Object.freeze({
       key: "simpleLoginForwarder",
       target: "object",
       format: "secret-state",
+      frame: 512,
       classifier: new PrivateClassifier<SimpleLoginSettings>(),
       state: GENERATOR_DISK,
       initial: defaultSettings,

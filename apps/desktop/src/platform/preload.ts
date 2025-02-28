@@ -127,8 +127,8 @@ const ephemeralStore = {
 };
 
 const localhostCallbackService = {
-  openSsoPrompt: (codeChallenge: string, state: string): Promise<void> => {
-    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state });
+  openSsoPrompt: (codeChallenge: string, state: string, email: string): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email });
   },
 };
 

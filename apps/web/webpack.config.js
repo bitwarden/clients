@@ -49,7 +49,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "sass-loader",
+      "resolve-url-loader",
+      {
+        loader: "sass-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -59,7 +65,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "postcss-loader",
+      "resolve-url-loader",
+      {
+        loader: "postcss-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -94,7 +106,7 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn.html",
     filename: "webauthn-connector.html",
-    chunks: ["connectors/webauthn"],
+    chunks: ["connectors/webauthn", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-mobile.html",
@@ -104,7 +116,7 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-fallback.html",
     filename: "webauthn-fallback-connector.html",
-    chunks: ["connectors/webauthn-fallback"],
+    chunks: ["connectors/webauthn-fallback", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/sso.html",
