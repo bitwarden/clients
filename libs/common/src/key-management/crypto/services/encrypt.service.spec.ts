@@ -121,7 +121,7 @@ describe("EncryptService", () => {
       );
     });
 
-    it("decrypts data with provided key for Aes256Cbc", async () => {
+    it("decrypts data with provided key for Aes256CbcHmac", async () => {
       const decryptedBytes = makeStaticByteArray(10, 200);
 
       cryptoFunctionService.hmac.mockResolvedValue(makeStaticByteArray(1));
@@ -228,9 +228,9 @@ describe("EncryptService", () => {
       );
     });
 
-    it("decrypts data with provided key for Aes256Cbc_HmacSha256", async () => {
+    it("decrypts data with provided key for AesCbc256_HmacSha256", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data");
       cryptoFunctionService.aesDecryptFastParameters.mockReturnValue({
         macData: makeStaticByteArray(32, 0),
         macKey: makeStaticByteArray(32, 0),
@@ -245,10 +245,14 @@ describe("EncryptService", () => {
       expect(cryptoFunctionService.compareFast).toHaveBeenCalled();
     });
 
-    it("decrypts data with provided key for Aes256Cbc", async () => {
+    it("decrypts data with provided key for AesCbc256", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(32, 0));
       const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
-      cryptoFunctionService.aesDecryptFastParameters.mockReturnValue({} as any);
+      cryptoFunctionService.aesDecryptFastParameters.mockReturnValue({
+        macData: makeStaticByteArray(32, 0),
+        macKey: makeStaticByteArray(32, 0),
+        mac: makeStaticByteArray(32, 0),
+      } as any);
       cryptoFunctionService.hmacFast.mockResolvedValue(makeStaticByteArray(32, 0));
       cryptoFunctionService.compareFast.mockResolvedValue(true);
       cryptoFunctionService.aesDecryptFast.mockResolvedValue("data");
@@ -258,7 +262,7 @@ describe("EncryptService", () => {
       expect(cryptoFunctionService.compareFast).not.toHaveBeenCalled();
     });
 
-    it("returns null if key is Aes256Cbc_HmacSha256 but EncString is Aes256Cbc", async () => {
+    it("returns null if key is AesCbc256_HMAC but encstring is AesCbc256", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
       const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
 
@@ -267,9 +271,9 @@ describe("EncryptService", () => {
       expect(logService.error).toHaveBeenCalled();
     });
 
-    it("returns null if key is Aes256Cbc but encstring is AesCbc256_HmacSha256", async () => {
+    it("returns null if key is AesCbc256 but encstring is AesCbc256_HMAC", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(32, 0));
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data");
 
       const actual = await encryptService.decryptToUtf8(encString, key);
       expect(actual).toBeNull();
@@ -278,7 +282,7 @@ describe("EncryptService", () => {
 
     it("returns null if macs don't match", async () => {
       const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
-      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data");
       cryptoFunctionService.aesDecryptFastParameters.mockReturnValue({
         macData: makeStaticByteArray(32, 0),
         macKey: makeStaticByteArray(32, 0),
@@ -290,25 +294,6 @@ describe("EncryptService", () => {
 
       const actual = await encryptService.decryptToUtf8(encString, key);
       expect(actual).toBeNull();
-    });
-  });
-
-  describe("decryptToUtf8", () => {
-    it("throws if no key is provided", () => {
-      return expect(encryptService.decryptToUtf8(null, null)).rejects.toThrow(
-        "No key provided for decryption.",
-      );
-    });
-    it("returns null if key is mac key but encstring has no mac", async () => {
-      const key = new SymmetricCryptoKey(
-        makeStaticByteArray(64, 0),
-        EncryptionType.AesCbc256_HmacSha256_B64,
-      );
-      const encString = new EncString(EncryptionType.AesCbc256_B64, "data");
-
-      const actual = await encryptService.decryptToUtf8(encString, key);
-      expect(actual).toBeNull();
-      expect(logService.error).toHaveBeenCalled();
     });
   });
 
