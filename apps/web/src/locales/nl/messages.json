@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Belangrijke applicaties"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Geen belangrijke applicaties lopen risico"
+  },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Inloggen op Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Voer de code in die naar je e-mailadres is verstuurd"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Voer de code uit je authenticatie-app in"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Druk op je YubiKey om te verifiëren"
+  },
   "authenticationTimeout": {
     "message": "Authenticatie-timeout"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Mijn gegevens onthouden"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "30 dagen niet meer vragen op dit apparaat"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "E-mail met verificatiecode opnieuw versturen"
   },
   "useAnotherTwoStepMethod": {
     "message": "Gebruik een andere methode voor tweestapsaanmelding"
+  },
+  "selectAnotherMethod": {
+    "message": "Kies een andere methode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Gebruik je herstelcode"
   },
   "insertYubiKey": {
     "message": "Plaats je YubiKey in de USB-poort van je computer en druk op de knop."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Opties voor tweestapsaanmelding"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Kies methode voor tweestapsaanmelding"
   },
   "recoveryCodeDesc": {
     "message": "Ben je de toegang tot al je tweestapsaanbieders verloren? Gebruik dan je herstelcode om alle tweestapsaanbieders op je account uit te schakelen."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Gemigreerd van FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Openen in nieuwe tab"
   },
   "emailTitle": {
     "message": "E-mailadres"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Je hebt inlogverzoek van een ander apparaat."
+  },
+  "reviewLoginRequest": {
+    "message": "Inlogverzoek afhandelen"
+  },
   "freeTrialEndPromptCount": {
     "message": "Je gratis proefperiode eindigt over $COUNT$ dagen.",
     "placeholders": {
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Minimale eisen voor de sterkte van het hoofdwachtwoord instellen."
+  },
+  "passwordStrengthScore": {
+    "message": "Score wachtwoordsterkte $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Tweestapsaanmelding vereisen"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Authenticeer WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Beveiligingssleutel lezen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Wacht op interactie met beveiligingssleutel..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn wordt niet ondersteund in deze browser."
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "DUO tweestapsaanmelding is vereist voor jouw account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Jouw account vereist Duo-tweestapsaanmelding. Volg de onderstaande stappen om het inloggen te voltooien."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Volg de onderstaande stappen om in te loggen."
   },
   "launchDuo": {
     "message": "DUO starten"
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Leden niet toestaan hun account te ontgrendelen met een pincode."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$-abonnementen hebben geen toegang tot echte event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Krijg volledige toegang tot event logs van de organisatie door te upgraden naar een Teams- of Enterprise-abonnement."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade voor echte event log gegevens"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Deze events zijn voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden-organisatie."
   }
 }
