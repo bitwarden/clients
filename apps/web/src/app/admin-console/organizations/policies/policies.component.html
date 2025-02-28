@@ -1,5 +1,11 @@
 <app-header>
-  <span bitBadge variant="primary" slot="title-suffix" *ngIf="showUpgradeBreadcrumb$() | async">
+  <span
+    bitBadge
+    variant="primary"
+    slot="title-suffix"
+    *ngIf="showUpgradeBreadcrumb$() | async"
+    (click)="changePlan()"
+  >
     {{ "upgrade" | i18n }}
   </span>
 </app-header>

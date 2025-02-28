@@ -5,15 +5,11 @@ import { ActivatedRoute } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, of } from "rxjs";
 import { first, map } from "rxjs/operators";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { isUpsellingPoliciesEnabled } from "@bitwarden/common/billing/utils/organization-upselling-utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -25,6 +21,10 @@ import { PolicyListService } from "../../core/policy-list.service";
 import { BasePolicy } from "../policies";
 
 import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.component";
+import {
+  ChangePlanDialogResultType,
+  openChangePlanDialog,
+} from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 
 @Component({
   selector: "app-org-policies",
@@ -50,7 +50,6 @@ export class PoliciesComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
-    private accountService: AccountService,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyListService: PolicyListService,
     private dialogService: DialogService,
@@ -61,13 +60,8 @@ export class PoliciesComponent implements OnInit {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
       this.organizationId = params.organizationId;
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
       this.organization = await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(this.organizationId)),
+        this.organizationService.getOrganizationById$(this.organizationId),
       );
       this.policies = this.policyListService.getPolicies();
 
@@ -131,5 +125,23 @@ export class PoliciesComponent implements OnInit {
         return isUpsellingEnabled && isBreadcrumbEventLogsEnabled;
       }),
     );
+  }
+
+  protected async changePlan() {
+    const reference = openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        subscription: null,
+        productTierType: this.organization.productTierType,
+      },
+    });
+
+    const result = await lastValueFrom(reference.closed);
+
+    if (result === ChangePlanDialogResultType.Closed) {
+      return;
+    }
+
+    await this.load();
   }
 }

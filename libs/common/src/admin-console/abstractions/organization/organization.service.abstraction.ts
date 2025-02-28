@@ -65,6 +65,12 @@ export function getOrganizationById(id: string) {
  */
 export abstract class OrganizationService {
   /**
+   * Publishes state for a specific organization under the current user.
+   * @returns An observable list of organizations
+   */
+  getOrganizationById$: (organizationId: string) => Observable<Organization>;
+
+  /**
    * Publishes state for all organizations under the specified user.
    * @returns An observable list of organizations
    */
