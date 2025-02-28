@@ -249,19 +249,6 @@ describe("CipherAuthorizationService", () => {
         done();
       });
     });
-
-    it("should return false via non feature flagged logic if feature flag enabled and cipher.permissions is undefined", (done) => {
-      const cipher = createMockCipher("org1", [], true, undefined) as CipherView;
-      const organization = createMockOrganization();
-      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-
-      cipherAuthorizationService.canDeleteCipher$(cipher, [], false).subscribe((result) => {
-        expect(result).toBe(false);
-        expect(mockCollectionService.decryptedCollectionViews$).not.toHaveBeenCalled();
-        done();
-      });
-    });
   });
 
   describe("canCloneCipher$", () => {
