@@ -8,16 +8,22 @@ export class Fido2Utils {
       .replace(/=/g, "");
   }
 
-  static stringToBuffer(str: string): Uint8Array {
-    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str));
+  static stringToBuffer(str: string): ArrayBuffer {
+    return Fido2Utils.arrayBufferViewToArrayBuffer(
+      Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)),
+    );
   }
 
-  static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {
+  static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array<ArrayBuffer> {
     if (Fido2Utils.isArrayBuffer(bufferSource)) {
       return new Uint8Array(bufferSource);
     } else {
       return new Uint8Array(bufferSource.buffer, bufferSource.byteOffset, bufferSource.byteLength);
     }
+  }
+
+  static arrayBufferViewToArrayBuffer(array: ArrayBufferView<ArrayBuffer>): ArrayBuffer {
+    return array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset);
   }
 
   /** Utility function to identify type of bufferSource. Necessary because of differences between runtimes */
@@ -42,7 +48,7 @@ export class Fido2Utils {
     return globalThis.btoa(binary);
   }
 
-  static fromB64ToArray(str: string): Uint8Array {
+  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
     if (str == null) {
       return null;
     }
