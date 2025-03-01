@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import {
@@ -158,7 +159,19 @@ export class LockComponent implements OnInit, OnDestroy {
 
     // desktop deps
     private broadcasterService: BroadcasterService,
-  ) {}
+  ) {
+    this.deviceTrustService.deviceTrustedNotification$
+      .pipe(takeUntilDestroyed())
+      .subscribe((deviceTrusted: boolean) => {
+        if (deviceTrusted) {
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("deviceTrusted"),
+          });
+        }
+      });
+  }
 
   async ngOnInit() {
     this.listenForActiveUnlockOptionChanges();

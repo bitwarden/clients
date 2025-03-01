@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { SsoComponent as BaseSsoComponent } from "@bitwarden/angular/auth/components/sso.component";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
+  AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -53,6 +54,7 @@ export class SsoComponentV1 extends BaseSsoComponent {
     private authService: AuthService,
     @Inject(WINDOW) private win: Window,
     toastService: ToastService,
+    authRequestService: AuthRequestServiceAbstraction,
   ) {
     super(
       ssoLoginService,
@@ -72,6 +74,7 @@ export class SsoComponentV1 extends BaseSsoComponent {
       masterPasswordService,
       accountService,
       toastService,
+      authRequestService,
     );
 
     environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {

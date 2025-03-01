@@ -17,6 +17,12 @@ export abstract class DeviceTrustServiceAbstraction {
   supportsDeviceTrust$: Observable<boolean>;
 
   /**
+   * Emits a notification when a device has been trusted for the specific
+   * purpose of notifying the consuming component to display a toast informing the user.
+   */
+  deviceTrustedNotification$: Observable<boolean>;
+
+  /**
    * @description Checks if the device trust feature is supported for the given user.
    */
   supportsDeviceTrustByUserId$: (userId: UserId) => Observable<boolean>;

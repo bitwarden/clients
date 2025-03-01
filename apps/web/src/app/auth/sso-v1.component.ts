@@ -8,6 +8,7 @@ import { first } from "rxjs/operators";
 
 import { SsoComponent as BaseSsoComponent } from "@bitwarden/angular/auth/components/sso.component";
 import {
+  AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -67,6 +68,7 @@ export class SsoComponentV1 extends BaseSsoComponent implements OnInit {
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
     accountService: AccountService,
     toastService: ToastService,
+    authRequestService: AuthRequestServiceAbstraction,
   ) {
     super(
       ssoLoginService,
@@ -86,6 +88,7 @@ export class SsoComponentV1 extends BaseSsoComponent implements OnInit {
       masterPasswordService,
       accountService,
       toastService,
+      authRequestService,
     );
     this.redirectUri = window.location.origin + "/sso-connector.html";
     this.clientId = "web";

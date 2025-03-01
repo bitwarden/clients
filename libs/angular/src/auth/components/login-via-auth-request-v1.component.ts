@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, OnDestroy, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { IsActiveMatchOptions, Router } from "@angular/router";
 import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
 
@@ -116,6 +117,18 @@ export class LoginViaAuthRequestComponentV1
           });
           this.logService.error("Failed to use approved auth request: " + e.message);
         });
+      });
+
+    this.deviceTrustService.deviceTrustedNotification$
+      .pipe(takeUntilDestroyed())
+      .subscribe((deviceTrusted: boolean) => {
+        if (deviceTrusted) {
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("deviceTrusted"),
+          });
+        }
       });
   }
 

@@ -119,6 +119,18 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       this.webVaultUrl = env.getWebVaultUrl();
       this.deviceManagementUrl = `${this.webVaultUrl}/#/settings/security/device-management`;
     });
+
+    this.deviceTrustService.deviceTrustedNotification$
+      .pipe(takeUntilDestroyed())
+      .subscribe((deviceTrusted: boolean) => {
+        if (deviceTrusted) {
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("deviceTrusted"),
+          });
+        }
+      });
   }
 
   async ngOnInit(): Promise<void> {

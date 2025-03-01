@@ -108,6 +108,18 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     private validationService: ValidationService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
+
+    this.deviceTrustService.deviceTrustedNotification$
+      .pipe(takeUntilDestroyed())
+      .subscribe((deviceTrusted: boolean) => {
+        if (deviceTrusted) {
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("deviceTrusted"),
+          });
+        }
+      });
   }
 
   async ngOnInit() {

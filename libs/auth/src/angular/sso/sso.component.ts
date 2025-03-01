@@ -13,6 +13,7 @@ import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
   LoginSuccessHandlerService,
+  AuthRequestServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -119,6 +120,7 @@ export class SsoComponent implements OnInit {
     private toastService: ToastService,
     private ssoComponentService: SsoComponentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private authRequestService: AuthRequestServiceAbstraction,
   ) {
     environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.redirectUri = env.getWebVaultUrl() + "/sso-connector.html";
@@ -128,6 +130,18 @@ export class SsoComponent implements OnInit {
     if (this.isValidSsoClientType(clientType)) {
       this.clientId = clientType as SsoClientType;
     }
+
+    this.authRequestService.loginApprovedNotification$
+      .pipe(takeUntilDestroyed())
+      .subscribe((loginApproved: boolean) => {
+        if (loginApproved) {
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("loginApproved"),
+          });
+        }
+      });
   }
 
   /**
