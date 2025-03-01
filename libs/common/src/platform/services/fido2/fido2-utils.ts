@@ -14,7 +14,7 @@ export class Fido2Utils {
     );
   }
 
-  static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array<ArrayBuffer> {
+  static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {
     if (Fido2Utils.isArrayBuffer(bufferSource)) {
       return new Uint8Array(bufferSource);
     } else {
@@ -22,7 +22,7 @@ export class Fido2Utils {
     }
   }
 
-  static arrayBufferViewToArrayBuffer(array: ArrayBufferView<ArrayBuffer>): ArrayBuffer {
+  static arrayBufferViewToArrayBuffer(array: ArrayBufferView): ArrayBuffer {
     return array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset);
   }
 
@@ -48,7 +48,7 @@ export class Fido2Utils {
     return globalThis.btoa(binary);
   }
 
-  static fromB64ToArray(str: string): Uint8Array<ArrayBuffer> {
+  static fromB64ToArray(str: string): Uint8Array {
     if (str == null) {
       return null;
     }
