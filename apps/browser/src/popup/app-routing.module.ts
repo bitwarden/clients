@@ -7,7 +7,7 @@ import {
   EnvironmentSelectorRouteData,
   ExtensionDefaultOverlayPosition,
 } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { unauthUiRefreshRedirect } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-redirect";
+import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   activeAuthGuard,
   authGuard,
@@ -57,11 +57,11 @@ import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
-import { HomeComponent } from "../auth/popup/home.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { TwoFactorOptionsComponentV1 } from "../auth/popup/two-factor-options-v1.component";
+import { TwoFactorComponentV1 } from "../auth/popup/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
@@ -124,7 +124,7 @@ const routes: Routes = [
     children: [], // Children lets us have an empty component.
     canActivate: [
       popupRouterCacheGuard,
-      redirectGuard({ loggedIn: "/tabs/current", loggedOut: "/home", locked: "/lock" }),
+      redirectGuard({ loggedIn: "/tabs/current", loggedOut: "/login", locked: "/lock" }),
     ],
   },
   {
@@ -133,17 +133,37 @@ const routes: Routes = [
     pathMatch: "full",
   },
   {
-    path: "home",
-    component: HomeComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides), unauthUiRefreshRedirect("/login")],
-    data: { elevation: 1 } satisfies RouteDataProperties,
-  },
-  {
     path: "fido2",
     component: Fido2Component,
     canActivate: [fido2AuthGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
+  ...unauthUiRefreshSwap(
+    TwoFactorComponentV1,
+    ExtensionAnonLayoutWrapperComponent,
+    {
+      path: "2fa",
+      canActivate: [unauthGuardFn(unauthRouteOverrides)],
+      data: { elevation: 1 } satisfies RouteDataProperties,
+    },
+    {
+      path: "2fa",
+      canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
+      children: [
+        {
+          path: "",
+          component: TwoFactorAuthComponent,
+        },
+      ],
+      data: {
+        elevation: 1,
+        pageTitle: {
+          key: "verifyIdentity",
+        },
+        showBackButton: true,
+      } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+    },
+  ),
   {
     path: "",
     component: ExtensionAnonLayoutWrapperComponent,
@@ -379,7 +399,7 @@ const routes: Routes = [
             component: RegistrationStartSecondaryComponent,
             outlet: "secondary",
             data: {
-              loginRoute: "/home",
+              loginRoute: "/login",
             } satisfies RegistrationStartSecondaryComponentData,
           },
         ],
@@ -422,23 +442,6 @@ const routes: Routes = [
             } satisfies EnvironmentSelectorRouteData,
           },
         ],
-      },
-      {
-        path: "2fa",
-        canActivate: [unauthGuardFn(unauthRouteOverrides), TwoFactorAuthGuard],
-        children: [
-          {
-            path: "",
-            component: TwoFactorAuthComponent,
-          },
-        ],
-        data: {
-          elevation: 1,
-          pageTitle: {
-            key: "verifyIdentity",
-          },
-          showBackButton: true,
-        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
       },
       {
         path: "sso",
