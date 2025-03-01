@@ -17,6 +17,7 @@ import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/
 import { OrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-sso-details.response";
 import { VerifiedOrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { HttpStatusCode } from "@bitwarden/common/enums";
@@ -69,6 +70,7 @@ export class SsoComponentV1 extends BaseSsoComponent implements OnInit {
     accountService: AccountService,
     toastService: ToastService,
     authRequestService: AuthRequestServiceAbstraction,
+    deviceTrustService: DeviceTrustServiceAbstraction,
   ) {
     super(
       ssoLoginService,
@@ -89,6 +91,7 @@ export class SsoComponentV1 extends BaseSsoComponent implements OnInit {
       accountService,
       toastService,
       authRequestService,
+      deviceTrustService,
     );
     this.redirectUri = window.location.origin + "/sso-connector.html";
     this.clientId = "web";

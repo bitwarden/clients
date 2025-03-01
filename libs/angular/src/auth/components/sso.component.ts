@@ -16,6 +16,7 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -77,6 +78,7 @@ export class SsoComponent implements OnInit {
     protected accountService: AccountService,
     protected toastService: ToastService,
     protected authRequestService: AuthRequestServiceAbstraction,
+    protected deviceTrustService: DeviceTrustServiceAbstraction,
   ) {
     this.authRequestService.loginApprovedNotification$
       .pipe(takeUntilDestroyed())
@@ -86,6 +88,18 @@ export class SsoComponent implements OnInit {
             variant: "success",
             title: null,
             message: this.i18nService.t("loginApproved"),
+          });
+        }
+      });
+
+    this.deviceTrustService.deviceTrustedNotification$
+      .pipe(takeUntilDestroyed())
+      .subscribe((deviceTrusted: boolean) => {
+        if (deviceTrusted) {
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("deviceTrusted"),
           });
         }
       });
