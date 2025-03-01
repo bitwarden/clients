@@ -59,6 +59,10 @@ export class CustomFieldV2Component implements OnInit {
     return this.i18nService.t(linkedType.i18nKey);
   }
 
+  get canViewPassword() {
+    return this.cipher.viewPassword;
+  }
+
   async logHiddenEvent(hiddenFieldVisible: boolean) {
     if (hiddenFieldVisible) {
       await this.eventCollectionService.collect(

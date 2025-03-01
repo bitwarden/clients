@@ -4,7 +4,6 @@ const NotificationTypes = {
   Add: "add",
   Change: "change",
   Unlock: "unlock",
-  FilelessImport: "fileless-import",
 } as const;
 
 type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationTypes];
@@ -20,10 +19,11 @@ type NotificationBarIframeInitData = {
 };
 
 type NotificationBarWindowMessage = {
-  [key: string]: any;
   command: string;
   error?: string;
   initData?: NotificationBarIframeInitData;
+  username?: string;
+  cipherId?: string;
 };
 
 type NotificationBarWindowMessageHandlers = {

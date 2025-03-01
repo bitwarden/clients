@@ -13,6 +13,12 @@ export default {
       imports: [ButtonModule, NoItemsModule],
     }),
   ],
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21665-25102&t=k6OTDDPZOTtypRqo-11",
+    },
+  },
 } as Meta;
 
 type Story = StoryObj<NoItemsComponent>;

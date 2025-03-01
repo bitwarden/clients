@@ -1,5 +1,5 @@
-<ng-container *ngFor="let breadcrumb of beforeOverflow; let last = last">
-  <ng-container *ngIf="breadcrumb.route">
+@for (breadcrumb of beforeOverflow; track breadcrumb; let last = $last) {
+  @if (breadcrumb.route) {
     <a
       bitLink
       linkType="primary"
@@ -10,8 +10,8 @@
     >
       <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
     </a>
-  </ng-container>
-  <ng-container *ngIf="!breadcrumb.route">
+  }
+  @if (!breadcrumb.route) {
     <button
       type="button"
       bitLink
@@ -21,13 +21,16 @@
     >
       <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
     </button>
-  </ng-container>
-  <i *ngIf="!last" class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
-</ng-container>
+  }
+  @if (!last) {
+    <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
+  }
+}
 
-<ng-container *ngIf="hasOverflow">
-  <i *ngIf="beforeOverflow.length > 0" class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
-
+@if (hasOverflow) {
+  @if (beforeOverflow.length > 0) {
+    <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
+  }
   <button
     type="button"
     bitIconButton="bwi-ellipsis-h"
@@ -35,10 +38,9 @@
     size="small"
     aria-haspopup
   ></button>
-
   <bit-menu #overflowMenu>
-    <ng-container *ngFor="let breadcrumb of overflow">
-      <ng-container *ngIf="breadcrumb.route">
+    @for (breadcrumb of overflow; track breadcrumb) {
+      @if (breadcrumb.route) {
         <a
           bitMenuItem
           linkType="primary"
@@ -48,18 +50,17 @@
         >
           <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
         </a>
-      </ng-container>
-      <ng-container *ngIf="!breadcrumb.route">
+      }
+      @if (!breadcrumb.route) {
         <button type="button" bitMenuItem linkType="primary" (click)="breadcrumb.onClick($event)">
           <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
         </button>
-      </ng-container>
-    </ng-container>
+      }
+    }
   </bit-menu>
   <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
-
-  <ng-container *ngFor="let breadcrumb of afterOverflow; let last = last">
-    <ng-container *ngIf="breadcrumb.route">
+  @for (breadcrumb of afterOverflow; track breadcrumb; let last = $last) {
+    @if (breadcrumb.route) {
       <a
         bitLink
         linkType="primary"
@@ -70,8 +71,8 @@
       >
         <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
       </a>
-    </ng-container>
-    <ng-container *ngIf="!breadcrumb.route">
+    }
+    @if (!breadcrumb.route) {
       <button
         type="button"
         bitLink
@@ -81,7 +82,9 @@
       >
         <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
       </button>
-    </ng-container>
-    <i *ngIf="!last" class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
-  </ng-container>
-</ng-container>
+    }
+    @if (!last) {
+      <i class="bwi bwi-angle-right tw-mx-1.5 tw-text-main"></i>
+    }
+  }
+}

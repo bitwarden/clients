@@ -19,14 +19,13 @@ import { ToastService } from "@bitwarden/components";
   templateUrl: "./provider-subscription.component.html",
 })
 export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
-  providerId: string;
-  subscription: ProviderSubscriptionResponse;
+  private providerId: string;
+  protected subscription: ProviderSubscriptionResponse;
 
-  firstLoaded = false;
-  loading: boolean;
+  protected firstLoaded = false;
+  protected loading: boolean;
   private destroy$ = new Subject<void>();
-  totalCost: number;
-  currentDate = new Date();
+  protected totalCost: number;
 
   protected readonly TaxInformation = TaxInformation;
 
@@ -50,11 +49,7 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  get isExpired() {
-    return this.subscription.status !== "active";
-  }
-
-  async load() {
+  protected async load() {
     if (this.loading) {
       return;
     }
@@ -65,7 +60,7 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     this.loading = false;
   }
 
-  updateTaxInformation = async (taxInformation: TaxInformation) => {
+  protected updateTaxInformation = async (taxInformation: TaxInformation) => {
     const request = ExpandedTaxInfoUpdateRequest.From(taxInformation);
     await this.billingApiService.updateProviderTaxInformation(this.providerId, request);
     this.toastService.showToast({
@@ -75,7 +70,7 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     });
   };
 
-  getFormattedCost(
+  protected getFormattedCost(
     cost: number,
     seatMinimum: number,
     purchasedSeats: number,
@@ -85,17 +80,21 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     return costPerSeat - (costPerSeat * discountPercentage) / 100;
   }
 
-  getFormattedPlanName(planName: string): string {
+  protected getFormattedPlanName(planName: string): string {
     const spaceIndex = planName.indexOf(" ");
     return planName.substring(0, spaceIndex);
   }
 
-  getFormattedSeatCount(seatMinimum: number, purchasedSeats: number): string {
+  protected getFormattedSeatCount(seatMinimum: number, purchasedSeats: number): string {
     const totalSeats = seatMinimum + purchasedSeats;
     return totalSeats > 1 ? totalSeats.toString() : "";
   }
 
-  sumCost(plans: ProviderPlanResponse[]): number {
+  protected getFormattedPlanNameCadence(cadence: string) {
+    return cadence === "Annual" ? "annually" : "monthly";
+  }
+
+  private sumCost(plans: ProviderPlanResponse[]): number {
     return plans.reduce((acc, plan) => acc + plan.cost, 0);
   }
 
@@ -104,7 +103,7 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  get activePlans(): ProviderPlanResponse[] {
+  protected get activePlans(): ProviderPlanResponse[] {
     return this.subscription.plans.filter((plan) => {
       if (plan.purchasedSeats === 0) {
         return plan.seatMinimum > 0;
@@ -112,5 +111,20 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
         return plan.purchasedSeats > 0;
       }
     });
+  }
+
+  protected getBillingCadenceLabel(providerPlanResponse: ProviderPlanResponse): string {
+    if (providerPlanResponse == null || providerPlanResponse == undefined) {
+      return "month";
+    }
+
+    switch (providerPlanResponse.cadence) {
+      case "Monthly":
+        return "month";
+      case "Annual":
+        return "year";
+      default:
+        return "month";
+    }
   }
 }

@@ -3,10 +3,15 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
@@ -32,6 +37,8 @@ describe("Project Redirect Guard", () => {
   let i18nServiceMock: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
   let router: Router;
+  let accountService: FakeAccountService;
+  const userId = Utils.newGuid() as UserId;
 
   const smOrg1 = { id: "123", canAccessSecretsManager: true } as Organization;
   const projectView = {
@@ -50,6 +57,7 @@ describe("Project Redirect Guard", () => {
     projectServiceMock = mock<ProjectService>();
     i18nServiceMock = mock<I18nService>();
     toastService = mock<ToastService>();
+    accountService = mockAccountServiceWith(userId);
 
     TestBed.configureTestingModule({
       imports: [
@@ -71,6 +79,7 @@ describe("Project Redirect Guard", () => {
       ],
       providers: [
         { provide: OrganizationService, useValue: organizationService },
+        { provide: AccountService, useValue: accountService },
         { provide: RouterService, useValue: routerService },
         { provide: ProjectService, useValue: projectServiceMock },
         { provide: I18nService, useValue: i18nServiceMock },
@@ -83,7 +92,7 @@ describe("Project Redirect Guard", () => {
 
   it("redirects to sm/{orgId}/projects/{projectId} if project exists", async () => {
     // Arrange
-    organizationService.getAll.mockResolvedValue([smOrg1]);
+    organizationService.organizations$.mockReturnValue(of([smOrg1]));
     projectServiceMock.getByProjectId.mockReturnValue(Promise.resolve(projectView));
 
     // Act
@@ -95,7 +104,7 @@ describe("Project Redirect Guard", () => {
 
   it("redirects to sm/projects if project does not exist", async () => {
     // Arrange
-    organizationService.getAll.mockResolvedValue([smOrg1]);
+    organizationService.organizations$.mockReturnValue(of([smOrg1]));
 
     // Act
     await router.navigateByUrl("sm/123/projects/124");

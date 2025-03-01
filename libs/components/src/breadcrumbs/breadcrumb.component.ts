@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
+
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from "@angular/core";
 import { QueryParamsHandling } from "@angular/router";
 
@@ -8,7 +8,6 @@ import { QueryParamsHandling } from "@angular/router";
   selector: "bit-breadcrumb",
   templateUrl: "./breadcrumb.component.html",
   standalone: true,
-  imports: [NgIf],
 })
 export class BreadcrumbComponent {
   @Input()

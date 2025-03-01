@@ -1,15 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DialogRef } from "@angular/cdk/dialog";
-import {
-  ChangeDetectorRef,
-  Component,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  ViewContainerRef,
-} from "@angular/core";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -37,18 +29,18 @@ import {
 import {
   CollectionAdminService,
   CollectionAdminView,
-  CollectionService,
   CollectionView,
   Unassigned,
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
@@ -61,7 +53,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -91,7 +83,7 @@ import {
   ResellerWarningService,
 } from "../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../core/types/free-trial";
+import { FreeTrial } from "../../billing/types/free-trial";
 import { SharedModule } from "../../shared";
 import { VaultFilterService } from "../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import { VaultFilter } from "../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
@@ -126,7 +118,6 @@ import {
 import { VaultHeaderComponent } from "../org-vault/vault-header/vault-header.component";
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
-import { AddEditComponent } from "./add-edit.component";
 import {
   BulkCollectionsDialogComponent,
   BulkCollectionsDialogResult,
@@ -165,13 +156,6 @@ enum AddAccessStatusType {
 export class VaultComponent implements OnInit, OnDestroy {
   protected Unassigned = Unassigned;
 
-  @ViewChild("attachments", { read: ViewContainerRef, static: true })
-  attachmentsModalRef: ViewContainerRef;
-  @ViewChild("cipherAddEdit", { read: ViewContainerRef, static: true })
-  cipherAddEditModalRef: ViewContainerRef;
-  @ViewChild("collectionsModal", { read: ViewContainerRef, static: true })
-  collectionsModalRef: ViewContainerRef;
-
   trashCleanupWarning: string = null;
   activeFilter: VaultFilter = new VaultFilter();
 
@@ -209,23 +193,27 @@ export class VaultComponent implements OnInit, OnDestroy {
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
-  private extensionRefreshEnabled: boolean;
   private resellerManagedOrgAlert: boolean;
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
-  private readonly unpaidSubscriptionDialog$ = this.organizationService.organizations$.pipe(
-    filter((organizations) => organizations.length === 1),
-    map(([organization]) => organization),
-    switchMap((organization) =>
-      from(this.billingApiService.getOrganizationBillingMetadata(organization.id)).pipe(
-        tap((organizationMetaData) => {
-          this.hasSubscription$.next(organizationMetaData.hasSubscription);
-        }),
-        switchMap((organizationMetaData) =>
-          from(
-            this.trialFlowService.handleUnpaidSubscriptionDialog(
-              organization,
-              organizationMetaData,
+  private readonly unpaidSubscriptionDialog$ = this.accountService.activeAccount$.pipe(
+    map((account) => account?.id),
+    switchMap((id) =>
+      this.organizationService.organizations$(id).pipe(
+        filter((organizations) => organizations.length === 1),
+        map(([organization]) => organization),
+        switchMap((organization) =>
+          from(this.billingApiService.getOrganizationBillingMetadata(organization.id)).pipe(
+            tap((organizationMetaData) => {
+              this.hasSubscription$.next(organizationMetaData.hasSubscription);
+            }),
+            switchMap((organizationMetaData) =>
+              from(
+                this.trialFlowService.handleUnpaidSubscriptionDialog(
+                  organization,
+                  organizationMetaData,
+                ),
+              ),
             ),
           ),
         ),
@@ -243,7 +231,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private syncService: SyncService,
     private i18nService: I18nService,
-    private modalService: ModalService,
     private dialogService: DialogService,
     private messagingService: MessagingService,
     private broadcasterService: BroadcasterService,
@@ -259,7 +246,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private totpService: TotpService,
     private apiService: ApiService,
-    private collectionService: CollectionService,
     private toastService: ToastService,
     private configService: ConfigService,
     private cipherFormConfigService: CipherFormConfigService,
@@ -268,13 +254,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     protected billingApiService: BillingApiServiceAbstraction,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private resellerWarningService: ResellerWarningService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
-    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
-
     this.resellerManagedOrgAlert = await this.configService.getFeatureFlag(
       FeatureFlag.ResellerManagedOrgAlert,
     );
@@ -292,10 +275,19 @@ export class VaultComponent implements OnInit, OnDestroy {
       distinctUntilChanged(),
     );
 
-    const organization$ = organizationId$.pipe(
-      switchMap((organizationId) => this.organizationService.get$(organizationId)),
-      takeUntil(this.destroy$),
-      shareReplay({ refCount: false, bufferSize: 1 }),
+    const organization$ = this.accountService.activeAccount$.pipe(
+      map((account) => account?.id),
+      switchMap((id) =>
+        organizationId$.pipe(
+          switchMap((organizationId) =>
+            this.organizationService
+              .organizations$(id)
+              .pipe(map((organizations) => organizations.find((org) => org.id === organizationId))),
+          ),
+          takeUntil(this.destroy$),
+          shareReplay({ refCount: false, bufferSize: 1 }),
+        ),
+      ),
     );
 
     const firstSetup$ = combineLatest([organization$, this.route.queryParams]).pipe(
@@ -539,7 +531,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     firstSetup$
       .pipe(
         switchMap(() => combineLatest([this.route.queryParams, allCipherMap$])),
-        filter(() => this.vaultItemDialogRef == undefined || !this.extensionRefreshEnabled),
+        filter(() => this.vaultItemDialogRef == undefined),
         switchMap(async ([qParams, allCiphersMap]) => {
           const cipherId = getCipherIdFromParams(qParams);
 
@@ -570,15 +562,15 @@ export class VaultComponent implements OnInit, OnDestroy {
               return;
             }
 
-            // Default to "view" if extension refresh is enabled
-            if (action == null && this.extensionRefreshEnabled) {
+            // Default to "view"
+            if (action == null) {
               action = "view";
             }
 
             if (action === "view") {
               await this.viewCipherById(cipher);
             } else {
-              await this.editCipherId(cipher, false);
+              await this.editCipher(cipher, false);
             }
           } else {
             this.toastService.showToast({
@@ -820,27 +812,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Opens the Add/Edit Dialog */
   async addCipher(cipherType?: CipherType) {
-    if (this.extensionRefreshEnabled) {
-      return this.addCipherV2(cipherType);
-    }
-
-    let collections: CollectionView[] = [];
-
-    // Admins limited to only adding items to collections they have access to.
-    collections = await firstValueFrom(this.editableCollections$);
-
-    await this.editCipher(null, false, (comp) => {
-      comp.type = cipherType || this.activeFilter.cipherType;
-      comp.collections = collections;
-      if (this.activeFilter.collectionId) {
-        comp.collectionIds = [this.activeFilter.collectionId];
-      }
-    });
-  }
-
-  /** Opens the Add/Edit Dialog. Only to be used when the BrowserExtension feature flag is active */
-  async addCipherV2(cipherType?: CipherType) {
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       "add",
       null,
@@ -861,24 +834,8 @@ export class VaultComponent implements OnInit, OnDestroy {
    * Edit the given cipher or add a new cipher
    * @param cipherView - When set, the cipher to be edited
    * @param cloneCipher - `true` when the cipher should be cloned.
-   * Used in place of the `additionalComponentParameters`, as
-   * the `editCipherIdV2` method has a differing implementation.
-   * @param defaultComponentParameters - A method that takes in an instance of
-   * the `AddEditComponent` to edit methods directly.
    */
-  async editCipher(
-    cipher: CipherView | null,
-    cloneCipher: boolean,
-    additionalComponentParameters?: (comp: AddEditComponent) => void,
-  ) {
-    return this.editCipherId(cipher, cloneCipher, additionalComponentParameters);
-  }
-
-  async editCipherId(
-    cipher: CipherView | null,
-    cloneCipher: boolean,
-    additionalComponentParameters?: (comp: AddEditComponent) => void,
-  ) {
+  async editCipher(cipher: CipherView | null, cloneCipher: boolean) {
     if (
       cipher &&
       cipher.reprompt !== 0 &&
@@ -889,55 +846,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.extensionRefreshEnabled) {
-      await this.editCipherIdV2(cipher, cloneCipher);
-      return;
-    }
-
-    const defaultComponentParameters = (comp: AddEditComponent) => {
-      comp.organization = this.organization;
-      comp.organizationId = this.organization.id;
-      comp.cipherId = cipher?.id;
-      comp.collectionId = this.activeFilter.collectionId;
-      comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-        modal.close();
-        this.refresh();
-      });
-      comp.onDeletedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-        modal.close();
-        this.refresh();
-      });
-      comp.onRestoredCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-        modal.close();
-        this.refresh();
-      });
-    };
-
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      AddEditComponent,
-      this.cipherAddEditModalRef,
-      additionalComponentParameters == null
-        ? defaultComponentParameters
-        : (comp) => {
-            defaultComponentParameters(comp);
-            additionalComponentParameters(comp);
-          },
-    );
-
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    modal.onClosedPromise().then(() => {
-      this.go({ cipherId: null, itemId: null, action: null });
-    });
-
-    return childComponent;
-  }
-
-  /**
-   * Edit a cipher using the new AddEditCipherDialogV2 component.
-   * Only to be used behind the ExtensionRefresh feature flag.
-   */
-  private async editCipherIdV2(cipher: CipherView | null, cloneCipher: boolean) {
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       cloneCipher ? "clone" : "edit",
       cipher?.id as CipherId | null,
@@ -994,6 +902,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       disableForm,
       activeCollectionId,
       isAdminConsoleAction: true,
+      restore: this.restore,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
@@ -1021,19 +930,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
 
-    let collections: CollectionView[] = [];
-
-    // Admins limited to only adding items to collections they have access to.
-    collections = await firstValueFrom(this.editableCollections$);
-
-    await this.editCipher(cipher, true, (comp) => {
-      comp.cloneMode = true;
-      comp.collections = collections;
-      comp.collectionIds = cipher.collectionIds;
-    });
+    await this.editCipher(cipher, true);
   }
 
-  async restore(c: CipherView): Promise<boolean> {
+  restore = async (c: CipherView): Promise<boolean> => {
     if (!c.isDeleted) {
       return;
     }
@@ -1053,8 +953,9 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     // Allow restore of an Unassigned Item
     try {
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const asAdmin = this.organization?.canEditAnyCollection || c.isUnassigned;
-      await this.cipherService.restoreWithServer(c.id, asAdmin);
+      await this.cipherService.restoreWithServer(c.id, activeUserId, asAdmin);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -1064,7 +965,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.logService.error(e);
     }
-  }
+  };
 
   async bulkRestore(ciphers: CipherView[]) {
     if (
@@ -1145,7 +1046,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     try {
-      await this.deleteCipherWithServer(c.id, permanent, c.isUnassigned);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.deleteCipherWithServer(c.id, activeUserId, permanent, c.isUnassigned);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -1433,11 +1335,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected deleteCipherWithServer(id: string, permanent: boolean, isUnassigned: boolean) {
+  protected deleteCipherWithServer(
+    id: string,
+    userId: UserId,
+    permanent: boolean,
+    isUnassigned: boolean,
+  ) {
     const asAdmin = this.organization?.canEditAllCiphers || isUnassigned;
     return permanent
-      ? this.cipherService.deleteWithServer(id, asAdmin)
-      : this.cipherService.softDeleteWithServer(id, asAdmin);
+      ? this.cipherService.deleteWithServer(id, userId, asAdmin)
+      : this.cipherService.softDeleteWithServer(id, userId, asAdmin);
   }
 
   protected async repromptCipher(ciphers: CipherView[]) {

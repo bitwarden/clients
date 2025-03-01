@@ -22,12 +22,15 @@
   {{ "sendDisabledWarning" | i18n }}
 </bit-callout>
 <div class="tw-grid tw-grid-cols-12 tw-gap-4">
-  <div class="groupings tw-col-span-3">
-    <div class="card vault-filters">
-      <div class="card-header d-flex">
+  <div class="tw-col-span-3">
+    <div class="tw-border tw-border-solid tw-border-secondary-300 tw-rounded" data-testid="filters">
+      <div
+        class="tw-bg-background-alt tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100 tw-rounded-t tw-px-5 tw-py-2.5 tw-font-semibold tw-uppercase"
+        data-testid="filters-header"
+      >
         {{ "filters" | i18n }}
       </div>
-      <div class="card-body">
+      <div class="tw-p-5" data-testid="filters-body">
         <div class="tw-mb-4">
           <bit-search
             [(ngModel)]="searchText"

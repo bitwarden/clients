@@ -1,14 +1,17 @@
 import { Component, OnInit } from "@angular/core";
 
-import { CollectionService, Collection } from "@bitwarden/admin-console/common";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService } from "@bitwarden/components";
+import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+
+import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { CipherReportComponent } from "./cipher-report.component";
 
@@ -22,19 +25,25 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
   constructor(
     protected cipherService: CipherService,
     protected organizationService: OrganizationService,
-    modalService: ModalService,
+    dialogService: DialogService,
+    accountService: AccountService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
     private collectionService: CollectionService,
+    cipherFormConfigService: CipherFormConfigService,
+    adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     super(
       cipherService,
-      modalService,
+      dialogService,
       passwordRepromptService,
       organizationService,
+      accountService,
       i18nService,
       syncService,
+      cipherFormConfigService,
+      adminConsoleCipherFormConfigService,
     );
   }
 
@@ -44,17 +53,10 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
 
   async setCiphers() {
     const allCiphers = await this.getAllCiphers();
-    const allCollections = await this.collectionService.getAll();
     this.filterStatus = [0];
 
     const unsecuredCiphers = allCiphers.filter((c) => {
-      const containsUnsecured = this.cipherContainsUnsecured(c);
-      if (containsUnsecured === false) {
-        return false;
-      }
-
-      const canView = this.canView(c, allCollections);
-      return canView;
+      return this.cipherContainsUnsecured(c);
     });
 
     this.filterCiphersByOrg(unsecuredCiphers);
@@ -65,7 +67,12 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
    * @param cipher Current cipher with unsecured uri
    */
   private cipherContainsUnsecured(cipher: CipherView): boolean {
-    if (cipher.type !== CipherType.Login || !cipher.login.hasUris || cipher.isDeleted) {
+    if (
+      cipher.type !== CipherType.Login ||
+      !cipher.login.hasUris ||
+      cipher.isDeleted ||
+      (!this.organization && !cipher.edit)
+    ) {
       return false;
     }
 
@@ -76,19 +83,13 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
   }
 
   /**
-   * If the user does not have readonly set or it's false they have the ability to edit
-   * @param cipher Current cipher with unsecured uri
-   * @param allCollections The collections for the user
+   * Provides a way to determine if someone with permissions to run an organizational report is also able to view/edit ciphers within the results
+   * Default to true for indivduals running reports on their own vault.
+   * @param c CipherView
+   * @returns boolean
    */
-  private canView(cipher: CipherView, allCollections: Collection[]): boolean {
-    if (!cipher.organizationId) {
-      return true;
-    }
-
-    return (
-      allCollections.filter(
-        (item) => cipher.collectionIds.indexOf(item.id) > -1 && !(item.readOnly ?? false),
-      ).length > 0
-    );
+  protected canManageCipher(c: CipherView): boolean {
+    // this will only ever be false from the org view;
+    return true;
   }
 }

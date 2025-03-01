@@ -1,4 +1,5 @@
-import { TestBed } from "@angular/core/testing";
+import { WritableSignal, signal } from "@angular/core";
+import { TestBed, discardPeriodicTasks, fakeAsync, tick } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
 
@@ -6,19 +7,22 @@ import { CollectionService, CollectionView } from "@bitwarden/admin-console/comm
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { ObservableTracker } from "@bitwarden/common/spec";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { ObservableTracker, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
+import { LocalData } from "@bitwarden/common/vault/models/data/local.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
@@ -33,6 +37,14 @@ describe("VaultPopupItemsService", () => {
   let mockOrg: Organization;
   let mockCollections: CollectionView[];
   let activeUserLastSync$: BehaviorSubject<Date>;
+  let viewCacheService: {
+    signal: jest.Mock;
+    mockSignal: WritableSignal<string | null>;
+  };
+
+  let ciphersSubject: BehaviorSubject<Record<CipherId, CipherData>>;
+  let localDataSubject: BehaviorSubject<Record<CipherId, LocalData>>;
+  let failedToDecryptCiphersSubject: BehaviorSubject<CipherView[]>;
 
   const cipherServiceMock = mock<CipherService>();
   const vaultSettingsServiceMock = mock<VaultSettingsService>();
@@ -43,6 +55,8 @@ describe("VaultPopupItemsService", () => {
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
   const inlineMenuFieldQualificationServiceMock = mock<InlineMenuFieldQualificationService>();
+  const userId = Utils.newGuid() as UserId;
+  const accountServiceMock = mockAccountServiceWith(userId);
 
   beforeEach(() => {
     allCiphers = cipherFactory(10);
@@ -58,9 +72,21 @@ describe("VaultPopupItemsService", () => {
     cipherList[3].favorite = true;
 
     cipherServiceMock.getAllDecrypted.mockResolvedValue(cipherList);
-    cipherServiceMock.ciphers$ = new BehaviorSubject(null);
-    cipherServiceMock.localData$ = new BehaviorSubject(null);
-    cipherServiceMock.failedToDecryptCiphers$ = new BehaviorSubject([]);
+
+    ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>({});
+    localDataSubject = new BehaviorSubject<Record<CipherId, LocalData>>({});
+    failedToDecryptCiphersSubject = new BehaviorSubject<CipherView[]>([]);
+
+    cipherServiceMock.ciphers$.mockImplementation((userId: UserId) =>
+      ciphersSubject.asObservable(),
+    );
+    cipherServiceMock.localData$.mockImplementation((userId: UserId) =>
+      localDataSubject.asObservable(),
+    );
+    cipherServiceMock.failedToDecryptCiphers$.mockImplementation((userId: UserId) =>
+      failedToDecryptCiphersSubject.asObservable(),
+    );
+
     searchService.searchCiphers.mockImplementation(async (_, __, ciphers) => ciphers);
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(c.id)),
@@ -99,11 +125,17 @@ describe("VaultPopupItemsService", () => {
       { id: "col2", name: "Collection 2" } as CollectionView,
     ];
 
-    organizationServiceMock.organizations$ = new BehaviorSubject([mockOrg]);
+    organizationServiceMock.organizations$.mockReturnValue(new BehaviorSubject([mockOrg]));
     collectionService.decryptedCollections$ = new BehaviorSubject(mockCollections);
 
     activeUserLastSync$ = new BehaviorSubject(new Date());
     syncServiceMock.activeUserLastSync$.mockReturnValue(activeUserLastSync$);
+
+    const testSearchSignal = createMockSignal<string | null>("");
+    viewCacheService = {
+      mockSignal: testSearchSignal,
+      signal: jest.fn((options) => testSearchSignal),
+    };
 
     testBed = TestBed.configureTestingModule({
       providers: [
@@ -111,14 +143,17 @@ describe("VaultPopupItemsService", () => {
         { provide: VaultSettingsService, useValue: vaultSettingsServiceMock },
         { provide: SearchService, useValue: searchService },
         { provide: OrganizationService, useValue: organizationServiceMock },
+        { provide: AccountService, useValue: accountServiceMock },
         { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
         { provide: CollectionService, useValue: collectionService },
         { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
         { provide: SyncService, useValue: syncServiceMock },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
         {
           provide: InlineMenuFieldQualificationService,
           useValue: inlineMenuFieldQualificationServiceMock,
         },
+        { provide: PopupViewCacheService, useValue: viewCacheService },
       ],
     });
 
@@ -152,7 +187,7 @@ describe("VaultPopupItemsService", () => {
 
     await tracker.expectEmission();
 
-    (cipherServiceMock.ciphers$ as BehaviorSubject<any>).next(null);
+    ciphersSubject.next({});
 
     await tracker.expectEmission();
 
@@ -166,7 +201,7 @@ describe("VaultPopupItemsService", () => {
 
     await tracker.expectEmission();
 
-    (cipherServiceMock.localData$ as BehaviorSubject<any>).next(null);
+    localDataSubject.next({});
 
     await tracker.expectEmission();
 
@@ -370,7 +405,7 @@ describe("VaultPopupItemsService", () => {
 
       cipherServiceMock.getAllDecrypted.mockResolvedValue(ciphers);
 
-      (cipherServiceMock.ciphers$ as BehaviorSubject<any>).next(null);
+      ciphersSubject.next({});
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
       expect(deletedCiphers.length).toBe(1);
@@ -419,7 +454,7 @@ describe("VaultPopupItemsService", () => {
     it("should cycle when cipherService.ciphers$ emits", async () => {
       // Restart tracking
       tracked = new ObservableTracker(service.loading$);
-      (cipherServiceMock.ciphers$ as BehaviorSubject<any>).next(null);
+      ciphersSubject.next({});
 
       await trackedCiphers.pauseUntilReceived(2);
 
@@ -433,15 +468,32 @@ describe("VaultPopupItemsService", () => {
   describe("applyFilter", () => {
     it("should call search Service with the new search term", (done) => {
       const searchText = "Hello";
-      service.applyFilter(searchText);
       const searchServiceSpy = jest.spyOn(searchService, "searchCiphers");
 
+      service.applyFilter(searchText);
       service.favoriteCiphers$.subscribe(() => {
-        expect(searchServiceSpy).toHaveBeenCalledWith(searchText, null, expect.anything());
+        expect(searchServiceSpy).toHaveBeenCalledWith(searchText, undefined, expect.anything());
         done();
       });
     });
   });
+
+  it("should update searchText$ when applyFilter is called", fakeAsync(() => {
+    let latestValue: string | null;
+    service.searchText$.subscribe((val) => {
+      latestValue = val;
+    });
+    tick();
+    expect(latestValue!).toEqual("");
+
+    service.applyFilter("test search");
+    tick();
+    expect(latestValue!).toEqual("test search");
+
+    expect(viewCacheService.mockSignal()).toEqual("test search");
+
+    discardPeriodicTasks();
+  }));
 });
 
 // A function to generate a list of ciphers of different types
@@ -495,4 +547,10 @@ function cipherFactory(count: number): Record<CipherId, CipherView> {
     }
   }
   return Object.fromEntries(ciphers.map((c) => [c.id, c]));
+}
+
+function createMockSignal<T>(initialValue: T): WritableSignal<T> {
+  const s = signal(initialValue);
+  s.set = (value: T) => s.update(() => value);
+  return s;
 }

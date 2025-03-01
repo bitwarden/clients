@@ -39,6 +39,10 @@ export class Response {
     return Response.error("Not found.");
   }
 
+  static noEditPermission(): Response {
+    return Response.error("You do not have permission to edit this item");
+  }
+
   static badRequest(message: string): Response {
     return Response.error(message);
   }

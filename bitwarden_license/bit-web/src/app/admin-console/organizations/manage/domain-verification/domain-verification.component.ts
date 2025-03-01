@@ -16,7 +16,7 @@ import {
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -54,7 +54,7 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private toastService: ToastService,
     private configService: ConfigService,
-    private policyApiService: PolicyApiServiceAbstraction,
+    private policyService: PolicyService,
   ) {
     this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.AccountDeprovisioning,
@@ -83,9 +83,14 @@ export class DomainVerificationComponent implements OnInit, OnDestroy {
     await this.orgDomainApiService.getAllByOrgId(this.organizationId);
 
     if (await this.configService.getFeatureFlag(FeatureFlag.AccountDeprovisioning)) {
-      const singleOrgPolicy = await this.policyApiService.getPolicy(
-        this.organizationId,
-        PolicyType.SingleOrg,
+      const singleOrgPolicy = await firstValueFrom(
+        this.policyService.policies$.pipe(
+          map((policies) =>
+            policies.find(
+              (p) => p.type === PolicyType.SingleOrg && p.organizationId === this.organizationId,
+            ),
+          ),
+        ),
       );
       this.singleOrgPolicyEnabled = singleOrgPolicy?.enabled ?? false;
     }

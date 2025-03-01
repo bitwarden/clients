@@ -4,8 +4,6 @@ import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, DefaultCipherFormConfigService } from "@bitwarden/vault";
@@ -13,7 +11,6 @@ import { CipherFormConfigService, DefaultCipherFormConfigService } from "@bitwar
 import { EmergencyAccessService } from "../../../emergency-access";
 import { EmergencyAccessAttachmentsComponent } from "../attachments/emergency-access-attachments.component";
 
-import { EmergencyAddEditCipherComponent } from "./emergency-add-edit-cipher.component";
 import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";
 
 @Component({
@@ -23,8 +20,6 @@ import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component"
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class EmergencyAccessViewComponent implements OnInit {
-  @ViewChild("cipherAddEdit", { read: ViewContainerRef, static: true })
-  cipherAddEditModalRef: ViewContainerRef;
   @ViewChild("attachments", { read: ViewContainerRef, static: true })
   attachmentsModalRef: ViewContainerRef;
 
@@ -37,7 +32,6 @@ export class EmergencyAccessViewComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private emergencyAccessService: EmergencyAccessService,
-    private configService: ConfigService,
     private dialogService: DialogService,
   ) {}
 
@@ -57,30 +51,10 @@ export class EmergencyAccessViewComponent implements OnInit {
   }
 
   async selectCipher(cipher: CipherView) {
-    const browserRefreshEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
-
-    if (browserRefreshEnabled) {
-      EmergencyViewDialogComponent.open(this.dialogService, {
-        cipher,
-      });
-      return;
-    }
-
-    // FIXME PM-15385: Remove below dialog service logic once extension refresh is live.
-
-    // eslint-disable-next-line
-    const [_, childComponent] = await this.modalService.openViewRef(
-      EmergencyAddEditCipherComponent,
-      this.cipherAddEditModalRef,
-      (comp) => {
-        comp.cipherId = cipher == null ? null : cipher.id;
-        comp.cipher = cipher;
-      },
-    );
-
-    return childComponent;
+    EmergencyViewDialogComponent.open(this.dialogService, {
+      cipher,
+    });
+    return;
   }
 
   async load() {
@@ -88,6 +62,7 @@ export class EmergencyAccessViewComponent implements OnInit {
     this.loaded = true;
   }
 
+  // FIXME PM-17747: This will also need to be replaced with the new AttachmentViewDialog
   async viewAttachments(cipher: CipherView) {
     await this.modalService.openViewRef(
       EmergencyAccessAttachmentsComponent,

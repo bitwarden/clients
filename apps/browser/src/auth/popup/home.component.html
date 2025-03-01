@@ -1,4 +1,4 @@
-<app-header [noTheme]="true"> </app-header>
+<app-header [noTheme]="true"></app-header>
 <div class="center-content">
   <div class="content login-page">
     <div class="logo-image"></div>
@@ -30,9 +30,7 @@
     </form>
     <p class="createAccountLink">
       {{ "newAroundHere" | i18n }}
-      <a [routerLink]="registerRoute$ | async" (click)="setLoginEmailValues()">{{
-        "createAccount" | i18n
-      }}</a>
+      <a routerLink="/signup" (click)="setLoginEmailValues()">{{ "createAccount" | i18n }}</a>
     </p>
   </div>
 </div>

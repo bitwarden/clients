@@ -12,7 +12,7 @@
 }
 
 #web-authn-frame {
-  height: 315px;
+  height: 40px;
   @include themify($themes) {
     background: themed("imgLoading") 0 0 no-repeat;
   }

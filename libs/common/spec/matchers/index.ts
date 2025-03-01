@@ -1,15 +1,11 @@
-import * as matchers from "jest-extended";
-
 import { toBeFulfilled, toBeResolved, toBeRejected } from "./promise-fulfilled";
 import { toAlmostEqual } from "./to-almost-equal";
+import { toContainPartialObjects } from "./to-contain-partial-objects";
 import { toEqualBuffer } from "./to-equal-buffer";
 
 export * from "./to-equal-buffer";
 export * from "./to-almost-equal";
 export * from "./promise-fulfilled";
-
-// add all jest-extended matchers
-expect.extend(matchers);
 
 export function addCustomMatchers() {
   expect.extend({
@@ -18,6 +14,7 @@ export function addCustomMatchers() {
     toBeFulfilled: toBeFulfilled,
     toBeResolved: toBeResolved,
     toBeRejected: toBeRejected,
+    toContainPartialObjects,
   });
 }
 
@@ -59,4 +56,9 @@ export interface CustomMatchers<R = unknown> {
    * @returns CustomMatcherResult indicating whether or not the test passed
    */
   toBeRejected(withinMs?: number): Promise<R>;
+  /**
+   * Matches if the received array contains all the expected objects using partial matching (expect.objectContaining).
+   * @param expected An array of partial objects that should be contained in the received array.
+   */
+  toContainPartialObjects<T>(expected: Array<T>): R;
 }

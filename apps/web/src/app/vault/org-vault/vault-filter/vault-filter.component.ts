@@ -10,7 +10,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../individual-vault/vault-filter/components/vault-filter.component"; //../../vault/vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "../../individual-vault/vault-filter/services/abstractions/vault-filter.service";
@@ -43,6 +43,7 @@ export class VaultFilterComponent
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
+    protected toastService: ToastService,
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
     protected configService: ConfigService,
@@ -52,6 +53,7 @@ export class VaultFilterComponent
       policyService,
       i18nService,
       platformUtilsService,
+      toastService,
       billingApiService,
       dialogService,
       configService,

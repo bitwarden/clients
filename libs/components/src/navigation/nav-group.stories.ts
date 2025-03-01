@@ -6,8 +6,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared/shared.module";
+import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
-import { positionFixedWrapperDecorator } from "../utils/position-fixed-wrapper-decorator";
 
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
@@ -62,7 +62,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=4687%3A86642",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-40145&t=b5tDKylm5sWm2yKo-4",
     },
     chromatic: { viewports: [640, 1280] },
   },

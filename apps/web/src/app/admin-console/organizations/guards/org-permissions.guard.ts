@@ -7,13 +7,17 @@ import {
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   canAccessOrgAdmin,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
@@ -46,13 +50,21 @@ export function organizationPermissionsGuard(
     const toastService = inject(ToastService);
     const i18nService = inject(I18nService);
     const syncService = inject(SyncService);
+    const accountService = inject(AccountService);
 
     // TODO: We need to fix issue once and for all.
     if ((await syncService.getLastSync()) == null) {
       await syncService.fullSync(false);
     }
 
-    const org = await organizationService.get(route.params.organizationId);
+    const org = await firstValueFrom(
+      accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => organizationService.organizations$(userId)),
+        getById(route.params.organizationId),
+      ),
+    );
+
     if (org == null) {
       return router.createUrlTree(["/"]);
     }

@@ -14,7 +14,7 @@ import {
 
 import { KeyService } from "@bitwarden/key-management";
 
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { OrganizationId, UserId } from "../../types/guid";
 import {
   OrganizationBound,

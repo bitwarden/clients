@@ -1,8 +1,7 @@
 import { Jsonify } from "type-fest";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { RangeWithDefault } from "../../../common/src/platform/misc/range-with-default";
+import { RangeWithDefault } from "@bitwarden/common/platform/misc/range-with-default";
+
 import { KdfType } from "../enums/kdf-type.enum";
 
 /**

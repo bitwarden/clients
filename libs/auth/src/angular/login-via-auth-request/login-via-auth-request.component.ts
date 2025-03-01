@@ -29,6 +29,7 @@ import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -71,6 +72,8 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   protected showResendNotification = false;
   protected Flow = Flow;
   protected flow = Flow.StandardAuthRequest;
+  protected webVaultUrl: string;
+  protected deviceManagementUrl: string;
 
   constructor(
     private accountService: AccountService,
@@ -81,6 +84,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private cryptoFunctionService: CryptoFunctionService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
+    private environmentService: EnvironmentService,
     private i18nService: I18nService,
     private logService: LogService,
     private loginEmailService: LoginEmailServiceAbstraction,
@@ -109,6 +113,12 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
           this.logService.error("Failed to use approved auth request: " + e.message);
         });
       });
+
+    // Get the web vault URL from the environment service
+    this.environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
+      this.webVaultUrl = env.getWebVaultUrl();
+      this.deviceManagementUrl = `${this.webVaultUrl}/#/settings/security/device-management`;
+    });
   }
 
   async ngOnInit(): Promise<void> {

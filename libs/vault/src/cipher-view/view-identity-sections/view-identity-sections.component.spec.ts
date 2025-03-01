@@ -6,11 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
-import { SectionHeaderComponent } from "@bitwarden/components";
-
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { BitInputDirective } from "../../../../components/src/input/input.directive";
+import { BitInputDirective, SectionHeaderComponent } from "@bitwarden/components";
 
 import { ViewIdentitySectionsComponent } from "./view-identity-sections.component";
 

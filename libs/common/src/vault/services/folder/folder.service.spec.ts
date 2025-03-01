@@ -1,14 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
+import { KeyService } from "@bitwarden/key-management";
+
 import { makeEncString } from "../../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncString } from "../../../platform/models/domain/enc-string";
@@ -77,7 +76,7 @@ describe("Folder Service", () => {
       const result = await firstValueFrom(folderService.folders$(mockUserId));
 
       expect(result.length).toBe(2);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         { id: "1", name: makeEncString("ENC_STRING_1") },
         { id: "2", name: makeEncString("ENC_STRING_2") },
       ]);
@@ -98,7 +97,7 @@ describe("Folder Service", () => {
       const result = await firstValueFrom(folderService.folderViews$(mockUserId));
 
       expect(result.length).toBe(3);
-      expect(result).toIncludeAllPartialMembers([
+      expect(result).toContainPartialObjects([
         { id: "1", name: "DEC" },
         { id: "2", name: "DEC" },
         { name: "No Folder" },

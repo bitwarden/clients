@@ -1,10 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import "core-js/proposals/explicit-resource-management";
+
 import * as path from "path";
 
 import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
+import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -66,6 +69,7 @@ export class Main {
   desktopSettingsService: DesktopSettingsService;
   mainCryptoFunctionService: MainCryptoFunctionService;
   migrationRunner: MigrationRunner;
+  ssoUrlService: SsoUrlService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -133,12 +137,6 @@ export class Main {
     this.mainCryptoFunctionService = new MainCryptoFunctionService();
     this.mainCryptoFunctionService.init();
 
-    const accountService = new AccountServiceImplementation(
-      MessageSender.EMPTY,
-      this.logService,
-      globalStateProvider,
-    );
-
     const stateEventRegistrarService = new StateEventRegistrarService(
       globalStateProvider,
       storageServiceProvider,
@@ -148,6 +146,13 @@ export class Main {
       storageServiceProvider,
       stateEventRegistrarService,
       this.logService,
+    );
+
+    const accountService = new AccountServiceImplementation(
+      MessageSender.EMPTY,
+      this.logService,
+      globalStateProvider,
+      singleUserStateProvider,
     );
 
     const activeUserStateProvider = new DefaultActiveUserStateProvider(
@@ -260,7 +265,13 @@ export class Main {
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
 
     new EphemeralValueStorageService();
-    new SSOLocalhostCallbackService(this.environmentService, this.messagingService);
+
+    this.ssoUrlService = new SsoUrlService();
+    new SSOLocalhostCallbackService(
+      this.environmentService,
+      this.messagingService,
+      this.ssoUrlService,
+    );
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();

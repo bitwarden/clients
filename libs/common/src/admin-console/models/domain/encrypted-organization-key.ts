@@ -1,4 +1,4 @@
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { OrgKey, UserPrivateKey } from "../../../types/key";
@@ -58,6 +58,9 @@ export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizati
       new EncString(this.key),
       providerKeys[this.providerId],
     );
+    if (decValue == null) {
+      throw new Error("Failed to decrypt organization key");
+    }
     return new SymmetricCryptoKey(decValue) as OrgKey;
   }
 

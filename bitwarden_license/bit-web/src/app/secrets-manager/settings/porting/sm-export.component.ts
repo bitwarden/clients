@@ -5,7 +5,12 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -40,6 +45,7 @@ export class SecretsManagerExportComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private i18nService: I18nService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private platformUtilsService: PlatformUtilsService,
     private smPortingService: SecretsManagerPortingService,
     private fileDownloadService: FileDownloadService,
@@ -52,7 +58,14 @@ export class SecretsManagerExportComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.route.params
       .pipe(
-        switchMap(async (params) => await this.organizationService.get(params.organizationId)),
+        switchMap(async (params) => {
+          const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+          return await firstValueFrom(
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          );
+        }),
         takeUntil(this.destroy$),
       )
       .subscribe((organization) => {
