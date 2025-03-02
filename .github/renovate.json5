@@ -64,18 +64,8 @@
       enabled: false,
     },
     {
-      matchSourceUrls: [
-        "https://github.com/angular-eslint/angular-eslint",
-        "https://github.com/angular/angular-cli",
-        "https://github.com/angular/angular",
-        "https://github.com/angular/components",
-        "https://github.com/ng-select/ng-select",
-      ],
-      matchUpdateTypes: ["major"],
-      description: "Manually updated using ng update",
-      enabled: false,
-    },
-    {
+      // Disable major updates for core Angular dependencies because they are managed through ng update
+      // when we decide to upgrade.
       matchSourceUrls: [
         "https://github.com/angular-eslint/angular-eslint",
         "https://github.com/angular/angular-cli",
