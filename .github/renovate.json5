@@ -33,7 +33,6 @@
         "./github/workflows/test.yml",
         "./github/workflows/version-auto-bump.yml",
       ],
-      matchUpdateTypes: ["minor"],
       commitMessagePrefix: "[deps] Platform:",
     },
     {
@@ -55,14 +54,7 @@
         "./github/workflows/release-desktop.yml",
         "./github/workflows/release-web.yml",
       ],
-      matchUpdateTypes: ["minor"],
       commitMessagePrefix: "[deps] BRE:",
-    },
-    {
-      // The desktop_native module is code-owned by Platform, so we're applying the Platform
-      // prefix to ensure that the PR has the right prefix on it for automation
-      matchManagers: ["cargo"],
-      commitMessagePrefix: "[deps] Platform:",
     },
     {
       // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular
