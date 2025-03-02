@@ -35,13 +35,22 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
 import { CreateTasksRequest } from "../../vault/services/abstractions/admin-task.abstraction";
 import { DefaultAdminTaskService } from "../../vault/services/default-admin-task.service";
 
+import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
   standalone: true,
   selector: "tools-critical-applications",
   templateUrl: "./critical-applications.component.html",
-  imports: [CardComponent, HeaderModule, SearchModule, NoItemsModule, PipesModule, SharedModule],
+  imports: [
+    CardComponent,
+    HeaderModule,
+    SearchModule,
+    NoItemsModule,
+    PipesModule,
+    SharedModule,
+    AppTableRowScrollableComponent,
+  ],
   providers: [DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {
@@ -181,4 +190,7 @@ export class CriticalApplicationsComponent implements OnInit {
   trackByFunction(_: number, item: ApplicationHealthReportDetailWithCriticalFlag) {
     return item.applicationName;
   }
+  isDrawerOpenForTableRow = (applicationName: string) => {
+    return this.dataService.drawerInvokerId === applicationName;
+  };
 }

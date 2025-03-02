@@ -30,15 +30,12 @@ export enum FeatureFlag {
 
   AC1795_UpdatedSubscriptionStatusSection = "AC-1795_updated-subscription-status-section",
   ExtensionRefresh = "extension-refresh",
-  PersistPopupView = "persist-popup-view",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
-  TwoFactorComponentRefactor = "two-factor-component-refactor",
   VaultBulkManagementAction = "vault-bulk-management-action",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
   SSHKeyVaultItem = "ssh-key-vault-item",
   SSHAgent = "ssh-agent",
   CipherKeyEncryption = "cipher-key-encryption",
-  PM11901_RefactorSelfHostingLicenseUploader = "PM-11901-refactor-self-hosting-license-uploader",
   TrialPaymentOptional = "PM-8163-trial-payment",
   SecurityTasks = "security-tasks",
   NewDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss",
@@ -48,8 +45,9 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
-  NewDeviceVerification = "new-device-verification",
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
+  RecoveryCodeLogin = "pm-17128-recovery-code-login",
+  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -90,15 +88,12 @@ export const DefaultFeatureFlagValue = {
 
   [FeatureFlag.AC1795_UpdatedSubscriptionStatusSection]: FALSE,
   [FeatureFlag.ExtensionRefresh]: FALSE,
-  [FeatureFlag.PersistPopupView]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
-  [FeatureFlag.TwoFactorComponentRefactor]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
   [FeatureFlag.SSHKeyVaultItem]: FALSE,
   [FeatureFlag.SSHAgent]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader]: FALSE,
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.SecurityTasks]: FALSE,
   [FeatureFlag.NewDeviceVerificationTemporaryDismiss]: FALSE,
@@ -108,8 +103,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
-  [FeatureFlag.NewDeviceVerification]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
+  [FeatureFlag.RecoveryCodeLogin]: FALSE,
+  [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

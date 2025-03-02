@@ -18,8 +18,8 @@ import { LoginModule } from "../auth/login/login.module";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
+import { TwoFactorOptionsComponentV1 } from "../auth/two-factor-options-v1.component";
+import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { SshAgentService } from "../platform/services/ssh-agent.service";
@@ -86,9 +86,9 @@ import { SendComponent } from "./tools/send/send.component";
     SetPasswordComponent,
     SettingsComponent,
     ShareComponent,
+    TwoFactorComponentV1,
     SsoComponentV1,
-    TwoFactorComponent,
-    TwoFactorOptionsComponent,
+    TwoFactorOptionsComponentV1,
     UpdateTempPasswordComponent,
     VaultComponent,
     VaultTimeoutInputComponent,

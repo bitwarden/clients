@@ -66,6 +66,9 @@ describe("BreachReportComponent", () => {
           useValue: mock<I18nService>(),
         },
       ],
+      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
+      errorOnUnknownElements: false,
+      errorOnUnknownProperties: false,
     }).compileComponents();
   });
 
