@@ -77,7 +77,7 @@ describe("VaultHeaderV2Component", () => {
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: VaultPopupItemsService,
-          useValue: mock<VaultPopupItemsService>({ latestSearchText$: new BehaviorSubject("") }),
+          useValue: mock<VaultPopupItemsService>({ searchText$: new BehaviorSubject("") }),
         },
         {
           provide: SyncService,

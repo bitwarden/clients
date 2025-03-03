@@ -1,8 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Injectable, NgZone } from "@angular/core";
+import { inject, Injectable, NgZone } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import {
-  BehaviorSubject,
   combineLatest,
   concatMap,
   distinctUntilChanged,
@@ -35,6 +33,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
+import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { waitUntil } from "../../util";
 import { PopupCipherView } from "../views/popup-cipher.view";
 
@@ -48,7 +47,12 @@ import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-fi
   providedIn: "root",
 })
 export class VaultPopupItemsService {
-  private _searchText$ = new BehaviorSubject<string>("");
+  private cachedSearchText = inject(PopupViewCacheService).signal<string>({
+    key: "vault-search-text",
+    initialValue: "",
+  });
+
+  readonly searchText$ = toObservable(this.cachedSearchText);
 
   /**
    * Subject that emits whenever new ciphers are being processed/filtered.
@@ -56,10 +60,13 @@ export class VaultPopupItemsService {
    */
   private _ciphersLoading$ = new Subject<void>();
 
-  latestSearchText$: Observable<string> = this._searchText$.asObservable();
+  private activeUserId$ = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    filter((userId): userId is UserId => userId !== null),
+  );
 
-  private organizations$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) => this.organizationService.organizations$(account?.id)),
+  private organizations$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.organizationService.organizations$(userId)),
   );
   /**
    * Observable that contains the list of other cipher types that should be shown
@@ -89,14 +96,18 @@ export class VaultPopupItemsService {
    */
   private _allDecryptedCiphers$: Observable<CipherView[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
-    filter((userId) => userId != null),
+    filter((userId): userId is UserId => userId != null),
     switchMap((userId) =>
       merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
         runInsideAngular(this.ngZone),
         tap(() => this._ciphersLoading$.next()),
         waitUntilSync(this.syncService),
-        switchMap(() => Utils.asyncToObservable(() => this.cipherService.getAllDecrypted(userId))),
-        withLatestFrom(this.cipherService.failedToDecryptCiphers$(userId)),
+        switchMap(() =>
+          combineLatest([
+            Utils.asyncToObservable(() => this.cipherService.getAllDecrypted(userId)),
+            this.cipherService.failedToDecryptCiphers$(userId),
+          ]),
+        ),
         map(([ciphers, failedToDecryptCiphers]) => [...failedToDecryptCiphers, ...ciphers]),
       ),
     ),
@@ -128,8 +139,8 @@ export class VaultPopupItemsService {
    * Observable that indicates whether there is search text present that is searchable.
    * @private
    */
-  private _hasSearchText$ = combineLatest([
-    this._searchText$,
+  private _hasSearchText = combineLatest([
+    this.searchText$,
     getUserId(this.accountService.activeAccount$),
   ]).pipe(
     switchMap(([searchText, userId]) => {
@@ -139,7 +150,7 @@ export class VaultPopupItemsService {
 
   private _filteredCipherList$: Observable<PopupCipherView[]> = combineLatest([
     this._activeCipherList$,
-    this._searchText$,
+    this.searchText$,
     this.vaultPopupListFiltersService.filterFunction$,
     getUserId(this.accountService.activeAccount$),
   ]).pipe(
@@ -148,11 +159,12 @@ export class VaultPopupItemsService {
       searchText,
       userId,
     ]),
-    switchMap(([ciphers, searchText, userId]) => {
-      return this.searchService.searchCiphers(userId, searchText, null, ciphers) as Promise<
-        PopupCipherView[]
-      >;
-    }),
+    switchMap(
+      ([ciphers, searchText, userId]) =>
+        this.searchService.searchCiphers(userId, searchText, undefined, ciphers) as Promise<
+          PopupCipherView[]
+        >,
+    ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -168,7 +180,7 @@ export class VaultPopupItemsService {
     this.vaultPopupAutofillService.currentAutofillTab$,
   ]).pipe(
     switchMap(([ciphers, otherTypes, tab]) => {
-      if (!tab) {
+      if (!tab || !tab.url) {
         return of([]);
       }
       return this.cipherService.filterCiphersForUrl(ciphers, tab.url, otherTypes);
@@ -220,7 +232,7 @@ export class VaultPopupItemsService {
    * Observable that indicates whether a filter or search text is currently applied to the ciphers.
    */
   hasFilterApplied$ = combineLatest([
-    this._hasSearchText$,
+    this._hasSearchText,
     this.vaultPopupListFiltersService.filters$,
   ]).pipe(
     map(([hasSearchText, filters]) => {
@@ -253,7 +265,7 @@ export class VaultPopupItemsService {
         return false;
       }
 
-      const org = orgs.find((o) => o.id === filters.organization.id);
+      const org = orgs.find((o) => o.id === filters?.organization?.id);
       return org ? !org.enabled : false;
     }),
   );
@@ -297,7 +309,7 @@ export class VaultPopupItemsService {
   ) {}
 
   applyFilter(newSearchText: string) {
-    this._searchText$.next(newSearchText);
+    this.cachedSearchText.set(newSearchText);
   }
 
   /**
