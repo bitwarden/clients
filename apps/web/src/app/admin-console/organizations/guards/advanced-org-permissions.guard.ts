@@ -86,7 +86,7 @@ export function advancedOrganizationPermissionsGuard(
     }
 
     const hasPermissions =
-      permissionsCallback == null || permissionsCallback(org, { upsellingService });
+      permissionsCallback == null || (await permissionsCallback(org, { upsellingService }));
 
     if (!hasPermissions) {
       // Handle linkable ciphers for organizations the user only has view access to
