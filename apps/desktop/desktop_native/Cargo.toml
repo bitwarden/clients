@@ -10,7 +10,7 @@ publish = false
 
 [workspace.dependencies]
 anyhow = "=1.0.94"
-log = "=0.4.25"
+log = "=0.4.26"
 serde = "=1.0.209"
 serde_json = "=1.0.127"
 tokio = "=1.43.0"
