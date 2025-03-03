@@ -167,8 +167,6 @@ const routes: Routes = [
       },
     ],
   },
-
-  // anon layout routes
   {
     path: "",
     component: AnonLayoutWrapperComponent,
