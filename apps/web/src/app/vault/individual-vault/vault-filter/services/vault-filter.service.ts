@@ -23,6 +23,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -48,7 +49,7 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements VaultFilterServiceAbstraction {
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+  private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   memberOrganizations$ = this.activeUserId$.pipe(
     switchMap((id) => this.organizationService.memberOrganizations$(id)),
