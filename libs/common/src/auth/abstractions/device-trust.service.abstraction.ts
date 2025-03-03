@@ -5,6 +5,7 @@ import { Observable } from "rxjs";
 import { EncString } from "../../platform/models/domain/enc-string";
 import { UserId } from "../../types/guid";
 import { DeviceKey, UserKey } from "../../types/key";
+import { DeviceKeysUpdateRequest } from "../models/request/update-devices-trust.request";
 
 import { DeviceResponse } from "./devices/responses/device.response";
 
@@ -50,4 +51,9 @@ export abstract class DeviceTrustServiceAbstraction {
    * Note: For debugging purposes only.
    */
   recordDeviceTrustLoss: () => Promise<void>;
+  getRotatedData: (
+    oldUserKey: UserKey,
+    newUserKey: UserKey,
+    userId: UserId,
+  ) => Promise<DeviceKeysUpdateRequest[]>;
 }
