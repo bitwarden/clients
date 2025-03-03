@@ -77,7 +77,6 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
   cardIsExpired: boolean = false;
   hadPendingChangePasswordTask: boolean = false;
   isSecurityTasksEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SecurityTasks);
-  protected destroy$ = new Subject<void>();
 
   constructor(
     private organizationService: OrganizationService,
@@ -154,7 +153,7 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     const userId = await firstValueFrom(this.activeUserId$);
 
     if (this.cipher.edit && this.cipher.viewPassword) {
-      this.checkPendingChangePasswordTasks(userId);
+      await this.checkPendingChangePasswordTasks(userId);
     }
 
     if (this.cipher.organizationId && userId) {
@@ -171,30 +170,23 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     }
   }
 
-  checkPendingChangePasswordTasks(userId: UserId): void {
-    this.defaultTaskService
-      .pendingTasks$(userId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((tasks) => {
-        if (tasks?.length > 0) {
-          this.hadPendingChangePasswordTask =
-            tasks.filter((task) => {
-              return (
-                task.cipherId === this.cipher?.id &&
-                task.type === SecurityTaskType.UpdateAtRiskCredential
-              );
-            }).length > 0;
-        }
-      });
+  async checkPendingChangePasswordTasks(userId: UserId): Promise<void> {
+    const tasks = await firstValueFrom(this.defaultTaskService.pendingTasks$(userId));
+
+    this.hadPendingChangePasswordTask = tasks?.some((task) => {
+      return (
+        task.cipherId === this.cipher?.id && task.type === SecurityTaskType.UpdateAtRiskCredential
+      );
+    });
   }
 
   launchChangePassword = async () => {
-    const url = await this.changeLoginPasswordService.getChangePasswordUrl(
-      this.cipher as CipherView,
-    );
-    if (url == null) {
-      return;
+    if (this.cipher != null) {
+      const url = await this.changeLoginPasswordService.getChangePasswordUrl(this.cipher);
+      if (url == null) {
+        return;
+      }
+      this.platformUtilsService.launchUri(url);
     }
-    this.platformUtilsService.launchUri(url);
   };
 }
