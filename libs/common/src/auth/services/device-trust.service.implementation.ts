@@ -196,28 +196,33 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
 
     const devices = await this.devicesApiService.getDevices();
-    return await Promise.all(devices.data.map(async (device) => {
-      const deviceWithKeys = await this.devicesApiService.getDeviceKeys(device.identifier);
-      if (deviceWithKeys.isTrusted()) {
-        const publicKey = await this.encryptService.decryptToBytes(
-          deviceWithKeys.encryptedPublicKey,
-          oldUserKey,
-        );
-        const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
-        const newEncryptedUserKey = await this.encryptService.rsaEncrypt(newUserKey.key, publicKey);
+    return await Promise.all(
+      devices.data
+        .filter((device) => device.isTrusted)
+        .map(async (device) => {
+          const deviceWithKeys = await this.devicesApiService.getDeviceKeys(device.identifier);
+          const publicKey = await this.encryptService.decryptToBytes(
+            deviceWithKeys.encryptedPublicKey,
+            oldUserKey,
+          );
+          const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
+          const newEncryptedUserKey = await this.encryptService.rsaEncrypt(
+            newUserKey.key,
+            publicKey,
+          );
 
-        const newRotateableKeySet = new RotateableKeySet(
-          newEncryptedUserKey,
-          newEncryptedPublicKey,
-        );
-        
-        const request = new OtherDeviceKeysUpdateRequest();
-        request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey.encryptedString;
-        request.encryptedUserKey = newRotateableKeySet.encryptedUserKey.encryptedString;
-        request.deviceId = device.id;
-        return request;
-      }
-    }));
+          const newRotateableKeySet = new RotateableKeySet(
+            newEncryptedUserKey,
+            newEncryptedPublicKey,
+          );
+
+          const request = new OtherDeviceKeysUpdateRequest();
+          request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey.encryptedString;
+          request.encryptedUserKey = newRotateableKeySet.encryptedUserKey.encryptedString;
+          request.deviceId = device.id;
+          return request;
+        }),
+    );
   }
 
   async rotateDevicesTrust(
@@ -249,9 +254,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     secretVerificationRequest.masterPasswordHash = masterPasswordHash;
 
     // Get the keys that are used in rotating a devices keys from the server
-    const currentDeviceKeys = await this.devicesApiService.getDeviceKeys(
-      deviceIdentifier,
-    );
+    const currentDeviceKeys = await this.devicesApiService.getDeviceKeys(deviceIdentifier);
 
     // Decrypt the existing device public key with the old user key
     const decryptedDevicePublicKey = await this.encryptService.decryptToBytes(
