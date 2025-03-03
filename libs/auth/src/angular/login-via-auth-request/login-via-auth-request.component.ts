@@ -126,7 +126,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
         if (deviceTrusted) {
           this.toastService.showToast({
             variant: "success",
-            title: null,
+            title: "",
             message: this.i18nService.t("deviceTrusted"),
           });
         }

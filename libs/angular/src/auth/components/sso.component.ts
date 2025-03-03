@@ -86,7 +86,7 @@ export class SsoComponent implements OnInit {
         if (loginApproved) {
           this.toastService.showToast({
             variant: "success",
-            title: null,
+            title: "",
             message: this.i18nService.t("loginApproved"),
           });
         }
@@ -98,7 +98,7 @@ export class SsoComponent implements OnInit {
         if (deviceTrusted) {
           this.toastService.showToast({
             variant: "success",
-            title: null,
+            title: "",
             message: this.i18nService.t("deviceTrusted"),
           });
         }
