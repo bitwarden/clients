@@ -13,6 +13,7 @@ import {
   canAccessOrgAdmin,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
@@ -41,7 +42,14 @@ import { ToastService } from "@bitwarden/components";
  * 2. If the logged in user does have the required permissions navigation
  *    proceeds as expected.
  */
-export function organizationPolicyPermissionsGuard(): CanActivateFn {
+export function advancedOrganizationPermissionsGuard(
+  permissionsCallback?: (
+    organization: Organization,
+    services: {
+      upsellingService: OrganizationUpsellingServiceAbstraction;
+    },
+  ) => Promise<boolean>,
+): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const router = inject(Router);
     const organizationService = inject(OrganizationService);
@@ -77,9 +85,8 @@ export function organizationPolicyPermissionsGuard(): CanActivateFn {
       return router.createUrlTree(["/"]);
     }
 
-    const isPolicyUpsellingEnabled = await upsellingService.isUpsellingPoliciesEnabled(org);
-
-    const hasPermissions = org.canManagePolicies || isPolicyUpsellingEnabled;
+    const hasPermissions =
+      permissionsCallback == null || permissionsCallback(org, { upsellingService });
 
     if (!hasPermissions) {
       // Handle linkable ciphers for organizations the user only has view access to

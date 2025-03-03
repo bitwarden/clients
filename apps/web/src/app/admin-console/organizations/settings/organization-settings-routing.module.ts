@@ -1,9 +1,9 @@
-import { inject, NgModule } from "@angular/core";
+import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { organizationPolicyPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-policy-permissions.guard";
+import { advancedOrganizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/advanced-org-permissions.guard";
 
 import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
@@ -11,7 +11,6 @@ import { PoliciesComponent } from "../../organizations/policies";
 
 import { AccountComponent } from "./account.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
-import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-upselling.service.abstraction";
 
 const routes: Routes = [
   {
@@ -35,13 +34,7 @@ const routes: Routes = [
       {
         path: "two-factor",
         component: TwoFactorSetupComponent,
-        canActivate: [
-          organizationPermissionsGuard((o) => {
-            const upsellingService = inject(OrganizationUpsellingServiceAbstraction);
-            debugger;
-            return o.use2fa && o.isOwner;
-          }),
-        ],
+        canActivate: [organizationPermissionsGuard((o) => o.use2fa && o.isOwner)],
         data: {
           titleId: "twoStepLogin",
         },
@@ -49,7 +42,13 @@ const routes: Routes = [
       {
         path: "policies",
         component: PoliciesComponent,
-        canActivate: [organizationPolicyPermissionsGuard()],
+        canActivate: [
+          advancedOrganizationPermissionsGuard(async (o, services) => {
+            const isUpsellingEnabled =
+              await services.upsellingService.isUpsellingPoliciesEnabled(o);
+            return o.canManagePolicies || isUpsellingEnabled;
+          }),
+        ],
         data: {
           titleId: "policies",
         },
