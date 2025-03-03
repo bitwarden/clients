@@ -708,11 +708,8 @@ describe("deviceTrustService", () => {
 
           appIdService.getAppId.mockResolvedValue("test_device_identifier");
 
-          devicesApiService.getDeviceKeys.mockImplementation((deviceIdentifier, secretRequest) => {
-            if (
-              deviceIdentifier !== "test_device_identifier" ||
-              secretRequest.masterPasswordHash !== "my_password_hash"
-            ) {
+          devicesApiService.getDeviceKeys.mockImplementation((deviceIdentifier) => {
+            if (deviceIdentifier !== "test_device_identifier") {
               return Promise.resolve(null);
             }
 
