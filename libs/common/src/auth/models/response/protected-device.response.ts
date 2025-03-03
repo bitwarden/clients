@@ -41,12 +41,8 @@ export class ProtectedDeviceResponse extends BaseResponse {
    */
   encryptedPublicKey: EncString;
 
-
   getRotateableKeyset(): RotateableKeySet {
-    return new RotateableKeySet(
-      this.encryptedUserKey,
-      this.encryptedPublicKey,
-    );
+    return new RotateableKeySet(this.encryptedUserKey, this.encryptedPublicKey);
   }
 
   isTrusted(): boolean {

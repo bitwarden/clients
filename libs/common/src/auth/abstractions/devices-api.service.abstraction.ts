@@ -24,9 +24,7 @@ export abstract class DevicesApiServiceAbstraction {
     deviceIdentifier: string,
   ) => Promise<void>;
 
-  getDeviceKeys: (
-    deviceIdentifier: string,
-  ) => Promise<ProtectedDeviceResponse>;
+  getDeviceKeys: (deviceIdentifier: string) => Promise<ProtectedDeviceResponse>;
 
   /**
    * Notifies the server that the device has a device key, but didn't receive any associated decryption keys.

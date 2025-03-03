@@ -89,9 +89,7 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
     );
   }
 
-  async getDeviceKeys(
-    deviceIdentifier: string,
-  ): Promise<ProtectedDeviceResponse> {
+  async getDeviceKeys(deviceIdentifier: string): Promise<ProtectedDeviceResponse> {
     const result = await this.apiService.send(
       "POST",
       `/devices/${deviceIdentifier}/retrieve-keys`,
