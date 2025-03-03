@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Критичне апликације"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
+  },
   "accessIntelligence": {
     "message": "Приступи интелигенцији"
   },
@@ -465,16 +468,16 @@
     "message": "Уреди фасциклу"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Нова фасцикла"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Име фасцикле"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Угнездите фасциклу додавањем имена надређене фасцкле праћеног знаком „/“. Пример: Друштвени/Форуми"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Да ли сте сигурни да желите да трајно избришете ову фасциклу?"
   },
   "baseDomain": {
     "message": "Главни домен",
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Пријавите се на Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Унесите кôд послат на ваш имејл"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Унесите кôд из апликације за аутентификацију"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Стисните Ваш YubiKey за аутентификацију"
+  },
   "authenticationTimeout": {
     "message": "Истекло је време аутентификације"
   },
@@ -1399,7 +1411,7 @@
     "message": "Одбиј приступ"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "веб апликација"
   },
   "notificationSentDevicePart2": {
     "message": "Потврдите да се фраза отиска прста поклапа са овом испод пре одобравања."
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Запамти ме"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не питајте поново на овом уређају 30 дана"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Поново послати верификациони код на Е-пошту"
   },
   "useAnotherTwoStepMethod": {
     "message": "Користите другу методу пријављивања у два корака"
+  },
+  "selectAnotherMethod": {
+    "message": "Изаберите другу методу",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Употребите шифру за опоравак"
   },
   "insertYubiKey": {
     "message": "Убаците свој YubiKey у УСБ порт рачунара, а затим додирните његово дугме."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Опције дво-коракне пријаве"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Одабрати методу пријављивања у два корака"
   },
   "recoveryCodeDesc": {
     "message": "Изгубили сте приступ свим својим двофакторским добављачима? Употребите код за опоравак да онемогућите све двофакторске добављаче из налога."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Мигрирао из FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Отвори у новом језичку"
   },
   "emailTitle": {
     "message": "Е-пошта"
@@ -1888,16 +1916,16 @@
     "message": "Укључи заштиту пријаве на новом уређају"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+    "message": "Наставите доле да бисте искључили верификационе имејлове које Bitwarden шаље када се пријавите са новог уређаја."
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+    "message": "Наставите доле да бисте Bitwarden Ва- шаље верификационе имејлове када се пријавите са новог уређаја."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+    "message": "Ако је заштита нових пријава искључена, је било ко са вашом главном лозинком може приступити вашем налогу са било којег уређаја. Да бисте заштитили свој рачун без верификационих имејлова, поставите пријаву у два корака."
   },
   "accountNewDeviceLoginProtectionSaved": {
-    "message": "New device login protection changes saved"
+    "message": "Промене нових уређаји за заштиту пријаве су сачуване"
   },
   "sessionsDeauthorized": {
     "message": "Одузето овлашћење свих сесија"
@@ -2163,7 +2191,7 @@
     "message": "Омогућавање пријаве у два корака може вас трајно закључати са вашег Bitwarden-а налога. Код за опоравак омогућава вам приступ вашем налогу у случају да више не можете да користите свог уобичајеног добављача услуге пријављивања у два корака (нпр. ако изгубите уређај). Подршка Bitwarden-а неће вам моћи помоћи ако изгубите приступ свом налогу. Препоручујемо да запишете или одштампате код за опоравак и сачувате га на сигурном месту."
   },
   "yourSingleUseRecoveryCode": {
-    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+    "message": "Ваш јединствени кôд за опоравак може се користити за искључивање у два корака у случају да изгубите приступ свом двоструком провајдеру пријаве. Bitwarden препоручује да запишете кôд за опоравак и држите га на сигурном месту."
   },
   "viewRecoveryCode": {
     "message": "Погледати шифру за опоравак"
@@ -2414,7 +2442,7 @@
     "message": "Догодила се грешка приликом читања безбедносног кључа. Покушајте поново."
   },
   "twoFactorWebAuthnWarning1": {
-    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
+    "message": "Због ограничења платформе, WebAuthn се не могу користити на свим Bitwarden апликацијама. Требали бисте подесити другог добављача услуге пријављивања у два корака како бисте могли да приступите свом налогу када WebAuthn не могу да се користе."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Ваш Bitwarden код за опоравак пријаве у два корака"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Користите неподржани веб прегледач. Веб сеф можда неће правилно функционисати."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Имате захтев за пријаву на чекању са другог уређаја."
+  },
+  "reviewLoginRequest": {
+    "message": "Прегледајте захтев за пријаву"
+  },
   "freeTrialEndPromptCount": {
     "message": "Ваша проба се завршава за $COUNT$ дана.",
     "placeholders": {
@@ -4176,7 +4210,7 @@
     "message": "Ако не можете да приступите свом налогу путем уобичајених метода пријављивања у два корака, можете користити свој код за опоравак пријаве да бисте онемогућили све добављаче услуга у два корака на свом налогу."
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
-    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
+    "message": "Пријавите се испод коришћења вашег једнократног кôда за опоравак. Ово ће искључити све провајдере у два корака на вашем налогу."
   },
   "recoverAccountTwoStep": {
     "message": "Опоравак пријаве у два корака"
@@ -4470,7 +4504,7 @@
     "message": "Ажурирање кључа за шифровање не може да се настави"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Уреди $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4479,7 +4513,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Преместити $LABEL$. Користите тастер са стрелицом да бисте померили ставку.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Поставите минималне захтеве за чврстоћу главне лозинке."
+  },
+  "passwordStrengthScore": {
+    "message": "Снага лозинкe $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Потребна дво-степенска пријава"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAutn аутентификација"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn није подржано у овом прегледачу."
@@ -7199,6 +7248,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "DUO пријава у два корака је потребна за ваш налог."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Покренути DUO"
   },
@@ -8462,16 +8517,16 @@
     "message": "Одобри захтев"
   },
   "deviceApproved": {
-    "message": "Device approved"
+    "message": "Уређај одобрен"
   },
   "deviceRemoved": {
-    "message": "Device removed"
+    "message": "Уређај је уклоњен"
   },
   "removeDevice": {
-    "message": "Remove device"
+    "message": "Уклони уређај"
   },
   "removeDeviceConfirmation": {
-    "message": "Are you sure you want to remove this device?"
+    "message": "Да ли сте сигурни да желите да уклоните овај уређај?"
   },
   "noDeviceRequests": {
     "message": "Нема захтева уређаја"
@@ -10291,38 +10346,38 @@
     "message": "Domain claimed"
   },
   "organizationNameMaxLength": {
-    "message": "Organization name cannot exceed 50 characters."
+    "message": "Име организације не може прећи 50 знакова."
   },
   "openingExtension": {
-    "message": "Opening the Bitwarden browser extension"
+    "message": "Отварање Bitwarden додатка прегледача"
   },
   "somethingWentWrong": {
-    "message": "Something went wrong..."
+    "message": "Нешто није у реду..."
   },
   "openingExtensionError": {
-    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+    "message": "Имали смо проблема са отварањем додатка. Кликните на дугме да бисте га сада отворили."
   },
   "openExtension": {
-    "message": "Open extension"
+    "message": "Отвори додатак"
   },
   "doNotHaveExtension": {
-    "message": "Don't have the Bitwarden browser extension?"
+    "message": "Немате додатак за Bitwarden?"
   },
   "installExtension": {
-    "message": "Install extension"
+    "message": "Инсталирајте додатак"
   },
   "openedExtension": {
-    "message": "Opened the browser extension"
+    "message": "Отворите додатак претраживача"
   },
   "openedExtensionViewAtRiskPasswords": {
-    "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
+    "message": "Успешно је отворен додатак. Сада можете да прегледате своје ризичне лозинке."
   },
   "openExtensionManuallyPart1": {
-    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "message": "Имали смо проблема са отварањем додатка. Отворите Bitwarden иконицу",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "openExtensionManuallyPart2": {
-    "message": "from the toolbar.",
+    "message": "са алатне траке.",
     "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
   },
   "resellerRenewalWarningMsg": {
@@ -10390,7 +10445,7 @@
     "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
   },
   "deleteManagedUserWarning": {
-    "message": "Delete is a new action!"
+    "message": "Избриши је нова акција!"
   },
   "seatsRemaining": {
     "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
@@ -10406,7 +10461,7 @@
     }
   },
   "existingOrganization": {
-    "message": "Existing organization"
+    "message": "Постојећа организација"
   },
   "selectOrganizationProviderPortal": {
     "message": "Select an organization to add to your Provider Portal."
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

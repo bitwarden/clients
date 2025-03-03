@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritische Anwendungen"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
+  },
   "accessIntelligence": {
     "message": "Zugriff auf Informationen"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Bei Bitwarden anmelden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Gib den an deine E-Mail-Adresse gesendeten Code ein"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Gib den Code aus deiner Authenticator-App ein"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Drücke zum Authentifizieren auf deinen YubiKey"
+  },
   "authenticationTimeout": {
     "message": "Authentifizierungs-Timeout"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Angemeldet bleiben"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Für 30 Tage auf diesem Gerät nicht mehr fragen"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "E-Mail mit Bestätigungscode erneut versenden"
   },
   "useAnotherTwoStepMethod": {
     "message": "Verwenden sie eine andere Zwei-Faktor-Anmelde-Methode"
+  },
+  "selectAnotherMethod": {
+    "message": "Wähle eine andere Methode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Verwende deinen Wiederherstellungscode"
   },
   "insertYubiKey": {
     "message": "Stecken Sie Ihren YubiKey in einen USB-Port Ihres Computers und berühren Sie dessen Knopf."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Optionen für Zwei-Faktor-Authentifizierung"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Zwei-Faktor-Authentifizierungsmethode auswählen"
   },
   "recoveryCodeDesc": {
     "message": "Zugang zu allen Zwei-Faktor-Anbietern verloren? Benutze deinen Wiederherstellungscode, um alle Zwei-Faktor-Anbieter in deinem Konto zu deaktivieren."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Von FIDO migriert)"
+  },
+  "openInNewTab": {
+    "message": "In neuem Tab öffnen"
   },
   "emailTitle": {
     "message": "E-Mail"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Du hast eine ausstehende Anmeldeanfrage von einem anderen Gerät."
+  },
+  "reviewLoginRequest": {
+    "message": "Anmeldeanfrage überprüfen"
+  },
   "freeTrialEndPromptCount": {
     "message": "Deine kostenlose Testversion endet in $COUNT$ Tagen.",
     "placeholders": {
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Mindestanforderungen für die Stärke des Master-Passworts festlegen."
+  },
+  "passwordStrengthScore": {
+    "message": "Bewertung der Passwortstärke $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Zwei-Faktor-Authentifizierung verlangen"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn authentifizieren"
+  },
+  "readSecurityKey": {
+    "message": "Sicherheitsschlüssel auslesen"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn wird in diesem Browser nicht unterstützt."
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Für dein Konto ist die DUO Zwei-Faktor-Authentifizierung erforderlich."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Die Duo-Zwei-Faktor-Authentifizierung ist für dein Konto erforderlich. Folge den Schritten unten, um die Anmeldung abzuschließen."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Folge den Schritten unten, um die Anmeldung abzuschließen."
   },
   "launchDuo": {
     "message": "DUO starten"
@@ -10433,9 +10488,27 @@
     "message": "Die zugewiesenen Plätze überschreiten die verfügbaren Plätze."
   },
   "removeUnlockWithPinPolicyTitle": {
-    "message": "Remove Unlock with PIN"
+    "message": "Entsperren mit PIN entfernen"
   },
   "removeUnlockWithPinPolicyDesc": {
-    "message": "Do not allow members to unlock their account with a PIN."
+    "message": "Mitgliedern nicht erlauben, ihr Konto mit einer PIN zu entsperren."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

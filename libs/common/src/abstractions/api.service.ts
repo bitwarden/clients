@@ -138,7 +138,7 @@ export abstract class ApiService {
     body: any,
     authed: boolean,
     hasResponse: boolean,
-    apiUrl?: string,
+    apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ) => Promise<any>;
 
