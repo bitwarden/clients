@@ -11,9 +11,11 @@ import {
 import { BehaviorSubject, combineLatest, map, of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";

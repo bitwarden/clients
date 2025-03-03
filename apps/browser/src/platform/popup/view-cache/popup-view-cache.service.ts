@@ -20,8 +20,6 @@ import {
   SignalCacheOptions,
   ViewCacheService,
 } from "@bitwarden/angular/platform/abstractions/view-cache.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
@@ -40,12 +38,9 @@ import {
   providedIn: "root",
 })
 export class PopupViewCacheService implements ViewCacheService {
-  private configService = inject(ConfigService);
   private globalStateProvider = inject(GlobalStateProvider);
   private messageSender = inject(MessageSender);
   private router = inject(Router);
-
-  private featureEnabled: boolean;
 
   private _cache: Record<string, string>;
   private get cache(): Record<string, string> {
@@ -59,10 +54,9 @@ export class PopupViewCacheService implements ViewCacheService {
    * Initialize the service. This should only be called once.
    */
   async init() {
-    this.featureEnabled = await this.configService.getFeatureFlag(FeatureFlag.PersistPopupView);
-    const initialState = this.featureEnabled
-      ? await firstValueFrom(this.globalStateProvider.get(POPUP_VIEW_CACHE_KEY).state$)
-      : {};
+    const initialState = await firstValueFrom(
+      this.globalStateProvider.get(POPUP_VIEW_CACHE_KEY).state$,
+    );
     this._cache = Object.freeze(initialState ?? {});
 
     this.router.events
@@ -122,10 +116,6 @@ export class PopupViewCacheService implements ViewCacheService {
   }
 
   private updateState(key: string, value: string) {
-    if (!this.featureEnabled) {
-      return;
-    }
-
     this.messageSender.send(SAVE_VIEW_CACHE_COMMAND, {
       key,
       value,
