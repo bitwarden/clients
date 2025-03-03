@@ -17,6 +17,10 @@ export class OrganizationUpsellingService implements OrganizationUpsellingServic
       return Promise.resolve(false);
     }
 
+    if (organization.isProviderUser || !organization.canEditSubscription) {
+      return Promise.resolve(false);
+    }
+
     return Promise.resolve(organization.productTierType === ProductTierType.Teams);
   }
 }
