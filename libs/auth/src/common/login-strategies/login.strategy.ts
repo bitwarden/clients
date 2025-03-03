@@ -198,6 +198,8 @@ export abstract class LoginStrategy {
       emailVerified: accountInformation.email_verified ?? false,
     });
 
+    // User env must be seeded from currently set env before switching to the account
+    // to avoid any incorrect emissions of the global default env.
     await this.environmentService.seedUserEnvironment(userId);
 
     await this.accountService.switchAccount(userId);
