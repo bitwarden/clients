@@ -1,4 +1,5 @@
-import { TestBed } from "@angular/core/testing";
+import { WritableSignal, signal } from "@angular/core";
+import { TestBed, discardPeriodicTasks, fakeAsync, tick } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
 
@@ -21,6 +22,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
@@ -35,6 +37,10 @@ describe("VaultPopupItemsService", () => {
   let mockOrg: Organization;
   let mockCollections: CollectionView[];
   let activeUserLastSync$: BehaviorSubject<Date>;
+  let viewCacheService: {
+    signal: jest.Mock;
+    mockSignal: WritableSignal<string | null>;
+  };
 
   let ciphersSubject: BehaviorSubject<Record<CipherId, CipherData>>;
   let localDataSubject: BehaviorSubject<Record<CipherId, LocalData>>;
@@ -125,6 +131,12 @@ describe("VaultPopupItemsService", () => {
     activeUserLastSync$ = new BehaviorSubject(new Date());
     syncServiceMock.activeUserLastSync$.mockReturnValue(activeUserLastSync$);
 
+    const testSearchSignal = createMockSignal<string | null>("");
+    viewCacheService = {
+      mockSignal: testSearchSignal,
+      signal: jest.fn((options) => testSearchSignal),
+    };
+
     testBed = TestBed.configureTestingModule({
       providers: [
         { provide: CipherService, useValue: cipherServiceMock },
@@ -141,6 +153,7 @@ describe("VaultPopupItemsService", () => {
           provide: InlineMenuFieldQualificationService,
           useValue: inlineMenuFieldQualificationServiceMock,
         },
+        { provide: PopupViewCacheService, useValue: viewCacheService },
       ],
     });
 
@@ -455,15 +468,32 @@ describe("VaultPopupItemsService", () => {
   describe("applyFilter", () => {
     it("should call search Service with the new search term", (done) => {
       const searchText = "Hello";
-      service.applyFilter(searchText);
       const searchServiceSpy = jest.spyOn(searchService, "searchCiphers");
 
+      service.applyFilter(searchText);
       service.favoriteCiphers$.subscribe(() => {
-        expect(searchServiceSpy).toHaveBeenCalledWith(searchText, null, expect.anything());
+        expect(searchServiceSpy).toHaveBeenCalledWith(searchText, undefined, expect.anything());
         done();
       });
     });
   });
+
+  it("should update searchText$ when applyFilter is called", fakeAsync(() => {
+    let latestValue: string | null;
+    service.searchText$.subscribe((val) => {
+      latestValue = val;
+    });
+    tick();
+    expect(latestValue!).toEqual("");
+
+    service.applyFilter("test search");
+    tick();
+    expect(latestValue!).toEqual("test search");
+
+    expect(viewCacheService.mockSignal()).toEqual("test search");
+
+    discardPeriodicTasks();
+  }));
 });
 
 // A function to generate a list of ciphers of different types
@@ -517,4 +547,10 @@ function cipherFactory(count: number): Record<CipherId, CipherView> {
     }
   }
   return Object.fromEntries(ciphers.map((c) => [c.id, c]));
+}
+
+function createMockSignal<T>(initialValue: T): WritableSignal<T> {
+  const s = signal(initialValue);
+  s.set = (value: T) => s.update(() => value);
+  return s;
 }

@@ -1,24 +1,40 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { DialogRef } from "@angular/cdk/dialog";
 import { Directive, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
-import { BehaviorSubject, Observable, Subject, firstValueFrom, switchMap, takeUntil } from "rxjs";
+import {
+  BehaviorSubject,
+  lastValueFrom,
+  Observable,
+  Subject,
+  firstValueFrom,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { TableDataSource } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { TableDataSource, DialogService } from "@bitwarden/components";
+import {
+  CipherFormConfig,
+  CipherFormConfigService,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
-import { AddEditComponent } from "../../../vault/individual-vault/add-edit.component";
-import { AddEditComponent as OrgAddEditComponent } from "../../../vault/org-vault/add-edit.component";
+import {
+  VaultItemDialogComponent,
+  VaultItemDialogMode,
+  VaultItemDialogResult,
+} from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
+import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 @Directive()
 export class CipherReportComponent implements OnDestroy {
@@ -41,15 +57,18 @@ export class CipherReportComponent implements OnDestroy {
   currentFilterStatus: number | string;
   protected filterOrgStatus$ = new BehaviorSubject<number | string>(0);
   private destroyed$: Subject<void> = new Subject();
+  private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
 
   constructor(
     protected cipherService: CipherService,
-    private modalService: ModalService,
+    private dialogService: DialogService,
     protected passwordRepromptService: PasswordRepromptService,
     protected organizationService: OrganizationService,
     protected accountService: AccountService,
     protected i18nService: I18nService,
     private syncService: SyncService,
+    private cipherFormConfigService: CipherFormConfigService,
+    private adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     this.organizations$ = this.accountService.activeAccount$.pipe(
       getUserId,
@@ -134,43 +153,63 @@ export class CipherReportComponent implements OnDestroy {
     this.loading = false;
     this.hasLoaded = true;
   }
-
   async selectCipher(cipher: CipherView) {
     if (!(await this.repromptCipher(cipher))) {
       return;
     }
 
-    const type = this.organization != null ? OrgAddEditComponent : AddEditComponent;
+    if (this.organization) {
+      const adminCipherFormConfig = await this.adminConsoleCipherFormConfigService.buildConfig(
+        "edit",
+        cipher.id as CipherId,
+        cipher.type,
+      );
 
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      type,
-      this.cipherAddEditModalRef,
-      (comp: OrgAddEditComponent | AddEditComponent) => {
-        if (this.organization != null) {
-          (comp as OrgAddEditComponent).organization = this.organization;
-          comp.organizationId = this.organization.id;
-        }
+      await this.openVaultItemDialog("view", adminCipherFormConfig, cipher);
+    } else {
+      const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
+        "edit",
+        cipher.id as CipherId,
+        cipher.type,
+      );
+      await this.openVaultItemDialog("view", cipherFormConfig, cipher);
+    }
+  }
 
-        comp.cipherId = cipher == null ? null : cipher.id;
-        // eslint-disable-next-line rxjs/no-async-subscribe
-        comp.onSavedCipher.subscribe(async () => {
-          modal.close();
-          await this.load();
-        });
-        // eslint-disable-next-line rxjs/no-async-subscribe
-        comp.onDeletedCipher.subscribe(async () => {
-          modal.close();
-          await this.load();
-        });
-        // eslint-disable-next-line rxjs/no-async-subscribe
-        comp.onRestoredCipher.subscribe(async () => {
-          modal.close();
-          await this.load();
-        });
-      },
-    );
+  /**
+   * Open the combined view / edit dialog for a cipher.
+   * @param mode - Starting mode of the dialog.
+   * @param formConfig - Configuration for the form when editing/adding a cipher.
+   * @param activeCollectionId - The active collection ID.
+   */
+  async openVaultItemDialog(
+    mode: VaultItemDialogMode,
+    formConfig: CipherFormConfig,
+    cipher: CipherView,
+    activeCollectionId?: CollectionId,
+  ) {
+    const disableForm = cipher ? !cipher.edit && !this.organization.canEditAllCiphers : false;
 
-    return childComponent;
+    this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
+      mode,
+      formConfig,
+      activeCollectionId,
+      disableForm,
+    });
+
+    const result = await lastValueFrom(this.vaultItemDialogRef.closed);
+    this.vaultItemDialogRef = undefined;
+
+    // When the dialog is closed for a premium upgrade, return early as the user
+    // should be navigated to the subscription settings elsewhere
+    if (result === VaultItemDialogResult.PremiumUpgrade) {
+      return;
+    }
+
+    // If the dialog was closed by deleting the cipher, refresh the report.
+    if (result === VaultItemDialogResult.Deleted || result === VaultItemDialogResult.Saved) {
+      await this.load();
+    }
   }
 
   protected async setCiphers() {

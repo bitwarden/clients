@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Увійти в Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Увійти з ключем доступу"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Підказка для головного пароля"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Приєднатися до організації"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Автентифікацію було скасовано або вона тривала надто довго. Повторіть спробу."
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Запам'ятати мене"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Надіслати код підтвердження ще раз"
   },
   "useAnotherTwoStepMethod": {
     "message": "Інший спосіб двоетапної перевірки"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Вставте свій YubiKey в USB порт комп'ютера, потім торкніться цієї кнопки."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Налаштування двоетапної перевірки"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "Середовище власного хостингу"
@@ -1204,7 +1238,7 @@
     "message": "Показувати піктограми вебсайтів"
   },
   "faviconDesc": {
-    "message": "Показувати впізнаване зображення біля кожного запису."
+    "message": "Показувати зображення біля кожного запису."
   },
   "enableMinToTray": {
     "message": "Згортати до системного лотка"
@@ -1775,6 +1809,9 @@
   "requirePasswordOnStart": {
     "message": "Вимагати пароль чи PIN під час запуску"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Рекомендовано для безпеки."
   },
@@ -2244,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Автентифікація WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "Приховувати мою адресу електронної пошти від отримувачів."
   },
@@ -2551,7 +2594,7 @@
     "message": "Використовуйте свою скриньку вхідних Catch-All власного домену."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Використати цю е-пошту"
   },
   "random": {
     "message": "Випадково"
@@ -2629,6 +2672,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Недійсний токен API для $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ відхилив ваш запит. Зверніться до провайдера послуг по допомогу.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ відхилив ваш запит: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2746,7 +2813,7 @@
     "message": "Ініційовано вхід"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Запит надіслано"
   },
   "notificationSentDevice": {
     "message": "Сповіщення було надіслано на ваш пристрій."
@@ -2755,13 +2822,13 @@
     "message": "Сповіщення надіслано на ваш пристрій"
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Розблокуйте Bitwarden на своєму пристрої або у "
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "вебпрограмі"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Перш ніж підтверджувати, обов'язково перевірте відповідність зазначеної нижче фрази відбитка."
   },
   "needAnotherOptionV1": {
     "message": "Потрібен інший варіант?"
@@ -2792,10 +2859,10 @@
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Ви намагаєтесь отримати доступ до свого облікового запису?"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Спроба доступу з $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2813,10 +2880,10 @@
     "message": "Час"
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Підтвердити доступ"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Заборонити доступ"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Підтверджено вхід для $EMAIL$ на $DEVICE$",
@@ -2853,7 +2920,7 @@
     "message": "Цей запит більше недійсний."
   },
   "confirmAccessAttempt": {
-    "message": "Confirm access attempt for $EMAIL$",
+    "message": "Підтвердити спробу доступу для $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2865,7 +2932,7 @@
     "message": "Виконано запит входу"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Запитано доступ до облікового запису"
   },
   "creatingAccountOn": {
     "message": "Створення облікового запису"
@@ -3179,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Для вашого облікового запису необхідна двоетапна перевірка з Duo."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Запустити Duo в браузері"
   },
@@ -3436,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Підтвердження використання ключа SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "запитує доступ до"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "Програма"
@@ -3497,16 +3588,16 @@
     "message": "Змінити адресу е-пошти"
   },
   "allowScreenshots": {
-    "message": "Allow screen capture"
+    "message": "Дозволити захоплення екрана"
   },
   "allowScreenshotsDesc": {
-    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+    "message": "Дозволити захоплення екрана і перегляд у віддаленому доступі комп'ютерної програми Bitwarden. Вимкнення цього параметра запобігає доступу на деяких зовнішніх дисплеях."
   },
   "confirmWindowStillVisibleTitle": {
-    "message": "Confirm window still visible"
+    "message": "Вікно підтвердження все ще видиме"
   },
   "confirmWindowStillVisibleContent": {
-    "message": "Please confirm that the window is still visible."
+    "message": "Підтвердьте, що вікно все ще видиме."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Необхідно оновити розширення"

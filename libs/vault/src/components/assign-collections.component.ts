@@ -213,7 +213,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         return;
       }
 
-      this.submitBtn.loading = loading;
+      this.submitBtn.loading.set(loading);
     });
 
     this.bitSubmit.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
@@ -221,7 +221,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         return;
       }
 
-      this.submitBtn.disabled = disabled;
+      this.submitBtn.disabled.set(disabled);
     });
   }
 
