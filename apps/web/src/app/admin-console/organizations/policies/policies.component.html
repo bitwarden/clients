@@ -3,7 +3,7 @@
     bitBadge
     variant="primary"
     slot="title-suffix"
-    *ngIf="showUpgradeBreadcrumb$() | async"
+    *ngIf="isUpsellingEnabled"
     (click)="changePlan()"
   >
     {{ "upgrade" | i18n }}

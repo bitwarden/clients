@@ -2,18 +2,20 @@
 // @ts-strict-ignore
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, firstValueFrom, lastValueFrom, Observable, of } from "rxjs";
-import { first, map } from "rxjs/operators";
+import { firstValueFrom, lastValueFrom } from "rxjs";
+import { first } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
-import { isUpsellingPoliciesEnabled } from "@bitwarden/common/billing/utils/organization-upselling-utils";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { DialogService } from "@bitwarden/components";
+import {
+  ChangePlanDialogResultType,
+  openChangePlanDialog,
+} from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 import { CollectionDialogTabType } from "@bitwarden/web-vault/app/vault/components/collection-dialog";
 import { All } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
@@ -21,10 +23,6 @@ import { PolicyListService } from "../../core/policy-list.service";
 import { BasePolicy } from "../policies";
 
 import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.component";
-import {
-  ChangePlanDialogResultType,
-  openChangePlanDialog,
-} from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 
 @Component({
   selector: "app-org-policies",
@@ -42,18 +40,15 @@ export class PoliciesComponent implements OnInit {
 
   private orgPolicies: PolicyResponse[];
   protected policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
-
-  private isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM12276_BreadcrumbEventLogs,
-  );
+  protected isUpsellingEnabled: boolean;
 
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyListService: PolicyListService,
+    private upsellingService: OrganizationUpsellingServiceAbstraction,
     private dialogService: DialogService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -96,7 +91,9 @@ export class PoliciesComponent implements OnInit {
     this.orgPolicies.forEach((op) => {
       this.policiesEnabledMap.set(op.type, op.enabled);
     });
-
+    this.isUpsellingEnabled = await this.upsellingService.isUpsellingPoliciesEnabled(
+      this.organization,
+    );
     this.loading = false;
   }
 
@@ -116,16 +113,6 @@ export class PoliciesComponent implements OnInit {
 
   protected readonly CollectionDialogTabType = CollectionDialogTabType;
   protected readonly All = All;
-
-  protected showUpgradeBreadcrumb$(): Observable<boolean> {
-    const isUpsellingEnabled = isUpsellingPoliciesEnabled(this.organization);
-
-    return combineLatest([this.isBreadcrumbEventLogsEnabled$, of(isUpsellingEnabled)]).pipe(
-      map(([isBreadcrumbEventLogsEnabled, isUpsellingEnabled]) => {
-        return isUpsellingEnabled && isBreadcrumbEventLogsEnabled;
-      }),
-    );
-  }
 
   protected async changePlan() {
     const reference = openChangePlanDialog(this.dialogService, {

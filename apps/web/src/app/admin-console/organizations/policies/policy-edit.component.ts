@@ -10,22 +10,20 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { combineLatest, firstValueFrom, lastValueFrom, map, Observable, of } from "rxjs";
+import { firstValueFrom, from, lastValueFrom, map, Observable } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { openChangePlanDialog } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 
 import { BasePolicy, BasePolicyComponent } from "../policies";
-import { isUpsellingPoliciesEnabled } from "@bitwarden/common/billing/utils/organization-upselling-utils";
-import { openChangePlanDialog } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
 export type PolicyEditDialogData = {
   /** Returns policy abstracts. */
@@ -56,9 +54,6 @@ export class PolicyEditComponent implements AfterViewInit {
   formGroup = this.formBuilder.group({
     enabled: [this.enabled],
   });
-  private isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM12276_BreadcrumbEventLogs,
-  );
   private organization: Organization;
 
   constructor(
@@ -70,7 +65,7 @@ export class PolicyEditComponent implements AfterViewInit {
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef<PolicyEditDialogResult>,
     private toastService: ToastService,
-    private configService: ConfigService,
+    private upsellingService: OrganizationUpsellingServiceAbstraction,
     private dialogService: DialogService,
   ) {}
 
@@ -134,13 +129,7 @@ export class PolicyEditComponent implements AfterViewInit {
   };
 
   protected showUpgradeBreadcrumb$(): Observable<boolean> {
-    const isUpsellingEnabled = isUpsellingPoliciesEnabled(this.organization);
-
-    return combineLatest([this.isBreadcrumbEventLogsEnabled$, of(isUpsellingEnabled)]).pipe(
-      map(([isBreadcrumbEventLogsEnabled, isUpsellingEnabled]) => {
-        return isUpsellingEnabled && isBreadcrumbEventLogsEnabled;
-      }),
-    );
+    return from(this.upsellingService.isUpsellingPoliciesEnabled(this.organization));
   }
 
   protected async changePlan() {

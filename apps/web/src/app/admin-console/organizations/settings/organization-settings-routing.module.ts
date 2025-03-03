@@ -3,6 +3,7 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { organizationPolicyPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-policy-permissions.guard";
 
 import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
@@ -10,7 +11,6 @@ import { PoliciesComponent } from "../../organizations/policies";
 
 import { AccountComponent } from "./account.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
-import { isUpsellingPoliciesEnabled } from "@bitwarden/common/billing/utils/organization-upselling-utils";
 
 const routes: Routes = [
   {
@@ -42,11 +42,7 @@ const routes: Routes = [
       {
         path: "policies",
         component: PoliciesComponent,
-        canActivate: [
-          organizationPermissionsGuard((org) => {
-            return org.canManagePolicies || isUpsellingPoliciesEnabled(org);
-          }),
-        ],
+        canActivate: [organizationPolicyPermissionsGuard()],
         data: {
           titleId: "policies",
         },
