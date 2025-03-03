@@ -1,4 +1,4 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -11,6 +11,7 @@ import { PoliciesComponent } from "../../organizations/policies";
 
 import { AccountComponent } from "./account.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
+import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-upselling.service.abstraction";
 
 const routes: Routes = [
   {
@@ -34,7 +35,13 @@ const routes: Routes = [
       {
         path: "two-factor",
         component: TwoFactorSetupComponent,
-        canActivate: [organizationPermissionsGuard((o) => o.use2fa && o.isOwner)],
+        canActivate: [
+          organizationPermissionsGuard((o) => {
+            const upsellingService = inject(OrganizationUpsellingServiceAbstraction);
+            debugger;
+            return o.use2fa && o.isOwner;
+          }),
+        ],
         data: {
           titleId: "twoStepLogin",
         },
