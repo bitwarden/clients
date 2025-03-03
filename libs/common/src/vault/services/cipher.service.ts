@@ -980,10 +980,14 @@ export class CipherService implements CipherServiceAbstraction {
 
   async upsert(cipher: CipherData | CipherData[]): Promise<Record<CipherId, CipherData>> {
     const ciphers = cipher instanceof CipherData ? [cipher] : cipher;
-    return await this.updateEncryptedCipherState((current) => {
+    const res = await this.updateEncryptedCipherState((current) => {
       ciphers.forEach((c) => (current[c.id as CipherId] = c));
       return current;
     });
+    // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
+    // Otherwise, subscribers to cipherViews$ can get stale data
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    return res;
   }
 
   async replace(ciphers: { [id: string]: CipherData }, userId: UserId): Promise<any> {
@@ -1000,13 +1004,16 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId = null,
   ): Promise<Record<CipherId, CipherData>> {
     userId ||= await firstValueFrom(this.stateProvider.activeUserId$);
-    await this.clearDecryptedCiphersState(userId);
+    await this.clearCache(userId);
     const updatedCiphers = await this.stateProvider
       .getUser(userId, ENCRYPTED_CIPHERS)
       .update((current) => {
         const result = update(current ?? {});
         return result;
       });
+    // Some state storage providers (e.g. Electron) don't update the state immediately, wait for next tick
+    // Otherwise, subscribers to cipherViews$ can get stale data
+    await new Promise((resolve) => setTimeout(resolve, 0));
     return updatedCiphers;
   }
 
