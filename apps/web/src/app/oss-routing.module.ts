@@ -378,26 +378,6 @@ const routes: Routes = [
           },
         ],
       },
-      {
-        path: "login",
-        canActivate: [unauthGuardFn()],
-        children: [
-          {
-            path: "",
-            component: LoginComponent,
-          },
-          {
-            path: "",
-            component: EnvironmentSelectorComponent,
-            outlet: "environment-selector",
-          },
-        ],
-        data: {
-          pageTitle: {
-            key: "logIn",
-          },
-        },
-      },
       ...unauthUiRefreshSwap(
         TwoFactorComponentV1,
         TwoFactorAuthComponent,
