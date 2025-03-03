@@ -18,7 +18,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
-import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-upselling.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { openChangePlanDialog } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
@@ -47,7 +47,6 @@ export class PolicyEditComponent implements AfterViewInit {
   loading = true;
   enabled = false;
   saveDisabled$: Observable<boolean>;
-  defaultTypes: any[];
   policyComponent: BasePolicyComponent;
 
   private policyResponse: PolicyResponse;
