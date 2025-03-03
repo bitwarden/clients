@@ -49,7 +49,7 @@ tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
 tokio-stream = { workspace = true, features = ["net"] }
 tokio-util = { workspace = true, features = ["codec"] }
 thiserror = { workspace = true }
-typenum = "=1.17.0"
+typenum = "=1.18.0"
 pkcs8 = { version = "=0.10.2", features = ["alloc", "encryption", "pem"] }
 rsa = "=0.9.6"
 ed25519 = { version = "=2.2.3", features = ["pkcs8"] }
