@@ -39,7 +39,7 @@ const biometric = {
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.Setup,
     } satisfies BiometricMessage),
-  setClientKeyHalf: (userId: string, value: string): Promise<void> =>
+  setClientKeyHalf: (userId: string, value: string | null): Promise<void> =>
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.SetClientKeyHalf,
       userId: userId,

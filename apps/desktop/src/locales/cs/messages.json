@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Přihlásit se do Bitwardenu"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Zadejte kód odeslaný na Váš e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Zadejte kód z Vaší ověřovací aplikace"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Stiskněte svůj YubiKey pro ověření"
+  },
   "logInWithPasskey": {
     "message": "Přihlásit se pomocí přístupového klíče"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Nápověda k hlavnímu heslu"
+  },
+  "passwordStrengthScore": {
+    "message": "Skóre síly hesla: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Přidat se k organizaci"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Ověření bylo zrušeno nebo trvalo příliš dlouho. Zkuste to znovu."
   },
+  "openInNewTab": {
+    "message": "Otevřít v nové kartě"
+  },
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Zapamatovat mě"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Neptat se na tomto zařízení 30 dnů"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Znovu zaslat ověřovací kód na e-mail"
   },
   "useAnotherTwoStepMethod": {
     "message": "Použít jinou metodu dvoufázového přihlášení"
+  },
+  "selectAnotherMethod": {
+    "message": "Vybrat jinou metodu",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Použít obnovovací kód"
   },
   "insertYubiKey": {
     "message": "Vložte YubiKey do USB portu Vašeho počítače a stiskněte jeho tlačítko."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Volby dvoufázového přihlášení"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Vyberte metodu dvoufázového přihlášení"
   },
   "selfHostedEnvironment": {
     "message": "Vlastní hostované prostředí"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Ověřit WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Přečíst bezpečnostní klíč"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Čeká se na interakci s bezpečnostním klíčem..."
+  },
   "hideEmail": {
     "message": "Skrýt moji e-mailovou adresu před příjemci."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení DUO."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Pro Váš účet je nutné dvoufázové přihlášení. Pro dokončení přihlášení postupujte podle následujících kroků."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Postupujte podle kroků níže pro dokončení přihlášení."
+  },
   "launchDuo": {
     "message": "Spustit DUO v prohlížeči"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Potvrdit použití SSH klíče"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Varování: Agent přesměrování"
+  },
+  "agentForwardingWarningText": {
+    "message": "Tento požadavek pochází ze vzdáleného zařízení, ke kterému jste přihlášeni"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "žádá o přístup k"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "za účelem"
+  },
+  "sshActionLogin": {
+    "message": "ověření na serveru"
+  },
+  "sshActionSign": {
+    "message": "podepsání zprávy"
+  },
+  "sshActionGitSign": {
+    "message": "podepsání commitu na gitu"
   },
   "unknownApplication": {
     "message": "Aplikace"

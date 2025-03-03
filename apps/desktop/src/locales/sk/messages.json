@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Prihlásenie do Bitwardenu"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Zadajte kód zaslaný na váš e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Zadajte kód z overovacej aplikácie"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Stlačte YubiKey na overenie"
+  },
   "logInWithPasskey": {
     "message": "Prihlásiť sa s prístupovým kľúčom"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Nápoveď k hlavnému heslu"
+  },
+  "passwordStrengthScore": {
+    "message": "Sila hesla $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Pripojte sa k organizácii"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Overenie bolo zrušené alebo trvalo príliš dlho. Skúste to znova."
   },
+  "openInNewTab": {
+    "message": "Otvoriť v novej karte"
+  },
   "invalidVerificationCode": {
     "message": "Neplatný verifikačný kód"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Zapamätaj si ma"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Nepýtať sa znova na tomto zariadení 30 dní"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Znovu zaslať overovací kód e-mailom"
   },
   "useAnotherTwoStepMethod": {
     "message": "Použiť inú dvojstupňovú metódu prihlásenia"
+  },
+  "selectAnotherMethod": {
+    "message": "Vyberte iný spôsob",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Použiť obnovovací kód"
   },
   "insertYubiKey": {
     "message": "Vložte váš YubiKey do USB portu počítača a stlačte jeho tlačidlo."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Možnosti dvojstupňového prihlásenia"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Vyberte metódu dvojstupňového prihlásenia"
   },
   "selfHostedEnvironment": {
     "message": "Prevádzkované vo vlastnom prostredí"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Overiť cez WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Prečítať bezpečnostný kľúč"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Čaká sa na interakciu s bezpečnostným kľúčom..."
+  },
   "hideEmail": {
     "message": "Skryť moju e-mailovú adresu pred príjemcami."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Pre váš účet je potrebné dvojstupňové prihlásenie Duo."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Pre váš účet sa vyžaduje dvojstupňové prihlásenie Duo. Na dokončenie prihlásenia postupujte podľa pokynov."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Na dokončenie prihlásenia postupujte podľa pokynov."
+  },
   "launchDuo": {
     "message": "Spustiť Duo v prehliadači"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Potvrdiť použitie kľúča SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Upozornenie: Presmerovanie agenta"
+  },
+  "agentForwardingWarningText": {
+    "message": "Táto požiadavka prichádza zo vzdialeného zariadenia, do ktorého ste prihlásení"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "žiada o prístup k"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "podpísať správu"
+  },
+  "sshActionGitSign": {
+    "message": "podpísať git commit"
   },
   "unknownApplication": {
     "message": "Aplikácia"

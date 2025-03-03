@@ -1491,7 +1491,7 @@
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  }, 
+  },
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
   },
@@ -2272,6 +2272,9 @@
   },
   "revokeAccess": {
     "message": "Revoke access"
+  },
+  "revoke": {
+    "message": "Revoke"
   },
   "twoStepLoginProviderEnabled": {
     "message": "This two-step login provider is active on your account."

@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Κρίσιμες εφαρμογές"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
+  },
   "accessIntelligence": {
     "message": "Πληροφορίες Πρόσβασης"
   },
@@ -474,7 +477,7 @@
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Είστε σίγουροι ότι θέλετε να διαγράψετε μόνιμα αυτόν το φάκελο;"
   },
   "baseDomain": {
     "message": "Βασικός τομέας",
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Να με θυμάσαι"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Αποστολή email κωδικού επαλήθευσης ξανά"
   },
   "useAnotherTwoStepMethod": {
     "message": "Χρήση άλλης μεθόδου δύο παραγόντων"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Τοποθετήστε το YubiKey στη θύρα USB του υπολογιστή σας και έπειτα πατήστε το κουμπί του."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Επιλογές σύνδεσης δύο παραγόντων"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "Έχετε χάσει την πρόσβαση σε όλους τους παρόχους δύο παραγόντων; Χρησιμοποιήστε τον κωδικό ανάκτησης για να απενεργοποιήσετε όλους τους παρόχους δύο παραγόντων από το λογαριασμό σας."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Μετεγκατάσταση από το FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Open in new tab"
   },
   "emailTitle": {
     "message": "Email"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Χρησιμοποιείτε ένα μη υποστηριζόμενο browser. Το web vault ενδέχεται να μην λειτουργεί σωστά."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "You have a pending login request from another device."
+  },
+  "reviewLoginRequest": {
+    "message": "Review login request"
+  },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Ορίστε ελάχιστες απαιτήσεις, για ισχύ του κύριου κωδικού."
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Απαίτηση για σύνδεση δύο βημάτων"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Ταυτοποίηση WebAutn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "webAuthnNotSupported": {
     "message": "Το WebAuthn δεν υποστηρίζεται σε αυτό το πρόγραμμα περιήγησης."
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Εκκίνηση Duo"
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

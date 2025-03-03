@@ -629,16 +629,17 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Handle the SSO button click.
    */
   async handleSsoClick() {
-    // Make sure the email is not empty, for type safety
     const email = this.formGroup.value.email;
-    if (!email) {
-      this.logService.error("Email is required for SSO");
-      return;
-    }
 
     // Make sure the email is valid
     const isEmailValid = await this.validateEmail();
     if (!isEmailValid) {
+      return;
+    }
+
+    // Make sure the email is not empty, for type safety
+    if (!email) {
+      this.logService.error("Email is required for SSO");
       return;
     }
 

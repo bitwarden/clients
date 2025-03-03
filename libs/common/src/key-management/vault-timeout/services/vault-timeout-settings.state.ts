@@ -1,6 +1,6 @@
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { UserKeyDefinition, VAULT_TIMEOUT_SETTINGS_DISK_LOCAL } from "../../platform/state";
-import { VaultTimeout } from "../../types/vault-timeout.type";
+import { UserKeyDefinition, VAULT_TIMEOUT_SETTINGS_DISK_LOCAL } from "../../../platform/state";
+import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
+import { VaultTimeout } from "../types/vault-timeout.type";
 
 /**
  * Settings use disk storage and local storage on web so settings can persist after logout
