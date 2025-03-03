@@ -9376,6 +9376,9 @@
   "deviceManagementDesc":{
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
+  "invalidDeviceData": {
+    "message": "Invalid device data"
+  },
   "desktopRequired": {
     "message": "Desktop required"
   },

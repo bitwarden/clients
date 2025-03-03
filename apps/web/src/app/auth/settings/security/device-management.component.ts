@@ -181,7 +181,7 @@ export class DeviceManagementComponent {
     this.dataSource.data = devices
       .map((device: DeviceView): DeviceTableData | null => {
         if (!device.id || device.type === undefined || !device.creationDate) {
-          this.validationService.showError(new Error("Invalid device data"));
+          this.validationService.showError(new Error(this.i18nService.t("invalidDeviceData")));
           return null;
         }
 
