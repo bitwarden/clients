@@ -128,6 +128,11 @@ const routes: Routes = [
     ],
   },
   {
+    path: "home",
+    redirectTo: "login",
+    pathMatch: "full",
+  },
+  {
     path: "vault",
     redirectTo: "/tabs/vault",
     pathMatch: "full",
