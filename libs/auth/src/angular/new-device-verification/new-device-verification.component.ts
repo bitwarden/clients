@@ -20,7 +20,6 @@ import {
 
 import { LoginEmailServiceAbstraction } from "../../common/abstractions/login-email.service";
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
-import { PasswordLoginStrategy } from "../../common/login-strategies/password-login.strategy";
 
 /**
  * Component for verifying a new device via a one-time password (OTP).
@@ -58,7 +57,6 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
-    private passwordLoginStrategy: PasswordLoginStrategy,
     private apiService: ApiService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private logService: LogService,

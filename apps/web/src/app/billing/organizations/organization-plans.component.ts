@@ -41,7 +41,6 @@ import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/req
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -126,10 +125,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   singleOrgPolicyAppliesToActiveUser = false;
   isInTrialFlow = false;
   discount = 0;
-
-  protected useLicenseUploaderComponent$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader,
-  );
 
   secretsManagerSubscription = secretsManagerSubscribeFormFactory(this.formBuilder);
 

@@ -16,7 +16,7 @@ export class DefaultAuthRequestApiService implements AuthRequestApiService {
       const path = `/auth-requests/${requestId}`;
       const response = await this.apiService.send("GET", path, null, true, true);
 
-      return response;
+      return new AuthRequestResponse(response);
     } catch (e: unknown) {
       this.logService.error(e);
       throw e;
@@ -28,7 +28,7 @@ export class DefaultAuthRequestApiService implements AuthRequestApiService {
       const path = `/auth-requests/${requestId}/response?code=${accessCode}`;
       const response = await this.apiService.send("GET", path, null, false, true);
 
-      return response;
+      return new AuthRequestResponse(response);
     } catch (e: unknown) {
       this.logService.error(e);
       throw e;
@@ -45,7 +45,7 @@ export class DefaultAuthRequestApiService implements AuthRequestApiService {
         true,
       );
 
-      return response;
+      return new AuthRequestResponse(response);
     } catch (e: unknown) {
       this.logService.error(e);
       throw e;
@@ -54,9 +54,22 @@ export class DefaultAuthRequestApiService implements AuthRequestApiService {
 
   async postAuthRequest(request: AuthRequest): Promise<AuthRequestResponse> {
     try {
-      const response = await this.apiService.send("POST", "/auth-requests/", request, false, true);
+      // Submit the current device identifier in the header as well as in the POST body.
+      // The value in the header will be used to build the request context and ensure that the resulting
+      // notifications have the current device as a source.
+      const response = await this.apiService.send(
+        "POST",
+        "/auth-requests/",
+        request,
+        false,
+        true,
+        null,
+        (headers) => {
+          headers.set("Device-Identifier", request.deviceIdentifier);
+        },
+      );
 
-      return response;
+      return new AuthRequestResponse(response);
     } catch (e: unknown) {
       this.logService.error(e);
       throw e;

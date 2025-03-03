@@ -87,6 +87,7 @@ export default class NotificationBackground {
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
     notificationRefreshFlagValue: () => this.getNotificationFlag(),
     bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
+    bgOpenVault: ({ message, sender }) => this.openVault(message, sender.tab),
   };
 
   constructor(
@@ -594,7 +595,10 @@ export default class NotificationBackground {
       const cipher = await this.cipherService.encrypt(newCipher, activeUserId);
       try {
         await this.cipherService.createWithServer(cipher);
-        await BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
+        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+          username: String(queueMessage?.username),
+          cipherId: String(cipher?.id),
+        });
         await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
@@ -630,15 +634,16 @@ export default class NotificationBackground {
       await BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
       return;
     }
-
     const cipher = await this.cipherService.encrypt(cipherView, userId);
     try {
-      // We've only updated the password, no need to broadcast editedCipher message
       await this.cipherService.updateWithServer(cipher);
-      await BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
+      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        username: String(cipherView?.login?.username),
+        cipherId: String(cipherView?.id),
+      });
     } catch (error) {
       await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
-        error: String(error.message),
+        error: String(error?.message),
       });
     }
   }
@@ -661,6 +666,16 @@ export default class NotificationBackground {
     );
 
     await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView.id });
+  }
+
+  private async openVault(
+    message: NotificationBackgroundExtensionMessage,
+    senderTab: chrome.tabs.Tab,
+  ) {
+    if (!message.cipherId) {
+      await this.openAddEditVaultItemPopout(senderTab);
+    }
+    await this.openAddEditVaultItemPopout(senderTab, { cipherId: message.cipherId });
   }
 
   private async folderExists(folderId: string, userId: UserId) {
