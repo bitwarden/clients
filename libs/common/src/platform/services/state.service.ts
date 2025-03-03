@@ -134,7 +134,6 @@ export class StateService<
   }
 
   async addAccount(account: TAccount) {
-    await this.environmentService.seedUserEnvironment(account.profile.userId as UserId);
     await this.updateState(async (state) => {
       state.accounts[account.profile.userId] = account;
       return state;
