@@ -1,28 +1,26 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { OnInit, Input, Output, EventEmitter, Component, OnDestroy } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
 import {
-  BehaviorSubject,
-  skip,
-  takeUntil,
-  Subject,
-  map,
-  withLatestFrom,
-  ReplaySubject,
-} from "rxjs";
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  Component,
+  OnDestroy,
+  SimpleChanges,
+  OnChanges,
+} from "@angular/core";
+import { FormBuilder } from "@angular/forms";
+import { skip, takeUntil, Subject, map, withLatestFrom, ReplaySubject } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import {
   Generators,
   CredentialGeneratorService,
   PassphraseGenerationOptions,
 } from "@bitwarden/generator-core";
-
-import { completeOnAccountSwitch } from "./util";
 
 const Controls = Object.freeze({
   numWords: "numWords",
@@ -36,9 +34,8 @@ const Controls = Object.freeze({
   selector: "tools-passphrase-settings",
   templateUrl: "passphrase-settings.component.html",
 })
-export class PassphraseSettingsComponent implements OnInit, OnDestroy {
+export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
-   *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
    *  @param i18nService localize hints
    *  @param formBuilder reactive form controls
@@ -47,15 +44,20 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
     private i18nService: I18nService,
-    private accountService: AccountService,
   ) {}
 
   /** Binds the component to a specific user's settings.
-   *  When this input is not provided, the form binds to the active
-   *  user
    */
-  @Input()
-  userId: UserId | null;
+  @Input({ required: true })
+  account: Account;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ("account" in changes && changes.account) {
+      this.account$.next(this.account);
+    }
+  }
 
   /** When `true`, an options header is displayed by the component. Otherwise, the header is hidden. */
   @Input()
@@ -80,8 +82,9 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
   });
 
   async ngOnInit() {
-    const singleUserId$ = this.singleUserId$();
-    const settings = await this.generatorService.settings(Generators.passphrase, { singleUserId$ });
+    const settings = await this.generatorService.settings(Generators.passphrase, {
+      account$: this.account$,
+    });
 
     // skips reactive event emissions to break a subscription cycle
     settings.withConstraints$
@@ -108,7 +111,7 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
 
     // explain policy & disable policy-overridden fields
     this.generatorService
-      .policy$(Generators.passphrase, { userId$: singleUserId$ })
+      .policy$(Generators.passphrase, { account$: this.account$ })
       .pipe(takeUntil(this.destroyed$))
       .subscribe(({ constraints }) => {
         this.wordSeparatorMaxLength = constraints.wordSeparator.maxLength;
@@ -150,19 +153,6 @@ export class PassphraseSettingsComponent implements OnInit, OnDestroy {
     } else {
       this.settings.get(setting).disable({ emitEvent: false });
     }
-  }
-
-  private singleUserId$() {
-    // FIXME: this branch should probably scan for the user and make sure
-    // the account is unlocked
-    if (this.userId) {
-      return new BehaviorSubject(this.userId as UserId).asObservable();
-    }
-
-    return this.accountService.activeAccount$.pipe(
-      completeOnAccountSwitch(),
-      takeUntil(this.destroyed$),
-    );
   }
 
   private readonly destroyed$ = new Subject<void>();

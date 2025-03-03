@@ -1,12 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -65,9 +66,7 @@ export class EncryptedMessageHandlerService {
   }
 
   private async checkUserStatus(userId: string): Promise<string> {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (userId !== activeUserId) {
       return "not-active-user";
@@ -83,9 +82,7 @@ export class EncryptedMessageHandlerService {
 
   private async statusCommandHandler(): Promise<AccountStatusResponse[]> {
     const accounts = await firstValueFrom(this.accountService.accounts$);
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (!accounts || !Object.keys(accounts)) {
       return [];
@@ -114,16 +111,14 @@ export class EncryptedMessageHandlerService {
     }
 
     const ciphersResponse: CipherResponse[] = [];
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const authStatus = await this.authService.getAuthStatus(activeUserId);
 
     if (authStatus !== AuthenticationStatus.Unlocked) {
       return { error: "locked" };
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(payload.uri);
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(payload.uri, activeUserId);
     ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     ciphers.forEach((c) => {
@@ -166,9 +161,7 @@ export class EncryptedMessageHandlerService {
     cipherView.login.uris[0].uri = credentialCreatePayload.uri;
 
     try {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       const encrypted = await this.cipherService.encrypt(cipherView, activeUserId);
       await this.cipherService.createWithServer(encrypted);
 
@@ -200,13 +193,16 @@ export class EncryptedMessageHandlerService {
     }
 
     try {
-      const cipher = await this.cipherService.get(credentialUpdatePayload.credentialId);
+      const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
+      const cipher = await this.cipherService.get(
+        credentialUpdatePayload.credentialId,
+        activeUserId,
+      );
       if (cipher === null) {
         return { status: "failure" };
       }
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+
       const cipherView = await cipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
       );

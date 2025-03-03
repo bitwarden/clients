@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -13,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -28,9 +27,9 @@ import { ToastService } from "@bitwarden/components";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
-import { WebauthnLoginAdminService } from "../core";
-import { EmergencyAccessService } from "../emergency-access";
-import { EmergencyAccessWithIdRequest } from "../emergency-access/request/emergency-access-update.request";
+import { WebauthnLoginAdminService } from "../../auth/core";
+import { EmergencyAccessService } from "../../auth/emergency-access";
+import { EmergencyAccessWithIdRequest } from "../../auth/emergency-access/request/emergency-access-update.request";
 
 import { UserKeyRotationApiService } from "./user-key-rotation-api.service";
 import { UserKeyRotationService } from "./user-key-rotation.service";
@@ -107,7 +106,7 @@ describe("KeyRotationService", () => {
   });
 
   describe("rotateUserKeyAndEncryptedData", () => {
-    let privateKey: BehaviorSubject<UserPrivateKey>;
+    let privateKey: BehaviorSubject<UserPrivateKey | null>;
     let keyPair: BehaviorSubject<{ privateKey: UserPrivateKey; publicKey: UserPublicKey }>;
 
     beforeEach(() => {
@@ -230,7 +229,10 @@ describe("KeyRotationService", () => {
     });
 
     it("throws if user key creation fails", async () => {
-      mockKeyService.makeUserKey.mockResolvedValueOnce([null, null]);
+      mockKeyService.makeUserKey.mockResolvedValueOnce([
+        null as unknown as UserKey,
+        null as unknown as EncString,
+      ]);
 
       await expect(
         keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(

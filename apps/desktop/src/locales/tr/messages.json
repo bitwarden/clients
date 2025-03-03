@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Bitwarden'a giriş yapın"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "E-posta adresinize gönderilen kodu girin"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Kimlik doğrulama uygulamanızdaki kodu girin"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Ana parola ipucu"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Kuruluşa katıl"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Kimlik doğrulama iptal edildi ve çok uzun sürdü. Lütfen yeniden deneyin."
   },
+  "openInNewTab": {
+    "message": "Yeni sekmede aç"
+  },
   "invalidVerificationCode": {
     "message": "Geçersiz doğrulama kodu"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Beni hatırla"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Doğrulama kodunu yeniden e-postala"
   },
   "useAnotherTwoStepMethod": {
     "message": "Başka bir iki aşamalı giriş yöntemini kullan"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "YubiKey'i bilgisayarınızın USB portuna takın, ardından düğmesine dokunun."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "İki aşamalı giriş seçenekleri"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "Şirket içinde barındırılan ortam"
@@ -1775,6 +1809,9 @@
   "requirePasswordOnStart": {
     "message": "Uygulamayı başlatırken parola veya PIN iste"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Uygulamayı başlatırken parola iste"
+  },
   "recommendedForSecurity": {
     "message": "Güvenliğiniz için önerilir."
   },
@@ -2244,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAuthn ile doğrula"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "E-posta adresimi alıcılardan gizle."
   },
@@ -2640,6 +2683,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2745,14 +2812,23 @@
   "loginInitiated": {
     "message": "Giriş başlatıldı"
   },
+  "logInRequestSent": {
+    "message": "İstek gönderildi"
+  },
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildirim gönderildi."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Cihazınıza bir bildirim gönderildi"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lütfen hesabınızın kilidinin açık olduğundan ve parmak izi ifadesinin diğer cihazla eşleştiğinden emin olun"
+  "notificationSentDevicePart1": {
+    "message": "Bitwarden kilidini cihazınızdan veya "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web uygulamasından açın"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Onay vermeden önce parmak izi ifadesinin aşağıdakiyle eşleştiğini kontrol edin."
   },
   "needAnotherOptionV1": {
     "message": "Başka bir seçeneğe mi ihtiyacınız var?"
@@ -2782,11 +2858,11 @@
     "message": "Karakter sayacını aç/kapat",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Giriş yapmaya mı çalışıyorsunuz?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Hesabınıza erişmeye mi çalışıyorsunuz?"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ giriş denemesi",
+  "accessAttemptBy": {
+    "message": "$EMAIL$ erişim denemesi",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2879,11 @@
   "time": {
     "message": "Saat"
   },
-  "confirmLogIn": {
-    "message": "Girişi onayla"
+  "confirmAccess": {
+    "message": "Erişimi onayla"
   },
-  "denyLogIn": {
-    "message": "Girişi reddet"
+  "denyAccess": {
+    "message": "Erişimi reddet"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "$DEVICE$ cihazında $EMAIL$ girişi onaylandı",
@@ -2843,8 +2919,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Bu istek artık geçerli değil."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "$EMAIL$ giriş isteğini onayla",
+  "confirmAccessAttempt": {
+    "message": "$EMAIL$ erişimini onayla",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2930,9 @@
   },
   "logInRequested": {
     "message": "Giriş istendi"
+  },
+  "accountAccessRequested": {
+    "message": "Hesap erişimi istendi"
   },
   "creatingAccountOn": {
     "message": "Hesap oluşturuluyor:"
@@ -3167,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız için Duo iki adımlı giriş gereklidir."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Duo'yu tarayıcıda aç"
   },
@@ -3424,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "is requesting access to"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "An application"
@@ -3484,14 +3587,17 @@
   "changeAcctEmail": {
     "message": "Hesap e-postasını değiştir"
   },
-  "organizationUpgradeRequired": {
-    "message": "Organization upgrade required"
+  "allowScreenshots": {
+    "message": "Ekran kaydına izin ver"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organization"
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
   },
-  "upgradeOrganizationDesc": {
-    "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Uzantıyı güncellemeniz gerekiyor"

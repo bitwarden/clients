@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Přihlásit se do Bitwardenu"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Zadejte kód odeslaný na Váš e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Zadejte kód z Vaší ověřovací aplikace"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Stiskněte svůj YubiKey pro ověření"
+  },
   "logInWithPasskey": {
     "message": "Přihlásit se pomocí přístupového klíče"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Nápověda k hlavnímu heslu"
+  },
+  "passwordStrengthScore": {
+    "message": "Skóre síly hesla: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Přidat se k organizaci"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Ověření bylo zrušeno nebo trvalo příliš dlouho. Zkuste to znovu."
   },
+  "openInNewTab": {
+    "message": "Otevřít v nové kartě"
+  },
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Zapamatovat mě"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Neptat se na tomto zařízení 30 dnů"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Znovu zaslat ověřovací kód na e-mail"
   },
   "useAnotherTwoStepMethod": {
     "message": "Použít jinou metodu dvoufázového přihlášení"
+  },
+  "selectAnotherMethod": {
+    "message": "Vybrat jinou metodu",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Použít obnovovací kód"
   },
   "insertYubiKey": {
     "message": "Vložte YubiKey do USB portu Vašeho počítače a stiskněte jeho tlačítko."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Volby dvoufázového přihlášení"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Vyberte metodu dvoufázového přihlášení"
   },
   "selfHostedEnvironment": {
     "message": "Vlastní hostované prostředí"
@@ -1775,6 +1809,9 @@
   "requirePasswordOnStart": {
     "message": "Vyžadovat heslo nebo PIN při spuštění aplikace"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Vyžadovat heslo při spuštění aplikace"
+  },
   "recommendedForSecurity": {
     "message": "Doporučeno pro bezpečnost."
   },
@@ -2244,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Ověřit WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Přečíst bezpečnostní klíč"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Čeká se na interakci s bezpečnostním klíčem..."
+  },
   "hideEmail": {
     "message": "Skrýt moji e-mailovou adresu před příjemci."
   },
@@ -2640,6 +2683,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ odmítl Váš požadavek. Kontaktujte svého poskytovatele služeb o pomoc.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ odmítl Váš požadavek: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Nelze získat maskované ID e-mailového účtu $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2745,14 +2812,23 @@
   "loginInitiated": {
     "message": "Bylo zahájeno přihlášení"
   },
+  "logInRequestSent": {
+    "message": "Požadavek odeslán"
+  },
   "notificationSentDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Na Vaše zařízení bylo odesláno oznámení"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Ujistěte se, že je Váš účet odemčen a fráze otisku prstu se shoduje s tou na druhém zařízení"
+  "notificationSentDevicePart1": {
+    "message": "Odemknout Bitwarden na Vašem zařízení nebo na "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "webová aplikace"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Před schválením se ujistěte, že fráze otisku prstu odpovídá frázi níže."
   },
   "needAnotherOptionV1": {
     "message": "Potřebujete další volby?"
@@ -2782,11 +2858,11 @@
     "message": "Zobrazit počet znaků",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Pokoušíte se přihlásit?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Pokoušíte se získat přístup k Vašemu účtu?"
   },
-  "logInAttemptBy": {
-    "message": "Pokus o přihlášení z $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Pokus o přístup z $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2879,11 @@
   "time": {
     "message": "Čas"
   },
-  "confirmLogIn": {
-    "message": "Potvrdit přihlášení"
+  "confirmAccess": {
+    "message": "Potvrdit přístup"
   },
-  "denyLogIn": {
-    "message": "Zamítnout přihlášení"
+  "denyAccess": {
+    "message": "Zamítnout přístup"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Přihlášení bylo potvrzeno z $EMAIL$ pro $DEVICE$",
@@ -2843,8 +2919,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Tento požadavek již není platný."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Potvrďte pokus o přihlášení z $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Potvrďte pokus o přístup z $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2930,9 @@
   },
   "logInRequested": {
     "message": "Bylo vyžádáno přihlášení"
+  },
+  "accountAccessRequested": {
+    "message": "Požadován přístup k účtu"
   },
   "creatingAccountOn": {
     "message": "Vytváření účtu na"
@@ -3167,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení DUO."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Pro Váš účet je nutné dvoufázové přihlášení. Pro dokončení přihlášení postupujte podle následujících kroků."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Postupujte podle kroků níže pro dokončení přihlášení."
+  },
   "launchDuo": {
     "message": "Spustit DUO v prohlížeči"
   },
@@ -3424,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Potvrdit použití SSH klíče"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Varování: Agent přesměrování"
+  },
+  "agentForwardingWarningText": {
+    "message": "Tento požadavek pochází ze vzdáleného zařízení, ke kterému jste přihlášeni"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "žádá o přístup k"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "za účelem"
+  },
+  "sshActionLogin": {
+    "message": "ověření na serveru"
+  },
+  "sshActionSign": {
+    "message": "podepsání zprávy"
+  },
+  "sshActionGitSign": {
+    "message": "podepsání commitu na gitu"
   },
   "unknownApplication": {
     "message": "Aplikace"
@@ -3484,14 +3587,17 @@
   "changeAcctEmail": {
     "message": "Změnit e-mail účtu"
   },
-  "organizationUpgradeRequired": {
-    "message": "Je vyžadována aktualizace organizace"
+  "allowScreenshots": {
+    "message": "Povolit záznam obrazovky"
   },
-  "upgradeOrganization": {
-    "message": "Aktualizovat organizaci"
+  "allowScreenshotsDesc": {
+    "message": "Povolit zachycení aplikace Bitwarden ve snímcích obrazovky a zobrazení ve vzdálené desktopové relaci. Zakázáním této funkce se zabrání přístupu na některé externí displeje."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Tato funkce není dostupná pro bezplatné organizace. Přepněte na placenou verzi a odemkněte další funkce."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Potvrdit stále viditelné okno"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Potvrďte, že okno je stále viditelné."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Je vyžadována aktualiazce rozšíření"

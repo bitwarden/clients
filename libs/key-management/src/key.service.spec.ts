@@ -1,82 +1,43 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
 
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
+import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PinServiceAbstraction } from "../../auth/src/common/abstractions";
+import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
+import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
+import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { Encrypted } from "@bitwarden/common/platform/interfaces/encrypted";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
+import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
+import {
+  USER_ENCRYPTED_PRIVATE_KEY,
+  USER_EVER_HAD_USER_KEY,
+  USER_KEY,
+} from "@bitwarden/common/platform/services/key-state/user-key.state";
+import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import {
   awaitAsync,
   makeEncString,
   makeStaticByteArray,
   makeSymmetricCryptoKey,
-} from "../../common/spec";
-import { FakeAccountService, mockAccountServiceWith } from "../../common/spec/fake-account-service";
-import { FakeActiveUserState, FakeSingleUserState } from "../../common/spec/fake-state";
-import { FakeStateProvider } from "../../common/spec/fake-state-provider";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { FakeMasterPasswordService } from "../../common/src/auth/services/master-password/fake-master-password.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { CryptoFunctionService } from "../../common/src/platform/abstractions/crypto-function.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KeyGenerationService } from "../../common/src/platform/abstractions/key-generation.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { LogService } from "../../common/src/platform/abstractions/log.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PlatformUtilsService } from "../../common/src/platform/abstractions/platform-utils.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { StateService } from "../../common/src/platform/abstractions/state.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { Encrypted } from "../../common/src/platform/interfaces/encrypted";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { Utils } from "../../common/src/platform/misc/utils";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { EncString, EncryptedString } from "../../common/src/platform/models/domain/enc-string";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SymmetricCryptoKey } from "../../common/src/platform/models/domain/symmetric-crypto-key";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "../../common/src/platform/services/key-state/org-keys.state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { USER_ENCRYPTED_PROVIDER_KEYS } from "../../common/src/platform/services/key-state/provider-keys.state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import {
-  USER_ENCRYPTED_PRIVATE_KEY,
-  USER_EVER_HAD_USER_KEY,
-  USER_KEY,
-} from "../../common/src/platform/services/key-state/user-key.state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { UserKeyDefinition } from "../../common/src/platform/state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { VAULT_TIMEOUT } from "../../common/src/services/vault-timeout/vault-timeout-settings.state";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { CsprngArray } from "../../common/src/types/csprng";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { OrganizationId, UserId } from "../../common/src/types/guid";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { UserKey, MasterKey } from "../../common/src/types/key";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { VaultTimeoutStringType } from "../../common/src/types/vault-timeout.type";
+  FakeAccountService,
+  mockAccountServiceWith,
+  FakeStateProvider,
+  FakeActiveUserState,
+  FakeSingleUserState,
+} from "@bitwarden/common/spec";
+import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { UserPrivateKeyDecryptionFailedError } from "./abstractions/key.service";
@@ -156,40 +117,40 @@ describe("keyService", () => {
     });
   });
 
-  describe.each(["hasUserKey", "hasUserKeyInMemory"])(
-    `%s`,
-    (method: "hasUserKey" | "hasUserKeyInMemory") => {
-      let mockUserKey: UserKey;
+  describe.each(["hasUserKey", "hasUserKeyInMemory"])(`%s`, (methodName: string) => {
+    let mockUserKey: UserKey;
+    let method: (userId?: UserId) => Promise<boolean>;
 
-      beforeEach(() => {
-        const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-        mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-      });
+    beforeEach(() => {
+      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+      mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
+      method =
+        methodName === "hasUserKey"
+          ? keyService.hasUserKey.bind(keyService)
+          : keyService.hasUserKeyInMemory.bind(keyService);
+    });
 
-      it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
+    it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(hasKey ? mockUserKey : null);
+      expect(await method(mockUserId)).toBe(hasKey);
+    });
+
+    it("returns false when no active userId is set", async () => {
+      accountService.activeAccountSubject.next(null);
+      expect(await method()).toBe(false);
+    });
+
+    it.each([true, false])(
+      "resolves %s for active user id when none is provided",
+      async (hasKey) => {
+        stateProvider.activeUserId$ = of(mockUserId);
         stateProvider.singleUser
           .getFake(mockUserId, USER_KEY)
           .nextState(hasKey ? mockUserKey : null);
-        expect(await keyService[method](mockUserId)).toBe(hasKey);
-      });
-
-      it("returns false when no active userId is set", async () => {
-        accountService.activeAccountSubject.next(null);
-        expect(await keyService[method]()).toBe(false);
-      });
-
-      it.each([true, false])(
-        "resolves %s for active user id when none is provided",
-        async (hasKey) => {
-          stateProvider.activeUserId$ = of(mockUserId);
-          stateProvider.singleUser
-            .getFake(mockUserId, USER_KEY)
-            .nextState(hasKey ? mockUserKey : null);
-          expect(await keyService[method]()).toBe(hasKey);
-        },
-      );
-    },
-  );
+        expect(await method()).toBe(hasKey);
+      },
+    );
+  });
 
   describe("getUserKeyWithLegacySupport", () => {
     let mockUserKey: UserKey;
@@ -302,11 +263,15 @@ describe("keyService", () => {
     });
 
     it("throws if key is null", async () => {
-      await expect(keyService.setUserKey(null, mockUserId)).rejects.toThrow("No key provided.");
+      await expect(keyService.setUserKey(null as unknown as UserKey, mockUserId)).rejects.toThrow(
+        "No key provided.",
+      );
     });
 
     it("throws if userId is null", async () => {
-      await expect(keyService.setUserKey(mockUserKey, null)).rejects.toThrow("No userId provided.");
+      await expect(keyService.setUserKey(mockUserKey, null as unknown as UserId)).rejects.toThrow(
+        "No userId provided.",
+      );
     });
 
     describe("Pin Key refresh", () => {
@@ -377,21 +342,21 @@ describe("keyService", () => {
     });
 
     it("throws if userKey is null", async () => {
-      await expect(keyService.setUserKeys(null, mockEncPrivateKey, mockUserId)).rejects.toThrow(
-        "No userKey provided.",
-      );
+      await expect(
+        keyService.setUserKeys(null as unknown as UserKey, mockEncPrivateKey, mockUserId),
+      ).rejects.toThrow("No userKey provided.");
     });
 
     it("throws if encPrivateKey is null", async () => {
-      await expect(keyService.setUserKeys(mockUserKey, null, mockUserId)).rejects.toThrow(
-        "No encPrivateKey provided.",
-      );
+      await expect(
+        keyService.setUserKeys(mockUserKey, null as unknown as EncryptedString, mockUserId),
+      ).rejects.toThrow("No encPrivateKey provided.");
     });
 
     it("throws if userId is null", async () => {
-      await expect(keyService.setUserKeys(mockUserKey, mockEncPrivateKey, null)).rejects.toThrow(
-        "No userId provided.",
-      );
+      await expect(
+        keyService.setUserKeys(mockUserKey, mockEncPrivateKey, null as unknown as UserId),
+      ).rejects.toThrow("No userId provided.");
     });
 
     it("throws if encPrivateKey cannot be decrypted with the userKey", async () => {
@@ -427,7 +392,7 @@ describe("keyService", () => {
       let callCount = 0;
       stateProvider.activeUserId$ = stateProvider.activeUserId$.pipe(tap(() => callCount++));
 
-      await keyService.clearKeys(null);
+      await keyService.clearKeys();
       expect(callCount).toBe(1);
 
       // revert to the original state
@@ -441,7 +406,7 @@ describe("keyService", () => {
       USER_KEY,
     ])("key removal", (key: UserKeyDefinition<unknown>) => {
       it(`clears ${key.key} for active user when unspecified`, async () => {
-        await keyService.clearKeys(null);
+        await keyService.clearKeys();
 
         const encryptedOrgKeyState = stateProvider.singleUser.getFake(mockUserId, key);
         expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledTimes(1);
@@ -465,7 +430,10 @@ describe("keyService", () => {
       makeUserKey: boolean;
     };
 
-    function setupKeys({ makeMasterKey, makeUserKey }: SetupKeysParams): [UserKey, MasterKey] {
+    function setupKeys({
+      makeMasterKey,
+      makeUserKey,
+    }: SetupKeysParams): [UserKey | null, MasterKey | null] {
       const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
       const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64) : null;
       masterPasswordService.masterKeySubject.next(fakeMasterKey);
@@ -488,7 +456,7 @@ describe("keyService", () => {
 
       const fakeEncryptedUserPrivateKey = makeEncString("1");
 
-      userEncryptedPrivateKeyState.nextState(fakeEncryptedUserPrivateKey.encryptedString);
+      userEncryptedPrivateKeyState.nextState(fakeEncryptedUserPrivateKey.encryptedString!);
 
       // Decryption of the user private key
       const fakeDecryptedUserPrivateKey = makeStaticByteArray(10, 1);
@@ -565,7 +533,7 @@ describe("keyService", () => {
     function updateKeys(keys: Partial<UpdateKeysParams> = {}) {
       if ("userKey" in keys) {
         const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-        userKeyState.nextState(keys.userKey);
+        userKeyState.nextState(keys.userKey!);
       }
 
       if ("encryptedPrivateKey" in keys) {
@@ -573,7 +541,7 @@ describe("keyService", () => {
           mockUserId,
           USER_ENCRYPTED_PRIVATE_KEY,
         );
-        userEncryptedPrivateKey.nextState(keys.encryptedPrivateKey.encryptedString);
+        userEncryptedPrivateKey.nextState(keys.encryptedPrivateKey!.encryptedString!);
       }
 
       if ("orgKeys" in keys) {
@@ -581,7 +549,7 @@ describe("keyService", () => {
           mockUserId,
           USER_ENCRYPTED_ORGANIZATION_KEYS,
         );
-        orgKeysState.nextState(keys.orgKeys);
+        orgKeysState.nextState(keys.orgKeys!);
       }
 
       if ("providerKeys" in keys) {
@@ -589,7 +557,7 @@ describe("keyService", () => {
           mockUserId,
           USER_ENCRYPTED_PROVIDER_KEYS,
         );
-        providerKeysState.nextState(keys.providerKeys);
+        providerKeysState.nextState(keys.providerKeys!);
       }
 
       encryptService.decryptToBytes.mockImplementation((encryptedPrivateKey, userKey) => {
@@ -611,8 +579,8 @@ describe("keyService", () => {
       const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
 
       expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys.userKey).not.toBeNull();
-      expect(decryptionKeys.orgKeys).toEqual({});
+      expect(decryptionKeys!.userKey).not.toBeNull();
+      expect(decryptionKeys!.orgKeys).toEqual({});
     });
 
     it("returns decryption keys when there are org keys", async () => {
@@ -620,18 +588,18 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
         },
       });
 
       const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
 
       expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys.userKey).not.toBeNull();
-      expect(decryptionKeys.orgKeys).not.toBeNull();
-      expect(Object.keys(decryptionKeys.orgKeys)).toHaveLength(1);
-      expect(decryptionKeys.orgKeys[org1Id]).not.toBeNull();
-      const orgKey = decryptionKeys.orgKeys[org1Id];
+      expect(decryptionKeys!.userKey).not.toBeNull();
+      expect(decryptionKeys!.orgKeys).not.toBeNull();
+      expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(1);
+      expect(decryptionKeys!.orgKeys![org1Id]).not.toBeNull();
+      const orgKey = decryptionKeys!.orgKeys![org1Id];
       expect(orgKey.keyB64).toContain("org1Key");
     });
 
@@ -640,7 +608,7 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
         },
         providerKeys: {},
       });
@@ -648,11 +616,11 @@ describe("keyService", () => {
       const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
 
       expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys.userKey).not.toBeNull();
-      expect(decryptionKeys.orgKeys).not.toBeNull();
-      expect(Object.keys(decryptionKeys.orgKeys)).toHaveLength(1);
-      expect(decryptionKeys.orgKeys[org1Id]).not.toBeNull();
-      const orgKey = decryptionKeys.orgKeys[org1Id];
+      expect(decryptionKeys!.userKey).not.toBeNull();
+      expect(decryptionKeys!.orgKeys).not.toBeNull();
+      expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(1);
+      expect(decryptionKeys!.orgKeys![org1Id]).not.toBeNull();
+      const orgKey = decryptionKeys!.orgKeys![org1Id];
       expect(orgKey.keyB64).toContain("org1Key");
     });
 
@@ -662,30 +630,30 @@ describe("keyService", () => {
         userKey: makeSymmetricCryptoKey<UserKey>(64),
         encryptedPrivateKey: makeEncString("privateKey"),
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
           [org2Id]: {
             type: "provider",
-            key: makeEncString("provider1Key").encryptedString,
+            key: makeEncString("provider1Key").encryptedString!,
             providerId: "provider1",
           },
         },
         providerKeys: {
-          provider1: makeEncString("provider1Key").encryptedString,
+          provider1: makeEncString("provider1Key").encryptedString!,
         },
       });
 
       const decryptionKeys = await firstValueFrom(keyService.cipherDecryptionKeys$(mockUserId));
 
       expect(decryptionKeys).not.toBeNull();
-      expect(decryptionKeys.userKey).not.toBeNull();
-      expect(decryptionKeys.orgKeys).not.toBeNull();
-      expect(Object.keys(decryptionKeys.orgKeys)).toHaveLength(2);
+      expect(decryptionKeys!.userKey).not.toBeNull();
+      expect(decryptionKeys!.orgKeys).not.toBeNull();
+      expect(Object.keys(decryptionKeys!.orgKeys!)).toHaveLength(2);
 
-      const orgKey = decryptionKeys.orgKeys[org1Id];
+      const orgKey = decryptionKeys!.orgKeys![org1Id];
       expect(orgKey).not.toBeNull();
       expect(orgKey.keyB64).toContain("org1Key");
 
-      const org2Key = decryptionKeys.orgKeys[org2Id];
+      const org2Key = decryptionKeys!.orgKeys![org2Id];
       expect(org2Key).not.toBeNull();
       expect(org2Key.keyB64).toContain("provider1Key");
     });
@@ -725,7 +693,7 @@ describe("keyService", () => {
       // User has their org keys set
       updateKeys({
         orgKeys: {
-          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString },
+          [org1Id]: { type: "organization", key: makeEncString("org1Key").encryptedString! },
         },
       });
 
@@ -780,7 +748,7 @@ describe("keyService", () => {
     type TestCase = {
       masterKey: MasterKey;
       masterPassword: string | null;
-      storedMasterKeyHash: string;
+      storedMasterKeyHash: string | null;
       mockReturnedHash: string;
       expectedToMatch: boolean;
     };
@@ -821,7 +789,7 @@ describe("keyService", () => {
         masterPasswordService.masterKeyHashSubject.next(storedMasterKeyHash);
 
         cryptoFunctionService.pbkdf2
-          .calledWith(masterKey.key, masterPassword, "sha256", 2)
+          .calledWith(masterKey.key, masterPassword as string, "sha256", 2)
           .mockResolvedValue(Utils.fromB64ToArray(mockReturnedHash));
 
         const actualDidMatch = await keyService.compareKeyHash(

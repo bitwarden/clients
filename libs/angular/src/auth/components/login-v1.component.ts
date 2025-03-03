@@ -339,6 +339,9 @@ export class LoginComponentV1 extends CaptchaProtectedComponent implements OnIni
   }
 
   protected async saveEmailSettings() {
+    // Save off email for SSO
+    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
+
     this.loginEmailService.setLoginEmail(this.formGroup.value.email);
     this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
     await this.loginEmailService.saveEmailSettings();
