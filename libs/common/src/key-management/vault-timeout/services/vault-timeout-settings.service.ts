@@ -9,7 +9,6 @@ import {
   distinctUntilChanged,
   firstValueFrom,
   from,
-  map,
   shareReplay,
   switchMap,
   tap,
@@ -24,6 +23,7 @@ import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../../admin-console/enums";
 import { Policy } from "../../../admin-console/models/domain/policy";
+import { getFirstPolicy } from "../../../admin-console/services/policy/default-policy.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { TokenService } from "../../../auth/abstractions/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
@@ -266,8 +266,8 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     }
 
     return this.policyService
-      .getAll$(PolicyType.MaximumVaultTimeout, userId)
-      .pipe(map((policies) => policies[0] ?? null));
+      .policiesByType$(PolicyType.MaximumVaultTimeout, userId)
+      .pipe(getFirstPolicy);
   }
 
   private async getAvailableVaultTimeoutActions(userId?: string): Promise<VaultTimeoutAction[]> {

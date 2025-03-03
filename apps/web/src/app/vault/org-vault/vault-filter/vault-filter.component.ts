@@ -5,6 +5,7 @@ import { firstValueFrom, Subject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -47,6 +48,7 @@ export class VaultFilterComponent
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
     protected configService: ConfigService,
+    protected accountService: AccountService,
   ) {
     super(
       vaultFilterService,
@@ -57,6 +59,7 @@ export class VaultFilterComponent
       billingApiService,
       dialogService,
       configService,
+      accountService,
     );
   }
 

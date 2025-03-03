@@ -4,7 +4,7 @@ import { Component, NgZone, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { takeUntil } from "rxjs";
-import { first } from "rxjs/operators";
+import { first, switchMap } from "rxjs/operators";
 
 import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login-v1.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
@@ -17,9 +17,11 @@ import { InternalPolicyService } from "@bitwarden/common/admin-console/abstracti
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -70,6 +72,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
     toastService: ToastService,
+    private accountService: AccountService,
   ) {
     super(
       devicesApiService,
@@ -215,9 +218,14 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
     this.showResetPasswordAutoEnrollWarning =
       resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;
 
-    this.policyService
-      .masterPasswordPolicyOptions$(this.policies)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.masterPasswordPolicyOptions$(userId, this.policies),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((enforcedPasswordPolicyOptions) => {
         this.enforcedPasswordPolicyOptions = enforcedPasswordPolicyOptions;
       });
