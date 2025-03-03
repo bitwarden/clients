@@ -9,6 +9,7 @@ type Args = {
   notificationType: NotificationType;
   theme: Theme;
   handleSaveAction: (e: Event) => void;
+  i18n: { [key: string]: string };
 };
 
 export default {
@@ -23,6 +24,11 @@ export default {
   args: {
     theme: ThemeTypes.Light,
     notificationType: "add",
+    i18n: {
+      saveAsNewLoginAction: "Save as New Login",
+      saveAction: "Save",
+    },
+    handleSaveAction: () => alert("Save action triggered"),
   },
   parameters: {
     design: {
