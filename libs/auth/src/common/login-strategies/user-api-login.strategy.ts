@@ -6,7 +6,7 @@ import { Jsonify } from "type-fest";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";

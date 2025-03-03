@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Nápověda k hlavnímu heslu (volitelné)"
   },
+  "passwordStrengthScore": {
+    "message": "Skóre síly hesla: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Přidat se k organizaci"
   },
@@ -876,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Přihlásit se do Bitwardenu"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Zadejte kód odeslaný na Váš e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Zadejte kód z Vaší ověřovací aplikace"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Stiskněte svůj YubiKey pro ověření"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Pro Váš účet je nutné dvoufázové přihlášení. Pro dokončení přihlášení postupujte podle následujících kroků."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Postupujte podle kroků níže pro dokončení přihlášení."
+  },
   "restartRegistration": {
     "message": "Restartovat registraci"
   },
@@ -1365,11 +1389,21 @@
   "rememberMe": {
     "message": "Zapamatovat mě"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Neptat se na tomto zařízení 30 dnů"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Znovu zaslat ověřovací kód na e-mail"
   },
   "useAnotherTwoStepMethod": {
     "message": "Použít jinou metodu dvoufázového přihlášení"
+  },
+  "selectAnotherMethod": {
+    "message": "Vybrat jinou metodu",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Použít obnovovací kód"
   },
   "insertYubiKey": {
     "message": "Vložte YubiKey do USB portu Vašeho počítače a stiskněte jeho tlačítko."
@@ -1383,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Otevřít novou kartu"
   },
+  "openInNewTab": {
+    "message": "Otevřít v nové kartě"
+  },
   "webAuthnAuthenticate": {
     "message": "Ověřit WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Přečíst bezpečnostní klíč"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Čeká se na interakci s bezpečnostním klíčem..."
   },
   "loginUnavailable": {
     "message": "Přihlášení není dostupné"
@@ -1397,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Volby dvoufázového přihlášení"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Vyberte metodu dvoufázového přihlášení"
   },
   "recoveryCodeDesc": {
     "message": "Ztratili jste přístup ke všem nastaveným poskytovatelům dvoufázového přihlášení? Použijte obnovovací kód pro vypnutí dvoufázového přihlášení."
@@ -2097,6 +2143,15 @@
   "vaultTimeoutAction1": {
     "message": "Akce vypršení časového limitu"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Nové volby přizpůsobení"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Přizpůsobte si svůj trezor s rychlými kopírovacími akcemi, kompaktním režimem a dalším!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Zobrazit všechna nastavení vzhledu"
+  },
   "lock": {
     "message": "Zamknout",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,7 +2446,16 @@
   "atRiskPasswords": {
     "message": "Ohrožená hesla"
   },
-  "atRiskPasswordsDescSingleOrg": {
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ Vás žádá o změnu 1 hesla, protože je v ohrožení.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
     "message": "$ORGANIZATION$ Vás žádá o změnu $COUNT$ hesel, protože jsou v ohrožení.",
     "placeholders": {
       "organization": {
@@ -2404,7 +2468,7 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
+  "atRiskPasswordsDescMultiOrgPlural": {
     "message": "Vaše organizace Vás žádají o změnu $COUNT$ hesel, protože jsou v ohrožení.",
     "placeholders": {
       "count": {
@@ -2430,6 +2494,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Aktualizujte svá nastavení, abyste mohli rychle automaticky vyplňovat hesla a generovat nová hesla."
+  },
+  "reviewAtRiskLogins": {
+    "message": "Kontrola rizikových přihlášení"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Kontrola rizikových hesel"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Hesla Vaší organizace jsou ohrožena, protože jsou slabá, opakovaně používaná nebo odhalená.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Ilustrace seznamu přihlášení, která jsou riziková"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Rychle vygeneruje silné, unikátní heslo s nabídkou automatického vyplňování Bitwarden na rizikových stránkách.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Ilustrace nabídky automatického vyplňování Bitwarden zobrazující vygenerované heslo"
+  },
+  "updateInBitwarden": {
+    "message": "Aktualizovat v Bitwardenu"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden Vás poté požádá o aktualizaci hesla ve správci hesel.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Ilustrace oznámení v Bitwardenu, která uživatele vyzývá k aktualizaci přihlášení"
   },
   "turnOnAutofill": {
     "message": "Zapnout automatické vyplňování"
@@ -4178,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Kopírovat $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
