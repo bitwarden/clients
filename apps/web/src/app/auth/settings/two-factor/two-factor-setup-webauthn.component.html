@@ -63,16 +63,16 @@
         type="button"
         [bitAction]="readKey"
         buttonType="secondary"
-        [disabled]="$any(readKeyBtn).loading || webAuthnListening || !keyIdAvailable"
+        [disabled]="$any(readKeyBtn).loading() || webAuthnListening || !keyIdAvailable"
         class="tw-mr-2"
         #readKeyBtn
       >
         {{ "readKey" | i18n }}
       </button>
-      <ng-container *ngIf="$any(readKeyBtn).loading">
+      <ng-container *ngIf="$any(readKeyBtn).loading()">
         <i class="bwi bwi-spinner bwi-spin tw-text-muted" aria-hidden="true"></i>
       </ng-container>
-      <ng-container *ngIf="!$any(readKeyBtn).loading">
+      <ng-container *ngIf="!$any(readKeyBtn).loading()">
         <ng-container *ngIf="webAuthnListening">
           <i class="bwi bwi-spinner bwi-spin tw-text-muted" aria-hidden="true"></i>
           {{ "twoFactorU2fWaiting" | i18n }}...

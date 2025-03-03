@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Accedi a Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Inserisci il codice inviato alla tua e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Inserisci il codice dalla tua app di autenticazione"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Premi la tua chiave Yubi per autenticare"
+  },
   "logInWithPasskey": {
     "message": "Accedi con passkey"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Suggerimento per la password principale"
+  },
+  "passwordStrengthScore": {
+    "message": "Valutazione complessità parola d'accesso $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Unisciti all'organizzazione"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "L'autenticazione è stata annullata o ha richiesto troppo tempo. Per favore riprova."
   },
+  "openInNewTab": {
+    "message": "Apri in una nuova scheda"
+  },
   "invalidVerificationCode": {
     "message": "Codice di verifica non valido"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Ricordami"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Non chiedere più su questo dispositivo per 30 giorni"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Invia email con codice di verifica di nuovo"
   },
   "useAnotherTwoStepMethod": {
     "message": "Usa un altro metodo di verifica in due passaggi"
+  },
+  "selectAnotherMethod": {
+    "message": "Seleziona un altro metodo",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Usa il tuo codice di recupero"
   },
   "insertYubiKey": {
     "message": "Inserisci la tua YubiKey nella porta USB del computer e premi il suo pulsante."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Opzioni di verifica in due passaggi"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Seleziona metodo di accesso in due passaggi"
   },
   "selfHostedEnvironment": {
     "message": "Ambiente self-hosted"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Autenticazione WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Leggi chiave di sicurezza"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "In attesa di interazione con la chiave di sicurezza..."
+  },
   "hideEmail": {
     "message": "Nascondi il mio indirizzo email dai destinatari."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Per il tuo account è richiesta la verifica in due passaggi Duo."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Il login Duo in due passaggi è richiesto per il tuo account. Segui i passaggi qui sotto per completare l'accesso."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Segui i passaggi qui sotto per completare l'accesso."
+  },
   "launchDuo": {
     "message": "Avvia Duo nel browser"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Conferma l'uso della chiave SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Attenzione: inoltro agente"
+  },
+  "agentForwardingWarningText": {
+    "message": "Questa richiesta proviene da un dispositivo remoto al quale si è connessi"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "richiede l'accesso a"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "al fine di"
+  },
+  "sshActionLogin": {
+    "message": "autenticazione su un server"
+  },
+  "sshActionSign": {
+    "message": "firmare un messaggio"
+  },
+  "sshActionGitSign": {
+    "message": "firmare un commit git"
   },
   "unknownApplication": {
     "message": "Un'applicazione"
