@@ -81,7 +81,7 @@ security-framework-sys = { version = "=2.13.0", optional = true }
 desktop_objc = { path = "../objc" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-oo7 = "=0.3.3"
+oo7 = "=0.4.0"
 libc = "=0.2.169"
 
 zbus = { version = "=4.4.0", optional = true }
