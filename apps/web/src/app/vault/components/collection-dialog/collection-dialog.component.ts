@@ -21,7 +21,7 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs";
-import { catchError, first, tap } from "rxjs/operators";
+import { first, tap } from "rxjs/operators";
 
 import {
   CollectionAccessSelectionView,
@@ -65,8 +65,16 @@ export enum CollectionDialogTabType {
   Access = 1,
 }
 
+/**
+ * Enum representing button labels for the "Add New Collection" dialog.
+ *
+ * @readonly
+ * @enum {string}
+ */
 enum ButtonType {
+  /** Displayed when the user has reached the maximum number of collections allowed for the organization. */
   Upgrade = "upgrade",
+  /** Displayed when the user can still add more collections within the allowed limit. */
   Save = "save",
 }
 
@@ -182,6 +190,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       );
       this.formGroup.updateValueAndValidity();
     }
+
+    this.organizationSelected.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((_) => {
+      this.organizationSelected.markAsTouched();
+      this.formGroup.updateValueAndValidity();
+    });
   }
 
   async loadOrg(orgId: string) {
@@ -451,7 +464,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         tap((errors) => {
           this.buttonDisplayName = errors ? ButtonType.Upgrade : ButtonType.Save;
         }),
-        catchError(() => of(null)),
       );
     };
   }
