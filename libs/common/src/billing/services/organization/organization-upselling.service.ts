@@ -1,5 +1,5 @@
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-upselling.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
