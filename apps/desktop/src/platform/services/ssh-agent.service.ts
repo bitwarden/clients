@@ -130,7 +130,7 @@ export class SshAgentService implements OnDestroy {
 
                 throw error;
               }),
-              map(() => message),
+              map(() => [message, account.id]),
             );
           }
 
