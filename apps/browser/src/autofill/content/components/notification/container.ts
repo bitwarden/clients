@@ -58,6 +58,7 @@ export function NotificationContainer({
         handleSaveAction,
         theme,
         notificationType: type,
+        i18n,
       })}
     </div>
   `;

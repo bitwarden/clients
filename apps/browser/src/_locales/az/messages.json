@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Ana parol ipucu (ixtiyari)"
   },
+  "passwordStrengthScore": {
+    "message": "Parolun güc xalı: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Təşkilata qoşul"
   },
@@ -876,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Bitwarden-ə giriş edin"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "E-poçtunuza göndərilən kodu daxil edin"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Kimlik doğrulayıcı tətbiqinizdəki kodu daxil edin"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Kimliyi doğrulamaq üçün YubiKey-inizə basın"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur. Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
   "restartRegistration": {
     "message": "Qeydiyyatı yenidən başlat"
   },
@@ -1365,11 +1389,21 @@
   "rememberMe": {
     "message": "Məni xatırla"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Bu cihazda 30 gün ərzində soruşulmasın"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Doğrulama kodu olan e-poçtu yenidən göndər"
   },
   "useAnotherTwoStepMethod": {
     "message": "Başqa bir iki addımlı giriş üsulu istifadə edin"
+  },
+  "selectAnotherMethod": {
+    "message": "Başqa üsul seçin",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Geri qaytarma kodunuzu istifadə edin"
   },
   "insertYubiKey": {
     "message": "\"YubiKey\"i kompüterinizin USB portuna taxın, daha sonra düyməsinə toxunun."
@@ -1383,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Yeni vərəq aç"
   },
+  "openInNewTab": {
+    "message": "Yeni vərəqdə aç"
+  },
   "webAuthnAuthenticate": {
     "message": "WebAuthn kimlik doğrulama"
+  },
+  "readSecurityKey": {
+    "message": "Güvənlik açarını oxu"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
   },
   "loginUnavailable": {
     "message": "Giriş edilə bilmir"
@@ -1397,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "İki addımlı giriş seçimləri"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "İki addımlı giriş üsulunu seçin"
   },
   "recoveryCodeDesc": {
     "message": "İki faktorlu provayderlərinə müraciəti itirmisiniz? Geri qaytarma kodunuzu istifadə edərək hesabınızdakı bütün iki faktorlu provayderləri sıradan çıxarda bilərsiniz."
@@ -2097,6 +2143,15 @@
   "vaultTimeoutAction1": {
     "message": "Vaxt bitmə əməliyyatı"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Yeni özəlləşdirmə seçimləri"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Cəld kopyalama fəaliyyəti, yığcam rejim və daha çoxu ilə seyf təcrübənizi özəlləşdirin!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Bütün Görünüş ayarlarına bax"
+  },
   "lock": {
     "message": "Kilidlə",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,7 +2446,16 @@
   "atRiskPasswords": {
     "message": "Riskli parollar"
   },
-  "atRiskPasswordsDescSingleOrg": {
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$, sizdən bir parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
     "message": "$ORGANIZATION$, sizdən $COUNT$ parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
     "placeholders": {
       "organization": {
@@ -2404,7 +2468,7 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
+  "atRiskPasswordsDescMultiOrgPlural": {
     "message": "Təşkilatlarınız, sizdən $COUNT$ parolu dəyişdirməyinizi tələb edir, çünki risk altındadır.",
     "placeholders": {
       "count": {
@@ -2430,6 +2494,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Cəld şəkildə parollarınızı avto-doldura və yenilərini yarada bilməyiniz üçün ayarlarınızı güncəlləyin"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Risk altındakı giriş məlumatlarını incələ"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Risk altındakı parolları incələ"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Təşkilatınız parolları zəif, təkrar istifadə olunduğu və/və ya ifşa olunduğu üçün risk altındadır.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Risk altındakı girişlərin olduğu siyahının təsviri"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Risk altında olan saytda Bitwarden avto-doldurma menyusu ilə güclü, unikal parolları cəld yaradın.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Yaradılan parolları göstərən Bitwarden avto-doldurma menyusunun təsviri"
+  },
+  "updateInBitwarden": {
+    "message": "Bitwarden-də güncəllə"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden, daha sonra parol menecerində parolu güncəlləməyinizi istəyəcək.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "İstifadəçidən giriş məlumatlarını güncəlləməsini istəyən Bitwarden bildirişinin təsviri"
   },
   "turnOnAutofill": {
     "message": "Avto-doldurmanı işə sal"
@@ -4178,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Kopyala: $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
