@@ -235,7 +235,7 @@ export class ServiceContainer {
   cryptoFunctionService: NodeCryptoFunctionService;
   encryptService: EncryptServiceImplementation;
   authService: AuthService;
-  policyService: PolicyService;
+  policyService: DefaultPolicyService;
   policyApiService: PolicyApiServiceAbstraction;
   logService: ConsoleLogService;
   sendService: SendService;
