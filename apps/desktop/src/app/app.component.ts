@@ -10,10 +10,12 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { filter, firstValueFrom, map, Subject, takeUntil, timeout, withLatestFrom } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { TrustedDeviceToastService } from "@bitwarden/angular/auth/services/trusted-device-toast.service";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
@@ -157,7 +159,27 @@ export class AppComponent implements OnInit, OnDestroy {
     private stateEventRunnerService: StateEventRunnerService,
     private accountService: AccountService,
     private organizationService: OrganizationService,
-  ) {}
+    private trustedDeviceToastService: TrustedDeviceToastService,
+  ) {
+    this.trustedDeviceToastService.setupListeners$
+      .pipe(takeUntilDestroyed())
+      .subscribe((emission: string) => {
+        if (emission === "adminLoginApproved") {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("loginApproved"),
+          });
+        }
+        if (emission === "deviceTrusted") {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("deviceTrusted"),
+          });
+        }
+      });
+  }
 
   ngOnInit() {
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
