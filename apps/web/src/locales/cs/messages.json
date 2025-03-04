@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritické aplikace"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Žádné ohrožené kritické aplikace"
+  },
   "accessIntelligence": {
     "message": "Přístup k inteligenci"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Přihlásit se do Bitwardenu"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Zadejte kód odeslaný na Váš e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Zadejte kód z Vaší ověřovací aplikace"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Stiskněte svůj YubiKey pro ověření"
+  },
   "authenticationTimeout": {
     "message": "Časový limit ověření"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Zapamatovat mě"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Neptat se na tomto zařízení 30 dnů"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Znovu zaslat ověřovací kód na e-mail"
   },
   "useAnotherTwoStepMethod": {
     "message": "Použít jinou metodu dvoufázového přihlášení"
+  },
+  "selectAnotherMethod": {
+    "message": "Vybrat jinou metodu",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Použít obnovovací kód"
   },
   "insertYubiKey": {
     "message": "Vložte YubiKey do USB portu Vašeho počítače a stiskněte jeho tlačítko."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Volby dvoufázového přihlášení"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Vyberte metodu dvoufázového přihlášení"
   },
   "recoveryCodeDesc": {
     "message": "Ztratili jste přístup ke všem nastaveným poskytovatelům dvoufázového přihlášení? Použijte obnovovací kód pro vypnutí dvoufázového přihlášení."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Migrováno z FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Otevřít v nové kartě"
   },
   "emailTitle": {
     "message": "E-mail"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Používáte nepodporovaný webový prohlížeč. Webový trezor nemusí pracovat správně."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Máte čekající žádost o přihlášení z jiného zařízení."
+  },
+  "reviewLoginRequest": {
+    "message": "Podívat se na žádost o přihlášení"
+  },
   "freeTrialEndPromptCount": {
     "message": "Vaše zkušební doba končí za $COUNT$ dnů.",
     "placeholders": {
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Nastavte minimální požadavky pro sílu hlavního hesla."
+  },
+  "passwordStrengthScore": {
+    "message": "Skóre síly hesla: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Požadovat dvoufázové přihlášení"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Ověřit WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Přečíst bezpečnostní klíč"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Čeká se na interakci s bezpečnostním klíčem..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn není v tomto prohlížeči podporován."
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení Duo."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Pro Váš účet je nutné dvoufázové přihlášení. Pro dokončení přihlášení postupujte podle následujících kroků."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Postupujte podle kroků níže pro dokončení přihlášení."
   },
   "launchDuo": {
     "message": "Spustit Duo"
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nepovolí členům odemknout svůj účet pomocí PIN."
+  },
+  "limitedEventLogs": {
+    "message": "Plány $PRODUCT_TYPE$ nemají přístup k protokolům reálných událostí",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Získejte plný přístup k protokolům událostí organizace aktualizací do týmů nebo plánu Enterprise."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Aktualizovat pro reálná data protokolu událostí"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
   }
 }
