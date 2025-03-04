@@ -258,6 +258,7 @@ import { BackgroundBrowserBiometricsService } from "../key-management/biometrics
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
+import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
 import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
@@ -399,6 +400,7 @@ export default class MainBackground {
   cipherAuthorizationService: CipherAuthorizationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
 
+  ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
 
   onUpdatedRan: boolean;
@@ -1289,6 +1291,10 @@ export default class MainBackground {
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
+    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(
+      this.accountService,
+      this.environmentService,
+    );
     this.ipcService = new IpcBackgroundService(this.logService);
   }
 
