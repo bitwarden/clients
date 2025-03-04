@@ -1,52 +1,89 @@
 import { css } from "@emotion/css";
-import { html, TemplateResult } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { ActionButton } from "../../../content/components/buttons/action-button";
 import { spacing, themes } from "../../../content/components/constants/styles";
-import { Folder, User } from "../../../content/components/icons";
-import { DropdownMenu } from "../dropdown-menu";
+import { User, Folder, Business, Family } from "../../../content/components/icons";
+import { optionSelectionTagName } from "../option-selection/option-selection";
 
 export function ButtonRow({
   theme,
-  buttonAction,
-  buttonText,
+  primaryButtonText,
+  handlePrimaryButtonClick = (event) => {},
+  handleSelectionUpdate = () => {},
 }: {
   theme: Theme;
-  buttonAction: (e: Event) => void;
-  buttonText: string;
+  primaryButtonText: string;
+  handlePrimaryButtonClick: (e: Event) => void;
+  handleSelectionUpdate?: (selectValue: any, selectId: string) => void;
 }) {
+  const iconProps = { color: themes[theme].text.main, theme };
+  const activeIconProps = { ...iconProps, color: themes[theme].text.contrast };
+
+  const mockVaultOptions = [
+    { icon: User(iconProps), activeIcon: User(activeIconProps), text: "My Vault", value: 1 },
+    {
+      icon: Business(iconProps),
+      activeIcon: Business(activeIconProps),
+      text: "Acme, inc",
+      value: 2,
+    },
+    {
+      icon: Business(iconProps),
+      activeIcon: Business(activeIconProps),
+      text: "A Really Long Business Name That Just Kinda Goes On For A Really Long Time",
+      value: 2,
+    },
+    {
+      icon: Family(iconProps),
+      activeIcon: Family(activeIconProps),
+      text: "Family Vault",
+      value: 3,
+    },
+  ];
+
+  const FolderIcon = Folder(iconProps);
+  const ActiveFolderIcon = Folder(activeIconProps);
+  const mockFolderOptions = [
+    { icon: FolderIcon, activeIcon: ActiveFolderIcon, text: "Folder 1", value: 1 },
+    { icon: FolderIcon, activeIcon: ActiveFolderIcon, text: "Folder 2", value: 2 },
+    { icon: FolderIcon, activeIcon: ActiveFolderIcon, text: "Folder 3", value: 3 },
+  ];
+
   return html`
     <div class=${buttonRowStyles}>
-      ${[
-        ActionButton({
-          buttonAction: buttonAction,
-          buttonText,
-          theme,
-        }),
-        DropdownContainer({
-          children: [
-            DropdownMenu({
-              buttonText: "You",
-              icon: User({ color: themes[theme].text.muted, theme }),
-              theme,
-            }),
-            DropdownMenu({
-              buttonText: "Folder",
-              icon: Folder({ color: themes[theme].text.muted, theme }),
-              disabled: true,
-              theme,
-            }),
-          ],
-        }),
-      ]}
+      ${ActionButton({
+        handleClick: handlePrimaryButtonClick,
+        buttonText: primaryButtonText,
+        theme,
+      })}
+      <div class=${optionSelectionsStyles}>
+        ${mockVaultOptions.length > 1
+          ? html`<option-selection
+              buttonText="My vault"
+              theme=${theme}
+              .icon=${User({ color: themes[theme].text.muted, theme })}
+              .options=${mockVaultOptions}
+              .handleSelectionUpdate=${(selectValue: any) =>
+                handleSelectionUpdate(selectValue, "vault")}
+            ></option-selection>`
+          : nothing}
+        ${mockFolderOptions.length > 1
+          ? html`<option-selection
+              buttonText="Folder"
+              disabled=${true}
+              theme=${theme}
+              .icon=${Folder({ color: themes[theme].text.muted, theme })}
+              .options=${mockFolderOptions}
+              .handleSelectionUpdate=${(selectValue: any) =>
+                handleSelectionUpdate(selectValue, "folder")}
+            ></option-selection>`
+          : nothing}
+      </div>
     </div>
   `;
-}
-
-function DropdownContainer({ children }: { children: TemplateResult[] }) {
-  return html` <div class=${dropdownContainerStyles}>${children}</div> `;
 }
 
 const buttonRowStyles = css`
@@ -68,14 +105,14 @@ const buttonRowStyles = css`
   }
 `;
 
-const dropdownContainerStyles = css`
+const optionSelectionsStyles = css`
   gap: 8px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   overflow: hidden;
 
-  > div {
+  > ${optionSelectionTagName} {
     min-width: calc(50% - ${spacing["1.5"]});
   }
 `;
