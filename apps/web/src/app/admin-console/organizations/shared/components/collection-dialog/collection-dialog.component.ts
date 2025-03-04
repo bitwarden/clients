@@ -293,7 +293,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       if (this.tabIndex === CollectionDialogTabType.Access && !accessTabError) {
         this.toastService.showToast({
           variant: "error",
-          title: null,
           message: this.i18nService.t(
             "fieldOnTabRequiresAttention",
             this.i18nService.t("collectionInfo"),
@@ -302,7 +301,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       } else if (this.tabIndex === CollectionDialogTabType.Info && accessTabError) {
         this.toastService.showToast({
           variant: "error",
-          title: null,
           message: this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("access")),
         });
       }
@@ -331,7 +329,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t(
         this.editMode ? "editedCollectionId" : "createdCollectionId",
         collectionView.name,
@@ -361,7 +358,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("deletedCollectionId", this.collection?.name),
     });
 
@@ -497,10 +493,7 @@ function mapUserToAccessItemView(
  */
 export function openCollectionDialog(
   dialogService: DialogService,
-  config: DialogConfig<CollectionDialogParams>,
+  config: DialogConfig<CollectionDialogParams, DialogRef<CollectionDialogResult>>,
 ) {
-  return dialogService.open<CollectionDialogResult, CollectionDialogParams>(
-    CollectionDialogComponent,
-    config,
-  );
+  return dialogService.open(CollectionDialogComponent, config);
 }
