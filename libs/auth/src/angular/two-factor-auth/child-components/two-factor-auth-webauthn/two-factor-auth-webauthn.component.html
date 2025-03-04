@@ -1,0 +1,24 @@
+<div id="web-authn-frame" class="tw-mb-3" *ngIf="!webAuthnNewTab">
+  <div *ngIf="!webAuthnReady" class="tw-flex tw-items-center tw-justify-center">
+    <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+  </div>
+
+  <iframe
+    id="webauthn_iframe"
+    sandbox="allow-scripts allow-same-origin"
+    [ngClass]="{ 'tw-hidden': !webAuthnReady }"
+  ></iframe>
+</div>
+<ng-container *ngIf="webAuthnNewTab">
+  <button
+    class="tw-mb-3"
+    buttonType="primary"
+    [block]="true"
+    bitButton
+    type="button"
+    (click)="authWebAuthn()"
+    appStopClick
+  >
+    {{ "openInNewTab" | i18n }}
+  </button>
+</ng-container>

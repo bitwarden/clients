@@ -193,6 +193,8 @@ async function loadNotificationBar() {
         {
           command: "saveCipherAttemptCompleted",
           error: msg.data?.error,
+          username: msg.data?.username,
+          cipherId: msg.data?.cipherId,
         },
         "*",
       );
