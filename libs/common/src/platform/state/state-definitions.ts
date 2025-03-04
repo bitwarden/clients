@@ -29,9 +29,20 @@ export const ORGANIZATION_MANAGEMENT_PREFERENCES_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
-export const AC_BANNERS_DISMISSED_DISK = new StateDefinition("acBannersDismissed", "disk", {
-  web: "disk-local",
-});
+export const ACCOUNT_DEPROVISIONING_BANNER_DISK = new StateDefinition(
+  "showAccountDeprovisioningBanner",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
+export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
+  "showDeleteManagedUserWarning",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
@@ -187,3 +198,5 @@ export const NEW_DEVICE_VERIFICATION_NOTICE = new StateDefinition(
   },
 );
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
+export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
+export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");

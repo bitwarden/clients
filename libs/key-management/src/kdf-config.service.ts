@@ -1,21 +1,19 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, Observable } from "rxjs";
+import { Jsonify } from "type-fest/source/jsonify";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { UserId } from "@bitwarden/common/src/types/guid";
-
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KDF_CONFIG_DISK, StateProvider, UserKeyDefinition } from "../../common/src/platform/state";
+import {
+  KDF_CONFIG_DISK,
+  StateProvider,
+  UserKeyDefinition,
+} from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { KdfType } from "./enums/kdf-type.enum";
 import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "./models/kdf-config";
 
 export const KDF_CONFIG = new UserKeyDefinition<KdfConfig>(KDF_CONFIG_DISK, "kdfConfig", {
-  deserializer: (kdfConfig: KdfConfig) => {
+  deserializer: (kdfConfig: Jsonify<KdfConfig>) => {
     if (kdfConfig == null) {
       return null;
     }
@@ -28,11 +26,12 @@ export const KDF_CONFIG = new UserKeyDefinition<KdfConfig>(KDF_CONFIG_DISK, "kdf
 
 export class DefaultKdfConfigService implements KdfConfigService {
   constructor(private stateProvider: StateProvider) {}
+
   async setKdfConfig(userId: UserId, kdfConfig: KdfConfig) {
-    if (!userId) {
+    if (userId == null) {
       throw new Error("userId cannot be null");
     }
-    if (kdfConfig === null) {
+    if (kdfConfig == null) {
       throw new Error("kdfConfig cannot be null");
     }
     await this.stateProvider.setUserState(KDF_CONFIG, kdfConfig, userId);
@@ -40,14 +39,20 @@ export class DefaultKdfConfigService implements KdfConfigService {
 
   async getKdfConfig(): Promise<KdfConfig> {
     const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+    if (userId == null) {
+      throw new Error("KdfConfig can only be retrieved when there is active user");
+    }
     const state = await firstValueFrom(this.stateProvider.getUser(userId, KDF_CONFIG).state$);
-    if (state === null) {
+    if (state == null) {
       throw new Error("KdfConfig for active user account state is null");
     }
     return state;
   }
 
-  getKdfConfig$(userId: UserId): Observable<KdfConfig> {
+  getKdfConfig$(userId: UserId): Observable<KdfConfig | null> {
+    if (userId == null) {
+      throw new Error("userId cannot be null");
+    }
     return this.stateProvider.getUser(userId, KDF_CONFIG).state$;
   }
 }

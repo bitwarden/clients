@@ -24,6 +24,12 @@ export default {
     theme: ThemeTypes.Light,
     handleCloseNotification: () => alert("Close Clicked"),
   },
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=32-3461&m=dev",
+    },
+  },
 } as Meta<Args>;
 
 const Template = (args: Args) => NotificationHeader({ ...args });

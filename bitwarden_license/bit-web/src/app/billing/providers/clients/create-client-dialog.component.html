@@ -15,7 +15,7 @@
         <div class="tw-grid tw-grid-flow-col tw-auto-cols-[minmax(0,_2fr)] tw-gap-4 tw-mb-4">
           <div
             *ngFor="let planCard of planCards"
-            [ngClass]="getPlanCardContainerClasses(planCard.selected)"
+            [ngClass]="planCard.getContainerClasses()"
             (click)="selectPlan(planCard.name)"
             tabindex="0"
           >
@@ -29,9 +29,11 @@
               <div class="tw-pl-5 tw-py-4 tw-pr-4" [ngClass]="{ 'tw-pt-10': !planCard.selected }">
                 <h3 class="tw-text-2xl tw-font-bold tw-uppercase">{{ planCard.name }}</h3>
                 <span class="tw-text-2xl tw-font-semibold">{{
-                  planCard.cost | currency: "$"
+                  planCard.getMonthlyCost() | currency: "$"
                 }}</span>
-                <span class="tw-text-sm tw-font-bold">/ {{ "monthPerMember" | i18n }}</span>
+                <span class="tw-text-sm tw-font-bold"
+                  >/ {{ planCard.getTimePerMemberLabel() | i18n }}</span
+                >
               </div>
             </div>
           </div>
@@ -45,8 +47,8 @@
           <input type="text" bitInput formControlName="organizationName" />
           <bit-error-summary
             *ngIf="
-              formGroup.get('organizationName').errors?.['maxLength'] &&
-              formGroup.get('organizationName').touched
+              formGroup.controls.organizationName.errors?.['maxLength'] &&
+              formGroup.controls.organizationName.touched
             "
           >
             {{ "organizationNameMaxLength" | i18n }}

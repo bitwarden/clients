@@ -30,7 +30,7 @@ export abstract class PolicyService {
    * A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
    * @param policyType the {@link PolicyType} to search for
    */
-  getAll$: (policyType: PolicyType, userId?: UserId) => Observable<Policy[]>;
+  getAll$: (policyType: PolicyType, userId: UserId) => Observable<Policy[]>;
 
   /**
    * All {@link Policy} objects for the specified user (from sync data).

@@ -76,6 +76,12 @@ export class Organization {
   /**
    * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
    */
+  limitItemDeletion: boolean;
+  /**
+   * Refers to the ability to limit delete permission of collection items.
+   * If set to true, members can only delete items when they have a Can Manage permission over the collection.
+   * If set to false, members can delete items when they have a Can Manage OR Can Edit permission over the collection.
+   */
   allowAdminAccessToAllCollectionItems: boolean;
   /**
    * Indicates if this organization manages the user.
@@ -138,6 +144,7 @@ export class Organization {
     this.accessSecretsManager = obj.accessSecretsManager;
     this.limitCollectionCreation = obj.limitCollectionCreation;
     this.limitCollectionDeletion = obj.limitCollectionDeletion;
+    this.limitItemDeletion = obj.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
     this.useRiskInsights = obj.useRiskInsights;

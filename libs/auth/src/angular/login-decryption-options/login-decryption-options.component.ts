@@ -202,7 +202,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     });
 
     const autoEnrollStatus$ = defer(() =>
-      this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(),
+      this.ssoLoginService.getActiveUserOrganizationSsoIdentifier(this.activeAccountId),
     ).pipe(
       switchMap((organizationIdentifier) => {
         if (organizationIdentifier == undefined) {

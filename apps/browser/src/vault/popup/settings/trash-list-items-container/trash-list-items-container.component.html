@@ -31,7 +31,7 @@
         ></i>
         <span slot="secondary">{{ cipher.subTitle }}</span>
       </button>
-      <ng-container slot="end" *ngIf="cipher.edit">
+      <ng-container slot="end" *ngIf="cipher.edit && cipher.viewPassword">
         <bit-item-action>
           <button
             type="button"

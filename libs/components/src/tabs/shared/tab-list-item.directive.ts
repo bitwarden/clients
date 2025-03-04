@@ -44,7 +44,7 @@ export class TabListItemDirective implements FocusableOption {
    */
   get textColorClassList(): string[] {
     if (this.disabled) {
-      return ["!tw-text-muted", "hover:!tw-text-muted"];
+      return ["!tw-text-secondary-300", "hover:!tw-text-secondary-300"];
     }
     if (this.active) {
       return ["!tw-text-primary-600", "hover:!tw-text-primary-700"];
@@ -60,7 +60,7 @@ export class TabListItemDirective implements FocusableOption {
       "tw-px-4",
       "tw-font-semibold",
       "tw-transition",
-      "tw-rounded-t",
+      "tw-rounded-t-lg",
       "tw-border-0",
       "tw-border-x",
       "tw-border-t-4",
@@ -71,12 +71,12 @@ export class TabListItemDirective implements FocusableOption {
       "focus-visible:tw-z-10",
       "focus-visible:tw-outline-none",
       "focus-visible:tw-ring-2",
-      "focus-visible:tw-ring-primary-700",
+      "focus-visible:tw-ring-primary-600",
     ];
   }
 
   get disabledClassList(): string[] {
-    return ["!tw-bg-secondary-100", "!tw-no-underline", "tw-cursor-not-allowed"];
+    return ["!tw-no-underline", "tw-cursor-not-allowed"];
   }
 
   get activeClassList(): string[] {
@@ -87,6 +87,7 @@ export class TabListItemDirective implements FocusableOption {
       "tw-border-b",
       "tw-border-b-background",
       "!tw-bg-background",
+      "hover:tw-no-underline",
       "hover:tw-border-t-primary-700",
       "focus-visible:tw-border-t-primary-700",
       "focus-visible:!tw-text-primary-700",

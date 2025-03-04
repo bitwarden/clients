@@ -107,7 +107,7 @@ export function optionsToRandomAsciiRequest(options: PasswordGenerationOptions) 
       DefaultPasswordGenerationOptions.special,
       DefaultPasswordGenerationOptions.minSpecial,
     ),
-    ambiguous: options.ambiguous ?? DefaultPasswordGenerationOptions.ambiguous,
+    ambiguous: options.ambiguous ?? DefaultPasswordGenerationOptions.ambiguous!,
     all: 0,
   };
 

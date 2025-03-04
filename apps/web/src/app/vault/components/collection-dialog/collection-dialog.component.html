@@ -70,11 +70,11 @@
             </ng-container>
             <ng-container *ngIf="!dialogReadonly">
               <bit-callout
-                title="{{ 'grantAddAccessCollectionWarningTitle' | i18n }}"
+                title="{{ 'grantManageCollectionWarningTitle' | i18n }}"
                 type="warning"
                 *ngIf="showAddAccessWarning"
               >
-                {{ "grantAddAccessCollectionWarning" | i18n }}
+                {{ "grantManageCollectionWarning" | i18n }}
               </bit-callout>
               <span *ngIf="organization.useGroups">{{ "grantCollectionAccess" | i18n }}</span>
               <span *ngIf="!organization.useGroups">{{

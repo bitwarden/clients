@@ -25,6 +25,12 @@ export default {
     theme: ThemeTypes.Light,
     buttonAction: () => alert("Clicked"),
   },
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=487-14755&t=2O7uCAkwRZCcjumm-4",
+    },
+  },
 } as Meta<Args>;
 
 const Template = (args: Args) => ActionButton({ ...args });

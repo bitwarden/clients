@@ -13,7 +13,7 @@ export class FolderApiService implements FolderApiServiceAbstraction {
     private apiService: ApiService,
   ) {}
 
-  async save(folder: Folder, userId: UserId): Promise<any> {
+  async save(folder: Folder, userId: UserId): Promise<FolderData> {
     const request = new FolderRequest(folder);
 
     let response: FolderResponse;
@@ -26,6 +26,7 @@ export class FolderApiService implements FolderApiServiceAbstraction {
 
     const data = new FolderData(response);
     await this.folderService.upsert(data, userId);
+    return data;
   }
 
   async delete(id: string, userId: UserId): Promise<any> {

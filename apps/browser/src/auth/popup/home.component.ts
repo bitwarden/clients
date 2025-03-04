@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, firstValueFrom, switchMap, takeUntil, tap } from "rxjs";
 
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { LoginEmailServiceAbstraction, RegisterRouteService } from "@bitwarden/auth/common";
+import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -30,9 +30,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     rememberEmail: [false],
   });
 
-  // TODO: remove when email verification flag is removed
-  registerRoute$ = this.registerRouteService.registerRoute$();
-
   constructor(
     protected platformUtilsService: PlatformUtilsService,
     private formBuilder: FormBuilder,
@@ -40,7 +37,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private loginEmailService: LoginEmailServiceAbstraction,
     private accountSwitcherService: AccountSwitcherService,
-    private registerRouteService: RegisterRouteService,
     private toastService: ToastService,
     private configService: ConfigService,
     private route: ActivatedRoute,
@@ -85,8 +81,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         tap(async (flag) => {
           // If the flag is turned ON, we must force a reload to ensure the correct UI is shown
           if (flag) {
+            const qParams = await firstValueFrom(this.route.queryParams);
+
             const uniqueQueryParams = {
-              ...this.route.queryParams,
+              ...qParams,
               // adding a unique timestamp to the query params to force a reload
               t: new Date().getTime().toString(),
             };
@@ -118,13 +116,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     await this.setLoginEmailValues();
-    await this.router.navigate(["login"], { queryParams: { email: this.formGroup.value.email } });
+    await this.router.navigate(["login"], {
+      queryParams: { email: this.formGroup.controls.email.value },
+    });
   }
 
   async setLoginEmailValues() {
     // Note: Browser saves email settings here instead of the login component
-    this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
-    await this.loginEmailService.setLoginEmail(this.formGroup.value.email);
+    this.loginEmailService.setRememberEmail(this.formGroup.controls.rememberEmail.value);
+    await this.loginEmailService.setLoginEmail(this.formGroup.controls.email.value);
     await this.loginEmailService.saveEmailSettings();
   }
 }

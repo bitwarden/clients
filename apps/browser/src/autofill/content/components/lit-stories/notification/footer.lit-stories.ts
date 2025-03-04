@@ -8,6 +8,8 @@ import { NotificationFooter } from "../../notification/footer";
 type Args = {
   notificationType: NotificationType;
   theme: Theme;
+  handleSaveAction: (e: Event) => void;
+  i18n: { [key: string]: string };
 };
 
 export default {
@@ -22,6 +24,17 @@ export default {
   args: {
     theme: ThemeTypes.Light,
     notificationType: "add",
+    i18n: {
+      saveAsNewLoginAction: "Save as New Login",
+      saveAction: "Save",
+    },
+    handleSaveAction: () => alert("Save action triggered"),
+  },
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=32-4949&m=dev",
+    },
   },
 } as Meta<Args>;
 

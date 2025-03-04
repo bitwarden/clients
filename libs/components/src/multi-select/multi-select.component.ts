@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { hasModifierKey } from "@angular/cdk/keycodes";
-import { NgIf } from "@angular/common";
 import {
   Component,
   Input,
@@ -24,10 +23,10 @@ import {
 import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BadgeModule } from "../badge";
 import { BitFormFieldControl } from "../form-field/form-field-control";
-import { I18nPipe } from "../shared/i18n.pipe";
 
 import { SelectItemView } from "./models/select-item-view";
 
@@ -39,7 +38,7 @@ let nextId = 0;
   templateUrl: "./multi-select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: MultiSelectComponent }],
   standalone: true,
-  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, BadgeModule, NgIf, I18nPipe],
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, BadgeModule, I18nPipe],
 })
 /**
  * This component has been implemented to only support Multi-select list events

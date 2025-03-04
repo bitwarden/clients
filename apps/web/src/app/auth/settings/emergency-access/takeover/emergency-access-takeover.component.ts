@@ -13,9 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KdfType, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { EmergencyAccessService } from "../../../emergency-access";
@@ -53,8 +51,6 @@ export class EmergencyAccessTakeoverComponent
     i18nService: I18nService,
     keyService: KeyService,
     messagingService: MessagingService,
-    stateService: StateService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
     platformUtilsService: PlatformUtilsService,
     policyService: PolicyService,
     private emergencyAccessService: EmergencyAccessService,
@@ -70,10 +66,8 @@ export class EmergencyAccessTakeoverComponent
       i18nService,
       keyService,
       messagingService,
-      passwordGenerationService,
       platformUtilsService,
       policyService,
-      stateService,
       dialogService,
       kdfConfigService,
       masterPasswordService,

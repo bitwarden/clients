@@ -5,10 +5,15 @@ import { TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { organizationRedirectGuard } from "./org-redirect.guard";
 
@@ -41,13 +46,17 @@ const orgFactory = (props: Partial<Organization> = {}) =>
 describe("Organization Redirect Guard", () => {
   let organizationService: MockProxy<OrganizationService>;
   let routerHarness: RouterTestingHarness;
+  let accountService: FakeAccountService;
+  const userId = Utils.newGuid() as UserId;
 
   beforeEach(async () => {
     organizationService = mock<OrganizationService>();
+    accountService = mockAccountServiceWith(userId);
 
     TestBed.configureTestingModule({
       providers: [
         { provide: OrganizationService, useValue: organizationService },
+        { provide: AccountService, useValue: accountService },
         provideRouter([
           {
             path: "",
@@ -89,16 +98,16 @@ describe("Organization Redirect Guard", () => {
 
   it("redirects to `/` if the organization id provided is not found", async () => {
     const org = orgFactory();
-    organizationService.get.calledWith(org.id).mockResolvedValue(null);
+    organizationService.organizations$.calledWith(userId).mockReturnValue(of([]));
     await routerHarness.navigateByUrl(`organizations/${org.id}/noCallback`);
     expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
       "This is the home screen!",
     );
   });
 
-  it("redirects to `/organizations/{id}` if no custom redirect is supplied but the user can access the admin onsole", async () => {
+  it("redirects to `/organizations/{id}` if no custom redirect is supplied but the user can access the admin console", async () => {
     const org = orgFactory();
-    organizationService.get.calledWith(org.id).mockResolvedValue(org);
+    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
     await routerHarness.navigateByUrl(`organizations/${org.id}/noCallback`);
     expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
       "This is the admin console!",
@@ -107,7 +116,7 @@ describe("Organization Redirect Guard", () => {
 
   it("redirects properly when the redirect callback returns a single string", async () => {
     const org = orgFactory();
-    organizationService.get.calledWith(org.id).mockResolvedValue(org);
+    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
     await routerHarness.navigateByUrl(`organizations/${org.id}/stringCallback`);
     expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
       "This is a subroute of the admin console!",
@@ -116,7 +125,7 @@ describe("Organization Redirect Guard", () => {
 
   it("redirects properly when the redirect callback returns an array of strings", async () => {
     const org = orgFactory();
-    organizationService.get.calledWith(org.id).mockResolvedValue(org);
+    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
     await routerHarness.navigateByUrl(`organizations/${org.id}/arrayCallback`);
     expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
       "This is a subroute of the admin console!",

@@ -2,9 +2,14 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, startWith, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, Observable, startWith, switchMap } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import {
@@ -39,6 +44,7 @@ export class ServiceAccountsComponent implements OnInit {
     private dialogService: DialogService,
     private serviceAccountService: ServiceAccountService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
@@ -48,8 +54,13 @@ export class ServiceAccountsComponent implements OnInit {
     ]).pipe(
       switchMap(async ([params]) => {
         this.organizationId = params.organizationId;
+        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         this.organizationEnabled = (
-          await this.organizationService.get(params.organizationId)
+          await firstValueFrom(
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          )
         )?.enabled;
 
         return await this.getServiceAccounts();

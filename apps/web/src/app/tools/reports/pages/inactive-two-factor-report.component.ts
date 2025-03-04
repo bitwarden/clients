@@ -2,8 +2,8 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -11,7 +11,10 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService } from "@bitwarden/components";
+import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+
+import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { CipherReportComponent } from "./cipher-report.component";
 
@@ -27,19 +30,25 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
   constructor(
     protected cipherService: CipherService,
     protected organizationService: OrganizationService,
-    modalService: ModalService,
+    dialogService: DialogService,
+    accountService: AccountService,
     private logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
+    cipherFormConfigService: CipherFormConfigService,
+    adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     super(
       cipherService,
-      modalService,
+      dialogService,
       passwordRepromptService,
       organizationService,
+      accountService,
       i18nService,
       syncService,
+      cipherFormConfigService,
+      adminConsoleCipherFormConfigService,
     );
   }
 
@@ -120,5 +129,16 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       }
       this.services.set(serviceData.domain, serviceData.documentation);
     }
+  }
+
+  /**
+   * Provides a way to determine if someone with permissions to run an organizational report is also able to view/edit ciphers within the results
+   * Default to true for indivduals running reports on their own vault.
+   * @param c CipherView
+   * @returns boolean
+   */
+  protected canManageCipher(c: CipherView): boolean {
+    // this will only ever be false from the org view;
+    return true;
   }
 }

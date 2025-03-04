@@ -1,5 +1,3 @@
-<!-- Please remove this disable statement when editing this file! -->
-<!-- eslint-disable tailwindcss/no-custom-classname -->
 <div
   class="tw-mx-auto tw-mt-5 tw-flex tw-max-w-lg tw-flex-col tw-items-center tw-justify-center tw-p-8"
 >
@@ -14,15 +12,11 @@
       <div
         class="tw-mt-3 tw-rounded-md tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-6"
       >
-        <h2 class="tw-mb-6 tw-text-xl tw-font-semibold">{{ "loginInitiated" | i18n }}</h2>
+        <h2 class="tw-mb-6 tw-text-xl tw-font-semibold">{{ "logInRequestSent" | i18n }}</h2>
 
-        <div class="tw-text-light">
-          <p class="tw-mb-6">{{ "notificationSentDevice" | i18n }}</p>
-
-          <p class="tw-mb-6">
-            {{ "fingerprintMatchInfo" | i18n }}
-          </p>
-        </div>
+        <p class="tw-mb-6">
+          {{ "notificationSentDeviceComplete" | i18n }}
+        </p>
 
         <div class="tw-mb-6">
           <h4 class="tw-font-semibold">{{ "fingerprintPhraseHeader" | i18n }}</h4>
@@ -39,7 +33,7 @@
 
         <hr />
 
-        <div class="tw-text-light tw-mt-3">
+        <div class="tw-mt-3">
           {{ "loginWithDeviceEnabledNote" | i18n }}
           <a routerLink="/login">{{ "viewAllLoginOptions" | i18n }}</a>
         </div>
@@ -52,7 +46,7 @@
       >
         <h2 class="tw-mb-6 tw-text-xl tw-font-semibold">{{ "adminApprovalRequested" | i18n }}</h2>
 
-        <div class="tw-text-light">
+        <div>
           <p class="tw-mb-6">{{ "adminApprovalRequestSentToAdmins" | i18n }}</p>
           <p class="tw-mb-6">{{ "youWillBeNotifiedOnceApproved" | i18n }}</p>
         </div>
@@ -66,7 +60,7 @@
 
         <hr />
 
-        <div class="tw-text-light tw-mt-3">
+        <div class="tw-mt-3">
           {{ "troubleLoggingIn" | i18n }}
           <a routerLink="/login-initiated">{{ "viewAllLoginOptions" | i18n }}</a>
         </div>

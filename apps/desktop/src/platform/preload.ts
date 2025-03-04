@@ -123,11 +123,12 @@ const ephemeralStore = {
   getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
   removeEphemeralValue: (key: string): Promise<void> =>
     ipcRenderer.invoke("deleteEphemeralValue", key),
+  listEphemeralValueKeys: (): Promise<string[]> => ipcRenderer.invoke("listEphemeralValueKeys"),
 };
 
 const localhostCallbackService = {
-  openSsoPrompt: (codeChallenge: string, state: string): Promise<void> => {
-    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state });
+  openSsoPrompt: (codeChallenge: string, state: string, email: string): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email });
   },
 };
 

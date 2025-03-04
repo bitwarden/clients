@@ -56,6 +56,7 @@ export class InlineMenuFieldQualificationService
     "neuer benutzer",
     "neues passwort",
     "neue e-mail",
+    "pwdcheck",
   ];
   private updatePasswordFieldKeywords = [
     "update password",

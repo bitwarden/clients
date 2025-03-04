@@ -225,9 +225,9 @@ export class FakeStateProvider implements StateProvider {
 
   async setUserState<T>(
     userKeyDefinition: UserKeyDefinition<T>,
-    value: T,
+    value: T | null,
     userId?: UserId,
-  ): Promise<[UserId, T]> {
+  ): Promise<[UserId, T | null]> {
     await this.mock.setUserState(userKeyDefinition, value, userId);
     if (userId) {
       return [userId, await this.getUser(userId, userKeyDefinition).update(() => value)];

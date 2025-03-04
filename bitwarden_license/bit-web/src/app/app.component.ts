@@ -20,16 +20,9 @@ export class AppComponent extends BaseAppComponent implements OnInit {
     this.policyListService.addPolicies([
       new MaximumVaultTimeoutPolicy(),
       new DisablePersonalVaultExportPolicy(),
+      new FreeFamiliesSponsorshipPolicy(),
+      new ActivateAutofillPolicy(),
     ]);
-
-    this.configService
-      .getFeatureFlag(FeatureFlag.DisableFreeFamiliesSponsorship)
-      .then((isFreeFamilyEnabled) => {
-        if (isFreeFamilyEnabled) {
-          this.policyListService.addPolicies([new FreeFamiliesSponsorshipPolicy()]);
-        }
-        this.policyListService.addPolicies([new ActivateAutofillPolicy()]);
-      });
 
     this.configService.getFeatureFlag(FeatureFlag.IdpAutoSubmitLogin).then((enabled) => {
       if (

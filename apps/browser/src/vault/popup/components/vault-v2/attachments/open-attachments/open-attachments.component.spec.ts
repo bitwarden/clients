@@ -50,7 +50,7 @@ describe("OpenAttachmentsComponent", () => {
   } as Organization;
 
   const getCipher = jest.fn().mockResolvedValue(cipherDomain);
-  const getOrganization = jest.fn().mockResolvedValue(org);
+  const organizations$ = jest.fn().mockReturnValue(of([org]));
   const showFilePopoutMessage = jest.fn().mockReturnValue(false);
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -67,7 +67,7 @@ describe("OpenAttachmentsComponent", () => {
     openCurrentPagePopout.mockClear();
     getCipher.mockClear();
     showToast.mockClear();
-    getOrganization.mockClear();
+    organizations$.mockClear();
     showFilePopoutMessage.mockClear();
     hasPremiumFromAnySource$.next(true);
 
@@ -89,7 +89,7 @@ describe("OpenAttachmentsComponent", () => {
         },
         {
           provide: OrganizationService,
-          useValue: { get: getOrganization },
+          useValue: { organizations$ },
         },
         {
           provide: FilePopoutUtilsService,
@@ -148,11 +148,11 @@ describe("OpenAttachmentsComponent", () => {
 
   describe("Free Orgs", () => {
     beforeEach(() => {
-      component.cipherIsAPartOfFreeOrg = undefined;
+      component.cipherIsAPartOfFreeOrg = false;
     });
 
     it("sets `cipherIsAPartOfFreeOrg` to false when the cipher is not a part of an organization", async () => {
-      cipherView.organizationId = null;
+      cipherView.organizationId = "";
 
       await component.ngOnInit();
 
@@ -162,6 +162,7 @@ describe("OpenAttachmentsComponent", () => {
     it("sets `cipherIsAPartOfFreeOrg` to true when the cipher is a part of a free organization", async () => {
       cipherView.organizationId = "888-333-333";
       org.productTierType = ProductTierType.Free;
+      org.id = cipherView.organizationId;
 
       await component.ngOnInit();
 
@@ -171,6 +172,7 @@ describe("OpenAttachmentsComponent", () => {
     it("sets `cipherIsAPartOfFreeOrg` to false when the organization is not free", async () => {
       cipherView.organizationId = "888-333-333";
       org.productTierType = ProductTierType.Families;
+      org.id = cipherView.organizationId;
 
       await component.ngOnInit();
 

@@ -27,9 +27,12 @@ describe("AdditionalOptionsSectionComponent", () => {
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let passwordRepromptEnabled$: BehaviorSubject<boolean>;
 
-  beforeEach(async () => {
-    cipherFormProvider = mock<CipherFormContainer>();
+  const getInitialCipherView = jest.fn(() => null);
 
+  beforeEach(async () => {
+    getInitialCipherView.mockClear();
+
+    cipherFormProvider = mock<CipherFormContainer>({ getInitialCipherView });
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptEnabled$ = new BehaviorSubject(true);
     passwordRepromptService.enabled$ = passwordRepromptEnabled$;
@@ -94,11 +97,11 @@ describe("AdditionalOptionsSectionComponent", () => {
     expect(component.additionalOptionsForm.disabled).toBe(true);
   });
 
-  it("initializes 'additionalOptionsForm' with original cipher view values", () => {
-    (cipherFormProvider.originalCipherView as any) = {
+  it("initializes 'additionalOptionsForm' from `getInitialCipherValue`", () => {
+    getInitialCipherView.mockReturnValueOnce({
       notes: "original notes",
       reprompt: 1,
-    } as CipherView;
+    } as CipherView);
 
     component.ngOnInit();
 

@@ -6,11 +6,12 @@ import { combineLatest, map, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DisclosureTriggerForDirective, IconButtonModule } from "@bitwarden/components";
+import {
+  DisclosureComponent,
+  DisclosureTriggerForDirective,
+  IconButtonModule,
+} from "@bitwarden/components";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { DisclosureComponent } from "../../../../../../../../libs/components/src/disclosure/disclosure.component";
 import { runInsideAngular } from "../../../../../platform/browser/run-inside-angular.operator";
 import { VaultPopupListFiltersService } from "../../../../../vault/popup/services/vault-popup-list-filters.service";
 import { VaultListFiltersComponent } from "../vault-list-filters/vault-list-filters.component";

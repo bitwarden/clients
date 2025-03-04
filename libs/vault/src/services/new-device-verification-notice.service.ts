@@ -42,6 +42,15 @@ export const NEW_DEVICE_VERIFICATION_NOTICE_KEY =
     },
   );
 
+export const SKIP_NEW_DEVICE_VERIFICATION_NOTICE = new UserKeyDefinition<boolean>(
+  NEW_DEVICE_VERIFICATION_NOTICE,
+  "shouldSkip",
+  {
+    deserializer: (data: boolean) => data,
+    clearOn: ["logout"],
+  },
+);
+
 @Injectable()
 export class NewDeviceVerificationNoticeService {
   constructor(private stateProvider: StateProvider) {}
@@ -61,5 +70,20 @@ export class NewDeviceVerificationNoticeService {
     await this.noticeState(userId).update(() => {
       return { ...newState };
     });
+  }
+
+  private skipState(userId: UserId): SingleUserState<boolean> {
+    return this.stateProvider.getUser(userId, SKIP_NEW_DEVICE_VERIFICATION_NOTICE);
+  }
+
+  skipState$(userId: UserId): Observable<boolean | null> {
+    return this.skipState(userId).state$;
+  }
+
+  async updateNewDeviceVerificationSkipNoticeState(
+    userId: UserId,
+    shouldSkip: boolean,
+  ): Promise<void> {
+    await this.skipState(userId).update(() => shouldSkip);
   }
 }

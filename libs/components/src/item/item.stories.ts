@@ -53,6 +53,12 @@ export default {
     }),
     componentWrapperDecorator((story) => `<div class="tw-bg-background-alt tw-p-2">${story}</div>`),
   ],
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-37011&t=b5tDKylm5sWm2yKo-11",
+    },
+  },
 } as Meta;
 
 type Story = StoryObj<ItemGroupComponent>;
@@ -129,12 +135,35 @@ export const ContentTypes: Story = {
   }),
 };
 
-export const TextOverflow: Story = {
+export const TextOverflowTruncate: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
       <bit-item>
         <bit-item-content>
+          <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
+          Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!
+          <ng-container slot="secondary">Worlddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd!</ng-container>
+        </bit-item-content>
+        <ng-container slot="end">
+          <bit-item-action>
+            <button type="button" bitIconButton="bwi-clone" size="small"></button>
+          </bit-item-action>
+          <bit-item-action>
+            <button type="button" bitIconButton="bwi-ellipsis-v" size="small"></button>
+          </bit-item-action>
+        </ng-container>
+      </bit-item>
+    `,
+  }),
+};
+
+export const TextOverflowWrap: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-item>
+        <bit-item-content [truncate]="false">
           <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
           Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!
           <ng-container slot="secondary">Worlddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd!</ng-container>

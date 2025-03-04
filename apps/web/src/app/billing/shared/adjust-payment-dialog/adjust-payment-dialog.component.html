@@ -1,30 +1,29 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog
-    dialogSize="large"
-    [title]="(currentType != null ? 'changePaymentMethod' : 'addPaymentMethod') | i18n"
-  >
-    <ng-container bitDialogContent>
-      <app-payment [hideBank]="!organizationId" [hideCredit]="true"></app-payment>
-      <app-manage-tax-information
-        *ngIf="taxInformation"
-        [showTaxIdField]="showTaxIdField"
-        [startWith]="taxInformation"
-        (taxInformationChanged)="taxInformationChanged($event)"
-      />
-    </ng-container>
-    <ng-container bitDialogFooter>
-      <button type="submit" bitButton bitFormButton buttonType="primary">
-        {{ "submit" | i18n }}
-      </button>
-      <button
-        type="button"
-        bitButton
-        bitFormButton
-        buttonType="secondary"
-        [bitDialogClose]="DialogResult.Cancelled"
-      >
-        {{ "cancel" | i18n }}
-      </button>
-    </ng-container>
-  </bit-dialog>
-</form>
+<bit-dialog dialogSize="large" [title]="dialogHeader">
+  <ng-container bitDialogContent>
+    <app-payment
+      [showAccountCredit]="false"
+      [showBankAccount]="!!organizationId"
+      [initialPaymentMethod]="initialPaymentMethod"
+    ></app-payment>
+    <app-manage-tax-information
+      *ngIf="taxInformation"
+      [showTaxIdField]="showTaxIdField"
+      [startWith]="taxInformation"
+      (taxInformationChanged)="taxInformationChanged($event)"
+    />
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button type="submit" bitButton bitFormButton buttonType="primary" [bitAction]="submit">
+      {{ "submit" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="secondary"
+      [bitDialogClose]="ResultType.Closed"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

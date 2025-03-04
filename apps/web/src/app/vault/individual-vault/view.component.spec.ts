@@ -1,6 +1,7 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -11,7 +12,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -41,6 +43,8 @@ describe("ViewComponent", () => {
   const mockParams: ViewCipherDialogParams = {
     cipher: mockCipher,
   };
+  const userId = Utils.newGuid() as UserId;
+  const accountService: FakeAccountService = mockAccountServiceWith(userId);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -53,10 +57,14 @@ describe("ViewComponent", () => {
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: MessagingService, useValue: mock<MessagingService>() },
+        {
+          provide: AccountService,
+          useValue: accountService,
+        },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: OrganizationService,
-          useValue: { get: jest.fn().mockResolvedValue(mockOrganization) },
+          useValue: { organizations$: jest.fn().mockReturnValue(of([mockOrganization])) },
         },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: FolderService, useValue: mock<FolderService>() },

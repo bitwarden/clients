@@ -6,11 +6,14 @@ import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
+import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
+
 @Injectable()
 export class InitService {
   private sizeService = inject(PopupSizeService);
@@ -22,15 +25,18 @@ export class InitService {
     private twoFactorService: TwoFactorService,
     private logService: LogServiceAbstraction,
     private themingService: AbstractThemingService,
+    private sdkLoadService: SdkLoadService,
+    private viewCacheService: PopupViewCacheService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
+      await this.sdkLoadService.loadAndInit();
       await this.stateService.init({ runMigrations: false }); // Browser background is responsible for migrations
       await this.i18nService.init();
       this.twoFactorService.init();
-
+      await this.viewCacheService.init();
       await this.sizeService.init();
 
       const htmlEl = window.document.documentElement;

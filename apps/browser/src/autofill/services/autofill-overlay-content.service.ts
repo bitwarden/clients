@@ -424,6 +424,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     await this.setupSubmitListenerOnFormlessField(formFieldElement);
+    return;
   }
 
   /**
@@ -439,15 +440,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.formElements.add(formElement);
       formElement.addEventListener(EVENTS.SUBMIT, this.handleFormFieldSubmitEvent);
 
-      const closesSubmitButton = await this.findSubmitButton(formElement);
+      const closestSubmitButton = await this.findSubmitButton(formElement);
 
       // If we cannot find a submit button within the form, check for a submit button outside the form.
-      if (!closesSubmitButton) {
+      if (!closestSubmitButton) {
         await this.setupSubmitListenerOnFormlessField(formFieldElement);
         return;
       }
 
-      this.setupSubmitButtonEventListeners(closesSubmitButton);
+      this.setupSubmitButtonEventListeners(closestSubmitButton);
+      return;
     }
   }
 
@@ -459,9 +461,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async setupSubmitListenerOnFormlessField(formFieldElement: FillableFormFieldElement) {
     if (formFieldElement && !this.fieldsWithSubmitElements.has(formFieldElement)) {
-      const closesSubmitButton = await this.findClosestFormlessSubmitButton(formFieldElement);
-      this.setupSubmitButtonEventListeners(closesSubmitButton);
+      const closestSubmitButton = await this.findClosestFormlessSubmitButton(formFieldElement);
+
+      this.setupSubmitButtonEventListeners(closestSubmitButton);
     }
+    return;
   }
 
   /**

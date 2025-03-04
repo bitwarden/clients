@@ -13,13 +13,13 @@
     <ng-content select="[slot=above-scroll-area]"></ng-content>
   </div>
   <div
-    class="tw-max-w-screen-sm tw-mx-auto tw-overflow-y-auto tw-flex tw-flex-col tw-w-full tw-h-full tw-styled-scrollbar"
+    class="tw-max-w-screen-sm tw-mx-auto tw-overflow-y-auto tw-flex tw-flex-col tw-size-full tw-styled-scrollbar"
     data-testid="popup-layout-scroll-region"
     (scroll)="handleScroll($event)"
     [ngClass]="{ 'tw-invisible': loading }"
   >
     <div
-      class="tw-max-w-screen-sm tw-mx-auto tw-flex-1 tw-flex tw-flex-col tw-h-full tw-w-full"
+      class="tw-max-w-screen-sm tw-mx-auto tw-flex-1 tw-flex tw-flex-col tw-size-full"
       [ngClass]="{ 'tw-p-3 bit-compact:tw-p-2': !disablePadding }"
     >
       <ng-content></ng-content>

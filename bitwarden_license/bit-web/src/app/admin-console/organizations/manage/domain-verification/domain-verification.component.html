@@ -4,7 +4,11 @@
   </button>
 </app-header>
 
-<p class="tw-text-muted tw-w-2/5" *ngIf="accountDeprovisioningEnabled$ | async">
+<p
+  bitTypography="body1"
+  class="tw-text-main tw-w-2/5"
+  *ngIf="accountDeprovisioningEnabled$ | async"
+>
   {{ "claimedDomainsDesc" | i18n }}
   <a
     bitLink

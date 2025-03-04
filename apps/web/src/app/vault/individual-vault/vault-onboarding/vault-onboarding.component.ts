@@ -18,11 +18,13 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LinkModule } from "@bitwarden/components";
 
@@ -58,25 +60,25 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
 
   protected onboardingTasks$: Observable<VaultOnboardingTasks>;
   protected showOnboarding = false;
-  protected extensionRefreshEnabled = false;
 
+  private activeId: UserId;
   constructor(
     protected platformUtilsService: PlatformUtilsService,
     protected policyService: PolicyService,
     private apiService: ApiService,
     private vaultOnboardingService: VaultOnboardingServiceAbstraction,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
-    this.onboardingTasks$ = this.vaultOnboardingService.vaultOnboardingState$;
+    this.activeId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.onboardingTasks$ = this.vaultOnboardingService.vaultOnboardingState$(this.activeId);
+
     await this.setOnboardingTasks();
     this.setInstallExtLink();
     this.individualVaultPolicyCheck();
     this.checkForBrowserExtension();
-    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
-    );
   }
 
   async ngOnChanges(changes: SimpleChanges) {
@@ -87,7 +89,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
         importData: this.ciphers.length > 0,
         installExtension: currentTasks.installExtension,
       };
-      await this.vaultOnboardingService.setVaultOnboardingTasks(updatedTasks);
+      await this.vaultOnboardingService.setVaultOnboardingTasks(this.activeId, updatedTasks);
     }
   }
 
@@ -104,19 +106,19 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
           void this.getMessages(event);
         });
 
-      window.postMessage({ command: VaultOnboardingMessages.checkBwInstalled });
+      window.postMessage({ command: VaultMessages.checkBwInstalled });
     }
   }
 
   async getMessages(event: any) {
-    if (event.data.command === VaultOnboardingMessages.HasBwInstalled && this.showOnboarding) {
+    if (event.data.command === VaultMessages.HasBwInstalled && this.showOnboarding) {
       const currentTasks = await firstValueFrom(this.onboardingTasks$);
       const updatedTasks = {
         createAccount: currentTasks.createAccount,
         importData: currentTasks.importData,
         installExtension: true,
       };
-      await this.vaultOnboardingService.setVaultOnboardingTasks(updatedTasks);
+      await this.vaultOnboardingService.setVaultOnboardingTasks(this.activeId, updatedTasks);
     }
   }
 
@@ -159,7 +161,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
 
   private async saveCompletedTasks(vaultTasks: VaultOnboardingTasks) {
     this.showOnboarding = Object.values(vaultTasks).includes(false);
-    await this.vaultOnboardingService.setVaultOnboardingTasks(vaultTasks);
+    await this.vaultOnboardingService.setVaultOnboardingTasks(this.activeId, vaultTasks);
   }
 
   individualVaultPolicyCheck() {

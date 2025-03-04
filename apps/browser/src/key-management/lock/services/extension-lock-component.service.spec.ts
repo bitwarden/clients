@@ -6,7 +6,7 @@ import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -15,7 +15,7 @@ import {
   BiometricsStatus,
   BiometricStateService,
 } from "@bitwarden/key-management";
-import { UnlockOptions } from "@bitwarden/key-management/angular";
+import { UnlockOptions } from "@bitwarden/key-management-ui";
 
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
