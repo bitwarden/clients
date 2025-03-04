@@ -4,10 +4,9 @@ import { html, nothing } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { ActionButton } from "../../../content/components/buttons/action-button";
-import { spacing, themes } from "../../../content/components/constants/styles";
-import { User, Folder, Business, Family } from "../../../content/components/icons";
+import { spacing } from "../../../content/components/constants/styles";
 import { FolderSelection } from "../option-selection/folder-selection";
-import { optionSelectionTagName } from "../option-selection/option-selection";
+import { optionSelectionTagName, Option } from "../option-selection/option-selection";
 import { VaultSelection } from "../option-selection/vault-selection";
 
 export function ButtonRow({
@@ -21,38 +20,9 @@ export function ButtonRow({
   handlePrimaryButtonClick: (e: Event) => void;
   handleSelectionUpdate?: (selectValue: any, selectId: string) => void;
 }) {
-  const iconProps = { color: themes[theme].text.main, theme };
-  const activeIconProps = { ...iconProps, color: themes[theme].text.contrast };
-
-  const mockVaultOptions = [
-    { icon: User(iconProps), activeIcon: User(activeIconProps), text: "My Vault", value: 1 },
-    {
-      icon: Business(iconProps),
-      activeIcon: Business(activeIconProps),
-      text: "Acme, inc",
-      value: 2,
-    },
-    {
-      icon: Business(iconProps),
-      activeIcon: Business(activeIconProps),
-      text: "A Really Long Business Name That Just Kinda Goes On For A Really Long Time",
-      value: 2,
-    },
-    {
-      icon: Family(iconProps),
-      activeIcon: Family(activeIconProps),
-      text: "Family Vault",
-      value: 3,
-    },
-  ];
-
-  const FolderIcon = Folder(iconProps);
-  const ActiveFolderIcon = Folder(activeIconProps);
-  const mockFolderOptions = [
-    { icon: FolderIcon, activeIcon: ActiveFolderIcon, text: "Folder 1", value: 1 },
-    { icon: FolderIcon, activeIcon: ActiveFolderIcon, text: "Folder 2", value: 2 },
-    { icon: FolderIcon, activeIcon: ActiveFolderIcon, text: "Folder 3", value: 3 },
-  ];
+  // Placeholders for options data hydration
+  const vaultOptions: Option[] = [];
+  const folderOptions: Option[] = [];
 
   return html`
     <div class=${buttonRowStyles}>
@@ -62,17 +32,17 @@ export function ButtonRow({
         theme,
       })}
       <div class=${optionSelectionsStyles}>
-        ${mockVaultOptions.length > 1
+        ${vaultOptions.length > 1
           ? VaultSelection({
               theme,
-              options: mockVaultOptions,
+              options: vaultOptions,
               handleSelectionUpdate,
             })
           : nothing}
-        ${mockFolderOptions.length > 1
+        ${folderOptions.length > 1
           ? FolderSelection({
               theme,
-              options: mockFolderOptions,
+              options: folderOptions,
               handleSelectionUpdate,
             })
           : nothing}
