@@ -110,9 +110,9 @@ describe("DesktopLoginComponentService", () => {
     // Array of all permutations of isAppImage and isDev
     const permutations = [
       [true, false], // Case 1: isAppImage true
-      [false, true], // Case 3: isDev true
-      [true, true], // Case 7: all true
-      [false, false], // Case 8: all false
+      [false, true], // Case 2: isDev true
+      [true, true], // Case 3: all true
+      [false, false], // Case 4: all false
     ];
 
     permutations.forEach(([isAppImage, isDev]) => {
