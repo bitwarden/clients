@@ -18,9 +18,9 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { BreadcrumbsModule, MenuModule } from "@bitwarden/components";
 
+import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
-import { CollectionDialogTabType } from "../../components/collection-dialog";
 import { PipesModule } from "../pipes/pipes.module";
 import {
   All,

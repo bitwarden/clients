@@ -35,10 +35,11 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SelectModule , BitValidators, DialogService, ToastService } from "@bitwarden/components";
+import { SelectModule, BitValidators, DialogService, ToastService } from "@bitwarden/components";
 
-import { GroupApiService, GroupView } from "../../../admin-console/organizations/core";
-import { PermissionMode } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.component";
+import { SharedModule } from "../../../../../shared";
+import { GroupApiService, GroupView } from "../../../core";
+import { PermissionMode } from "../access-selector/access-selector.component";
 import {
   AccessItemType,
   AccessItemValue,
@@ -46,9 +47,8 @@ import {
   CollectionPermission,
   convertToPermission,
   convertToSelectionView,
-} from "../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
-import { AccessSelectorModule } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.module";
-import { SharedModule } from "../../../shared";
+} from "../access-selector/access-selector.models";
+import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
 export enum CollectionDialogTabType {
   Info = 0,

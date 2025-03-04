@@ -85,11 +85,6 @@ import { FreeTrial } from "../../../billing/types/free-trial";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
-  CollectionDialogAction,
-  CollectionDialogTabType,
-  openCollectionDialog,
-} from "../../../vault/components/collection-dialog";
-import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
@@ -117,6 +112,11 @@ import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/se
 import { getNestedCollectionTree } from "../../../vault/utils/collection-utils";
 import { GroupApiService, GroupView } from "../core";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
+import {
+  CollectionDialogAction,
+  CollectionDialogTabType,
+  openCollectionDialog,
+} from "../shared/components/collection-dialog";
 
 import {
   BulkCollectionsDialogComponent,
