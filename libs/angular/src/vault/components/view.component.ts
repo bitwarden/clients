@@ -45,7 +45,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-const BroadcasterSubscriptionId = "ViewComponent";
+const BroadcasterSubscriptionId = "BaseViewComponent";
 
 @Directive()
 export class ViewComponent implements OnDestroy, OnInit {
