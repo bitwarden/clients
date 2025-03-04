@@ -16,14 +16,14 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 
 export type InjectedOrganizationPermissionServices = {
-  upsellingService: OrganizationUpsellingServiceAbstraction;
+  organizationBillingService: OrganizationBillingServiceAbstraction;
 };
 
 /**
@@ -59,7 +59,7 @@ export function organizationPermissionsGuard(
     const i18nService = inject(I18nService);
     const syncService = inject(SyncService);
     const accountService = inject(AccountService);
-    const upsellingService = inject(OrganizationUpsellingServiceAbstraction);
+    const organizationBillingService = inject(OrganizationBillingServiceAbstraction);
 
     // TODO: We need to fix issue once and for all.
     if ((await syncService.getLastSync()) == null) {
@@ -88,7 +88,7 @@ export function organizationPermissionsGuard(
     }
 
     const callbackServices = {
-      upsellingService: upsellingService,
+      organizationBillingService: organizationBillingService,
     };
 
     const hasPermissions =
