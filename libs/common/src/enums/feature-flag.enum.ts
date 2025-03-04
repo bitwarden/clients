@@ -5,7 +5,6 @@
  */
 export enum FeatureFlag {
   /* Admin Console Team */
-  ProviderClientVaultPrivacyBanner = "ac-2833-provider-client-vault-privacy-banner",
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
@@ -30,7 +29,6 @@ export enum FeatureFlag {
 
   AC1795_UpdatedSubscriptionStatusSection = "AC-1795_updated-subscription-status-section",
   ExtensionRefresh = "extension-refresh",
-  PersistPopupView = "persist-popup-view",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   VaultBulkManagementAction = "vault-bulk-management-action",
   UnauthenticatedExtensionUIRefresh = "unauth-ui-refresh",
@@ -46,9 +44,9 @@ export enum FeatureFlag {
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   ResellerManagedOrgAlert = "PM-15814-alert-owners-of-reseller-managed-orgs",
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
-  NewDeviceVerification = "new-device-verification",
   PM15179_AddExistingOrgsFromProviderPortal = "pm-15179-add-existing-orgs-from-provider-portal",
   RecoveryCodeLogin = "pm-17128-recovery-code-login",
+  PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -64,7 +62,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.ProviderClientVaultPrivacyBanner]: FALSE,
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
@@ -89,7 +86,6 @@ export const DefaultFeatureFlagValue = {
 
   [FeatureFlag.AC1795_UpdatedSubscriptionStatusSection]: FALSE,
   [FeatureFlag.ExtensionRefresh]: FALSE,
-  [FeatureFlag.PersistPopupView]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
@@ -105,9 +101,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
   [FeatureFlag.ResellerManagedOrgAlert]: FALSE,
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
-  [FeatureFlag.NewDeviceVerification]: FALSE,
   [FeatureFlag.PM15179_AddExistingOrgsFromProviderPortal]: FALSE,
   [FeatureFlag.RecoveryCodeLogin]: FALSE,
+  [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

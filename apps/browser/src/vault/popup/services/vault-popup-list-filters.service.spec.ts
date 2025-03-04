@@ -1,8 +1,9 @@
-import { TestBed } from "@angular/core/testing";
+import { Injector, WritableSignal, runInInjectionContext, signal } from "@angular/core";
+import { TestBed, discardPeriodicTasks, fakeAsync, tick } from "@angular/core/testing";
 import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, skipWhile } from "rxjs";
 
-import { CollectionService, Collection, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -19,17 +20,27 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
+import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
+
+import {
+  CachedFilterState,
+  MY_VAULT_ID,
+  VaultPopupListFiltersService,
+} from "./vault-popup-list-filters.service";
 
 describe("VaultPopupListFiltersService", () => {
   let service: VaultPopupListFiltersService;
-  const _memberOrganizations$ = new BehaviorSubject<Organization[]>([]);
+  let _memberOrganizations$ = new BehaviorSubject<Organization[]>([]);
   const memberOrganizations$ = (userId: UserId) => _memberOrganizations$;
   const organizations$ = new BehaviorSubject<Organization[]>([]);
-  const folderViews$ = new BehaviorSubject([]);
+  let folderViews$ = new BehaviorSubject([]);
   const cipherViews$ = new BehaviorSubject({});
-  const decryptedCollections$ = new BehaviorSubject<CollectionView[]>([]);
+  let decryptedCollections$ = new BehaviorSubject<CollectionView[]>([]);
   const policyAppliesToActiveUser$ = new BehaviorSubject<boolean>(false);
+  let viewCacheService: {
+    signal: jest.Mock;
+    mockSignal: WritableSignal<CachedFilterState>;
+  };
 
   const collectionService = {
     decryptedCollections$,
@@ -61,12 +72,19 @@ describe("VaultPopupListFiltersService", () => {
   const update = jest.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
-    _memberOrganizations$.next([]);
-    decryptedCollections$.next([]);
+    _memberOrganizations$ = new BehaviorSubject<Organization[]>([]); // Fresh instance per test
+    folderViews$ = new BehaviorSubject([]); // Fresh instance per test
+    decryptedCollections$ = new BehaviorSubject<CollectionView[]>([]); // Fresh instance per test
     policyAppliesToActiveUser$.next(false);
     policyService.policyAppliesToActiveUser$.mockClear();
 
     const accountService = mockAccountServiceWith("userId" as UserId);
+    const mockCachedSignal = createMockSignal<CachedFilterState>({});
+
+    viewCacheService = {
+      mockSignal: mockCachedSignal,
+      signal: jest.fn(() => mockCachedSignal),
+    };
 
     collectionService.getAllNested = () => Promise.resolve([]);
     TestBed.configureTestingModule({
@@ -103,6 +121,10 @@ describe("VaultPopupListFiltersService", () => {
         {
           provide: AccountService,
           useValue: accountService,
+        },
+        {
+          provide: PopupViewCacheService,
+          useValue: viewCacheService,
         },
       ],
     });
@@ -440,7 +462,7 @@ describe("VaultPopupListFiltersService", () => {
     });
 
     it("filters by collection", (done) => {
-      const collection = { id: "1234" } as Collection;
+      const collection = { id: "1234" } as CollectionView;
 
       service.filterFunction$.subscribe((filterFunction) => {
         expect(filterFunction(ciphers)).toEqual([ciphers[1]]);
@@ -505,4 +527,194 @@ describe("VaultPopupListFiltersService", () => {
       expect(updateCallback()).toBe(false);
     });
   });
+
+  describe("caching", () => {
+    it("initializes form from cached state", fakeAsync(() => {
+      const cachedState: CachedFilterState = {
+        organizationId: MY_VAULT_ID,
+        collectionId: "test-collection-id",
+        folderId: "test-folder-id",
+        cipherType: CipherType.Login,
+      };
+
+      const seededOrganizations: Organization[] = [
+        { id: MY_VAULT_ID, name: "Test Org" } as Organization,
+      ];
+      const seededCollections: CollectionView[] = [
+        {
+          id: "test-collection-id",
+          organizationId: MY_VAULT_ID,
+          name: "Test collection",
+        } as CollectionView,
+      ];
+      const seededFolderViews: FolderView[] = [
+        { id: "test-folder-id", name: "Test Folder" } as FolderView,
+      ];
+
+      const { service } = createSeededVaultPopupListFiltersService(
+        seededOrganizations,
+        seededCollections,
+        seededFolderViews,
+        cachedState,
+      );
+
+      tick();
+
+      expect(service.filterForm.value).toEqual({
+        organization: { id: MY_VAULT_ID },
+        collection: {
+          id: "test-collection-id",
+          organizationId: MY_VAULT_ID,
+          name: "Test collection",
+        },
+        folder: { id: "test-folder-id", name: "Test Folder" },
+        cipherType: CipherType.Login,
+      });
+      discardPeriodicTasks();
+    }));
+
+    it("serializes filters to cache on changes", fakeAsync(() => {
+      const seededOrganizations: Organization[] = [
+        { id: "test-org-id", name: "Org" } as Organization,
+      ];
+      const seededCollections: CollectionView[] = [
+        {
+          id: "test-collection-id",
+          organizationId: "test-org-id",
+          name: "Test collection",
+        } as CollectionView,
+      ];
+      const seededFolderViews: FolderView[] = [
+        { id: "test-folder-id", name: "Test Folder" } as FolderView,
+      ];
+
+      const { service, cachedSignal } = createSeededVaultPopupListFiltersService(
+        seededOrganizations,
+        seededCollections,
+        seededFolderViews,
+        {},
+      );
+      const testOrg = { id: "test-org-id", name: "Org" } as Organization;
+      const testCollection = {
+        id: "test-collection-id",
+        organizationId: "test-org-id",
+        name: "Test collection",
+      } as CollectionView;
+      const testFolder = { id: "test-folder-id", name: "Test Folder" } as FolderView;
+
+      service.filterForm.patchValue({
+        organization: testOrg,
+        collection: testCollection,
+        folder: testFolder,
+        cipherType: CipherType.Card,
+      });
+
+      tick(300);
+
+      // force another emission by patching with the same value again. workaround for debounce times
+      service.filterForm.patchValue({
+        organization: testOrg,
+        collection: testCollection,
+        folder: testFolder,
+        cipherType: CipherType.Card,
+      });
+
+      tick(300);
+
+      expect(cachedSignal()).toEqual({
+        organizationId: "test-org-id",
+        collectionId: "test-collection-id",
+        folderId: "test-folder-id",
+        cipherType: CipherType.Card,
+      });
+      discardPeriodicTasks();
+    }));
+  });
 });
+
+function createMockSignal<T>(initialValue: T): WritableSignal<T> {
+  const s = signal(initialValue);
+  s.set = (value: T) => s.update(() => value);
+  return s;
+}
+
+// Helper function to create a seeded VaultPopupListFiltersService
+function createSeededVaultPopupListFiltersService(
+  organizations: Organization[],
+  collections: CollectionView[],
+  folderViews: FolderView[],
+  cachedState: CachedFilterState = {},
+): { service: VaultPopupListFiltersService; cachedSignal: WritableSignal<CachedFilterState> } {
+  const seededMemberOrganizations$ = new BehaviorSubject<Organization[]>(organizations);
+  const seededCollections$ = new BehaviorSubject<CollectionView[]>(collections);
+  const seededFolderViews$ = new BehaviorSubject<FolderView[]>(folderViews);
+
+  const organizationServiceMock = {
+    memberOrganizations$: (userId: string) => seededMemberOrganizations$,
+    organizations$: seededMemberOrganizations$,
+  } as any;
+
+  const collectionServiceMock = {
+    decryptedCollections$: seededCollections$,
+    getAllNested: () =>
+      Promise.resolve(
+        seededCollections$.value.map((c) => ({
+          children: [],
+          node: c,
+          parent: null,
+        })),
+      ),
+  } as any;
+
+  const folderServiceMock = {
+    folderViews$: () => seededFolderViews$,
+  } as any;
+
+  const cipherServiceMock = {
+    cipherViews$: () => new BehaviorSubject({}),
+  } as any;
+
+  const i18nServiceMock = {
+    t: (key: string) => key,
+  } as any;
+
+  const policyServiceMock = {
+    policyAppliesToActiveUser$: jest.fn(() => new BehaviorSubject(false)),
+  } as any;
+
+  const stateProviderMock = {
+    getGlobal: () => ({
+      state$: new BehaviorSubject(false),
+      update: jest.fn().mockResolvedValue(undefined),
+    }),
+  } as any;
+
+  const accountServiceMock = mockAccountServiceWith("userId" as UserId);
+  const formBuilderInstance = new FormBuilder();
+
+  const seededCachedSignal = createMockSignal<CachedFilterState>(cachedState);
+  const viewCacheServiceMock = {
+    signal: jest.fn(() => seededCachedSignal),
+    mockSignal: seededCachedSignal,
+  } as any;
+
+  // Get an injector from TestBed so that we can run in an injection context.
+  const injector = TestBed.inject(Injector);
+  let service: VaultPopupListFiltersService;
+  runInInjectionContext(injector, () => {
+    service = new VaultPopupListFiltersService(
+      folderServiceMock,
+      cipherServiceMock,
+      organizationServiceMock,
+      i18nServiceMock,
+      collectionServiceMock,
+      formBuilderInstance,
+      policyServiceMock,
+      stateProviderMock,
+      accountServiceMock,
+      viewCacheServiceMock,
+    );
+  });
+
+  return { service: service!, cachedSignal: seededCachedSignal };
+}

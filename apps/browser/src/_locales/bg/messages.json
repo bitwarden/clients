@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Подсказване за главната парола (по избор)"
   },
+  "passwordStrengthScore": {
+    "message": "Оценка на сложността на паролата: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Присъединяване към организацията"
   },
@@ -876,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Впишете се в Битуорден"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Въведете кода изпратен на е-пощата Ви"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Въведете кода от Вашето приложение за удостоверяване"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Натиснете бутона на своя YubiKey за удостоверяване"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Вашият акаунт изисква вписване чрез двустепенно удостоверяване с Duo. Следвайте стъпките по-долу, за да завършите вписването."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването."
+  },
   "restartRegistration": {
     "message": "Рестартиране на регистрацията"
   },
@@ -1365,11 +1389,21 @@
   "rememberMe": {
     "message": "Запомняне"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не ме питайте отново на това устройство за 30 дни"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Повторно изпращане на писмото за потвърждение"
   },
   "useAnotherTwoStepMethod": {
     "message": "Използвайте друг начин на двустепенно удостоверяване"
+  },
+  "selectAnotherMethod": {
+    "message": "Изберете друг метод",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Използване на код за възстановяване"
   },
   "insertYubiKey": {
     "message": "Поставете устройството на YubiKey в USB порт на компютъра и натиснете бутона на устройството."
@@ -1383,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Отваряне на нов раздел"
   },
+  "openInNewTab": {
+    "message": "Отваряне в нов раздел"
+  },
   "webAuthnAuthenticate": {
     "message": "Идентификация WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Прочитане на ключа за сигурност"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Изчакване на действие с ключ за сигурност…"
   },
   "loginUnavailable": {
     "message": "Записът липсва"
@@ -1397,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки на двустепенното удостоверяване"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Изберете начин за двустепенно удостоверяване"
   },
   "recoveryCodeDesc": {
     "message": "Ако сте загубили достъп до двустепенното удостоверяване, може да използвате код за възстановяване, за да изключите двустепенното удостоверяване в абонамента си."
@@ -2097,6 +2143,15 @@
   "vaultTimeoutAction1": {
     "message": "Действие при изтичането на времето за достъп"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Нови възможности за персонализиране"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Персонализирайте трезора си с бързи действия за копиране, компактен режим и още!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Преглед на всички настройки за външния вид"
+  },
   "lock": {
     "message": "Заключване",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,7 +2446,16 @@
   "atRiskPasswords": {
     "message": "Пароли в риск"
   },
-  "atRiskPasswordsDescSingleOrg": {
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ изисква да промените една парола, тъй като е в риск.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
     "message": "$ORGANIZATION$ изисква да промените $COUNT$ пароли, тъй като са в риск.",
     "placeholders": {
       "organization": {
@@ -2404,7 +2468,7 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
+  "atRiskPasswordsDescMultiOrgPlural": {
     "message": "Вашата организация изисква да промените $COUNT$ пароли, тъй като са в риск.",
     "placeholders": {
       "count": {
@@ -2430,6 +2494,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Променете настройките си, така че да можете бързо да попълвате автоматично паролите си, както и да генерирате нови"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Преглед на елементите за вписване в риск"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Преглед на паролите в риск"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Паролите в организацията Ви са в риск, защото са слаби, преизползвани и/или разкрити.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Илюстрация на списък с елементи за вписване, които са в риск"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Генерирайте бързо сложна и уникална парола от менюто за автоматично попълване на Битуорден, на уеб сайта, който е в риск.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Илюстрация на автоматичното попълване на Битуорден, показващо генерирана парола"
+  },
+  "updateInBitwarden": {
+    "message": "Обновяване в Битуорден"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "След това Битуорден ще попита дали искате да обновите паролата в управителя на пароли.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Илюстрация на известието на Битуорден, чрез което пита потребителя дали да се обновят данните за вписване"
   },
   "turnOnAutofill": {
     "message": "Включване на автоматичното попълване"
@@ -3249,7 +3343,7 @@
     "message": "Заявката е изпратена"
   },
   "exposedMasterPassword": {
-    "message": "Разобличена главна парола"
+    "message": "Разкрита главна парола"
   },
   "exposedMasterPasswordDesc": {
     "message": "Паролата е намерена в пробив на данни. Използвайте уникална парола, за да защитите вашия акаунт. Наистина ли искате да използвате слаба парола?"
@@ -4178,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Копиране на $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },

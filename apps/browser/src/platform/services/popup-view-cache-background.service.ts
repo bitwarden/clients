@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { switchMap, merge, delay, filter, concatMap, map, first, of } from "rxjs";
+import { switchMap, delay, filter, concatMap } from "rxjs";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import {
@@ -14,7 +12,6 @@ import {
   GlobalStateProvider,
 } from "@bitwarden/common/platform/state";
 
-import { BrowserApi } from "../browser/browser-api";
 import { fromChromeEvent } from "../browser/from-chrome-event";
 
 const popupClosedPortName = "new_popup";
@@ -60,7 +57,7 @@ export class PopupViewCacheBackgroundService {
     );
   }
 
-  startObservingTabChanges() {
+  startObservingMessages() {
     this.messageListener
       .messages$(SAVE_VIEW_CACHE_COMMAND)
       .pipe(
@@ -78,27 +75,9 @@ export class PopupViewCacheBackgroundService {
       .pipe(concatMap(() => this.popupViewCacheState.update(() => null)))
       .subscribe();
 
-    merge(
-      // on tab changed, excluding extension tabs
-      fromChromeEvent(chrome.tabs.onActivated).pipe(
-        switchMap((tabs) => BrowserApi.getTab(tabs[0].tabId)),
-        switchMap((tab) => {
-          // FireFox sets the `url` to "about:blank" and won't populate the `url` until the `onUpdated` event
-          if (tab.url !== "about:blank") {
-            return of(tab);
-          }
-
-          return fromChromeEvent(chrome.tabs.onUpdated).pipe(
-            first(),
-            switchMap(([tabId]) => BrowserApi.getTab(tabId)),
-          );
-        }),
-        map((tab) => tab.url || tab.pendingUrl),
-        filter((url) => !url.startsWith(chrome.runtime.getURL(""))),
-      ),
-
-      // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
-      fromChromeEvent(chrome.runtime.onConnect).pipe(
+    // on popup closed, with 2 minute delay that is cancelled by re-opening the popup
+    fromChromeEvent(chrome.runtime.onConnect)
+      .pipe(
         filter(([port]) => port.name === popupClosedPortName),
         switchMap(([port]) =>
           fromChromeEvent(port.onDisconnect).pipe(
@@ -108,9 +87,7 @@ export class PopupViewCacheBackgroundService {
             ),
           ),
         ),
-      ),
-    )
-      .pipe(switchMap(() => this.clearState()))
+      )
       .subscribe();
   }
 

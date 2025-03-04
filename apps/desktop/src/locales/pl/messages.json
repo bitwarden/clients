@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Zaloguj do Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Wpisz kod wysłany na Twój adres e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Wpisz kod z aplikacji uwierzytelniającej"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Naciśnij YubiKey aby uwierzytelnić"
+  },
   "logInWithPasskey": {
     "message": "Zaloguj się używając klucza dostępu"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Podpowiedź do hasła głównego"
+  },
+  "passwordStrengthScore": {
+    "message": "Siła hasła: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Dołącz do organizacji"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Uwierzytelnianie zostało anulowane lub trwało zbyt długo. Spróbuj ponownie."
   },
+  "openInNewTab": {
+    "message": "Otwórz w nowej karcie"
+  },
   "invalidVerificationCode": {
     "message": "Kod weryfikacyjny jest nieprawidłowy"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Zapamiętaj mnie"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Nie pytaj ponownie na tym urządzeniu przez 30 dni"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Wyślij ponownie wiadomość z kodem weryfikacyjnym"
   },
   "useAnotherTwoStepMethod": {
     "message": "Użyj innej metody logowania dwustopniowego"
+  },
+  "selectAnotherMethod": {
+    "message": "Wybierz inną metodę",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Użyj kodu odzyskiwania"
   },
   "insertYubiKey": {
     "message": "Włóż klucz YubiKey do portu USB komputera, a następnie dotknij jego przycisku."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Opcje logowania dwustopniowego"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Wybierz metodę logowania dwustopniowego"
   },
   "selfHostedEnvironment": {
     "message": "Samodzielnie hostowane środowisko"
@@ -1776,7 +1810,7 @@
     "message": "Wymagaj hasła lub PIN przy starcie aplikacji"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
+    "message": "Wymagaj hasła przy starcie aplikacji"
   },
   "recommendedForSecurity": {
     "message": "Zalecane dla bezpieczeństwa."
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Uwierzytelnianie WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Odczytaj klucz bezpieczeństwa"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Oczekiwanie na interakcję z kluczem bezpieczeństwa..."
+  },
   "hideEmail": {
     "message": "Ukryj mój adres e-mail przed odbiorcami."
   },
@@ -2644,7 +2684,7 @@
     }
   },
   "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ odrzucił Twoje żądanie. Skontaktuj się z dostawcą usług w celu uzyskania pomocy.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2654,7 +2694,7 @@
     }
   },
   "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ odrzucił Twoje żądanie: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Dwustopniowe logowanie Duo jest wymagane dla Twojego konta."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Logowanie dwustopniowe Duo jest wymagane dla twojego konta. Wykonaj poniższe kroki, by dokończyć logowanie"
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Wykonaj poniższe kroki, by dokończyć logowanie"
+  },
   "launchDuo": {
     "message": "Uruchom Duo w przeglądarce"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Potwierdź użycie klucza SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "wnioskuje o dostęp do"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "Aplikacja"

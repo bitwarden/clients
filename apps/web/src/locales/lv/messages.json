@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Kritiskās lietotnes"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Nav riskam pakļautu būtisku lietotņu"
+  },
   "accessIntelligence": {
     "message": "Piekļuves inteliģence"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Pieteikties Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Jāievada e-pastā nosūtītais kods"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Jāievada kods no savas autentificētājlietotnes"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Jāpiespiež sava YubiKey ierīce, lai autentificētu"
+  },
   "authenticationTimeout": {
     "message": "Autentificēšanās noildze"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Atcerēties mani"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Šajā ierīcē 30 dienas vairs nevaicāt"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Atkārtoti nosūtīt apstiprinājuma kodu"
   },
   "useAnotherTwoStepMethod": {
     "message": "Izmantot citu divpakāpju pieteikšanās veidu"
+  },
+  "selectAnotherMethod": {
+    "message": "Atlasīt citu veidu",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Izmantot savu atkopes kodu"
   },
   "insertYubiKey": {
     "message": "Ievietojiet YubiKey datora USB portā un pēc tam pieskarieties tā pogai."
@@ -1466,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "Divpakāpju pieteikšanās iespējas"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Atlasīt divpakāpju pieteikšanās veidu"
   },
   "recoveryCodeDesc": {
     "message": "Zaudēta piekļuve visiem divpakāpju pieteikšanās nodrošinātājiem? Jāizmanto atkopšanas kods, lai izslēgtu visus sava konta divpakāpju pieteikšanās nodrošinātājus."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Pārgājis no FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Atvērt jaunā cilnē"
   },
   "emailTitle": {
     "message": "E-pasts"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Tiek izmantots neatbalstīts tīmekļa pārlūks. Tīmekļa glabātava var nedarboties pareizi."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Ir neizskatīts pieteikšanās pieprasījums no citas ierīces."
+  },
+  "reviewLoginRequest": {
+    "message": "Izskatīt pieteikšanās pieprasījumu"
+  },
   "freeTrialEndPromptCount": {
     "message": "Bezmaksas izmēģinājums beigsies pēc $COUNT$ dienām.",
     "placeholders": {
@@ -4757,6 +4791,15 @@
   },
   "masterPassPolicyDesc": {
     "message": "Uzstādīt galvenās paroles stipruma mazākās izpildāmās prasības."
+  },
+  "passwordStrengthScore": {
+    "message": "Paroles stipruma novērtējums $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "twoStepLoginPolicyTitle": {
     "message": "Pieprasīt divpakāpju pieteikšanos"
@@ -5652,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Autentificēt WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Nolasīt drošības atslēgu"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Gaida mijiedarbību ar drošības atslēgu..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn šajā pārlūkā netiek atbalstīts."
@@ -7198,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Kontam ir nepieciešama DUO divpakāpju pieteikšanās."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Ir nepieciešama Duo divpakāpju pieteikšanās, lai pieteiktos savā kontā. Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
   },
   "launchDuo": {
     "message": "Palaist DUO"
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Neļaut dalībniekiem atslēgt savu kontu ar PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plāniem nav piekļuve īstajiem notikumu žurnāliem",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Pilna piekļuve apvienības notikumu žurnāliem ir iegūstama, ja izmanto Komandu vai Uzņēmējdarbības plānu."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Uzlabot, lai piekļūtu īstajiem notikumu žurnāla datiem"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Šie notikumu ir tikai piemēri, un tie neatspoguļo īstus notikumus Bitwarden apvienībā."
   }
 }

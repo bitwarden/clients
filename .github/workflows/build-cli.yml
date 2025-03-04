@@ -205,6 +205,9 @@ jobs:
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
+      - name: Install AST
+        run: dotnet tool install --global AzureSignTool --version 4.0.1
+
       - name: Setup Windows builder
         run: |
           choco install checksum --no-progress
@@ -273,6 +276,24 @@ jobs:
           ResourceHacker -open version-info.rc -save version-info.res -action compile
           ResourceHacker -open %WIN_PKG_BUILT% -save %WIN_PKG_BUILT% -action addoverwrite -resource version-info.res
 
+      - name: Login to Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "code-signing-vault-url,
+            code-signing-client-id,
+            code-signing-tenant-id,
+            code-signing-client-secret,
+            code-signing-cert-name"
+
       - name: Install
         run: npm ci
         working-directory: ./
@@ -299,6 +320,18 @@ jobs:
 
       - name: Build & Package Windows
         run: npm run dist:${{ matrix.license_type.build_prefix }}:win --quiet
+
+      - name: Sign executable
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        shell: pwsh
+        env:
+          SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
+          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
+          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
+          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
+          EXE_PATH: dist/${{ matrix.license_type.build_prefix }}/windows/bw.exe
+        run: . .\scripts\sign-cli.ps1
 
       - name: Package Chocolatey
         shell: pwsh
