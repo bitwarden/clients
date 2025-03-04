@@ -361,8 +361,6 @@ describe("ConfigService", () => {
 
       const configs = await firstValueFrom(sut.serverConfig$.pipe(bufferCount(2)));
 
-      await jest.runOnlyPendingTimersAsync();
-
       expect(configs[0].gitHash).toBe("existing-data");
       expect(configs[1].gitHash).toBe("slow-response");
     });

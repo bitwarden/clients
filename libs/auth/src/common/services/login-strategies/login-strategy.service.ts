@@ -402,6 +402,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.billingAccountProfileStateService,
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
+      this.environmentService,
     ];
 
     return source.pipe(
@@ -430,7 +431,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           case AuthenticationType.UserApiKey:
             return new UserApiLoginStrategy(
               data?.userApiKey ?? new UserApiLoginStrategyData(),
-              this.environmentService,
               this.keyConnectorService,
               ...sharedDeps,
             );
