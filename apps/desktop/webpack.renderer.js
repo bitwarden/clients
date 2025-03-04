@@ -121,7 +121,13 @@ const renderer = {
             loader: MiniCssExtractPlugin.loader,
           },
           "css-loader",
-          "postcss-loader",
+          "resolve-url-loader",
+          {
+            loader: "postcss-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
         ],
       },
       {
@@ -134,7 +140,13 @@ const renderer = {
             },
           },
           "css-loader",
-          "sass-loader",
+          "resolve-url-loader",
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
         ],
       },
       // Hide System.import warnings. ref: https://github.com/angular/angular/issues/21560

@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Suggerimento per la password principale (facoltativo)"
   },
+  "passwordStrengthScore": {
+    "message": "Valutazione complessità parola d'accesso $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Unisciti all'organizzazione"
   },
@@ -175,6 +184,10 @@
   },
   "copyNotes": {
     "message": "Copia note"
+  },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
   },
   "fill": {
     "message": "Riempi",
@@ -872,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Accedi a Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Inserisci il codice inviato alla tua e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Inserisci il codice dalla tua app di autenticazione"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Premi la tua chiave Yubi per autenticare"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Il login Duo in due passaggi è richiesto per il tuo account. Segui i passaggi qui sotto per completare l'accesso."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Segui i passaggi qui sotto per completare l'accesso."
+  },
   "restartRegistration": {
     "message": "Riprova la registrazione"
   },
@@ -1024,6 +1052,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "Clicca gli oggetti da riempire dalla sezione Cassaforte"
+  },
+  "clickToAutofill": {
+    "message": "Clicca elementi nel suggerimento di riempimento automatico per riempire"
   },
   "clearClipboard": {
     "message": "Cancella appunti",
@@ -1358,11 +1389,21 @@
   "rememberMe": {
     "message": "Ricordami"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Non chiedere più su questo dispositivo per 30 giorni"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Invia di nuovo l'email con codice di verifica"
   },
   "useAnotherTwoStepMethod": {
     "message": "Usa un altro metodo di verifica in due passaggi"
+  },
+  "selectAnotherMethod": {
+    "message": "Seleziona un altro metodo",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Usa il tuo codice di recupero"
   },
   "insertYubiKey": {
     "message": "Inserisci la tua YubiKey nella porta USB del computer, poi premi il suo pulsante."
@@ -1376,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Apri nuova scheda"
   },
+  "openInNewTab": {
+    "message": "Apri in una nuova scheda"
+  },
   "webAuthnAuthenticate": {
     "message": "Autenticazione WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Leggi chiave di sicurezza"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "In attesa di interazione con la chiave di sicurezza..."
   },
   "loginUnavailable": {
     "message": "Login non disponibile"
@@ -1390,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Opzioni di verifica in due passaggi"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Seleziona metodo di accesso in due passaggi"
   },
   "recoveryCodeDesc": {
     "message": "Hai perso l'accesso a tutti i tuoi metodi di verifica in due passaggi? Usa il tuo codice di recupero per disattivarli tutti dal tuo account."
@@ -2081,11 +2134,23 @@
     "message": "per creare una password univoca robusta",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Personalizzazione cassaforte"
+  },
   "vaultTimeoutAction": {
     "message": "Azione timeout cassaforte"
   },
   "vaultTimeoutAction1": {
     "message": "Azione al timeout"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Nuove opzioni di personalizzazione"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Personalizza l'esperienza della tua cassaforte con azioni di copia rapida, modalità compatta e altro ancora!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Vedi tutte le impostazioni di aspetto"
   },
   "lock": {
     "message": "Blocca",
@@ -2345,6 +2410,9 @@
   "blockedDomains": {
     "message": "Domini bloccati"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
+  },
   "excludedDomains": {
     "message": "Domini esclusi"
   },
@@ -2362,6 +2430,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Modifica questo nelle impostazioni"
+  },
+  "change": {
+    "message": "Cambia"
+  },
+  "changeButtonTitle": {
+    "message": "Cambia parola d'accesso - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Parola d'accesso a rischio"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ ti chiede di cambiare una parola d'accesso perché è a rischio.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ ti sta richiedendo di modificare $COUNT$ parole d'accesso perché sono a rischio.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Le tue organizzazioni ti chiedono di modificare le $COUNT$ parole d'accesso perché sono a rischio.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Rivedi e modifica una parola d'accesso a rischio"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Rivedi e modifica $COUNT$ parole d'accesso a rischio",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Cambia le parole d'accesso a rischio più velocemente"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Aggiorna le impostazioni in modo da poter rapidamente riempire automaticamente le parole d'accesso e generarne di nuove"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Redi accessi a rischio"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Rivedi parole d'accesso a rischio"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Le parole d'accesso dell'organizzazione sono a rischio perché sono deboli, riutilizzate, e/o esposte.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Illustrazione di un elenco di accessi a rischio"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Genera rapidamente una parola d'accesso forte e unica con il menu' di riempimento automatico Bitwarden nel sito a rischio.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Illustrazione del menu' di riempimento automatico Bitwarden che mostra una parola d'accesso generata"
+  },
+  "updateInBitwarden": {
+    "message": "Aggiorna in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden ti chiederà quindi di aggiornare la parola d'accesso nel gestore di parole d'accesso.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illustrazione di una notifica Bitwarden che richiede all'utente di aggiornare l'accesso"
+  },
+  "turnOnAutofill": {
+    "message": "Attiva riempimento automatico"
+  },
+  "turnedOnAutofill": {
+    "message": "Riempimento automatico attivato"
+  },
+  "dismiss": {
+    "message": "Ignora"
   },
   "websiteItemLabel": {
     "message": "Sito $number$ (URI)",
@@ -2956,6 +3127,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Token API $SERVICENAME$ non valido: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ ha rifiutato la tua richiesta. Contatta il tuo fornitore di servizi per assistenza.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ ha respinto la tua richiesta: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -4077,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Copia $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },

@@ -15,6 +15,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 
 import { SharedModule } from "../../shared";
 
+/**
+ * @deprecated Use `ManageTaxInformationComponent` instead.
+ */
 @Component({
   selector: "app-tax-info",
   templateUrl: "tax-info.component.html",

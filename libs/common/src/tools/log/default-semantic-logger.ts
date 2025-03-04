@@ -52,7 +52,7 @@ export class DefaultSemanticLogger<Context extends object> implements SemanticLo
       ...this.context,
       message,
       content: content ?? undefined,
-      level,
+      level: stringifyLevel(level),
     };
 
     if (typeof content === "string" && !message) {
@@ -61,5 +61,20 @@ export class DefaultSemanticLogger<Context extends object> implements SemanticLo
     }
 
     this.logger.write(level, log);
+  }
+}
+
+function stringifyLevel(level: LogLevelType) {
+  switch (level) {
+    case LogLevelType.Debug:
+      return "debug";
+    case LogLevelType.Info:
+      return "information";
+    case LogLevelType.Warning:
+      return "warning";
+    case LogLevelType.Error:
+      return "error";
+    default:
+      return `${level}`;
   }
 }

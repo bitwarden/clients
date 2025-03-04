@@ -150,7 +150,7 @@ describe("ViewV2Component", () => {
 
       flush(); // Resolve all promises
 
-      expect(mockCipherService.get).toHaveBeenCalledWith("122-333-444");
+      expect(mockCipherService.get).toHaveBeenCalledWith("122-333-444", mockUserId);
       expect(component.cipher).toEqual(mockCipher);
     }));
 

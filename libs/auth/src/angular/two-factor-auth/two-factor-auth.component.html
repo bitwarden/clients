@@ -1,0 +1,108 @@
+<ng-container *ngIf="loading">
+  <div class="tw-flex tw-items-center tw-justify-center">
+    <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <form
+    [bitSubmit]="submit"
+    [formGroup]="form"
+    autocomplete="off"
+    (keydown.enter)="handleEnterKeyPress()"
+  >
+    <app-two-factor-auth-email
+      [tokenFormControl]="tokenFormControl"
+      *ngIf="selectedProviderType === providerType.Email"
+    />
+
+    <app-two-factor-auth-authenticator
+      [tokenFormControl]="tokenFormControl"
+      *ngIf="selectedProviderType === providerType.Authenticator"
+    />
+    <app-two-factor-auth-yubikey
+      [tokenFormControl]="tokenFormControl"
+      *ngIf="selectedProviderType === providerType.Yubikey"
+    />
+
+    <app-two-factor-auth-duo
+      (tokenEmitter)="submit($event)"
+      [providerData]="selectedProviderData"
+      *ngIf="
+        selectedProviderType === providerType.OrganizationDuo ||
+        selectedProviderType === providerType.Duo
+      "
+      #duoComponent
+    />
+    <bit-form-control *ngIf="!hideRememberMe()">
+      <bit-label>{{ "dontAskAgainOnThisDeviceFor30Days" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox formControlName="remember" />
+    </bit-form-control>
+
+    <app-two-factor-auth-webauthn
+      (webAuthnResultEmitter)="submit($event.token, $event.remember)"
+      (webAuthnInNewTabEmitter)="webAuthInNewTab = $event"
+      *ngIf="selectedProviderType === providerType.WebAuthn"
+    />
+
+    <ng-container *ngIf="selectedProviderType == null">
+      <p bitTypography="body1">{{ "noTwoStepProviders" | i18n }}</p>
+      <p bitTypography="body1">{{ "noTwoStepProviders2" | i18n }}</p>
+    </ng-container>
+
+    <!-- Buttons -->
+    <div class="tw-flex tw-flex-col tw-space-y-3">
+      <button
+        type="submit"
+        buttonType="primary"
+        bitButton
+        bitFormButton
+        #continueButton
+        *ngIf="showContinueButton()"
+      >
+        <span> {{ "continueLoggingIn" | i18n }} </span>
+      </button>
+
+      <button
+        type="button"
+        buttonType="primary"
+        bitButton
+        (click)="launchDuo()"
+        *ngIf="
+          selectedProviderType === providerType.Duo ||
+          selectedProviderType === providerType.OrganizationDuo
+        "
+      >
+        <span *ngIf="duoLaunchAction === DuoLaunchAction.DIRECT_LAUNCH">
+          {{ "launchDuo" | i18n }}</span
+        >
+        <span *ngIf="duoLaunchAction === DuoLaunchAction.SINGLE_ACTION_POPOUT">
+          {{ "popoutExtension" | i18n }}</span
+        >
+      </button>
+
+      <p class="tw-text-center tw-mb-0">{{ "or" | i18n }}</p>
+
+      <button
+        type="button"
+        buttonType="secondary"
+        bitButton
+        bitFormButton
+        *ngIf="twoFactorProviders?.size > 1"
+        (click)="selectOtherTwoFactorMethod()"
+      >
+        <span> {{ "selectAnotherMethod" | i18n }} </span>
+      </button>
+
+      <button
+        type="button"
+        buttonType="secondary"
+        bitButton
+        bitFormButton
+        (click)="use2faRecoveryCode()"
+      >
+        <span> {{ "useYourRecoveryCode" | i18n }} </span>
+      </button>
+    </div>
+  </form>
+</ng-container>
