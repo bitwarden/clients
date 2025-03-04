@@ -163,19 +163,12 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     this.trustedDeviceToastService.setupListeners$
       .pipe(takeUntilDestroyed())
-      .subscribe((emission: string) => {
-        if (emission === "adminLoginApproved") {
+      .subscribe((val: string) => {
+        if (val === "loginApproved" || val === "deviceTrusted") {
           this.toastService.showToast({
             variant: "success",
             title: "",
-            message: this.i18nService.t("loginApproved"),
-          });
-        }
-        if (emission === "deviceTrusted") {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("deviceTrusted"),
+            message: this.i18nService.t(val),
           });
         }
       });

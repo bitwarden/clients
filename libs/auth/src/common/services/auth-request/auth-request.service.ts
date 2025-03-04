@@ -214,6 +214,6 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   }
 
   emitAdminLoginApproved(): void {
-    this.adminLoginApprovedSubject.next("adminLoginApproved");
+    this.adminLoginApprovedSubject.next("loginApproved");
   }
 }
