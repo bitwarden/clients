@@ -515,11 +515,6 @@ export class LoginViaAuthRequestComponentV1
   }
 
   private async handleSuccessfulLoginNavigation() {
-    if (this.state === State.StandardAuthRequest) {
-      // Only need to set remembered email on standard login with auth req flow
-      await this.loginEmailService.saveEmailSettings();
-    }
-
     if (this.onSuccessfulLogin != null) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

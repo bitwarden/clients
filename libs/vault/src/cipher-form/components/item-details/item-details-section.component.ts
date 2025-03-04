@@ -275,9 +275,9 @@ export class ItemDetailsSectionComponent implements OnInit {
         // Disable Collections Options if Owner/Admin does not have Edit/Manage permissions on item
         // Disable Collections Options if Custom user does not have Edit/Manage permissions on item
         if (
-          (organization.allowAdminAccessToAllCollectionItems &&
+          (organization?.allowAdminAccessToAllCollectionItems &&
             (!this.originalCipherView.viewPassword || !this.originalCipherView.edit)) ||
-          (organization.type === OrganizationUserType.Custom &&
+          (organization?.type === OrganizationUserType.Custom &&
             !this.originalCipherView.viewPassword)
         ) {
           this.itemDetailsForm.controls.collectionIds.disable();

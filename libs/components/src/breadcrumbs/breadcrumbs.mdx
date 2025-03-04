@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./breadcrumbs.stories";
 
@@ -23,7 +23,7 @@ See [Header with Breadcrumbs](?path=/story/web-header--with-breadcrumbs).
 When a user is 1 level deep into a tree, the top level is displayed as a single link above the page
 title.
 
-<Story of={stories.TopLevel} />
+<Canvas of={stories.TopLevel} />
 
 ### Second Level
 
@@ -31,7 +31,7 @@ When a user is 2 or more levels deep into a tree, the top level is displayed fol
 
 <i class="bwi bwi-angle-right"></i> icon, and the following pages.
 
-<Story of={stories.SecondLevel} />
+<Canvas of={stories.SecondLevel} />
 
 ### Overflow
 
@@ -42,7 +42,7 @@ When a user is several levels deep into a tree, the top level or 2 are displayed
 When the user selects the <i class="bwi bwi-ellipsis-h"></i> icon button, a menu opens displaying
 the pages between the top level and the previous page.
 
-<Story of={stories.Overflow} />
+<Canvas of={stories.Overflow} />
 
 ### Small screens
 

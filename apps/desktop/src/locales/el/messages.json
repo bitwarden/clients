@@ -1775,6 +1775,9 @@
   "requirePasswordOnStart": {
     "message": "Να απαιτείται κωδικός πρόσβασης ή PIN κατά την εκκίνηση της εφαρμογής"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Συνίσταται για ασφάλεια."
   },
@@ -2629,6 +2632,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Μη έγκυρο $SERVICENAME$ API διακριτικό: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -3496,14 +3523,17 @@
   "changeAcctEmail": {
     "message": "Αλλαγή email λογαριασμού"
   },
-  "organizationUpgradeRequired": {
-    "message": "Απαιτείται αναβάθμιση οργανισμού"
+  "allowScreenshots": {
+    "message": "Allow screen capture"
   },
-  "upgradeOrganization": {
-    "message": "Αναβάθμιση οργανισμού"
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
   },
-  "upgradeOrganizationDesc": {
-    "message": "Αυτή η λειτουργία, δεν είναι διαθέσιμη στους δωρεάν οργανισμούς. Μεταβείτε σε ένα πακέτο επί πληρωμής για να ξεκλειδώσετε περισσότερες λειτουργίες."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Απαιτείται ενημέρωση επέκτασης"

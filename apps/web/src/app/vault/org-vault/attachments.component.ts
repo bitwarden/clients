@@ -1,10 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -74,7 +76,8 @@ export class AttachmentsComponent extends BaseAttachmentsComponent implements On
 
   protected async loadCipher() {
     if (!this.organization.canEditAllCiphers) {
-      return await super.loadCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      return await super.loadCipher(activeUserId);
     }
     const response = await this.apiService.getCipherAdmin(this.cipherId);
     return new Cipher(new CipherData(response));
@@ -89,9 +92,9 @@ export class AttachmentsComponent extends BaseAttachmentsComponent implements On
     );
   }
 
-  protected deleteCipherAttachment(attachmentId: string) {
+  protected deleteCipherAttachment(attachmentId: string, userId: UserId) {
     if (!this.organization.canEditAllCiphers) {
-      return super.deleteCipherAttachment(attachmentId);
+      return super.deleteCipherAttachment(attachmentId, userId);
     }
     return this.apiService.deleteCipherAttachmentAdmin(this.cipherId, attachmentId);
   }

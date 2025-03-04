@@ -45,17 +45,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.listenForUnauthUiRefreshFlagChanges();
 
-    const email = await firstValueFrom(this.loginEmailService.loginEmail$);
-    const rememberEmail = this.loginEmailService.getRememberEmail();
+    const storedEmail = await firstValueFrom(this.loginEmailService.rememberedEmail$);
 
-    if (email != null) {
-      this.formGroup.patchValue({ email, rememberEmail });
-    } else {
-      const storedEmail = await firstValueFrom(this.loginEmailService.storedEmail$);
-
-      if (storedEmail != null) {
-        this.formGroup.patchValue({ email: storedEmail, rememberEmail: true });
-      }
+    if (storedEmail != null) {
+      this.formGroup.patchValue({ email: storedEmail, rememberEmail: true });
     }
 
     this.environmentSelector.onOpenSelfHostedSettings
@@ -121,8 +114,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   async setLoginEmailValues() {
     // Note: Browser saves email settings here instead of the login component
-    this.loginEmailService.setRememberEmail(this.formGroup.controls.rememberEmail.value);
-    await this.loginEmailService.setLoginEmail(this.formGroup.controls.email.value);
-    await this.loginEmailService.saveEmailSettings();
+    this.loginEmailService.setLoginEmail(this.formGroup.controls.email.value);
+    this.loginEmailService.setRememberedEmailChoice(
+      this.formGroup.controls.email.value,
+      this.formGroup.controls.rememberEmail.value,
+    );
   }
 }

@@ -46,8 +46,7 @@
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
-    "strictTemplates": true,
-    "preserveWhitespaces": true
+    "strictTemplates": true
   },
   "include": [
     "src",

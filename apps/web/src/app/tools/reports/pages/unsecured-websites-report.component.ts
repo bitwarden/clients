@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 
 import { CollectionService, Collection } from "@bitwarden/admin-console/common";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -9,7 +8,10 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService } from "@bitwarden/components";
+import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+
+import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { CipherReportComponent } from "./cipher-report.component";
 
@@ -23,21 +25,25 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
   constructor(
     protected cipherService: CipherService,
     protected organizationService: OrganizationService,
+    dialogService: DialogService,
     accountService: AccountService,
-    modalService: ModalService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
     private collectionService: CollectionService,
+    cipherFormConfigService: CipherFormConfigService,
+    adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
   ) {
     super(
       cipherService,
-      modalService,
+      dialogService,
       passwordRepromptService,
       organizationService,
       accountService,
       i18nService,
       syncService,
+      cipherFormConfigService,
+      adminConsoleCipherFormConfigService,
     );
   }
 

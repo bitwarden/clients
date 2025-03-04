@@ -70,6 +70,7 @@ import {
   UserNotificationSettingsService,
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
@@ -607,6 +608,7 @@ export default class MainBackground {
     this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
       this.globalStateProvider,
+      this.taskSchedulerService,
     );
 
     const migrationRunner = new MigrationRunner(
@@ -1258,6 +1260,7 @@ export default class MainBackground {
       this.mainContextMenuHandler,
       this.authService,
       this.cipherService,
+      this.accountService,
     );
 
     if (chrome.webRequest != null && chrome.webRequest.onAuthRequired != null) {
@@ -1265,6 +1268,7 @@ export default class MainBackground {
         this.platformUtilsService,
         this.cipherService,
         this.authService,
+        this.accountService,
         chrome.webRequest,
       );
     }
@@ -1372,17 +1376,34 @@ export default class MainBackground {
       return;
     }
 
-    await this.mainContextMenuHandler?.init();
+    const contextMenuIsEnabled = await this.mainContextMenuHandler?.init();
+    if (!contextMenuIsEnabled) {
+      this.onUpdatedRan = this.onReplacedRan = false;
+      return;
+    }
 
     const tab = await BrowserApi.getTabFromCurrentWindow();
+
     if (tab) {
-      await this.cipherContextMenuHandler?.update(tab.url);
+      const currentUrlIsBlocked = await firstValueFrom(
+        this.domainSettingsService.blockedInteractionsUris$.pipe(
+          map((blockedInteractionsUrls) => {
+            if (blockedInteractionsUrls && tab?.url?.length) {
+              return isUrlInList(tab.url, blockedInteractionsUrls);
+            }
+
+            return false;
+          }),
+        ),
+      );
+
+      await this.cipherContextMenuHandler?.update(tab.url, currentUrlIsBlocked);
       this.onUpdatedRan = this.onReplacedRan = false;
     }
   }
 
   async updateOverlayCiphers() {
-    // overlayBackground null in popup only contexts
+    // `overlayBackground` is null in popup only contexts
     if (this.overlayBackground) {
       await this.overlayBackground.updateOverlayCiphers();
     }
@@ -1566,13 +1587,16 @@ export default class MainBackground {
   }
 
   async openPopup() {
-    // Chrome APIs cannot open popup
+    const browserAction = BrowserApi.getBrowserAction();
 
-    // TODO: Do we need to open this popup?
-    if (!this.isSafari) {
+    if ("openPopup" in browserAction && typeof browserAction.openPopup === "function") {
+      await browserAction.openPopup();
       return;
     }
-    await SafariApp.sendMessageToApp("showPopover", null, true);
+
+    if (this.isSafari) {
+      await SafariApp.sendMessageToApp("showPopover", null, true);
+    }
   }
 
   async reseedStorage() {
@@ -1636,6 +1660,7 @@ export default class MainBackground {
         this.i18nService,
         this.platformUtilsService,
         this.themeStateService,
+        this.accountService,
       );
     } else {
       this.overlayBackground = new OverlayBackground(
@@ -1653,6 +1678,7 @@ export default class MainBackground {
         this.inlineMenuFieldQualificationService,
         this.themeStateService,
         this.totpService,
+        this.accountService,
         () => this.generatePassword(),
         (password) => this.addPasswordToHistory(password),
       );

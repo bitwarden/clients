@@ -12,11 +12,6 @@ import { EventsComponent as OrgEventsComponent } from "../admin-console/organiza
 import { UserConfirmComponent as OrgUserConfirmComponent } from "../admin-console/organizations/manage/user-confirm.component";
 import { VerifyRecoverDeleteOrgComponent } from "../admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations/sponsorships/accept-family-sponsorship.component";
-import { ExposedPasswordsReportComponent as OrgExposedPasswordsReportComponent } from "../admin-console/organizations/tools/exposed-passwords-report.component";
-import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent } from "../admin-console/organizations/tools/inactive-two-factor-report.component";
-import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../admin-console/organizations/tools/reused-passwords-report.component";
-import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../admin-console/organizations/tools/unsecured-websites-report.component";
-import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../admin-console/organizations/tools/weak-passwords-report.component";
 import { HintComponent } from "../auth/hint.component";
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
@@ -35,7 +30,6 @@ import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-acce
 import { EmergencyAccessComponent } from "../auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessTakeoverComponent } from "../auth/settings/emergency-access/takeover/emergency-access-takeover.component";
 import { EmergencyAccessViewComponent } from "../auth/settings/emergency-access/view/emergency-access-view.component";
-import { EmergencyAddEditCipherComponent } from "../auth/settings/emergency-access/view/emergency-add-edit-cipher.component";
 import { ApiKeyComponent } from "../auth/settings/security/api-key.component";
 import { ChangeKdfModule } from "../auth/settings/security/change-kdf/change-kdf.module";
 import { SecurityKeysComponent } from "../auth/settings/security/security-keys.component";
@@ -50,8 +44,8 @@ import { TwoFactorSetupComponent } from "../auth/settings/two-factor/two-factor-
 import { TwoFactorVerifyComponent } from "../auth/settings/two-factor/two-factor-verify.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
+import { TwoFactorOptionsComponentV1 } from "../auth/two-factor-options-v1.component";
+import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
@@ -66,6 +60,13 @@ import { ProductSwitcherModule } from "../layouts/product-switcher/product-switc
 import { UserLayoutComponent } from "../layouts/user-layout.component";
 import { DomainRulesComponent } from "../settings/domain-rules.component";
 import { PreferencesComponent } from "../settings/preferences.component";
+/* eslint no-restricted-imports: "off" -- Temporarily disabled until Tools refactors these out of this module */
+import { ExposedPasswordsReportComponent as OrgExposedPasswordsReportComponent } from "../tools/reports/pages/organizations/exposed-passwords-report.component";
+import { InactiveTwoFactorReportComponent as OrgInactiveTwoFactorReportComponent } from "../tools/reports/pages/organizations/inactive-two-factor-report.component";
+import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } from "../tools/reports/pages/organizations/reused-passwords-report.component";
+import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../tools/reports/pages/organizations/unsecured-websites-report.component";
+import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../tools/reports/pages/organizations/weak-passwords-report.component";
+/* eslint no-restricted-imports: "error" */
 import { AddEditComponent as SendAddEditComponent } from "../tools/send/add-edit.component";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
@@ -124,7 +125,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessConfirmComponent,
     EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
-    EmergencyAddEditCipherComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
     HintComponent,
@@ -152,12 +152,12 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
+    TwoFactorComponentV1,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
-    TwoFactorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
-    TwoFactorOptionsComponent,
+    TwoFactorOptionsComponentV1,
     TwoFactorRecoveryComponent,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
@@ -188,7 +188,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessConfirmComponent,
     EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
-    EmergencyAddEditCipherComponent,
     FolderAddEditComponent,
     FrontendLayoutComponent,
     HintComponent,
@@ -217,19 +216,18 @@ import { SharedModule } from "./shared.module";
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
+    TwoFactorComponentV1,
     SsoComponentV1,
     TwoFactorSetupAuthenticatorComponent,
-    TwoFactorComponent,
     TwoFactorSetupDuoComponent,
     TwoFactorSetupEmailComponent,
-    TwoFactorOptionsComponent,
-    TwoFactorRecoveryComponent,
+    TwoFactorOptionsComponentV1,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
     TwoFactorSetupWebAuthnComponent,
     TwoFactorSetupYubiKeyComponent,
-    UpdatePasswordComponent,
     UpdateTempPasswordComponent,
+    UpdatePasswordComponent,
     UserLayoutComponent,
     VerifyEmailTokenComponent,
     VerifyRecoverDeleteComponent,

@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject, merge, of } from "rxjs";
+import { merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
@@ -11,21 +11,26 @@ import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/sa
 import {
   CLIENT_TYPE,
   DEFAULT_VAULT_TIMEOUT,
+  ENV_ADDITIONAL_REGIONS,
   INTRAPROCESS_MESSAGING_SUBJECT,
   MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
+  SafeInjectionToken,
   SECURE_STORAGE,
   SYSTEM_THEME_OBSERVABLE,
-  SafeInjectionToken,
-  ENV_ADDITIONAL_REGIONS,
+  WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
   AnonLayoutWrapperDataService,
   LoginComponentService,
-  SsoComponentService,
   LoginDecryptionOptionsService,
+  TwoFactorAuthComponentService,
+  TwoFactorAuthEmailComponentService,
+  TwoFactorAuthDuoComponentService,
+  TwoFactorAuthWebAuthnComponentService,
+  SsoComponentService,
 } from "@bitwarden/auth/angular";
 import {
   LockService,
@@ -116,10 +121,10 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
-  KdfConfigService,
-  KeyService,
   BiometricsService,
   DefaultKeyService,
+  KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -129,6 +134,10 @@ import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extensio
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLoginDecryptionOptionsService } from "../../auth/popup/login-decryption-options/extension-login-decryption-options.service";
+import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
+import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
+import { ExtensionTwoFactorAuthEmailComponentService } from "../../auth/services/extension-two-factor-auth-email-component.service";
+import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
@@ -137,6 +146,7 @@ import { ExtensionLockComponentService } from "../../key-management/lock/service
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
+import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
 import { OffscreenDocumentService } from "../../platform/offscreen-document/abstractions/offscreen-document";
@@ -530,6 +540,32 @@ const safeProviders: SafeProvider[] = [
     provide: LockComponentService,
     useClass: ExtensionLockComponentService,
     deps: [],
+  }),
+  // TODO: PM-18182 - Refactor component services into lazy loaded modules
+  safeProvider({
+    provide: TwoFactorAuthComponentService,
+    useClass: ExtensionTwoFactorAuthComponentService,
+    deps: [WINDOW],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthEmailComponentService,
+    useClass: ExtensionTwoFactorAuthEmailComponentService,
+    deps: [DialogService, WINDOW],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthWebAuthnComponentService,
+    useClass: ExtensionTwoFactorAuthWebAuthnComponentService,
+    deps: [PlatformUtilsService],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthDuoComponentService,
+    useClass: ExtensionTwoFactorAuthDuoComponentService,
+    deps: [
+      ZonedMessageListenerService,
+      EnvironmentService,
+      I18nServiceAbstraction,
+      PlatformUtilsService,
+    ],
   }),
   safeProvider({
     provide: Fido2UserVerificationService,

@@ -21,10 +21,11 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
@@ -118,10 +119,8 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.cipherDomain = await this.cipherService.get(this.cipherId);
-    this.activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.cipherDomain = await this.cipherService.get(this.cipherId, this.activeUserId);
     this.cipher = await this.cipherDomain.decrypt(
       await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, this.activeUserId),
     );

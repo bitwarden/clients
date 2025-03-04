@@ -5,22 +5,19 @@ import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import {
   AsyncActionsModule,
   ButtonModule,
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  ToastService,
 } from "@bitwarden/components";
 
-import { LoginEmailServiceAbstraction } from "../../common/abstractions/login-email.service";
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
-import { PasswordLoginStrategy } from "../../common/login-strategies/password-login.strategy";
 
 /**
  * Component for verifying a new device via a one-time password (OTP).
@@ -58,14 +55,11 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
-    private passwordLoginStrategy: PasswordLoginStrategy,
     private apiService: ApiService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private logService: LogService,
-    private toastService: ToastService,
     private i18nService: I18nService,
-    private syncService: SyncService,
-    private loginEmailService: LoginEmailServiceAbstraction,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {}
 
   async ngOnInit() {
@@ -147,9 +141,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.loginEmailService.clearValues();
-
-      await this.syncService.fullSync(true);
+      this.loginSuccessHandlerService.run(authResult.userId);
 
       // If verification succeeds, navigate to vault
       await this.router.navigate(["/vault"]);

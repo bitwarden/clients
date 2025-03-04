@@ -6,11 +6,13 @@ import { RouterModule, Routes } from "@angular/router";
 import { canAccessReportingTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-import { ExposedPasswordsReportComponent } from "../../../admin-console/organizations/tools/exposed-passwords-report.component";
-import { InactiveTwoFactorReportComponent } from "../../../admin-console/organizations/tools/inactive-two-factor-report.component";
-import { ReusedPasswordsReportComponent } from "../../../admin-console/organizations/tools/reused-passwords-report.component";
-import { UnsecuredWebsitesReportComponent } from "../../../admin-console/organizations/tools/unsecured-websites-report.component";
-import { WeakPasswordsReportComponent } from "../../../admin-console/organizations/tools/weak-passwords-report.component";
+/* eslint no-restricted-imports: "off" -- Normally prohibited by Tools Team eslint rules but required here  */
+import { ExposedPasswordsReportComponent } from "../../../tools/reports/pages/organizations/exposed-passwords-report.component";
+import { InactiveTwoFactorReportComponent } from "../../../tools/reports/pages/organizations/inactive-two-factor-report.component";
+import { ReusedPasswordsReportComponent } from "../../../tools/reports/pages/organizations/reused-passwords-report.component";
+import { UnsecuredWebsitesReportComponent } from "../../../tools/reports/pages/organizations/unsecured-websites-report.component";
+import { WeakPasswordsReportComponent } from "../../../tools/reports/pages/organizations/weak-passwords-report.component";
+/* eslint no-restricted-imports: "error" */
 import { isPaidOrgGuard } from "../guards/is-paid-org.guard";
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../guards/org-redirect.guard";

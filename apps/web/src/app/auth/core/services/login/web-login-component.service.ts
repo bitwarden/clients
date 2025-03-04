@@ -63,7 +63,7 @@ export class WebLoginComponentService
     return;
   }
 
-  async getOrgPolicies(): Promise<PasswordPolicies | null> {
+  async getOrgPoliciesFromOrgInvite(): Promise<PasswordPolicies | null> {
     const orgInvite = await this.acceptOrganizationInviteService.getOrganizationInvite();
 
     if (orgInvite != null) {

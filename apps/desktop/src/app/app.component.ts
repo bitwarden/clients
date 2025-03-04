@@ -89,6 +89,8 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
     </div>
+
+    <bit-toast-container></bit-toast-container>
   `,
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -315,20 +317,6 @@ export class AppComponent implements OnInit, OnDestroy {
             });
             if (premiumConfirmed) {
               await this.openModal<PremiumComponent>(PremiumComponent, this.premiumRef);
-            }
-            break;
-          }
-          case "upgradeOrganization": {
-            const upgradeConfirmed = await this.dialogService.openSimpleDialog({
-              title: { key: "upgradeOrganization" },
-              content: { key: "upgradeOrganizationDesc" },
-              acceptButtonText: { key: "learnMore" },
-              type: "info",
-            });
-            if (upgradeConfirmed) {
-              this.platformUtilsService.launchUri(
-                "https://bitwarden.com/help/upgrade-from-individual-to-org/",
-              );
             }
             break;
           }
