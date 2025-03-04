@@ -1,4 +1,4 @@
-import { merge } from "rxjs";
+import { merge, Observable } from "rxjs";
 
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
@@ -6,16 +6,21 @@ import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractio
 import { TrustedDeviceToastService } from "./trusted-device-toast.service";
 
 export class DefaultTrustedDeviceToastService implements TrustedDeviceToastService {
-  adminLoginApproved$ = this.authRequestService.adminLoginApproved$;
-  deviceTrusted$ = this.deviceTrustService.deviceTrusted$;
+  adminLoginApproved$: Observable<string>;
+  deviceTrusted$: Observable<string>;
 
-  setupListeners$ = merge(
-    this.authRequestService.adminLoginApproved$,
-    this.deviceTrustService.deviceTrusted$,
-  );
+  setupListeners$: Observable<string>;
 
   constructor(
     private authRequestService: AuthRequestServiceAbstraction,
     private deviceTrustService: DeviceTrustServiceAbstraction,
-  ) {}
+  ) {
+    this.adminLoginApproved$ = this.authRequestService.adminLoginApproved$;
+    this.deviceTrusted$ = this.deviceTrustService.deviceTrusted$;
+
+    this.setupListeners$ = merge(
+      this.authRequestService.adminLoginApproved$,
+      this.deviceTrustService.deviceTrusted$,
+    );
+  }
 }
