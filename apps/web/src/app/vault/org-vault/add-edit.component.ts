@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -10,6 +11,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -98,8 +100,9 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   protected async loadCipher() {
     this.isAdminConsoleAction = true;
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     // Calling loadCipher first to assess if the cipher is unassigned. If null use apiService getCipherAdmin
-    const firstCipherCheck = await super.loadCipher();
+    const firstCipherCheck = await super.loadCipher(activeUserId);
 
     if (!this.organization.canEditAllCiphers && firstCipherCheck != null) {
       return firstCipherCheck;
@@ -123,7 +126,8 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   protected async deleteCipher() {
     if (!this.organization.canEditAllCiphers) {
-      return super.deleteCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      return super.deleteCipher(activeUserId);
     }
     return this.cipher.isDeleted
       ? this.apiService.deleteCipherAdmin(this.cipherId)

@@ -127,8 +127,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     this.destroyed$ = inject(DestroyRef);
     this.cipherFormContainer.registerChildForm("customFields", this.customFieldsForm);
 
-    this.customFieldsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((values) => {
-      this.updateCipher(values.fields);
+    this.customFieldsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      // getRawValue ensures disabled fields are included
+      this.updateCipher(this.fields.getRawValue());
     });
   }
 

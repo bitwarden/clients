@@ -245,7 +245,7 @@
       >
         {{ "cancel" | i18n }}
       </button>
-      <div class="tw-ml-auto">
+      <div class="tw-flex tw-gap-2 tw-ml-auto">
         <button
           *ngIf="editMode && isRevoked"
           type="button"
@@ -255,7 +255,7 @@
           [bitAction]="restore"
           [disabled]="loading"
         >
-          {{ "restoreAccess" | i18n }}
+          {{ "restore" | i18n }}
         </button>
         <button
           *ngIf="editMode && !isRevoked"
@@ -266,7 +266,7 @@
           [bitAction]="revoke"
           [disabled]="loading"
         >
-          {{ "revokeAccess" | i18n }}
+          {{ "revoke" | i18n }}
         </button>
         <button
           *ngIf="
@@ -275,13 +275,14 @@
               !(editParams$ | async)?.managedByOrganization)
           "
           type="button"
-          bitIconButton="bwi-close"
           buttonType="danger"
+          bitButton
           bitFormButton
-          [appA11yTitle]="'remove' | i18n"
           [bitAction]="remove"
           [disabled]="loading"
-        ></button>
+        >
+          {{ "remove" | i18n }}
+        </button>
         <button
           *ngIf="
             this.editMode &&
@@ -289,13 +290,14 @@
             (editParams$ | async)?.managedByOrganization
           "
           type="button"
-          bitIconButton="bwi-trash"
           buttonType="danger"
+          bitButton
           bitFormButton
-          [appA11yTitle]="'delete' | i18n"
           [bitAction]="delete"
           [disabled]="loading"
-        ></button>
+        >
+          {{ "delete" | i18n }}
+        </button>
       </div>
     </ng-container>
   </bit-dialog>

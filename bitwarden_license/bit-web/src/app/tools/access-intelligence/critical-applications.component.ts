@@ -18,7 +18,7 @@ import {
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   Icons,
   NoItemsModule,
@@ -27,18 +27,31 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { CardComponent } from "@bitwarden/tools-card";
+import { SecurityTaskType } from "@bitwarden/vault";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
+import { CreateTasksRequest } from "../../vault/services/abstractions/admin-task.abstraction";
+import { DefaultAdminTaskService } from "../../vault/services/default-admin-task.service";
+
+import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.component";
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
   standalone: true,
   selector: "tools-critical-applications",
   templateUrl: "./critical-applications.component.html",
-  imports: [CardComponent, HeaderModule, SearchModule, NoItemsModule, PipesModule, SharedModule],
-  providers: [],
+  imports: [
+    CardComponent,
+    HeaderModule,
+    SearchModule,
+    NoItemsModule,
+    PipesModule,
+    SharedModule,
+    AppTableRowScrollableComponent,
+  ],
+  providers: [DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {
   protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
@@ -50,6 +63,7 @@ export class CriticalApplicationsComponent implements OnInit {
   protected applicationSummary = {} as ApplicationHealthReportSummary;
   noItemsIcon = Icons.Security;
   isNotificationsFeatureEnabled: boolean = false;
+  enableRequestPasswordChange = false;
 
   async ngOnInit() {
     this.isNotificationsFeatureEnabled = await this.configService.getFeatureFlag(
@@ -75,6 +89,7 @@ export class CriticalApplicationsComponent implements OnInit {
         if (applications) {
           this.dataSource.data = applications;
           this.applicationSummary = this.reportService.generateApplicationsSummary(applications);
+          this.enableRequestPasswordChange = this.applicationSummary.totalAtRiskMemberCount > 0;
         }
       });
   }
@@ -109,6 +124,33 @@ export class CriticalApplicationsComponent implements OnInit {
     this.dataSource.data = this.dataSource.data.filter((app) => app.applicationName !== hostname);
   };
 
+  async requestPasswordChange() {
+    const apps = this.dataSource.data;
+    const cipherIds = apps
+      .filter((_) => _.atRiskPasswordCount > 0)
+      .flatMap((app) => app.atRiskMemberDetails.map((member) => member.cipherId));
+    const distinctCipherIds = Array.from(new Set(cipherIds));
+    const tasks: CreateTasksRequest[] = distinctCipherIds.map((cipherId) => ({
+      cipherId: cipherId as CipherId,
+      type: SecurityTaskType.UpdateAtRiskCredential,
+    }));
+
+    try {
+      await this.adminTaskService.bulkCreateTasks(this.organizationId as OrganizationId, tasks);
+      this.toastService.showToast({
+        message: this.i18nService.t("notifiedMembers"),
+        variant: "success",
+        title: this.i18nService.t("success"),
+      });
+    } catch {
+      this.toastService.showToast({
+        message: this.i18nService.t("unexpectedError"),
+        variant: "error",
+        title: this.i18nService.t("error"),
+      });
+    }
+  }
+
   constructor(
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
@@ -118,6 +160,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected reportService: RiskInsightsReportService,
     protected i18nService: I18nService,
     private configService: ConfigService,
+    private adminTaskService: DefaultAdminTaskService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -131,20 +174,23 @@ export class CriticalApplicationsComponent implements OnInit {
           ?.atRiskMemberDetails ?? [],
       applicationName,
     };
-    this.dataService.setDrawerForAppAtRiskMembers(data);
+    this.dataService.setDrawerForAppAtRiskMembers(data, applicationName);
   };
 
-  showOrgAtRiskMembers = async () => {
+  showOrgAtRiskMembers = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskMemberList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskMembers(data);
+    this.dataService.setDrawerForOrgAtRiskMembers(data, invokerId);
   };
 
-  showOrgAtRiskApps = async () => {
+  showOrgAtRiskApps = async (invokerId: string) => {
     const data = this.reportService.generateAtRiskApplicationList(this.dataSource.data);
-    this.dataService.setDrawerForOrgAtRiskApps(data);
+    this.dataService.setDrawerForOrgAtRiskApps(data, invokerId);
   };
 
   trackByFunction(_: number, item: ApplicationHealthReportDetailWithCriticalFlag) {
     return item.applicationName;
   }
+  isDrawerOpenForTableRow = (applicationName: string) => {
+    return this.dataService.drawerInvokerId === applicationName;
+  };
 }

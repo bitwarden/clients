@@ -1,9 +1,16 @@
+import { firstValueFrom } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { Response } from "../models/response";
 
 export class RestoreCommand {
-  constructor(private cipherService: CipherService) {}
+  constructor(
+    private cipherService: CipherService,
+    private accountService: AccountService,
+  ) {}
 
   async run(object: string, id: string): Promise<Response> {
     if (id != null) {
@@ -19,7 +26,9 @@ export class RestoreCommand {
   }
 
   private async restoreCipher(id: string) {
-    const cipher = await this.cipherService.get(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {
       return Response.notFound();
     }
@@ -28,7 +37,7 @@ export class RestoreCommand {
     }
 
     try {
-      await this.cipherService.restoreWithServer(id);
+      await this.cipherService.restoreWithServer(id, activeUserId);
       return Response.success();
     } catch (e) {
       return Response.error(e);

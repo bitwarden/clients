@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -75,7 +73,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     this.ssoEmailState = this.stateProvider.getGlobal(SSO_EMAIL);
   }
 
-  getCodeVerifier(): Promise<string> {
+  getCodeVerifier(): Promise<string | null> {
     return firstValueFrom(this.codeVerifierState.state$);
   }
 
@@ -83,7 +81,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.codeVerifierState.update((_) => codeVerifier);
   }
 
-  getSsoState(): Promise<string> {
+  getSsoState(): Promise<string | null> {
     return firstValueFrom(this.ssoState.state$);
   }
 
@@ -91,7 +89,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.ssoState.update((_) => ssoState);
   }
 
-  getOrganizationSsoIdentifier(): Promise<string> {
+  getOrganizationSsoIdentifier(): Promise<string | null> {
     return firstValueFrom(this.orgSsoIdentifierState.state$);
   }
 
@@ -99,7 +97,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.orgSsoIdentifierState.update((_) => organizationIdentifier);
   }
 
-  getSsoEmail(): Promise<string> {
+  getSsoEmail(): Promise<string | null> {
     return firstValueFrom(this.ssoEmailState.state$);
   }
 
@@ -107,7 +105,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     await this.ssoEmailState.update((_) => email);
   }
 
-  getActiveUserOrganizationSsoIdentifier(userId: UserId): Promise<string> {
+  getActiveUserOrganizationSsoIdentifier(userId: UserId): Promise<string | null> {
     return firstValueFrom(this.userOrgSsoIdentifierState(userId).state$);
   }
 
@@ -116,7 +114,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     userId: UserId | undefined,
   ): Promise<void> {
     if (userId === undefined) {
-      this.logService.warning(
+      this.logService.error(
         "Tried to set a user organization sso identifier with an undefined user id.",
       );
       return;

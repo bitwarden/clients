@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Bitwarden にログイン"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "パスキーでログイン"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "マスターパスワードのヒント"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "組織に参加"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "認証がキャンセルされたか、時間がかかりすぎました。もう一度やり直してください。"
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "認証コードが間違っています"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "情報を保存する"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "確認コードをメールで再送"
   },
   "useAnotherTwoStepMethod": {
     "message": "他の2段階認証方法を使用"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "2段階認証オプション"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "セルフホスティング環境"
@@ -1775,6 +1809,9 @@
   "requirePasswordOnStart": {
     "message": "アプリ起動時にパスワードまたは PIN を要求"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "セキュリティ向上のためおすすめします。"
   },
@@ -2244,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAuthn の認証"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "メールアドレスを受信者に表示しない"
   },
@@ -2640,6 +2683,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "$SERVICENAME$ マスク済みメールアカウント ID を取得できませんでした。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -2745,14 +2812,23 @@
   "loginInitiated": {
     "message": "ログイン開始"
   },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
   "notificationSentDevice": {
     "message": "デバイスに通知を送信しました。"
   },
   "aNotificationWasSentToYourDevice": {
     "message": "お使いのデバイスに通知が送信されました"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "アカウントがロック解除されていることと、フィンガープリントフレーズが他の端末と一致していることを確認してください"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "別の選択肢が必要ですか？"
@@ -2782,11 +2858,11 @@
     "message": "文字カウントを切り替える",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "ログインしようとしていますか？"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
-    "message": "$EMAIL$ によるログインの試行",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2879,11 @@
   "time": {
     "message": "時間"
   },
-  "confirmLogIn": {
-    "message": "ログインを承認"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "ログインを拒否"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "$EMAIL$ に $DEVICE$ でのログインを承認しました",
@@ -2843,8 +2919,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "このリクエストは無効になりました。"
   },
-  "confirmLoginAtemptForMail": {
-    "message": "$EMAIL$ のログイン試行を確認",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2930,9 @@
   },
   "logInRequested": {
     "message": "ログインリクエスト済み"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "アカウント作成："
@@ -3167,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "アカウントには Duo 二段階認証が必要です。"
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "ブラウザで Duo を起動"
   },
@@ -3424,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "SSH 鍵の使用を確認します"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "がアクセスを要求しています: "
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "アプリ"
@@ -3484,14 +3587,17 @@
   "changeAcctEmail": {
     "message": "アカウントのメールアドレスを変更する"
   },
-  "organizationUpgradeRequired": {
-    "message": "Organization upgrade required"
+  "allowScreenshots": {
+    "message": "Allow screen capture"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organization"
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
   },
-  "upgradeOrganizationDesc": {
-    "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Extension update required"

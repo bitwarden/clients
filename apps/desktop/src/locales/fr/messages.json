@@ -250,7 +250,7 @@
     "message": "Erreur"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Erreur de déchiffrement"
   },
   "couldNotDecryptVaultItemsBelow": {
     "message": "Bitwarden could not decrypt the vault item(s) listed below."
@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Se connecter à Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Se connecter avec une clé d'accès"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Indice du mot de passe principal"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Rejoindre l'organisation"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "L'authentification a été annulée ou a pris trop de temps. Veuillez réessayer."
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "Code de vérification invalide"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Rester connecté"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Envoyer à nouveau le courriel de code de vérification"
   },
   "useAnotherTwoStepMethod": {
     "message": "Utiliser une autre méthode de connexion en deux étapes"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Insérez votre YubiKey dans le port USB de votre ordinateur puis appuyez sur son bouton."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Options d'authentification à deux facteurs"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "Environnement auto-hébergé"
@@ -1775,6 +1809,9 @@
   "requirePasswordOnStart": {
     "message": "Exiger un mot de passe ou un code PIN au démarrage de Bitwarden"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
   "recommendedForSecurity": {
     "message": "Recommandé pour la sécurité."
   },
@@ -2244,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Authentifier WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "Masquer mon adresse électronique aux destinataires."
   },
@@ -2551,7 +2594,7 @@
     "message": "Utilisez la boîte de réception du collecteur configurée de votre domaine."
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Utiliser ce courriel"
   },
   "random": {
     "message": "Aléatoire"
@@ -2629,6 +2672,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Jeton d'API de $SERVICENAME$ non valide : $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2745,14 +2812,23 @@
   "loginInitiated": {
     "message": "Connexion initiée"
   },
+  "logInRequestSent": {
+    "message": "Demande envoyée"
+  },
   "notificationSentDevice": {
     "message": "Une notification a été envoyée à votre appareil."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Une notification a été envoyée à votre appareil"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assurez-vous que votre compte est déverrouillé et que la phrase d'empreinte digitale correspond à celle de l'autre appareil"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "Besoin d'une autre option ?"
@@ -2782,11 +2858,11 @@
     "message": "Activer / désactiver le compte de caractères",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Essayez-vous de vous connecter ?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Essayez-vous d'accéder à votre compte ?"
   },
-  "logInAttemptBy": {
-    "message": "Tentative de connexion par $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2803,11 +2879,11 @@
   "time": {
     "message": "Heure"
   },
-  "confirmLogIn": {
-    "message": "Confirmer la connexion"
+  "confirmAccess": {
+    "message": "Confirm access"
   },
-  "denyLogIn": {
-    "message": "Refuser la connexion"
+  "denyAccess": {
+    "message": "Deny access"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Connexion confirmée pour $EMAIL$ sur $DEVICE$",
@@ -2843,8 +2919,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Cette demande n'est plus valide."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Confirmer la tentative de connexion pour $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +2930,9 @@
   },
   "logInRequested": {
     "message": "Connexion demandée"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Création du compte sur"
@@ -2889,10 +2968,10 @@
     "message": "Mot de passe faible identifié et trouvé dans une brèche de données. Utilisez un mot de passe robuste et unique pour protéger votre compte. Êtes-vous sûr de vouloir utiliser ce mot de passe ?"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Utiliser ce mot de passe"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Utiliser ce nom d'utilisateur"
   },
   "checkForBreaches": {
     "message": "Vérifier les brèches de données connues pour ce mot de passe"
@@ -3167,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "L'authentification à double facteur Duo est requise pour votre compte."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Lancer Duo dans le navigateur"
   },
@@ -3242,7 +3327,7 @@
     "message": "Confirmez le mot de passe du fichier"
   },
   "exportSuccess": {
-    "message": "Vault data exported"
+    "message": "Données du coffre exportées"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Authentification multi-facteurs annulée"
@@ -3424,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Confirmer l'utilisation de la clé SSH"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "demande l'accès à"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "Une application"
@@ -3484,14 +3587,17 @@
   "changeAcctEmail": {
     "message": "Changer le courriel du compte"
   },
-  "organizationUpgradeRequired": {
-    "message": "Organization upgrade required"
+  "allowScreenshots": {
+    "message": "Allow screen capture"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organization"
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
   },
-  "upgradeOrganizationDesc": {
-    "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Veuillez confirmer que la fenêtre est toujours visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Extension update required"
