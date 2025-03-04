@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { InitiationPath } from "../../models/request/reference-event.request";
 import { PaymentMethodType, PlanType } from "../enums";
@@ -59,4 +61,10 @@ export abstract class OrganizationBillingServiceAbstraction {
     organizationId: string,
     subscription: SubscriptionInformation,
   ) => Promise<void>;
+
+  /**
+   * Determines if upselling policies is enabled for the organizations meeting certain criteria.
+   * @param organization
+   */
+  abstract isUpsellingPoliciesEnabled(organization: Organization): Promise<boolean>;
 }
