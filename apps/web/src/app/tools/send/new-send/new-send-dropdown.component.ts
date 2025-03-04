@@ -19,6 +19,9 @@ import { SendAddEditComponent } from "../send-add-edit.component";
   imports: [JslibModule, CommonModule, ButtonModule, MenuModule, BadgeModule],
   providers: [DefaultSendFormConfigService],
 })
+/**
+ * A dropdown component that allows the user to create a new Send of a specific type.
+ */
 export class NewSendDropdownComponent {
   /** If true, the plus icon will be hidden */
   @Input() hideIcon: boolean = false;
@@ -45,6 +48,11 @@ export class NewSendDropdownComponent {
     );
   }
 
+  /**
+   * Opens the SendAddEditComponent for a new Send with the provided type.
+   * If has user does not have premium access and the type is File, the user will be redirected to the premium settings page.
+   * @param type The type of Send to create.
+   */
   async createSend(type: SendType) {
     if (!(await firstValueFrom(this.canAccessPremium$)) && type === SendType.File) {
       return await this.router.navigate(["settings/subscription/premium"]);
