@@ -7,7 +7,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 interface EnterpriseOrgStatus {
   isFreeFamilyPolicyEnabled: boolean;
@@ -27,7 +26,6 @@ export class FreeFamiliesPolicyService {
     private policyService: PolicyService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
-    private configService: ConfigService,
   ) {}
 
   canManageSponsorships$ = this.accountService.activeAccount$.pipe(
@@ -109,7 +107,7 @@ export class FreeFamiliesPolicyService {
     return this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
       ),
       map((policies) => ({
         isFreeFamilyPolicyEnabled: policies.some(
