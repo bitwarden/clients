@@ -280,9 +280,6 @@ export class SsoLoginStrategy extends LoginStrategy {
 
         // This notification will be picked up by the SsoComponent to handle displaying a toast to the user
         this.authRequestService.emitLoginApprovedNotification();
-
-        // TODO-rr-bw: remove this line
-        // this.platformUtilsService.showToast("success", null, this.i18nService.t("loginApproved"));
       }
     }
   }

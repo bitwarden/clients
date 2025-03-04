@@ -184,9 +184,6 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     // This notification will be picked up by consuming components to handle displaying a toast to the user
     this.deviceTrustedNotificationSubject$.next(true);
 
-    // TODO-rr-bw: remove this line
-    // this.platformUtilsService.showToast("success", null, this.i18nService.t("deviceTrusted"));
-
     return deviceResponse;
   }
 
