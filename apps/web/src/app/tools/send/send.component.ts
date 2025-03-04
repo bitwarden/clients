@@ -135,6 +135,11 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
    * @param formConfig The form configuration.
    * */
   async openSendItemDialog(formConfig: SendFormConfig) {
+    // Prevent multiple dialogs from being opened.
+    if (this.sendItemDialogRef) {
+      return;
+    }
+
     this.sendItemDialogRef = SendAddEditComponent.open(this.dialogService, {
       formConfig,
     });
