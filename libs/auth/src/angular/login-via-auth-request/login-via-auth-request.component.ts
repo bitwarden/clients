@@ -25,9 +25,12 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AuthRequest } from "@bitwarden/common/auth/models/request/auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
+import { LoginViaAuthRequestView } from "@bitwarden/common/auth/models/view/login-via-auth-request.view";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -40,6 +43,7 @@ import { ButtonModule, LinkModule, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { AuthRequestApiService } from "../../common/abstractions/auth-request-api.service";
+import { LoginViaAuthRequestCacheService } from "../../common/services/auth-request/default-login-via-auth-request-cache.service";
 
 enum Flow {
   StandardAuthRequest, // when user clicks "Login with device" from /login or "Approve from your other device" from /login-initiated
@@ -57,6 +61,7 @@ const matchOptions: IsActiveMatchOptions = {
   standalone: true,
   templateUrl: "./login-via-auth-request.component.html",
   imports: [ButtonModule, CommonModule, JslibModule, LinkModule, RouterModule],
+  providers: [{ provide: LoginViaAuthRequestCacheService }],
 })
 export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   private authRequest: AuthRequest;
@@ -95,6 +100,8 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private loginViaAuthRequestCacheService: LoginViaAuthRequestCacheService,
+    private configService: ConfigService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
 
@@ -124,6 +131,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Get the authStatus early because we use it in both flows
     this.authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    await this.loginViaAuthRequestCacheService.init();
 
     const userHasAuthenticatedViaSSO = this.authStatus === AuthenticationStatus.Locked;
 
@@ -222,18 +230,55 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   protected async startStandardAuthRequestLogin(): Promise<void> {
     this.showResendNotification = false;
 
-    try {
-      await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM9112_DeviceApprovalPersistence)) {
+      try {
+        const loginAuthRequestView: LoginViaAuthRequestView =
+          this.loginViaAuthRequestCacheService.getCachedLoginViaAuthRequestView();
 
-      const authRequestResponse = await this.authRequestApiService.postAuthRequest(
-        this.authRequest,
-      );
+        if (!loginAuthRequestView) {
+          await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
 
-      if (authRequestResponse.id) {
-        await this.anonymousHubService.createHubConnection(authRequestResponse.id);
+          const authRequestResponse = await this.authRequestApiService.postAuthRequest(
+            this.authRequest,
+          );
+
+          if (authRequestResponse.id) {
+            await this.anonymousHubService.createHubConnection(authRequestResponse.id);
+          }
+
+          this.loginViaAuthRequestCacheService.cacheLoginView(
+            this.authRequest,
+            authRequestResponse,
+            this.fingerprintPhrase,
+            this.authRequestKeyPair.privateKey,
+          );
+        } else {
+          this.authRequest = loginAuthRequestView.authRequest;
+          this.fingerprintPhrase = loginAuthRequestView.fingerprintPhrase;
+
+          if (loginAuthRequestView.authRequestResponse.id) {
+            await this.anonymousHubService.createHubConnection(
+              loginAuthRequestView.authRequestResponse.id,
+            );
+          }
+        }
+      } catch (e) {
+        this.logService.error(e);
       }
-    } catch (e) {
-      this.logService.error(e);
+    } else {
+      try {
+        await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
+
+        const authRequestResponse = await this.authRequestApiService.postAuthRequest(
+          this.authRequest,
+        );
+
+        if (authRequestResponse.id) {
+          await this.anonymousHubService.createHubConnection(authRequestResponse.id);
+        }
+      } catch (e) {
+        this.logService.error(e);
+      }
     }
 
     setTimeout(() => {
