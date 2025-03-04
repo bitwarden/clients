@@ -1,13 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
 import {
-  AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
   SsoLoginCredentials,
   TrustedDeviceUserDecryptionOption,
@@ -16,7 +14,6 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -77,33 +74,7 @@ export class SsoComponent implements OnInit {
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected accountService: AccountService,
     protected toastService: ToastService,
-    protected authRequestService: AuthRequestServiceAbstraction,
-    protected deviceTrustService: DeviceTrustServiceAbstraction,
-  ) {
-    this.authRequestService.loginApprovedNotification$
-      .pipe(takeUntilDestroyed())
-      .subscribe((loginApproved: boolean) => {
-        if (loginApproved) {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("loginApproved"),
-          });
-        }
-      });
-
-    this.deviceTrustService.deviceTrustedNotification$
-      .pipe(takeUntilDestroyed())
-      .subscribe((deviceTrusted: boolean) => {
-        if (deviceTrusted) {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("deviceTrusted"),
-          });
-        }
-      });
-  }
+  ) {}
 
   async ngOnInit() {
     // eslint-disable-next-line rxjs/no-async-subscribe

@@ -3,13 +3,11 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 import { SsoComponent as BaseSsoComponent } from "@bitwarden/angular/auth/components/sso.component";
 import {
-  AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -47,8 +45,6 @@ export class SsoComponentV1 extends BaseSsoComponent {
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
     accountService: AccountService,
     toastService: ToastService,
-    authRequestService: AuthRequestServiceAbstraction,
-    deviceTrustService: DeviceTrustServiceAbstraction,
   ) {
     super(
       ssoLoginService,
@@ -68,8 +64,6 @@ export class SsoComponentV1 extends BaseSsoComponent {
       masterPasswordService,
       accountService,
       toastService,
-      authRequestService,
-      deviceTrustService,
     );
     this.onSuccessfulLogin = async () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

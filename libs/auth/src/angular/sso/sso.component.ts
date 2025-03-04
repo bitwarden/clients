@@ -13,14 +13,12 @@ import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
   LoginSuccessHandlerService,
-  AuthRequestServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-sso-details.response";
 import { VerifiedOrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -121,8 +119,6 @@ export class SsoComponent implements OnInit {
     private toastService: ToastService,
     private ssoComponentService: SsoComponentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
-    private authRequestService: AuthRequestServiceAbstraction,
-    private deviceTrustService: DeviceTrustServiceAbstraction,
   ) {
     environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.redirectUri = env.getWebVaultUrl() + "/sso-connector.html";
@@ -132,30 +128,6 @@ export class SsoComponent implements OnInit {
     if (this.isValidSsoClientType(clientType)) {
       this.clientId = clientType as SsoClientType;
     }
-
-    this.authRequestService.loginApprovedNotification$
-      .pipe(takeUntilDestroyed())
-      .subscribe((loginApproved: boolean) => {
-        if (loginApproved) {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("loginApproved"),
-          });
-        }
-      });
-
-    this.deviceTrustService.deviceTrustedNotification$
-      .pipe(takeUntilDestroyed())
-      .subscribe((deviceTrusted: boolean) => {
-        if (deviceTrusted) {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("deviceTrusted"),
-          });
-        }
-      });
   }
 
   /**

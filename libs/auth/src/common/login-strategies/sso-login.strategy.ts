@@ -279,7 +279,7 @@ export class SsoLoginStrategy extends LoginStrategy {
         await this.authRequestService.clearAdminAuthRequest(userId);
 
         // This notification will be picked up by the SsoComponent to handle displaying a toast to the user
-        this.authRequestService.emitLoginApprovedNotification();
+        this.authRequestService.emitAdminLoginApproved();
       }
     }
   }

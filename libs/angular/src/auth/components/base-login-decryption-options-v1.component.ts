@@ -1,7 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, OnDestroy, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -109,19 +108,7 @@ export class BaseLoginDecryptionOptionsComponentV1 implements OnInit, OnDestroy 
     protected ssoLoginService: SsoLoginServiceAbstraction,
     protected accountService: AccountService,
     protected toastService: ToastService,
-  ) {
-    this.deviceTrustService.deviceTrustedNotification$
-      .pipe(takeUntilDestroyed())
-      .subscribe((deviceTrusted: boolean) => {
-        if (deviceTrusted) {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("deviceTrusted"),
-          });
-        }
-      });
-  }
+  ) {}
 
   async ngOnInit() {
     this.loading = true;

@@ -2,11 +2,13 @@
 // @ts-strict-ignore
 import { DOCUMENT } from "@angular/common";
 import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import * as jq from "jquery";
 import { Subject, filter, firstValueFrom, map, takeUntil, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { TrustedDeviceToastService } from "@bitwarden/angular/auth/services/trusted-device-toast.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -95,7 +97,27 @@ export class AppComponent implements OnDestroy, OnInit {
     private apiService: ApiService,
     private appIdService: AppIdService,
     private processReloadService: ProcessReloadServiceAbstraction,
-  ) {}
+    private trustedDeviceToastService: TrustedDeviceToastService,
+  ) {
+    this.trustedDeviceToastService.setupListeners$
+      .pipe(takeUntilDestroyed())
+      .subscribe((emission: string) => {
+        if (emission === "adminLoginApproved") {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("loginApproved"),
+          });
+        }
+        if (emission === "deviceTrusted") {
+          this.toastService.showToast({
+            variant: "success",
+            title: "",
+            message: this.i18nService.t("deviceTrusted"),
+          });
+        }
+      });
+  }
 
   ngOnInit() {
     this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {

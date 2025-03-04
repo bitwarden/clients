@@ -44,8 +44,8 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   authRequestPushNotification$: Observable<string>;
 
   // Notification is used to trigger a toast in consuming components
-  private loginApprovedNotificationSubject$ = new Subject<boolean>();
-  loginApprovedNotification$: Observable<boolean>;
+  private adminLoginApprovedSubject = new Subject<string>();
+  adminLoginApproved$: Observable<string>;
 
   constructor(
     private appIdService: AppIdService,
@@ -57,7 +57,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private stateProvider: StateProvider,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
-    this.loginApprovedNotification$ = this.loginApprovedNotificationSubject$.asObservable();
+    this.adminLoginApproved$ = this.adminLoginApprovedSubject.asObservable();
   }
 
   async getAdminAuthRequest(userId: UserId): Promise<AdminAuthRequestStorable | null> {
@@ -213,7 +213,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     return (await this.keyService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
   }
 
-  emitLoginApprovedNotification(): void {
-    this.loginApprovedNotificationSubject$.next(true);
+  emitAdminLoginApproved(): void {
+    this.adminLoginApprovedSubject.next("adminLoginApproved");
   }
 }
