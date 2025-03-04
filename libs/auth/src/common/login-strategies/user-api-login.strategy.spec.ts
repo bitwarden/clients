@@ -97,7 +97,6 @@ describe("UserApiLoginStrategy", () => {
 
     apiLogInStrategy = new UserApiLoginStrategy(
       cache,
-      environmentService,
       keyConnectorService,
       accountService,
       masterPasswordService,
@@ -115,6 +114,7 @@ describe("UserApiLoginStrategy", () => {
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
       kdfConfigService,
+      environmentService,
     );
 
     credentials = new UserApiLoginCredentials(apiClientId, apiClientSecret);
