@@ -5,6 +5,8 @@ import { firstValueFrom, Subject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -37,6 +39,7 @@ export class VaultFilterComponent
   }
   _organization: Organization;
   protected destroy$: Subject<void>;
+  protected activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   constructor(
     protected vaultFilterService: VaultFilterService,
@@ -47,6 +50,7 @@ export class VaultFilterComponent
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
     protected configService: ConfigService,
+    protected accountService: AccountService,
   ) {
     super(
       vaultFilterService,
@@ -57,6 +61,7 @@ export class VaultFilterComponent
       billingApiService,
       dialogService,
       configService,
+      accountService,
     );
   }
 
@@ -85,8 +90,8 @@ export class VaultFilterComponent
     const collapsedNodes = await firstValueFrom(this.vaultFilterService.collapsedFilterNodes$);
 
     collapsedNodes.delete("AllCollections");
-
-    await this.vaultFilterService.setCollapsedFilterNodes(collapsedNodes);
+    const userId = await firstValueFrom(this.activeUserId$);
+    await this.vaultFilterService.setCollapsedFilterNodes(collapsedNodes, userId);
   }
 
   protected async addCollectionFilter(): Promise<VaultFilterSection> {

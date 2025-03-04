@@ -123,8 +123,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     return ServiceUtils.getTreeNodeObject(collections, id) as TreeNode<CollectionFilter>;
   }
 
-  async setCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
-    const userId = await firstValueFrom(this.activeUserId$);
+  async setCollapsedFilterNodes(collapsedFilterNodes: Set<string>, userId: UserId): Promise<void> {
     await this.collapsedGroupingsState(userId).update(() => Array.from(collapsedFilterNodes));
   }
 
@@ -148,13 +147,13 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     }
   }
 
-  async expandOrgFilter() {
+  async expandOrgFilter(userId: UserId) {
     const collapsedFilterNodes = await firstValueFrom(this.collapsedFilterNodes$);
     if (!collapsedFilterNodes.has("AllVaults")) {
       return;
     }
     collapsedFilterNodes.delete("AllVaults");
-    await this.setCollapsedFilterNodes(collapsedFilterNodes);
+    await this.setCollapsedFilterNodes(collapsedFilterNodes, userId);
   }
 
   protected async buildOrganizationTree(

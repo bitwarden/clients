@@ -6,6 +6,8 @@ import { firstValueFrom, merge, Subject, switchMap, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -92,6 +94,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   private trialFlowService = inject(TrialFlowService);
+  private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   constructor(
     protected vaultFilterService: VaultFilterService,
@@ -102,6 +105,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
     protected configService: ConfigService,
+    protected accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -151,7 +155,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       filter.selectedOrganizationNode = orgNode;
     }
     this.vaultFilterService.setOrganizationFilter(orgNode.node);
-    await this.vaultFilterService.expandOrgFilter();
+    const userId = await firstValueFrom(this.activeUserId$);
+    await this.vaultFilterService.expandOrgFilter(userId);
   };
 
   applyTypeFilter = async (filterNode: TreeNode<CipherTypeFilter>): Promise<void> => {

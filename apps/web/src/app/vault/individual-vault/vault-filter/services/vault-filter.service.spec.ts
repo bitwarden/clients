@@ -90,17 +90,14 @@ describe("vault filter service", () => {
     const nodes = new Set(["1", "2"]);
 
     it("should update the collapsedFilterNodes$", async () => {
-      await vaultFilterService.setCollapsedFilterNodes(nodes);
+      await vaultFilterService.setCollapsedFilterNodes(nodes, mockUserId);
 
       const collapsedGroupingsState = stateProvider.singleUser.getFake(
         mockUserId,
         COLLAPSED_GROUPINGS,
       );
       expect(await firstValueFrom(collapsedGroupingsState.state$)).toEqual(Array.from(nodes));
-      expect(collapsedGroupingsState.nextMock).toHaveBeenCalledWith([
-        mockUserId,
-        Array.from(nodes),
-      ]);
+      expect(collapsedGroupingsState.nextMock).toHaveBeenCalledWith(Array.from(nodes));
     });
 
     it("loads from state on initialization", async () => {
