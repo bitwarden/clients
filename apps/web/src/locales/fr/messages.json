@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Applications critiques"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "Aucune application critique à risques"
+  },
   "accessIntelligence": {
     "message": "Accéder à Intelligence"
   },
@@ -1161,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Se connecter à Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Entrez le code envoyé à votre adresse courriel"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Entrez le code de votre application d'authentification"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Appuyez sur votre YubiKey pour vous authentifier"
+  },
   "authenticationTimeout": {
     "message": "Délai d'authentification dépassé"
   },
@@ -1443,11 +1455,21 @@
   "rememberMe": {
     "message": "Se souvenir de moi"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Ne plus demander sur cet appareil pendant 30 jours"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Envoyer à nouveau le courriel de code de vérification"
   },
   "useAnotherTwoStepMethod": {
     "message": "Utiliser une autre méthode d'authentification à deux facteurs"
+  },
+  "selectAnotherMethod": {
+    "message": "Sélectionnez une autre méthode",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Utilisez votre code de récupération"
   },
   "insertYubiKey": {
     "message": "Insérez votre YubiKey dans le port USB de votre ordinateur puis appuyez sur son bouton."
@@ -1459,13 +1481,16 @@
     "message": "Identifiant non disponible"
   },
   "noTwoStepProviders": {
-    "message": "Ce compte dispose d'une authentification à deux facteurs de configurée, cependant, aucun des fournisseurs à deux facteurs configurés n'est pris en charge par ce navigateur web."
+    "message": "Ce compte dispose d'une configuration d'authentification à deux facteurs, cependant, aucun des fournisseurs d'authentification à deux facteurs configurés n'est pris en charge par ce navigateur web."
   },
   "noTwoStepProviders2": {
     "message": "Merci d'utiliser un navigateur web compatible (comme Chrome) et/ou d'ajouter des services additionnels d'identification en deux étapes qui sont mieux supportés par les navigateurs web (comme par exemple une application d'authentification)."
   },
   "twoStepOptions": {
     "message": "Options d'authentification à deux facteurs"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Sélectionnez la méthode d'authentification à deux facteurs"
   },
   "recoveryCodeDesc": {
     "message": "Vous avez perdu l'accès à tous vos fournisseurs d'authentification à deux facteurs ? Utilisez votre code de récupération pour désactiver tous les fournisseurs d'authentification à deux facteurs de votre compte."
@@ -1508,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(Migré depuis FIDO)"
+  },
+  "openInNewTab": {
+    "message": "Ouvrir dans un nouvel onglet"
   },
   "emailTitle": {
     "message": "Courriel"
@@ -1732,7 +1760,7 @@
     "message": "Inclure un Chiffre"
   },
   "generatorPolicyInEffect": {
-    "message": "Les exigences de la politique de sécurité de l'entreprise ont été appliquées aux options de votre générateur.",
+    "message": "Les exigences de la politique de sécurité Entreprise ont été appliquées aux options de votre générateur.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "passwordHistory": {
@@ -3099,7 +3127,7 @@
     "message": "Pour les entreprises et autres équipes."
   },
   "planNameTeamsStarter": {
-    "message": "Teams Starter"
+    "message": "Équipes Essentiel"
   },
   "planNameEnterprise": {
     "message": "Entreprise"
@@ -4081,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "Vous utilisez un navigateur non supporté. Le coffre web pourrait ne pas fonctionner correctement."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "Vous avez une demande de connexion en attente depuis un autre appareil."
+  },
+  "reviewLoginRequest": {
+    "message": "Examiner la demande de connexion"
+  },
   "freeTrialEndPromptCount": {
     "message": "Votre essai gratuit se termine dans $COUNT$ jours.",
     "placeholders": {
@@ -4176,7 +4210,7 @@
     "message": "Si vous ne pouvez pas accéder à votre compte par les méthodes normales d'authentification à deux facteurs, vous pouvez utiliser votre code de récupération d'authentification à deux facteurs pour désactiver tous les fournisseurs à deux facteurs sur votre compte."
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
-    "message": "Connectez-vous ci-dessous en utilisant votre code de récupération à usage unique. Cela désactivera tous les fournisseurs en deux étapes de votre compte."
+    "message": "Connectez-vous ci-dessous en utilisant votre code de récupération à usage unique. Cela désactivera tous les fournisseurs d'authentification à deux facteurs de votre compte."
   },
   "recoverAccountTwoStep": {
     "message": "Récupérer l'authentification à deux facteurs"
@@ -4758,6 +4792,15 @@
   "masterPassPolicyDesc": {
     "message": "Définir les exigences de robustesse du mot de passe principal."
   },
+  "passwordStrengthScore": {
+    "message": "Score de force du mot de passe $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Exiger une authentification à deux facteurs"
   },
@@ -4942,7 +4985,7 @@
     "message": "Pour vous connecter avec votre fournisseur de SSO, entrez l'identifiant SSO de votre organisation pour commencer. Vous devrez peut-être entrer cet identifiant SSO lorsque vous vous connecterez à partir d'un nouvel appareil."
   },
   "enterpriseSingleSignOn": {
-    "message": "Portail de connexion unique d'entreprise (Single Sign-On)"
+    "message": "Portail de connexion unique Entreprise"
   },
   "ssoHandOff": {
     "message": "Vous pouvez maintenant fermer cet onglet et continuer dans l'extension."
@@ -4960,7 +5003,7 @@
     "message": "Toutes les fonctionnalités pour les équipes, plus :"
   },
   "includeAllTeamsStarterFeatures": {
-    "message": "Toutes les fonctionnalités de Teams Starter, plus :"
+    "message": "Toutes les fonctionnalités d'Équipes Essentiel, plus :"
   },
   "chooseMonthlyOrAnnualBilling": {
     "message": "Choisissez la facturation mensuelle ou annuelle"
@@ -5024,13 +5067,13 @@
     "message": "Authentification par Connexion Unique (Single Sign-On)"
   },
   "requireSsoPolicyDesc": {
-    "message": "Exiger que les utilisateurs se connectent avec la méthode du portail de connexion unique d'entreprise."
+    "message": "Exiger que les membres se connectent avec la méthode du portail de connexion unique Entreprise."
   },
   "prerequisite": {
     "message": "Prérequis"
   },
   "requireSsoPolicyReq": {
-    "message": "La politique d'entreprise \"Organisation Unique\" doit être activée avant d'activer cette politique."
+    "message": "La politique d'organisation unique Entreprise doit être activée avant d'activer cette politique."
   },
   "requireSsoPolicyReqError": {
     "message": "La politique \"Organisation Unique\" n'est pas activée."
@@ -5337,7 +5380,7 @@
     "message": "Les propriétaires et les administrateurs de l'organisation sont exonérés de l'application de cette politique."
   },
   "personalOwnershipSubmitError": {
-    "message": "En raison d'une politique d'entreprise, il vous est interdit d'enregistrer des éléments dans votre coffre personnel. Sélectionnez une organisation dans l'option Propriété et choisissez parmi les collections disponibles."
+    "message": "En raison d'une politique de sécurité Entreprise, il vous est interdit d'enregistrer des éléments dans votre coffre personnel. Sélectionnez une organisation dans l'option Propriété et choisissez parmi les collections disponibles."
   },
   "disableSend": {
     "message": "Supprimer le Send"
@@ -5354,7 +5397,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
-    "message": "En raison d'une politique d'entreprise, vous ne pouvez que supprimer un Send existant.",
+    "message": "En raison d'une politique de sécurité Entreprise, vous ne pouvez que supprimer un Send existant.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendOptions": {
@@ -5653,6 +5696,12 @@
   "webAuthnAuthenticate": {
     "message": "Authentifier WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Lire la clé de sécurité"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "En attente de l'interaction de la clé de sécurité..."
+  },
   "webAuthnNotSupported": {
     "message": "WebAuthn n'est pas pris en charge dans ce navigateur."
   },
@@ -5756,7 +5805,7 @@
     "message": "Les comptes existants avec les mots de passe principaux exigeront que les membres s'inscrivent d'eux-mêmes avant que les administrateurs puissent récupérer leurs comptes. L'inscription automatique activera la récupération du compte pour les nouveaux membres."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "La politique Entreprise d'organisation unique doit être activée avant d'activer cette politique."
+    "message": "La politique de sécurité d'organisation unique Entreprise doit être activée avant d'activer cette politique de sécurité."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscription automatique"
@@ -7199,6 +7248,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "L'authentification à double facteur DUO est requise pour votre compte."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "L'authentification à deux facteurs est requise pour votre compte. Suivez les étapes ci-dessous pour terminer la connexion."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Suivez les étapes ci-dessous pour terminer de vous connecter."
+  },
   "launchDuo": {
     "message": "Lancer DUO"
   },
@@ -7970,7 +8025,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Les abonnements Teams Starter peuvent compter jusqu'à $SEATCOUNT$ membres. Passez à une offre payante pour inviter plus de membres.",
+    "message": "Les abonnements Équipes Essentiel peuvent compter jusqu'à $SEATCOUNT$ membres. Mettez à niveau vers une offre payante pour inviter plus de membres.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7979,7 +8034,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Les abonnements Teams Starter peuvent compter jusqu'à $SEATCOUNT$ membres. Contacter le propriétaire de votre organisation pour améliorer votre abonnements et inviter plus de membres.",
+    "message": "Les abonnements Équipes Essentiel peuvent compter jusqu'à $SEATCOUNT$ membres. Contacter le propriétaire de votre organisation pour mettre à niveau votre abonnements et inviter plus de membres.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10437,5 +10492,23 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Ne pas autoriser les membres à déverrouiller leur compte avec un NIP."
+  },
+  "limitedEventLogs": {
+    "message": "Les plans $PRODUCT_TYPE$ n'ont pas accès aux journaux d'événements réels",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Obtenez un accès complet aux journaux d'événements de l'organisation en mettant à niveau vers un plan Équipes ou Entreprise."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Mettez à niveau pour les données du journal des événements réels"
+  },
+  "upgradeEventLogMessage": {
+    "message": "Ces événements sont des exemples et ne reflètent pas les événements réels au sein de votre organisation Bitwarden."
   }
 }

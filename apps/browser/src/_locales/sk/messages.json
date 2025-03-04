@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Nápoveď k hlavnému heslu (voliteľné)"
   },
+  "passwordStrengthScore": {
+    "message": "Sila hesla $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Pripojte sa k organizácii"
   },
@@ -876,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Prihlásenie do Bitwardenu"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Zadajte kód zaslaný na váš e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Zadajte kód z overovacej aplikácie"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Stlačte YubiKey na overenie"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Pre váš účet sa vyžaduje dvojstupňové prihlásenie Duo. Na dokončenie prihlásenie nasledujte pokyny."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Na dokončenie prihlásenia postupujte podľa pokynov."
+  },
   "restartRegistration": {
     "message": "Zopakovať registráciu"
   },
@@ -1365,11 +1389,21 @@
   "rememberMe": {
     "message": "Zapamätať si ma"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Nepýtať sa znova na tomto zariadení 30 dní"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Znovu zaslať overovací kód emailom"
   },
   "useAnotherTwoStepMethod": {
     "message": "Použiť inú dvojstupňovú metódu prihlásenia"
+  },
+  "selectAnotherMethod": {
+    "message": "Vyberte iný spôsob",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Použiť obnovovací kód"
   },
   "insertYubiKey": {
     "message": "Vložte váš YubiKey do USB portu počítača a stlačte jeho tlačidlo."
@@ -1383,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Otvoriť v novej karte"
   },
+  "openInNewTab": {
+    "message": "Otvoriť v novej karte"
+  },
   "webAuthnAuthenticate": {
     "message": "Overiť cez WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Prečítať bezpečnostný kľúč"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Čaká sa na interakciu s bezpečnostným kľúčom..."
   },
   "loginUnavailable": {
     "message": "Prihlásenie nie je dispozícii"
@@ -1397,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Možnosti dvojstupňového prihlásenia"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Vyberte metódu dvojstupňového prihlásenia"
   },
   "recoveryCodeDesc": {
     "message": "Stratili ste prístup ku všetkým vašim dvojstupňovým poskytovateľom? Použite váš záchranný kód pre vypnutie všetkých poskytovateľov vo vašom účte."
@@ -2097,6 +2143,15 @@
   "vaultTimeoutAction1": {
     "message": "Akcia pri vypršaní časového limitu"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Nové možnosti prispôsobenia"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Prispôsobte si trezor pomocou akcií rýchleho kopírovania, kompaktného režimu a ďalších možností!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Zobraziť všetky nastavenia vzhľadu"
+  },
   "lock": {
     "message": "Uzamknúť",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,8 +2446,17 @@
   "atRiskPasswords": {
     "message": "Rizikové heslá"
   },
-  "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ vás žiada o zmenu $COUNT$ hesiel, pretože sú ohrozené.",
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2404,8 +2468,8 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
-    "message": "Vaše organizácie vás žiadajú o zmenu $COUNT$ hesiel, pretože sú ohrozené.",
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2430,6 +2494,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Aktualizujte nastavenia, aby ste mohli rýchlo vypĺňať svoje heslá a vygenerovať nové"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Prehľad ohrozených prihlasovacích mien"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Prehľad ohrozených hesiel"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Heslá vašej organizácie sú v ohrození, pretože sú slabé, opakovane používané a/alebo uniknuté.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Príklady zoznamu prihlásení, ktoré sú ohrozené"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Rýchlo generujte silné, jedinečné heslo pomocu ponuky automatického vypĺňania Bitwardenu na ohrozených stránkach.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Príklad ponuky automatického vypĺňania Bitwardenu zobrazujúca vygenerované heslo"
+  },
+  "updateInBitwarden": {
+    "message": "Aktualizovať v Bitwardene"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden vás vyzve na aktualizáciu hesla v správcovi hesiel.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Príklad upozornenia Bitwardenu na aktualizovanie prihlasovacích údajov"
   },
   "turnOnAutofill": {
     "message": "Zapnúť automatické vypĺňanie"
@@ -4178,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Kopírovať $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },

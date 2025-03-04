@@ -3,7 +3,7 @@
 import { Component, NgZone, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil, tap } from "rxjs";
+import { Subject, firstValueFrom, takeUntil, tap } from "rxjs";
 
 import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login-v1.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
@@ -143,10 +143,11 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
       .getFeatureFlag$(FeatureFlag.UnauthenticatedExtensionUIRefresh)
       .pipe(
         tap(async (flag) => {
-          // If the flag is turned ON, we must force a reload to ensure the correct UI is shown
           if (flag) {
+            const qParams = await firstValueFrom(this.route.queryParams);
+
             const uniqueQueryParams = {
-              ...this.route.queryParams,
+              ...qParams,
               // adding a unique timestamp to the query params to force a reload
               t: new Date().getTime().toString(),
             };
@@ -156,7 +157,7 @@ export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDe
             });
           }
         }),
-        takeUntil(this.destroy$),
+        takeUntil(this.componentDestroyed$),
       )
       .subscribe();
   }
