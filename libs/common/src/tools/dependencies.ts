@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "../types/guid";
 
 /** error emitted when the `SingleUserDependency` changes Ids */
 export type UserChangedError = {
