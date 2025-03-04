@@ -10,7 +10,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, from, lastValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, lastValueFrom, map, Observable } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -54,6 +54,7 @@ export class PolicyEditComponent implements AfterViewInit {
     enabled: [this.enabled],
   });
   private organization: Organization;
+  protected isUpsellingEnabled: boolean;
 
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
@@ -104,6 +105,9 @@ export class PolicyEditComponent implements AfterViewInit {
     this.organization = await firstValueFrom(
       this.organizationService.getOrganizationById$(this.data.organizationId),
     );
+    this.isUpsellingEnabled = await this.upsellingService.isUpsellingPoliciesEnabled(
+      this.organization,
+    );
   }
 
   submit = async () => {
@@ -126,10 +130,6 @@ export class PolicyEditComponent implements AfterViewInit {
   static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditComponent, config);
   };
-
-  protected showUpgradeBreadcrumb$(): Observable<boolean> {
-    return from(this.upsellingService.isUpsellingPoliciesEnabled(this.organization));
-  }
 
   protected async changePlan() {
     const reference = openChangePlanDialog(this.dialogService, {

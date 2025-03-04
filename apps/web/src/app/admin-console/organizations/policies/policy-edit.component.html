@@ -1,12 +1,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog [loading]="loading" [title]="'editPolicy' | i18n" [subtitle]="policy.name | i18n">
     <ng-container bitDialogTitle>
-      <span
-        bitBadge
-        variant="primary"
-        *ngIf="showUpgradeBreadcrumb$() | async"
-        (click)="changePlan()"
-      >
+      <span bitBadge variant="primary" *ngIf="isUpsellingEnabled" (click)="changePlan()">
         {{ "planNameEnterprise" | i18n }}
       </span>
     </ng-container>
