@@ -3,10 +3,11 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { advancedOrganizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/advanced-org-permissions.guard";
 
-import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
+import {
+  InjectedOrganizationPermissionServices,
+  organizationPermissionsGuard,
+} from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
 import { PoliciesComponent } from "../../organizations/policies";
 
@@ -44,11 +45,8 @@ const routes: Routes = [
         path: "policies",
         component: PoliciesComponent,
         canActivate: [
-          advancedOrganizationPermissionsGuard(
-            async (
-              o: Organization,
-              services: { upsellingService: OrganizationUpsellingServiceAbstraction },
-            ) => {
+          organizationPermissionsGuard(
+            async (o: Organization, services: InjectedOrganizationPermissionServices) => {
               const isUpsellingEnabled =
                 await services.upsellingService.isUpsellingPoliciesEnabled(o);
               return o.canManagePolicies || isUpsellingEnabled;

@@ -16,10 +16,15 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
+
+export type InjectedOrganizationPermissionServices = {
+  upsellingService: OrganizationUpsellingServiceAbstraction;
+};
 
 /**
  * `CanActivateFn` that asserts the logged in user has permission to access
@@ -42,7 +47,10 @@ import { ToastService } from "@bitwarden/components";
  *    proceeds as expected.
  */
 export function organizationPermissionsGuard(
-  permissionsCallback?: (organization: Organization) => boolean,
+  permissionsCallback?: (
+    organization: Organization,
+    services: InjectedOrganizationPermissionServices,
+  ) => boolean | Promise<boolean>,
 ): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const router = inject(Router);
@@ -51,6 +59,7 @@ export function organizationPermissionsGuard(
     const i18nService = inject(I18nService);
     const syncService = inject(SyncService);
     const accountService = inject(AccountService);
+    const upsellingService = inject(OrganizationUpsellingServiceAbstraction);
 
     // TODO: We need to fix issue once and for all.
     if ((await syncService.getLastSync()) == null) {
@@ -78,9 +87,14 @@ export function organizationPermissionsGuard(
       return router.createUrlTree(["/"]);
     }
 
-    const hasPermissions = permissionsCallback == null || permissionsCallback(org);
+    const callbackServices = {
+      upsellingService: upsellingService,
+    };
 
-    if (!hasPermissions) {
+    const hasPermissions =
+      permissionsCallback == null || permissionsCallback(org, callbackServices);
+
+    if (!(hasPermissions instanceof Promise ? await hasPermissions : hasPermissions)) {
       // Handle linkable ciphers for organizations the user only has view access to
       // https://bitwarden.atlassian.net/browse/EC-203
       const cipherId =

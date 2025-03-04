@@ -14,6 +14,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -71,6 +72,10 @@ describe("Organization Permissions Guard", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: SyncService, useValue: mock<SyncService>() },
+        {
+          provide: OrganizationUpsellingServiceAbstraction,
+          useValue: mock<OrganizationUpsellingServiceAbstraction>(),
+        },
       ],
     });
   });
