@@ -4,12 +4,6 @@
   enabledManagers: ["cargo", "github-actions", "npm"],
   packageRules: [
     {
-      // Ignore all patch updates for GitHub Actions
-      matchManagers: ["github-actions"],
-      updateTypes: ["patch"],
-      enabled: false,
-    },
-    {
       // Group all build/test/lint workflows for GitHub Actions together for Platform
       // Since they are code owners we don't need to assign a review team in Renovate
       // Any changes here should also be reflected in CODEOWNERS
