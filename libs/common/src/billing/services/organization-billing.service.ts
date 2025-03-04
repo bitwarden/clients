@@ -239,6 +239,10 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
       return Promise.resolve(false);
     }
 
-    return Promise.resolve(organization.productTierType === ProductTierType.Teams);
+    const supportedProducts = [ProductTierType.Teams, ProductTierType.TeamsStarter];
+
+    return Promise.resolve(
+      supportedProducts.some((product) => product === organization.productTierType),
+    );
   }
 }
