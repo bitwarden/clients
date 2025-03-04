@@ -22,7 +22,7 @@ import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -78,7 +78,7 @@ export class OrganizationLayoutComponent implements OnInit {
     private providerService: ProviderService,
     protected bannerService: AccountDeprovisioningBannerService,
     private accountService: AccountService,
-    private upsellingService: OrganizationUpsellingServiceAbstraction,
+    private organizationBillingService: OrganizationBillingServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -146,7 +146,7 @@ export class OrganizationLayoutComponent implements OnInit {
 
     this.canShowPoliciesTab$ = this.organization$.pipe(
       switchMap((organization) =>
-        from(this.upsellingService.isUpsellingPoliciesEnabled(organization)).pipe(
+        from(this.organizationBillingService.isUpsellingPoliciesEnabled(organization)).pipe(
           map((isUpsellingEnabled) => isUpsellingEnabled || organization.canManagePolicies),
         ),
       ),

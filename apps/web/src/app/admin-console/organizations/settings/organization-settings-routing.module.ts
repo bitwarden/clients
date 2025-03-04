@@ -48,7 +48,7 @@ const routes: Routes = [
           organizationPermissionsGuard(
             async (o: Organization, services: InjectedOrganizationPermissionServices) => {
               const isUpsellingEnabled =
-                await services.upsellingService.isUpsellingPoliciesEnabled(o);
+                await services.organizationBillingService.isUpsellingPoliciesEnabled(o);
               return o.canManagePolicies || isUpsellingEnabled;
             },
           ),

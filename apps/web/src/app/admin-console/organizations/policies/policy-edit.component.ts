@@ -18,7 +18,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
-import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-upselling.service.abstraction";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
@@ -68,7 +68,7 @@ export class PolicyEditComponent implements AfterViewInit {
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef<PolicyEditDialogResult>,
     private toastService: ToastService,
-    private upsellingService: OrganizationUpsellingServiceAbstraction,
+    private organizationBillingService: OrganizationBillingServiceAbstraction,
     private dialogService: DialogService,
   ) {}
 
@@ -108,7 +108,7 @@ export class PolicyEditComponent implements AfterViewInit {
     this.organization = await firstValueFrom(
       this.organizationService.getOrganizationById$(this.data.organizationId),
     );
-    this.isUpsellingEnabled = await this.upsellingService.isUpsellingPoliciesEnabled(
+    this.isUpsellingEnabled = await this.organizationBillingService.isUpsellingPoliciesEnabled(
       this.organization,
     );
   }

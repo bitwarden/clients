@@ -10,7 +10,7 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
-import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { DialogService } from "@bitwarden/components";
 import {
   ChangePlanDialogResultType,
@@ -47,7 +47,7 @@ export class PoliciesComponent implements OnInit {
     private organizationService: OrganizationService,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyListService: PolicyListService,
-    private upsellingService: OrganizationUpsellingServiceAbstraction,
+    private organizationBillingService: OrganizationBillingServiceAbstraction,
     private dialogService: DialogService,
   ) {}
 
@@ -91,7 +91,7 @@ export class PoliciesComponent implements OnInit {
     this.orgPolicies.forEach((op) => {
       this.policiesEnabledMap.set(op.type, op.enabled);
     });
-    this.isUpsellingEnabled = await this.upsellingService.isUpsellingPoliciesEnabled(
+    this.isUpsellingEnabled = await this.organizationBillingService.isUpsellingPoliciesEnabled(
       this.organization,
     );
     this.loading = false;
