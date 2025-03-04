@@ -1,27 +1,27 @@
-import { combineLatest, map, mergeMap, switchMap } from "rxjs";
+import { mergeMap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { BrowserApi } from "../browser/browser-api";
 
 const IPC_CONTENT_SCRIPT_ID = "ipc-content-script";
 
 export class IpcContentScriptManagerService {
-  constructor(accountService: AccountService, environmentService: EnvironmentService) {
+  constructor(configService: ConfigService) {
     if (!BrowserApi.isManifestVersion(3)) {
       // IPC not supported on MV2
       return;
     }
 
-    accountService.accounts$
+    configService
+      .getFeatureFlag$(FeatureFlag.IpcChannelFramework)
       .pipe(
-        map((accounts) => Object.keys(accounts) as UserId[]),
-        switchMap((userIds) =>
-          combineLatest(userIds.map((userId) => environmentService.getEnvironment$(userId))),
-        ),
-        mergeMap(async (environments) => {
+        mergeMap(async (enabled) => {
+          if (!enabled) {
+            return;
+          }
+
           try {
             await BrowserApi.unregisterContentScriptsMv3({ ids: [IPC_CONTENT_SCRIPT_ID] });
           } catch {
