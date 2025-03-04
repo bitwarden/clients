@@ -49,7 +49,7 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements VaultFilterServiceAbstraction {
-  private activeUserId$ = getUserId(this.accountService.activeAccount$);
+  protected activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   memberOrganizations$ = this.activeUserId$.pipe(
     switchMap((id) => this.organizationService.memberOrganizations$(id)),

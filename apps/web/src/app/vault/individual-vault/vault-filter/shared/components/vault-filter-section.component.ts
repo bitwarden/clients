@@ -19,7 +19,7 @@ import { VaultFilter } from "../models/vault-filter.model";
 })
 export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  activeUserId$ = getUserId(this.accountService.activeAccount$);
+  private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   @Input() activeFilter: VaultFilter;
   @Input() section: VaultFilterSection;
