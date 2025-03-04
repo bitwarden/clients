@@ -24,7 +24,7 @@ export function NotificationFooter({
 }) {
   const isChangeNotification = notificationType === NotificationTypes.Change;
   const saveNewItemText = i18n.saveAsNewLoginAction;
-  const buttonText = i18n.saveAction;
+  const primaryButtonText = i18n.saveAction;
 
   return html`
     <div class=${notificationFooterStyles({ theme })}>
@@ -34,7 +34,7 @@ export function NotificationFooter({
             handleAction: handleSaveAction,
             theme,
           })
-        : ButtonRow({ theme, buttonAction: handleSaveAction, buttonText })}
+        : ButtonRow({ theme, handlePrimaryButtonClick: handleSaveAction, primaryButtonText })}
     </div>
   `;
 }
