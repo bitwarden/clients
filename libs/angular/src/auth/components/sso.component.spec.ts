@@ -5,6 +5,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of } from "rxjs";
 
 import {
+  AuthRequestServiceAbstraction,
   FakeKeyConnectorUserDecryptionOption as KeyConnectorUserDecryptionOption,
   LoginStrategyServiceAbstraction,
   FakeTrustedDeviceUserDecryptionOption as TrustedDeviceUserDecryptionOption,
@@ -13,6 +14,7 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -77,6 +79,8 @@ describe("SsoComponent", () => {
   let mockMasterPasswordService: FakeMasterPasswordService;
   let mockAccountService: FakeAccountService;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let mockAuthRequestService: MockProxy<AuthRequestServiceAbstraction>;
+  let mockDeviceTrustService: MockProxy<DeviceTrustServiceAbstraction>;
 
   // Mock authService.logIn params
   let code: string;
@@ -130,6 +134,8 @@ describe("SsoComponent", () => {
     mockAccountService = mockAccountServiceWith(userId);
     mockMasterPasswordService = new FakeMasterPasswordService();
     mockPlatformUtilsService = mock();
+    mockAuthRequestService = mock();
+    mockDeviceTrustService = mock();
 
     // Mock loginStrategyService.logIn params
     code = "code";
@@ -190,6 +196,9 @@ describe("SsoComponent", () => {
     selectedUserDecryptionOptions = new BehaviorSubject<UserDecryptionOptions>(null);
     mockUserDecryptionOptionsService.userDecryptionOptions$ = selectedUserDecryptionOptions;
 
+    mockAuthRequestService.loginApprovedNotification$ = of(false);
+    mockDeviceTrustService.deviceTrustedNotification$ = of(false);
+
     TestBed.configureTestingModule({
       declarations: [TestSsoComponent],
       providers: [
@@ -218,6 +227,8 @@ describe("SsoComponent", () => {
         { provide: InternalMasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: AuthRequestServiceAbstraction, useValue: mockAuthRequestService },
+        { provide: DeviceTrustServiceAbstraction, useValue: mockDeviceTrustService },
       ],
     });
 
