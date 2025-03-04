@@ -483,7 +483,6 @@ const routes: Routes = [
           pageSubtitle: {
             key: "aNotificationWasSentToYourDevice",
           },
-          showLogo: false,
           showBackButton: true,
           elevation: 1,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
