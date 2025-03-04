@@ -6,7 +6,9 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { ActionButton } from "../../../content/components/buttons/action-button";
 import { spacing, themes } from "../../../content/components/constants/styles";
 import { User, Folder, Business, Family } from "../../../content/components/icons";
+import { FolderSelection } from "../option-selection/folder-selection";
 import { optionSelectionTagName } from "../option-selection/option-selection";
+import { VaultSelection } from "../option-selection/vault-selection";
 
 export function ButtonRow({
   theme,
@@ -61,25 +63,18 @@ export function ButtonRow({
       })}
       <div class=${optionSelectionsStyles}>
         ${mockVaultOptions.length > 1
-          ? html`<option-selection
-              buttonText="My vault"
-              theme=${theme}
-              .icon=${User({ color: themes[theme].text.muted, theme })}
-              .options=${mockVaultOptions}
-              .handleSelectionUpdate=${(selectValue: any) =>
-                handleSelectionUpdate(selectValue, "vault")}
-            ></option-selection>`
+          ? VaultSelection({
+              theme,
+              options: mockVaultOptions,
+              handleSelectionUpdate,
+            })
           : nothing}
         ${mockFolderOptions.length > 1
-          ? html`<option-selection
-              buttonText="Folder"
-              disabled=${true}
-              theme=${theme}
-              .icon=${Folder({ color: themes[theme].text.muted, theme })}
-              .options=${mockFolderOptions}
-              .handleSelectionUpdate=${(selectValue: any) =>
-                handleSelectionUpdate(selectValue, "folder")}
-            ></option-selection>`
+          ? FolderSelection({
+              theme,
+              options: mockFolderOptions,
+              handleSelectionUpdate,
+            })
           : nothing}
       </div>
     </div>
