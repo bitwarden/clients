@@ -27,11 +27,11 @@ export class IpcContentScriptManagerService {
           } catch {
             // Ignore errors
           }
-          const webVaultUrls = new Set<string>(environments.map((env) => env.getWebVaultUrl()));
+
           await BrowserApi.registerContentScriptsMv3([
             {
               id: IPC_CONTENT_SCRIPT_ID,
-              matches: Array.from(webVaultUrls).map((url) => `${url}/*`),
+              matches: ["https://*/*"],
               js: ["content/ipc-content-script.js"],
             },
           ]);
