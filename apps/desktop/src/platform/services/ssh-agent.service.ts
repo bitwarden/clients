@@ -67,9 +67,10 @@ export class SshAgentService implements OnDestroy {
     this.configService
       .getFeatureFlag$(FeatureFlag.SSHAgent)
       .pipe(
-        concatMap(async (enabled) => {
-          this.isFeatureFlagEnabled = enabled;
-          if (!(await ipc.platform.sshAgent.isLoaded()) && enabled) {
+        withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
+        concatMap(async ([featureFlagEnabled, settingEnabled]) => {
+          this.isFeatureFlagEnabled = featureFlagEnabled;
+          if (!(await ipc.platform.sshAgent.isLoaded()) && featureFlagEnabled && settingEnabled) {
             await ipc.platform.sshAgent.init();
           }
         }),
