@@ -21,7 +21,10 @@ import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/
 import { OrganizationUpsellingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-upselling.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { openChangePlanDialog } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
+import {
+  ChangePlanDialogResultType,
+  openChangePlanDialog,
+} from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
 
 import { BasePolicy, BasePolicyComponent } from "../policies";
 
@@ -140,8 +143,12 @@ export class PolicyEditComponent implements AfterViewInit {
       },
     });
 
-    await lastValueFrom(reference.closed);
+    const dialogResult = await lastValueFrom(reference.closed);
 
-    this.dialogRef.close();
+    if (dialogResult === ChangePlanDialogResultType.Submitted) {
+      this.dialogRef.close(PolicyEditDialogResult.Saved);
+    } else {
+      this.dialogRef.close();
+    }
   }
 }
