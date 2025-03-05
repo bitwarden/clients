@@ -12,18 +12,19 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { VaultFilterComponent as BaseVaultFilterComponent } from "../../individual-vault/vault-filter/components/vault-filter.component"; //../../vault/vault-filter/components/vault-filter.component";
-import { VaultFilterService } from "../../individual-vault/vault-filter/services/abstractions/vault-filter.service";
+import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
+import { VaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import {
   VaultFilterList,
   VaultFilterSection,
   VaultFilterType,
-} from "../../individual-vault/vault-filter/shared/models/vault-filter-section.type";
-import { CollectionFilter } from "../../individual-vault/vault-filter/shared/models/vault-filter.type";
+} from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter-section.type";
+import { CollectionFilter } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter.type";
 
 @Component({
   selector: "app-organization-vault-filter",
-  templateUrl: "../../individual-vault/vault-filter/components/vault-filter.component.html",
+  templateUrl:
+    "../../../../vault/individual-vault/vault-filter/components/vault-filter.component.html",
 })
 export class VaultFilterComponent
   extends BaseVaultFilterComponent
