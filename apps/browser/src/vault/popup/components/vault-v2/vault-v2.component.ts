@@ -2,7 +2,6 @@ import { CdkVirtualScrollableElement, ScrollingModule } from "@angular/cdk/scrol
 import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, DestroyRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
 import {
   combineLatest,
   filter,
@@ -12,6 +11,7 @@ import {
   shareReplay,
   switchMap,
   take,
+  startWith,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -22,13 +22,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import {
-  BannerComponent,
-  ButtonModule,
-  DialogService,
-  Icons,
-  NoItemsModule,
-} from "@bitwarden/components";
+import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
 import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
@@ -73,12 +67,9 @@ enum VaultState {
     AutofillVaultListItemsComponent,
     VaultListItemsContainerComponent,
     ButtonModule,
-    RouterLink,
     NewItemDropdownV2Component,
     ScrollingModule,
     VaultHeaderV2Component,
-    DecryptionFailureDialogComponent,
-    BannerComponent,
     AtRiskPasswordCalloutComponent,
     NewSettingsCalloutComponent,
   ],
@@ -96,6 +87,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected loading$ = combineLatest([this.vaultPopupItemsService.loading$, this.allFilters$]).pipe(
     map(([itemsLoading, filters]) => itemsLoading || !filters),
     shareReplay({ bufferSize: 1, refCount: true }),
+    startWith(true),
   );
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
