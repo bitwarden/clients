@@ -7,6 +7,8 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/common/enums";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
@@ -60,11 +62,14 @@ export class SshKeySectionComponent implements OnInit {
     keyFingerprint: [""],
   });
 
+  showImport = false;
+
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
     private sdkService: SdkService,
     private sshImportPromptService: SshImportPromptService,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.cipherFormContainer.registerChildForm("sshKeyDetails", this.sshKeyForm);
     this.sshKeyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
@@ -87,6 +92,11 @@ export class SshKeySectionComponent implements OnInit {
     }
 
     this.sshKeyForm.disable();
+
+    // Web does not support clipboard access
+    if (this.platformUtilsService.getClientType() !== ClientType.Web) {
+      this.showImport = true;
+    }
   }
 
   /** Set form initial form values from the current cipher */

@@ -20,6 +20,7 @@
         bitIconButton="bwi-paste"
         bitSuffix
         data-testid="import-privateKey"
+        *ngIf="showImport"
         (click)="importSshKeyFromClipboard()"
       ></button>
     </bit-form-field>
