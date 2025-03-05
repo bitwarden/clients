@@ -6,7 +6,7 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { filterOutNullish } from "../../utils/observable-utilities";
+import { filterOutNullish, perUserCache$ } from "../../utils/observable-utilities";
 import { EndUserNotificationService } from "../abstractions/end-user-notification.service";
 import { NotificationView, NotificationViewData, NotificationViewResponse } from "../models";
 import { NOTIFICATIONS } from "../state/end-user-notification.state";
@@ -15,17 +15,16 @@ import { NOTIFICATIONS } from "../state/end-user-notification.state";
  * A service for retrieving and managing notifications for end users.
  */
 @Injectable()
-export class EndUserNotificationCenterService implements EndUserNotificationService {
+export class DefaultEndUserNotificationService implements EndUserNotificationService {
   constructor(
     private stateProvider: StateProvider,
     private apiService: ApiService,
   ) {}
 
-  notifications$(userId: UserId): Observable<NotificationView[]> {
+  notifications$ = perUserCache$((userId: UserId): Observable<NotificationView[]> => {
     return this.notificationState(userId).state$.pipe(
       switchMap(async (notifications) => {
-        // NOTE: Must update this later so the fetch is not called repeatedly should the user have zero notifications
-        if (notifications == null || notifications.length === 0) {
+        if (notifications == null) {
           await this.fetchNotificationsFromApi(userId);
         }
         return notifications;
@@ -35,18 +34,27 @@ export class EndUserNotificationCenterService implements EndUserNotificationServ
         notifications.map((notification) => new NotificationView(notification)),
       ),
     );
-  }
+  });
 
   unreadNotifications$(userId: UserId): Observable<NotificationView[]> {
-    // We can target the unread notifications by NotificationView.readDate
     return of([]);
   }
 
-  markAsRead(notificationId: any): any {
-    // We can target the unread notifications by NotificationView.readDate
+  async markAsRead(notificationId: any, userId: UserId): Promise<void> {
+    await this.apiService.send("PATCH", `/notifications/${notificationId}/read`, null, true, false);
+    await this.getNotifications(userId);
   }
 
-  markAsDeleted(notificationId: any): any {}
+  async markAsDeleted(notificationId: any, userId: UserId): Promise<void> {
+    await this.apiService.send(
+      "DELETE",
+      `/notifications/${notificationId}/delete`,
+      null,
+      true,
+      false,
+    );
+    await this.getNotifications(userId);
+  }
 
   upsert(notification: Notification): any {}
 
@@ -55,7 +63,7 @@ export class EndUserNotificationCenterService implements EndUserNotificationServ
   }
 
   async getNotifications(userId: UserId) {
-    return await this.fetchNotificationsFromApi(userId);
+    await this.fetchNotificationsFromApi(userId);
   }
 
   /**
@@ -73,7 +81,7 @@ export class EndUserNotificationCenterService implements EndUserNotificationServ
   /**
    * Updates the local state with notifications and returns the updated state
    * @param userId
-   * @param tasks
+   * @param notifications
    * @private
    */
   private updateNotificationState(

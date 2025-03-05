@@ -1,9 +1,11 @@
 import { Jsonify } from "type-fest";
 
+import { NotificationId } from "@bitwarden/common/types/guid";
+
 import { NotificationViewResponse } from "./notification-view.response";
 
 export class NotificationViewData {
-  id: any;
+  id: NotificationId;
   priority: number;
   title: string;
   body: string;

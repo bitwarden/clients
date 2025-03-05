@@ -1,7 +1,8 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { NotificationId } from "@bitwarden/common/types/guid";
 
 export class NotificationViewResponse extends BaseResponse {
-  id: any;
+  id: NotificationId;
   priority: number;
   title: string;
   body: string;

@@ -304,7 +304,7 @@ import {
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 import {
   DefaultTaskService,
-  EndUserNotificationCenterService,
+  DefaultEndUserNotificationService,
   EndUserNotificationService,
   NewDeviceVerificationNoticeService,
   PasswordRepromptService,
@@ -1467,7 +1467,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: EndUserNotificationService,
-    useClass: EndUserNotificationCenterService,
+    useClass: DefaultEndUserNotificationService,
     deps: [StateProvider, ApiServiceAbstraction],
   }),
 ];

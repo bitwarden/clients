@@ -24,14 +24,16 @@ export abstract class EndUserNotificationService {
   /**
    * Mark a notification as read.
    * @param notificationId
+   * @param userId
    */
-  abstract markAsRead(notificationId: any): Promise<void>;
+  abstract markAsRead(notificationId: any, userId: UserId): Promise<void>;
 
   /**
    * Mark a notification as deleted.
    * @param notificationId
+   * @param userId
    */
-  abstract markAsDeleted(notificationId: any): Promise<void>;
+  abstract markAsDeleted(notificationId: any, userId: UserId): Promise<void>;
 
   /**
    * Create/update a notification in the state for the user specified within the notification.

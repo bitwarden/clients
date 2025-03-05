@@ -1,5 +1,7 @@
+import { NotificationId } from "@bitwarden/common/types/guid";
+
 export class NotificationView {
-  id: any;
+  id: NotificationId;
   priority: number;
   title: string;
   body: string;
