@@ -96,9 +96,10 @@ export class WebLoginComponentService
         resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;
 
       const enforcedPasswordPolicyOptions = await firstValueFrom(
-        this.accountService.activeAccount$
-          .pipe(getUserId)
-          .pipe(switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId))),
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId)),
+        ),
       );
 
       return {

@@ -289,10 +289,8 @@ export class VaultPopupListFiltersService {
    * Organization array structured to be directly passed to `ChipSelectComponent`
    */
 
-  func() {}
-
-  organizations$: Observable<ChipSelectOption<Organization>[]> = this.accountService.activeAccount$
-    .pipe(
+  organizations$: Observable<ChipSelectOption<Organization>[]> =
+    this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
         combineLatest([
@@ -300,8 +298,6 @@ export class VaultPopupListFiltersService {
           this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
         ]),
       ),
-    )
-    .pipe(
       map(([orgs, personalOwnershipApplies]): [Organization[], boolean] => [
         orgs.sort(Utils.getSortFunction(this.i18nService, "name")),
         personalOwnershipApplies,

@@ -17,7 +17,7 @@ import { VaultTimeoutInputComponent } from "./vault-timeout-input.component";
 describe("VaultTimeoutInputComponent", () => {
   let component: VaultTimeoutInputComponent;
   let fixture: ComponentFixture<VaultTimeoutInputComponent>;
-  const policies$ = jest.fn().mockReturnValue(new BehaviorSubject({}));
+  const policiesByType$ = jest.fn().mockReturnValue(new BehaviorSubject({}));
   const availableVaultTimeoutActions$ = jest.fn().mockReturnValue(new BehaviorSubject([]));
   const mockUserId = Utils.newGuid() as UserId;
   const accountService = mockAccountServiceWith(mockUserId);
@@ -26,7 +26,7 @@ describe("VaultTimeoutInputComponent", () => {
     await TestBed.configureTestingModule({
       imports: [VaultTimeoutInputComponent],
       providers: [
-        { provide: PolicyService, useValue: { policies$ } },
+        { provide: PolicyService, useValue: { policiesByType$ } },
         { provide: AccountService, useValue: accountService },
         { provide: VaultTimeoutSettingsService, useValue: { availableVaultTimeoutActions$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
