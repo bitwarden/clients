@@ -1170,7 +1170,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     } else if (field === "totp") {
       aType = "TOTP";
       const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
-      value = totpResponse.code;
+      value = totpResponse?.code;
       typeI18nKey = "verificationCodeTotp";
     } else {
       this.toastService.showToast({
