@@ -31,7 +31,7 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
     let parsedKey: SshKey | null = null;
 
     try {
-      parsedKey = import_ssh_key(key, "");
+      parsedKey = import_ssh_key(key);
     } catch (e) {
       const error = e as SshKeyImportError;
       if (error.variant === "PasswordRequired" || error.variant === "WrongPassword") {
