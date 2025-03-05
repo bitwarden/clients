@@ -131,6 +131,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Get the authStatus early because we use it in both flows
     this.authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    await this.loginViaAuthRequestCacheService.init();
 
     const userHasAuthenticatedViaSSO = this.authStatus === AuthenticationStatus.Locked;
 
@@ -140,7 +141,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
     /**
      * The LoginViaAuthRequestComponent handles both the `login-with-device` and
-     * the `admin-approval-requested` routes. Therefore we check the route to determine
+     * the `admin-approval-requested` routes. Therefore, we check the route to determine
      * which flow to initialize.
      */
     if (this.router.isActive("admin-approval-requested", matchOptions)) {
@@ -209,6 +210,8 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
   async ngOnDestroy(): Promise<void> {
     await this.anonymousHubService.stopHubConnection();
+
+    this.loginViaAuthRequestCacheService.clearCacheLoginView();
   }
 
   private async startAdminAuthRequestLogin(): Promise<void> {
@@ -252,18 +255,21 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async startStandardAuthRequestLogin(): Promise<void> {
-    this.logService.error("starting authentication request");
+  protected async startStandardAuthRequestLogin(clearCache: boolean = false): Promise<void> {
     this.showResendNotification = false;
 
     if (await this.configService.getFeatureFlag(FeatureFlag.PM9112_DeviceApprovalPersistence)) {
+      // Used for manually refreshing the auth request when clicking the resend auth request
+      // on the ui.
+      if (clearCache) {
+        this.loginViaAuthRequestCacheService.clearCacheLoginView();
+      }
+
       try {
         const loginAuthRequestView: LoginViaAuthRequestView | null =
           this.loginViaAuthRequestCacheService.getCachedLoginViaAuthRequestView();
 
         if (!loginAuthRequestView) {
-          this.logService.error("new authentication request");
-
           await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
 
           // I tried several ways to get the IDE/linter to play nice with checking for null values
@@ -305,8 +311,8 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
           }
         } else {
           // Grab the cached information and store it back in component state.
-          // We don't need the public key for handling the authentication request.
-          // The verifyAndHandleApprovedAuthReq function will receive the public key back
+          // We don't need the public key for handling the authentication request because
+          // the verifyAndHandleApprovedAuthReq function will receive the public key back
           // from the looked up auth request and all we need is to make sure that
           // we can use the cached private key that is associated with it.
           this.authRequest = loginAuthRequestView.authRequest;
@@ -324,7 +330,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
           }
 
           if (loginAuthRequestView.authRequestResponse.id) {
-            this.logService.error("create hub connection");
             await this.anonymousHubService.createHubConnection(
               loginAuthRequestView.authRequestResponse.id,
             );
@@ -569,6 +574,10 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
 
       this.logService.error(error);
     }
+
+    // Manually clean out the cache to make sure sensitive
+    // data does not persist longer than it needs to.
+    this.loginViaAuthRequestCacheService.clearCacheLoginView();
   }
 
   private async handleAuthenticatedFlows(authRequestResponse: AuthRequestResponse) {
@@ -674,14 +683,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     requestId: string,
     authRequestResponse: AuthRequestResponse,
   ): Promise<AuthRequestLoginCredentials | undefined> {
-    /**
-     * See verifyAndHandleApprovedAuthReq() for flow details.
-     *
-     * We determine the type of `key` based on the presence or absence of `masterPasswordHash`:
-     *  - If `masterPasswordHash` has a value, we receive the `key` as an authRequestPublicKey(masterKey) [plus we have authRequestPublicKey(masterPasswordHash)]
-     *  - If `masterPasswordHash` does not have a value, we receive the `key` as an authRequestPublicKey(userKey)
-     */
-
     if (!this.authRequestKeyPair || !this.authRequestKeyPair.privateKey) {
       this.logService.error("No private key set when building auth request login credentials.");
       return;
@@ -699,6 +700,13 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
       return;
     }
 
+    /**
+     * See verifyAndHandleApprovedAuthReq() for flow details.
+     *
+     * We determine the type of `key` based on the presence or absence of `masterPasswordHash`:
+     *  - If `masterPasswordHash` has a value, we receive the `key` as an authRequestPublicKey(masterKey) [plus we have authRequestPublicKey(masterPasswordHash)]
+     *  - If `masterPasswordHash` does not have a value, we receive the `key` as an authRequestPublicKey(userKey)
+     */
     if (authRequestResponse.masterPasswordHash) {
       // ...in Standard Auth Request Flow 1
       const { masterKey, masterKeyHash } =
