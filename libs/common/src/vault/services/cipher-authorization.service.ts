@@ -139,11 +139,8 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
       return of(true);
     }
 
-    return combineLatest([
-      this.organization$(cipher),
-      this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion),
-    ]).pipe(
-      switchMap(([organization, featureFlagEnabled]) => {
+    return this.organization$(cipher).pipe(
+      switchMap((organization) => {
         if (isAdminConsoleAction) {
           // If the user is an admin, they can restore an unassigned cipher
           if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
@@ -155,11 +152,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           }
         }
 
-        if (featureFlagEnabled && !!cipher.permissions) {
-          return of(cipher.permissions.restore);
-        }
-
-        return of(false);
+        return of(cipher.permissions.restore);
       }),
     );
   }
