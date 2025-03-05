@@ -28,16 +28,6 @@ export class FreeFamiliesPolicyService {
     private accountService: AccountService,
   ) {}
 
-  canManageSponsorships$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) => {
-      if (account?.id) {
-        return this.organizationService.canManageSponsorships$(account?.id);
-      } else {
-        return of();
-      }
-    }),
-  );
-
   organizations$ = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
       if (account?.id) {
@@ -55,22 +45,21 @@ export class FreeFamiliesPolicyService {
   private getFreeFamiliesVisibility$(): Observable<boolean> {
     return combineLatest([
       this.checkEnterpriseOrganizationsAndFetchPolicy(),
-      this.canManageSponsorships$,
+      this.organizations$,
     ]).pipe(
-      map(([orgStatus, canManageSponsorships]) =>
-        this.shouldShowFreeFamilyLink(orgStatus, canManageSponsorships),
-      ),
+      map(([orgStatus, organizations]) => this.shouldShowFreeFamilyLink(orgStatus, organizations)),
     );
   }
 
   private shouldShowFreeFamilyLink(
     orgStatus: EnterpriseOrgStatus | null,
-    canManageSponsorships: boolean,
+    organizations: Organization[],
   ): boolean {
     if (!orgStatus) {
       return false;
     }
     const { belongToOneEnterpriseOrgs, isFreeFamilyPolicyEnabled } = orgStatus;
+    const canManageSponsorships = organizations.filter((org) => org.canManageSponsorships);
     return canManageSponsorships && !(belongToOneEnterpriseOrgs && isFreeFamilyPolicyEnabled);
   }
 

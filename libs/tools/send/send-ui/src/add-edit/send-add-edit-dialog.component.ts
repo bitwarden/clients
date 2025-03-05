@@ -19,7 +19,8 @@ import {
   ToastService,
   DialogModule,
 } from "@bitwarden/components";
-import { SendFormConfig, SendFormMode, SendFormModule } from "@bitwarden/send-ui";
+
+import { SendFormConfig, SendFormMode, SendFormModule } from "../send-form";
 
 export interface SendItemDialogParams {
   /**
@@ -49,8 +50,7 @@ export enum SendItemDialogResult {
  * Component for adding or editing a send item.
  */
 @Component({
-  selector: "tools-send-add-edit",
-  templateUrl: "send-add-edit.component.html",
+  templateUrl: "send-add-edit-dialog.component.html",
   standalone: true,
   imports: [
     CommonModule,
@@ -64,7 +64,7 @@ export enum SendItemDialogResult {
     DialogModule,
   ],
 })
-export class SendAddEditComponent {
+export class SendAddEditDialogComponent {
   /**
    * The header text for the component.
    */
@@ -169,8 +169,11 @@ export class SendAddEditComponent {
    * @returns The dialog result.
    */
   static open(dialogService: DialogService, params: SendItemDialogParams) {
-    return dialogService.open<SendItemDialogResult, SendItemDialogParams>(SendAddEditComponent, {
-      data: params,
-    });
+    return dialogService.open<SendItemDialogResult, SendItemDialogParams>(
+      SendAddEditDialogComponent,
+      {
+        data: params,
+      },
+    );
   }
 }

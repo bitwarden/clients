@@ -1,28 +1,65 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["github>bitwarden/renovate-config"], // Extends our base config for pinned dependencies
+  extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
   enabledManagers: ["cargo", "github-actions", "npm"],
   packageRules: [
     {
+      // Group all build/test/lint workflows for GitHub Actions together for Platform
+      // Since they are code owners we don't need to assign a review team in Renovate
+      // Any changes here should also be reflected in CODEOWNERS
       groupName: "github-action minor",
       matchManagers: ["github-actions"],
-      matchUpdateTypes: ["minor"],
-    },
-    {
-      matchManagers: ["cargo"],
+      matchFileNames: [
+        "./github/workflows/automatic-issue-responses.yml",
+        "./github/workflows/automatic-pull-request-responses.yml",
+        "./github/workflows/build-browser.yml",
+        "./github/workflows/build-cli.yml",
+        "./github/workflows/build-desktop.yml",
+        "./github/workflows/build-web.yml",
+        "./github/workflows/chromatic.yml",
+        "./github/workflows/crowdin-pull.yml",
+        "./github/workflows/enforce-labels.yml",
+        "./github/workflows/lint.yml",
+        "./github/workflows/locales-lint.yml",
+        "./github/workflows/repository-management.yml",
+        "./github/workflows/scan.yml",
+        "./github/workflows/stale-bot.yml",
+        "./github/workflows/test.yml",
+        "./github/workflows/version-auto-bump.yml",
+      ],
       commitMessagePrefix: "[deps] Platform:",
     },
     {
-      groupName: "napi",
-      matchPackageNames: ["napi", "napi-build", "napi-derive"],
+      // Group all release-related workflows for GitHub Actions together for BRE
+      // Since they are code owners we don't need to assign a review team in Renovate
+      // Any changes here should also be reflected in CODEOWNERS
+      groupName: "github-action minor",
+      matchManagers: ["github-actions"],
+      matchFileNames: [
+        "./github/workflows/brew-bump-desktop.yml",
+        "./github/workflows/deploy-web.yml",
+        "./github/workflows/publish-cli.yml",
+        "./github/workflows/publish-desktop.yml",
+        "./github/workflows/publish-web.yml",
+        "./github/workflows/retrieve-current-desktop-rollout.yml",
+        "./github/workflows/staged-rollout-desktop.yml",
+        "./github/workflows/release-cli.yml",
+        "./github/workflows/release-desktop-beta.yml",
+        "./github/workflows/release-desktop.yml",
+        "./github/workflows/release-web.yml",
+      ],
+      commitMessagePrefix: "[deps] BRE:",
     },
     {
+      // Disable major and minor updates for TypeScript and Zone.js because they are managed by Angular
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: ["major", "minor"],
       description: "Determined by Angular",
       enabled: false,
     },
     {
+      // Disable major updates for core Angular dependencies because they are managed through ng update
+      // when we decide to upgrade.
       matchSourceUrls: [
         "https://github.com/angular-eslint/angular-eslint",
         "https://github.com/angular/angular-cli",
@@ -35,19 +72,27 @@
       enabled: false,
     },
     {
+      // Renovate should manage patch updates for TypeScript and Zone.js, despite ignoring major and minor
       matchPackageNames: ["typescript", "zone.js"],
       matchUpdateTypes: "patch",
     },
     {
+      // We want to update all the Jest-related packages together, to reduce PR noise
       groupName: "jest",
       matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
-      matchUpdateTypes: "major",
     },
     {
+      // We need to group all napi-related packages together to avoid build errors caused by version incompatibilities
+      groupName: "napi",
+      matchPackageNames: ["napi", "napi-build", "napi-derive"],
+    },
+    {
+      // We need to group all macOS/iOS binding-related packages together to avoid build errors caused by version incompatibilities
       groupName: "macOS/iOS bindings",
       matchPackageNames: ["core-foundation", "security-framework", "security-framework-sys"],
     },
     {
+      // We need to group all zbus-related packages together to avoid build errors caused by version incompatibilities
       groupName: "zbus",
       matchPackageNames: ["zbus", "zbus_polkit"],
     },
