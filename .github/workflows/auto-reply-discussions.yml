@@ -4,7 +4,7 @@ on:
     types: created
 jobs:
   reply:
-    name: Auto-reply New Discussions
+    name: Auto-reply
     runs-on: ubuntu-22.04
     steps:
 
