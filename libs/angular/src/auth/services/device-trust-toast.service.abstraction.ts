@@ -1,5 +1,5 @@
 import { Observable } from "rxjs";
 
-export abstract class TrustedDeviceToastService {
+export abstract class DeviceTrustToastService {
   abstract setupListeners$: Observable<string>;
 }

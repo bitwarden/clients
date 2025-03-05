@@ -317,8 +317,8 @@ import {
   IndividualVaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
-import { DefaultTrustedDeviceToastService } from "../auth/services/default-trusted-device-toast.service";
-import { TrustedDeviceToastService } from "../auth/services/trusted-device-toast.service";
+import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
+import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { ViewCacheService } from "../platform/abstractions/view-cache.service";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
@@ -1466,8 +1466,8 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider, ApiServiceAbstraction, OrganizationServiceAbstraction, ConfigService],
   }),
   safeProvider({
-    provide: TrustedDeviceToastService,
-    useClass: DefaultTrustedDeviceToastService,
+    provide: DeviceTrustToastServiceAbstraction,
+    useClass: DeviceTrustToastService,
     deps: [AuthRequestServiceAbstraction, DeviceTrustServiceAbstraction],
   }),
 ];
