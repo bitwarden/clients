@@ -15,6 +15,7 @@ jest.mock("../popup/utils/auth-popout-window", () => {
 
 jest.mock("../../platform/popup/browser-popup-utils", () => ({
   inSingleActionPopout: jest.fn(),
+  inPopout: jest.fn(),
 }));
 
 import { DuoLaunchAction } from "@bitwarden/auth/angular";
@@ -173,6 +174,8 @@ describe("ExtensionTwoFactorAuthComponentService", () => {
         return key === AuthPopoutType.twoFactorAuthDuo;
       });
 
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockImplementation(() => false);
+
       expect(extensionTwoFactorAuthComponentService.determineDuoLaunchAction()).toBe(
         DuoLaunchAction.DIRECT_LAUNCH,
       );
@@ -180,9 +183,19 @@ describe("ExtensionTwoFactorAuthComponentService", () => {
 
     it("should return SINGLE_ACTION_POPOUT if not in two factor auth duo popout", () => {
       jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockImplementation(() => false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockImplementation(() => false);
 
       expect(extensionTwoFactorAuthComponentService.determineDuoLaunchAction()).toBe(
         DuoLaunchAction.SINGLE_ACTION_POPOUT,
+      );
+    });
+
+    it("should return DIRECT_LAUNCH if in popout", () => {
+      jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockImplementation(() => false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockImplementation(() => true);
+
+      expect(extensionTwoFactorAuthComponentService.determineDuoLaunchAction()).toBe(
+        DuoLaunchAction.DIRECT_LAUNCH,
       );
     });
   });
