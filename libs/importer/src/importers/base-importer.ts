@@ -20,6 +20,7 @@ import { ImportResult } from "../models/import-result";
 export abstract class BaseImporter {
   organizationId: string = null;
 
+  // FIXME: This should be replaced by injecting the log service.
   protected logService: LogService = new ConsoleLogService(false);
 
   protected newLineRegex = /(?:\r\n|\r|\n)/;

@@ -64,6 +64,13 @@ import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/bill
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { FallbackBulkEncryptService } from "@bitwarden/common/key-management/crypto/services/fallback-bulk-encrypt.service";
+import {
+  DefaultVaultTimeoutService,
+  DefaultVaultTimeoutSettingsService,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -122,8 +129,6 @@ import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -132,7 +137,6 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import {
   CipherAuthorizationService,
@@ -464,7 +468,7 @@ export class ServiceContainer {
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
 
-    this.vaultTimeoutSettingsService = new VaultTimeoutSettingsService(
+    this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.pinService,
       this.userDecryptionOptionsService,
@@ -712,7 +716,7 @@ export class ServiceContainer {
 
     const biometricService = new CliBiometricsService();
 
-    this.vaultTimeoutService = new VaultTimeoutService(
+    this.vaultTimeoutService = new DefaultVaultTimeoutService(
       this.accountService,
       this.masterPasswordService,
       this.cipherService,
