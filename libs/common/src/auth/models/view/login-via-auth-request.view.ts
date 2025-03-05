@@ -5,10 +5,11 @@ import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth
 import { View } from "@bitwarden/common/models/view/view";
 
 export class LoginViaAuthRequestView implements View {
-  authRequest: AuthRequest | null = null;
-  authRequestResponse: AuthRequestResponse | null = null;
-  fingerprintPhrase: string | null = null;
-  keys: { publicKey: Uint8Array; privateKey: Uint8Array } | null = null;
+  authRequest: AuthRequest | undefined = undefined;
+  authRequestResponse: AuthRequestResponse | undefined = undefined;
+  fingerprintPhrase: string | undefined = undefined;
+  privateKey: string | undefined = undefined;
+  publicKey: string | undefined = undefined;
 
   static fromJSON(obj: Partial<Jsonify<LoginViaAuthRequestView>>): LoginViaAuthRequestView {
     return Object.assign(new LoginViaAuthRequestView(), obj);
