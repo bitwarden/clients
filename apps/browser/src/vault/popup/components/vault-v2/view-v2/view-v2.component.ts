@@ -229,10 +229,6 @@ export class ViewV2Component {
     return true;
   };
 
-  goBack = async (): Promise<void> => {
-    await this.popupRouterCacheService.back();
-  };
-
   restore = async (): Promise<void> => {
     try {
       await this.cipherService.restoreWithServer(this.cipher.id, this.activeUserId);

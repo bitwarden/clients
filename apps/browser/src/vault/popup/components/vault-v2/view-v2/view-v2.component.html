@@ -35,9 +35,5 @@
       bitIconButton="bwi-trash"
       [appA11yTitle]="(cipher.isDeleted ? 'deleteForever' : 'delete') | i18n"
     ></button>
-
-    <button (click)="goBack()" bitButton type="button" form="cipherForm" buttonType="secondary">
-      {{ "cancel" | i18n }}
-    </button>
   </popup-footer>
 </popup-page>
