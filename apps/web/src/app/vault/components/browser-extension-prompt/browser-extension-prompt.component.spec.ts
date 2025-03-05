@@ -87,6 +87,15 @@ describe("BrowserExtensionPromptComponent", () => {
       const mobileText = fixture.debugElement.query(By.css("p")).nativeElement;
       expect(mobileText.textContent.trim()).toBe("reopenLinkOnDesktop");
     });
+
+    it("sets min-width on the body", () => {
+      expect(document.body.style.minWidth).toBe("auto");
+    });
+
+    it("removes min-width on destroy", () => {
+      fixture.destroy();
+      expect(document.body.style.minWidth).toBe("");
+    });
   });
 
   describe("manual error state", () => {
