@@ -98,6 +98,8 @@ export class CipherData {
   }
 
   static fromJSON(obj: Jsonify<CipherData>) {
-    return Object.assign(new CipherData(), obj);
+    const result = Object.assign(new CipherData(), obj);
+    result.permissions = CipherPermissionsApi.fromJSON(obj.permissions);
+    return result;
   }
 }

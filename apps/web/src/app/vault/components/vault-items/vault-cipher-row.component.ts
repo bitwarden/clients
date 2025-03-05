@@ -38,14 +38,21 @@ export class VaultCipherRowComponent implements OnInit {
   @Input() canEditCipher: boolean;
   @Input() canAssignCollections: boolean;
   @Input() canManageCollection: boolean;
+  /**
+   * uses new permission delete logic from PM-15493
+   */
   @Input() canDeleteCipher: boolean;
+  /**
+   * uses new permission restore logic from PM-15493
+   */
+  @Input() canRestoreCipher: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
   @Input() checked: boolean;
   @Output() checkedToggled = new EventEmitter<void>();
 
-  limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
+  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
   private permissionPriority = [

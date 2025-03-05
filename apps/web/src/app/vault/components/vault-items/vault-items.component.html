@@ -158,6 +158,9 @@
               showAdminActions
             ) | async
           "
+          [canRestoreCipher]="
+            cipherAuthorizationService.canRestoreCipher$(item.cipher, showAdminActions) | async
+          "
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
         ></tr>

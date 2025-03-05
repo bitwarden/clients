@@ -90,22 +90,33 @@ export class VaultItemsComponent {
           .filter((item) => item.cipher)
           .map((item) => item.cipher);
 
-        const canDelete$ = ciphers.map((c) =>
+        if (ciphers.length === 0) {
+          return of(true);
+        }
+
+        const canDeleteCiphers$ = ciphers.map((c) =>
           cipherAuthorizationService.canDeleteCipher$(c, [], this.showAdminActions),
         );
 
-        return ciphers.length === 0
-          ? of(true)
-          : combineLatest(canDelete$).pipe(map((results) => !results.includes(false)));
+        const canDeleteCollections = this.selection.selected
+          .filter((item) => item.collection)
+          .every((item) => item.collection && this.canDeleteCollection(item.collection));
+
+        const canDelete$ = combineLatest(canDeleteCiphers$).pipe(
+          map((results) => results.every((item) => item) && canDeleteCollections),
+        );
+
+        return canDelete$;
       }),
     );
   }
 
-  limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
+  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
   protected editableItems: VaultItem[] = [];
   protected dataSource = new TableDataSource<VaultItem>();
   protected selection = new SelectionModel<VaultItem>(true, [], true);
-  canDeleteSelected$: Observable<boolean> = of(true);
+  protected canDeleteSelected$: Observable<boolean> = of(true);
+  protected canRestoreSelected$: Observable<boolean> = of(true);
 
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
@@ -166,14 +177,6 @@ export class VaultItemsComponent {
 
   get bulkAssignToCollectionsAllowed() {
     return this.showBulkAddToCollections && this.ciphers.length > 0;
-  }
-
-  get showRestore(): boolean {
-    if (this.selection.selected.length === 0) {
-      return true;
-    }
-
-    return this.selection.selected.every((item) => item.cipher?.permissions.restore);
   }
 
   protected canEditCollection(collection: CollectionView): boolean {

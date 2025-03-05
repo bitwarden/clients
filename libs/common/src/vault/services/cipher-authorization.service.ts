@@ -36,6 +36,19 @@ export abstract class CipherAuthorizationService {
   ) => Observable<boolean>;
 
   /**
+   * Determines if the user can restore the specified cipher.
+   *
+   * @param {CipherLike} cipher - The cipher object to evaluate for restore permissions.
+   * @param {boolean} isAdminConsoleAction - Optional. A flag indicating if the action is being performed from the admin console.
+   *
+   * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can restore the cipher.
+   */
+  abstract canRestoreCipher$: (
+    cipher: CipherLike,
+    isAdminConsoleAction?: boolean,
+  ) => Observable<boolean>;
+
+  /**
    * Determines if the user can clone the specified cipher.
    *
    * @param {CipherLike} cipher - The cipher object to evaluate for cloning permissions.
@@ -113,6 +126,40 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
               return collections.some((collection) => collection.manage);
             }),
           );
+      }),
+    );
+  }
+
+  /**
+   *
+   * {@link CipherAuthorizationService.canRestoreCipher$}
+   */
+  canRestoreCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    if (cipher.organizationId == null) {
+      return of(true);
+    }
+
+    return combineLatest([
+      this.organization$(cipher),
+      this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion),
+    ]).pipe(
+      switchMap(([organization, featureFlagEnabled]) => {
+        if (isAdminConsoleAction) {
+          // If the user is an admin, they can restore an unassigned cipher
+          if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
+            return of(organization?.canEditUnassignedCiphers === true);
+          }
+
+          if (organization?.canEditAllCiphers) {
+            return of(true);
+          }
+        }
+
+        if (featureFlagEnabled && !!cipher.permissions) {
+          return of(cipher.permissions.restore);
+        }
+
+        return of(false);
       }),
     );
   }

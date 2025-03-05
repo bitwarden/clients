@@ -88,7 +88,7 @@
   <bit-menu #corruptedCipherOptions>
     <button
       bitMenuItem
-      *ngIf="canManageCollection && canDeleteCipher"
+      *ngIf="(limitItemDeletion$ | async) ? canDeleteCipher : canManageCollection"
       (click)="deleteCipher()"
       type="button"
     >
@@ -160,11 +160,7 @@
       bitMenuItem
       (click)="restore()"
       type="button"
-      *ngIf="
-        (limitItemDeletion$ | async)
-          ? cipher.isDeleted && cipher.permissions.restore && canDeleteCipher
-          : cipher.isDeleted && canDeleteCipher
-      "
+      *ngIf="(limitItemDeletion$ | async) ? cipher.isDeleted && canRestoreCipher : cipher.isDeleted"
     >
       <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
       {{ "restore" | i18n }}

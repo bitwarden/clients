@@ -9,7 +9,7 @@ export class CipherPermissionsApi extends BaseResponse {
   constructor(data: any = null) {
     super(data);
     if (data == null) {
-      return this;
+      return;
     }
     this.delete = this.getResponseProperty("Delete");
     this.restore = this.getResponseProperty("Restore");
