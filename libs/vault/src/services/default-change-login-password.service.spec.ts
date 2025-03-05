@@ -131,13 +131,13 @@ describe("DefaultChangeLoginPasswordService", () => {
     const cipher = {
       type: CipherType.Login,
       login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com" }],
+        uris: [{ uri: "https://example.com/" }],
       }),
     } as CipherView;
 
     const url = await service.getChangePasswordUrl(cipher);
 
-    expect(url).toBe("https://example.com");
+    expect(url).toBe("https://example.com/");
   });
 
   it("should return the original URI when the well-known URL is not found", async () => {
@@ -146,12 +146,42 @@ describe("DefaultChangeLoginPasswordService", () => {
     const cipher = {
       type: CipherType.Login,
       login: Object.assign(new LoginView(), {
-        uris: [{ uri: "https://example.com" }],
+        uris: [{ uri: "https://example.com/" }],
       }),
     } as CipherView;
 
     const url = await service.getChangePasswordUrl(cipher);
 
-    expect(url).toBe("https://example.com");
+    expect(url).toBe("https://example.com/");
+  });
+
+  it("should try the next URI if the first one fails", async () => {
+    mockApiService.nativeFetch.mockImplementation((request) => {
+      if (
+        request.url.endsWith("resource-that-should-not-exist-whose-status-code-should-not-be-200")
+      ) {
+        return Promise.resolve(mockShouldNotExistResponse);
+      }
+
+      if (request.url.endsWith(".well-known/change-password")) {
+        if (request.url.includes("working.com")) {
+          return Promise.resolve(mockWellKnownResponse);
+        }
+        return Promise.resolve(new Response("Not Found", { status: 404 }));
+      }
+
+      throw new Error("Unexpected request");
+    });
+
+    const cipher = {
+      type: CipherType.Login,
+      login: Object.assign(new LoginView(), {
+        uris: [{ uri: "https://no-wellknown.com/" }, { uri: "https://working.com/" }],
+      }),
+    } as CipherView;
+
+    const url = await service.getChangePasswordUrl(cipher);
+
+    expect(url).toBe("https://working.com/.well-known/change-password");
   });
 });
