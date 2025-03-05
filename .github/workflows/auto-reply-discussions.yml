@@ -1,13 +1,15 @@
 name: Auto-reply to Discussions
+
 on:
   discussion:
     types: created
+
 jobs:
   reply:
     name: Auto-reply
     runs-on: ubuntu-22.04
-    steps:
 
+    steps:
       - name: Get discussion label and template name
         id: discussion-label
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
