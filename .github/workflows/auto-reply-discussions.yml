@@ -4,10 +4,11 @@ on:
     types: created
 jobs:
   reply:
+    name: Auto-reply New Discussions
     runs-on: ubuntu-22.04
     steps:
 
-      - name: Get Discussion Label
+      - name: Get Discussion Label and Template Name
         id: discussion-label
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
