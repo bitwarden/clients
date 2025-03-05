@@ -557,7 +557,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TwoFactorAuthWebAuthnComponentService,
     useClass: ExtensionTwoFactorAuthWebAuthnComponentService,
-    deps: [PlatformUtilsService],
+    deps: [],
   }),
   safeProvider({
     provide: TwoFactorAuthDuoComponentService,
