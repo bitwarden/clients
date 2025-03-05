@@ -6,10 +6,6 @@ import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractio
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "./device-trust-toast.service.abstraction";
 
 export class DeviceTrustToastService implements DeviceTrustToastServiceAbstraction {
-  /**
-   * Subscribes to any cross-application toast messages that need to be shown
-   * as part of the TDE process.
-   */
   setupListeners$: Observable<string>;
 
   constructor(
