@@ -39,7 +39,7 @@ jobs:
               return "";
             }
 
-      - name: Reply or Close Discussion
+      - name: Reply or close Discussion
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         env:
           TEMPLATE_NAME: ${{ steps.discussion-label.outputs.template_name }}
