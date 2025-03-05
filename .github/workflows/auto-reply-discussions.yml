@@ -1,4 +1,4 @@
-name: Community / Auto-reply New Discussions
+name: Auto-reply to Discussions
 on:
   discussion:
     types: created
