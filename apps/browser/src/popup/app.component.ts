@@ -5,7 +5,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
 
-import { TrustedDeviceToastService } from "@bitwarden/angular/auth/services/trusted-device-toast.service";
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -70,19 +70,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private animationControlService: AnimationControlService,
     private biometricStateService: BiometricStateService,
     private biometricsService: BiometricsService,
-    private trustedDeviceToastService: TrustedDeviceToastService,
+    private deviceTrustToastService: DeviceTrustToastService,
   ) {
-    this.trustedDeviceToastService.setupListeners$
-      .pipe(takeUntilDestroyed())
-      .subscribe((val: string) => {
-        if (val === "loginApproved" || val === "deviceTrusted") {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t(val),
-          });
-        }
-      });
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
   }
 
   async ngOnInit() {

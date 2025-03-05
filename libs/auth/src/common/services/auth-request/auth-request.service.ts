@@ -43,9 +43,9 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   private authRequestPushNotificationSubject = new Subject<string>();
   authRequestPushNotification$: Observable<string>;
 
-  // Notification is used to trigger a toast in consuming components
-  private adminLoginApprovedSubject = new Subject<string>();
-  adminLoginApproved$: Observable<string>;
+  // Observable emission is used to trigger a toast in consuming components
+  private adminLoginApprovedSubject = new Subject<boolean>();
+  adminLoginApproved$: Observable<boolean>;
 
   constructor(
     private appIdService: AppIdService,
@@ -214,6 +214,6 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   }
 
   emitAdminLoginApproved(): void {
-    this.adminLoginApprovedSubject.next("loginApproved");
+    this.adminLoginApprovedSubject.next(true);
   }
 }

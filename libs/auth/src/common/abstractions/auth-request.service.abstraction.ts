@@ -16,7 +16,7 @@ export abstract class AuthRequestServiceAbstraction {
    * Emits when a login has been approved by an admin. This emission is specifically for the
    * purpose of notifying the consuming component to display a toast informing the user.
    */
-  adminLoginApproved$: Observable<string>;
+  adminLoginApproved$: Observable<boolean>;
 
   /**
    * Returns an admin auth request for the given user if it exists.

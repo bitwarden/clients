@@ -1468,7 +1468,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DeviceTrustToastServiceAbstraction,
     useClass: DeviceTrustToastService,
-    deps: [AuthRequestServiceAbstraction, DeviceTrustServiceAbstraction],
+    deps: [
+      AuthRequestServiceAbstraction,
+      DeviceTrustServiceAbstraction,
+      I18nServiceAbstraction,
+      ToastService,
+    ],
   }),
 ];
 

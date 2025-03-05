@@ -64,7 +64,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   supportsDeviceTrust$: Observable<boolean>;
 
   // Observable emission is used to trigger a toast in consuming components
-  private deviceTrustedSubject = new Subject<string>();
+  private deviceTrustedSubject = new Subject<boolean>();
   deviceTrusted$ = this.deviceTrustedSubject.asObservable();
 
   constructor(
@@ -181,8 +181,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     // store device key in local/secure storage if enc keys posted to server successfully
     await this.setDeviceKey(userId, deviceKey);
 
-    // This notification will be picked up by consuming components to handle displaying a toast to the user
-    this.deviceTrustedSubject.next("deviceTrusted");
+    // This emission will be picked up by consuming components to handle displaying a toast to the user
+    this.deviceTrustedSubject.next(true);
 
     return deviceResponse;
   }

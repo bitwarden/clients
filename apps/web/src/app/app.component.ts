@@ -8,7 +8,7 @@ import * as jq from "jquery";
 import { Subject, filter, firstValueFrom, map, takeUntil, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { TrustedDeviceToastService } from "@bitwarden/angular/auth/services/trusted-device-toast.service";
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -97,19 +97,9 @@ export class AppComponent implements OnDestroy, OnInit {
     private apiService: ApiService,
     private appIdService: AppIdService,
     private processReloadService: ProcessReloadServiceAbstraction,
-    private trustedDeviceToastService: TrustedDeviceToastService,
+    private deviceTrustToastService: DeviceTrustToastService,
   ) {
-    this.trustedDeviceToastService.setupListeners$
-      .pipe(takeUntilDestroyed())
-      .subscribe((val: string) => {
-        if (val === "loginApproved" || val === "deviceTrusted") {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t(val),
-          });
-        }
-      });
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
   }
 
   ngOnInit() {

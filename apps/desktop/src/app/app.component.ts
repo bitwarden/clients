@@ -15,7 +15,7 @@ import { Router } from "@angular/router";
 import { filter, firstValueFrom, map, Subject, takeUntil, timeout, withLatestFrom } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { TrustedDeviceToastService } from "@bitwarden/angular/auth/services/trusted-device-toast.service";
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
@@ -159,19 +159,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private stateEventRunnerService: StateEventRunnerService,
     private accountService: AccountService,
     private organizationService: OrganizationService,
-    private trustedDeviceToastService: TrustedDeviceToastService,
+    private deviceTrustToastService: DeviceTrustToastService,
   ) {
-    this.trustedDeviceToastService.setupListeners$
-      .pipe(takeUntilDestroyed())
-      .subscribe((val: string) => {
-        if (val === "loginApproved" || val === "deviceTrusted") {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t(val),
-          });
-        }
-      });
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
   }
 
   ngOnInit() {
