@@ -7,7 +7,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 interface EnterpriseOrgStatus {
   isFreeFamilyPolicyEnabled: boolean;
@@ -27,18 +26,7 @@ export class FreeFamiliesPolicyService {
     private policyService: PolicyService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
-    private configService: ConfigService,
   ) {}
-
-  canManageSponsorships$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) => {
-      if (account?.id) {
-        return this.organizationService.canManageSponsorships$(account?.id);
-      } else {
-        return of();
-      }
-    }),
-  );
 
   organizations$ = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
@@ -57,22 +45,21 @@ export class FreeFamiliesPolicyService {
   private getFreeFamiliesVisibility$(): Observable<boolean> {
     return combineLatest([
       this.checkEnterpriseOrganizationsAndFetchPolicy(),
-      this.canManageSponsorships$,
+      this.organizations$,
     ]).pipe(
-      map(([orgStatus, canManageSponsorships]) =>
-        this.shouldShowFreeFamilyLink(orgStatus, canManageSponsorships),
-      ),
+      map(([orgStatus, organizations]) => this.shouldShowFreeFamilyLink(orgStatus, organizations)),
     );
   }
 
   private shouldShowFreeFamilyLink(
     orgStatus: EnterpriseOrgStatus | null,
-    canManageSponsorships: boolean,
+    organizations: Organization[],
   ): boolean {
     if (!orgStatus) {
       return false;
     }
     const { belongToOneEnterpriseOrgs, isFreeFamilyPolicyEnabled } = orgStatus;
+    const canManageSponsorships = organizations.filter((org) => org.canManageSponsorships);
     return canManageSponsorships && !(belongToOneEnterpriseOrgs && isFreeFamilyPolicyEnabled);
   }
 

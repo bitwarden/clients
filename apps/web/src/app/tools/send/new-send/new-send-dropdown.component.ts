@@ -8,9 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { BadgeModule, ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
-import { DefaultSendFormConfigService } from "@bitwarden/send-ui";
-
-import { SendAddEditComponent } from "../send-add-edit.component";
+import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwarden/send-ui";
 
 @Component({
   selector: "tools-new-send-dropdown",
@@ -60,6 +58,6 @@ export class NewSendDropdownComponent {
 
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
 
-    await SendAddEditComponent.open(this.dialogService, { formConfig });
+    await SendAddEditDialogComponent.open(this.dialogService, { formConfig });
   }
 }

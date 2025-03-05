@@ -90,7 +90,9 @@ apps/web/src/app/core @bitwarden/team-platform-dev
 apps/web/src/app/shared @bitwarden/team-platform-dev
 apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 # Workflows
-.github/workflows/brew-bump-desktop.yml @bitwarden/team-platform-dev
+# Any changes here should also be reflected in Renovate configuration
+.github/workflows/automatic-issue-responses.yml @bitwarden/team-platform-dev
+.github/workflows/automatic-pull-request-responses.yml @bitwarden/team-platform-dev
 .github/workflows/build-browser-target.yml @bitwarden/team-platform-dev
 .github/workflows/build-browser.yml @bitwarden/team-platform-dev
 .github/workflows/build-cli-target.yml @bitwarden/team-platform-dev
@@ -100,10 +102,13 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/build-web-target.yml @bitwarden/team-platform-dev
 .github/workflows/build-web.yml @bitwarden/team-platform-dev
 .github/workflows/chromatic.yml @bitwarden/team-platform-dev
+.github/workflows/crowdin-pull.yml @bitwarden/team-platform-dev
+.github/workflows/enforce-labels.yml @bitwarden/team-platform-dev
 .github/workflows/lint.yml @bitwarden/team-platform-dev
 .github/workflows/locales-lint.yml @bitwarden/team-platform-dev
 .github/workflows/repository-management.yml @bitwarden/team-platform-dev
 .github/workflows/scan.yml @bitwarden/team-platform-dev
+.github/workflows/stale-bot.yml @bitwarden/team-platform-dev
 .github/workflows/test.yml @bitwarden/team-platform-dev
 .github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
 # ESLint custom rules
@@ -152,6 +157,7 @@ apps/desktop/src/locales/en/messages.json
 apps/web/src/locales/en/messages.json
 
 ## BRE team owns these workflows ##
+# Any changes here should also be reflected in Renovate configuration ##
 .github/workflows/brew-bump-desktop.yml @bitwarden/dept-bre
 .github/workflows/deploy-web.yml @bitwarden/dept-bre
 .github/workflows/publish-cli.yml @bitwarden/dept-bre
@@ -159,13 +165,11 @@ apps/web/src/locales/en/messages.json
 .github/workflows/publish-web.yml @bitwarden/dept-bre
 .github/workflows/retrieve-current-desktop-rollout.yml @bitwarden/dept-bre
 .github/workflows/staged-rollout-desktop.yml @bitwarden/dept-bre
-
-## Shared ownership workflows ##
-.github/workflows/release-browser.yml
-.github/workflows/release-cli.yml
-.github/workflows/release-desktop-beta.yml
-.github/workflows/release-desktop.yml
-.github/workflows/release-web.yml
+.github/workflows/release-browser.yml @bitwarden/dept-bre
+.github/workflows/release-cli.yml @bitwarden/dept-bre
+.github/workflows/release-desktop-beta.yml @bitwarden/dept-bre
+.github/workflows/release-desktop.yml @bitwarden/dept-bre
+.github/workflows/release-web.yml @bitwarden/dept-bre
 
 ## Docker files have shared ownership ##
 **/Dockerfile
