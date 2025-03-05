@@ -50,7 +50,7 @@ export class DeleteManagedMemberWarningService {
         key: "deleteManagedUserWarningDesc",
       },
       type: "danger",
-      icon: "bwi-error",
+      icon: "bwi-exclamation-triangle",
       acceptButtonText: { key: "continue" },
       cancelButtonText: { key: "cancel" },
     });
