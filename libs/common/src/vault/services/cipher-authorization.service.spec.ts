@@ -74,6 +74,83 @@ describe("CipherAuthorizationService", () => {
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
   });
 
+  describe("canRestoreCipher$", () => {
+    it("should return true if cipher has no organizationId", (done) => {
+      const cipher = createMockCipher(null, []) as CipherView;
+
+      cipherAuthorizationService.canRestoreCipher$(cipher).subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
+
+    it("should return true if isAdminConsoleAction and cipher is unassigned", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization({ canEditUnassignedCiphers: true });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
+
+      cipherAuthorizationService.canRestoreCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
+
+    it("should return true if isAdminConsleAction and user can edit all ciphers in the org", (done) => {
+      const cipher = createMockCipher("org1", ["col1"]) as CipherView;
+      const organization = createMockOrganization({ canEditAllCiphers: true });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
+
+      cipherAuthorizationService.canRestoreCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(true);
+        expect(mockOrganizationService.organizations$).toHaveBeenCalledWith(mockUserId);
+        done();
+      });
+    });
+
+    it("should return false if isAdminConsoleAction is true but user does not have permission to edit unassigned ciphers", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization({ canEditUnassignedCiphers: false });
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canRestoreCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(false);
+        done();
+      });
+    });
+
+    it("should return false if cipher.permission.restore is false and is not an admin action", (done) => {
+      const cipher = createMockCipher("org1", [], true, {
+        restore: false,
+      } as CipherPermissionsApi) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canRestoreCipher$(cipher, false).subscribe((result) => {
+        expect(result).toBe(false);
+        expect(mockCollectionService.decryptedCollectionViews$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should return true if cipher.permission.restore is true and is not an admin action", (done) => {
+      const cipher = createMockCipher("org1", [], true, {
+        restore: true,
+      } as CipherPermissionsApi) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canRestoreCipher$(cipher, false).subscribe((result) => {
+        expect(result).toBe(true);
+        expect(mockCollectionService.decryptedCollectionViews$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
   describe("canDeleteCipher$", () => {
     it("should return true if cipher has no organizationId", (done) => {
       const cipher = createMockCipher(null, []) as CipherView;
