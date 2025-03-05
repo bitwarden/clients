@@ -1,4 +1,5 @@
 import { mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -60,8 +61,8 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Teams,
       } as Organization;
 
-      const result = await sut.isUpsellingPoliciesEnabled(org);
-      expect(result).toBe(false);
+      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      expect(actual).toBe(false);
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
         FeatureFlag.PM12276_BreadcrumbEventLogs,
       );
@@ -75,8 +76,8 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Teams,
       } as Organization;
 
-      const result = await sut.isUpsellingPoliciesEnabled(org);
-      expect(result).toBe(false);
+      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      expect(actual).toBe(false);
     });
 
     it("returns false when cannot edit subscription", async () => {
@@ -87,8 +88,8 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Teams,
       } as Organization;
 
-      const result = await sut.isUpsellingPoliciesEnabled(org);
-      expect(result).toBe(false);
+      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      expect(actual).toBe(false);
     });
 
     it.each([
@@ -102,8 +103,8 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: productTierType,
       } as Organization;
 
-      const result = await sut.isUpsellingPoliciesEnabled(org);
-      expect(result).toBe(true);
+      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      expect(actual).toBe(true);
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
         FeatureFlag.PM12276_BreadcrumbEventLogs,
       );
@@ -117,8 +118,8 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Enterprise,
       } as Organization;
 
-      const result = await sut.isUpsellingPoliciesEnabled(org);
-      expect(result).toBe(false);
+      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      expect(actual).toBe(false);
     });
 
     it("handles all conditions false correctly", async () => {
@@ -129,8 +130,8 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Free,
       } as Organization;
 
-      const result = await sut.isUpsellingPoliciesEnabled(org);
-      expect(result).toBe(false);
+      const actual = await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
+      expect(actual).toBe(false);
     });
 
     it("verifies feature flag is only called once", async () => {
@@ -141,7 +142,7 @@ describe("BillingAccountProfileStateService", () => {
         productTierType: ProductTierType.Teams,
       } as Organization;
 
-      await sut.isUpsellingPoliciesEnabled(org);
+      await firstValueFrom(sut.isUpsellingPoliciesEnabled$(org));
       expect(configService.getFeatureFlag).toHaveBeenCalledTimes(1);
     });
   });
