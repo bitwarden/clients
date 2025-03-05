@@ -8,7 +8,7 @@ export class LoginViaAuthRequestView implements View {
   authRequest: AuthRequest | null = null;
   authRequestResponse: AuthRequestResponse | null = null;
   fingerprintPhrase: string | null = null;
-  privateKey: Uint8Array | null = null;
+  keys: { publicKey: Uint8Array; privateKey: Uint8Array } | null = null;
 
   static fromJSON(obj: Partial<Jsonify<LoginViaAuthRequestView>>): LoginViaAuthRequestView {
     return Object.assign(new LoginViaAuthRequestView(), obj);

@@ -228,6 +228,7 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
   }
 
   protected async startStandardAuthRequestLogin(): Promise<void> {
+    this.logService.error("Starting authentication request");
     this.showResendNotification = false;
 
     if (await this.configService.getFeatureFlag(FeatureFlag.PM9112_DeviceApprovalPersistence)) {
@@ -236,6 +237,8 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
           this.loginViaAuthRequestCacheService.getCachedLoginViaAuthRequestView();
 
         if (!loginAuthRequestView) {
+          this.logService.error("new authentication request");
+
           await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
 
           const authRequestResponse = await this.authRequestApiService.postAuthRequest(
@@ -250,13 +253,16 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
             this.authRequest,
             authRequestResponse,
             this.fingerprintPhrase,
-            this.authRequestKeyPair.privateKey,
+            this.authRequestKeyPair,
           );
         } else {
+          this.logService.error("cached authentication request");
           this.authRequest = loginAuthRequestView.authRequest;
           this.fingerprintPhrase = loginAuthRequestView.fingerprintPhrase;
+          this.authRequestKeyPair = loginAuthRequestView.keys;
 
           if (loginAuthRequestView.authRequestResponse.id) {
+            this.logService.error("create hub connection");
             await this.anonymousHubService.createHubConnection(
               loginAuthRequestView.authRequestResponse.id,
             );

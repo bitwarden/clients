@@ -56,7 +56,7 @@ export class LoginViaAuthRequestCacheService {
     authRequest: AuthRequest,
     authRequestResponse: AuthRequestResponse,
     fingerprintPhrase: string,
-    privateKey: Uint8Array,
+    keys: { privateKey: Uint8Array; publicKey: Uint8Array } | null = null,
   ): void {
     if (!this.featureEnabled) {
       return;
@@ -66,7 +66,7 @@ export class LoginViaAuthRequestCacheService {
       authRequest,
       authRequestResponse,
       fingerprintPhrase,
-      privateKey,
+      keys,
     } as LoginViaAuthRequestView);
   }
 
