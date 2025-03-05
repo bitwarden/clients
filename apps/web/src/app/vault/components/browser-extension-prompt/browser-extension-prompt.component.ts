@@ -25,6 +25,9 @@ export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
 
   protected BitwardenIcon = VaultIcons.BitwardenIcon;
 
+  /** Content of the meta[name="viewport"] element */
+  private viewportContent: string | null = null;
+
   constructor(
     private browserExtensionPromptService: BrowserExtensionPromptService,
     @Inject(DOCUMENT) private document: Document,
@@ -34,15 +37,27 @@ export class BrowserExtensionPromptComponent implements OnInit, OnDestroy {
     this.browserExtensionPromptService.start();
 
     // It is not be uncommon for users to hit this page from a mobile device.
-    // There are global styles that set a min-width on the body which cause
-    // the page to render poorly. Remove them here.
+    // There are global styles and the viewport meta tag that set a min-width
+    // for the page which cause it to render poorly. Remove them here.
     // https://github.com/bitwarden/clients/blob/main/apps/web/src/scss/base.scss#L6
     this.document.body.style.minWidth = "auto";
+
+    const viewportMeta = this.document.querySelector('meta[name="viewport"]');
+
+    // Save the current viewport content to reset it when the component is destroyed
+    this.viewportContent = viewportMeta?.getAttribute("content") ?? null;
+    viewportMeta?.setAttribute("content", "width=device-width, initial-scale=1.0");
   }
 
   ngOnDestroy(): void {
     // Reset the body min-width when the component is destroyed
     this.document.body.style.minWidth = "";
+
+    if (this.viewportContent !== null) {
+      this.document
+        .querySelector('meta[name="viewport"]')
+        ?.setAttribute("content", this.viewportContent);
+    }
   }
 
   openExtension(): void {

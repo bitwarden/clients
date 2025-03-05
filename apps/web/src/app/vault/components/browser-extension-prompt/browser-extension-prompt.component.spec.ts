@@ -13,12 +13,27 @@ import { BrowserExtensionPromptComponent } from "./browser-extension-prompt.comp
 
 describe("BrowserExtensionPromptComponent", () => {
   let fixture: ComponentFixture<BrowserExtensionPromptComponent>;
-
+  let component: BrowserExtensionPromptComponent;
   const start = jest.fn();
   const pageState$ = new BehaviorSubject(BrowserPromptState.Loading);
+  const setAttribute = jest.fn();
+  const getAttribute = jest.fn().mockReturnValue("width=1010");
 
   beforeEach(async () => {
     start.mockClear();
+    setAttribute.mockClear();
+    getAttribute.mockClear();
+
+    // Store original querySelector
+    const originalQuerySelector = document.querySelector.bind(document);
+
+    // Mock querySelector while preserving the document context
+    jest.spyOn(document, "querySelector").mockImplementation(function (selector) {
+      if (selector === 'meta[name="viewport"]') {
+        return { setAttribute, getAttribute } as unknown as HTMLMetaElement;
+      }
+      return originalQuerySelector.call(document, selector);
+    });
 
     await TestBed.configureTestingModule({
       providers: [
@@ -34,7 +49,12 @@ describe("BrowserExtensionPromptComponent", () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(BrowserExtensionPromptComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it("calls start on initialization", () => {
@@ -92,9 +112,27 @@ describe("BrowserExtensionPromptComponent", () => {
       expect(document.body.style.minWidth).toBe("auto");
     });
 
-    it("removes min-width on destroy", () => {
-      fixture.destroy();
-      expect(document.body.style.minWidth).toBe("");
+    it("stores viewport content", () => {
+      expect(getAttribute).toHaveBeenCalledWith("content");
+      expect(component["viewportContent"]).toBe("width=1010");
+    });
+
+    it("sets viewport meta tag to be mobile friendly", () => {
+      expect(setAttribute).toHaveBeenCalledWith("content", "width=device-width, initial-scale=1.0");
+    });
+
+    describe("on destroy", () => {
+      beforeEach(() => {
+        fixture.destroy();
+      });
+
+      it("resets body min-width", () => {
+        expect(document.body.style.minWidth).toBe("");
+      });
+
+      it("resets viewport meta tag", () => {
+        expect(setAttribute).toHaveBeenCalledWith("content", "width=1010");
+      });
     });
   });
 
