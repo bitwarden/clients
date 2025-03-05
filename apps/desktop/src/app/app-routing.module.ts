@@ -97,7 +97,7 @@ const routes: Routes = [
       ],
       data: {
         pageTitle: {
-          key: "verifyIdentity",
+          key: "verifyYourIdentity",
         },
       } satisfies RouteDataProperties & AnonLayoutWrapperData,
     },
@@ -126,7 +126,7 @@ const routes: Routes = [
     data: {
       pageIcon: DeviceVerificationIcon,
       pageTitle: {
-        key: "verifyIdentity",
+        key: "verifyYourIdentity",
       },
       pageSubtitle: {
         key: "weDontRecognizeThisDevice",
