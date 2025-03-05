@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Observable, of, switchMap } from "rxjs";
+
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -225,24 +227,28 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     await this.billingApiService.restartSubscription(organizationId, request);
   }
 
-  async isUpsellingPoliciesEnabled(organization: Organization): Promise<boolean> {
+  isUpsellingPoliciesEnabled$(organization: Organization): Observable<boolean> {
     if (organization === null || organization === undefined) {
-      return Promise.resolve(false);
+      return of(false);
     }
 
-    // When removing the feature flag, also replace org-policy-permissions.guard.ts with org-permissions.guard.ts.
-    if (!(await this.configService.getFeatureFlag(FeatureFlag.PM12276_BreadcrumbEventLogs))) {
-      return Promise.resolve(false);
-    }
+    return this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs).pipe(
+      switchMap((featureFlagEnabled) => {
+        if (!featureFlagEnabled) {
+          return of(false);
+        }
 
-    if (organization.isProviderUser || !organization.canEditSubscription) {
-      return Promise.resolve(false);
-    }
+        if (organization.isProviderUser || !organization.canEditSubscription) {
+          return of(false);
+        }
 
-    const supportedProducts = [ProductTierType.Teams, ProductTierType.TeamsStarter];
+        const supportedProducts = [ProductTierType.Teams, ProductTierType.TeamsStarter];
+        const isSupportedProduct = supportedProducts.some(
+          (product) => product === organization.productTierType,
+        );
 
-    return Promise.resolve(
-      supportedProducts.some((product) => product === organization.productTierType),
+        return of(isSupportedProduct);
+      }),
     );
   }
 }

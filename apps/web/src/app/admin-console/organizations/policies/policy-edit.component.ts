@@ -10,14 +10,19 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, lastValueFrom, map, Observable } from "rxjs";
+import { lastValueFrom, map, Observable, switchMap } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -56,11 +61,12 @@ export class PolicyEditComponent implements AfterViewInit {
   formGroup = this.formBuilder.group({
     enabled: [this.enabled],
   });
-  private organization: Organization;
-  protected isUpsellingEnabled: boolean;
+  protected organization$: Observable<Organization>;
+  protected isUpsellingEnabled$: Observable<boolean>;
 
   constructor(
     @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
+    private accountService: AccountService,
     private policyApiService: PolicyApiServiceAbstraction,
     private organizationService: OrganizationService,
     private i18nService: I18nService,
@@ -105,11 +111,15 @@ export class PolicyEditComponent implements AfterViewInit {
         throw e;
       }
     }
-    this.organization = await firstValueFrom(
-      this.organizationService.getOrganizationById$(this.data.organizationId),
+    this.organization$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getOrganizationById(this.data.organizationId),
     );
-    this.isUpsellingEnabled = await this.organizationBillingService.isUpsellingPoliciesEnabled(
-      this.organization,
+    this.isUpsellingEnabled$ = this.organization$.pipe(
+      switchMap((organization) =>
+        this.organizationBillingService.isUpsellingPoliciesEnabled$(organization),
+      ),
     );
   }
 
@@ -134,12 +144,12 @@ export class PolicyEditComponent implements AfterViewInit {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditComponent, config);
   };
 
-  protected async changePlan() {
+  protected async changePlan(organization: Organization) {
     const reference = openChangePlanDialog(this.dialogService, {
       data: {
         organizationId: this.data.organizationId,
         subscription: null,
-        productTierType: this.organization.productTierType,
+        productTierType: organization.productTierType,
       },
     });
 

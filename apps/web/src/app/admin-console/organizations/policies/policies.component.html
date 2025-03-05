@@ -1,10 +1,11 @@
 <app-header>
+  @let organization = organization$ | async;
   <span
     bitBadge
     variant="primary"
     slot="title-suffix"
-    *ngIf="isUpsellingEnabled"
-    (click)="changePlan()"
+    *ngIf="isUpsellingEnabled$ | async"
+    (click)="changePlan(organization)"
   >
     {{ "upgrade" | i18n }}
   </span>

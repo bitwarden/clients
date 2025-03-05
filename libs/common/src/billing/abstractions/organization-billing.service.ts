@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Observable } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
@@ -66,5 +67,5 @@ export abstract class OrganizationBillingServiceAbstraction {
    * Determines if upselling policies is enabled for the organizations meeting certain criteria.
    * @param organization
    */
-  abstract isUpsellingPoliciesEnabled(organization: Organization): Promise<boolean>;
+  abstract isUpsellingPoliciesEnabled$(organization: Organization): Observable<boolean>;
 }

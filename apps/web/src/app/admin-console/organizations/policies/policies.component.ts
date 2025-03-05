@@ -2,14 +2,18 @@
 // @ts-strict-ignore
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, lastValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom, map, Observable, switchMap } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { DialogService } from "@bitwarden/components";
 import {
@@ -36,14 +40,15 @@ export class PoliciesComponent implements OnInit {
   loading = true;
   organizationId: string;
   policies: BasePolicy[];
-  organization: Organization;
+  protected organization$: Observable<Organization>;
 
   private orgPolicies: PolicyResponse[];
   protected policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
-  protected isUpsellingEnabled: boolean;
+  protected isUpsellingEnabled$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
+    private accountService: AccountService,
     private organizationService: OrganizationService,
     private policyApiService: PolicyApiServiceAbstraction,
     private policyListService: PolicyListService,
@@ -55,9 +60,12 @@ export class PoliciesComponent implements OnInit {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
       this.organizationId = params.organizationId;
-      this.organization = await firstValueFrom(
-        this.organizationService.getOrganizationById$(this.organizationId),
+      const userId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
+      this.organization$ = this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId));
       this.policies = this.policyListService.getPolicies();
 
       await this.load();
@@ -91,8 +99,10 @@ export class PoliciesComponent implements OnInit {
     this.orgPolicies.forEach((op) => {
       this.policiesEnabledMap.set(op.type, op.enabled);
     });
-    this.isUpsellingEnabled = await this.organizationBillingService.isUpsellingPoliciesEnabled(
-      this.organization,
+    this.isUpsellingEnabled$ = this.organization$.pipe(
+      switchMap((organization) =>
+        this.organizationBillingService.isUpsellingPoliciesEnabled$(organization),
+      ),
     );
     this.loading = false;
   }
@@ -114,12 +124,12 @@ export class PoliciesComponent implements OnInit {
   protected readonly CollectionDialogTabType = CollectionDialogTabType;
   protected readonly All = All;
 
-  protected async changePlan() {
+  protected async changePlan(organization: Organization) {
     const reference = openChangePlanDialog(this.dialogService, {
       data: {
         organizationId: this.organizationId,
         subscription: null,
-        productTierType: this.organization.productTierType,
+        productTierType: organization.productTierType,
       },
     });
 

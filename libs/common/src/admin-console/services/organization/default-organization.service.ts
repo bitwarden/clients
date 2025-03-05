@@ -1,13 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { map, Observable, switchMap } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import {
-  getOrganizationById,
-  InternalOrganizationServiceAbstraction,
-} from "../../abstractions/organization/organization.service.abstraction";
+import { InternalOrganizationServiceAbstraction } from "../../abstractions/organization/organization.service.abstraction";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 
@@ -82,12 +79,6 @@ export class DefaultOrganizationService implements InternalOrganizationServiceAb
 
   organizations$(userId: UserId): Observable<Organization[] | undefined> {
     return this.organizationState(userId).state$.pipe(this.mapOrganizationRecordToArray());
-  }
-
-  getOrganizationById$(organizationId: string): Observable<Organization> {
-    return this.stateProvider.activeUserId$.pipe(
-      switchMap((userId) => this.organizations$(userId).pipe(getOrganizationById(organizationId))),
-    );
   }
 
   private organizationState(userId: UserId) {
