@@ -51,6 +51,11 @@ const CipherData = [
 ];
 
 describe("SecureSafe CSV Importer", () => {
+  beforeEach(() => {
+    // Importers currently create their own ConsoleLogService. This should be replaced by injecting a test log service.
+    jest.spyOn(console, "warn").mockImplementation();
+  });
+
   CipherData.forEach((data) => {
     it(data.title, async () => {
       const importer = new SecureSafeCsvImporter();

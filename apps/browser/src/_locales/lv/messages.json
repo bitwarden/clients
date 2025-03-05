@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Galvenās paroles norāde (nav nepieciešama)"
   },
+  "passwordStrengthScore": {
+    "message": "Paroles stipruma novērtējums $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Pievienoties apvienībai"
   },
@@ -876,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Pieteikties Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Jāievada e-pastā nosūtītais kods"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Jāievada kods no savas autentificētājlietotnes"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Jāpiespiež sava YubiKey ierīce, lai autentificētu"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Ir nepieciešama Duo divpakāpju pieteikšanās, lai pieteiktos savā kontā. Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
+  },
   "restartRegistration": {
     "message": "Sākt reģistrēšanos no jauna"
   },
@@ -1365,11 +1389,21 @@
   "rememberMe": {
     "message": "Atcerēties mani"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Šajā ierīcē 30 dienas vairs nevaicāt"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Sūtīt apstiprinājuma koda e-pastu vēlreiz"
   },
   "useAnotherTwoStepMethod": {
     "message": "Izmantot citu divpakāpju pieteikšanās veidu"
+  },
+  "selectAnotherMethod": {
+    "message": "Atlasīt citu veidu",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Izmantot savu atkopes kodu"
   },
   "insertYubiKey": {
     "message": "Ievieto savu YubiKey datora USB ligzdā un pieskaries tā pogai!"
@@ -1383,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Atvērt jaunu cilni"
   },
+  "openInNewTab": {
+    "message": "Atvērt jaunā cilnē"
+  },
   "webAuthnAuthenticate": {
     "message": "Autentificēt WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Nolasīt drošības atslēgu"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Gaida mijiedarbību ar drošības atslēgu..."
   },
   "loginUnavailable": {
     "message": "Pieteikšanās nav pieejama"
@@ -1397,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Divpakāpju pieteikšanās iespējas"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Atlasīt divpakāpju pieteikšanās veidu"
   },
   "recoveryCodeDesc": {
     "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopšanas kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
@@ -2097,6 +2143,15 @@
   "vaultTimeoutAction1": {
     "message": "Noildzes darbība"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Jaunas pielāgošanas iespējas"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Savu glabātavas pieredzi var pielāgot ar ātrām kopēšanas darbībām, ciešo izkārtojumu un vēl."
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Apskatīt visus izskata iestatījumus"
+  },
   "lock": {
     "message": "Slēgt",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,7 +2446,16 @@
   "atRiskPasswords": {
     "message": "Riskam pakļautās paroles"
   },
-  "atRiskPasswordsDescSingleOrg": {
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ pieprasa mainīt vienu paroli, jo tā ir pakļauta riskam.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
     "message": "$ORGANIZATION$ pieprasa mainīt $COUNT$ paroles, jo tās ir pakļautas riskam.",
     "placeholders": {
       "organization": {
@@ -2404,7 +2468,7 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
+  "atRiskPasswordsDescMultiOrgPlural": {
     "message": "Apvienības pieprasa mainīt $COUNT$ paroles, jo tās ir pakļautas riskam.",
     "placeholders": {
       "count": {
@@ -2430,6 +2494,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Jāatjaunina savi iestatījumi, lai varētu veikli aizpildīt paroles automātiski un izveidot jaunas"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Pārskatīt riskam pakļautos pieteikšanās vienumus"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Pārskatīt riskam pakļautās paroles"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Apvienības paroles ir pakļautas riskam, jo tās ir vājas, atkārtoti izmantotas un/vai noplūdušas.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Riskam pakļauto pieteikšanās vienumu saraksta attēlojums"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Riskam pakļauto vienumu vietnē ar automātiskās aizpildes izvēlni var ātri izveidot stipru, neatkārtojamu paroli.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Bitwarden automātiskās izvēlnes attēlojums, kurā ir redzama izveidota parole"
+  },
+  "updateInBitwarden": {
+    "message": "Atjaunināt Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden tad vaicās atjaunināt paroli paroļu pārvaldniekā.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Bitwarden paziņojuma, kas aicina lietotāju atjaunināt pieteikšanās vienumu, attēlojums"
   },
   "turnOnAutofill": {
     "message": "Ieslēgt automātisko aizpildi"
@@ -4178,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Ievietot starpliktuvē $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },

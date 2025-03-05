@@ -669,8 +669,8 @@
   "browserNotSupportClipboard": {
     "message": "Your web browser does not support easy clipboard copying. Copy it manually instead."
   },
-  "verifyIdentity": {
-    "message": "Verify identity"
+  "verifyYourIdentity": {
+    "message": "Verify your identity"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -1070,6 +1070,56 @@
   "notificationAddSave": {
     "message": "Save"
   },
+  "loginSaveSuccessDetails": {
+    "message": "$USERNAME$ saved to Bitwarden.",
+      "placeholders": {
+        "username": {
+          "content": "$1"
+        }
+      },
+      "description": "Shown to user after login is saved."
+  },
+  "loginUpdatedSuccessDetails": {
+    "message": "$USERNAME$ updated in Bitwarden.",
+      "placeholders": {
+        "username": {
+          "content": "$1"
+        }
+      },
+      "description": "Shown to user after login is updated."
+  },
+  "saveAsNewLoginAction": {
+    "message": "Save as new login",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Update login",
+    "description": "Button text for updating an existing login entry."
+  },
+  "saveLoginPrompt": {
+    "message": "Save login?",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLoginPrompt": {
+    "message": "Update existing login?",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Login saved",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Login updated",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "saveFailure": {
+    "message": "Error saving",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Ask to update existing login"
   },
@@ -1397,14 +1447,14 @@
   },
   "useAnotherTwoStepMethod": {
     "message": "Use another two-step login method"
-  },  
+  },
   "selectAnotherMethod": {
     "message": "Select another method",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
-  }, 
+  },
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
   },
@@ -2446,8 +2496,17 @@
   "atRiskPasswords": {
     "message": "At-risk passwords"
   },
-  "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at risk.",
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2459,8 +2518,8 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at risk.",
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2485,6 +2544,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Illustration of a list of logins that are at-risk"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  },
+  "updateInBitwarden": {
+    "message": "Update in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
   },
   "turnOnAutofill": {
     "message": "Turn on autofill"
@@ -4038,6 +4127,9 @@
   "activeAccount": {
     "message": "Active account"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden account"
+  },
   "availableAccounts": {
     "message": "Available accounts"
   },
@@ -5071,5 +5163,8 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
   }
 }

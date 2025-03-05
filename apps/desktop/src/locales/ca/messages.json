@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Inicia sessió a Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Inicieu sessió amb la clau de pas"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Pista de la contrasenya mestra"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Uniu-vos a l'organització"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "L'autenticació s'ha cancel·lat o ha tardat massa. Torna-ho a provar."
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "Codi de verificació no vàlid"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Recorda'm"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Envia el codi de verificació altra vegada"
   },
   "useAnotherTwoStepMethod": {
     "message": "Utilitzeu un altre mètode d'inici de sessió en dues passes"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Introduïu la vostra YubiKey al port USB de l'ordinador i, a continuació, premeu el seu botó."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Opcions d'inici de sessió en dues passes"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "Entorn d'allotjament propi"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Autenticar WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "Amagueu la meua adreça de correu electrònic als destinataris."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Inicia Duo al navegador"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "is requesting access to"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "Una aplicació"

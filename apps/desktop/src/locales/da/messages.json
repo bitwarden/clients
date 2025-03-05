@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Log ind på Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Log ind med adgangsnøgle"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Hovedadgangskodetip"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Bliv medlem af organisation"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Godkendelsen blev afbrudt eller tog for lang tid. Forsøg igen."
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "Ugyldig bekræftelseskode"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Husk mig"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Send bekræftelseskodee-mail igen"
   },
   "useAnotherTwoStepMethod": {
     "message": "Brug en anden totrins-loginmetode"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Indsæt din YubiKey i din computers USB-port og tryk derefter på dens knap."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Totrins-login indstillinger"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "Selv-hostet miljø"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Godkend WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "Skjul min e-mailadresse for modtagere."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Duo totrinsindlogning kræves for kontoen."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Start Duo i webbrowser"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Bekræft brug af SSH-nøgle"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "anmoder om adgang til"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "En applikation"
