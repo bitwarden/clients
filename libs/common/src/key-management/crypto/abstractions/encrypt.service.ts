@@ -33,7 +33,7 @@ export abstract class EncryptService {
     encThing: Encrypted,
     key: SymmetricCryptoKey,
     decryptTrace?: string,
-  ): Promise<Uint8Array>;
+  ): Promise<Uint8Array | null>;
   abstract rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString>;
   abstract rsaDecrypt(data: EncString, privateKey: Uint8Array): Promise<Uint8Array>;
   abstract resolveLegacyKey(key: SymmetricCryptoKey, encThing: Encrypted): SymmetricCryptoKey;

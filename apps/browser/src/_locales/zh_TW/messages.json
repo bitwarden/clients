@@ -35,7 +35,7 @@
     "message": "設定一個強密碼"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "設定密碼以完成創建您的帳戶。"
+    "message": "設定密碼以完成建立您的帳號"
   },
   "enterpriseSingleSignOn": {
     "message": "企業單一登入"
@@ -79,6 +79,15 @@
   },
   "masterPassHint": {
     "message": "主密碼提示（選用）"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "加入組織"
@@ -175,6 +184,10 @@
   },
   "copyNotes": {
     "message": "複製備註"
+  },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard"
   },
   "fill": {
     "message": "填入",
@@ -763,7 +776,7 @@
     "message": "若您忘記主密碼，將會無法找回！"
   },
   "masterPassHintLabel": {
-    "message": "您已成功創建新帳戶！"
+    "message": "主密碼提示"
   },
   "errorOccurred": {
     "message": "發生錯誤"
@@ -797,7 +810,7 @@
     "message": "帳戶已建立！現在可以登入了。"
   },
   "newAccountCreated2": {
-    "message": "您已成功創建新帳戶！"
+    "message": "您已成功建立新帳號！"
   },
   "youHaveBeenLoggedIn": {
     "message": "你已經登入！"
@@ -871,6 +884,21 @@
   },
   "logInToBitwarden": {
     "message": "登入 Bitwarden"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "restartRegistration": {
     "message": "重新啟動註冊"
@@ -1024,6 +1052,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "在密碼庫檢視中點擊項目來自動填入"
+  },
+  "clickToAutofill": {
+    "message": "Click items in autofill suggestion to fill"
   },
   "clearClipboard": {
     "message": "清除剪貼簿",
@@ -1358,11 +1389,21 @@
   "rememberMe": {
     "message": "記住我"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "再次傳送​​包含驗證碼的電子郵件"
   },
   "useAnotherTwoStepMethod": {
     "message": "使用另一種兩步驟登入方法"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "將您的 YubiKey 插入電腦的 USB 連接埠，然後按一下它的按鈕。"
@@ -1376,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "開啟新分頁"
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "webAuthnAuthenticate": {
     "message": "驗證 WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "loginUnavailable": {
     "message": "登入無法使用"
@@ -1390,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "兩步驟登入選項"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "無法使用任何雙因素提供程式嗎？請使用您的復原碼以停用您帳戶的所有雙因素提供程式。"
@@ -2062,7 +2115,7 @@
     "message": "使用者名稱產生器"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "使用此電子郵件"
   },
   "useThisPassword": {
     "message": "使用此密碼"
@@ -2081,11 +2134,23 @@
     "message": "來產生高強度且唯一的密碼",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Vault customization"
+  },
   "vaultTimeoutAction": {
     "message": "密碼庫逾時動作"
   },
   "vaultTimeoutAction1": {
     "message": "逾時後動作"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "New customization options"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "View all Appearance settings"
   },
   "lock": {
     "message": "鎖定",
@@ -2345,6 +2410,9 @@
   "blockedDomains": {
     "message": "已封鎖的網域"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Learn more about blocked domains"
+  },
   "excludedDomains": {
     "message": "排除網域"
   },
@@ -2362,6 +2430,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "您可以於設定中進行更改"
+  },
+  "change": {
+    "message": "Change"
+  },
+  "changeButtonTitle": {
+    "message": "Change password - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Illustration of a list of logins that are at-risk"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  },
+  "updateInBitwarden": {
+    "message": "Update in Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  },
+  "turnOnAutofill": {
+    "message": "Turn on autofill"
+  },
+  "turnedOnAutofill": {
+    "message": "Turned on autofill"
+  },
+  "dismiss": {
+    "message": "Dismiss"
   },
   "websiteItemLabel": {
     "message": "網站 $number$ (URI)",
@@ -2529,7 +2700,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSendSuccessfully": {
-    "message": "Send 創建成功！",
+    "message": "Send 建立成功！",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresInHoursSingle": {
@@ -2967,6 +3138,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "無法獲得 $SERVICENAME$ 的轉送電子郵件帳號。",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3123,11 +3318,17 @@
   "notificationSentDevice": {
     "message": "已傳送通知至您的裝置。"
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "網頁應用程式"
+  },
+  "notificationSentDevicePart2": {
+    "message": "在核准前請確保您的指紋短語與下面完全相符。"
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "已傳送通知至您的裝置"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "請確保您的帳號已解鎖，並且指紋短語與其他裝置一致。"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "一旦您的請求被通過，您會獲得通知。"
@@ -3137,6 +3338,9 @@
   },
   "loginInitiated": {
     "message": "登入已啟動"
+  },
+  "logInRequestSent": {
+    "message": "已傳送請求"
   },
   "exposedMasterPassword": {
     "message": "已洩露的主密碼"
@@ -4071,6 +4275,20 @@
       }
     }
   },
+  "copyFieldValue": {
+    "message": "Copy $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
+      }
+    }
+  },
   "noValuesToCopy": {
     "message": "沒有資料可以複製"
   },
@@ -4145,15 +4363,6 @@
   },
   "itemName": {
     "message": "項目名稱"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "organizationIsDeactivated": {
     "message": "組織已被停用"
@@ -4886,6 +5095,15 @@
   },
   "extraWide": {
     "message": "更寬"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "請更新您的桌面應用程式"

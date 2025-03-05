@@ -15,8 +15,8 @@ import {
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
-import { concat, Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
-import { filter, map, switchMap, takeUntil } from "rxjs/operators";
+import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
+import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -241,11 +241,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   async ngOnInit() {
     this.setImportOptions();
 
-    await this.initializeOrganizations();
-    if (this.organizationId && (await this.canAccessImport(this.organizationId))) {
-      this.handleOrganizationImportInit();
+    if (this.organizationId) {
+      await this.handleOrganizationImportInit();
     } else {
-      this.handleImportInit();
+      await this.handleImportInit();
     }
 
     this.formGroup.controls.format.valueChanges
@@ -257,7 +256,19 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     await this.handlePolicies();
   }
 
-  private handleOrganizationImportInit() {
+  private async handleOrganizationImportInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organizations$ = this.organizationService
+      .memberOrganizations$(userId)
+      .pipe(
+        map((orgs) =>
+          orgs.filter(
+            (org) =>
+              org.id == this.organizationId && (org.canAccessImport || org.canCreateNewCollections),
+          ),
+        ),
+      );
+
     this.formGroup.controls.vaultSelector.patchValue(this.organizationId);
     this.formGroup.controls.vaultSelector.disable();
 
@@ -270,7 +281,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isFromAC = true;
   }
 
-  private handleImportInit() {
+  private async handleImportInit() {
     // Filter out the no folder-item from folderViews$
     this.folders$ = this.activeUserId$.pipe(
       switchMap((userId) => {
@@ -280,6 +291,17 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     );
 
     this.formGroup.controls.targetSelector.disable();
+
+    // Retrieve all organizations a user is a member of and has collections they can manage
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organizations$ = this.organizationService.memberOrganizations$(userId).pipe(
+      combineLatestWith(this.collectionService.decryptedCollections$),
+      map(([organizations, collections]) =>
+        organizations
+          .filter((org) => collections.some((c) => c.organizationId === org.id && c.manage))
+          .sort(Utils.getSortFunction(this.i18nService, "name")),
+      ),
+    );
 
     combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
       .pipe(takeUntil(this.destroy$))
@@ -303,18 +325,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
     this.formGroup.controls.vaultSelector.setValue("myVault");
-  }
-
-  private async initializeOrganizations() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.organizations$ = concat(
-      this.organizationService.memberOrganizations$(userId).pipe(
-        // Import is an alternative way to create collections during onboarding, so import from Password Manager
-        // is available to any user who can create collections in the organization.
-        map((orgs) => orgs.filter((org) => org.canAccessImport || org.canCreateNewCollections)),
-        map((orgs) => orgs.sort(Utils.getSortFunction(this.i18nService, "name"))),
-      ),
-    );
   }
 
   private async handlePolicies() {

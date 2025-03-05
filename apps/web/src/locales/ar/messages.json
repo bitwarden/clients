@@ -1,9 +1,12 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "كل التطبيقات"
   },
   "criticalApplications": {
     "message": "Critical applications"
+  },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
@@ -96,19 +99,19 @@
     "message": "Apps marked as critical"
   },
   "application": {
-    "message": "Application"
+    "message": "تطبيق"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "طلب تغيير كلمة المرور"
   },
   "totalPasswords": {
     "message": "Total passwords"
   },
   "searchApps": {
-    "message": "Search applications"
+    "message": "البحث في التطبيقات"
   },
   "atRiskMembers": {
     "message": "At-risk members"
@@ -147,7 +150,7 @@
     }
   },
   "totalMembers": {
-    "message": "Total members"
+    "message": "إجمالي الأعضاء"
   },
   "atRiskApplications": {
     "message": "At-risk applications"
@@ -199,7 +202,7 @@
     "message": "ملاحظات"
   },
   "note": {
-    "message": "Note"
+    "message": "ملاحظة"
   },
   "customFields": {
     "message": "حقول مخصصة"
@@ -208,19 +211,19 @@
     "message": "اسم حامل البطاقة"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "معلومات الدخول"
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "البيانات الشخصية"
   },
   "identification": {
-    "message": "Identification"
+    "message": "التعريف"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "معلومات الاتصال"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "بيانات البطاقة"
   },
   "cardBrandDetails": {
     "message": "$BRAND$ details",
@@ -232,13 +235,13 @@
     }
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "تاريخ العنصر"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "مفتاح المصادقة"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "خيارات الملء التلقائي"
   },
   "websiteUri": {
     "message": "Website (URI)"
@@ -432,17 +435,17 @@
     "message": "قيمة منطقية"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "مربع اختيار"
   },
   "cfTypeLinked": {
     "message": "مرتبط",
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "نوع الحقل"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "اسم الحقل"
   },
   "remove": {
     "message": "إزالة"
@@ -455,7 +458,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "أنت",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -463,6 +466,18 @@
   },
   "editFolder": {
     "message": "تعديل المجلد"
+  },
+  "newFolder": {
+    "message": "مجلد جديد"
+  },
+  "folderName": {
+    "message": "اسم المجلد"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "هل أنت متأكد من أنك تريد حذف هذا المجلد بشكل دائم؟"
   },
   "baseDomain": {
     "message": "النطاق الأساسي",
@@ -508,7 +523,7 @@
     "message": "توليد كلمة مرور"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "توليد عبارة مرور"
   },
   "checkPassword": {
     "message": "تحقق مما إذا تم الكشف عن كلمة المرور."
@@ -611,7 +626,7 @@
     "message": "ملاحظة سرية"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "مفتاح بروتوكول النقل الآمن"
   },
   "typeLoginPlural": {
     "message": "تسجيلات الدخول"
@@ -644,7 +659,7 @@
     "message": "الاسم الكامل"
   },
   "address": {
-    "message": "Address"
+    "message": "العنوان"
   },
   "address1": {
     "message": "العنوان 1"
@@ -723,19 +738,10 @@
     "message": "عنصر"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "تفاصيل العنصر"
   },
   "itemName": {
-    "message": "Item name"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
+    "message": "اسم العنصر"
   },
   "ex": {
     "message": "مثال.",
@@ -761,7 +767,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "تم النسخ بنجاح"
   },
   "copyValue": {
     "message": "نسخ القيمة",
@@ -772,11 +778,11 @@
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "نسخ عبارة المرور",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "تم نسخ كلمة المرور"
   },
   "copyUsername": {
     "message": "نسخ اسم المستخدم",
@@ -795,7 +801,7 @@
     "description": "Copy URI to clipboard"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "نسخ $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -804,34 +810,34 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "نسخ الموقع الإلكتروني"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "نسخ الملاحظات"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "نسخ العنوان"
   },
   "copyPhone": {
     "message": "Copy phone"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "نسخ البريد الإلكتروني"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "نسخ الشركة"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "نسخ رقم الضمان الاجتماعي"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "نسخ رقم جواز السفر"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "نسخ رقم الرخصة"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "نسخ الاسم"
   },
   "me": {
     "message": "أنا"
@@ -991,22 +997,22 @@
     "message": "تم تسجيل الخروج"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "لقد تم تسجيل خروجك من الحساب."
   },
   "loginExpired": {
     "message": "انتهت صَلاحِيَة جَلسة الدخول."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "إعادة التسجيل"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "رابط منتهي الصلاحية"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "الرجاء إعادة تشغيل التسجيل أو محاولة تسجيل الدخول."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "قد يكون لديك حساب بالفعل"
   },
   "logOutConfirmation": {
     "message": "هل أنت متأكد من أنك تريد تسجيل الخروج؟"
@@ -1033,7 +1039,7 @@
     "message": "تسجيل الدخول باستخدام الجهاز يجب أن يتم إعداده في إعدادات تطبيق Bitwarden. هل تحتاج إلى خيار آخر؟"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "هل تحتاج إلى خيار آخر؟"
   },
   "loginWithMasterPassword": {
     "message": "تسجيل الدخول باستخدام كلمة المرور الرئيسية"
@@ -1048,13 +1054,13 @@
     "message": "استخدم طريقة أخرى للولوج"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "تسجيل الدخول باستخدام مفتاح المرور"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "مرحباً بعودتك"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "مفتاح المرور غير صالح. الرجاء المحاولة مرة أخرى."
@@ -1078,13 +1084,13 @@
     "message": "Keep this window open and follow prompts from your browser."
   },
   "errorCreatingPasskey": {
-    "message": "Error creating passkey"
+    "message": "خطأ في إنشاء مفتاح المرور"
   },
   "errorCreatingPasskeyInfo": {
     "message": "There was a problem creating your passkey."
   },
   "passkeySuccessfullyCreated": {
-    "message": "Passkey successfully created!"
+    "message": "تم إنشاء مفتاح المرور بنجاح!"
   },
   "customPasskeyNameInfo": {
     "message": "Name your passkey to help you identify it."
@@ -1132,16 +1138,16 @@
     "message": "Passkey limit reached. Remove a passkey to add another."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "حاول مرة أخرى"
   },
   "createAccount": {
     "message": "إنشاء حساب"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "هل أنت جديد في بيتواردن؟"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "تعيين كلمة مرور قوية"
   },
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Finish creating your account by setting a password"
@@ -1156,16 +1162,25 @@
     "message": "تسجيل الدخول"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "تسجيل الدخول إلى بيتواردن"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "مهلة المصادقة"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyIdentity": {
-    "message": "Verify your Identity"
+    "message": "قم بتأكيد هويتك"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
@@ -1181,6 +1196,9 @@
   },
   "logInInitiated": {
     "message": "بَدْء تسجيل الدخول"
+  },
+  "logInRequestSent": {
+    "message": "تم إرسال الطلب"
   },
   "submit": {
     "message": "قدِّم"
@@ -1235,7 +1253,7 @@
     "message": "الإعدادات"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "البريد الإلكتروني للحساب"
   },
   "requestHint": {
     "message": "Request hint"
@@ -1287,7 +1305,7 @@
     "message": "Your new account has been created!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "لقد قمت بتسجيل الدخول!"
   },
   "trialAccountCreated": {
     "message": "تم إنشاء الحساب بنجاح."
@@ -1371,11 +1389,38 @@
   "notificationSentDevice": {
     "message": "تم إرسال إشعار إلى جهازك."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "هل تحاول الوصول إلى حسابك؟"
+  },
+  "accessAttemptBy": {
+    "message": "محاولة تسجيل الدخول بواسطة $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "تأكيد الوصول"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "الإصدار $VERSION_NUMBER$",
@@ -1410,11 +1455,21 @@
   "rememberMe": {
     "message": "تذكرني"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "إرسال رمز التحقق إلى البريد الإلكتروني مرة أخرى"
   },
   "useAnotherTwoStepMethod": {
-    "message": "Use another two-step login method"
+    "message": "استخدام طريقة أخرى لتسجيل الدخول بخطوتين"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "Insert your YubiKey into your computer's USB port, then touch its button."
@@ -1433,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "خيارات تسجيل الدخول بخطوتين"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "Lost access to all of your two-step login providers? Use your recovery code to turn off all two-step login providers from your account."
@@ -1468,7 +1526,7 @@
     "message": "FIDO U2F security a key"
   },
   "webAuthnTitle": {
-    "message": "Passkey"
+    "message": "مفتاح المرور"
   },
   "webAuthnDesc": {
     "message": "Use your device's biometrics or a FIDO2 compatible security key."
@@ -1476,11 +1534,14 @@
   "webAuthnMigrated": {
     "message": "(Migrated from FIDO)"
   },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "emailTitle": {
     "message": "البريد الإلكتروني"
   },
   "emailDescV2": {
-    "message": "Enter a code sent to your email."
+    "message": "أدخل الرمز الذي تم إرساله إلى بريدك الإلكتروني."
   },
   "continue": {
     "message": "استمرار"
@@ -1587,7 +1648,7 @@
     "message": "تصدير"
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "التصدير من"
   },
   "exportVault": {
     "message": "تصدير الخزانة"
@@ -1611,10 +1672,10 @@
     "message": "تأكيد التنسيق"
   },
   "filePassword": {
-    "message": "File password"
+    "message": "كلمة مرور الملف"
   },
   "confirmFilePassword": {
-    "message": "Confirm file password"
+    "message": "تأكيد كلمة مرور الملف"
   },
   "accountRestrictedOptionDescription": {
     "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
@@ -1626,7 +1687,7 @@
     "message": "نوع التصدير"
   },
   "accountRestricted": {
-    "message": "Account restricted"
+    "message": "تم تقييد الحساب"
   },
   "passwordProtected": {
     "message": "Password protected"
@@ -1664,38 +1725,35 @@
     "message": "Avoid ambiguous characters",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
-  "regeneratePassword": {
-    "message": "إعادة توليد كلمة المرور"
-  },
   "length": {
     "message": "الطول"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "الحد الأدنى لطول كلمة المرور"
   },
   "uppercase": {
-    "message": "Uppercase (A-Z)",
+    "message": "أحرف كبيرة (من A إلى Z)",
     "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Lowercase (a-z)",
+    "message": "أحرف صغيرة (من a إلى z)",
     "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Numbers (0-9)",
+    "message": "أرقام (من 0 إلى 9)",
     "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Special characters (!@#$%^&*)"
+    "message": "أحرف خاصة (!@#$%^&*)"
   },
   "numWords": {
     "message": "عدد الكلمات"
   },
   "wordSeparator": {
-    "message": "Word separator"
+    "message": "فاصل الكلمات"
   },
   "capitalize": {
-    "message": "Capitalize",
+    "message": "كبِّر الحروف",
     "description": "Make the first letter of a word uppercase."
   },
   "includeNumber": {
@@ -1709,7 +1767,7 @@
     "message": "سجل كلمات المرور"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "سجل المولد"
   },
   "clearGeneratorHistoryTitle": {
     "message": "Clear generator history"
@@ -1718,16 +1776,16 @@
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
-    "message": "There are no passwords to list."
+    "message": "لا توجد كلمات مرور للعرض."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "مسح السجل"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "لا يوجد شيء لعرضه"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "لم تقم بتوليد أي شيء مؤخراً"
   },
   "clear": {
     "message": "مسح",
@@ -1767,10 +1825,10 @@
     "message": "الرجاء تسجيل الدخول مرة أخرى."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "الجلسة الحالية"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "الطلب معلًق"
   },
   "logBackInOthersToo": {
     "message": "Please log back in. If you are using other Bitwarden applications log out and back in to those as well."
@@ -1849,7 +1907,7 @@
     "message": "Proceeding will also log you out of your current session, requiring you to log back in. You will also be prompted for two-step login again, if set up. Active sessions on other devices may continue to remain active for up to one hour."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "تسجيل الدخول لجهاز جديد"
   },
   "turnOffNewDeviceLoginProtection": {
     "message": "Turn off new device login protection"
@@ -1909,13 +1967,13 @@
     "message": "Proceed below to delete your account and all vault data."
   },
   "deleteAccountWarning": {
-    "message": "Deleting your account is permanent. It cannot be undone."
+    "message": "حذف حسابك بشكل نهائي. لا يمكن التراجع عنه."
   },
   "accountDeleted": {
-    "message": "Account deleted"
+    "message": "تم حذف الحساب"
   },
   "accountDeletedDesc": {
-    "message": "Your account has been closed and all associated data has been deleted."
+    "message": "لقد تم إغلاق حسابك وتم حذف جميع البيانات المرتبطة به."
   },
   "deleteOrganizationWarning": {
     "message": "Deleting your organization is permanent. It cannot be undone."
@@ -1934,11 +1992,11 @@
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
-    "message": "new item",
+    "message": "عنصر جديد",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLoginLink": {
-    "message": "new login",
+    "message": "تسجيل دخول جديد",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsPartTwoNoOrgs": {
@@ -1983,22 +2041,22 @@
     "message": "Data is not formatted correctly. Please check your import file and try again."
   },
   "importNothingError": {
-    "message": "Nothing was imported."
+    "message": "لم يتم استيراد أي شيء."
   },
   "importEncKeyError": {
     "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
   },
   "destination": {
-    "message": "Destination"
+    "message": "الوجهة"
   },
   "learnAboutImportOptions": {
     "message": "Learn about your import options"
   },
   "selectImportFolder": {
-    "message": "Select a folder"
+    "message": "تحديد المجلد"
   },
   "selectImportCollection": {
-    "message": "Select a collection"
+    "message": "اختر مجموعة"
   },
   "importTargetHint": {
     "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
@@ -2023,13 +2081,13 @@
     "message": "اختيار ملف"
   },
   "noFileChosen": {
-    "message": "No file chosen"
+    "message": "لم يتم اختيار ملف"
   },
   "orCopyPasteFileContents": {
     "message": "او قم بنسخ ولصق محتويات مِلَفّ الاستيراد"
   },
   "instructionsFor": {
-    "message": "$NAME$ Instructions",
+    "message": "تعليمات $NAME$",
     "description": "The title for the import tool instructions.",
     "placeholders": {
       "name": {
@@ -2048,7 +2106,7 @@
     "message": "تخصيص تجرِبة خزانة الويب الخاصة بك."
   },
   "preferencesUpdated": {
-    "message": "Preferences saved"
+    "message": "تم حفظ التفضيلات"
   },
   "language": {
     "message": "اللّغة"
@@ -2063,7 +2121,7 @@
     "message": "Show a recognizable image next to each login."
   },
   "default": {
-    "message": "Default"
+    "message": "الافتراضي"
   },
   "domainRules": {
     "message": "قواعد النطاق"
@@ -2078,13 +2136,13 @@
     "message": "Custom equivalent domains"
   },
   "exclude": {
-    "message": "Exclude"
+    "message": "استثناء"
   },
   "include": {
-    "message": "Include"
+    "message": "تضمين"
   },
   "customize": {
-    "message": "Customize"
+    "message": "تخصيص"
   },
   "newCustomDomain": {
     "message": "New custom domain"
@@ -2132,21 +2190,24 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Setting up two-step login can permanently lock you out of your Bitwarden account. A recovery code allows you to access your account in the event that you can no longer use your normal two-step login provider (example: you lose your device). Bitwarden support will not be able to assist you if you lose access to your account. We recommend you write down or print the recovery code and keep it in a safe place."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+  },
   "viewRecoveryCode": {
     "message": "View recovery code"
   },
   "providers": {
-    "message": "Providers",
+    "message": "المزودون",
     "description": "Two-step login providers such as YubiKey, Duo, Authenticator apps, Email, etc."
   },
   "enable": {
-    "message": "Turn on"
+    "message": "تفعيل"
   },
   "enabled": {
-    "message": "Turned on"
+    "message": "تم التفعيل"
   },
   "restoreAccess": {
-    "message": "Restore access"
+    "message": "استعادة الوصول"
   },
   "premium": {
     "message": "بريميوم",
@@ -2170,14 +2231,26 @@
   "manage": {
     "message": "إدارة"
   },
-  "canManage": {
-    "message": "Can manage"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "عرض العناصر"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "تعديل العناصر"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
-    "message": "Turn off"
+    "message": "إيقاف"
   },
   "revokeAccess": {
-    "message": "Revoke access"
+    "message": "إلغاء الوصول"
   },
   "twoStepLoginProviderEnabled": {
     "message": "This two-step login provider is active on your account."
@@ -2189,16 +2262,16 @@
     "message": "Download an authenticator app such as"
   },
   "twoStepAuthenticatorInstructionInfix1": {
-    "message": ","
+    "message": "،"
   },
   "twoStepAuthenticatorInstructionInfix2": {
-    "message": "or"
+    "message": "أو"
   },
   "twoStepAuthenticatorInstructionSuffix": {
     "message": "."
   },
   "continueToExternalUrlTitle": {
-    "message": "Continue to $URL$?",
+    "message": "هل تريد المتابعة إلى $URL$؟",
     "placeholders": {
       "url": {
         "content": "$1",
@@ -2210,7 +2283,7 @@
     "message": "You are leaving Bitwarden and launching an external website in a new window."
   },
   "twoStepContinueToBitwardenUrlTitle": {
-    "message": "Continue to bitwarden.com?"
+    "message": "هل تريد المتابعة إلى bitwarden.com؟"
   },
   "twoStepContinueToBitwardenUrlDesc": {
     "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website."
@@ -2222,10 +2295,10 @@
     "message": "Could not load QR code. Try again or use the key below."
   },
   "key": {
-    "message": "Key"
+    "message": "المفتاح"
   },
   "twoStepAuthenticatorEnterCodeV2": {
-    "message": "Verification code"
+    "message": "رمز التحقق"
   },
   "twoStepAuthenticatorReaddDesc": {
     "message": "In case you need to add it to another device, below is the QR code (or key) required by your authenticator app."
@@ -2249,7 +2322,7 @@
     "message": "Touch the YubiKey's button."
   },
   "twoFactorYubikeySaveForm": {
-    "message": "Save the form."
+    "message": "حفظ النموذج."
   },
   "twoFactorYubikeyWarning": {
     "message": "Due to platform limitations, YubiKeys cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when YubiKeys cannot be used. Supported platforms:"
@@ -2306,7 +2379,7 @@
     "message": "Enter the Bitwarden application information from your Duo Admin panel."
   },
   "twoFactorDuoClientId": {
-    "message": "Client Id"
+    "message": "معرّف العميل"
   },
   "twoFactorDuoClientSecret": {
     "message": "Client Secret"
@@ -2351,7 +2424,7 @@
     "message": "If the security key has a button, touch it."
   },
   "twoFactorU2fSaveForm": {
-    "message": "Save the form."
+    "message": "حفظ النموذج."
   },
   "twoFactorU2fWarning": {
     "message": "Due to platform limitations, FIDO U2F cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when FIDO U2F cannot be used. Supported platforms:"
@@ -2368,11 +2441,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "There was a problem reading the security key. Try again."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used. Supported platforms:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "Web vault and browser extensions on a desktop/laptop with a WebAuthn supported browser (Chrome, Opera, Vivaldi, or Firefox with FIDO U2F turned on)."
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Your Bitwarden two-step login recovery code"
@@ -2381,7 +2451,7 @@
     "message": "You have not set up any two-step login providers yet. After you have set up a two-step login provider you can check back here for your recovery code."
   },
   "printCode": {
-    "message": "Print code",
+    "message": "طباعة الرمز",
     "description": "Print 2FA recovery code"
   },
   "reports": {
@@ -2396,13 +2466,13 @@
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
-    "message": "Unsecure websites"
+    "message": "مواقع الويب غير الآمنة"
   },
   "unsecuredWebsitesReportDesc": {
     "message": "URLs that start with http:// don’t use the best available encryption. Change the login URIs for these accounts to https:// for safer browsing."
   },
   "unsecuredWebsitesFound": {
-    "message": "Unsecured websites found"
+    "message": "تم العثور على مواقع ويب غير آمنة"
   },
   "unsecuredWebsitesFoundReportDesc": {
     "message": "We found $COUNT$ items in your $VAULT$ with unsecured URIs. You should change their URI scheme to https:// if the website allows it.",
@@ -2446,7 +2516,7 @@
     "message": "No websites were found in your vault with a missing two-step login configuration."
   },
   "instructions": {
-    "message": "Instructions"
+    "message": "التعليمات"
   },
   "exposedPasswordsReport": {
     "message": "Exposed passwords"
@@ -2489,13 +2559,13 @@
     }
   },
   "weakPasswordsReport": {
-    "message": "Weak passwords"
+    "message": "كلمات المرور الضعيفة"
   },
   "weakPasswordsReportDesc": {
     "message": "Weak passwords can be easily guessed by attackers. Change these passwords to strong ones using the password generator."
   },
   "weakPasswordsFound": {
-    "message": "Weak passwords found"
+    "message": "تم العثور على كلمات مرور ضعيفة"
   },
   "weakPasswordsFoundReportDesc": {
     "message": "We found $COUNT$ items in your $VAULT$ with passwords that are not strong. You should update them to use stronger passwords.",
@@ -2542,10 +2612,10 @@
     "message": "No logins in your vault have passwords that are being reused."
   },
   "timesReused": {
-    "message": "Times reused"
+    "message": "عدد مرات إعادة الاستخدام"
   },
   "reusedXTimes": {
-    "message": "Reused $COUNT$ times",
+    "message": "تمت إعادة الاستخدام $COUNT$ مرة",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2575,7 +2645,7 @@
     }
   },
   "goodNews": {
-    "message": "Good news",
+    "message": "أخبار جيدة!",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
   "breachUsernameFound": {
@@ -2601,7 +2671,7 @@
     "message": "موقع الويب"
   },
   "affectedUsers": {
-    "message": "Affected users"
+    "message": "المستخدمون المتأثرون"
   },
   "breachOccurred": {
     "message": "Breach occurred"
@@ -2613,24 +2683,24 @@
     "message": "An error occurred trying to load the report. Try again"
   },
   "billing": {
-    "message": "Billing"
+    "message": "الفوترة"
   },
   "billingPlanLabel": {
-    "message": "Billing plan"
+    "message": "خطة الفوترة"
   },
   "paymentType": {
-    "message": "Payment type"
+    "message": "طريقة الدفع"
   },
   "accountCredit": {
     "message": "Account credit",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "accountBalance": {
-    "message": "Account balance",
+    "message": "رصيد الحساب",
     "description": "Financial term. In the case of Bitwarden, a positive balance means that you owe money, while a negative balance means that you have a credit (Bitwarden owes you money)."
   },
   "addCredit": {
-    "message": "Add credit",
+    "message": "إضافة رصيد",
     "description": "Add more credit to your account's balance."
   },
   "amount": {
@@ -2703,10 +2773,10 @@
     "message": "Bitwarden Families plan."
   },
   "addons": {
-    "message": "Add-ons"
+    "message": "الإضافات"
   },
   "premiumAccess": {
-    "message": "Premium access"
+    "message": "الوصول المميز"
   },
   "premiumAccessDesc": {
     "message": "You can add Premium access to all members of your organization for $PRICE$ /$INTERVAL$.",
@@ -2754,13 +2824,13 @@
     "message": "سنة"
   },
   "yr": {
-    "message": "yr"
+    "message": "سنة"
   },
   "month": {
     "message": "شهر"
   },
   "monthAbbr": {
-    "message": "mo.",
+    "message": "شهر",
     "description": "Short abbreviation for 'month'"
   },
   "paymentChargedAnnually": {
@@ -2782,10 +2852,10 @@
     "message": "Your plan comes with a free 7 day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time."
   },
   "paymentInformation": {
-    "message": "Payment information"
+    "message": "معلومات الدفع"
   },
   "billingInformation": {
-    "message": "Billing information"
+    "message": "معلومات الفوترة"
   },
   "billingTrialSubLabel": {
     "message": "Your payment method will not be charged during the 7 day free trial."
@@ -2797,13 +2867,13 @@
     "message": "Select the PayPal button to log into your PayPal account, then click the Submit button below to continue."
   },
   "cancelSubscription": {
-    "message": "Cancel subscription"
+    "message": "إلغاء الاشتراك"
   },
   "subscriptionExpiration": {
-    "message": "Subscription expiration"
+    "message": "تاريخ انتهاء الاشتراك"
   },
   "subscriptionCanceled": {
-    "message": "The subscription has been canceled."
+    "message": "تم إلغاء الاشتراك."
   },
   "pendingCancellation": {
     "message": "Pending cancellation"
@@ -2824,40 +2894,40 @@
     "message": "Are you sure you want to cancel? You will lose access to all of this subscription's features at the end of this billing cycle."
   },
   "canceledSubscription": {
-    "message": "Subscription canceled"
+    "message": "تم إلغاء الإشتراك"
   },
   "neverExpires": {
-    "message": "Never expires"
+    "message": "صلاحية غير محدودة"
   },
   "status": {
-    "message": "Status"
+    "message": "الحالة"
   },
   "nextCharge": {
-    "message": "Next charge"
+    "message": "الدفعة القادمة"
   },
   "details": {
     "message": "التفاصيل"
   },
   "downloadLicense": {
-    "message": "Download license"
+    "message": "تنزيل الرخصة"
   },
   "viewBillingToken": {
     "message": "View Billing Token"
   },
   "updateLicense": {
-    "message": "Update license"
+    "message": "تحديث الرخصة"
   },
   "manageSubscription": {
-    "message": "Manage subscription"
+    "message": "إدارة الاشتراك"
   },
   "launchCloudSubscription": {
     "message": "Launch Cloud Subscription"
   },
   "storage": {
-    "message": "Storage"
+    "message": "مساحة التخزين"
   },
   "addStorage": {
-    "message": "Add storage"
+    "message": "إضافة مساحة تخزين"
   },
   "removeStorage": {
     "message": "Remove storage"
@@ -2876,47 +2946,47 @@
     }
   },
   "paymentMethod": {
-    "message": "Payment method"
+    "message": "طريقة الدفع"
   },
   "noPaymentMethod": {
     "message": "No payment method on file."
   },
   "addPaymentMethod": {
-    "message": "Add payment method"
+    "message": "إضافة طريقة دفع"
   },
   "changePaymentMethod": {
-    "message": "Change payment method"
+    "message": "تغيير طريقة الدفع"
   },
   "invoices": {
-    "message": "Invoices"
+    "message": "الفواتير"
   },
   "noUnpaidInvoices": {
-    "message": "No unpaid invoices."
+    "message": "لا يوجد فواتير غير مدفوعة."
   },
   "noPaidInvoices": {
-    "message": "No paid invoices."
+    "message": "لا يوجد فواتير مدفوعة."
   },
   "paid": {
-    "message": "Paid",
+    "message": "مدفوع",
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "unpaid": {
-    "message": "Unpaid",
+    "message": "غير مدفوع",
     "description": "Past tense status of an invoice. ex. Paid or unpaid."
   },
   "transactions": {
-    "message": "Transactions",
+    "message": "الحركات المالية",
     "description": "Payment/credit transactions."
   },
   "noTransactions": {
-    "message": "No transactions."
+    "message": "لا يوجد حركات مالية."
   },
   "chargeNoun": {
     "message": "Charge",
     "description": "Noun. A charge from a payment method."
   },
   "refundNoun": {
-    "message": "Refund",
+    "message": "استرداد مالي",
     "description": "Noun. A refunded payment that was charged."
   },
   "chargesStatement": {
@@ -2953,7 +3023,7 @@
     "message": "Contact customer support"
   },
   "contactSupportShort": {
-    "message": "Contact Support"
+    "message": "الاتصال بالدعم الفني"
   },
   "updatedPaymentMethod": {
     "message": "Updated payment method."
@@ -2998,7 +3068,7 @@
     "message": "البريد الإلكتروني للفوترة"
   },
   "businessName": {
-    "message": "Business name"
+    "message": "الاسم التجاري"
   },
   "chooseYourPlan": {
     "message": "اختر خِطَّة اشتراكك"
@@ -3045,7 +3115,7 @@
     }
   },
   "planNameFamilies": {
-    "message": "Families"
+    "message": "العائلات"
   },
   "planDescFamilies": {
     "message": "For personal use, to share with family & friends."
@@ -3078,7 +3148,7 @@
     }
   },
   "additionalUsers": {
-    "message": "Additional users"
+    "message": "مستخدمين إضافيين"
   },
   "costPerUser": {
     "message": "$COST$ per user",
@@ -3195,13 +3265,13 @@
     "message": "شهريا"
   },
   "annually": {
-    "message": "Annually"
+    "message": "سنويّاً"
   },
   "annual": {
-    "message": "Annual"
+    "message": "سنوي"
   },
   "basePrice": {
-    "message": "Base price"
+    "message": "السعر الأساسي"
   },
   "organizationCreated": {
     "message": "Organization created"
@@ -3213,7 +3283,7 @@
     "message": "Organization upgraded"
   },
   "leave": {
-    "message": "Leave"
+    "message": "خروج"
   },
   "leaveOrganizationConfirmation": {
     "message": "Are you sure you want to leave this organization?"
@@ -3297,25 +3367,25 @@
     "message": "Access control"
   },
   "readOnly": {
-    "message": "Read only"
+    "message": "للقراءة فقط"
   },
   "newCollection": {
-    "message": "New collection"
+    "message": "مجموعة جديدة"
   },
   "addCollection": {
-    "message": "Add collection"
+    "message": "إضافة مجموعة"
   },
   "editCollection": {
-    "message": "Edit collection"
+    "message": "تعديل المجموعة"
   },
   "collectionInfo": {
-    "message": "Collection info"
+    "message": "بيانات المجموعة"
   },
   "deleteCollectionConfirmation": {
-    "message": "Are you sure you want to delete this collection?"
+    "message": "هل أنت متأكد من أنك تريد حذف هذه المجموعة؟"
   },
   "editMember": {
-    "message": "Edit member"
+    "message": "تعديل العضو"
   },
   "fieldOnTabRequiresAttention": {
     "message": "A field on the '$TAB$' tab requires your attention.",
@@ -3339,10 +3409,10 @@
     }
   },
   "inviteSingleEmailDesc": {
-    "message": "You have 1 invite remaining."
+    "message": "تبقى لك دعوة واحدة."
   },
   "inviteZeroEmailDesc": {
-    "message": "You have 0 invites remaining."
+    "message": "لم يتبق لك أي دعوات."
   },
   "userUsingTwoStep": {
     "message": "This user is using two-step login to protect their account."
@@ -3399,10 +3469,10 @@
     "message": "Event"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "مجهول"
   },
   "loadMore": {
-    "message": "Load more"
+    "message": "تحميل المزيد"
   },
   "mobile": {
     "message": "Mobile",
@@ -3459,7 +3529,7 @@
     "message": "Incorrect PIN"
   },
   "pin": {
-    "message": "PIN",
+    "message": "رقم التعريف الشخصي",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
   },
   "exportedVault": {
@@ -3631,10 +3701,10 @@
     }
   },
   "deletedCollections": {
-    "message": "Deleted collections"
+    "message": "المجموعات المحذوفة"
   },
   "deletedCollectionId": {
-    "message": "Deleted collection $ID$.",
+    "message": "المجموعة المحذوفة $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3932,13 +4002,13 @@
     "message": "No email?"
   },
   "goBack": {
-    "message": "Go back"
+    "message": "الرجوع إلى الخلف"
   },
   "toEditYourEmailAddress": {
     "message": "to edit your email address."
   },
   "view": {
-    "message": "View"
+    "message": "عرض"
   },
   "invalidDateRange": {
     "message": "Invalid date range."
@@ -3947,10 +4017,10 @@
     "message": "لقد حدث خطأ."
   },
   "userAccess": {
-    "message": "User access"
+    "message": "وصول المستخدم"
   },
   "userType": {
-    "message": "User type"
+    "message": "نوع المستخدم"
   },
   "groupAccess": {
     "message": "Group access"
@@ -3965,7 +4035,7 @@
     "message": "Resend invitation"
   },
   "resendEmail": {
-    "message": "Resend email"
+    "message": "إعادة إرسال البريد الإلكتروني"
   },
   "hasBeenReinvited": {
     "message": "$USER$ reinvited",
@@ -3977,10 +4047,10 @@
     }
   },
   "confirm": {
-    "message": "Confirm"
+    "message": "تأكيد"
   },
   "confirmUser": {
-    "message": "Confirm user"
+    "message": "تأكيد المستخدم"
   },
   "hasBeenConfirmed": {
     "message": "$USER$ confirmed.",
@@ -3992,7 +4062,7 @@
     }
   },
   "confirmUsers": {
-    "message": "Confirm members"
+    "message": "تأكيد الأعضاء"
   },
   "usersNeedConfirmed": {
     "message": "You have members that have accepted their invitation, but still need to be confirmed. Members will not have access to the organization until they are confirmed."
@@ -4038,6 +4108,12 @@
   },
   "updateBrowserDesc": {
     "message": "You are using an unsupported web browser. The web vault may not function properly."
+  },
+  "youHaveAPendingLoginRequest": {
+    "message": "You have a pending login request from another device."
+  },
+  "reviewLoginRequest": {
+    "message": "Review login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
@@ -4132,6 +4208,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "If you cannot access your account through your normal two-step login methods, you can use your two-step login recovery code to turn off all two-step providers on your account."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
   },
   "recoverAccountTwoStep": {
     "message": "Recover account two-step login"
@@ -4424,6 +4503,24 @@
   "encryptionKeyUpdateCannotProceed": {
     "message": "Encryption key update cannot proceed"
   },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
   },
@@ -4695,6 +4792,15 @@
   "masterPassPolicyDesc": {
     "message": "Set requirements for master password strength."
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Require two-step login"
   },
@@ -4709,9 +4815,6 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Set requirements for password generator."
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "One or more organization policies are affecting your generator settings."
   },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"
@@ -5592,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "Authenticate WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "webAuthnNotSupported": {
     "message": "WebAuthn is not supported in this browser."
@@ -6681,15 +6790,6 @@
     "message": "المولّد",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "ما الذي ترغب في توليده؟"
-  },
-  "passwordType": {
-    "message": "نوع كلمة المرور"
-  },
-  "regenerateUsername": {
-    "message": "إعادة توليد اسم المستخدم"
-  },
   "generateUsername": {
     "message": "Generate username"
   },
@@ -6729,9 +6829,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Username type"
   },
   "plusAddressedEmail": {
     "message": "Plus addressed email",
@@ -6898,6 +6995,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -6951,9 +7072,6 @@
   "hostname": {
     "message": "اسم المضيف",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API access token"
   },
   "deviceVerification": {
     "message": "Device verification"
@@ -7129,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Launch Duo"
@@ -7665,18 +7789,6 @@
   },
   "noCollection": {
     "message": "No collection"
-  },
-  "canView": {
-    "message": "Can view"
-  },
-  "canViewExceptPass": {
-    "message": "Can view, except passwords"
-  },
-  "canEdit": {
-    "message": "Can edit"
-  },
-  "canEditExceptPass": {
-    "message": "Can edit, except passwords"
   },
   "noCollectionsAdded": {
     "message": "No collections added"
@@ -8677,9 +8789,6 @@
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Alias domain"
-  },
   "alreadyHaveAccount": {
     "message": "Already have an account?"
   },
@@ -8741,11 +8850,11 @@
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Missing Can Manage Permissions"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
@@ -9239,6 +9348,12 @@
   },
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
+  },
+  "desktopRequired": {
+    "message": "Desktop required"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Reopen this link from your email on a desktop."
   },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
@@ -10091,6 +10206,15 @@
   "descriptorCode": {
     "message": "Descriptor code"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Important notice"
   },
@@ -10224,6 +10348,38 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "openingExtension": {
+    "message": "Opening the Bitwarden browser extension"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong..."
+  },
+  "openingExtensionError": {
+    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+  },
+  "openExtension": {
+    "message": "Open extension"
+  },
+  "doNotHaveExtension": {
+    "message": "Don't have the Bitwarden browser extension?"
+  },
+  "installExtension": {
+    "message": "Install extension"
+  },
+  "openedExtension": {
+    "message": "Opened the browser extension"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "from the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "resellerRenewalWarningMsg": {
     "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
     "placeholders": {
@@ -10281,5 +10437,78 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Do not allow members to unlock their account with a PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

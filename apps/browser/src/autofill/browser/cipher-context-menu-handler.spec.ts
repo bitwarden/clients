@@ -2,6 +2,8 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -14,6 +16,9 @@ describe("CipherContextMenuHandler", () => {
   let authService: MockProxy<AuthService>;
   let cipherService: MockProxy<CipherService>;
 
+  const mockUserId = "UserId" as UserId;
+  const accountService = mockAccountServiceWith(mockUserId);
+
   let sut: CipherContextMenuHandler;
 
   beforeEach(() => {
@@ -24,7 +29,12 @@ describe("CipherContextMenuHandler", () => {
 
     jest.spyOn(MainContextMenuHandler, "removeAll").mockResolvedValue();
 
-    sut = new CipherContextMenuHandler(mainContextMenuHandler, authService, cipherService);
+    sut = new CipherContextMenuHandler(
+      mainContextMenuHandler,
+      authService,
+      cipherService,
+      accountService,
+    );
   });
 
   afterEach(() => jest.resetAllMocks());
@@ -119,10 +129,11 @@ describe("CipherContextMenuHandler", () => {
 
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledTimes(1);
 
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith("https://test.com", [
-        CipherType.Card,
-        CipherType.Identity,
-      ]);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(
+        "https://test.com",
+        mockUserId,
+        [CipherType.Card, CipherType.Identity],
+      );
 
       expect(mainContextMenuHandler.loadOptions).toHaveBeenCalledTimes(3);
 

@@ -13,16 +13,16 @@ import { DefaultSshImportPromptService } from "./default-ssh-import-prompt.servi
 jest.mock("@bitwarden/sdk-internal");
 
 const exampleSshKey = {
-  private_key: "private_key",
-  public_key: "public_key",
-  key_fingerprint: "key_fingerprint",
-} as sdkInternal.SshKey;
+  privateKey: "private_key",
+  publicKey: "public_key",
+  fingerprint: "key_fingerprint",
+} as sdkInternal.SshKeyView;
 
 const exampleSshKeyData = new SshKeyData(
   new SshKeyApi({
-    publicKey: exampleSshKey.public_key,
-    privateKey: exampleSshKey.private_key,
-    keyFingerprint: exampleSshKey.key_fingerprint,
+    publicKey: exampleSshKey.publicKey,
+    privateKey: exampleSshKey.privateKey,
+    keyFingerprint: exampleSshKey.fingerprint,
   }),
 );
 

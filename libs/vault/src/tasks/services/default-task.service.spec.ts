@@ -4,6 +4,7 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
 import { DefaultTaskService, SecurityTaskStatus } from "@bitwarden/vault";
@@ -18,18 +19,26 @@ describe("Default task service", () => {
 
   const mockApiSend = jest.fn();
   const mockGetAllOrgs$ = jest.fn();
+  const mockGetFeatureFlag$ = jest.fn();
 
   let testBed: TestBed;
 
   beforeEach(async () => {
     mockApiSend.mockClear();
     mockGetAllOrgs$.mockClear();
+    mockGetFeatureFlag$.mockClear();
 
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
     testBed = TestBed.configureTestingModule({
       imports: [],
       providers: [
         DefaultTaskService,
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: mockGetFeatureFlag$,
+          },
+        },
         {
           provide: StateProvider,
           useValue: fakeStateProvider,
@@ -52,6 +61,7 @@ describe("Default task service", () => {
 
   describe("tasksEnabled$", () => {
     it("should emit true if any organization uses risk insights", async () => {
+      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(true));
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
@@ -71,6 +81,7 @@ describe("Default task service", () => {
     });
 
     it("should emit false if no organization uses risk insights", async () => {
+      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(true));
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
@@ -78,6 +89,23 @@ describe("Default task service", () => {
           },
           {
             useRiskInsights: false,
+          },
+        ] as Organization[]),
+      );
+
+      const { tasksEnabled$ } = testBed.inject(DefaultTaskService);
+
+      const result = await firstValueFrom(tasksEnabled$("user-id" as UserId));
+
+      expect(result).toBe(false);
+    });
+
+    it("should emit false if the feature flag is off", async () => {
+      mockGetFeatureFlag$.mockReturnValue(new BehaviorSubject(false));
+      mockGetAllOrgs$.mockReturnValue(
+        new BehaviorSubject([
+          {
+            useRiskInsights: true,
           },
         ] as Organization[]),
       );
@@ -100,7 +128,7 @@ describe("Default task service", () => {
         ] as SecurityTaskResponse[],
       });
 
-      fakeStateProvider.singleUser.mockFor("user-id" as UserId, SECURITY_TASKS, null);
+      fakeStateProvider.singleUser.mockFor("user-id" as UserId, SECURITY_TASKS, null as any);
 
       const { tasks$ } = testBed.inject(DefaultTaskService);
 
@@ -183,7 +211,11 @@ describe("Default task service", () => {
         ] as SecurityTaskResponse[],
       });
 
-      const mock = fakeStateProvider.singleUser.mockFor("user-id" as UserId, SECURITY_TASKS, null);
+      const mock = fakeStateProvider.singleUser.mockFor(
+        "user-id" as UserId,
+        SECURITY_TASKS,
+        null as any,
+      );
 
       const service = testBed.inject(DefaultTaskService);
 

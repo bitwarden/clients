@@ -19,17 +19,17 @@ export class SshKeyExport {
 
   static toView(req: SshKeyExport, view = new SshKeyView()) {
     const parsedKey = import_ssh_key(req.privateKey);
-    view.privateKey = parsedKey.private_key;
-    view.publicKey = parsedKey.public_key;
-    view.keyFingerprint = parsedKey.key_fingerprint;
+    view.privateKey = parsedKey.privateKey;
+    view.publicKey = parsedKey.publicKey;
+    view.keyFingerprint = parsedKey.fingerprint;
     return view;
   }
 
   static toDomain(req: SshKeyExport, domain = new SshKeyDomain()) {
     const parsedKey = import_ssh_key(req.privateKey);
-    domain.privateKey = new EncString(parsedKey.private_key);
-    domain.publicKey = new EncString(parsedKey.public_key);
-    domain.keyFingerprint = new EncString(parsedKey.key_fingerprint);
+    domain.privateKey = new EncString(parsedKey.privateKey);
+    domain.publicKey = new EncString(parsedKey.publicKey);
+    domain.keyFingerprint = new EncString(parsedKey.fingerprint);
     return domain;
   }
 

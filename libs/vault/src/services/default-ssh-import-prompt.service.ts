@@ -7,7 +7,7 @@ import { SshKeyApi } from "@bitwarden/common/vault/models/api/ssh-key.api";
 import { SshKeyData } from "@bitwarden/common/vault/models/data/ssh-key.data";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SshKeyPasswordPromptComponent } from "@bitwarden/importer-ui";
-import { import_ssh_key, SshKey, SshKeyImportError } from "@bitwarden/sdk-internal";
+import { import_ssh_key, SshKeyImportError, SshKeyView } from "@bitwarden/sdk-internal";
 
 import { SshImportPromptService } from "./ssh-import-prompt.service";
 
@@ -28,7 +28,7 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
 
     let isPasswordProtectedSshKey = false;
 
-    let parsedKey: SshKey | null = null;
+    let parsedKey: SshKeyView | null = null;
 
     try {
       parsedKey = import_ssh_key(key);
@@ -78,9 +78,9 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
 
     return new SshKeyData(
       new SshKeyApi({
-        privateKey: parsedKey!.private_key,
-        publicKey: parsedKey!.public_key,
-        keyFingerprint: parsedKey!.key_fingerprint,
+        privateKey: parsedKey!.privateKey,
+        publicKey: parsedKey!.publicKey,
+        keyFingerprint: parsedKey!.fingerprint,
       }),
     );
   }

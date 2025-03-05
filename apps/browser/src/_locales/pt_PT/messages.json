@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Dica da palavra-passe mestra (opcional)"
   },
+  "passwordStrengthScore": {
+    "message": "Pontuação da força da palavra-passe: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Aderir à organização"
   },
@@ -175,6 +184,10 @@
   },
   "copyNotes": {
     "message": "Copiar notas"
+  },
+  "copy": {
+    "message": "Copiar",
+    "description": "Copy to clipboard"
   },
   "fill": {
     "message": "Preencher",
@@ -296,7 +309,7 @@
     "message": "Continuar para a loja de extensões do navegador?"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "Ajude outras pessoas a descobrir se o Bitwarden lhes é adequado. Visite a loja de extensões do seu navegador e deixe uma avaliação agora."
+    "message": "Ajude outras pessoas a descobrir se o Bitwarden lhes é adequado. Visite a loja de extensões do seu navegador e deixe uma classificação agora."
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "Pode alterar a sua palavra-passe mestra na aplicação Web Bitwarden."
@@ -340,7 +353,7 @@
     "message": "Gestor de Segredos Bitwarden"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "Armazene, gira e partilhe segredos de programador de forma segura com o Gestor de Segredos Bitwarden. Saiba mais no site bitwarden.com."
+    "message": "Armazene, faça a gestão e partilhe de forma segura os segredos dos programadores com o Gestor de Segredos Bitwarden. Saiba mais no site bitwarden.com."
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
@@ -379,7 +392,7 @@
     "message": "Nome da pasta"
   },
   "folderHintText": {
-    "message": "Aninhe uma pasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
+    "message": "Crie uma subpasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
   },
   "noFoldersAdded": {
     "message": "Nenhuma pasta adicionada"
@@ -651,7 +664,7 @@
     "message": "Outras opções"
   },
   "rateExtension": {
-    "message": "Avaliar a extensão"
+    "message": "Classificar a extensão"
   },
   "browserNotSupportClipboard": {
     "message": "O seu navegador Web não suporta a cópia fácil da área de transferência. Em vez disso, copie manualmente."
@@ -872,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Iniciar sessão no Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Introduza o código enviado para o seu e-mail"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Introduza o código da sua app de autenticação"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Prima a sua YubiKey para se autenticar"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "A verificação de dois passos do Duo é necessária para a sua conta. Siga os passos abaixo para concluir o início de sessão."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Siga os passos abaixo para concluir o início de sessão."
+  },
   "restartRegistration": {
     "message": "Reiniciar registo"
   },
@@ -1024,6 +1052,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "Clique nos itens para preencher automaticamente na vista do cofre"
+  },
+  "clickToAutofill": {
+    "message": "Clique nos itens da sugestão de preenchimento automático para preencher"
   },
   "clearClipboard": {
     "message": "Limpar área de transferência",
@@ -1358,11 +1389,21 @@
   "rememberMe": {
     "message": "Memorizar"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Não voltar a perguntar neste dispositivo durante 30 dias"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Enviar e-mail com o código de verificação novamente"
   },
   "useAnotherTwoStepMethod": {
     "message": "Utilizar outro método de verificação de dois passos"
+  },
+  "selectAnotherMethod": {
+    "message": "Selecionar outro método",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Utilize o seu código de recuperação"
   },
   "insertYubiKey": {
     "message": "Introduza a sua YubiKey na porta USB do seu computador, depois toque no botão da mesma."
@@ -1376,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Abrir novo separador"
   },
+  "openInNewTab": {
+    "message": "Abrir num novo separador"
+  },
   "webAuthnAuthenticate": {
     "message": "Autenticar o WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Ler chave de segurança"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "A aguardar interação da chave de segurança..."
   },
   "loginUnavailable": {
     "message": "Início de sessão indisponível"
@@ -1390,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Opções de verificação de dois passos"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Selecionar método de verificação de dois passos"
   },
   "recoveryCodeDesc": {
     "message": "Perdeu o acesso a todos os seus fornecedores de verificação de dois passos? Utilize o seu código de recuperação para desativar todos os fornecedores de verificação de dois passos da sua conta."
@@ -1598,7 +1651,7 @@
     "message": "Booleano"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Caixa de verificação"
   },
   "cfTypeLinked": {
     "message": "Associado",
@@ -2081,11 +2134,23 @@
     "message": "para criar uma palavra-passe forte e única",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Personalização do cofre"
+  },
   "vaultTimeoutAction": {
     "message": "Ação de tempo limite do cofre"
   },
   "vaultTimeoutAction1": {
     "message": "Ação de tempo limite"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Novas opções de personalização"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Personalize a sua experiência no cofre com ações de cópia rápida, modo compacto e muito mais!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Ver todas as definições de Aspeto"
   },
   "lock": {
     "message": "Bloquear",
@@ -2345,6 +2410,9 @@
   "blockedDomains": {
     "message": "Domínios bloqueados"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Saiba mais sobre domínios bloqueados"
+  },
   "excludedDomains": {
     "message": "Domínios excluídos"
   },
@@ -2362,6 +2430,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Alterar esta opção nas definições"
+  },
+  "change": {
+    "message": "Alterar"
+  },
+  "changeButtonTitle": {
+    "message": "Alterar palavra-passe - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Palavras-passe em risco"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "A $ORGANIZATION$ pede-lhe que altere uma palavra-passe por estarem em risco.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "A $ORGANIZATION$ pede-lhe que altere as $COUNT$ palavras-passe por estarem em risco.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "As suas organizações pedem-lhe que altere as $COUNT$ palavras-passe por estarem em risco.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Rever e alterar uma palavra-passe em risco"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Rever e alterar as $COUNT$ palavras-passe em risco",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Alterar mais rapidamente as palavras-passe em risco"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Atualize as suas definições para poder preencher automaticamente as suas palavras-passe e gerar novas palavras-passe"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Rever credenciais em risco"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Rever palavras-passe em risco"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "As palavras-passe da sua organização estão em risco porque são fracas, reutilizadas e/ou expostas.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Ilustração de uma lista de credenciais que estão em risco"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Gira rapidamente uma palavra-passe forte e única com o menu de preenchimento automático do Bitwarden no site em risco.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Ilustração do menu de preenchimento automático do Bitwarden com uma palavra-passe gerada"
+  },
+  "updateInBitwarden": {
+    "message": "Atualização no Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "O Bitwarden pedir-lhe-á então para atualizar a palavra-passe no gestor de palavras-passe.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Ilustração de uma notificação do Bitwarden a pedir ao utilizador que atualize a credencial"
+  },
+  "turnOnAutofill": {
+    "message": "Ativar o preenchimento automático"
+  },
+  "turnedOnAutofill": {
+    "message": "Preenchimento automático ativado"
+  },
+  "dismiss": {
+    "message": "Dispensar"
   },
   "websiteItemLabel": {
     "message": "Site $number$ (URI)",
@@ -2967,6 +3138,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ recusou o seu pedido. Por favor, contacte o seu fornecedor de serviços para obter assistência.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ recusou o seu pedido: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Não foi possível obter o ID da conta de e-mail mascarada de $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3123,11 +3318,17 @@
   "notificationSentDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo."
   },
+  "notificationSentDevicePart1": {
+    "message": "Desbloqueie o Bitwarden no seu dispositivo ou no "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "aplicação web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Certifique-se de que a frase da impressão digital corresponde à frase abaixo indicada antes de a aprovar."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Foi enviada uma notificação para o seu dispositivo"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Certifique-se de que a sua conta está desbloqueada e que a frase de impressão digital corresponde à do outro dispositivo"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Será notificado quando o pedido for aprovado"
@@ -3137,6 +3338,9 @@
   },
   "loginInitiated": {
     "message": "A preparar o início de sessão"
+  },
+  "logInRequestSent": {
+    "message": "Pedido enviado"
   },
   "exposedMasterPassword": {
     "message": "Palavra-passe mestra exposta"
@@ -3208,7 +3412,7 @@
     "message": "O atalho de preenchimento automático de credenciais não está definido. Altere-o nas definições do navegador."
   },
   "autofillLoginShortcutText": {
-    "message": "O atalho de preenchimento automático de credenciais é $COMMAND$. Gira todos os atalhos nas definidções do navegador.",
+    "message": "O atalho de preenchimento automático de credenciais é $COMMAND$. Organize todos os atalhos nas definições do navegador.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -4071,6 +4275,20 @@
       }
     }
   },
+  "copyFieldValue": {
+    "message": "Copiar $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
+      }
+    }
+  },
   "noValuesToCopy": {
     "message": "Não há valores a copiar"
   },
@@ -4145,15 +4363,6 @@
   },
   "itemName": {
     "message": "Nome do item"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "organizationIsDeactivated": {
     "message": "A organização está desativada"
@@ -4886,6 +5095,15 @@
   },
   "extraWide": {
     "message": "Muito ampla"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Por favor, atualize a sua aplicação para computador"

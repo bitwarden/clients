@@ -8,6 +8,7 @@ import { PasswordGeneratorPolicyComponent } from "./password-generator.component
 import { PersonalOwnershipPolicyComponent } from "./personal-ownership.component";
 import { PoliciesComponent } from "./policies.component";
 import { PolicyEditComponent } from "./policy-edit.component";
+import { RemoveUnlockWithPinPolicyComponent } from "./remove-unlock-with-pin.component";
 import { RequireSsoPolicyComponent } from "./require-sso.component";
 import { ResetPasswordPolicyComponent } from "./reset-password.component";
 import { SendOptionsPolicyComponent } from "./send-options.component";
@@ -28,6 +29,7 @@ import { TwoFactorAuthenticationPolicyComponent } from "./two-factor-authenticat
     TwoFactorAuthenticationPolicyComponent,
     PoliciesComponent,
     PolicyEditComponent,
+    RemoveUnlockWithPinPolicyComponent,
   ],
   exports: [
     DisableSendPolicyComponent,
@@ -41,6 +43,7 @@ import { TwoFactorAuthenticationPolicyComponent } from "./two-factor-authenticat
     TwoFactorAuthenticationPolicyComponent,
     PoliciesComponent,
     PolicyEditComponent,
+    RemoveUnlockWithPinPolicyComponent,
   ],
 })
 export class PoliciesModule {}

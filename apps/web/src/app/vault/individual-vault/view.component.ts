@@ -26,7 +26,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { CipherViewComponent } from "@bitwarden/vault";
+import { CipherViewComponent, DefaultTaskService, TaskService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";
 import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";
@@ -74,6 +74,7 @@ export interface ViewCipherDialogCloseResult {
   providers: [
     { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
+    { provide: TaskService, useClass: DefaultTaskService },
   ],
 })
 export class ViewComponent implements OnInit {
@@ -165,10 +166,11 @@ export class ViewComponent implements OnInit {
    */
   protected async deleteCipher(): Promise<void> {
     const asAdmin = this.organization?.canEditAllCiphers;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.cipher.isDeleted) {
-      await this.cipherService.deleteWithServer(this.cipher.id, asAdmin);
+      await this.cipherService.deleteWithServer(this.cipher.id, userId, asAdmin);
     } else {
-      await this.cipherService.softDeleteWithServer(this.cipher.id, asAdmin);
+      await this.cipherService.softDeleteWithServer(this.cipher.id, userId, asAdmin);
     }
   }
 

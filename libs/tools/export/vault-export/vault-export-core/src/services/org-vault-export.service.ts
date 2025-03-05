@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as papa from "papaparse";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   CollectionService,
@@ -13,6 +13,7 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -94,9 +95,7 @@ export class OrganizationVaultExportService
     const decCollections: CollectionView[] = [];
     const decCiphers: CipherView[] = [];
     const promises = [];
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       this.apiService.getOrganizationExport(organizationId).then((exportData) => {
@@ -184,6 +183,7 @@ export class OrganizationVaultExportService
     let allDecCiphers: CipherView[] = [];
     let decCollections: CollectionView[] = [];
     const promises = [];
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       this.collectionService.getAllDecrypted().then(async (collections) => {
@@ -192,7 +192,7 @@ export class OrganizationVaultExportService
     );
 
     promises.push(
-      this.cipherService.getAllDecrypted().then((ciphers) => {
+      this.cipherService.getAllDecrypted(activeUserId).then((ciphers) => {
         allDecCiphers = ciphers;
       }),
     );
@@ -216,6 +216,7 @@ export class OrganizationVaultExportService
     let allCiphers: Cipher[] = [];
     let encCollections: Collection[] = [];
     const promises = [];
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     promises.push(
       this.collectionService.getAll().then((collections) => {
@@ -224,7 +225,7 @@ export class OrganizationVaultExportService
     );
 
     promises.push(
-      this.cipherService.getAll().then((ciphers) => {
+      this.cipherService.getAll(activeUserId).then((ciphers) => {
         allCiphers = ciphers;
       }),
     );

@@ -5,6 +5,9 @@
   "criticalApplications": {
     "message": "Critical applications"
   },
+  "noCriticalAppsAtRisk": {
+    "message": "No critical applications at risk"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
@@ -464,6 +467,18 @@
   "editFolder": {
     "message": "폴더 편집"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "deleteFolderPermanently": {
+    "message": "Are you sure you want to permanently delete this folder?"
+  },
   "baseDomain": {
     "message": "기본 도메인",
     "description": "Domain name. Example: website.com"
@@ -727,15 +742,6 @@
   },
   "itemName": {
     "message": "Item name"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "ex": {
     "message": "예)",
@@ -1158,6 +1164,15 @@
   "logInToBitwarden": {
     "message": "Log in to Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "authenticationTimeout": {
     "message": "Authentication timeout"
   },
@@ -1181,6 +1196,9 @@
   },
   "logInInitiated": {
     "message": "Log in initiated"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
   },
   "submit": {
     "message": "보내기"
@@ -1371,11 +1389,38 @@
   "notificationSentDevice": {
     "message": "기기에 알림이 전송되었습니다."
   },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "notificationSentDeviceComplete": {
+    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "A notification was sent to your device"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "버전 $VERSION_NUMBER$",
@@ -1410,11 +1455,21 @@
   "rememberMe": {
     "message": "기억하기"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "인증 코드 이메일 다시 보내기"
   },
   "useAnotherTwoStepMethod": {
     "message": "다른 2단계 로그인 방법 사용"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "YubiKey를 컴퓨터의 USB 포트에 삽입하고 버튼을 누르세요."
@@ -1433,6 +1488,9 @@
   },
   "twoStepOptions": {
     "message": "2단계 인증 옵션"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "recoveryCodeDesc": {
     "message": "모든 2단계 인증을 사용할 수 없는 상황인가요? 복구 코드를 사용하여 계정의 모든 2단계 인증을 비활성화할 수 있습니다."
@@ -1475,6 +1533,9 @@
   },
   "webAuthnMigrated": {
     "message": "(FIDO에서 이전됨)"
+  },
+  "openInNewTab": {
+    "message": "Open in new tab"
   },
   "emailTitle": {
     "message": "이메일"
@@ -1663,9 +1724,6 @@
   "avoidAmbiguous": {
     "message": "Avoid ambiguous characters",
     "description": "Label for the avoid ambiguous characters checkbox."
-  },
-  "regeneratePassword": {
-    "message": "비밀번호 재생성"
   },
   "length": {
     "message": "길이"
@@ -2132,6 +2190,9 @@
   "twoStepLoginRecoveryWarning": {
     "message": "2단계 로그인을 활성화하면 Bitwarden 계정을 영원히 잠글 수 있습니다. 복구 코드를 사용하면 정상적인 2단계 로그인 제공자를 더 이상 사용할 수 없는 경우(예. 장치를 잃어버렸을 때) 계정에 액세스할 수 있습니다. 계정에 접근하지 못한다면 Bitwarden 지원팀은 어떤 도움도 줄 수 없습니다. 복구 코드를 기록하거나 출력하여 안전한 장소에 보관할 것을 권장합니다."
   },
+  "yourSingleUseRecoveryCode": {
+    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+  },
   "viewRecoveryCode": {
     "message": "복구 코드"
   },
@@ -2170,8 +2231,20 @@
   "manage": {
     "message": "관리"
   },
-  "canManage": {
-    "message": "Can manage"
+  "manageCollection": {
+    "message": "Manage collection"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   },
   "disable": {
     "message": "비활성화"
@@ -2368,11 +2441,8 @@
   "twoFactorU2fProblemReadingTryAgain": {
     "message": "보안 키를 읽어오는데 문제가 발생했습니다. 다시 시도해보십시오."
   },
-  "twoFactorWebAuthnWarning": {
-    "message": "플랫폼 제한으로 인해, 모든 Bitwarden 애플리케이션에서 WebAuthn을 사용할 수 없습니다. WebAuthn을 사용할 수 없을 때 계정에 접근할 수 있도록 다른 2단계 로그인 방법을 활성화하십시오. 지원하는 플랫폼:"
-  },
-  "twoFactorWebAuthnSupportWeb": {
-    "message": "WebAuthn 지원 브라우저가 있는 데스크탑/랩탑의 웹 보관함 및 브라우저 확장 (WebAuthn이 활성화된 Chrome, Opera, Vivaldi 또는 Firefox 사용)"
+  "twoFactorWebAuthnWarning1": {
+    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwarden 2단계 로그인 복구 코드"
@@ -4039,6 +4109,12 @@
   "updateBrowserDesc": {
     "message": "지원하지 않는 웹 브라우저를 사용하고 있습니다. 웹 보관함 기능이 제대로 동작하지 않을 수 있습니다."
   },
+  "youHaveAPendingLoginRequest": {
+    "message": "You have a pending login request from another device."
+  },
+  "reviewLoginRequest": {
+    "message": "Review login request"
+  },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {
@@ -4132,6 +4208,9 @@
   },
   "recoverAccountTwoStepDesc": {
     "message": "일반적인 2단계 로그인 방법을 통해 계정에 액세스할 수 없는 경우, 2단계 로그인 복구 코드를 사용하여 계정의 모든 2단계 제공자를 비활성화할 수 있습니다."
+  },
+  "logInBelowUsingYourSingleUseRecoveryCode": {
+    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
   },
   "recoverAccountTwoStep": {
     "message": "계정 2단계 로그인 복구하기"
@@ -4424,6 +4503,24 @@
   "encryptionKeyUpdateCannotProceed": {
     "message": "Encryption key update cannot proceed"
   },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "keyUpdateFoldersFailed": {
     "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
   },
@@ -4695,6 +4792,15 @@
   "masterPassPolicyDesc": {
     "message": "마스터 비밀번호 강도에 대한 최소 요구 사항을 설정해주세요."
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "twoStepLoginPolicyTitle": {
     "message": "Require two-step login"
   },
@@ -4709,9 +4815,6 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "비밀번호 생성기 설정에 최소 요구 사항을 설정해주세요."
-  },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "하나 이상의 단체 정책이 생성기 설정에 영항을 미치고 있습니다."
   },
   "masterPasswordPolicyInEffect": {
     "message": "하나 이상의 단체 정책이 마스터 비밀번호가 다음 사항을 따르도록 요구합니다:"
@@ -5592,6 +5695,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAuthn 인증"
+  },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "webAuthnNotSupported": {
     "message": "이 브라우저에서는 WebAuthn이 지원되지 않습니다."
@@ -6681,15 +6790,6 @@
     "message": "Generator",
     "description": "Short for 'credential generator'."
   },
-  "whatWouldYouLikeToGenerate": {
-    "message": "What would you like to generate?"
-  },
-  "passwordType": {
-    "message": "Password type"
-  },
-  "regenerateUsername": {
-    "message": "Regenerate username"
-  },
   "generateUsername": {
     "message": "Generate username"
   },
@@ -6729,9 +6829,6 @@
         "example": "6"
       }
     }
-  },
-  "usernameType": {
-    "message": "Username type"
   },
   "plusAddressedEmail": {
     "message": "Plus addressed email",
@@ -6898,6 +6995,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Unable to obtain $SERVICENAME$ masked email account ID.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -6951,9 +7072,6 @@
   "hostname": {
     "message": "Hostname",
     "description": "Part of a URL."
-  },
-  "apiAccessToken": {
-    "message": "API access token"
   },
   "deviceVerification": {
     "message": "Device verification"
@@ -7129,6 +7247,12 @@
   },
   "duoRequiredByOrgForAccount": {
     "message": "Duo two-step login is required for your account."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
   },
   "launchDuo": {
     "message": "Launch Duo"
@@ -7665,18 +7789,6 @@
   },
   "noCollection": {
     "message": "No collection"
-  },
-  "canView": {
-    "message": "Can view"
-  },
-  "canViewExceptPass": {
-    "message": "Can view, except passwords"
-  },
-  "canEdit": {
-    "message": "Can edit"
-  },
-  "canEditExceptPass": {
-    "message": "Can edit, except passwords"
   },
   "noCollectionsAdded": {
     "message": "No collections added"
@@ -8677,9 +8789,6 @@
     "message": "Self-host server URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
-  "aliasDomain": {
-    "message": "Alias domain"
-  },
   "alreadyHaveAccount": {
     "message": "Already have an account?"
   },
@@ -8741,11 +8850,11 @@
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
   },
-  "grantAddAccessCollectionWarningTitle": {
-    "message": "Missing Can Manage Permissions"
+  "grantManageCollectionWarningTitle": {
+    "message": "Missing Manage Collection Permissions"
   },
-  "grantAddAccessCollectionWarning": {
-    "message": "Grant Can manage permissions to allow full collection management including deletion of collection."
+  "grantManageCollectionWarning": {
+    "message": "Grant Manage collection permissions to allow full collection management including deletion of collection."
   },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
@@ -9239,6 +9348,12 @@
   },
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
+  },
+  "desktopRequired": {
+    "message": "Desktop required"
+  },
+  "reopenLinkOnDesktop": {
+    "message": "Reopen this link from your email on a desktop."
   },
   "integrationCardTooltip": {
     "message": "Launch $INTEGRATION$ implementation guide.",
@@ -10091,6 +10206,15 @@
   "descriptorCode": {
     "message": "Descriptor code"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "importantNotice": {
     "message": "Important notice"
   },
@@ -10224,6 +10348,38 @@
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
   },
+  "openingExtension": {
+    "message": "Opening the Bitwarden browser extension"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong..."
+  },
+  "openingExtensionError": {
+    "message": "We had trouble opening the Bitwarden browser extension. Click the button to open it now."
+  },
+  "openExtension": {
+    "message": "Open extension"
+  },
+  "doNotHaveExtension": {
+    "message": "Don't have the Bitwarden browser extension?"
+  },
+  "installExtension": {
+    "message": "Install extension"
+  },
+  "openedExtension": {
+    "message": "Opened the browser extension"
+  },
+  "openedExtensionViewAtRiskPasswords": {
+    "message": "Successfully opened the Bitwarden browser extension. You can now review your at-risk passwords."
+  },
+  "openExtensionManuallyPart1": {
+    "message": "We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
+  "openExtensionManuallyPart2": {
+    "message": "from the toolbar.",
+    "description": "This will be used as part of a larger sentence, broken up to include the Bitwarden icon. The full sentence will read 'We had trouble opening the Bitwarden browser extension. Open the Bitwarden icon [Bitwarden Icon] from the toolbar.'"
+  },
   "resellerRenewalWarningMsg": {
     "message": "Your subscription will renew soon. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $RENEWAL_DATE$.",
     "placeholders": {
@@ -10281,5 +10437,78 @@
         "example": "Acme c"
       }
     }
+  },
+  "accountDeprovisioningNotification": {
+    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
+  },
+  "deleteManagedUserWarningDesc": {
+    "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
+  },
+  "deleteManagedUserWarning": {
+    "message": "Delete is a new action!"
+  },
+  "seatsRemaining": {
+    "message": "You have $REMAINING$ seats remaining out of $TOTAL$ seats assigned to this organization. Contact your provider to manage your subscription.",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "5"
+      },
+      "total": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "existingOrganization": {
+    "message": "Existing organization"
+  },
+  "selectOrganizationProviderPortal": {
+    "message": "Select an organization to add to your Provider Portal."
+  },
+  "noOrganizations": {
+    "message": "There are no organizations to list"
+  },
+  "yourProviderSubscriptionCredit": {
+    "message": "Your provider subscription will receive a credit for any remaining time in the organization's subscription."
+  },
+  "doYouWantToAddThisOrg": {
+    "message": "Do you want to add this organization to $PROVIDER$?",
+    "placeholders": {
+      "provider": {
+        "content": "$1",
+        "example": "Cool MSP"
+      }
+    }
+  },
+  "addedExistingOrganization": {
+    "message": "Added existing organization"
+  },
+  "assignedExceedsAvailable": {
+    "message": "Assigned seats exceed available seats."
+  },
+  "removeUnlockWithPinPolicyTitle": {
+    "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyDesc": {
+    "message": "Do not allow members to unlock their account with a PIN."
+  },
+  "limitedEventLogs": {
+    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
+    "placeholders": {
+      "product_type": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "upgradeForFullEvents": {
+    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
+  },
+  "upgradeEventLogTitle": {
+    "message": "Upgrade for real event log data"
+  },
+  "upgradeEventLogMessage": {
+    "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
   }
 }

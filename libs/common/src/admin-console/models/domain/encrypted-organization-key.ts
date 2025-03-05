@@ -58,6 +58,9 @@ export class ProviderEncryptedOrganizationKey implements BaseEncryptedOrganizati
       new EncString(this.key),
       providerKeys[this.providerId],
     );
+    if (decValue == null) {
+      throw new Error("Failed to decrypt organization key");
+    }
     return new SymmetricCryptoKey(decValue) as OrgKey;
   }
 

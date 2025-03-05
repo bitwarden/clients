@@ -2,10 +2,8 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { KeyService } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";

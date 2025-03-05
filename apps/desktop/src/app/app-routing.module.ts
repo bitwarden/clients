@@ -15,8 +15,6 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { twofactorRefactorSwap } from "@bitwarden/angular/utils/two-factor-component-refactor-route-swap";
 import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
@@ -39,10 +37,11 @@ import {
   DevicesIcon,
   SsoComponent,
   TwoFactorTimeoutIcon,
+  TwoFactorAuthComponent,
+  TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management-ui";
 import {
   NewDeviceVerificationNoticePageOneComponent,
@@ -56,12 +55,10 @@ import { HintComponent } from "../auth/hint.component";
 import { LoginDecryptionOptionsComponentV1 } from "../auth/login/login-decryption-options/login-decryption-options-v1.component";
 import { LoginComponentV1 } from "../auth/login/login-v1.component";
 import { LoginViaAuthRequestComponentV1 } from "../auth/login/login-via-auth-request-v1.component";
-import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponentV1 } from "../auth/sso-v1.component";
-import { TwoFactorAuthComponent } from "../auth/two-factor-auth.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
+import { TwoFactorComponentV1 } from "../auth/two-factor-v1.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 
@@ -83,22 +80,26 @@ const routes: Routes = [
     children: [], // Children lets us have an empty component.
     canActivate: [redirectGuard({ loggedIn: "/vault", loggedOut: "/login", locked: "/lock" })],
   },
-  ...twofactorRefactorSwap(
-    TwoFactorComponent,
+  ...unauthUiRefreshSwap(
+    TwoFactorComponentV1,
     AnonLayoutWrapperComponent,
     {
       path: "2fa",
     },
     {
       path: "2fa",
-      component: AnonLayoutWrapperComponent,
+      canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
       children: [
         {
           path: "",
           component: TwoFactorAuthComponent,
-          canActivate: [unauthGuardFn()],
         },
       ],
+      data: {
+        pageTitle: {
+          key: "verifyYourIdentity",
+        },
+      } satisfies RouteDataProperties & AnonLayoutWrapperData,
     },
   ),
   {
@@ -120,23 +121,18 @@ const routes: Routes = [
   {
     path: "device-verification",
     component: AnonLayoutWrapperComponent,
-    canActivate: [
-      canAccessFeature(FeatureFlag.NewDeviceVerification),
-      unauthGuardFn(),
-      activeAuthGuard(),
-    ],
+    canActivate: [unauthGuardFn(), activeAuthGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
     data: {
       pageIcon: DeviceVerificationIcon,
       pageTitle: {
-        key: "verifyIdentity",
+        key: "verifyYourIdentity",
       },
       pageSubtitle: {
         key: "weDontRecognizeThisDevice",
       },
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
   },
-  { path: "register", component: RegisterComponent },
   {
     path: "new-device-notice",
     component: AnonLayoutWrapperComponent,

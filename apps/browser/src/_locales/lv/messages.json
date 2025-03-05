@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Galvenās paroles norāde (nav nepieciešama)"
   },
+  "passwordStrengthScore": {
+    "message": "Paroles stipruma novērtējums $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Pievienoties apvienībai"
   },
@@ -175,6 +184,10 @@
   },
   "copyNotes": {
     "message": "Ievietot piezīmes starpliktuvē"
+  },
+  "copy": {
+    "message": "Ievietot starpliktuvē",
+    "description": "Copy to clipboard"
   },
   "fill": {
     "message": "Aizpildīt",
@@ -872,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Pieteikties Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Jāievada e-pastā nosūtītais kods"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Jāievada kods no savas autentificētājlietotnes"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Jāpiespiež sava YubiKey ierīce, lai autentificētu"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Ir nepieciešama Duo divpakāpju pieteikšanās, lai pieteiktos savā kontā. Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Jāseko zemāk esošajām norādēm, lai pabeigtu pieteikšanos."
+  },
   "restartRegistration": {
     "message": "Sākt reģistrēšanos no jauna"
   },
@@ -1024,6 +1052,9 @@
   },
   "clickToAutofillOnVault": {
     "message": "Glabātavas skatā jāklikšķina uz vienumiem, lai automātiski aizpildītu"
+  },
+  "clickToAutofill": {
+    "message": "Klikšķināt uz vienumiem automātiskās aizpildes ieteikumos, lai aizpildītu"
   },
   "clearClipboard": {
     "message": "Notīrīt starpliktuvi",
@@ -1358,11 +1389,21 @@
   "rememberMe": {
     "message": "Atcerēties mani"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Šajā ierīcē 30 dienas vairs nevaicāt"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Sūtīt apstiprinājuma koda e-pastu vēlreiz"
   },
   "useAnotherTwoStepMethod": {
     "message": "Izmantot citu divpakāpju pieteikšanās veidu"
+  },
+  "selectAnotherMethod": {
+    "message": "Atlasīt citu veidu",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Izmantot savu atkopes kodu"
   },
   "insertYubiKey": {
     "message": "Ievieto savu YubiKey datora USB ligzdā un pieskaries tā pogai!"
@@ -1376,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Atvērt jaunu cilni"
   },
+  "openInNewTab": {
+    "message": "Atvērt jaunā cilnē"
+  },
   "webAuthnAuthenticate": {
     "message": "Autentificēt WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Nolasīt drošības atslēgu"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Gaida mijiedarbību ar drošības atslēgu..."
   },
   "loginUnavailable": {
     "message": "Pieteikšanās nav pieejama"
@@ -1390,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Divpakāpju pieteikšanās iespējas"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Atlasīt divpakāpju pieteikšanās veidu"
   },
   "recoveryCodeDesc": {
     "message": "Zaudēta piekļuve visiem divpakāpju nodrošinātājiem? Izmanto atkopšanas kodus, lai atspējotu visus sava konta divpakāpju nodrošinātājus!"
@@ -1913,7 +1966,7 @@
     "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
-    "message": "Noklusētā atbilstības noteikšana",
+    "message": "Noklusējuma atbilstības noteikšana",
     "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
@@ -2062,7 +2115,7 @@
     "message": "Lietotājvārdu veidotājs"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Izmantot šo e-pasta adresi"
   },
   "useThisPassword": {
     "message": "Izmantot šo paroli"
@@ -2081,11 +2134,23 @@
     "message": ", lai izveidotu spēcīgu un vienreizēju paroli",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
+  "vaultCustomization": {
+    "message": "Glabātavas pielāgošana"
+  },
   "vaultTimeoutAction": {
     "message": "Glabātavas noildzes darbība"
   },
   "vaultTimeoutAction1": {
     "message": "Noildzes darbība"
+  },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Jaunas pielāgošanas iespējas"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Savu glabātavas pieredzi var pielāgot ar ātrām kopēšanas darbībām, ciešo izkārtojumu un vēl."
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Apskatīt visus izskata iestatījumus"
   },
   "lock": {
     "message": "Slēgt",
@@ -2345,6 +2410,9 @@
   "blockedDomains": {
     "message": "Liegtie domēna vārdi"
   },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Uzzināt vairāk par liegtajiem domēna vārdiem"
+  },
   "excludedDomains": {
     "message": "Izņēmuma domēni"
   },
@@ -2362,6 +2430,109 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "To var mainīt iestatījumos"
+  },
+  "change": {
+    "message": "Mainīt"
+  },
+  "changeButtonTitle": {
+    "message": "Mainīt paroli - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPasswords": {
+    "message": "Riskam pakļautās paroles"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ pieprasa mainīt vienu paroli, jo tā ir pakļauta riskam.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ pieprasa mainīt $COUNT$ paroles, jo tās ir pakļautas riskam.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Apvienības pieprasa mainīt $COUNT$ paroles, jo tās ir pakļautas riskam.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Pārskatīt un mainīt vienu riskam pakļautu paroli"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Pārskatīt un mainīt $COUNT$ riskam pakļautās paroles",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Mainīt riskam pakļautās paroles ātrāk"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Jāatjaunina savi iestatījumi, lai varētu veikli aizpildīt paroles automātiski un izveidot jaunas"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Pārskatīt riskam pakļautos pieteikšanās vienumus"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Pārskatīt riskam pakļautās paroles"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Apvienības paroles ir pakļautas riskam, jo tās ir vājas, atkārtoti izmantotas un/vai noplūdušas.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "Riskam pakļauto pieteikšanās vienumu saraksta attēlojums"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Riskam pakļauto vienumu vietnē ar automātiskās aizpildes izvēlni var ātri izveidot stipru, neatkārtojamu paroli.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "Bitwarden automātiskās izvēlnes attēlojums, kurā ir redzama izveidota parole"
+  },
+  "updateInBitwarden": {
+    "message": "Atjaunināt Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden tad vaicās atjaunināt paroli paroļu pārvaldniekā.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Bitwarden paziņojuma, kas aicina lietotāju atjaunināt pieteikšanās vienumu, attēlojums"
+  },
+  "turnOnAutofill": {
+    "message": "Ieslēgt automātisko aizpildi"
+  },
+  "turnedOnAutofill": {
+    "message": "Automātiskā aizpilde ieslēgta"
+  },
+  "dismiss": {
+    "message": "Noraidīt"
   },
   "websiteItemLabel": {
     "message": "Tīmekļvietne $number$ (URI)",
@@ -2967,6 +3138,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ atteica pieprasījumu. Lūgums sazināties ar savu pakalpojma nodrošinātāju, lai iegūtu palīdzību.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ atteica pieprasījumu: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Neizdevās iegūt $SERVICENAME$ aizsegta e-pasta konta Id.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3123,11 +3318,17 @@
   "notificationSentDevice": {
     "message": "Uz ierīci ir nosūtīts paziņojums."
   },
+  "notificationSentDevicePart1": {
+    "message": "Bitwarden jāatslēdz savā ierīcē vai"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "tīmekļa lietotnē"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Pirms apstiprināšanas jāpārliecinās, ka pirkstu nospieduma vārdkopa atbilst zemāk esošajai."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Uz ierīci tika nosūtīts paziņojums"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Lūgums pārliecināties, ka konts ir atslēgts un atpazīšanas vārdkopa ir tāda pati arī otrā ierīcē"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Tiks paziņots, tiklīdz pieprasījums būs apstiprināts"
@@ -3137,6 +3338,9 @@
   },
   "loginInitiated": {
     "message": "Uzsākta pieteikšanās"
+  },
+  "logInRequestSent": {
+    "message": "Pieprasījums nosūtīts"
   },
   "exposedMasterPassword": {
     "message": "Noplūdusi galvenā parole"
@@ -4071,6 +4275,20 @@
       }
     }
   },
+  "copyFieldValue": {
+    "message": "Ievietot starpliktuvē $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
+      }
+    }
+  },
   "noValuesToCopy": {
     "message": "Nav vērtību, ko ievietot starpliktuvē"
   },
@@ -4145,15 +4363,6 @@
   },
   "itemName": {
     "message": "Vienuma nosaukums"
-  },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
   },
   "organizationIsDeactivated": {
     "message": "Apvienība ir atspējota"
@@ -4886,6 +5095,15 @@
   },
   "extraWide": {
     "message": "Ļoti plats"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Lūgums atjaunināt darbvirsmas lietotni"
