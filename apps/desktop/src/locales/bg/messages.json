@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Впишете се в Битуорден"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Въведете кода изпратен на е-пощата Ви"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Въведете кода от Вашето приложение за удостоверяване"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Натиснете бутона на своя YubiKey за удостоверяване"
+  },
   "logInWithPasskey": {
     "message": "Вписване със секретен ключ"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Подсказка за главната парола"
+  },
+  "passwordStrengthScore": {
+    "message": "Оценка на сложността на паролата: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Присъединяване към организацията"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Удостоверяването беше отменено или отне твърде много време. Моля, опитайте отново."
   },
+  "openInNewTab": {
+    "message": "Отваряне в нов раздел"
+  },
   "invalidVerificationCode": {
     "message": "Грешен код за потвърждаване"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Запомняне"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не ме питайте отново на това устройство за 30 дни"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Повторно изпращане на писмото за потвърждение"
   },
   "useAnotherTwoStepMethod": {
     "message": "Използвайте друг начин на двустепенно удостоверяване"
+  },
+  "selectAnotherMethod": {
+    "message": "Изберете друг метод",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Използване на код за възстановяване"
   },
   "insertYubiKey": {
     "message": "Поставете устройството на YubiKey в USB порт на компютъра и натиснете бутона на устройството."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки на двустепенното удостоверяване"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Изберете начин за двустепенно удостоверяване"
   },
   "selfHostedEnvironment": {
     "message": "Собствена среда"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "Идентификация WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Прочитане на ключа за сигурност"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Изчакване на действие с ключ за сигурност…"
+  },
   "hideEmail": {
     "message": "Скриване на е-пощата ми от получателите."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Вашата регистрация изисква двустепенно удостоверяване чрез Duo."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Вашият акаунт изисква вписване чрез двустепенно удостоверяване с Duo. Следвайте стъпките по-долу, за да завършите вписването."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването."
+  },
   "launchDuo": {
     "message": "Стартирайте Duo в браузъра"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Потвърждаване на употребата на SSH ключа"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Внимание: Пренасочване на агента"
+  },
+  "agentForwardingWarningText": {
+    "message": "Тази заявка идва от отдалечено устройство, в което сте вписан(а)"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "иска достъп до"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "за да"
+  },
+  "sshActionLogin": {
+    "message": "се удостоверите в сървър"
+  },
+  "sshActionSign": {
+    "message": "подпишете съобщение"
+  },
+  "sshActionGitSign": {
+    "message": "подпишете подаване в git"
   },
   "unknownApplication": {
     "message": "Приложение"

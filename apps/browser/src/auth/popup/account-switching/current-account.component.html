@@ -5,8 +5,7 @@
     class="tw-rounded-full hover:tw-outline hover:tw-outline-1 hover:tw-outline-offset-1"
     (click)="currentAccountClicked()"
   >
-    <span class="tw-sr-only">{{ "switchAccounts" | i18n }}:</span>
-    <span class="tw-sr-only"> {{ "activeAccount" | i18n }} {{ currentAccount.email }}</span>
+    <span class="tw-sr-only"> {{ "bitwardenAccount" | i18n }} {{ currentAccount.email }}</span>
     <bit-avatar
       [id]="currentAccount.id"
       [text]="currentAccount.name"

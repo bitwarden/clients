@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "登录到 Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "输入发送到您的电子邮箱的代码"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "输入来自您的验证器 App 的代码"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "按下 YubiKey 以验证身份"
+  },
   "logInWithPasskey": {
     "message": "使用通行密钥登录"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "主密码提示"
+  },
+  "passwordStrengthScore": {
+    "message": "密码强度评分 $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "加入组织"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "身份验证被取消或耗时过长。请重试。"
   },
+  "openInNewTab": {
+    "message": "在新标签页中打开"
+  },
   "invalidVerificationCode": {
     "message": "无效的验证码"
   },
@@ -846,17 +867,27 @@
   "rememberMe": {
     "message": "记住我"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "30 天内在此设备上不再询问"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "再次发送验证码电子邮件"
   },
   "useAnotherTwoStepMethod": {
     "message": "使用其他两步登录方式"
   },
+  "selectAnotherMethod": {
+    "message": "选择其他方式",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "使用您的恢复代码"
+  },
   "insertYubiKey": {
     "message": "将您的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "insertU2f": {
-    "message": "将您的安全钥匙插入计算机的 USB 端口。如果它有按钮，请触摸它。"
+    "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
   },
   "recoveryCodeDesc": {
     "message": "无法访问您所有的双重身份提供程序吗？请使用您的恢复代码来关闭您账户中所有的双重身份提供程序。"
@@ -872,7 +903,7 @@
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP 安全钥匙"
+    "message": "Yubico OTP 安全密钥"
   },
   "yubiKeyDesc": {
     "message": "使用 YubiKey 来访问您的账户。支持 YubiKey 4、4 Nano、4C 以及 NEO 设备。"
@@ -882,7 +913,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全钥匙来进行验证。",
+    "message": "为您的组织使用 Duo Security 的 Duo 移动 App、短信、电话或 U2F 安全密钥来进行验证。",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyIdentity": {
@@ -898,7 +929,7 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "使用任何 WebAuthn 兼容的安全钥匙访问您的帐户。"
+    "message": "使用任何 WebAuthn 兼容的安全密钥访问您的帐户。"
   },
   "emailTitle": {
     "message": "电子邮箱"
@@ -913,10 +944,13 @@
     "message": "此账户已设置两步登录，但此设备不支持任何已配置的两步登录提供程序。"
   },
   "noTwoStepProviders2": {
-    "message": "请添加能更好支持跨设备使用的其他提供程序（例如验证器 App）。"
+    "message": "请添加其他跨设备支持更好的提供程序（例如验证器 App）。"
   },
   "twoStepOptions": {
     "message": "两步登录选项"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "选择两步登录方式"
   },
   "selfHostedEnvironment": {
     "message": "自托管环境"
@@ -1127,7 +1161,7 @@
     "message": "无效的主密码"
   },
   "twoStepLoginConfirmation": {
-    "message": "两步登录要求您从其他设备（例如安全钥匙、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
+    "message": "两步登录要求您从其他设备（例如安全密钥、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
   },
   "twoStepLogin": {
     "message": "两步登录"
@@ -1542,7 +1576,7 @@
     "message": "没有在已知的数据泄露中发现此密码，它暂时比较安全。"
   },
   "baseDomain": {
-    "message": "基础域",
+    "message": "基础域名",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1721,7 +1755,7 @@
     "message": "脆弱的主密码"
   },
   "weakMasterPasswordDesc": {
-    "message": "您选择的主密码较弱。您应该使用强密码（或密码短语）来正确保护您的 Bitwarden 账户。仍要使用此主密码吗？"
+    "message": "您选择的主密码较弱。您应该使用强密码（或密码短语）来正确保护您的 Bitwarden 账户。确定要使用这个主密码吗？"
   },
   "pin": {
     "message": "PIN 码",
@@ -2158,7 +2192,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSend": {
-    "message": "Send 已创建",
+    "message": "Send 已添加",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -2177,7 +2211,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
-    "message": "创建 Send",
+    "message": "新增 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "验证 WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "读取安全密钥"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "等待安全密钥交互……"
+  },
   "hideEmail": {
     "message": "对接收者隐藏我的电子邮箱地址。"
   },
@@ -2287,7 +2327,7 @@
     "message": "您的组织禁用了信任设备加密。要访问您的密码库，请设置一个主密码。"
   },
   "tryAgain": {
-    "message": "请重试"
+    "message": "重试"
   },
   "verificationRequiredForActionSetPinToContinue": {
     "message": "此操作需要验证。设置一个 PIN 码以继续。"
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "您的账户要求使用 Duo 两步登录。"
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "您的账户要求使用 Duo 两步登录。请按照以下步骤完成登录。"
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "按照以下步骤完成登录。"
+  },
   "launchDuo": {
     "message": "在浏览器中启动 Duo"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "确认 SSH 密钥的使用"
   },
+  "agentForwardingWarningTitle": {
+    "message": "警告：代理转发"
+  },
+  "agentForwardingWarningText": {
+    "message": "此请求来自您登录的某台远程设备"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "正在请求访问"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "为了"
+  },
+  "sshActionLogin": {
+    "message": "向服务器验证身份"
+  },
+  "sshActionSign": {
+    "message": "签署一条消息"
+  },
+  "sshActionGitSign": {
+    "message": "签名一个 Git 提交"
   },
   "unknownApplication": {
     "message": "某个应用程序"
