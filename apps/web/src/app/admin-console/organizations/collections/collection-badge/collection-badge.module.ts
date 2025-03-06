@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 
-import { SharedModule } from "../../../shared/shared.module";
-import { PipesModule } from "../../individual-vault/pipes/pipes.module";
+import { SharedModule } from "../../../../shared/shared.module";
+import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
 
 import { CollectionNameBadgeComponent } from "./collection-name.badge.component";
 

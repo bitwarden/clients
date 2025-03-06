@@ -11,11 +11,7 @@
       </ng-container>
     </small>
   </ng-container>
-
-  <button type="button" bitButton buttonType="primary" (click)="addSend()" [disabled]="disableSend">
-    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-    {{ "createSend" | i18n }}
-  </button>
+  <tools-new-send-dropdown *ngIf="!disableSend"></tools-new-send-dropdown>
 </app-header>
 
 <bit-callout type="warning" title="{{ 'sendDisabled' | i18n }}" *ngIf="disableSend">
@@ -198,10 +194,11 @@
         <bit-no-items [icon]="noItemIcon" class="tw-text-main">
           <ng-container slot="title">{{ "sendsNoItemsTitle" | i18n }}</ng-container>
           <ng-container slot="description">{{ "sendsNoItemsMessage" | i18n }}</ng-container>
-          <button slot="button" type="button" bitButton buttonType="secondary" (click)="addSend()">
-            <i class="bwi bwi-plus" aria-hidden="true"></i>
-            {{ "createSend" | i18n }}
-          </button>
+          <tools-new-send-dropdown
+            [hideIcon]="true"
+            *ngIf="!disableSend"
+            slot="button"
+          ></tools-new-send-dropdown>
         </bit-no-items>
       </ng-container>
     </div>

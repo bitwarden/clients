@@ -27,6 +27,7 @@ import {
 } from "@bitwarden/common/key-management/vault-timeout";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -93,6 +94,7 @@ export abstract class LoginStrategy {
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected KdfConfigService: KdfConfigService,
+    protected environmentService: EnvironmentService,
   ) {}
 
   abstract exportCache(): CacheData;
@@ -195,6 +197,10 @@ export abstract class LoginStrategy {
       email: accountInformation.email ?? "",
       emailVerified: accountInformation.email_verified ?? false,
     });
+
+    // User env must be seeded from currently set env before switching to the account
+    // to avoid any incorrect emissions of the global default env.
+    await this.environmentService.seedUserEnvironment(userId);
 
     await this.accountService.switchAccount(userId);
 

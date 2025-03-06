@@ -34,9 +34,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { ApproveSshRequestComponent } from "../components/approve-ssh-request";
-
-import { DesktopSettingsService } from "./desktop-settings.service";
+import { ApproveSshRequestComponent } from "../../platform/components/approve-ssh-request";
+import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
 @Injectable({
   providedIn: "root",
@@ -130,7 +129,7 @@ export class SshAgentService implements OnDestroy {
 
                 throw error;
               }),
-              map(() => message),
+              map(() => [message, account.id]),
             );
           }
 
