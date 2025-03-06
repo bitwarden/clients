@@ -6,17 +6,35 @@ export enum ValidationGoal {
 }
 
 /**
- * Checks whether two form controls do or do not have the same input value (except for empty string values).
+ * A cross-field validator that evaluates whether two form controls do or do
+ * not have the same input value (except for empty string values). This validator
+ * gets added to the entire FormGroup, not to an individual FormControl, like so:
  *
+ * > ```
+ * > formGroup = new FormGroup({
+ * >   password: new FormControl(),
+ * >   confirmPassword: new FormControl(),
+ * > },
+ * > {
+ * >   validators: compareInputs(...),
+ * > });
+ * > ```
+ *
+ * Notes:
  * - Validation is controlled from either form control.
  * - The error message is displayed under controlB by default, but can be set to controlA.
+ * - For more info on custom validators and cross-field validation:
+ *   - https://v18.angular.dev/guide/forms/form-validation#defining-custom-validators
+ *   - https://v18.angular.dev/guide/forms/form-validation#cross-field-validation
  *
- * @param validationGoal Whether you want to verify that the form control input values match or do not match
+ * @param validationGoal Whether you want to verify that the form controls do or do not have matching input values.
  * @param controlNameA The name of the first form control to compare.
  * @param controlNameB The name of the second form control to compare.
  * @param errorMessage The error message to display if there is an error. This will probably
  *                     be an i18n translated string.
  * @param showErrorOn The control under which you want to display the error (default is controlB).
+ *
+ * @returns A validator function that can be used in a form group.
  */
 export function compareInputs(
   validationGoal: ValidationGoal,
@@ -25,9 +43,20 @@ export function compareInputs(
   errorMessage: string,
   showErrorOn: "controlA" | "controlB" = "controlB",
 ): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const controlA = control.get(controlNameA);
-    const controlB = control.get(controlNameB);
+  /**
+   * Documentation for the inner ValidatorFn that gets returned:
+   *
+   * @param formGroup The AbstractControl that we want to perform validation on. In this case we
+   *                  perform validation on the FormGroup, which is a subclass of AbstractControl.
+   *                  The reason we validate at the FormGroup level and not at the FormControl level
+   *                  is because we want to compare two child FormControls in a single validator, so
+   *                  we use the FormControl as the common ancestor.
+   *
+   * @returns A ValidationErrors object if the validation fails, or null if the validation passes.
+   */
+  return (formGroup: AbstractControl): ValidationErrors | null => {
+    const controlA = formGroup.get(controlNameA);
+    const controlB = formGroup.get(controlNameB);
 
     if (!controlA || !controlB) {
       return null;
