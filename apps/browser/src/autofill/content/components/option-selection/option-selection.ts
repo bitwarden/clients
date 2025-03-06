@@ -5,21 +5,14 @@ import { property, state } from "lit/decorators.js";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { OptionSelectionButton } from "../buttons/option-selection-button";
+import { Option } from "../common-types";
 
 import { OptionItems } from "./option-items";
-
 export const optionSelectionTagName = "option-selection";
 
 const { css } = createEmotion({
   key: optionSelectionTagName,
 });
-
-export type Option = {
-  icon?: TemplateResult;
-  activeIcon?: TemplateResult;
-  text: string;
-  value: any;
-};
 
 export class OptionSelection extends LitElement {
   @property({ type: (selectedOption: Option["value"] | null) => selectedOption })

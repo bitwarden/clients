@@ -2,10 +2,9 @@ import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
+import { Option } from "../common-types";
 import { themes } from "../constants/styles";
 import { Folder } from "../icons";
-
-import { Option } from "./option-selection";
 
 export function FolderSelection({
   options,

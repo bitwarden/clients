@@ -1,7 +1,7 @@
 import createEmotion from "@emotion/css/create-instance";
 import { html, nothing } from "lit";
 
-import { Option } from "./option-selection";
+import { Option } from "../common-types";
 
 export const optionItemTagName = "option-item";
 

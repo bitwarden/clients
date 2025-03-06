@@ -3,10 +3,10 @@ import { html } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { Option } from "../common-types";
 import { themes, typography, spacing } from "../constants/styles";
 
 import { OptionItem, optionItemTagName } from "./option-item";
-import { Option } from "./option-selection";
 
 export function OptionItems({
   theme,
