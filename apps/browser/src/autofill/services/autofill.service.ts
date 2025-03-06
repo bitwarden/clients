@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { filter, firstValueFrom, merge, Observable, ReplaySubject, scan, startWith } from "rxjs";
-import { pairwise } from "rxjs/operators";
+import {
+  filter,
+  firstValueFrom,
+  merge,
+  Observable,
+  of,
+  ReplaySubject,
+  scan,
+  startWith,
+} from "rxjs";
+import { catchError, pairwise, timeout } from "rxjs/operators";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -116,6 +125,11 @@ export default class AutofillService implements AutofillServiceInterface {
           ],
           [] as PageDetail[],
         ),
+        // In Safari, the content script may never respond, causing the loading state to hang.
+        // Wait up to 1 second for the COLLECT_PAGE_DETAILS_RESPONSE_COMMAND message; if it doesn't arrive,
+        // fallback by emitting an empty array so the loading state can resolve.
+        timeout(1000),
+        catchError(() => of([])),
       );
 
     void BrowserApi.tabSendMessage(

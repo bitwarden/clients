@@ -458,9 +458,10 @@ describe("VaultPopupItemsService", () => {
 
       await trackedCiphers.pauseUntilReceived(2);
 
-      expect(tracked.emissions.length).toBe(2);
+      expect(tracked.emissions.length).toBe(3);
       expect(tracked.emissions[0]).toBe(false);
       expect(tracked.emissions[1]).toBe(true);
+      expect(tracked.emissions[2]).toBe(false);
     });
   });
 
