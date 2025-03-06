@@ -82,7 +82,6 @@ export class OptionSelection extends LitElement {
       <div class=${optionSelectionStyles}>
         ${OptionSelectionButton({
           icon: this.selection?.activeIcon || this.icon,
-          isActiveSelection: !!this.selection,
           isDisabled: this.disabled,
           isOpen: this.showOptions,
           text: this.selection?.text || this.buttonText,

@@ -61,4 +61,5 @@ const optionItemTextStyles = css`
   max-width: 260px;
   overflow-x: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 `;
