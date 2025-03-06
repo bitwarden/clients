@@ -187,12 +187,18 @@ export class Main {
     );
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
     this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
-    this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.desktopSettingsService);
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
     this.messagingService = MessageSender.combine(
       new SubjectMessageSender(messageSubject), // For local messages
       new ElectronMainMessagingService(this.windowMain),
+    );
+
+    this.trayMain = new TrayMain(
+      this.windowMain,
+      this.i18nService,
+      this.desktopSettingsService,
+      this.messagingService,
     );
 
     messageSubject.asObservable().subscribe((message) => {
@@ -273,7 +279,7 @@ export class Main {
       async () => {
         await this.toggleHardwareAcceleration();
         // Reset modal mode to make sure main window is displayed correctly
-        await this.desktopSettingsService.resetInModalMode();
+        await this.desktopSettingsService.resetModalMode();
         await this.windowMain.init();
         await this.i18nService.init();
         await this.messagingMain.init();
