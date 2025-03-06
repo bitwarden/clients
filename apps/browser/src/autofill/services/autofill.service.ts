@@ -5,12 +5,12 @@ import {
   firstValueFrom,
   merge,
   Observable,
-  of,
   ReplaySubject,
   scan,
   startWith,
+  timer,
 } from "rxjs";
-import { catchError, pairwise, timeout } from "rxjs/operators";
+import { map, pairwise, share, takeUntil } from "rxjs/operators";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -125,11 +125,6 @@ export default class AutofillService implements AutofillServiceInterface {
           ],
           [] as PageDetail[],
         ),
-        // In Safari, the content script may never respond, causing the loading state to hang.
-        // Wait up to 1 second for the COLLECT_PAGE_DETAILS_RESPONSE_COMMAND message; if it doesn't arrive,
-        // fallback by emitting an empty array so the loading state can resolve.
-        timeout(1000),
-        catchError(() => of([])),
       );
 
     void BrowserApi.tabSendMessage(
@@ -160,7 +155,19 @@ export default class AutofillService implements AutofillServiceInterface {
       pageDetailsFallback$.next([]);
     }
 
-    return merge(pageDetailsFromTab$, pageDetailsFallback$);
+    // Share the pageDetailsFromTab$ observable so that multiple subscribers don't trigger multiple executions.
+    const sharedPageDetailsFromTab$ = pageDetailsFromTab$.pipe(share());
+
+    // Create a timeout observable that emits an empty array if pageDetailsFromTab$ hasn't emitted within 1 second.
+    const pageDetailsTimeout$ = timer(1000).pipe(
+      map(() => []),
+      takeUntil(sharedPageDetailsFromTab$),
+    );
+
+    // Merge the responses so that if pageDetailsFromTab$ emits, that value is used.
+    // Otherwise, if it doesn't emit in time, the timeout observable emits an empty array.
+    // Also, pageDetailsFallback$ will emit in error cases.
+    return merge(sharedPageDetailsFromTab$, pageDetailsFallback$, pageDetailsTimeout$);
   }
 
   /**
