@@ -21,8 +21,6 @@ export class DeviceTrustToastService implements DeviceTrustToastServiceAbstracti
   ) {
     this.adminLoginApproved$ = this.authRequestService.adminLoginApproved$.pipe(
       tap((loginApproved: boolean) => {
-        // console.log(loginApproved);
-
         if (loginApproved) {
           this.toastService.showToast({
             variant: "success",
