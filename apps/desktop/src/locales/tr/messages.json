@@ -652,6 +652,15 @@
   "logInToBitwarden": {
     "message": "Bitwarden'a giriş yapın"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "E-posta adresinize gönderilen kodu girin"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Kimlik doğrulama uygulamanızdaki kodu girin"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
   "logInWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
   },
@@ -703,6 +712,15 @@
   },
   "masterPassHintLabel": {
     "message": "Ana parola ipucu"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Kuruluşa katıl"
@@ -816,6 +834,9 @@
   "webauthnCancelOrTimeout": {
     "message": "Kimlik doğrulama iptal edildi ve çok uzun sürdü. Lütfen yeniden deneyin."
   },
+  "openInNewTab": {
+    "message": "Yeni sekmede aç"
+  },
   "invalidVerificationCode": {
     "message": "Geçersiz doğrulama kodu"
   },
@@ -846,11 +867,21 @@
   "rememberMe": {
     "message": "Beni hatırla"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Doğrulama kodunu yeniden e-postala"
   },
   "useAnotherTwoStepMethod": {
     "message": "Başka bir iki aşamalı giriş yöntemini kullan"
+  },
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertYubiKey": {
     "message": "YubiKey'i bilgisayarınızın USB portuna takın, ardından düğmesine dokunun."
@@ -917,6 +948,9 @@
   },
   "twoStepOptions": {
     "message": "İki aşamalı giriş seçenekleri"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
   },
   "selfHostedEnvironment": {
     "message": "Şirket içinde barındırılan ortam"
@@ -2247,6 +2281,12 @@
   "webAuthnAuthenticate": {
     "message": "WebAuthn ile doğrula"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "E-posta adresimi alıcılardan gizle."
   },
@@ -3206,6 +3246,12 @@
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız için Duo iki adımlı giriş gereklidir."
   },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
   "launchDuo": {
     "message": "Duo'yu tarayıcıda aç"
   },
@@ -3463,8 +3509,26 @@
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "is requesting access to"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
   },
   "unknownApplication": {
     "message": "An application"
