@@ -80,6 +80,15 @@
   "masterPassHint": {
     "message": "Mesterjelszó emlékeztető (nem kötelező)"
   },
+  "passwordStrengthScore": {
+    "message": "A jelszó erősségi pontszáma $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Csatlakozás szervezethez"
   },
@@ -876,6 +885,21 @@
   "logInToBitwarden": {
     "message": "Bejelentkezés a Bitwardenbe"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Adjuk meg az email címre elküldött kódot."
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Adjuk meg a hitelesítő alkalmazása által generált kódot."
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Nyomjuk meg a YubiKey-t a hitelesítéshez."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo kétlépcsős bejelentkezés szükséges a fiókhoz. Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
+  },
   "restartRegistration": {
     "message": "Restart registration"
   },
@@ -1365,11 +1389,21 @@
   "rememberMe": {
     "message": "Emlékezz rám"
   },
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Ne kérdezzen újra ezen az eszközön 30 napig"
+  },
   "sendVerificationCodeEmailAgain": {
     "message": "Megerősítő kód e-mail újra küldése"
   },
   "useAnotherTwoStepMethod": {
     "message": "Más két lépcsős bejelentkezés használata"
+  },
+  "selectAnotherMethod": {
+    "message": "Másik módszer választás",
+    "description": "Select another two-step login method"
+  },
+  "useYourRecoveryCode": {
+    "message": "Helyreállító kód használata"
   },
   "insertYubiKey": {
     "message": "Illeszd be a YubiKey-t a számítógéped egyik USB portjába, majd nyomd meg a gombját."
@@ -1383,8 +1417,17 @@
   "webAuthnNewTabOpen": {
     "message": "Új fül megnyitása"
   },
+  "openInNewTab": {
+    "message": "Megnyitás új fülön"
+  },
   "webAuthnAuthenticate": {
     "message": "WebAutn hitelesítés"
+  },
+  "readSecurityKey": {
+    "message": "Biztonsági kulcs olvasása"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Várakozás a biztonsági kulcs interakciójára..."
   },
   "loginUnavailable": {
     "message": "A bejelentkezés nem érhető el."
@@ -1397,6 +1440,9 @@
   },
   "twoStepOptions": {
     "message": "Kétlépcsős bejelentkezés opciók"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Kétlépcsős bejelentkezési mód használata"
   },
   "recoveryCodeDesc": {
     "message": "Elveszett a hozzáférés az összes kétlépcsős szolgáltatóhoz? A helyreállító kód használatával letilthatók fiókból a kétlépcsős szolgáltatók."
@@ -2097,6 +2143,15 @@
   "vaultTimeoutAction1": {
     "message": "Időkifutási művelet"
   },
+  "newCustomizationOptionsCalloutTitle": {
+    "message": "Új testreszabási opciók"
+  },
+  "newCustomizationOptionsCalloutContent": {
+    "message": "Szabjuk testre tárhely élményét gyors másolási műveletekkel, kompakt móddal és még sok mással!"
+  },
+  "newCustomizationOptionsCalloutLink": {
+    "message": "Az összes megjelenési beállítás megtekintése"
+  },
   "lock": {
     "message": "Lezárás",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2391,8 +2446,17 @@
   "atRiskPasswords": {
     "message": "Veszélyes jelszavak"
   },
-  "atRiskPasswordsDescSingleOrg": {
-    "message": "$ORGANIZATION$ $COUNT$ jelszó meegváltoztatását kéri, mert veszélyben vannak.",
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ egy jelszó megváltoztatását kéri, mert az kockázatos.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ $COUNT$ jelszó megváltoztatását kéri, mert azok kockázatosak.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2404,8 +2468,8 @@
       }
     }
   },
-  "atRiskPasswordsDescMultiOrg": {
-    "message": "A szervezetek $COUNT$ jelszó meegváltoztatását kérik, mert veszélyben vannak.",
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "A szervezetek $COUNT$ jelszó megváltoztatását kérik, mert azok kockázatosak.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2430,6 +2494,36 @@
   },
   "changeAtRiskPasswordsFasterDesc": {
     "message": "Frissítsük a beállításokat, hogy gyorsan automatikusan kitölthessük a jelszavakat és újakat generálhassunk."
+  },
+  "reviewAtRiskLogins": {
+    "message": "Kockázatos bejelentkezések áttekintése"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Kockázatos jelszavak áttekintése"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "A szervezeti jelszavak kockázatosak, mert gyengék, újra felhasználásra kerültek és/vagy nyilvánosságra kerültek.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAlt": {
+    "message": "A kockázatos bejelentkezések listájának illusztrációja"
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Gyorsan generálhatunk erős, egyedi jelszót a Bitwarden automatikus kitöltési menüjével a kockázatos webhelyen.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAlt": {
+    "message": "A Bitwarden automatikus kitöltési menüjének illusztrációja, amely egy generált jelszót jelenít meg."
+  },
+  "updateInBitwarden": {
+    "message": "Frissítés a Bitwardenben"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "A Bitwarden ezután felkér a jelszó frissítésére a jelszókezelőben.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAlt": {
+    "message": "Illusztráció a Bitwarden értesítéséről, amely felszólítja a felhasználót a bejelentkezési adatok frissítésére."
   },
   "turnOnAutofill": {
     "message": "Automatikus kitöltés bekapcsolása"
@@ -4178,6 +4272,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "$FIELD$, $VALUE$ másolása",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },

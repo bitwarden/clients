@@ -67,7 +67,6 @@ import { ReusedPasswordsReportComponent as OrgReusedPasswordsReportComponent } f
 import { UnsecuredWebsitesReportComponent as OrgUnsecuredWebsitesReportComponent } from "../tools/reports/pages/organizations/unsecured-websites-report.component";
 import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from "../tools/reports/pages/organizations/weak-passwords-report.component";
 /* eslint no-restricted-imports: "error" */
-import { AddEditComponent as SendAddEditComponent } from "../tools/send/add-edit.component";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
 import { AddEditCustomFieldsComponent } from "../vault/individual-vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/individual-vault/add-edit.component";
@@ -148,7 +147,6 @@ import { SharedModule } from "./shared.module";
     SecurityComponent,
     SecurityKeysComponent,
     SelectableAvatarComponent,
-    SendAddEditComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
@@ -212,7 +210,6 @@ import { SharedModule } from "./shared.module";
     SecurityComponent,
     SecurityKeysComponent,
     SelectableAvatarComponent,
-    SendAddEditComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     SponsoringOrgRowComponent,
