@@ -85,6 +85,24 @@ describe("End User Notification Center Service", () => {
     });
   });
 
+  describe("unreadNotifications$", () => {
+    it("should return unread notifications from state when read value is null", async () => {
+      fakeStateProvider.singleUser.mockFor("user-id" as UserId, NOTIFICATIONS, [
+        {
+          id: "notification-id" as NotificationId,
+          readDate: null as any,
+        } as NotificationViewResponse,
+      ]);
+
+      const { unreadNotifications$ } = testBed.inject(DefaultEndUserNotificationService);
+
+      const result = await firstValueFrom(unreadNotifications$("user-id" as UserId));
+
+      expect(result.length).toBe(1);
+      expect(mockApiSend).not.toHaveBeenCalled();
+    });
+  });
+
   describe("getNotifications", () => {
     it("should call getNotifications returning notifications from API", async () => {
       mockApiSend.mockResolvedValue({

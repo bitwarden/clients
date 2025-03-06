@@ -9,16 +9,16 @@ export class NotificationViewData {
   priority: number;
   title: string;
   body: string;
-  revisionDate: Date;
-  readDate: Date;
-  deletedDate: Date;
+  date: Date;
+  readDate: Date | null;
+  deletedDate: Date | null;
 
   constructor(response: NotificationViewResponse) {
     this.id = response.id;
     this.priority = response.priority;
     this.title = response.title;
     this.body = response.body;
-    this.revisionDate = response.revisionDate;
+    this.date = response.date;
     this.readDate = response.readDate;
     this.deletedDate = response.deletedDate;
   }
@@ -29,9 +29,9 @@ export class NotificationViewData {
       priority: obj.priority,
       title: obj.title,
       body: obj.body,
-      revisionDate: new Date(obj.revisionDate),
-      readDate: new Date(obj.readDate),
-      deletedDate: new Date(obj.deletedDate),
+      date: new Date(obj.date),
+      readDate: obj.readDate ? new Date(obj.readDate) : null,
+      deletedDate: obj.deletedDate ? new Date(obj.deletedDate) : null,
     });
   }
 }

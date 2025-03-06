@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { map, Observable, of, switchMap } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -36,9 +36,11 @@ export class DefaultEndUserNotificationService implements EndUserNotificationSer
     );
   });
 
-  unreadNotifications$(userId: UserId): Observable<NotificationView[]> {
-    return of([]);
-  }
+  unreadNotifications$ = perUserCache$((userId: UserId): Observable<NotificationView[]> => {
+    return this.notifications$(userId).pipe(
+      map((notifications) => notifications.filter((notification) => notification.readDate == null)),
+    );
+  });
 
   async markAsRead(notificationId: any, userId: UserId): Promise<void> {
     await this.apiService.send("PATCH", `/notifications/${notificationId}/read`, null, true, false);

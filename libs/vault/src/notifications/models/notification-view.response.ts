@@ -6,7 +6,7 @@ export class NotificationViewResponse extends BaseResponse {
   priority: number;
   title: string;
   body: string;
-  revisionDate: Date;
+  date: Date;
   readDate: Date;
   deletedDate: Date;
 
@@ -16,7 +16,7 @@ export class NotificationViewResponse extends BaseResponse {
     this.priority = this.getResponseProperty("Priority");
     this.title = this.getResponseProperty("Title");
     this.body = this.getResponseProperty("Body");
-    this.revisionDate = this.getResponseProperty("RevisionDate");
+    this.date = this.getResponseProperty("Date");
     this.readDate = this.getResponseProperty("ReadDate");
     this.deletedDate = this.getResponseProperty("DeletedDate");
   }
