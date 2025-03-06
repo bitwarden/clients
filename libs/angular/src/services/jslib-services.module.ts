@@ -603,7 +603,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TotpServiceAbstraction,
     useClass: TotpService,
-    deps: [CryptoFunctionServiceAbstraction, LogService],
+    deps: [SdkService],
   }),
   safeProvider({
     provide: TokenServiceAbstraction,
