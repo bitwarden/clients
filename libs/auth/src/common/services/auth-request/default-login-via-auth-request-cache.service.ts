@@ -15,8 +15,9 @@ const LOGIN_VIA_AUTH_CACHE_KEY = "login-via-auth-request-form-cache";
  *
  * There is small threat vector here because we are caching public/private
  * keys. The caching mechanism clears out after 2 minutes (rigorously tested
- * throughout development of this task). If the public and private key are
- * both accessible then they could be used to approve any
+ * throughout development of this service). If the public and private key are
+ * both accessible then they could be used to approve any new device
+ * authentication requests so the threat is very minor.
  */
 @Injectable()
 export class LoginViaAuthRequestCacheService {

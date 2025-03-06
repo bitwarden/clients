@@ -11,7 +11,6 @@ import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
-  AuthRequestApiService,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
@@ -41,6 +40,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, LinkModule, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
+import { AuthRequestApiService } from "../../common/abstractions/auth-request-api.service";
 import { LoginViaAuthRequestCacheService } from "../../common/services/auth-request/default-login-via-auth-request-cache.service";
 
 enum Flow {
@@ -290,14 +290,8 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
             return;
           }
 
-          if (!this.authRequestKeyPair) {
-            this.logService.error("KeyPair failed to initialize from buildAuthRequest.");
-            return;
-          }
-
-          const authRequestResponse = await this.authRequestApiService.postAuthRequest(
-            this.authRequest,
-          );
+          const authRequestResponse: AuthRequestResponse =
+            await this.authRequestApiService.postAuthRequest(this.authRequest);
 
           this.loginViaAuthRequestCacheService.cacheLoginView(
             this.authRequest,
@@ -633,7 +627,6 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
      *  - If `masterPasswordHash` has a value, we receive the `key` as an authRequestPublicKey(masterKey) [plus we have authRequestPublicKey(masterPasswordHash)]
      *  - If `masterPasswordHash` does not have a value, we receive the `key` as an authRequestPublicKey(userKey)
      */
-
     if (authRequestResponse.masterPasswordHash) {
       // ...in Standard Auth Request Flow 3
       await this.authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash(
