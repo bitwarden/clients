@@ -1,7 +1,10 @@
 import createEmotion from "@emotion/css/create-instance";
 import { html, nothing } from "lit";
 
-import { Option } from "../common-types";
+import { Theme } from "@bitwarden/common/platform/enums";
+
+import { IconProps, Option } from "../common-types";
+import { themes } from "../constants/styles";
 
 export const optionItemTagName = "option-item";
 
@@ -13,11 +16,10 @@ export function OptionItem({
   icon,
   text,
   value,
+  theme,
   handleSelection,
-}: {
-  icon?: Option["icon"];
-  text: Option["text"];
-  value: Option["value"];
+}: Option & {
+  theme: Theme;
   handleSelection: () => void;
 }) {
   const handleSelectionKeyUpProxy = (event: KeyboardEvent) => {
@@ -29,6 +31,8 @@ export function OptionItem({
     return;
   };
 
+  const iconProps: IconProps = { color: themes[theme].text.main, theme };
+
   return html`<div
     class=${optionItemStyles}
     key=${value}
@@ -37,7 +41,8 @@ export function OptionItem({
     @click=${handleSelection}
     @keyup=${handleSelectionKeyUpProxy}
   >
-    ${icon ?? nothing}<span class=${optionItemTextStyles}>${text}</span>
+    ${icon?.(iconProps) ?? nothing}
+    <span class=${optionItemTextStyles}>${text || value}</span>
   </div>`;
 }
 

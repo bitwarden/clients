@@ -3,7 +3,6 @@ import { html } from "lit";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { Option } from "../common-types";
-import { themes } from "../constants/styles";
 import { Folder } from "../icons";
 
 export function FolderSelection({
@@ -13,16 +12,13 @@ export function FolderSelection({
 }: {
   options: Option[];
   theme: Theme;
-  handleSelectionUpdate: (selectValue: any, selectId: string) => void;
+  handleSelectionUpdate?: (selectValue: any, selectId: string) => void;
 }) {
-  // @TODO localize
-  const buttonText = "Folder";
+  const normalizedOptions = options.map(({ icon, ...other }) => ({ ...other, icon: Folder }));
 
   return html`<option-selection
-    buttonText=${buttonText}
     theme=${theme}
-    .icon=${Folder({ color: themes[theme].text.muted, theme })}
-    .options=${options}
-    .handleSelectionUpdate=${(selectValue: any) => handleSelectionUpdate(selectValue, "folder")}
+    .options=${normalizedOptions}
+    .handleSelectionUpdate=${handleSelectionUpdate}
   ></option-selection>`;
 }

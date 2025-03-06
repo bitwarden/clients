@@ -9,7 +9,8 @@ export type IconProps = {
 };
 
 export type Option = {
+  default?: boolean;
   icon?: (props: IconProps) => TemplateResult;
-  text: string;
+  text?: string;
   value: any;
 };

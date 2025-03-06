@@ -1,8 +1,9 @@
 import { css } from "@emotion/css";
-import { html, nothing, TemplateResult } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { IconProps, Option } from "../common-types";
 import { border, spacing, themes, typography } from "../constants/styles";
 import { AngleUp, AngleDown } from "../icons";
 
@@ -14,14 +15,17 @@ export function OptionSelectionButton({
   theme,
   handleButtonClick,
 }: {
-  icon?: TemplateResult;
+  icon?: Option["icon"];
   isDisabled: boolean;
   isOpen: boolean;
-  text: string;
+  text?: string;
   theme: Theme;
   handleButtonClick: (e: Event) => void;
-  handleClearClick: (e: Event) => void;
 }) {
+  const selectedOptionIconProps: IconProps = { color: themes[theme].text.muted, theme };
+
+  const buttonIcon = icon?.(selectedOptionIconProps);
+
   return html`
     <button
       class=${selectionButtonStyles({ isDisabled, theme })}
@@ -29,11 +33,11 @@ export function OptionSelectionButton({
       type="button"
       @click=${handleButtonClick}
     >
-      ${icon ?? nothing}
-      <span class=${dropdownButtonTextStyles}>${text}</span>
+      ${buttonIcon ?? nothing}
+      ${text ? html`<span class=${dropdownButtonTextStyles}>${text}</span>` : nothing}
       ${isOpen
-        ? AngleUp({ color: themes[theme].text.muted, theme: theme })
-        : AngleDown({ color: themes[theme].text.muted, theme: theme })}
+        ? AngleUp({ color: themes[theme].text.muted, theme })
+        : AngleDown({ color: themes[theme].text.muted, theme })}
     </button>
   `;
 }
