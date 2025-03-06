@@ -1,5 +1,5 @@
 import createEmotion from "@emotion/css/create-instance";
-import { html, LitElement, TemplateResult, nothing } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -8,6 +8,7 @@ import { OptionSelectionButton } from "../buttons/option-selection-button";
 import { Option } from "../common-types";
 
 import { OptionItems } from "./option-items";
+
 export const optionSelectionTagName = "option-selection";
 
 const { css } = createEmotion({
@@ -15,14 +16,8 @@ const { css } = createEmotion({
 });
 
 export class OptionSelection extends LitElement {
-  @property({ type: (selectedOption: Option["value"] | null) => selectedOption })
-  handleSelectionUpdate = (selectedOptionValue: Option["value"] | null) => selectedOptionValue;
-
-  @property({ type: String })
-  buttonText: string = "";
-
-  @property()
-  icon?: TemplateResult;
+  @property({ type: (selectedOption: Option["value"]) => selectedOption })
+  handleSelectionUpdate?: (args: any) => void;
 
   @property()
   disabled: boolean = false;
@@ -40,7 +35,7 @@ export class OptionSelection extends LitElement {
   private menuTopOffset: number = 0;
 
   @state()
-  private selection: Option | null = null;
+  private selection?: Option;
 
   private handleButtonClick = (event: Event) => {
     this.menuTopOffset = this.offsetTop;
@@ -54,16 +49,8 @@ export class OptionSelection extends LitElement {
     this.showOptions = false;
     this.selection = selectedOption;
 
-    this.handleSelectionUpdate(selectedOption.value);
-  };
-
-  private clearSelection = (event: Event) => {
-    event.stopPropagation();
-
-    this.showOptions = false;
-    this.selection = null;
-
-    this.handleSelectionUpdate(null);
+    // Any side-effects that should occur from the selection
+    this.handleSelectionUpdate?.(selectedOption.value);
   };
 
   protected createRenderRoot() {
@@ -71,16 +58,19 @@ export class OptionSelection extends LitElement {
   }
 
   render() {
+    if (!this.selection) {
+      this.selection = getDefaultOption(this.options);
+    }
+
     return html`
       <div class=${optionSelectionStyles}>
         ${OptionSelectionButton({
-          icon: this.selection?.activeIcon || this.icon,
+          icon: this.selection?.icon,
           isDisabled: this.disabled,
           isOpen: this.showOptions,
-          text: this.selection?.text || this.buttonText,
+          text: this.selection?.text,
           theme: this.theme,
           handleButtonClick: this.handleButtonClick,
-          handleClearClick: this.clearSelection,
         })}
         ${this.showOptions
           ? OptionItems({
@@ -102,6 +92,10 @@ declare global {
 }
 
 export default customElements.define(optionSelectionTagName, OptionSelection);
+
+function getDefaultOption(options: Option[] = []) {
+  return options.find((option: Option) => option.default) || options[0];
+}
 
 const optionSelectionStyles = css`
   display: flex;

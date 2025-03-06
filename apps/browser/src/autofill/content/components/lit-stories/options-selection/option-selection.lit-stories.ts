@@ -3,13 +3,36 @@ import { html } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
+import { Option } from "../../common-types";
 import { themes } from "../../constants/styles";
 import { Business, Family, User } from "../../icons";
+import { FolderSelection } from "../../option-selection/folder-selection";
+import { VaultSelection } from "../../option-selection/vault-selection";
 import "../../option-selection/option-selection";
 
-type Args = {
-  buttonText: string;
-  disabled: boolean;
+const mockOptions: Option[] = [
+  { icon: User, text: "My Vault", value: 0 },
+  {
+    icon: Business,
+    text: "Acme, inc",
+    value: 1,
+  },
+  {
+    icon: Business,
+    default: true,
+    text: "A Really Long Business Name That Just Kinda Goes On For A Really Long Time",
+    value: 2,
+  },
+  {
+    icon: Family,
+    text: "Family Vault",
+    value: 3,
+  },
+];
+
+type ComponentProps = {
+  disabled?: boolean;
+  options: Option[];
   theme: Theme;
 };
 
@@ -17,53 +40,30 @@ export default {
   title: "Components/Option Selection",
   argTypes: {
     theme: { control: "select", options: [ThemeTypes.Light, ThemeTypes.Dark] },
+    options: { control: "object" },
     disabled: { control: "boolean" },
   },
   args: {
-    buttonText: "My vault",
+    options: mockOptions,
     theme: ThemeTypes.Light,
     disabled: false,
   },
-} as Meta<Args>;
+} as Meta<ComponentProps>;
 
-const Template = ({ buttonText, theme, disabled }: Args) => {
-  const iconProps = { color: themes[theme].text.main, theme };
-  const activeIconProps = { ...iconProps, color: themes[theme].text.muted };
-  const mockVaultOptions = [
-    { icon: User(iconProps), activeIcon: User(activeIconProps), text: "My Vault", value: 1 },
-    {
-      icon: Business(iconProps),
-      activeIcon: Business(activeIconProps),
-      text: "Acme, inc",
-      value: 2,
-    },
-    {
-      icon: Business(iconProps),
-      activeIcon: Business(activeIconProps),
-      text: "A Really Long Business Name That Just Kinda Goes On For A Really Long Time",
-      value: 2,
-    },
-    {
-      icon: Family(iconProps),
-      activeIcon: Family(activeIconProps),
-      text: "Family Vault",
-      value: 3,
-    },
-  ];
-
+const BaseComponent = ({ disabled, theme, options }: ComponentProps) => {
   return html`
-    <option-selection
-      buttonText=${buttonText}
-      theme=${theme}
-      .disabled=${disabled}
-      .icon=${User({ color: themes[theme].text.muted, theme: theme })}
-      .options=${mockVaultOptions}
-    ></option-selection>
+    <option-selection theme=${theme} .disabled=${disabled} .options=${options}></option-selection>
   `;
 };
 
-export const Light: StoryObj<Args> = {
-  render: Template,
+const FolderVariant = ({ theme, options }: ComponentProps) =>
+  html`${FolderSelection({ theme, options })}`;
+
+const VaultVariant = ({ theme, options }: ComponentProps) =>
+  html`${VaultSelection({ theme, options })}`;
+
+export const Light: StoryObj<ComponentProps> = {
+  render: BaseComponent,
   argTypes: {
     theme: { control: "radio", options: [ThemeTypes.Light] },
   },
@@ -78,8 +78,8 @@ export const Light: StoryObj<Args> = {
   },
 };
 
-export const Dark: StoryObj<Args> = {
-  render: Template,
+export const Dark: StoryObj<ComponentProps> = {
+  render: BaseComponent,
   argTypes: {
     theme: { control: "radio", options: [ThemeTypes.Dark] },
   },
@@ -92,4 +92,28 @@ export const Dark: StoryObj<Args> = {
       default: "Dark",
     },
   },
+};
+
+export const VaultLight: StoryObj<ComponentProps> = {
+  ...Light,
+  name: "Vault Selector (Light)",
+  render: VaultVariant,
+};
+
+export const VaultDark: StoryObj<ComponentProps> = {
+  ...Dark,
+  name: "Vault Selector (Dark)",
+  render: VaultVariant,
+};
+
+export const FolderLight: StoryObj<ComponentProps> = {
+  ...Light,
+  name: "Folder Selector (Light)",
+  render: FolderVariant,
+};
+
+export const FolderDark: StoryObj<ComponentProps> = {
+  ...Dark,
+  name: "Folder Selector (Dark)",
+  render: FolderVariant,
 };

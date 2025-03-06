@@ -22,7 +22,7 @@ export function OptionItems({
   return html`
     <div class=${optionsStyles({ theme, topOffset })} key="container">
       ${options.map((option) =>
-        OptionItem({ ...option, handleSelection: () => handleOptionSelection(option) }),
+        OptionItem({ ...option, theme, handleSelection: () => handleOptionSelection(option) }),
       )}
     </div>
   `;
